@@ -12,6 +12,8 @@
 | Document | Path |
 |----------|------|
 | Architecture Overview — system context, Clean Architecture layers, FE/Mobile structure, decisions | [architecture/01-ARCHITECTURE-OVERVIEW.md](architecture/01-ARCHITECTURE-OVERVIEW.md) |
+| Database Schema & ERD — PostgreSQL, pgvector embeddings, audit, soft delete | [architecture/02-DATABASE-SCHEMA.md](architecture/02-DATABASE-SCHEMA.md) |
+| API Specification & Conventions — REST, ProblemDetails RFC 7807, Rate Limiting, Endpoints | [architecture/03-API-SPEC.md](architecture/03-API-SPEC.md) |
 
 ### [coding-conventions/](coding-conventions/)
 | Document | Path |
@@ -23,7 +25,5 @@
 
 ## Planned
 
-- `architecture/02-DATABASE-SCHEMA.md` — ERD + table definitions per module
-- `architecture/03-API-SPEC.md` — endpoint catalog per module
 - `architecture/04-UIUX-DESIGN.md` — design system, page wireframes
-- `guides/` — environment setup, local run, deployment guide
+- `guides/LOCAL-SETUP.md` — environment setup, local run, docker compose, deployment guide

@@ -1,11 +1,11 @@
 # Coding Conventions — Git Workflow (4-person team)
 
-> One rule above all: **`main` is always shippable.** Nothing merges without review + CI green.
+> One rule above all: **`main` is always shippable.** Nothing merges to code repositories (`backend`, `frontend`, `mobile`) without review + CI green.
 
 ## 1. Branches
 
 ```
-main                      # protected — always deployable
+main                      # protected for code repos — always deployable
 feature/<slug>            # new functionality
 bugfix/<slug>             # non-blocking fixes
 hotfix/<slug>             # urgent fix off main, merged back immediately
@@ -14,7 +14,8 @@ chore/<slug>              # tooling, deps, docs
 
 - Short-lived: branch off `main`, merge within ~2–3 days. Long-lived branches = merge hell.
 - Slug: lowercase, kebab-case, descriptive — `feature/inspection-request-approval`, not `feature/update`.
-- Never commit directly to `main`. Ever.
+- **Code repositories (`backend/`, `frontend/`, `mobile/`)**: Never commit directly to `main`. All changes go through PR + review.
+- **Documentation repository (`docs/`)**: Direct commits and pushes to `main` are permitted without requiring PR review to facilitate rapid documentation sync.
 
 ## 2. Commits — Conventional Commits
 
