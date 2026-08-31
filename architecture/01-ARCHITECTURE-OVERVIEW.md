@@ -55,8 +55,9 @@ backend/
 │     ├─ Hubs/                              #   SignalR (MissionHub)
 │     └─ Middleware/
 └─ tests/
-   ├─ SmartDroneInspection.UnitTests/       # xUnit, folder per module
-   └─ SmartDroneInspection.IntegrationTests/ # Testcontainers + real PostgreSQL
+   ├─ SmartDroneInspection.UnitTests/        # xUnit, folder per module
+   ├─ SmartDroneInspection.IntegrationTests/ # Testcontainers + real PostgreSQL
+   └─ SmartDroneInspection.ArchitectureTests/ # NetArchTest: enforces dependency direction
 ```
 
 ### Dependency rules (enforced by project references)
@@ -69,6 +70,8 @@ backend/
 | Api | Infrastructure | — |
 
 Domain and Application contain **zero** EF Core / HTTP / MinIO code — only interfaces. Infrastructure implements them.
+
+These rules are also enforced at build time by `tests/SmartDroneInspection.ArchitectureTests` (NetArchTest) — see `coding-conventions/BACKEND-CSharp.md` §11.
 
 ### Why this fits a 4-person team
 

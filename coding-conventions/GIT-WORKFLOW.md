@@ -1,6 +1,6 @@
 # Coding Conventions — Git Workflow (4-person team)
 
-> One rule above all: **`main` is always shippable.** Nothing merges to code repositories (`backend`, `frontend`, `mobile`) without review + CI green.
+> One rule above all: **`main` is always shippable.** Nothing merges to code repositories (`backend`, `frontend`, `mobile`) without CI green.
 
 ## 1. Branches
 
@@ -40,7 +40,7 @@ Types: `feat` · `fix` · `docs` · `chore` · `refactor` · `test` · `perf`.
 |------|-------|
 | Size | < ~400 changed lines (split otherwise) |
 | Scope | One feature per PR |
-| Reviews | **1 approval minimum**, from someone **other than the author**; 2 reviewers for shared layers (`Application/Common`, API contracts, DB migrations) |
+| Reviews | **Required: 0 approvals** (ruleset `main-protection` enforces PR + linear history + delete-block + squash/merge only). Reviewers are encouraged but not blocking. The repo owner can self-merge when alone or when an external reviewer is not yet available. Shared layers (`Application/Common`, API contracts, DB migrations) still request a second pair of eyes via a normal review request — the rule does not block. |
 | CI | All checks green before merge |
 | Linkage | References the issue/task in description |
 | Merge | Squash-merge; delete branch after |
