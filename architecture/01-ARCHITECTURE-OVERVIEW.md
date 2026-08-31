@@ -81,12 +81,14 @@ Domain and Application contain **zero** EF Core / HTTP / MinIO code — only int
 | Concern | Decision |
 |---------|----------|
 | CQRS | MediatR, one command/query per operation, pipeline behaviors for validation/logging |
-| Validation | FluentValidation via pipeline behavior |
-| Repositories | **None** — handlers use `ApplicationDbContext` directly |
-| Errors | `Result`/`Result<T>` for expected failures → ProblemDetails; exceptions for unexpected only |
+| Feature Slice | Co-located Command/Query record, Validator, and Handler in a single file per operation |
+| Validation | FluentValidation via pipeline behavior (`ValidationBehavior`) |
+| Repositories | **None** — handlers inject and query `IApplicationDbContext` directly |
+| Cancellation | **Mandatory** — `CancellationToken ct` passed through Controllers → Handlers → EF Core/I-O |
+| Errors | Handlers throw semantic exceptions → `GlobalExceptionHandler` (`IExceptionHandler`) maps to RFC 7807 ProblemDetails |
 | API docs | Built-in OpenAPI (`AddOpenApi`) + Scalar UI (dev only) |
-| Logging | Serilog: console + file, request logging |
-| Auth | JWT Bearer + role policies from `Domain/Common/Roles` |
+| Logging | Serilog: console + file, request logging via `UseSerilogRequestLogging` & `LoggingBehavior` |
+| Auth | JWT Bearer + role policies from `Domain/Common/Roles`, rate-limited endpoints |
 | Migrations | Single `ApplicationDbContext`, per-module `IEntityTypeConfiguration` files |
 
 ## 4. Frontend — React 19 + TypeScript (feature-based)

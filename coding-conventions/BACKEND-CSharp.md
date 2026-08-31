@@ -22,50 +22,83 @@
 
 ## 2. File & namespace organization
 
-- **One type per file**, filename == type name.
 - **File-scoped namespaces** only:
 
 ```csharp
 namespace SmartDroneInspection.Application.Assets.Commands;
 
-public record CreateAssetCommand(...) : IRequest<Result<Guid>>;
+public record CreateAssetCommand(...) : IRequest<AssetDto>;
 ```
 
-- Folder path == namespace path. If the folder is `Assets/Commands`, the namespace is `...Application.Assets.Commands`.
+- Folder path == namespace path. If the folder is `Assets/Commands`, the namespace is `SmartDroneInspection.Application.Assets.Commands`.
 
-## 3. MediatR feature layout
+## 3. MediatR feature layout (Co-located Single-file Feature Slice)
 
-One feature = one folder, three files:
+For each operation, co-locate the **Command/Query record**, **Validator**, and **Handler** in a single file named after the command/query:
 
 ```
 Application/Assets/Commands/
-├─ CreateAssetCommand.cs            # record + parameters
-├─ CreateAssetCommandHandler.cs     # handler
-└─ CreateAssetCommandValidator.cs   # FluentValidation rules
+└─ CreateAssetCommand.cs            # Command record + Validator + Handler
+Application/Assets/Queries/
+├─ GetAssetsQuery.cs                # Query record + Handler
+└─ GetAssetByIdQuery.cs             # Query record + Handler
+Application/Assets/Dtos/
+└─ AssetDtos.cs                     # Request/Response/Dto records for this module
 ```
 
-- Commands: verb + noun → `CreateInspectionCommand`, `AssignInspectorCommand`.
-- Queries: noun → `GetAssetByIdQuery`, `GetDefectsQuery`.
-- Query handlers return `XxxResponse`; command handlers return `Result` or `Result<Guid>`.
-- Handler constructor injects `ApplicationDbContext` and interfaces directly — no repositories.
+- Commands: verb + noun → `CreateAssetCommand`, `AssignInspectorCommand`.
+- Queries: noun / get + noun → `GetAssetByIdQuery`, `GetAssetsQuery`.
+- Handler constructor injects `IApplicationDbContext` and necessary service interfaces directly — no generic repositories.
 
 ```csharp
-public class CreateAssetCommandHandler(ApplicationDbContext db)
-    : IRequestHandler<CreateAssetCommand, Result<Guid>>
+public record CreateAssetCommand(...) : IRequest<AssetDto>;
+
+public class CreateAssetCommandValidator : AbstractValidator<CreateAssetCommand>
 {
-    public async Task<Result<Guid>> Handle(CreateAssetCommand request, CancellationToken ct)
+    public CreateAssetCommandValidator()
     {
-        var asset = new Asset { Name = request.Name, ... };
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+        RuleFor(x => x.Code).NotEmpty().MaximumLength(100);
+    }
+}
+
+public class CreateAssetCommandHandler(IApplicationDbContext db)
+    : IRequestHandler<CreateAssetCommand, AssetDto>
+{
+    public async Task<AssetDto> Handle(CreateAssetCommand request, CancellationToken ct)
+    {
+        var normalizedCode = request.Code.Trim().ToUpperInvariant();
+        var codeExists = await db.Assets
+            .AnyAsync(a => a.OrganizationId == request.OrganizationId
+                && a.NormalizedCode == normalizedCode, ct);
+        if (codeExists)
+        {
+            throw new InvalidOperationException($"Asset code '{request.Code}' already exists");
+        }
+
+        var asset = new Asset { ... };
         db.Assets.Add(asset);
         await db.SaveChangesAsync(ct);
-        return Result.Success(asset.Id);
+
+        return new AssetDto(...);
     }
 }
 ```
 
-## 4. API & Controllers
+## 4. Async & CancellationToken Propagation (MANDATORY)
 
-- Controllers are **thin**: HTTP mapping + auth attributes only. Business logic lives in handlers.
+Cancellation tokens ensure server resources, connection pools, and downstream services (AI, MinIO, SmartDroneHub) are immediately released when a client cancels or disconnects:
+
+- **Every async controller action** must accept `CancellationToken ct` (injected automatically by ASP.NET Core from `HttpContext.RequestAborted`).
+- **Every MediatR Request** passes `ct` to `mediator.Send(command, ct)`.
+- **Every MediatR Handler and Service method** must receive `CancellationToken ct` and propagate it to all async calls:
+  - EF Core calls: `CountAsync(ct)`, `ToListAsync(ct)`, `FirstOrDefaultAsync(ct)`, `SaveChangesAsync(ct)`.
+  - HTTP clients & storage: `UploadAsync(..., ct)`, `DownloadAsync(..., ct)`.
+- **Exception**: Use `CancellationToken.None` *only* for background or security-critical audit logging that must complete even if the user aborts the HTTP request.
+
+## 5. API & Controllers
+
+- Controllers are **thin**: HTTP mapping, rate limiting, and auth attributes only. Business logic lives in handlers.
 - REST: plural nouns, no verbs in URLs.
 
 | Operation | Route |
@@ -77,34 +110,31 @@ public class CreateAssetCommandHandler(ApplicationDbContext db)
 | Partial status | `PATCH /api/v1/assets/{id}/status` |
 | Delete | `DELETE /api/v1/assets/{id}` → `204 NoContent` |
 
-- Version in URL path (`/api/v1/...`).
-- Status codes: 200 success · 201 create · 204 delete · 400 validation · 401/403 auth · 404 not found · 409 conflict.
-- Controllers route via MediatR only:
+- Version in URL path (`/api/v1/...`) via `Asp.Versioning`.
+- Controllers route via MediatR directly:
 
 ```csharp
 [HttpPost]
-[Authorize(Roles = Roles.InspectionManager)]
-public async Task<IActionResult> Create(CreateAssetRequest request, CancellationToken ct)
+[Authorize(Roles = $"{Roles.Administrator},{Roles.InspectionManager}")]
+public async Task<ActionResult<Guid>> CreateAsync(CreateAssetRequest request, CancellationToken ct)
 {
-    var result = await _mediator.Send(request.ToCommand(), ct);
-    return result.IsSuccess
-        ? CreatedAtAction(nameof(GetById), new { id = result.Value }, result.Value)
-        : result.ToProblem();
+    var command = new CreateAssetCommand(...);
+    var id = await mediator.Send(command, ct);
+    return CreatedAtAction(nameof(GetByIdAsync), new { id, version = "1" }, id);
 }
 ```
 
-## 5. Error handling — Result vs Exception
+## 6. Error Handling — GlobalExceptionHandler & ProblemDetails (RFC 7807)
 
-- **Expected business failures** (not found, validation, conflict, external service down) → `Result.Failure(...)`. Handlers never throw for these.
-- **Unexpected errors** (bugs, `DbUpdateException`, nulls) → let them throw; the global exception handler converts to ProblemDetails.
-- Never catch-and-swallow. Never throw for control flow.
+- **Handlers throw semantic exceptions**; the `GlobalExceptionHandler` (`IExceptionHandler`) automatically converts them to RFC 7807 ProblemDetails:
+  - `ValidationException` (FluentValidation) → `400 Bad Request` with field error list.
+  - `UnauthorizedAccessException` → `403 Forbidden` / `401 Unauthorized`.
+  - `KeyNotFoundException` → `404 Not Found`.
+  - `InvalidOperationException` → `409 Conflict` (e.g. duplicate code, invalid state transition).
+  - Unhandled exceptions → `500 Internal Server Error` (logged with full stack trace, client gets generic message).
+- Never catch-and-swallow. Never return raw exception stack traces to clients.
 
-```csharp
-var asset = await db.Assets.FindAsync(id, ct);
-if (asset is null) return Result.Failure<Guid>($"Asset {id} not found");
-```
-
-## 6. EF Core
+## 7. EF Core
 
 - One `IEntityTypeConfiguration<T>` per entity, inside `Persistence/Configurations/`, grouped by module.
 - Registration is central (one line, owned by Leader):
@@ -117,13 +147,13 @@ modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assemb
 - **Only the Leader runs `dotnet ef migrations add`** — others write configurations; Leader generates migrations from them.
 - Seed reference data (enums, categories) via `HasData()` in configuration; dev sample data via `Seed/` seeder, never `HasData`.
 
-## 7. Testing
+## 8. Testing
 
 - Unit test project mirrors module folders: `UnitTests/Assets/CreateAssetCommandHandlerTests.cs`.
 - Integration tests hit real PostgreSQL (Testcontainers), one `ICollectionFixture`, Respawn between tests.
 - Test naming: `MethodName_Scenario_ExpectedResult` → `Handle_UnknownId_ReturnsFailure`.
 
-## 8. Formatting (automated — do not hand-fix)
+## 9. Formatting (automated — do not hand-fix)
 
 - `.editorconfig` + `dotnet format` on save / in CI. All files end with newline, UTF-8, 4-space indent C#.
 - `var` when the type is apparent; explicit elsewhere.
