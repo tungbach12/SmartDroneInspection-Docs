@@ -158,3 +158,32 @@ modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assemb
 - `.editorconfig` + `dotnet format` on save / in CI. All files end with newline, UTF-8, 4-space indent C#.
 - `var` when the type is apparent; explicit elsewhere.
 - Braces always (no single-line `if` without braces).
+
+## 10. Build-time guards
+
+- TreatWarningsAsErrors is enabled on every project. New warnings fail the build.
+- Migrations are owned by the team lead. Members contribute `IEntityTypeConfiguration` files inside their module folder only.
+
+## 11. Architecture tests (NetArchTest)
+
+`tests/SmartDroneInspection.ArchitectureTests` enforces the layer rules from
+`architecture/01-ARCHITECTURE-OVERVIEW.md` at build time. If you add a new
+`using` that breaks one of the rules, the test suite fails before code review
+sees the PR. Run:
+
+```powershell
+dotnet test tests/SmartDroneInspection.ArchitectureTests
+```
+
+Rules currently enforced:
+
+- Domain references no other layer, no framework package (EF Core, ASP.NET, Npgsql, MediatR, FluentValidation, Minio, Pgvector).
+- Application references no Infrastructure/Api and no Npgsql/Minio/Serilog.
+- Infrastructure references no Api.
+- All `IRequestHandler<,>` implementations live in `SmartDroneInspection.Application`.
+- Controllers do not inject `DbContext`, `ApplicationDbContext`, or `DbSet` directly.
+- Domain entities do not expose public setters on collection navigation properties.
+
+If a new genuine need appears (e.g. Infrastructure legitimately needs an
+internal-only API helper), the rule is updated in one place and reviewed. Do
+not bypass it locally.
