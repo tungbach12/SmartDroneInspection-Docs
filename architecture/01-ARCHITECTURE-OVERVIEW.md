@@ -35,21 +35,21 @@ backend/
 ├─ SmartDroneInspection.sln
 ├─ src/
 │  ├─ SmartDroneInspection.Domain/          # Layer 0: no dependencies
-│  │  ├─ Common/                            #   BaseEntity, Result, Roles
+│  │  ├─ Common/                            #   BaseEntity, IAuditable/ISoftDelete, Roles
 │  │  └─ {Users|Assets|Inspections|Reports|Defects|Tickets|Ai}/   # entities + enums per module
 │  ├─ SmartDroneInspection.Application/     # Layer 1: depends on Domain
 │  │  ├─ Common/
 │  │  │  ├─ Interfaces/                     #   ISmartDroneHubClient, IObjectStorage, ICurrentUserService
 │  │  │  ├─ Behaviors/                      #   MediatR pipeline (ValidationBehavior)
-│  │  │  └─ Mappings/
+│  │  │  └─ Models/                         #   PagedQuery, PagedResult
 │  │  └─ {Users|Assets|Inspections|Reports|Defects|Tickets|Ai|Dashboard}/
 │  │     └─ Commands/ Queries/ Dtos/        #   CQRS per module
 │  ├─ SmartDroneInspection.Infrastructure/  # Layer 2: depends on Application
 │  │  ├─ Persistence/                       #   ApplicationDbContext, Configurations/, Migrations/, Seed/
-│  │  ├─ Auth/                              #   JwtTokenService, RBAC policies
-│  │  ├─ External/SmartDroneHub/            #   typed HttpClient
-│  │  ├─ External/AiServices/               #   DroneVisionAI, DroneKnowledgeAI, LLM clients
-│  │  └─ Storage/                           #   MinioStorage (IObjectStorage)
+│  │  ├─ Auth/                              #   JwtOptions, JwtTokenService, PasswordHasherAdapter, CurrentUserService
+│  │  ├─ External/SmartDroneHub/            #   typed HttpClient (planned)
+│  │  ├─ External/AiServices/               #   DroneVisionAI, DroneKnowledgeAI, LLM clients (planned)
+│  │  └─ Storage/                           #   MinioStorage (IObjectStorage) (planned)
 │  └─ SmartDroneInspection.Api/             # Layer 3: host, depends on Infrastructure
 │     ├─ Controllers/                       #   thin — HTTP mapping only
 │     ├─ Hubs/                              #   SignalR (MissionHub)
@@ -83,15 +83,15 @@ These rules are also enforced at build time by `tests/SmartDroneInspection.Archi
 
 | Concern | Decision |
 |---------|----------|
-| CQRS | MediatR, one command/query per operation, pipeline behaviors for validation/logging |
+| CQRS | MediatR, one command/query per operation, `ValidationBehavior` pipeline for validation |
 | Feature Slice | Co-located Command/Query record, Validator, and Handler in a single file per operation |
 | Validation | FluentValidation via pipeline behavior (`ValidationBehavior`) |
 | Repositories | **None** — handlers inject and query `IApplicationDbContext` directly |
 | Cancellation | **Mandatory** — `CancellationToken ct` passed through Controllers → Handlers → EF Core/I-O |
-| Errors | Handlers throw semantic exceptions → `GlobalExceptionHandler` (`IExceptionHandler`) maps to RFC 7807 ProblemDetails |
+| Errors | Handlers throw semantic exceptions → `GlobalExceptionHandler` (`IExceptionHandler`) maps to RFC 7807 ProblemDetails. No `Result<T>` envelope — the type was removed as dead code |
 | API docs | Built-in OpenAPI (`AddOpenApi`) + Scalar UI (dev only) |
-| Logging | Serilog: console + file, request logging via `UseSerilogRequestLogging` & `LoggingBehavior` |
-| Auth | JWT Bearer + role policies from `Domain/Common/Roles`, rate-limited endpoints |
+| Logging | Serilog: console only (no file sink), request logging via `UseSerilogRequestLogging`. No MediatR `LoggingBehavior` — request logs already cover it |
+| Auth | JWT Bearer + role policies from `Domain/Common/Roles`, rate-limited endpoints. JWT settings bind to `JwtOptions` with `ValidateDataAnnotations().ValidateOnStart()` fail-fast; both `JwtTokenService` and `JwtBearer` consume the same validated options |
 | Migrations | Single `ApplicationDbContext`, per-module `IEntityTypeConfiguration` files |
 
 ## 4. Frontend — React 19 + TypeScript (feature-based)
