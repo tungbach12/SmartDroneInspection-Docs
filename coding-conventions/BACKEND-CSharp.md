@@ -132,6 +132,7 @@ public async Task<ActionResult<Guid>> CreateAsync(CreateAssetRequest request, Ca
   - `KeyNotFoundException` → `404 Not Found`.
   - `InvalidOperationException` → `409 Conflict` (e.g. duplicate code, invalid state transition).
   - Unhandled exceptions → `500 Internal Server Error` (logged with full stack trace, client gets generic message).
+- Do **not** introduce a `Result<T>`/envelope return type for expected failures — the exception → ProblemDetails path is the single error convention (a `Result<T>` type existed and was removed as dead code).
 - Never catch-and-swallow. Never return raw exception stack traces to clients.
 
 ## 7. EF Core
@@ -153,18 +154,25 @@ modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assemb
 - Integration tests hit real PostgreSQL (Testcontainers), one `ICollectionFixture`, Respawn between tests.
 - Test naming: `MethodName_Scenario_ExpectedResult` → `Handle_UnknownId_ReturnsFailure`.
 
-## 9. Formatting (automated — do not hand-fix)
+## 9. Configuration & Cross-cutting Services
+
+- **Options pattern for settings**: strongly-typed `XxxOptions` classes bound via `AddOptions<T>().Bind(config.GetSection(...)).ValidateDataAnnotations().ValidateOnStart()` — never read `IConfiguration["..."]` magic strings inside services. Fail at startup, not at first request. Example: `Infrastructure/Auth/JwtOptions.cs`.
+- Request client metadata (`ClientIp`, `UserAgent`) comes from `ICurrentUserService` — controllers never read `HttpContext` directly for data passed into commands.
+- MediatR pipeline currently registers only `ValidationBehavior`. Request-level logging is covered by `UseSerilogRequestLogging` — do not add a `LoggingBehavior` that duplicates it.
+- Serilog writes to console only for dev; add sinks (file/cloud) only when a real consumer exists.
+
+## 10. Formatting (automated — do not hand-fix)
 
 - `.editorconfig` + `dotnet format` on save / in CI. All files end with newline, UTF-8, 4-space indent C#.
 - `var` when the type is apparent; explicit elsewhere.
 - Braces always (no single-line `if` without braces).
 
-## 10. Build-time guards
+## 11. Build-time guards
 
 - TreatWarningsAsErrors is enabled on every project. New warnings fail the build.
 - Migrations are owned by the team lead. Members contribute `IEntityTypeConfiguration` files inside their module folder only.
 
-## 11. Architecture tests (NetArchTest)
+## 12. Architecture tests (NetArchTest)
 
 `tests/SmartDroneInspection.ArchitectureTests` enforces the layer rules from
 `architecture/01-ARCHITECTURE-OVERVIEW.md` at build time. If you add a new
