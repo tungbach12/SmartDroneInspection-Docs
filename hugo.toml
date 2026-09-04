@@ -1,9 +1,10 @@
-baseURL = 'https://ardalis.github.io/CleanArchitecture/'
+baseURL = 'https://tungbach12.github.io/SmartDroneInspection-Docs/'
 languageCode = 'en-us'
-title = 'Ardalis Clean Architecture'
-theme = 'hugo-book' # A popular, clean, and minimal docs theme
+title = 'SmartDroneInspection Architecture Documentation'
+theme = 'hugo-book'
 
 [params]
-  BookRepo = 'https://github.com/ardalis/CleanArchitecture'
+  BookRepo = 'https://github.com/tungbach12/SmartDroneInspection-Docs'
   BookEditPath = 'edit/main/docs'
   BookSection = '*'
+  BookLogo = false
