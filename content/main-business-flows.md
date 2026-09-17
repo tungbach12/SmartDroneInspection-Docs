@@ -26,7 +26,7 @@ The **P0 spine** (must-work demo path):
 
 ```text
 Asset exists → Plan/Request approved → Drone mission executed via SmartDroneHub
-→ AI detects defects (HITL confirmed by Inspector) → Report approved by Manager
+→ AI detects defects (HITL confirmed by Inspector) → Report approved by Organization Manager
 → Maintenance ticket assigned → Engineer closes ticket → Asset history updated
 ```
 
@@ -34,12 +34,12 @@ Asset exists → Plan/Request approved → Drone mission executed via SmartDrone
 
 ## 2. MF1 — Asset Management (Priority: P0)
 
-**Owner role**: Administrator, Inspection Manager.
+**Owner role**: Platform Administrator, Organization Manager.
 **Entities**: `Asset`, `AssetCategory`, `AssetDocument`, `AssetLifecycleLog`.
 
-1. Admin/Manager creates an **Asset Category** (e.g., Bridge, Transmission Tower, Solar Farm).
-2. Manager registers an **Asset**: name, unique code (normalized for search), specifications, GPS coordinates (lat/long), category, organization.
-3. Manager uploads **technical documents** (PDF drawings, manuals) → stored in MinIO, metadata in `asset_documents`.
+1. Platform Administrator creates an **Asset Category** (e.g., Bridge, Transmission Tower, Solar Farm).
+2. Organization Manager registers an **Asset**: name, unique code (normalized for search), specifications, GPS coordinates (lat/long), category, organization.
+3. Organization Manager uploads **technical documents** (PDF drawings, manuals) → stored in MinIO, metadata in `asset_documents`.
 4. Every status change (Active → UnderMaintenance → Retired) appends an entry to `asset_lifecycle_logs` (immutable history).
 
 Production rules:
@@ -51,13 +51,13 @@ Production rules:
 
 ## 3. MF2 — Inspection Planning & Request (Priority: P0)
 
-**Owner role**: Inspection Manager.
+**Owner role**: Organization Manager.
 **Entities**: `InspectionPlan`, `InspectionSchedule`, `InspectionRequest`, `InspectionCalendarEvent`, `Notification`.
 
-1. Manager creates a **Plan**: target assets, frequency (weekly/monthly/quarterly), priority, assigned inspector pool.
+1. Organization Manager creates a **Plan**: target assets, frequency (weekly/monthly/quarterly), priority, assigned inspector pool.
 2. System generates **Schedules** from plan frequency; each due date produces a calendar event + notification.
 3. A schedule (or ad-hoc need) generates an **Inspection Request** (`Pending`).
-4. Manager reviews and decides: `Approved` / `Rejected` (with reason) / `Cancelled`.
+4. Organization Manager reviews and decides: `Approved` / `Rejected` (with reason) / `Cancelled`.
 5. On approval → flow proceeds to MF3 (mission creation).
 
 Production rules:
@@ -68,11 +68,11 @@ Production rules:
 
 ## 4. MF3 — Drone Mission Integration via SmartDroneHub (Priority: P0)
 
-**Owner role**: System (automated) + Inspection Manager (oversight).
+**Owner role**: System (automated) + Service Operations Manager (oversight).
 **Boundary rule**: SmartDroneInspection is a **consumer** of the SmartDroneHub Mission API — never a drone controller.
 
 1. Approved inspection request triggers `POST` to SmartDroneHub Mission API (typed `HttpClient`, resiliency: retry + timeout + circuit breaker).
-2. Mission status is streamed back via **SignalR** hub to Web/Mobile dashboards in real time.
+2. Mission status is streamed back via **WebSocket** to Web/Mobile dashboards in real time.
 3. On mission completion, the system pulls: **telemetry** (`mission_telemetry`), **4K images** (`mission_images` → MinIO), **flight logs** (`mission_flight_logs`).
 4. Images are linked to the mission and become the input corpus for MF4 AI analysis.
 
@@ -84,14 +84,14 @@ Production rules:
 
 ## 5. MF4 — Inspection Report & Defect Management (AI + HITL) (Priority: P0 core, P1 for AI)
 
-**Owner role**: Inspector (findings), Inspection Manager (approval).
+**Owner role**: Inspector (findings), Organization Manager (approval).
 **Entities**: `InspectionReport`, `ReportFinding`, `ReportEvidence`, `Defect`, `DefectEvidence`.
 
 1. Inspector opens the completed mission's image set.
 2. **DroneVisionAI** (P1 for model quality; P0 uses manual finding entry fallback) scans images and proposes candidate defects with bounding boxes + confidence scores.
 3. **Human-in-the-Loop review (mandatory)**: Inspector validates each AI finding — confirm (→ `Defect` with severity), edit, or reject as false positive. Raw AI output is never auto-promoted to a defect.
 4. Inspector attaches **evidence** (annotated imagery) and writes findings into an **Inspection Report** (`Draft`).
-5. Report submitted (`Submitted`) → Manager reviews → `Approved` or `Rejected` (with reason, back to Inspector).
+5. Report submitted (`Submitted`) → Organization Manager reviews → `Approved` or `Rejected` (with reason, back to Inspector).
 6. Approved report can be summarized by an LLM (`Summary`, `SummaryModelVersion` recorded) for executive readers.
 
 Production rules:
@@ -110,7 +110,7 @@ Implements the industry-standard 6-stage work-order lifecycle:
 
 1. **Request capture**: confirmed defect auto-proposes a ticket (defectId linked); manual tickets also allowed.
 2. **Triage & prioritization**: severity (defect) + asset criticality → ticket priority (`Low/Medium/High/Critical`). Emergency bypass: `Critical` severity on safety-relevant assets skips the normal queue.
-3. **Assignment & planning**: Manager/engineer lead assigns a Maintenance Engineer, sets due date and estimated cost.
+3. **Assignment & planning**: Service Operations Manager assigns a Maintenance Engineer, sets due date and estimated cost.
 4. **Execution & tracking**: engineer updates status `Open → InProgress`; progress entries append to `ticket_history`.
 5. **Verified closure**: closing requires resolution notes, actual cost, and status `Resolved → Closed`. Closure data is mandatory (no silent closes).
 6. **Analysis & learning**: closed ticket data feeds asset history, maintenance KPIs, and (via DroneKnowledgeAI RAG) becomes retrievable knowledge for future similar defects.
@@ -125,9 +125,9 @@ Production rules:
 
 **Entities**: `User`, `Organization`, `RefreshToken`, `AuditLog`.
 
-1. Login with email + password (PBKDF2 hashing, constant-time verification, account lockout after 5 failures).
+1. Login with email + password (Argon2id hashing, constant-time verification, account lockout after 5 failures).
 2. JWT access token (short-lived) + single-use refresh token rotation (old token revoked on refresh).
-3. All endpoints enforce role-based authorization: `Administrator`, `InspectionManager`, `Inspector`, `MaintenanceEngineer`, `Viewer`.
+3. All endpoints enforce role-based authorization for `PLATFORM_ADMINISTRATOR`, `ORGANIZATION_MANAGER`, `SERVICE_OPERATIONS_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`.
 4. Sensitive mutations (approve, assign, delete, ticket transitions) write `audit_logs` entries.
 
 ---

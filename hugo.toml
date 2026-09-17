@@ -1,10 +1,9 @@
 baseURL = 'https://tungbach12.github.io/SmartDroneInspection-Docs/'
 languageCode = 'en-us'
-title = 'SmartDroneInspection Architecture Documentation'
+title = 'SmartDroneInspection Documentation'
 theme = 'hugo-book'
 
 [params]
   BookRepo = 'https://github.com/tungbach12/SmartDroneInspection-Docs'
-  BookEditPath = 'edit/main/docs'
+  BookEditPath = 'edit/main/'
   BookSection = '*'
-  BookLogo = false
