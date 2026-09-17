@@ -1,10 +1,8 @@
 ---
-title: "Migration Guides"
+title: "Migration guides"
 weight: 50
 ---
 
-# Migration Guides
+# Migration guides
 
-Because this template is primarily intended as a **starting point** rather than a continuously updated library (like a NuGet package), there is no automated upgrade path for existing applications. 
-
-However, these guides outline the major changes between versions and provide the recommended upgrade strategy for projects that want to adopt the latest architectural patterns.
+No migration guide is currently maintained. When a breaking API, database, or client contract change is introduced, add a guide here with the affected version and rollback notes.
