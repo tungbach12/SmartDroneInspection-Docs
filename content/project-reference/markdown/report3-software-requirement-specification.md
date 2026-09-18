@@ -86,11 +86,11 @@ Table 3 defines the five business roles used throughout this SRS. Internal role 
 
 | # | Actor | Internal role code | Description |
 | --- | --- | --- | --- |
-| 1 | Admin | PLATFORM_ADMINISTRATOR | Administers organizations, accounts, role assignments, categories, checklist templates, and platform configuration. Does not automatically perform customer or service workflow actions. |
-| 2 | Service Manager | SERVICE_OPERATIONS_MANAGER | Reviews requests, creates quotations and orders, assigns qualified staff, coordinates peer review, and releases customer-visible results across organizations. |
+| 1 | Admin | ADMIN | Administers organizations, accounts, role assignments, categories, checklist templates, and platform configuration. Does not automatically perform customer or service workflow actions. |
+| 2 | Service Manager | SERVICE_MANAGER | Reviews requests, creates quotations and orders, assigns qualified staff, coordinates peer review, and releases customer-visible results across organizations. |
 | 3 | Inspector | INSPECTOR | Accesses only assigned inspections or peer reviews; completes checklists, evidence, verified findings, and report work. A report author cannot approve the same report as peer reviewer. |
 | 4 | Maintenance Engineer | MAINTENANCE_ENGINEER | Accesses only assigned maintenance assessments or execution work; supplies technical estimates, work evidence, change requests, and completion reports. |
-| 5 | Client | ORGANIZATION_MANAGER | Acts for one customer organization; manages that organization's assets, requests, approvals, released reports, maintenance tickets, and resolution decisions. |
+| 5 | Client | CLIENT | Acts for one customer organization; manages that organization's assets, requests, approvals, released reports, maintenance tickets, and resolution decisions. |
 
 ### 2.2 Use Cases
 
@@ -624,7 +624,7 @@ Required outcome: A closed ticket and resolved defect, an active rework cycle, o
 | AD_HOC | Inspection request created manually for a specific need rather than by a recurring schedule. |
 | AI | Artificial intelligence; in this system, the YOLO image-analysis service that proposes defect candidates. |
 | API | Application Programming Interface. |
-| Client | Customer-organization actor mapped to the internal ORGANIZATION_MANAGER role code. |
+| Client | Customer-organization actor mapped to the internal CLIENT role code. |
 | Evidence | Image or document stored with checksum, provenance, and authorization metadata. |
 | Inspector Author | Inspector responsible for conducting the inspection and drafting its report. |
 | Peer Reviewer | Different qualified Inspector who reviews the report's technical content. |

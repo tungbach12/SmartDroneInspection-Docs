@@ -19,9 +19,9 @@ Inspection images are uploaded through the web or mobile application. The platfo
 
 ## Roles
 
-- Platform Administrator
-- Organization Manager
-- Service Operations Manager
+- Admin
+- Client
+- Service Manager
 - Inspector
 - Maintenance Engineer
 
@@ -32,12 +32,18 @@ Inspection images are uploaded through the web or mobile application. The platfo
   - [Business flow for AI](project-reference/markdown/capstone-business-flow.md)
   - [Report 3 source DOCX](project-reference/source-documents/Report3_Software_Requirement_Specification_SmartDroneInspection.docx)
   - [Business flow source DOCX](project-reference/source-documents/Capstone-reports-businessflow.docx)
-- [System architecture](architecture/)
-- [Backend architecture](architecture/backend-architecture/)
-- [Frontend architecture](architecture/frontend-architecture/)
-- [Mobile architecture](architecture/mobile-architecture/)
-- [Security](security/)
-  - [Authentication and access control](security/authentication/)
-- [Coding conventions](coding-conventions/)
+- [Backend](backend/)
+  - [Architecture](backend/architecture/)
+  - [Coding conventions](backend/coding-conventions/)
+  - [Authentication and access control](backend/authentication-and-authorization/)
+- [Frontend](frontend/)
+  - [Architecture](frontend/architecture/)
+  - [Coding conventions](frontend/coding-conventions/)
+- [Mobile](mobile/)
+  - [Architecture](mobile/architecture/)
+  - [Coding conventions](mobile/coding-conventions/)
+- [Development guide](development/)
+  - [AI agent rules](development/ai-agent-rules/)
+  - [Git and pull request workflow](development/git-and-pull-requests/)
 
 Repository-specific setup commands are maintained in the `README.md` files of the backend, frontend, and mobile repositories.

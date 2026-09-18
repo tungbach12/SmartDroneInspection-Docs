@@ -7,9 +7,11 @@ SmartDroneInspection manages assets, inspection planning, uploaded inspection ev
 ## Start here
 
 - [Project reference](content/project-reference/) - business flows, SRS, source documents, and AI-readable Markdown.
-- [System architecture](content/architecture/) - backend, frontend, and mobile structure.
-- [Authentication](content/security/authentication.md) - current login, token, role, and session contract.
-- [Coding conventions](content/coding-conventions/) - backend, web, mobile, and Git practices.
+- [Backend](content/backend/) - architecture and Java/Spring conventions.
+- [Frontend](content/frontend/) - architecture and React/TypeScript conventions.
+- [Mobile](content/mobile/) - architecture and Flutter/Dart conventions.
+- [Authentication](content/backend/authentication-and-authorization.md) - current login, token, role, and session contract.
+- [Development guide](content/development/) - shared AI-agent, Git, and pull-request rules.
 
 Repository-specific setup commands are documented in the `README.md` files of `backend/`, `frontend/`, and `mobile/`.
 
@@ -25,10 +27,10 @@ Repository-specific setup commands are documented in the `README.md` files of `b
 ## Current roles
 
 - **Admin** - manages organizations, users, roles, categories, checklists, and platform configuration.
+- **Client** - manages customer-organization assets, requests, approvals, released reports, and maintenance decisions.
 - **Service Manager** - manages service requests, quotations, assignments, and result release.
 - **Inspector** - works only on assigned inspections and reports.
 - **Maintenance Engineer** - works only on assigned maintenance assessments and execution.
-- **Client** - manages customer-organization assets, requests, approvals, released reports, and maintenance decisions.
 
 The platform uses deny-by-default authorization. Resource ownership, organization scope, assignment scope, and separation-of-duties are enforced in application services in addition to role checks.
 
@@ -45,11 +47,9 @@ content/
 ├── project-reference/         # Business flows, SRS, source docs, and AI-readable Markdown
 │   ├── markdown/
 │   └── source-documents/
-├── architecture/              # Backend, frontend, and mobile architecture
-│   ├── backend-architecture.md
-│   ├── frontend-architecture.md
-│   └── mobile-architecture.md
-├── security/                  # Authentication and access control
-└── coding-conventions/        # Backend, web, mobile, and Git practices
+├── backend/                   # Backend architecture, authentication, and conventions
+├── frontend/                  # Web architecture and conventions
+├── mobile/                    # Mobile architecture and conventions
+└── development/               # Shared AI-agent, Git, and pull-request rules
 references/                    # Non-site source notes
 ```
