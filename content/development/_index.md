@@ -10,7 +10,7 @@ aliases:
 Rules shared by every repository and coding agent.
 
 - [AI agent rules](ai-agent-rules/): scope, implementation, verification, and safety requirements.
-- [Git and pull request workflow](git-and-pull-requests/): branches, commits, reviews, and merge rules.
+- [Git and pull request workflow](git-and-pull-requests/): professional PR structure, copy/paste template, verification, review, and merge rules.
 
 Stack-specific conventions are maintained beside their architecture documents:
 
