@@ -1,7 +1,7 @@
 ---
 title: SmartDroneInspection — Report 3 Software Requirement Specification
 document_type: software-requirement-specification
-source_docx: Report3_Software_Requirement_Specification_SmartDroneInspection_corrected.docx
+source_docx: ../source-documents/Report3_Software_Requirement_Specification_SmartDroneInspection.docx
 purpose: AI-readable companion with searchable headings, tables, workflows, and rules
 updated: 2026-09-18
 ---
@@ -10,7 +10,7 @@ updated: 2026-09-18
 
 > This Markdown file is the text-first companion to the official-template DOCX. It is intended for AI retrieval, review, and change impact analysis. The DOCX remains the presentation baseline for submission and visual diagrams.
 
-Official presentation file: [Report 3 DOCX](Report3_Software_Requirement_Specification_SmartDroneInspection_corrected.docx).
+Official presentation file: [Report 3 DOCX](../source-documents/Report3_Software_Requirement_Specification_SmartDroneInspection.docx).
 
 ## Canonical project context
 
