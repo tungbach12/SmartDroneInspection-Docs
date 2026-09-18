@@ -1,6 +1,8 @@
 ---
 title: "Frontend Architecture"
-weight: 20
+weight: 10
+aliases:
+  - /architecture/frontend-architecture/
 ---
 
 # Frontend Architecture
@@ -38,7 +40,7 @@ Feature folders are added as their screens are implemented. A feature may contai
 
 React Router lazy-loads feature routes. `RequireAuth` protects authenticated pages and checks the roles returned by the backend. These checks improve navigation but do not replace backend organization, assignment, or resource authorization.
 
-The current role names are `PLATFORM_ADMINISTRATOR`, `ORGANIZATION_MANAGER`, `SERVICE_OPERATIONS_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`.
+The current role names are `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`.
 
 ## UI conventions
 

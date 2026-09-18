@@ -3,6 +3,7 @@ title: "Authentication and Access Control"
 weight: 30
 aliases:
   - /authentication/
+  - /security/authentication/
 ---
 
 # Authentication and Access Control
@@ -15,9 +16,9 @@ Users are stored in PostgreSQL and authenticate with email and password. Email i
 
 Current roles:
 
-- `PLATFORM_ADMINISTRATOR` - platform-wide administration.
-- `ORGANIZATION_MANAGER` - customer-organization workflows.
-- `SERVICE_OPERATIONS_MANAGER` - service request and result operations.
+- `ADMIN` - platform-wide administration.
+- `CLIENT` - customer-organization workflows.
+- `SERVICE_MANAGER` - service request and result operations.
 - `INSPECTOR` - assigned inspections and reports.
 - `MAINTENANCE_ENGINEER` - assigned maintenance work.
 
@@ -48,7 +49,7 @@ The access token is returned in the login response and held in web memory only. 
 
 Browser auth uses CSRF protection and an exact CORS allowlist. API errors use RFC 7807 with a stable `code` and `traceId`; login failures use a generic message.
 ## Platform user administration
-Platform user management is under `/api/v1/platform/users/**` and requires `PLATFORM_ADMINISTRATOR`:
+Platform user management is under `/api/v1/platform/users/**` and requires `ADMIN`:
 - `POST /api/v1/platform/users` creates a provisioned account.
 - `POST /api/v1/platform/users/{userId}/reset-password` issues a new setup credential.
 - `PUT /api/v1/platform/users/{userId}/roles` changes roles and revokes the user's sessions.

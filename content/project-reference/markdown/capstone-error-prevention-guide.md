@@ -35,11 +35,11 @@ Tài liệu này chuyển các lưu ý trong *Cẩm nang tránh lỗi Capstone S
 
 Năm actor nghiệp vụ chính thức của dự án là:
 
-1. Admin (`PLATFORM_ADMINISTRATOR`)
-2. Service Manager (`SERVICE_OPERATIONS_MANAGER`)
+1. Admin (`ADMIN`)
+2. Service Manager (`SERVICE_MANAGER`)
 3. Inspector (`INSPECTOR`)
 4. Maintenance Engineer (`MAINTENANCE_ENGINEER`)
-5. Client (`ORGANIZATION_MANAGER`)
+5. Client (`CLIENT`)
 
 Không dùng lại các tên role cũ như Viewer hoặc Inspection Manager trong tài liệu mới. Use case phải có tên dạng **động từ + đối tượng**, ví dụ “Approve Service Order”, không đặt tên chung chung như “Order Management”.
 

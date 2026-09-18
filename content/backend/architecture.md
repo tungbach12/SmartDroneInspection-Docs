@@ -1,6 +1,8 @@
 ---
 title: "Backend Architecture"
 weight: 10
+aliases:
+  - /architecture/backend-architecture/
 ---
 
 # Backend Architecture
@@ -41,7 +43,7 @@ Each feature owns its domain models. For example, authentication entities and ru
 - `api/dto/request/` and `api/dto/response/` contain Java record DTOs for the public contract.
 - `domain/` contains aggregates, value objects, enums, and business rules.
 - `service/` contains application use cases and transaction boundaries.
-- `repository/` contains persistence ports and Spring Data adapters.
+- `repository/` contains Spring Data repositories and scoped persistence queries.
 - `security/` contains module-specific authorization helpers where needed.
 
 Shared code is limited to cross-cutting concerns such as error handling, security configuration, result types, and pagination. It must not become a shared home for feature entities or use cases.

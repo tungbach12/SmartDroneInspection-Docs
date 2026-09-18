@@ -1,6 +1,8 @@
 ---
 title: "Mobile Architecture"
-weight: 30
+weight: 10
+aliases:
+  - /architecture/mobile-architecture/
 ---
 
 # Mobile Architecture
@@ -19,17 +21,17 @@ mobile/lib/
 ├── shared/                       # Reusable widgets
 └── features/
     └── <feature>/
-        ├── domain/              # Freezed models and repository contracts
-        ├── data/                # Data sources and repository implementations
-        └── presentation/        # Pages, widgets, and Riverpod providers
+        ├── presentation/        # Pages, widgets, and Riverpod providers
+        ├── data/                # API and repository code, when needed
+        └── domain/              # Business models or boundaries, when needed
 ```
 
-Current features include `assets`, `auth`, `inspections`, `tasks`, and `profile`. Each feature follows the same `domain`, `data`, and `presentation` separation. Domain models do not depend on Flutter widgets or network implementations.
+Current features include `assets`, `auth`, `inspections`, `tasks`, and `profile`. A simple feature can contain only `presentation/`; add `data/` or `domain/` when the feature has enough networking or business behavior to justify those boundaries. Empty layers are not required.
 
 ## State and networking
 
 - Riverpod 3 manages providers, screen state, and dependency injection.
-- Prefer `AsyncNotifier` or `Notifier` for stateful workflows.
+- Prefer `AsyncNotifier` or `Notifier` for stateful workflows; use a simpler provider for simple reads.
 - Dio uses an auth interceptor to attach access tokens and coordinate refresh after an expired token.
 - Tokens are stored with `flutter_secure_storage`; they are never persisted in ordinary preferences or logs.
 - Mobile calls the versioned `/api/v1/mobile/auth/**` contract and stores the access and refresh tokens securely.
