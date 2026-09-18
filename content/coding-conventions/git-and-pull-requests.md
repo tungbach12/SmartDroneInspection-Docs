@@ -1,9 +1,9 @@
 ---
-title: "Git Workflow & PR Guidelines"
+title: "Git and Pull Request Workflow"
 weight: 4
 ---
 
-# Git Workflow & PR Guidelines
+# Git and Pull Request Workflow
 
 ## 1. Branching Strategy
 * **`main`**: Protected branch. Deploys to staging/production. Direct commits forbidden.

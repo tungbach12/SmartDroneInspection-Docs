@@ -1,9 +1,11 @@
 ---
-title: "Authentication"
+title: "Authentication and Access Control"
 weight: 30
+aliases:
+  - /authentication/
 ---
 
-# Authentication
+# Authentication and Access Control
 
 This document describes the deliberately small authentication surface for the current project. It is production-oriented without adding banking-grade ceremony that the product does not need.
 
@@ -78,4 +80,4 @@ The current product does not need TOTP enrollment, recovery codes, Redis-backed 
 
 Production must provide secrets through the deployment secret manager. Relevant settings include `AUTH_JWT_SECRET`, `AUTH_REFRESH_TOKEN_PEPPER`, `AUTH_SECURE_COOKIES`, and `AUTH_ALLOWED_ORIGINS`. The one-time administrator bootstrap uses `AUTH_BOOTSTRAP_ENABLED`, `AUTH_BOOTSTRAP_EMAIL`, and `AUTH_BOOTSTRAP_PASSWORD`; disable it after the first account is created. Development-only fallback secrets must not be accepted in a production profile.
 
-See [Getting started](getting-started/) for local commands and [Architecture decisions](architecture-decisions/) for the package-ownership decision.
+See the repository `README.md` files for local commands and the architecture pages for implementation details.

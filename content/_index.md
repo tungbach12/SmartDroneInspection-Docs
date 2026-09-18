@@ -5,9 +5,9 @@ type: "docs"
 
 # SmartDroneInspection
 
-SmartDroneInspection is an infrastructure inspection management platform for the full lifecycle from assets and planning to drone missions, reports, defects, and maintenance tickets.
+SmartDroneInspection is an infrastructure inspection management platform for the full lifecycle from assets and planning to uploaded inspection evidence, reports, defects, and maintenance tickets.
 
-The backend consumes SmartDroneHub through REST APIs. Drone flight control, telemetry collection, and mission execution remain responsibilities of SmartDroneHub.
+Inspection images are uploaded through the web or mobile application. The platform stores authorized evidence in MinIO and can submit eligible images to the YOLO analysis service.
 
 ## Architecture at a glance
 
@@ -25,10 +25,17 @@ The backend consumes SmartDroneHub through REST APIs. Drone flight control, tele
 - Inspector
 - Maintenance Engineer
 
-## Quick links
+## Documentation map
 
-- [System specification](https://github.com/tungbach12/SmartDroneInspection-Docs/blob/main/01-SYSTEM-SPECIFICATION.md)
-- [Getting started](getting-started/)
-- [Architecture](architecture/)
-- [Authentication](authentication/)
-- [Architecture decisions](architecture-decisions/)
+- [Project overview](overview/)
+  - [System specification](overview/system-specification/)
+  - [Business flows and priorities](overview/business-flows/)
+- [System architecture](architecture/)
+- [Backend architecture](architecture/backend-architecture/)
+- [Frontend architecture](architecture/frontend-architecture/)
+- [Mobile architecture](architecture/mobile-architecture/)
+- [Security](security/)
+  - [Authentication and access control](security/authentication/)
+- [Coding conventions](coding-conventions/)
+
+Repository-specific setup commands are maintained in the `README.md` files of the backend, frontend, and mobile repositories.
