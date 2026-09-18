@@ -6,7 +6,7 @@ SmartDroneInspection manages assets, inspection planning, uploaded inspection ev
 
 ## Start here
 
-- [Project overview](content/overview/) - system specification and business flows.
+- [Project reference](content/project-reference/) - business flows, SRS, source documents, and AI-readable Markdown.
 - [System architecture](content/architecture/) - backend, frontend, and mobile structure.
 - [Authentication](content/security/authentication.md) - current login, token, role, and session contract.
 - [Coding conventions](content/coding-conventions/) - backend, web, mobile, and Git practices.
@@ -24,11 +24,11 @@ Repository-specific setup commands are documented in the `README.md` files of `b
 
 ## Current roles
 
-- **Platform Administrator** - manages organizations, users, roles, categories, checklists, and platform configuration.
-- **Organization Manager** - manages customer-organization assets, requests, plans, and reports.
-- **Service Operations Manager** - manages service requests, quotations, assignments, and result release.
+- **Admin** - manages organizations, users, roles, categories, checklists, and platform configuration.
+- **Service Manager** - manages service requests, quotations, assignments, and result release.
 - **Inspector** - works only on assigned inspections and reports.
 - **Maintenance Engineer** - works only on assigned maintenance assessments and execution.
+- **Client** - manages customer-organization assets, requests, approvals, released reports, and maintenance decisions.
 
 The platform uses deny-by-default authorization. Resource ownership, organization scope, assignment scope, and separation-of-duties are enforced in application services in addition to role checks.
 
@@ -36,13 +36,15 @@ The platform uses deny-by-default authorization. Resource ownership, organizatio
 
 The repository is configured for Hugo using the `hugo-book` theme. The Markdown files under `content/` are the source for the documentation site.
 
-`01-SYSTEM-SPECIFICATION.md` is kept as a compatibility pointer; the maintained copy is `content/overview/system-specification.md`.
+`01-SYSTEM-SPECIFICATION.md` is kept as a compatibility pointer; the maintained requirement baseline is `content/project-reference/markdown/report3-software-requirement-specification.md`.
 
 ## Folder layout
 
 ```text
 content/
-├── overview/                  # What the product does and how work flows
+├── project-reference/         # Business flows, SRS, source docs, and AI-readable Markdown
+│   ├── markdown/
+│   └── source-documents/
 ├── architecture/              # Backend, frontend, and mobile architecture
 │   ├── backend-architecture.md
 │   ├── frontend-architecture.md

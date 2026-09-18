@@ -27,9 +27,11 @@ Inspection images are uploaded through the web or mobile application. The platfo
 
 ## Documentation map
 
-- [Project overview](overview/)
-  - [System specification](overview/system-specification/)
-  - [Business flows and priorities](overview/business-flows/)
+- [Project reference](project-reference/)
+  - [Report 3 SRS for AI](project-reference/markdown/report3-software-requirement-specification.md)
+  - [Business flow for AI](project-reference/markdown/capstone-business-flow.md)
+  - [Report 3 source DOCX](project-reference/source-documents/Report3_Software_Requirement_Specification_SmartDroneInspection.docx)
+  - [Business flow source DOCX](project-reference/source-documents/Capstone-reports-businessflow.docx)
 - [System architecture](architecture/)
 - [Backend architecture](architecture/backend-architecture/)
 - [Frontend architecture](architecture/frontend-architecture/)

@@ -1,0 +1,303 @@
+---
+title: SmartDroneInspection Capstone Business Flow
+document_type: business-flow-reference
+source_docx: ../source-documents/Capstone-reports-businessflow.docx
+purpose: AI-readable WF1-WF4 business-flow companion
+updated: 2026-09-18
+---
+
+# SmartDroneInspection Capstone Business Flow
+
+> This Markdown file is a searchable companion to the supplied business-flow DOCX. It preserves the WF1-WF4 actors, preconditions, exceptions, decision loops, outputs, and detailed sequence tables.
+
+## Canonical role vocabulary
+
+Admin, Service Manager, Inspector, Maintenance Engineer, and Client are the five current workflow roles. `Inspector Author` and `Inspector Peer Reviewer` describe responsibilities within the Inspector role; they are not additional roles.
+
+## Evidence and platform boundary
+
+Inspection evidence is uploaded through the web or mobile application, stored in MinIO, and optionally analyzed by YOLO. AI output remains a candidate until an Inspector confirms or modifies it. Drone flight control is outside SmartDroneInspection.
+
+---
+
+## WF1 — Asset Registration and Periodic Inspection Scheduling
+
+**Source owner:** hiếu
+
+Purpose: Quản lý tài sản và tự động tạo yêu cầu kiểm tra định kỳ.
+
+Primary actors: Client , System.
+
+### Preconditions
+
+Organization và Client đã được kích hoạt.
+
+Asset categories và checklist templates đã được Admin cấu hình.
+
+Client chỉ được quản lý tài sản thuộc organization của mình.
+
+| Step | Role / Lane | Detailed Main Activity | Output |
+| --- | --- | --- | --- |
+| WF1-01 | Client | Create an asset record with the asset name, code, category, location, ownership information and operational status. | Draft asset record |
+| WF1-02 | System | Validate the organization scope, required fields and asset-code uniqueness before saving the asset. | Validated asset record |
+| WF1-03 | Client | Upload available asset documents, such as technical drawings, manuals, previous inspection reports and maintenance history. | Asset documentation |
+| WF1-04 | Client | Create a recurring inspection schedule by selecting the asset, inspection frequency, next due date and applicable checklist template. | Draft inspection schedule |
+| WF1-05 | System | Validate the schedule, calculate future due cycles and activate the recurring schedule. | Active inspection schedule |
+| WF1-06 | System | Monitor active schedules and identify schedules whose due date has been reached. | Due inspection cycle |
+| WF1-07 | System | Generate one PERIODIC inspection request using the unique Asset + Schedule + Due Cycle idempotency key. | Periodic inspection request |
+| WF1-08 | System | Link the request to the asset, schedule and checklist template, then notify the Client and Service Manager. | Request ready for WF2 |
+
+### Exception cases
+
+If required asset information is missing, the system does not activate the schedule.
+
+If the asset is inactive, the system pauses the schedule.
+
+If the same due cycle has already generated a request, the system does not generate another one.
+
+If the checklist template is unavailable, the request is marked for manual review.
+
+### WF1 output
+
+A valid PERIODIC inspection request ready to enter WF2.
+
+## WF2 — Inspection Request Review, Service Order and Inspector Assignment
+
+**Source owner:** Quốc
+
+Purpose: Chuyển một yêu cầu inspection thành một service order đã được xác nhận và một Inspector assignment đã được chấp nhận.
+
+Primary actors: Client , Service Manager, Inspector, System.
+
+### Preconditions
+
+Asset đang active và thuộc đúng organization.
+
+Request được tạo từ WF1 hoặc được tạo thủ công dưới dạng AD_HOC.
+
+Client có quyền yêu cầu kiểm tra cho asset đó.
+
+| Step | Role / Lane | Detailed Main Activity | Output |
+| --- | --- | --- | --- |
+| WF2-01 | System / Client | Receive a system-generated PERIODIC request or create a new AD_HOC inspection request. | Inspection request |
+| WF2-02 | Client | Complete the request with the inspection scope, priority, preferred deadline, site-access constraints, contact information and supporting documents. | Completed inspection request |
+| WF2-03 | System | Validate the required request information and verify that the selected asset belongs to the requester’s organization. | Valid request |
+| WF2-04 | Service Manager | Review the request, determine whether the requested scope is feasible and check available service capacity. | Feasibility decision |
+| WF2-05 | Service Manager | Prepare a versioned quotation and draft service order containing the agreed scope, deliverables, estimated price or applicable rates, expected duration and post-service payment terms. | Quotation and draft service order |
+| WF2-06 | Client | Review the quotation and service order. Approve them and accept the post-service payment terms, or request a revised quotation. | Approved order or revision request |
+| WF2-07 | Service Manager | When the order is approved, mark the service order as confirmed and select an Inspector based on qualifications, availability, workload and potential conflicts of interest. | Inspector assignment |
+| WF2-08 | System | Create an assignment package containing the asset information, confirmed scope, checklist, deadline, access instructions and supporting documents, then notify the Inspector. | Assigned inspection package |
+| WF2-09 | Inspector | Review the assignment package and accept or reject the assignment. A rejection must include a reason. | Accepted or rejected assignment |
+| WF2-10 | Service Manager | If the Inspector rejects the assignment, select another qualified Inspector. If accepted, mark the inspection job as READY_FOR_INSPECTION. | Accepted Inspector assignment |
+
+### Quotation revision flow
+
+Client requests revision
+
+> ↓
+
+Service Manager creates Quotation v2
+
+> ↓
+
+Client reviews again
+
+> ↓
+
+Approved quotation and service order
+
+### Assignment rejection flow
+
+Inspector rejects assignment
+
+> ↓
+
+Request returns to Service Manager
+
+> ↓
+
+Another qualified Inspector is selected
+
+> ↓
+
+New assignment notification
+
+### Important rules
+
+No upfront payment is required.
+
+Before assignment, the customer only needs to approve the service order and post-service payment terms.
+
+An unconfirmed service order cannot proceed to Inspector assignment.
+
+Only an accepted assignment can enter WF3.
+
+### WF2 output
+
+A confirmed service order and accepted Inspector assignment with status READY_FOR_INSPECTION.
+
+## WF3 — Inspection Execution, AI-Assisted Verification and Report Delivery
+
+**Source owner:** Bách
+
+Purpose: Thực hiện inspection, xử lý evidence, xác minh kết quả AI, peer review báo cáo và gửi final report cho khách hàng.
+
+Primary actors: Inspector Author, Inspector Peer Reviewer, Service Manager, Client , System, MinIO, YOLO Service.
+
+### Preconditions
+
+Service order đã được xác nhận trong WF2.
+
+Inspector đã chấp nhận assignment.
+
+Inspection job có trạng thái READY_FOR_INSPECTION.
+
+Inspector có quyền truy cập asset, checklist và assignment package.
+
+| Step | Role / Lane | Detailed Main Activity | Output |
+| --- | --- | --- | --- |
+| WF3-01 | Inspector — Author | Open the accepted assignment and start a new inspection session. | Active inspection session |
+| WF3-02 | System | Change the inspection status from READY_FOR_INSPECTION to IN_PROGRESS and record the session start time and responsible Inspector. | Inspection in progress |
+| WF3-03 | Inspector — Author | Conduct the field inspection according to the assigned checklist and confirmed service scope. Manual drone piloting remains outside the platform. | Field inspection results |
+| WF3-04 | Inspector — Author | Capture or collect inspection images and transfer them from the drone’s SD card, computer or mobile device to the platform. | Uploaded evidence |
+| WF3-05 | System: Upload Service | Validate the file type and size, calculate a checksum, prevent duplicate evidence and retry interrupted uploads without creating duplicate records. | Validated evidence |
+| WF3-06 | System: MinIO | Store the evidence and associate it with the inspection, asset, Inspector, capture time, source and available GPS or external mission reference. | Stored inspection evidence |
+| WF3-07 | System: YOLO Service | Analyze eligible images and generate defect candidates containing the predicted label, confidence score, bounding box and model version. | AI defect candidates |
+| WF3-08 | Inspector — Author | Review every AI candidate and select Confirm, Modify or Reject. The Inspector may also manually add a defect missed by the AI model. | Inspector-verified findings |
+| WF3-09 | System | Exclude rejected and unverified AI candidates from official defect statistics and report content. | Official verified findings |
+| WF3-10 | Inspector — Author | Complete the checklist and add the defect location, severity, technical notes and recommended action for each verified finding. | Completed inspection record |
+| WF3-11 | System | Compile a versioned draft report from the checklist, evidence and verified findings. LLM assistance may be used only with authorized data and remains subject to human review. | Versioned draft report |
+| WF3-12 | Inspector — Author | Review the draft report, correct its content and submit it for internal peer review. | Report awaiting peer review |
+| WF3-13 | Service Manager | Assign another qualified Inspector as the Peer Reviewer. The report author cannot review their own report. | Peer-review assignment |
+| WF3-14 | Inspector — Peer Reviewer | Verify that the evidence supports the findings and check defect classification, severity, location, checklist consistency and technical conclusions. | Peer-review result |
+| WF3-15 | Inspector — Peer Reviewer | Request changes when issues are found, or mark the report as TECHNICALLY_APPROVED when the technical content is acceptable. | Technically approved report |
+| WF3-16 | Inspector — Author | If changes are requested, revise the report and resubmit it to the same Peer Reviewer. | Revised report version |
+| WF3-17 | Service Manager | Check that the technically approved report is complete and contains all deliverables required by the confirmed service order. | Internally released report |
+| WF3-18 | Service Manager | Release the final report to the Client . Internal drafts and peer-review comments remain hidden from the customer. | Final customer report |
+| WF3-19 | Client | Review the released report and accept it or request clarification and revision. The Client does not directly edit the technical content. | Accepted report or revision request |
+| WF3-20 | System | When the customer accepts the report, mark the version as immutable and preserve the complete approval and revision history. | Customer-accepted report |
+
+### Peer-review loop
+
+Inspector Author submits Draft Report
+
+> ↓
+
+Peer Reviewer checks technical content
+
+> ↓
+
+Changes required?
+
+- Yes → Author creates revised version → Review again
+
+- No → Technically Approved
+
+> ↓
+
+Service Manager releases report
+
+> ↓
+
+Client accepts final report
+
+### Exception cases
+
+A corrupted or unsupported file is rejected and must be uploaded again.
+
+Interrupted uploads are resumed or retried without creating duplicates.
+
+If GPS is unavailable, the evidence remains valid but the missing metadata is recorded.
+
+If YOLO is unavailable, evidence remains stored and can be queued for later inference.
+
+If YOLO detects nothing, the Inspector may still manually add findings.
+
+If report evidence is insufficient, the Peer Reviewer returns the report for correction.
+
+If an accepted report later requires correction, the system creates a new correction version instead of overwriting the accepted version.
+
+### WF3 output
+
+A technically reviewed, customer-released and customer-accepted inspection report.
+
+## WF4 — Maintenance Assessment, Work Execution and Defect Resolution
+
+**Source owner:** Như
+
+Purpose: Chuyển verified defect thành maintenance ticket, đánh giá kỹ thuật, thực hiện sửa chữa và đóng defect hoặc yêu cầu rework/re-inspection.
+
+Primary actors: Client , Service Manager, Maintenance Engineer, System.
+
+### Preconditions
+
+WF3 đã tạo customer-accepted inspection report.
+
+Maintenance ticket phải tham chiếu tới ít nhất một verified defect.
+
+Defect chưa bị đóng hoặc liên kết với một maintenance ticket đang active.
+
+| Step | Role / Lane | Detailed Main Activity | Output |
+| --- | --- | --- | --- |
+| WF4-01 | Client | Select one or more verified defects from an accepted report and create a maintenance ticket with the required priority, preferred deadline and additional instructions. | Maintenance ticket |
+| WF4-02 | System | Link the ticket to the organization, asset, inspection report, verified findings and supporting evidence. | Traceable maintenance ticket |
+| WF4-03 | Service Manager | Review the ticket for completeness and determine whether a technical assessment can be performed remotely or requires a site visit. | Assessment plan |
+| WF4-04 | Service Manager | Assign a qualified Maintenance Engineer to perform the technical assessment. This is an assessment assignment, not yet an execution assignment. | Assessment assignment |
+| WF4-05 | Maintenance Engineer — Assessor | Review the defect evidence and, when necessary, conduct an on-site assessment. | Assessed defect condition |
+| WF4-06 | Maintenance Engineer — Assessor | Estimate the required work, materials, labor, expected duration, technical risks, assumptions and estimated cost range. | Technical assessment and estimate |
+| WF4-07 | Service Manager | Use the technical assessment and approved pricing rules to prepare a versioned maintenance quotation and draft maintenance order. | Maintenance quotation and draft order |
+| WF4-08 | Client | Review the quotation and maintenance order. Approve the scope and post-service payment terms, or request revision. | Approved maintenance order |
+| WF4-09 | Service Manager | Confirm the approved maintenance order and assign the same Engineer or another qualified Engineer to perform the work. | Execution assignment |
+| WF4-10 | Maintenance Engineer — Executor | Review and accept the execution assignment. If rejected, the Service Manager selects another Engineer. | Accepted execution assignment |
+| WF4-11 | Maintenance Engineer — Executor | Perform the maintenance work according to the approved maintenance order and record the work progress. | Maintenance work |
+| WF4-12 | Maintenance Engineer — Executor | If additional damage or a significant cost increase is discovered, stop the additional work and submit a change request. | Change request |
+| WF4-13 | Service Manager | Prepare a revised maintenance-order version based on the additional technical assessment. | Revised maintenance order |
+| WF4-14 | Client | Approve or reject the change request before the Engineer performs the additional work. | Approved or rejected change |
+| WF4-15 | Maintenance Engineer — Executor | Complete the approved work and upload before/after evidence, work logs, materials used, actual duration and final cost. | Maintenance completion report |
+| WF4-16 | Service Manager | Check that the completion report, evidence and final cost are consistent with the approved maintenance order and approved changes. | Internally verified result |
+| WF4-17 | Service Manager | Release the maintenance result to the Client . | Customer-visible maintenance result |
+| WF4-18 | Client | Review the result and select Accept Resolution, Request Rework or Request Re-inspection. | Resolution decision |
+| WF4-19 | System | If accepted, close the ticket and linked defect. If rework is requested, return the ticket to the execution stage. If re-inspection is requested, create a linked AD_HOC request for WF2. | Closed, rework or re-inspection state |
+| WF4-20 | System | Finalize the actual cost, issue the invoice, record payment status, send notifications and preserve the audit history. | Completed maintenance record |
+
+### Resolution branches
+
+Client reviews maintenance result
+
+> ↓
+
+Accept Resolution
+
+- → Close ticket and defect
+
+- → Issue invoice
+
+Request Rework
+
+- → Return to execution assignment/work
+
+- → Submit new completion evidence
+
+Request Re-inspection
+
+- → Create linked AD_HOC inspection request
+
+- → Enter WF2
+
+### Important rules
+
+The Service Manager does not independently estimate technical work.
+
+A qualified Maintenance Engineer provides the technical estimate.
+
+The estimate is not necessarily the final cost.
+
+No upfront payment is required; the customer approves post-service payment terms.
+
+A material scope or cost increase requires an approved change-order version.
+
+Before/after evidence is required before the ticket can be closed.
+
+### WF4 output
+
+A closed maintenance ticket and resolved defect, an active rework cycle, or a linked re-inspection request returned to WF2.
