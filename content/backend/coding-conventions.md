@@ -11,7 +11,7 @@ The backend is a Java 21, Spring Boot modular monolith. Spring Modulith verifies
 
 ## Feature structure
 
-A business capability is a direct package under `com.smartdroneinspection`, for example `users`, `assets`, or `reports`.
+A business capability is a direct package under `com.smartdroneinspection`, for example `users`, `assets`, or `inspectionrequests`. Name modules with business language; never use `wf1` or `wf2` as a package name.
 
 ```text
 <feature>/
@@ -29,6 +29,17 @@ A business capability is a direct package under `com.smartdroneinspection`, for 
 - **BE-02 SHOULD** create only the packages a feature needs.
 - **BE-03 MAY** use JPA annotations on feature-owned domain entities. Do not duplicate every entity into a persistence model solely to claim framework independence.
 - **BE-04 MUST** access another module through its public API or published event, not its internal repository or entity implementation.
+
+## Spring Modulith boundaries
+
+- **BE-MOD-01 MUST** treat every direct package under `com.smartdroneinspection` as a capability module. A workflow or table group is not a reason to create a separate module.
+- **BE-MOD-02 MUST** treat the module root as the default Java API. Nested `api`, `domain`, `repository`, and `service` packages are internal unless explicitly exposed with `@NamedInterface`.
+- **BE-MOD-03 MUST NOT** import another module's controllers, HTTP DTOs, entities, repositories, or services. Use a facade in the module root or a named `events`/`spi` interface.
+- **BE-MOD-04 MUST** keep HTTP DTOs as transport contracts; they are never cross-module contracts.
+- **BE-MOD-05 SHOULD** use events for module handoff and side effects, and synchronous facades for immediate results or validation. Do not turn every call into an event.
+- **BE-MOD-06 MUST** define ports in the feature that owns the use case; `infrastructure` implements those ports and is never imported by business modules.
+- **BE-MOD-07 MUST** keep `ApplicationModules.verify()` green. Add `@ApplicationModuleTest` when a module has runtime components worth bootstrapping.
+- **BE-MOD-08 MUST** create only packages containing real code. Add planned modules such as `inspections`, `maintenance`, `notifications`, and `dashboard` with their first runtime slice.
 
 ## API and DTOs
 
