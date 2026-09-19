@@ -20,9 +20,9 @@ com.smartdroneinspection/
 |-- users/                 # Implemented: identity and administration
 |-- assets/                # Implemented: WF1
 |-- inspectionrequests/    # Implemented: WF2
-|-- inspections/           # Scaffolded root: WF3 runtime comes later
-|-- maintenance/           # Scaffolded root: WF4 runtime comes later
-|-- notifications/         # Scaffolded supporting capability
+|-- inspections/           # WF3 persistence: execution, evidence, reports
+|-- maintenance/           # WF4 persistence: assessment, execution, billing
+|-- notifications/         # Persistence for in-app/email delivery
 |-- dashboard/             # Scaffolded read-only query capability
 |-- shared/                # Implemented: minimal cross-cutting contracts
 `-- infrastructure/        # Scaffolded outbound-adapter boundary
@@ -30,18 +30,21 @@ com.smartdroneinspection/
 
 | Module | Capability | Runtime status |
 | --- | --- | --- |
-| `users` | Identity, authentication, and user administration | Implemented |
+| `users` | Identity, authentication, organization, audit, and user administration | Entities, repositories, and auth runtime implemented |
 | `assets` | Asset catalog, checklists, and schedules (WF1) | Entities and repositories implemented |
 | `inspectionrequests` | Requests, quotations, orders, and assignments (WF2) | Entities and repositories implemented |
-| `inspections` | Execution, evidence, findings, reports, and peer review (WF3) | Scaffolded root; runtime slice not implemented |
-| `maintenance` | Assessment, execution, changes, and resolution (WF4) | Scaffolded root; runtime slice not implemented |
-| `notifications` | In-app and email notification delivery | Scaffolded root; runtime slice not implemented |
+| `inspections` | Execution, evidence, findings, reports, and peer review (WF3) | Feature entities and repositories implemented; use cases/API pending |
+| `maintenance` | Assessment, execution, changes, and resolution (WF4) | Feature entities and repositories implemented; use cases/API pending |
+| `notifications` | In-app and email notification delivery | Notification entity and repository implemented; delivery runtime pending |
 | `dashboard` | Read-only composition of capability data | Scaffolded root; runtime slice not implemented |
 | `infrastructure` | Outbound adapters for feature-owned ports | Scaffolded root; runtime slice not implemented |
 
-Scaffolded roots contain only package metadata; nested code packages are created
-with the first runtime slice that owns real code. Each feature owns its domain
-models; do not create a global `com.smartdroneinspection.domain` entity package.
+`dashboard` and `infrastructure` currently contain only package metadata; nested
+code packages are created with the first runtime slice that owns real code. The
+WF3, WF4, and notification roots now contain persistence code because their
+tables are already part of the schema, while application services and APIs remain
+incremental work. Each feature owns its domain models; do not create a global
+`com.smartdroneinspection.domain` entity package.
 
 ## Module visibility and responsibilities
 
@@ -51,7 +54,8 @@ unless explicitly exposed with `@NamedInterface`.
 | Package | Visibility and responsibility |
 | --- | --- |
 | `<module>/api` | Internal HTTP controllers and transport DTOs. |
-| `<module>/domain` | Internal entities, value objects, enums, and rules. |
+| `<module>/domain` | Internal JPA entities, value objects, and rules owned by the module. |
+| `<module>/domain/enums` | Internal domain enums owned by the module. |
 | `<module>/repository` | Internal Spring Data repositories and scoped queries. |
 | `<module>/service` | Internal use-case orchestration and transactions. |
 | `<module>/events` | Public only when marked `@NamedInterface("events")`. |
@@ -85,7 +89,7 @@ event and facade with the periodic-request use case, not as speculative plumbing
 
 ## Persistence and integrations
 
-PostgreSQL is the source of truth. Flyway owns schema migrations, and MinIO stores inspection evidence and images. The `infrastructure/` area contains outbound adapters for feature-owned ports. Reports, findings, and AI candidates belong inside WF3; maintenance tickets belong inside `maintenance`; a YOLO client belongs under `infrastructure/ai` when implemented.
+PostgreSQL is the source of truth. Flyway owns schema migrations, and MinIO stores inspection evidence and images. Every application table has its JPA entity and repository in the owning feature (`users`, `assets`, `inspectionrequests`, `inspections`, `maintenance`, or `notifications`), except the Spring Modulith `event_publication` registry. Cross-feature references use scalar IDs at the persistence boundary instead of coupling modules through each other's entities. The `infrastructure/` area contains outbound adapters for feature-owned ports. Reports, findings, and AI candidates belong inside WF3; maintenance tickets belong inside `maintenance`; a YOLO client belongs under `infrastructure/ai` when implemented.
 
 Inspection evidence is uploaded through the web or mobile application. The current architecture has no dependency on a separate drone-operation platform.
 

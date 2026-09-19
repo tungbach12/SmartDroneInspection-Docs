@@ -729,12 +729,13 @@ are:
 | `V8` | WF4 maintenance tickets, findings, assessments, quotations, orders, assignments, work logs, change requests, and invoices. |
 | `V9` | Supporting notification delivery records. |
 
-Physical tables do not by themselves mean that a workflow is runtime-complete. WF1 and WF2 currently have matching
-feature entities, repositories, and persistence tests. WF2 runtime entities and repositories are owned by the
-`inspectionrequests` module. The physical `inspections` table belongs to the scaffolded WF3 `inspections` module.
-The `inspections`, `maintenance`, `notifications`, `dashboard`, and `infrastructure` roots are scaffolded with
-package metadata only. WF3, WF4, and notifications remain schema-complete but runtime-incomplete: their feature entities, repositories,
-application services, APIs, and client flows remain future implementation work.
+Physical tables do not by themselves mean that a workflow is runtime-complete. Every application table in `V1`-`V9`
+now has a feature-owned JPA entity and repository: identity tables belong to `users`; WF1 tables to `assets`; WF2
+tables to `inspectionrequests`; WF3 tables to `inspections`; WF4 tables to `maintenance`; and notifications to
+`notifications`. The Spring Modulith `event_publication` registry remains framework-owned and has no business entity.
+The `inspections`, `maintenance`, and `notifications` modules therefore have their persistence model in place, while
+their application services, HTTP APIs, authorization workflows, delivery adapters, and client flows are still delivered
+incrementally. `dashboard` and `infrastructure` remain package-only boundaries until they own real runtime code.
 
 ## 13. Recommended implementation order
 

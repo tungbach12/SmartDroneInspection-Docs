@@ -20,6 +20,7 @@ A business capability is a direct package under `com.smartdroneinspection`, for 
 |       |-- request/
 |       `-- response/
 |-- domain/
+|   `-- enums/          # domain enums; keep transport enums with API DTOs
 |-- repository/
 |-- service/
 `-- security/          # only when the feature owns security behavior
@@ -29,6 +30,11 @@ A business capability is a direct package under `com.smartdroneinspection`, for 
 - **BE-02 SHOULD** create only the packages a feature needs.
 - **BE-03 MAY** use JPA annotations on feature-owned domain entities. Do not duplicate every entity into a persistence model solely to claim framework independence.
 - **BE-04 MUST** access another module through its public API or published event, not its internal repository or entity implementation.
+- **BE-DB-01 MUST** place a table-backed entity in `<feature>/domain` and its Spring Data repository in `<feature>/repository`. The owning feature is the capability that owns the business lifecycle, not the table name alone.
+- **BE-DB-05 MUST** place domain enums in `<feature>/domain/enums`. Keep API-only enums, such as authentication flow steps, in the owning `api/dto` package. Do not use a Java package named `enum`; `enum` is a reserved keyword, so the valid package name is `enums`.
+- **BE-DB-02 MUST** keep `inspections` and `inspectionrequests` separate: requests, quotations, service orders, and Inspector assignments belong to `inspectionrequests`; inspection execution, evidence, findings, reports, versions, and peer reviews belong to `inspections`.
+- **BE-DB-03 SHOULD** model cross-feature foreign keys as scalar `UUID` fields. Do not create JPA relationships to another Modulith module's entity; use a module facade or event when behavior needs the other capability.
+- **BE-DB-04 MUST NOT** create a business entity for framework-owned `event_publication`, and must not add empty domain/repository packages to scaffold-only modules.
 
 ## Spring Modulith boundaries
 
