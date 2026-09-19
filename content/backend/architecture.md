@@ -54,7 +54,8 @@ unless explicitly exposed with `@NamedInterface`.
 | Package | Visibility and responsibility |
 | --- | --- |
 | `<module>/api` | Internal HTTP controllers and transport DTOs. |
-| `<module>/domain` | Internal JPA entities, value objects, enums, and rules owned by the module. |
+| `<module>/domain` | Internal JPA entities, value objects, and rules owned by the module. |
+| `<module>/domain/enums` | Internal domain enums owned by the module. |
 | `<module>/repository` | Internal Spring Data repositories and scoped queries. |
 | `<module>/service` | Internal use-case orchestration and transactions. |
 | `<module>/events` | Public only when marked `@NamedInterface("events")`. |
