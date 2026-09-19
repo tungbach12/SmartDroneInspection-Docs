@@ -64,7 +64,7 @@ Shared code is limited to cross-cutting concerns such as error handling, securit
 ## Dependency direction
 
 ```text
-users -------------------------------> shared
+users -------------------------------> shared::auth, shared::config, shared::exception
 assets ------------------------------> shared
 inspectionrequests ------------------> assets, shared
 inspections -------------------------> inspectionrequests, assets, shared
