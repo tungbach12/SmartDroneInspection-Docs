@@ -716,28 +716,23 @@ The database model supports, but does not replace, application authorization. Re
 
 ## 12. Implementation status
 
-As of 2026-09-19, the backend migrations implement:
+As of 2026-09-19, Flyway migrations `V1` through `V9` implement the complete **physical schema**: all 35
+application tables in this document plus the Spring Modulith `event_publication` registry. The physical-schema phases
+are:
 
-- `event_publication`
-- `organizations`
-- `users`
-- `user_roles`
-- `auth_sessions`
-- `refresh_tokens`
-- `security_audit_events`
-- `asset_categories`
-- `checklist_templates`
-- `checklist_items`
-- `assets`
-- `asset_documents`
-- `inspection_schedules`
-- `inspection_requests`
-- `inspection_request_attachments`
-- `inspection_quotations`
-- `inspection_service_orders`
-- `inspection_assignments`
+| Migration | Physical scope |
+| --- | --- |
+| `V1`-`V4` | Extensions, event publication, authentication, and role-value alignment. |
+| `V5` | WF1 asset catalog and recurring inspection scheduling. |
+| `V6` | WF2 requests, attachments, quotations, service orders, and Inspector assignments. |
+| `V7` | WF3 inspections, checklist responses, evidence, AI candidates, verified findings, reports, versions, and peer reviews. |
+| `V8` | WF4 maintenance tickets, findings, assessments, quotations, orders, assignments, work logs, change requests, and invoices. |
+| `V9` | Supporting notification delivery records. |
 
-The remaining WF3, WF4, and supporting-workflow tables in this document are target-state design and must not be described as implemented until matching entities, migrations, repositories, services, and tests exist.
+Physical tables do not by themselves mean that a workflow is runtime-complete. WF1 and WF2 currently have matching
+feature entities, repositories, and persistence tests. WF3, WF4, and notifications have the reviewed physical schema
+and migration/SQL-contract coverage, but their feature entities, repositories, application services, APIs, and client
+flows remain future implementation work.
 
 ## 13. Recommended implementation order
 
