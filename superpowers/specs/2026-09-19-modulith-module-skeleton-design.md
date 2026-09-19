@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed design for review before implementation.
+Approved design; implementation in progress.
 
 ## Intent
 
@@ -62,7 +62,7 @@ files. Existing unrelated worktrees are not inspected or modified.
 ## Documentation alignment
 
 Backend onboarding, architecture, conventions, and database-status guidance
-will describe scaffolded roots separately from implemented runtime modules.
+describe scaffolded roots separately from implemented runtime modules.
 The documentation will continue to state that reports/findings/AI candidates
 belong inside WF3, maintenance tickets belong inside `maintenance`, and
 adapters belong inside `infrastructure`.

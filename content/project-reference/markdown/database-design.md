@@ -731,8 +731,9 @@ are:
 
 Physical tables do not by themselves mean that a workflow is runtime-complete. WF1 and WF2 currently have matching
 feature entities, repositories, and persistence tests. WF2 runtime entities and repositories are owned by the
-`inspectionrequests` module. The physical `inspections` table belongs to the planned WF3 `inspections` module.
-WF3, WF4, and notifications remain schema-complete but runtime-incomplete: their feature entities, repositories,
+`inspectionrequests` module. The physical `inspections` table belongs to the scaffolded WF3 `inspections` module.
+The `inspections`, `maintenance`, `notifications`, `dashboard`, and `infrastructure` roots are scaffolded with
+package metadata only. WF3, WF4, and notifications remain schema-complete but runtime-incomplete: their feature entities, repositories,
 application services, APIs, and client flows remain future implementation work.
 
 ## 13. Recommended implementation order
