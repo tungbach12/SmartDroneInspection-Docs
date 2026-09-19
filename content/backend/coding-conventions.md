@@ -39,7 +39,7 @@ A business capability is a direct package under `com.smartdroneinspection`, for 
 - **BE-MOD-05 SHOULD** use events for module handoff and side effects, and synchronous facades for immediate results or validation. Do not turn every call into an event.
 - **BE-MOD-06 MUST** define ports in the feature that owns the use case; `infrastructure` implements those ports and is never imported by business modules.
 - **BE-MOD-07 MUST** keep `ApplicationModules.verify()` green. Add `@ApplicationModuleTest` when a module has runtime components worth bootstrapping.
-- **BE-MOD-08 MUST** create only packages containing real code. Add planned modules such as `inspections`, `maintenance`, `notifications`, and `dashboard` with their first runtime slice.
+- **BE-MOD-08 MUST** allow approved capability roots to contain `package-info.java` before runtime code exists. Do not add empty nested packages or speculative business types; create nested packages with the first vertical slice that owns real code.
 
 ## API and DTOs
 

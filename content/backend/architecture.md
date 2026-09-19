@@ -17,15 +17,15 @@ workflow number or a group of tables.
 
 ```text
 com.smartdroneinspection/
-|-- users/                 # Current: identity and administration
-|-- assets/                # Current: WF1
-|-- inspectionrequests/    # Current: WF2
-|-- shared/                # Current: minimal cross-cutting contracts
-|-- inspections/           # Planned with the first WF3 runtime slice
-|-- maintenance/           # Planned with the first WF4 runtime slice
-|-- notifications/         # Planned supporting capability
-|-- dashboard/             # Planned read-only query capability
-`-- infrastructure/        # Planned outbound adapters
+|-- users/                 # Implemented: identity and administration
+|-- assets/                # Implemented: WF1
+|-- inspectionrequests/    # Implemented: WF2
+|-- inspections/           # Scaffolded root: WF3 runtime comes later
+|-- maintenance/           # Scaffolded root: WF4 runtime comes later
+|-- notifications/         # Scaffolded supporting capability
+|-- dashboard/             # Scaffolded read-only query capability
+|-- shared/                # Implemented: minimal cross-cutting contracts
+`-- infrastructure/        # Scaffolded outbound-adapter boundary
 ```
 
 | Module | Capability | Runtime status |
@@ -33,12 +33,14 @@ com.smartdroneinspection/
 | `users` | Identity, authentication, and user administration | Implemented |
 | `assets` | Asset catalog, checklists, and schedules (WF1) | Entities and repositories implemented |
 | `inspectionrequests` | Requests, quotations, orders, and assignments (WF2) | Entities and repositories implemented |
-| `inspections` | Execution, evidence, findings, reports, and peer review (WF3) | Schema only; module not created |
-| `maintenance` | Assessment, execution, changes, and resolution (WF4) | Schema only; module not created |
-| `notifications` | In-app and email notification delivery | Schema only; module not created |
+| `inspections` | Execution, evidence, findings, reports, and peer review (WF3) | Scaffolded root; runtime slice not implemented |
+| `maintenance` | Assessment, execution, changes, and resolution (WF4) | Scaffolded root; runtime slice not implemented |
+| `notifications` | In-app and email notification delivery | Scaffolded root; runtime slice not implemented |
+| `dashboard` | Read-only composition of capability data | Scaffolded root; runtime slice not implemented |
+| `infrastructure` | Outbound adapters for feature-owned ports | Scaffolded root; runtime slice not implemented |
 
-Create a planned module only when its first real runtime slice is ready. Do not
-create empty packages for future workflow phases. Each feature owns its domain
+Scaffolded roots contain only package metadata; nested code packages are created
+with the first runtime slice that owns real code. Each feature owns its domain
 models; do not create a global `com.smartdroneinspection.domain` entity package.
 
 ## Module visibility and responsibilities
@@ -64,7 +66,7 @@ Shared code is limited to cross-cutting concerns such as error handling, securit
 ## Dependency direction
 
 ```text
-users -------------------------------> shared
+users -------------------------------> shared::auth, shared::config, shared::exception
 assets ------------------------------> shared
 inspectionrequests ------------------> assets, shared
 inspections -------------------------> inspectionrequests, assets, shared
