@@ -56,7 +56,7 @@ Required handoff checks:
 
 ## 5. Data and repository safety
 
-- **AI-25 MUST NOT** create or modify a Flyway migration unless the task explicitly assigns database migration work to the team leader.
+- **AI-25 MUST** create or modify Flyway migrations only when the current task explicitly includes database schema work, and must use a new forward migration rather than rewriting an applied migration.
 - **AI-26 MUST** use a new forward migration for an already-shared database change; never rewrite an applied migration.
 - **AI-27 MUST NOT** delete, reset, overwrite, or stage unrelated user work.
 - **AI-28 MUST** stage explicit files and review the staged diff before committing.
