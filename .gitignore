@@ -4,6 +4,7 @@ Thumbs.db
 
 # Local scratch
 *.tmp
+~$*.docx
 
 # Agent planning scratch
 /superpowers/plans/

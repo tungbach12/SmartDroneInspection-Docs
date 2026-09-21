@@ -3,18 +3,14 @@ title: "Project Reference"
 weight: 10
 ---
 
-# Project Overview
+# Project Reference
 
-This section contains the business-flow reference, the Report 3 requirement baseline, presentation-format source documents, and AI-readable Markdown companions.
+This section contains the project reports, business workflows, data-model reference, and practical project guides.
 
-- [System specification](markdown/report3-software-requirement-specification.md): scope, requirements, roles, technology, and delivery boundaries.
-- [Business flows and priorities](markdown/capstone-business-flow.md): the end-to-end workflows and implementation priorities.
-- [Database design](markdown/database-design.md): target PostgreSQL tables, relationships, constraints, indexes, and implementation boundary.
-- [Capstone error-prevention guide](markdown/capstone-error-prevention-guide.md): practical checks for documentation, implementation, testing, demo, and defense preparation.
-- [Report 3 — Software Requirement Specification](source-documents/Report3_Software_Requirement_Specification_SmartDroneInspection.docx): the official-template SRS baseline for SmartDroneInspection.
-- [Business flow source DOCX](source-documents/Capstone-reports-businessflow.docx): supplied source document for the WF1-WF4 business-flow reference.
+## Start here
 
-## Folder structure
-
-- `markdown/` — AI-readable and documentation-site Markdown.
-- `source-documents/` — supplied or presentation-format DOCX files.
+- [Project reports](reports/): each report keeps its Markdown, DOCX, images, and index in one folder.
+- [Workflows](workflows/): WF1-WF4 business flows, decisions, and exceptions.
+- [Data model](data-model/): target PostgreSQL tables, relationships, constraints, indexes, and implementation boundary.
+- [Project guides](guides/): practical checks for documentation, implementation, testing, demo, and defense preparation.
+The canonical Report 3 content is in [Report 3](reports/report-3-software-requirement-specification/). New report work belongs in `reports/`.

@@ -749,8 +749,8 @@ Each phase should land as a small forward migration and a matching feature-level
 
 ## 14. Source references
 
-- [Report 3 Software Requirement Specification](report3-software-requirement-specification.md)
-- [Capstone Business Flow](capstone-business-flow.md)
+- [Report 3 Software Requirement Specification](../reports/report-3-software-requirement-specification/)
+- [Capstone Business Flow](../workflows/business-flows.md)
 - [Authentication and Access Control](../../backend/authentication-and-authorization.md)
 - [Backend Architecture](../../backend/architecture.md)
 - [AI Agent Rules](../../development/ai-agent-rules.md)
