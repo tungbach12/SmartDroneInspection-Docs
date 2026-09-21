@@ -1,14 +1,13 @@
 ---
 title: SmartDroneInspection Capstone Business Flow
 document_type: business-flow-reference
-source_docx: ../source-documents/Capstone-reports-businessflow.docx
 purpose: AI-readable WF1-WF4 business-flow companion
 updated: 2026-09-18
 ---
 
 # SmartDroneInspection Capstone Business Flow
 
-> This Markdown file is a searchable companion to the supplied business-flow DOCX. It preserves the WF1-WF4 actors, preconditions, exceptions, decision loops, outputs, and detailed sequence tables.
+> This Markdown file is the searchable business-flow reference. It preserves the WF1-WF4 actors, preconditions, exceptions, decision loops, outputs, and detailed sequence tables.
 
 ## Canonical role vocabulary
 
