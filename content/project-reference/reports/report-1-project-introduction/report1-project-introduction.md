@@ -57,6 +57,7 @@ II. Project Introduction	4
 | --- | --- | --- | --- |
 | 11 Sep 2026 | A | Team | Version 1.0: complete project-specific content and team information. |
 | 12 Sep 2026 | M | Team | Version 1.1: clarified Review 1 target users and scope boundaries. |
+| 21 Sep 2026 | M | Team | Version 1.2: aligned roles, Client organization self-registration, post-service billing milestones, and scope exclusions with the current business flow. |
 
 *A - Added M - Modified D - Deleted
 
@@ -143,9 +144,9 @@ WF2 Inspection Request Review & Service Assignment.
 
 WF3 Inspection Execution, AI-assisted Finding Verification & Report Approval; and
 
-WF4 Maintenance, Defect Resolution, and Re-inspection. The platform supports five human roles: Administrator, Manager, Inspector, Maintenance Engineer, and Viewer. SmartDroneHub and AI Services are treated as external/system actors.
+WF4 Maintenance, Defect Resolution, and Re-inspection. The platform supports five human roles: Admin, Client, Service Manager, Inspector, and Maintenance Engineer. AI services are supporting system integrations; drone flight control is outside the platform.
 
-Within the scope, customer Managers can manage assets, request or schedule inspections, review service information, access inspection evidence, and approve reports. Provider-side staff can be assigned to service requests, perform inspections, verify AI-assisted findings, submit reports, carry out maintenance activities, and update defect resolution status. The platform also supports provider resource assignment based on availability, workload, location, and required skills.
+Within the scope, a Client represents one customer organization and can self-register that organization, manage its assets, request or schedule inspections, approve quotations and reports, and create maintenance tickets. Service Managers review requests, prepare quotations and orders, assign field staff, verify deliverables, and release customer-visible results. Inspectors and Maintenance Engineers work only on their assigned inspections or maintenance tasks.
 
 The project may include assembling and configuring a prototype drone using commercially available components for demonstration and system integration. The drone is manually operated using its designated controller and is used to capture inspection evidence for upload to SmartDroneInspection.
 
@@ -155,19 +156,19 @@ The project does not include fully autonomous drone operation, custom flight-con
 
 Feature identifiers FE-01 to FE-08 form the scope baseline for requirements, work estimates and acceptance tests. Optional enhancements are scheduled only after the core workflows are stable.
 
-FE-01: Identity & Access Governance. JWT-based authentication and role-/scope-based authorization, the five roles, organization and assignment scope, profile management, and audit logs. API queries and evidence access must enforce scope on the server.
+FE-01: Identity & Access Governance. Client self-registration creates one active customer organization and its first Client account. JWT-based authentication, role-/scope-based authorization, organization and assignment scope, profile management, and audit logs enforce access on the server. Self-registration cannot create platform or service-workforce roles.
 
-FE-02: Asset Registry & Inspection Schedule. Managers create and manage their organization’s assets, documents, inspection history and recurring schedules. Administrators maintain categories and checklist templates. WF1 generates periodic requests with an Asset + Schedule + Due Cycle idempotency key.
+FE-02: Asset Registry & Inspection Schedule. Clients create and manage their organization’s assets, documents, inspection history and recurring schedules. Admins maintain categories and checklist templates. WF1 generates periodic requests with an Asset + Schedule + Due Cycle idempotency key.
 
-FE-03: Inspection Request & Work Assignment. WF2 unifies PERIODIC and AD_HOC requests. Manager review, scope, priority and deadline lead to a versioned quotation and service-order confirmation. Applicable deposit or credit-term checks are completed before service mobilization or assignment, according to the confirmed service order.
+FE-03: Inspection Request & Work Assignment. WF2 unifies PERIODIC and AD_HOC requests. Client request details and Service Manager review lead to a versioned quotation and service-order confirmation. The Client approves post-service payment terms before assignment; no upfront payment or online payment gateway is required.
 
 FE-04: Inspection Execution & Evidence Management. The Flutter application supports assignment acceptance, inspection sessions, evidence upload/retry and metadata. Evidence records the inspection, asset, Inspector, capture time and source; GPS or external mission references are retained when available. Manual drone piloting stays outside the platform.
 
 FE-05: YOLO-assisted Defect Detection & Verification. Server-side inference generates candidates with defect label, confidence, bounding box and model version. Inspector Confirm, Modify, Reject and Manual Add actions determine official findings. Unverified candidates are excluded from official defect statistics.
 
-FE-06: Inspection Report & Approval. WF3 combines checklist results, evidence and verified findings into a versioned report. Inspector submission is followed by Manager review, revision/resubmission or approval. Approved versions are immutable; corrections create a new version and preserve approval history.
+FE-06: Inspection Report & Approval. WF3 combines checklist results, evidence and verified findings into a versioned report. Inspector submission is followed by peer review by another Inspector and Service Manager release. Accepted versions are immutable; corrections create a new version and preserve approval history. Client acceptance is the inspection billing milestone.
 
-FE-07: Maintenance & Defect Resolution. WF4 links approved defects to separately confirmed maintenance orders and tickets. The platform supports Engineer assignment after the maintenance order is confirmed and any applicable payment condition is satisfied. The Engineer uploads before/after evidence and marks the work resolved; the Manager requests rework, closes it or requests a new re-inspection through WF2.
+FE-07: Maintenance & Defect Resolution. WF4 links approved defects to separately confirmed maintenance orders and tickets. The platform supports Engineer assignment after the maintenance order and post-service payment terms are approved. The Engineer uploads before/after evidence and marks the work resolved; the Service Manager requests rework or releases the result, and the Client closes it or requests a new re-inspection through WF2. Client acceptance is the maintenance billing milestone.
 
 FE-08: Dashboard, Analytics & Notifications. Scoped views summarize due and overdue inspections, request and report status, workload, verified defects, maintenance, asset history and service/payment summaries. Notifications support assignments, reviews and deadlines without requiring live telemetry.
 
@@ -177,18 +178,18 @@ Figure 1. The four service workflows and the re-inspection return to WF2.
 
 ### 6.2 Limitations & Exclusions
 
-The first release is bounded by the following exclusions and dependencies. These limits apply to the software and demonstration, while the service records retain the complete business lifecycle.
+The first release is limited to infrastructure inspection and maintenance management. The following items define either excluded capabilities or mandatory product constraints. These boundaries apply to the software release and project demonstration; they do not prevent the system from retaining records for the supported inspection-to-maintenance lifecycle.
 
-LI-1: No custom flight-controller development, autonomous flight, waypoint navigation, automated mission planning, or obstacle-avoidance algorithms are included. Basic configuration and calibration required to operate the prototype drone may be performed using the manufacturer’s or flight-controller’s standard tools.
+LI-1: The platform does not provide autonomous drone flight control, flight-path programming, drone piloting, or automatic drone telemetry collection. Manual capture may occur outside the platform, but only authorized evidence is uploaded and managed by the product.
 
-LI-2: AI detection is limited to one or two defect types supported by the selected dataset and evaluated model. Defect classes, asset domain and evaluation thresholds are finalized after dataset assessment. AI does not certify structural safety or make final technical decisions.
+LI-2: AI is limited to generating candidate findings. An Inspector must review and verify each candidate before it can become an official finding. The system does not automatically publish AI-generated findings.
 
-LI-3: Maintenance remains inspection-related remediation follow-up. Inventory, spare-parts procurement, payroll, enterprise-wide maintenance planning and full cost accounting are excluded.
+LI-3: A Client representative may self-register a new organization and create the first Client account. The organization and account are activated immediately after successful registration. Self-registration cannot create or assign Admin, Service Manager, Inspector, or Maintenance Engineer roles. Anonymous access to system data is not supported.
 
-LI-4: SmartDroneHub integration depends on confirmed API access and supported metadata/media contracts. Direct evidence upload and a clearly identified adapter mock support development if live integration is unavailable. Real-time telemetry is not a core acceptance requirement.
+LI-4: Access is strictly scoped. A Client can access only data belonging to the Client’s organization. An Inspector and Maintenance Engineer can access only assignments explicitly allocated to them. A Service Manager can access only the service operations required by assigned requests and orders.
 
-LI-5: YOLO-based defect detection and LLM-assisted report generation are required features but may produce inaccurate or incomplete outputs.
+LI-5: An inspection report version accepted by the Client is immutable. Any subsequent correction or change must create a new version and preserve the previously accepted version.
 
-LI-6: Payment processing is limited to sandbox gateway integration for the capstone release. The system supports the full payment flow and records transaction status and references, but no real monetary transactions are processed.
+LI-6: General-purpose photogrammetry, 3D reconstruction, and unrelated consumer use are outside the product scope.
 
-LI-7: The release does not include general-purpose photogrammetry, 3D reconstruction, public anonymous consumer use. Approval is an authenticated versioned record, rather than a claim of certified digital signing.
+LI-7: Integration with external drone-management platforms or other unconfirmed third-party systems is excluded from the release. The system does not provide certified digital-signature services; approval is recorded as an authenticated and versioned application record.

@@ -2,7 +2,7 @@
 title: SmartDroneInspection Capstone Business Flow
 document_type: business-flow-reference
 purpose: AI-readable WF1-WF4 business-flow companion
-updated: 2026-09-18
+updated: 2026-09-21
 ---
 
 # SmartDroneInspection Capstone Business Flow
@@ -16,6 +16,18 @@ Admin, Service Manager, Inspector, Maintenance Engineer, and Client are the five
 ## Evidence and platform boundary
 
 Inspection evidence is uploaded through the web or mobile application, stored in MinIO, and optionally analyzed by YOLO. AI output remains a candidate until an Inspector confirms or modifies it. Drone flight control is outside SmartDroneInspection.
+
+---
+
+## Client Organization Onboarding
+
+The first Client representative may self-register a new organization and create the first Client account. The system creates the organization and account in one transaction, activates both immediately, and assigns only the `CLIENT` role in the `CUSTOMER_ORGANIZATION` actor zone. There is no email-verification or administrator-approval gate in v1. The registration response contains the organization and user profile but no access or refresh token; the Client signs in through the normal login flow.
+
+Registration does not allow a user to create or select Admin, Service Manager, Inspector, or Maintenance Engineer roles. Email and organization-code uniqueness, password policy, rate limits, organization isolation, and the `CLIENT_REGISTRATION` audit event are enforced by the backend. Additional accounts remain an Admin-managed operation in the current release.
+
+### Onboarding output
+
+An active customer organization with its first Client account, ready for WF1.
 
 ---
 
@@ -125,7 +137,7 @@ New assignment notification
 
 No upfront payment is required.
 
-Before assignment, the customer only needs to approve the service order and post-service payment terms.
+Before assignment, the Client only needs to approve the service order and post-service payment terms.
 
 An unconfirmed service order cannot proceed to Inspector assignment.
 
@@ -141,7 +153,7 @@ A confirmed service order and accepted Inspector assignment with status READY_FO
 
 Purpose: Thực hiện inspection, xử lý evidence, xác minh kết quả AI, peer review báo cáo và gửi final report cho khách hàng.
 
-Primary actors: Inspector Author, Inspector Peer Reviewer, Service Manager, Client , System, MinIO, YOLO Service.
+Primary actors: Inspector, Service Manager, Client, System, MinIO, YOLO Service.
 
 ### Preconditions
 
@@ -155,40 +167,41 @@ Inspector có quyền truy cập asset, checklist và assignment package.
 
 | Step | Role / Lane | Detailed Main Activity | Output |
 | --- | --- | --- | --- |
-| WF3-01 | Inspector — Author | Open the accepted assignment and start a new inspection session. | Active inspection session |
+| WF3-01 | Inspector | Open the accepted assignment and start a new inspection session. | Active inspection session |
 | WF3-02 | System | Change the inspection status from READY_FOR_INSPECTION to IN_PROGRESS and record the session start time and responsible Inspector. | Inspection in progress |
-| WF3-03 | Inspector — Author | Conduct the field inspection according to the assigned checklist and confirmed service scope. Manual drone piloting remains outside the platform. | Field inspection results |
-| WF3-04 | Inspector — Author | Capture or collect inspection images and transfer them from the drone’s SD card, computer or mobile device to the platform. | Uploaded evidence |
+| WF3-03 | Inspector | Conduct the field inspection according to the assigned checklist and confirmed service scope. Manual drone piloting remains outside the platform. | Field inspection results |
+| WF3-04 | Inspector | Capture or collect inspection images and transfer them from the drone’s SD card, computer or mobile device to the platform. | Uploaded evidence |
 | WF3-05 | System: Upload Service | Validate the file type and size, calculate a checksum, prevent duplicate evidence and retry interrupted uploads without creating duplicate records. | Validated evidence |
 | WF3-06 | System: MinIO | Store the evidence and associate it with the inspection, asset, Inspector, capture time, source and available GPS or external mission reference. | Stored inspection evidence |
 | WF3-07 | System: YOLO Service | Analyze eligible images and generate defect candidates containing the predicted label, confidence score, bounding box and model version. | AI defect candidates |
-| WF3-08 | Inspector — Author | Review every AI candidate and select Confirm, Modify or Reject. The Inspector may also manually add a defect missed by the AI model. | Inspector-verified findings |
+| WF3-08 | Inspector | Review every AI candidate and select Confirm, Modify or Reject. The Inspector may also manually add a defect missed by the AI model. | Inspector-verified findings |
 | WF3-09 | System | Exclude rejected and unverified AI candidates from official defect statistics and report content. | Official verified findings |
-| WF3-10 | Inspector — Author | Complete the checklist and add the defect location, severity, technical notes and recommended action for each verified finding. | Completed inspection record |
+| WF3-10 | Inspector | Complete the checklist and add the defect location, severity, technical notes and recommended action for each verified finding. | Completed inspection record |
 | WF3-11 | System | Compile a versioned draft report from the checklist, evidence and verified findings. LLM assistance may be used only with authorized data and remains subject to human review. | Versioned draft report |
-| WF3-12 | Inspector — Author | Review the draft report, correct its content and submit it for internal peer review. | Report awaiting peer review |
+| WF3-12 | Inspector | Review the draft report, correct its content and submit it for internal peer review. | Report awaiting peer review |
 | WF3-13 | Service Manager | Assign another qualified Inspector as the Peer Reviewer. The report author cannot review their own report. | Peer-review assignment |
-| WF3-14 | Inspector — Peer Reviewer | Verify that the evidence supports the findings and check defect classification, severity, location, checklist consistency and technical conclusions. | Peer-review result |
-| WF3-15 | Inspector — Peer Reviewer | Request changes when issues are found, or mark the report as TECHNICALLY_APPROVED when the technical content is acceptable. | Technically approved report |
-| WF3-16 | Inspector — Author | If changes are requested, revise the report and resubmit it to the same Peer Reviewer. | Revised report version |
+| WF3-14 | Inspector | Verify that the evidence supports the findings and check defect classification, severity, location, checklist consistency and technical conclusions. The report author cannot review the same report. | Peer-review result |
+| WF3-15 | Inspector | Request changes when issues are found, or mark the report as TECHNICALLY_APPROVED when the technical content is acceptable. | Technically approved report |
+| WF3-16 | Inspector | If changes are requested, revise the report and resubmit it to the same Peer Reviewer. | Revised report version |
 | WF3-17 | Service Manager | Check that the technically approved report is complete and contains all deliverables required by the confirmed service order. | Internally released report |
 | WF3-18 | Service Manager | Release the final report to the Client . Internal drafts and peer-review comments remain hidden from the customer. | Final customer report |
 | WF3-19 | Client | Review the released report and accept it or request clarification and revision. The Client does not directly edit the technical content. | Accepted report or revision request |
-| WF3-20 | System | When the customer accepts the report, mark the version as immutable and preserve the complete approval and revision history. | Customer-accepted report |
+| WF3-20 | System | When the Client accepts the report, mark the version as immutable and preserve the complete approval and revision history. | Customer-accepted report |
+| WF3-21 | System | Record the inspection billing milestone and create or issue the inspection invoice according to the confirmed post-service payment terms. | Inspection invoice and payment status |
 
 ### Peer-review loop
 
-Inspector Author submits Draft Report
+Inspector submits Draft Report
 
 > ↓
 
-Peer Reviewer checks technical content
+Another Inspector checks technical content
 
 > ↓
 
 Changes required?
 
-- Yes → Author creates revised version → Review again
+- Yes → Inspector creates revised version → Review again
 
 - No → Technically Approved
 
@@ -257,7 +270,7 @@ Defect chưa bị đóng hoặc liên kết với một maintenance ticket đang
 | WF4-17 | Service Manager | Release the maintenance result to the Client . | Customer-visible maintenance result |
 | WF4-18 | Client | Review the result and select Accept Resolution, Request Rework or Request Re-inspection. | Resolution decision |
 | WF4-19 | System | If accepted, close the ticket and linked defect. If rework is requested, return the ticket to the execution stage. If re-inspection is requested, create a linked AD_HOC request for WF2. | Closed, rework or re-inspection state |
-| WF4-20 | System | Finalize the actual cost, issue the invoice, record payment status, send notifications and preserve the audit history. | Completed maintenance record |
+| WF4-20 | System | Finalize the actual cost, issue the maintenance invoice, record payment status, send notifications and preserve the audit history. | Completed maintenance record |
 
 ### Resolution branches
 
@@ -291,7 +304,9 @@ A qualified Maintenance Engineer provides the technical estimate.
 
 The estimate is not necessarily the final cost.
 
-No upfront payment is required; the customer approves post-service payment terms.
+No upfront payment is required; the Client approves post-service payment terms in the quotation and service order.
+
+Inspection and maintenance are billed at separate acceptance milestones. The inspection invoice is created after the Client accepts the inspection report. The maintenance invoice is created after the Client accepts the maintenance result. Both use the same invoice status lifecycle; the first release records external or manual payment confirmation and does not integrate an online payment gateway.
 
 A material scope or cost increase requires an approved change-order version.
 

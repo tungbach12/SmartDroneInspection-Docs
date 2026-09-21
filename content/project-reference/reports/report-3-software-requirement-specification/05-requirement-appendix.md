@@ -92,7 +92,7 @@ source: "report3-software-requirement-specification.docx"
 
 ### 5.4 Other Requirements
 
-- The solution does not provide public self-registration, online payment processing, procurement, inventory accounting, or autonomous approval of AI findings in this release.
+- The solution supports controlled Client organization self-registration, but does not provide anonymous consumer registration, online payment processing, procurement, inventory accounting, or autonomous approval of AI findings in this release.
 - Web access tokens remain in memory. Browser refresh credentials are delivered only through the protected cookie flow. Mobile credentials use platform secure storage.
 - PostgreSQL is the transactional source of truth. MinIO stores evidence objects. The backend mediates authorized file access.
 - Use cases use the template's two-digit IDs. Business rules and application messages retain `BR` and `MSG` prefixes. Workflow steps retain `WF1` through `WF4` identifiers in the business-flow reference.

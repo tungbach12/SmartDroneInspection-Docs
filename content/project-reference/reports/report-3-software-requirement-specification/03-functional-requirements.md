@@ -20,6 +20,7 @@ The browser application provides administration, Client, and Service Manager wor
 | # | Feature | Screen | Description |
 | --- | --- | --- | --- |
 | 1 | Authentication | Login | Authenticate an issued account and route the user to the permitted application experience. |
+| 1a | Authentication | Client Registration | Register a new organization and the first Client account. The account is active immediately and receives only the Client role. |
 | 2 | Authentication | First Password Setup | Replace the administrator-issued setup password before normal application access. |
 | 3 | Common | Dashboard | Show role-scoped work queues, counts, deadlines, and recently released results. |
 | 4 | Common | Profile and Password | View account information, change the password, and terminate the current or all sessions. |
@@ -81,6 +82,7 @@ The matrix preserves the five-column structure of the supplied template. The com
 
 | # | Feature | System Function | Description |
 | --- | --- | --- | --- |
+| 1a | Authentication | Client organization registration | Validate the registration request, create an active organization and first Client account atomically, enforce uniqueness and password policy, rate-limit attempts, and append a registration audit event. |
 | 1 | Authentication | Access-token validation | Validate token signature, issuer, audience, expiry, session, user status, authentication version, role, and applicable resource scope. |
 | 2 | Authentication | Refresh-token rotation | Rotate the opaque refresh token and reject an expired, revoked, or reused token. |
 | 3 | Planning | Periodic request generation | Create at most one periodic request for each Asset, Schedule, and Due Cycle combination. |
@@ -130,7 +132,7 @@ The diagram describes the principal transactional entities. The complete physica
 | 25 | Maintenance Assignment | Assessment or execution assignment to a Maintenance Engineer. |
 | 26 | Maintenance Work Log | Progress, materials, duration, cost, and before/after evidence. |
 | 27 | Change Request | Material change in scope or cost that requires a Client decision. |
-| 28 | Invoice | Final actual-cost and payment-status record issued after completion. |
+| 28 | Invoice | Service invoice and payment-status record issued after Client acceptance of an inspection report or maintenance result. |
 | 29 | Notification | Delivery record for a user-facing workflow notification. |
 | 30 | Audit Event | Append-only security or material workflow event. |
 
@@ -201,6 +203,7 @@ The diagram describes the principal transactional entities. The complete physica
 - When changes are required, the author creates a revised version and resubmits it. Prior versions and review decisions remain traceable.
 - When technically approved, the Service Manager checks deliverable completeness and releases the report to the Client.
 - The Client accepts the report or requests clarification or revision without editing technical content directly.
+- When the Client accepts the report, the system records the inspection billing milestone and creates or issues the inspection invoice according to the confirmed post-service payment terms. No online payment gateway is required in the first release.
 
 **Validation and exception requirements:** Internal drafts and peer-review comments are not customer-visible. A released report cannot be silently overwritten. An accepted version is immutable; later corrections create a new linked version.
 
@@ -267,6 +270,7 @@ The diagram describes the principal transactional entities. The complete physica
 - When complete, the Service Manager releases the maintenance result to the Client.
 - The Client chooses Accept Resolution, Request Rework, or Request Re-inspection.
 - Accept Resolution closes the ticket and linked defect and allows invoice and payment status tracking.
+- When the Client accepts the maintenance result, the system finalizes the actual cost and creates or issues the maintenance invoice according to the confirmed post-service payment terms. The invoice follows the same payment-status lifecycle as an inspection invoice.
 - Request Rework returns the ticket to execution with a documented reason and a new work cycle.
 - Request Re-inspection creates a linked ad hoc inspection request and returns it to WF2.
 

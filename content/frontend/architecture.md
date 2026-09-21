@@ -18,7 +18,7 @@ frontend/src/
 │   ├── router/                  # Routes and route guards
 │   └── theme/                   # Material UI theme
 ├── features/
-│   ├── auth/                    # Login and role guard
+│   ├── auth/                    # Client registration, login, and role guard
 │   ├── assets/                  # Asset pages, API, and hooks
 │   └── ai/                      # AI dashboard pages
 ├── shared/
@@ -41,6 +41,8 @@ Feature folders are added as their screens are implemented. A feature may contai
 React Router lazy-loads feature routes. `RequireAuth` protects authenticated pages and checks the roles returned by the backend. These checks improve navigation but do not replace backend organization, assignment, or resource authorization.
 
 The current role names are `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`.
+
+The web auth feature owns the Client onboarding form as well as login and session UX. The first Client representative can create a new organization and account through the backend registration contract; the web does not collect or persist a refresh token in application state.
 
 ## UI conventions
 

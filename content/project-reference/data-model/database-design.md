@@ -150,7 +150,7 @@ When a definition below says **mutable aggregate columns**, it means `created_at
 | --- | --- | --- | --- |
 | `id` | `UUID` | No | Primary key. |
 | `name` | `VARCHAR(200)` | No | Display name. |
-| `code` | `VARCHAR(64)` | No | Unique stable organization code. |
+| `code` | `VARCHAR(64)` | No | Unique stable organization code, normalized to uppercase. A Client representative may create the organization together with the first active Client account. |
 | `description` | `VARCHAR(2000)` | Yes | Administrative description. |
 | `active` | `BOOLEAN` | No | Defaults to `TRUE`. |
 | `created_at` | `TIMESTAMPTZ` | No | Creation time. |
@@ -595,7 +595,7 @@ The approved changed order links back through `maintenance_orders.change_request
 
 Columns: `id`, unique `invoice_number`, `organization_id`, `maintenance_order_id`, `maintenance_ticket_id`, `currency`, `subtotal`, `tax_amount`, `total_amount`, `status`, `issued_at`, `due_at`, optional `paid_at`, and immutable timestamps.
 
-The v1 schema invoices completed maintenance work only. Inspection billing can be added later when it becomes an implemented workflow instead of introducing a polymorphic invoice association now.
+The current physical schema invoices completed maintenance work only. The approved B2B workflow also defines an inspection invoice after Client acceptance of the inspection report, but that milestone remains a follow-up billing slice; do not introduce a polymorphic invoice association until its owning workflow and migration are implemented together.
 
 ### 6.6 Supporting workflow
 
@@ -716,7 +716,7 @@ The database model supports, but does not replace, application authorization. Re
 
 ## 12. Implementation status
 
-As of 2026-09-19, Flyway migrations `V1` through `V9` implement the complete **physical schema**: all 35
+As of 2026-09-21, Flyway migrations `V1` through `V9` implement the complete **physical schema**: all 35
 application tables in this document plus the Spring Modulith `event_publication` registry. The physical-schema phases
 are:
 

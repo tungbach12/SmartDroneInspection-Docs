@@ -37,6 +37,7 @@ Browser endpoints are under `/api/v1/auth/**`:
 | Endpoint | Purpose |
 | --- | --- |
 | `GET /csrf` | Obtain the CSRF token used by browser requests. |
+| `POST /register` | Create an active Client account and its new organization. |
 | `POST /login` | Authenticate with email and password. |
 | `POST /password/setup` | Complete an administrator-issued first-password setup. |
 | `POST /refresh` | Rotate the browser refresh token. |
@@ -48,6 +49,27 @@ Browser endpoints are under `/api/v1/auth/**`:
 The access token is returned in the login response and held in web memory only. The refresh token is an opaque `HttpOnly`, `Secure`, `SameSite=Strict` cookie scoped to the auth API. It is never written to `localStorage` or returned in JSON.
 
 Browser auth uses CSRF protection and an exact CORS allowlist. API errors use RFC 7807 with a stable `code` and `traceId`; login failures use a generic message.
+
+## Client organization onboarding
+
+The first Client representative may self-register a new organization through `POST /register`. The request contains the representative's name and credentials together with the organization name and unique organization code. The backend creates the organization and the first user in one transaction, activates both immediately, and assigns only the `CLIENT` role in the `CUSTOMER_ORGANIZATION` actor zone. There is no email-verification or administrator-approval gate in v1.
+
+Registration cannot create or select `ADMIN`, `SERVICE_MANAGER`, `INSPECTOR`, or `MAINTENANCE_ENGINEER`. Email and organization-code uniqueness, password policy, request rate limits, organization isolation, and an append-only `CLIENT_REGISTRATION` audit event are enforced by the backend. The registration response contains the created organization and user profile but no access or refresh token; the Client signs in through the normal login flow.
+
+The browser and mobile request body is:
+
+| Field | Meaning |
+| --- | --- |
+| `email` | Representative's login email. Lookup is case-insensitive. |
+| `fullName` | Representative's display name. |
+| `organizationName` | Name of the new customer organization. |
+| `organizationCode` | Unique 3–64 character code using letters, numbers, `-`, or `_`; it is stored in uppercase. |
+| `password` | A 15–128 Unicode-character password validated by the shared password policy. |
+
+Successful registration returns `201 Created` with the organization identifier/code and the new user profile. It does not issue tokens, set a refresh cookie, or expose the password.
+
+The response shape is `{ organizationId, organizationName, organizationCode, user }`; `user` contains the new user's identifier, normalized email, name, role list (`CLIENT`), actor zone, and organization identifier.
+
 ## Platform user administration
 Platform user management is under `/api/v1/platform/users/**` and requires `ADMIN`:
 - `POST /api/v1/platform/users` creates a provisioned account.
@@ -58,6 +80,8 @@ Platform user management is under `/api/v1/platform/users/**` and requires `ADMI
 ## Mobile flow
 
 Mobile endpoints mirror the auth contract under `/api/v1/mobile/auth/**`. Mobile clients receive access and refresh tokens in JSON and store them with platform secure storage. Browser `Origin` requests are rejected on these endpoints.
+
+`POST /api/v1/mobile/auth/register` uses the same Client onboarding contract and rejects browser-origin requests.
 
 ## Tokens and sessions
 
@@ -75,7 +99,7 @@ Mobile endpoints mirror the auth contract under `/api/v1/mobile/auth/**`. Mobile
 
 ## Intentionally out of scope for v1
 
-The current product does not need TOTP enrollment, recovery codes, Redis-backed challenge orchestration, public registration, email password recovery, or a separate identity provider. These can be added behind the same service boundary if risk or product scope changes.
+The current product does not need TOTP enrollment, recovery codes, Redis-backed challenge orchestration, email password recovery, or a separate identity provider. Controlled Client self-registration is in scope; self-registration of platform or service-workforce roles is not. These other capabilities can be added behind the same service boundary if risk or product scope changes.
 
 ## Production configuration
 
