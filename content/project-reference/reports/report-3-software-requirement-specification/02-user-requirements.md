@@ -15,7 +15,7 @@ source: "report3-software-requirement-specification.docx"
 | 2 | Service Manager | Reviews inspection and maintenance requests, prepares quotation and order versions, assigns qualified staff, coordinates peer review, verifies deliverables, and releases customer-visible results. |
 | 3 | Inspector | Accesses assigned inspections and assigned peer reviews; completes checklists, evidence, verified findings, and inspection reports. The report author cannot approve the same report as peer reviewer. |
 | 4 | Maintenance Engineer | Accesses assigned maintenance assessments and execution work; supplies technical estimates, work logs, change requests, before/after evidence, and completion results. |
-| 5 | Client | Acts for one customer organization and manages that organization's assets, inspection requests, commercial approvals, released reports, maintenance tickets, and resolution decisions. |
+| 5 | Client | Represents one customer organization. The Client may self-register the organization and first Client account, then manages that organization's assets, inspection requests, commercial approvals, released reports, maintenance tickets, and resolution decisions. |
 
 ### 2.2 Use Cases
 
@@ -27,7 +27,7 @@ source: "report3-software-requirement-specification.docx"
 
 | ID | Use Case | Actors | Use Case Description |
 | --- | --- | --- | --- |
-| 01 | Authenticate User | All roles | Sign in with an issued account, complete first-password setup when required, refresh the session, change the password, and sign out. |
+| 01 | Authenticate User | All roles | A Client may register a new organization and first active Client account; all users can sign in with an issued account, complete first-password setup when required, refresh the session, change the password, and sign out. Registration creates only the Client role and does not issue platform or service-workforce permissions. |
 | 02 | Manage Users and Organizations | Admin | Create organizations and accounts, assign valid roles, reset credentials, change account status, and revoke sessions. |
 | 03 | Configure Categories and Checklists | Admin | Maintain asset categories, checklist templates, checklist versions, and platform-level reference data. |
 | 04 | Register Asset | Client | Create and update an infrastructure asset owned by the Client's organization. |

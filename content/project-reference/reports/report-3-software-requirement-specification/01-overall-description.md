@@ -13,6 +13,8 @@ SmartDroneInspection is an infrastructure inspection management platform. It coo
 
 The platform supports five actors: Admin, Service Manager, Inspector, Maintenance Engineer, and Client. A Client acts only within one customer organization. Inspectors and Maintenance Engineers work only on assigned resources. Service Managers coordinate service delivery across customer organizations. Admin manages platform configuration and identities but does not automatically receive permission to perform customer or service workflow actions.
 
+A Client representative may self-register a new organization and the first Client account. The organization and account become active immediately after successful registration. Registration can create only the Client role; platform and service-workforce roles remain controlled by Admin. The Client signs in through the normal authentication flow after registration.
+
 The product does not pilot drones, control flights, own drone telemetry, or replace site safety procedures. Inspection images may be transferred from a drone SD card, computer, web browser, or mobile device. MinIO stores authorized evidence objects. The configured YOLO service may propose defect candidates, but those candidates do not become official findings until an Inspector confirms or corrects them.
 
 The main business flow is:

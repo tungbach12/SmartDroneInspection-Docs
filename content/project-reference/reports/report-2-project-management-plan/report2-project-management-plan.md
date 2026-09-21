@@ -29,6 +29,7 @@ Table of Contents
 | 14 Sep 2026 | M | Team | Version 1.3: corrected WBS, effort allocation, schedule and Review 1 controls. |
 | 14 Sep 2026 | M | Team | Version 1.4: organized WBS as software features/functions and completed layout QA. |
 | 14 Sep 2026 | M | Team | Version 1.5: aligned WBS and responsibilities one-to-one with FE-01 through FE-08. |
+| 21 Sep 2026 | M | Team | Version 1.6: added Client self-registration and separate post-service billing milestones. |
 
 *A - Added M - Modified D - Deleted
 
@@ -38,12 +39,12 @@ Table of Contents
 
 ### 1.1 Scope & Estimation
 
-SmartDroneInspection is a B2B infrastructure inspection service platform. The baseline covers asset and inspection-zone management, schedules, service requests and orders, direct evidence upload to MinIO, human-verified YOLO findings, Inspector-reviewed LLM report drafting, approval and maintenance follow-up. Direct upload is the core path. Sandbox payment status is used for the demo. Autonomous flight control, complete 3D reconstruction, real payment settlement and full enterprise CMMS are outside the baseline. The eight bold parent rows map one-to-one to FE-01 through FE-08; each parent is a software feature roll-up and each numbered child is an estimable software function. Parent rows are not assigned as separate Jira work; the child functions are. The 135 man-days include analysis, design, implementation, testing and documentation for those functions.
+SmartDroneInspection is a B2B infrastructure inspection service platform. The baseline covers Client self-registration of a customer organization, asset and inspection-zone management, schedules, service requests and orders, direct evidence upload to MinIO, human-verified YOLO findings, Inspector-reviewed LLM report drafting, approval and maintenance follow-up. Inspection and maintenance use separate post-service billing milestones with a shared invoice status lifecycle; the first release records external or manual payment confirmation and does not integrate a payment gateway. Direct upload is the core path. Autonomous flight control, complete 3D reconstruction, real payment settlement and full enterprise CMMS are outside the baseline. The eight bold parent rows map one-to-one to FE-01 through FE-08; each parent is a software feature roll-up and each numbered child is an estimable software function. Parent rows are not assigned as separate Jira work; the child functions are. The 135 man-days include analysis, design, implementation, testing and documentation for those functions.
 
 | # | WBS Item | Complexity | Est. Effort<br>(man-days) |
 | --- | --- | --- | --- |
 | 1 | FE-01 Identity & Access Governance |  | 16 |
-| 1.1 | JWT authentication, account and profile management | Medium | 5 |
+| 1.1 | Client organization self-registration, JWT authentication, account and profile management | Medium | 5 |
 | 1.2 | Role- and scope-based authorization for five roles | Complex | 6 |
 | 1.3 | Organization and assignment scope enforcement with audit logs | Complex | 5 |
 | 2 | FE-02 Asset Registry & Inspection Schedule |  | 16 |
@@ -52,9 +53,9 @@ SmartDroneInspection is a B2B infrastructure inspection service platform. The ba
 | 2.3 | Asset categories and checklist templates | Simple | 4 |
 | 3 | FE-03 Inspection Request & Work Assignment |  | 18 |
 | 3.1 | Periodic and ad-hoc inspection request intake | Medium | 5 |
-| 3.2 | Manager scope, priority and deadline review | Medium | 4 |
+| 3.2 | Service Manager scope, priority and deadline review | Medium | 4 |
 | 3.3 | Versioned quotation and service-order confirmation | Complex | 5 |
-| 3.4 | Deposit or credit-term gate before assignment | Medium | 4 |
+| 3.4 | Client approval of post-service payment terms before assignment | Medium | 4 |
 | 4 | FE-04 Inspection Execution & Evidence Management |  | 20 |
 | 4.1 | Assignment acceptance and inspection session management | Medium | 5 |
 | 4.2 | Flutter evidence capture and metadata recording | Complex | 5 |
@@ -67,13 +68,13 @@ SmartDroneInspection is a B2B infrastructure inspection service platform. The ba
 | 5.4 | Include only Inspector-verified defects in official reports and statistics. | Simple | 3 |
 | 6 | FE-06 Inspection Report & Approval |  | 16 |
 | 6.1 | LLM-assisted versioned report compilation from verified data | Complex | 5 |
-| 6.2 | Inspector submission and Manager review workflow | Complex | 6 |
+| 6.2 | Inspector peer review and Service Manager release workflow | Complex | 6 |
 | 6.3 | Approved-version immutability and correction history | Complex | 5 |
 | 7 | FE-07 Maintenance & Defect Resolution |  | 17 |
 | 7.1 | Approved-defect linkage to maintenance orders and tickets | Medium | 4 |
 | 7.2 | Engineer assignment after initial scope approval and confirmation of post-service payment terms | Complex | 4 |
 | 7.3 | Before-and-after evidence and resolution recording | Complex | 5 |
-| 7.4 | Manager rework, closure and re-inspection decisions | Medium | 4 |
+| 7.4 | Service Manager rework, closure and re-inspection decisions | Medium | 4 |
 | 8 | FE-08 Dashboard, Analytics & Notifications |  | 12 |
 | 8.1 | Scoped operational, defect and service analytics | Complex | 7 |
 | 8.2 | Assignment, review and deadline notifications | Medium | 5 |
@@ -81,7 +82,7 @@ SmartDroneInspection is a B2B infrastructure inspection service platform. The ba
 
 ### 1.2 Project Objectives
 
-The objective is to deliver a demonstrable end-to-end service lifecycle from asset and inspection request management to evidence review, verified AI findings, approved reports and maintenance follow-up, while enforcing role and organization access boundaries. The core demo covers prioritized mainflows and uses only implemented or clearly identified conditional integrations.
+The objective is to deliver a demonstrable B2B service lifecycle from Client organization onboarding, asset and inspection request management to evidence review, verified AI findings, approved reports, separate inspection and maintenance billing milestones, and maintenance follow-up, while enforcing role and organization access boundaries. The core demo covers prioritized mainflows and uses only implemented or clearly identified conditional integrations.
 
 Quality: 100% of Must requirements are linked to test evidence; all critical workflows pass; and no Critical or High defect remains open at release.
 
@@ -89,7 +90,7 @@ Quality: 100% of Must requirements are linked to test evidence; all critical wor
 | --- | --- | --- | --- | --- | --- |
 | 1 | Reviewing | 100% baseline documents |  |  | Peer review, traceability and feedback closure. |
 | 2 | Unit Test | >=80% branch coverage in core rule modules |  |  | Permissions, pricing, configuration and state transitions. |
-| 3 | Integration Test | 100% critical API contracts |  |  | PostgreSQL, MinIO, AI, and sandbox payment. |
+| 3 | Integration Test | 100% critical API contracts |  |  | PostgreSQL, MinIO, AI, and manual invoice/payment-status recording. |
 | 4 | System Test | 100% critical end-to-end scenarios |  |  | No Critical/High defect; mainflows, failures and organization isolation. |
 | 5 | Acceptance Test | 100% agreed Must scenarios |  |  | No Critical/High defect; supervisor-reviewed demonstration evidence. |
 
@@ -136,7 +137,7 @@ Quality is managed through prevention, review and layered testing. Requirements,
 
 - Unit Testing: test permissions, pricing, scheduling and valid or invalid state transitions.
 
-- Integration Testing: verify web/mobile APIs, PostgreSQL, MinIO, AI services and sandbox payment callbacks.
+- Integration Testing: verify web/mobile APIs, PostgreSQL, MinIO, AI services and manual invoice/payment-status recording. No online payment callback is in scope for the first release.
 
 - System Testing: execute the four workflows, all roles, AI failure paths, report approval, maintenance and access isolation.
 
@@ -185,7 +186,7 @@ D~Do; R~Review; S~Support; I~Informed; <blank>- Omitted
 | 2.2 Recurring schedules and due-cycle generation (W7) | R | D | S | S | R |
 | 2.3 Categories and checklist templates (W7) | S | D | R | S | R |
 | 3.1 Periodic and ad-hoc request intake (W8) | D | R | S | S | I |
-| 3.2 Manager scope, priority and deadline review (W8) | D | R | S | S | I |
+| 3.2 Service Manager scope, priority and deadline review (W8) | D | R | S | S | I |
 | 3.3 Quotation and service-order confirmation (W8) | D | R | S | S | R |
 | 3.4 Inspection assignment after confirmed order and approved post-service payment terms (W8) | R | S | S | D | R |
 | 4.1 Assignment acceptance and inspection session (W8) | R | D | S | S | I |
@@ -200,7 +201,7 @@ D~Do; R~Review; S~Support; I~Informed; <blank>- Omitted
 | 6.2 Submission, review and approval workflow (W11) | D | S | R | S | R |
 | 6.3 Approved-version immutability and history (W11) | R | S | S | D | R |
 | 7.1 Defect linkage to maintenance orders/tickets (W11) | R | S | S | D | I |
-| 7.2 Engineer assignment and payment gate (W11) | R | S | S | D | R |
+| 7.2 Engineer assignment after approved post-service terms (W11) | R | S | S | D | R |
 | 7.3 Before/after evidence and resolution (W11) | S | R | D | S | I |
 | 7.4 Rework, closure and re-inspection decisions (W11) | D | R | S | S | R |
 | 8.1 Scoped dashboards and analytics (W11) | S | R | D | S | I |
