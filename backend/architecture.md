@@ -70,10 +70,10 @@ Shared code is limited to cross-cutting concerns such as error handling, securit
 ## Dependency direction
 
 ```text
-users -------------------------------> shared::auth, shared::config, shared::exception
+users -------------------------------> shared::api, shared::auth, shared::config, shared::exception
 assets ------------------------------> shared
 inspectionrequests ------------------> assets, shared
-inspections -------------------------> inspectionrequests, assets, shared
+inspections -------------------------> inspectionrequests, assets, shared::api, shared
 maintenance -------------------------> inspections, inspectionrequests, shared
 notifications -----------------------> feature::events
 dashboard ---------------------------> feature root read APIs
@@ -95,6 +95,13 @@ Inspection evidence is uploaded through the web or mobile application. The curre
 
 ## Error handling and verification
 
-Expected business failures use `Result<T>` where appropriate. Unexpected failures are converted to RFC 7807 `ProblemDetail` by the global exception handler.
+Successful JSON bodies use the shared `ApiResponse<T>` contract: `{ success, message, data }`. Controllers keep the HTTP status authoritative; `204 No Content` and binary evidence streams are not wrapped. Browser and mobile clients unwrap the envelope in their shared HTTP clients.
+
+Changing an already-published response body is breaking: deploy the backend and
+first-party clients as a compatible release. If an external `/api/v1` consumer
+exists, keep its old contract during migration or introduce a new API version
+instead of silently switching its response shape.
+
+Expected business failures use `Result<T>` where appropriate. Errors use RFC 9457 `ProblemDetail` with a stable application `code` and `traceId`; MVC and Spring Security failures share this error shape. Unexpected failures are sanitized by the global exception handler.
 
 Backend changes should pass `./mvnw verify`, including formatting, tests, JaCoCo coverage, and Modulith boundary verification.

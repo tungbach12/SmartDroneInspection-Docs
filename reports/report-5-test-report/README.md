@@ -52,7 +52,7 @@ The working cases cover the four main business flows without testing drone
 flight control. The fixed workbook sheets combine these groups, while FE codes
 identify SRS capabilities and WF codes retain business-flow traceability:
 
-1. FE-01 — identity/access foundation and the W3 auth/migration smoke gate.
+1. FE-01 — identity/access foundation, including the W3 auth/migration smoke gate and shared API contract supporting checks. These supporting gates are documented separately and are not additional functional workbook cases.
 2. FE-02 — asset and inspection scheduling (WF1; `WF1-001`–`WF1-004`).
 3. FE-03 — client request, quotation/order, and service assignment (WF2; `WF2-001`–`WF2-004`).
 4. FE-04 — inspection execution and evidence (WF3; `WF3-001`–`WF3-002`).

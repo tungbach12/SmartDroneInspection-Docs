@@ -49,7 +49,7 @@ A business capability is a direct package under `com.smartdroneinspection`, for 
 
 ## API and DTOs
 
-- **BE-05 MUST** keep controllers thin: parse transport input, invoke one application use case, and map the result to HTTP.
+- **BE-05 MUST** keep controllers thin: parse transport input, invoke one application use case, and map successful JSON results to `shared.api.ApiResponse<T>` while preserving the endpoint's HTTP status. Keep `204 No Content` and binary streaming responses unwrapped.
 - **BE-06 MUST** use Java records for request and response DTOs unless framework behavior requires a class.
 - **BE-07 MUST** place request DTOs in `<feature>/api/dto/request` and response DTOs in `<feature>/api/dto/response`.
 - **BE-08 MUST** validate requests with Jakarta Bean Validation and `@Valid`; service methods still enforce business invariants.
@@ -63,7 +63,7 @@ A business capability is a direct package under `com.smartdroneinspection`, for 
 - **BE-13 SHOULD** place state-transition invariants on the entity/value object when they belong to that model; orchestration remains in the service.
 - **BE-14 MUST** scope repository queries by organization, owner, or assignment when access depends on that scope. Fetching broadly and filtering in memory is not authorization.
 - **BE-15 MUST NOT** create `XxxService` plus `XxxServiceImpl`, or a repository wrapper around Spring Data, unless there is a real alternative implementation or boundary.
-- **BE-16 SHOULD** use the shared `Result<T>` for expected business outcomes already modeled by the application. Unexpected exceptions are mapped to RFC 7807 `ProblemDetail` centrally.
+- **BE-16 SHOULD** use the shared `Result<T>` for expected business outcomes already modeled by the application. Errors are mapped to RFC 9457 `ProblemDetail` with a stable code and trace identifier; unexpected exceptions are handled centrally.
 
 ## Security
 
