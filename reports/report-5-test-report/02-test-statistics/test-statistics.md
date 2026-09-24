@@ -29,6 +29,7 @@ The FE-01 supporting gates are excluded from the functional workbook totals:
 transport; live Spring API integration was not run because Docker/backend was
 unavailable. See `03-features/feature-1.md` for the detailed procedure and
 scope.
+Cross-cutting successful-JSON envelope checks passed in backend, frontend, and mobile; these supporting checks are excluded from the functional workbook totals.
 
 ## Coverage summary
 

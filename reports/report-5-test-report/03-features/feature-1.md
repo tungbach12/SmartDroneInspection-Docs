@@ -72,6 +72,28 @@ row, and it does not change the 15 functional cases below.
   Spring API integration was not executed because Docker/backend was
   unavailable in this environment; this result is not an end-to-end test claim.
 
+### Cross-cutting successful API response-envelope verification
+
+This is a supporting contract verification, not an additional business-flow
+case or workbook row. It verifies the shared successful-JSON contract without
+changing the 15 functional workbook cases.
+
+- Preconditions: the backend and first-party clients use the same versioned
+  response contract; Docker-backed backend integration tests are available.
+- Procedure: run `.\mvnw.cmd verify` in `backend`, `npm.cmd test` in
+  `frontend`, `flutter test` and `flutter analyze` in `mobile`; inspect the
+  server/client adapter assertions for success envelopes, Problem Details, and
+  bodyless logout behavior.
+- Expected result: successful JSON bodies expose `success`, `message`, and
+  `data`; web/mobile callers receive the inner typed payload; error responses
+  remain Problem Details; `204 No Content` remains bodyless. Binary streaming
+  controllers are intentionally not wrapped by the JSON envelope.
+- Round 1 result: **Passed** on 2026-09-24; tester: Codex (automated).
+- Evidence: backend `ApiResponseTest` and `WorkflowBaselineTest`; frontend
+  `src/shared/api/apiResponse.test.ts`; mobile
+  `test/core/network/api_response_interceptor_test.dart`. Full verification
+  commands and results are listed in the delivery hand-off.
+
 ## Function A — FE-02 asset catalog and organization scope (WF1)
 
 | Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |

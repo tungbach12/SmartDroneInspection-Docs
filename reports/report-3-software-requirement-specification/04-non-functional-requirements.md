@@ -11,7 +11,7 @@ source: "report3-software-requirement-specification.docx"
 
 - **Web browser:** The React web application communicates with the backend over HTTPS and supports current Chrome, Edge, and Firefox versions used by the project.
 - **Mobile application:** The Flutter application communicates with the same versioned backend contract over HTTPS and stores mobile credentials only in platform secure storage.
-- **REST API:** JSON endpoints are versioned under `/api/v1`. OpenAPI is available for development and protected appropriately in production.
+- **REST API:** JSON endpoints are versioned under `/api/v1`. Successful JSON bodies use `{ success, message, data }`; HTTP status codes remain authoritative, while `204 No Content` and binary file streams are not wrapped. Errors use RFC 9457 Problem Details with a stable code and trace identifier. OpenAPI is available for development and protected appropriately in production.
 - **PostgreSQL:** PostgreSQL is the source of truth for transactional state, authorization data, audit metadata, and workflow history.
 - **MinIO:** S3-compatible object storage stores evidence and generated files; access is mediated by backend authorization rather than public object paths.
 - **YOLO service:** Eligible images may be sent for inference; responses contain the model version, predicted label, confidence, and bounding box.

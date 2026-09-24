@@ -84,6 +84,10 @@ resource.
 - Axios provides the versioned `/api/v1` client and single-flight access-token
   refresh handling. The browser does not persist credentials in local storage;
   refresh credentials use the protected HttpOnly-cookie flow.
+- The shared Axios response interceptor unwraps successful `{ success, message,
+  data }` API envelopes so feature API modules continue to consume typed payloads.
+  RFC 9457 error bodies, `204 No Content`, and binary evidence downloads remain
+  unchanged.
 
 ## Browser authentication flow
 

@@ -33,6 +33,9 @@ Current features include `assets`, `auth`, `inspections`, `tasks`, and `profile`
 - Riverpod 3 manages providers, screen state, and dependency injection.
 - Prefer `AsyncNotifier` or `Notifier` for stateful workflows; use a simpler provider for simple reads.
 - Dio uses an auth interceptor to attach access tokens and coordinate refresh after an expired token.
+- Shared Dio clients unwrap successful `{ success, message, data }` API
+  envelopes, including mobile auth and refresh responses. Problem Details,
+  bodyless `204` responses, and binary evidence downloads remain unchanged.
 - Tokens are stored with `flutter_secure_storage`; they are never persisted in ordinary preferences or logs.
 - Mobile calls the versioned `/api/v1/mobile/auth/**` contract and stores the access and refresh tokens securely.
 

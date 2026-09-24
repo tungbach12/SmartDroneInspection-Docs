@@ -24,10 +24,11 @@ the business-flow test case. For example, `WF4-001` is correctly placed on
 the `Feature 2` sheet because the template groups WF3 and WF4 there; it maps
 to FE-07, not FE-02.
 
-The FE-01 role-aware portal/navigation policy check and browser authentication
-flow checks are recorded separately in `03-features/feature-1.md`. They verify
-the existing SRS access matrix and auth API contract; they are not additional
-WFx functional cases or workbook rows.
+The FE-01 role-aware portal/navigation policy check, browser authentication
+flow checks, and cross-cutting API response-envelope contract checks are
+recorded separately in `03-features/feature-1.md`. These supporting checks
+verify SRS access and API contracts; they are not additional WFx functional
+cases or workbook rows.
 
 | No | Function Name | Sheet Name | Description | Pre-Condition |
 | ---: | --- | --- | --- | --- |

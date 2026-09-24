@@ -48,7 +48,7 @@ Browser endpoints are under `/api/v1/auth/**`:
 
 The access token is returned in the login response and held in web memory only. The refresh token is an opaque `HttpOnly`, `Secure`, `SameSite=Strict` cookie scoped to the auth API. It is never written to `localStorage` or returned in JSON.
 
-Browser auth uses CSRF protection and an exact CORS allowlist. API errors use RFC 7807 with a stable `code` and `traceId`; login failures use a generic message.
+Browser auth uses CSRF protection and an exact CORS allowlist. Successful JSON API responses use `{ success, message, data }`; authentication payloads such as the CSRF token or auth flow are inside `data`. The shared browser/mobile HTTP clients unwrap this envelope. `204 No Content` responses remain bodyless. API errors use RFC 9457 Problem Details with a stable `code` and `traceId`; login failures use a generic message.
 
 The SPA calls `GET /api/v1/auth/csrf` before each browser-auth POST and sends
 the returned `token` using the returned `headerName`. Fetching the token again
@@ -73,7 +73,7 @@ The browser and mobile request body is:
 
 Successful registration returns `201 Created` with the organization identifier/code and the new user profile. It does not issue tokens, set a refresh cookie, or expose the password.
 
-The response shape is `{ organizationId, organizationName, organizationCode, user }`; `user` contains the new user's identifier, normalized email, name, role list (`CLIENT`), actor zone, and organization identifier.
+The `data` payload is `{ organizationId, organizationName, organizationCode, user }`; `user` contains the new user's identifier, normalized email, name, role list (`CLIENT`), actor zone, and organization identifier. The complete success body is `{ success: true, message: "Success", data: { ... } }`.
 
 ## Platform user administration
 Platform user management is under `/api/v1/platform/users/**` and requires `ADMIN`:

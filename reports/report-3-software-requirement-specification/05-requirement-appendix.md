@@ -43,7 +43,8 @@ source: "report3-software-requirement-specification.docx"
 - Search screens provide authorized filtering, stable sorting, pagination, empty-result behavior, and clear loading or error states.
 - Dates and times are stored as UTC instants when they represent events and are displayed using the configured user or organization time zone.
 - Monetary values use decimal storage with an explicit currency and are not calculated with binary floating-point types.
-- APIs use RFC 7807 Problem Details with a stable application code and trace identifier for errors.
+- Successful JSON API bodies use the common `{ success, message, data }` response envelope; the HTTP status remains authoritative, and `204 No Content` and binary streams have no envelope.
+- API errors use RFC 9457 Problem Details with a stable application code and trace identifier.
 - Authentication failures use a generic message and do not reveal whether an email address exists.
 - File upload validates type, size, checksum, ownership, and workflow context before the object becomes available.
 - Important workflow commands are idempotent or protected by state and uniqueness constraints against duplicate execution.

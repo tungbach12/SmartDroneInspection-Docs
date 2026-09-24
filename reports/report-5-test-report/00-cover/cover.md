@@ -8,9 +8,9 @@ when transferring values into the workbook.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Creator | *Enter team/member name* |
-| Issue Date | *YYYY-MM-DD* |
+| Issue Date | 2026-09-24 |
 | Document Code | *Enter document code* |
-| Version | 0.8 |
+| Version | 0.9 |
 
 ## Record of change
 
@@ -27,3 +27,4 @@ revision; do not remove old entries.
 | 2026-09-22 | 0.6 | FE-04/FE-05 case-boundary correction | M | Removed finding creation from the FE-04 evidence case and assigned AI candidate verification/manual findings to FE-05, preserving the existing WF3 test IDs. | Report 3 SRS 3.5–3.6; `feature-2.md`; `test-case-list.md` |
 | 2026-09-24 | 0.7 | FE-01 role-aware frontend navigation | M | Recorded automated portal, screen-access, multi-role entry, legacy redirect, and denied-route verification against the existing SRS matrix; functional workbook case IDs and statistics are unchanged. | SmartDroneInspection-Frontend: `src/app/permissions/accessPolicy.test.ts`; Report 3 SRS 3.1.3 |
 | 2026-09-24 | 0.8 | FE-01 browser authentication flow | M | Recorded frontend auth-contract, validation, session-return, and role-routing tests; implemented shared light login and Client registration without changing functional workbook case IDs or statistics. | SmartDroneInspection-Frontend: `src/features/auth/`; Report 3 SRS 3.2; `npm.cmd test` |
+| 2026-09-24 | 0.9 | Shared API response contract | M | Recorded automated verification of the successful JSON envelope and unchanged Problem Details and 204 behavior; functional workbook case IDs and totals remain unchanged. | Backend `ApiResponseTest`; frontend/mobile envelope tests; Report 3 sections 4.1 and 5.2 |
