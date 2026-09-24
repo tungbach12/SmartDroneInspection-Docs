@@ -171,9 +171,9 @@ Inspector có quyền truy cập asset, checklist và assignment package.
 | WF3-02 | System | Change the inspection status from READY_FOR_INSPECTION to IN_PROGRESS and record the session start time and responsible Inspector. | Inspection in progress |
 | WF3-03 | Inspector | Conduct the field inspection according to the assigned checklist and confirmed service scope. Manual drone piloting remains outside the platform. | Field inspection results |
 | WF3-04 | Inspector | Capture or collect inspection images and transfer them from the drone’s SD card, computer or mobile device to the platform. | Uploaded evidence |
-| WF3-05 | System: Upload Service | Validate the file type and size, calculate a checksum, prevent duplicate evidence and retry interrupted uploads without creating duplicate records. | Validated evidence |
+| WF3-05 | System: Upload Service | Accept Web or Mobile uploads through the versioned API; validate file type, size, and content; calculate a server-side checksum; prevent duplicate evidence and retry interrupted uploads without creating duplicate records. | Validated evidence |
 | WF3-06 | System: MinIO | Store the evidence and associate it with the inspection, asset, Inspector, capture time, source and available GPS or external mission reference. | Stored inspection evidence |
-| WF3-07 | System: YOLO Service | Analyze eligible images and generate defect candidates containing the predicted label, confidence score, bounding box and model version. | AI defect candidates |
+| WF3-07 | System: YOLO Service | When the configured inference adapter is enabled, analyze eligible images and generate non-official defect candidates containing the predicted label, confidence score, bounding box and model version. AI unavailability does not block evidence access or manual findings. | AI defect candidates or manual fallback |
 | WF3-08 | Inspector | Review every AI candidate and select Confirm, Modify or Reject. The Inspector may also manually add a defect missed by the AI model. | Inspector-verified findings |
 | WF3-09 | System | Exclude rejected and unverified AI candidates from official defect statistics and report content. | Official verified findings |
 | WF3-10 | Inspector | Complete the checklist and add the defect location, severity, technical notes and recommended action for each verified finding. | Completed inspection record |
@@ -186,8 +186,8 @@ Inspector có quyền truy cập asset, checklist và assignment package.
 | WF3-17 | Service Manager | Check that the technically approved report is complete and contains all deliverables required by the confirmed service order. | Internally released report |
 | WF3-18 | Service Manager | Release the final report to the Client . Internal drafts and peer-review comments remain hidden from the customer. | Final customer report |
 | WF3-19 | Client | Review the released report and accept it or request clarification and revision. The Client does not directly edit the technical content. | Accepted report or revision request |
-| WF3-20 | System | When the Client accepts the report, mark the version as immutable and preserve the complete approval and revision history. | Customer-accepted report |
-| WF3-21 | System | Record the inspection billing milestone and create or issue the inspection invoice according to the confirmed post-service payment terms. | Inspection invoice and payment status |
+| WF3-20 | System | When the Client accepts the report, record the Client actor; make the version immutable; preserve approval/revision history; and publish one accepted-report handoff. A revision request records its reason and leaves the released version visible to the owning Client organization. | Auditable customer decision and accepted-report event |
+| WF3-21 | Billing workflow | Consume the accepted-report handoff and record the inspection billing milestone and invoice/payment status according to the confirmed post-service terms. Invoice persistence belongs to the separately assigned billing work; no online payment gateway is required. | Inspection billing milestone and invoice/payment status |
 
 ### Peer-review loop
 

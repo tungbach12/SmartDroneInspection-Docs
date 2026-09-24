@@ -33,17 +33,16 @@ com.smartdroneinspection/
 | `users` | Identity, authentication, organization, audit, and user administration | Entities, repositories, and auth runtime implemented |
 | `assets` | Asset catalog, checklists, and schedules (WF1) | Entities and repositories implemented |
 | `inspectionrequests` | Requests, quotations, orders, and assignments (WF2) | Entities and repositories implemented |
-| `inspections` | Execution, evidence, findings, reports, and peer review (WF3) | Feature entities and repositories implemented; use cases/API pending |
+| `inspections` | Execution, evidence, findings, reports, and peer review (WF3) | Entities, repositories, scoped use cases, API, MinIO/YOLO adapters, and unit/integration tests implemented; see [WF3 runtime/API flow](../backend/flows/inspections-and-reports/) |
 | `maintenance` | Assessment, execution, changes, and resolution (WF4) | Feature entities and repositories implemented; use cases/API pending |
 | `notifications` | In-app and email notification delivery | Notification entity and repository implemented; delivery runtime pending |
 | `dashboard` | Read-only composition of capability data | Scaffolded root; runtime slice not implemented |
 | `infrastructure` | Outbound adapters for feature-owned ports | Scaffolded root; runtime slice not implemented |
 
-`dashboard` and `infrastructure` currently contain only package metadata; nested
-code packages are created with the first runtime slice that owns real code. The
-WF3, WF4, and notification roots now contain persistence code because their
-tables are already part of the schema, while application services and APIs remain
-incremental work. Each feature owns its domain models; do not create a global
+`dashboard` currently contains only package metadata. The WF3 runtime slice now
+covers assigned execution/checklists, evidence, optional AI-assisted findings,
+versioned reports, peer review, release, and Client decision. WF4 and notification
+services remain incremental work. Each feature owns its domain models; do not create a global
 `com.smartdroneinspection.domain` entity package.
 
 ## Module visibility and responsibilities
@@ -91,7 +90,7 @@ event and facade with the periodic-request use case, not as speculative plumbing
 
 PostgreSQL is the source of truth. Flyway owns schema migrations, and MinIO stores inspection evidence and images. Every application table has its JPA entity and repository in the owning feature (`users`, `assets`, `inspectionrequests`, `inspections`, `maintenance`, or `notifications`), except the Spring Modulith `event_publication` registry. Cross-feature references use scalar IDs at the persistence boundary instead of coupling modules through each other's entities. The `infrastructure/` area contains outbound adapters for feature-owned ports. Reports, findings, and AI candidates belong inside WF3; maintenance tickets belong inside `maintenance`; a YOLO client belongs under `infrastructure/ai` when implemented.
 
-Inspection evidence is uploaded through the web or mobile application. The current architecture has no dependency on a separate drone-operation platform.
+Inspection evidence is uploaded through the web or mobile application. The optional YOLO adapter is environment-configured and disabled by default. The current architecture has no dependency on a separate drone-operation platform.
 
 ## Error handling and verification
 

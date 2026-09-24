@@ -43,4 +43,15 @@ Current features include `assets`, `auth`, `inspections`, `tasks`, and `profile`
 
 The mobile client is designed for `INSPECTOR` and `MAINTENANCE_ENGINEER` workflows. Client organization registration and customer approvals are web-first experiences, although the mobile API exposes the same controlled registration contract for clients that need it. Route visibility can improve the user experience, but the backend remains responsible for assignment scope, organization scope, and all final authorization decisions.
 
+## Inspection capture
+
+An accepted Inspector assignment opens a detail flow that reads the scoped
+checklist and existing evidence from the versioned inspection API. Checklist
+responses are saved against the inspection and item IDs. Camera capture uses
+`image_picker`; uploads send multipart image bytes with source `MOBILE_UPLOAD`
+and capture time. A failed upload keeps the selected image available for retry.
+The backend validates content, computes the checksum, enforces assignment scope,
+and streams stored evidence; the mobile client does not access MinIO directly.
+On iOS, the camera usage message is configured in `Info.plist`.
+
 Run `flutter test` for tests and `dart run build_runner build --delete-conflicting-outputs` after changing generated Freezed or JSON-serializable models.

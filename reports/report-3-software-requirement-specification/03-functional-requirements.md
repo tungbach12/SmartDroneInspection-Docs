@@ -201,9 +201,10 @@ FE-04 provides the assigned Inspector's inspection session, checklist execution,
 **Function description:**
 
 - The system records the start time, responsible Inspector, asset, confirmed scope, and checklist version.
+- The assigned Inspector can retrieve the published checklist and saved responses through `GET /api/v1/inspections/{inspectionId}/checklist`; checklist responses are saved through the inspection-scoped API and remain attributable to the authenticated Inspector.
 - The Inspector performs the field inspection according to the confirmed scope. Manual drone piloting remains outside the platform.
 - The Inspector uploads images and documents. The backend validates type and size, calculates a checksum, prevents duplicate records, and stores authorized content in MinIO.
-- Available capture time, source, GPS, device reference, and external mission reference are stored as metadata. Missing GPS is recorded but does not automatically invalidate evidence.
+- Web and mobile uploads use the same inspection-scoped API. Available capture time, source (`WEB_UPLOAD`, `MOBILE_UPLOAD`, `SD_CARD`, or `IMPORTED`), GPS, and external reference are stored as metadata. Missing GPS is recorded but does not automatically invalidate evidence.
 
 **Validation and exception requirements:** Unsupported or corrupted files are rejected. Interrupted uploads retry without duplicate evidence records. An Inspector cannot update another Inspector's assignment without a separate authorized role and scope.
 
@@ -219,7 +220,7 @@ FE-05 generates non-official defect candidates from eligible inspection images a
 
 **Function description:**
 
-- The configured YOLO service receives only eligible authorized images and returns a candidate label, confidence, bounding box, and model version.
+- When YOLO inference is enabled, the configured service receives only eligible authorized images and returns a candidate label, confidence, bounding box, and model version. If inference is disabled or unavailable, evidence remains available and the Inspector can add a manual finding.
 - The Inspector reviews every candidate and chooses Confirm, Modify, or Reject.
 - The Inspector may manually add a finding that the AI service did not detect.
 - Only confirmed, modified, or manually added findings enter official statistics and report content.
@@ -245,7 +246,8 @@ FE-06 compiles versioned inspection reports from checklist responses, evidence, 
 - When changes are required, the author creates a revised version and resubmits it. Prior versions and review decisions remain traceable.
 - When technically approved, the Service Manager checks deliverable completeness and releases the report to the Client.
 - The Client accepts the report or requests clarification or revision without editing technical content directly.
-- When the Client accepts the report, the system records the inspection billing milestone and creates or issues the inspection invoice according to the confirmed post-service payment terms. No online payment gateway is required in the first release.
+- The Client decision is recorded against the released version with the authenticated Client actor; a revision request also retains its reason. A revision request does not remove the released version from the Client's organization-scoped history.
+- When the Client accepts the report, the system makes that version immutable and publishes one accepted-report handoff for the separately owned billing workflow. That workflow records the inspection billing milestone and creates or issues the invoice according to the confirmed post-service payment terms. No online payment gateway is required in the first release.
 
 **Validation and exception requirements:** Internal drafts and peer-review comments are not customer-visible. A released report cannot be silently overwritten. An accepted version is immutable; later corrections create a new linked version.
 
