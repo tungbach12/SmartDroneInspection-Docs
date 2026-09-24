@@ -50,6 +50,11 @@ The access token is returned in the login response and held in web memory only. 
 
 Browser auth uses CSRF protection and an exact CORS allowlist. API errors use RFC 7807 with a stable `code` and `traceId`; login failures use a generic message.
 
+The SPA calls `GET /api/v1/auth/csrf` before each browser-auth POST and sends
+the returned `token` using the returned `headerName`. Fetching the token again
+after authentication or logout is required because Spring Security clears the
+previous CSRF cookie during those transitions.
+
 ## Client organization onboarding
 
 The first Client representative may self-register a new organization through `POST /register`. The request contains the representative's name and credentials together with the organization name and unique organization code. The backend creates the organization and the first user in one transaction, activates both immediately, and assigns only the `CLIENT` role in the `CUSTOMER_ORGANIZATION` actor zone. There is no email-verification or administrator-approval gate in v1.

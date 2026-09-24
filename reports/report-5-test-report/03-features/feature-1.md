@@ -26,6 +26,52 @@ all five role fixtures (`ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and
 secret. MinIO/evidence storage is tracked separately under FE-04/WF3 (`T025/SCRUM-85`)
 and is not part of the FE-01 gate.
 
+### FE-01 role-aware portal/navigation verification
+
+This is a supporting automated verification of the existing Report 3 screen
+access matrix, not an additional functional workbook case.
+
+- Preconditions: the canonical five role codes and Report 3 section 3.1.3
+  screen-access matrix are available to the frontend policy.
+- Procedure: run `npm test` in the frontend repository; assert the access-policy
+  decisions for every workspace/section/role combination, single- and
+  multi-workspace entry targets, legacy-path redirect targets, and the no-access
+  fallback.
+- Expected result: policy decisions match the SRS matrix; a user with multiple
+  workspaces is sent to the chooser; an unavailable section resolves to the
+  access-denied path.
+- Round 1 result: **Passed** on 2026-09-24; tester: Codex (automated).
+- Evidence: `src/app/permissions/accessPolicy.test.ts` — 19 tests passed.
+
+### FE-01 browser authentication flow verification
+
+This supporting automated gate verifies the frontend against the existing
+browser-auth contract. It is not an additional WFx functional case or workbook
+row, and it does not change the 15 functional cases below.
+
+- Preconditions: the versioned browser auth endpoints and canonical role
+  contract are available; frontend tests use a mocked HTTP transport.
+- Procedure: run `npm.cmd test` in `frontend`; verify form validation, fetching
+  `/auth/csrf` and sending its declared header before auth mutations,
+  request/response mapping for sign-in,
+  cookie-backed refresh, Client registration, first-password setup and logout,
+  plus role-aware return routing and rejection of external/unauthorized return
+  paths.
+- Expected result: access tokens are returned to in-memory session state only;
+  browser refresh credentials are not read from or stored in web storage;
+  registration submits only the Client onboarding contract; assigned backend
+  roles determine the destination; rejected refresh clears the local session.
+- Round 1 result: **Passed** on 2026-09-24; tester: Codex (automated).
+- Evidence: `src/shared/api/client.test.ts`,
+  `src/features/auth/api/authApi.test.ts`,
+  `src/features/auth/schemas/authSchemas.test.ts`,
+  `src/features/auth/utils/authRedirect.test.ts`, and
+  `src/features/auth/api/sessionBootstrap.test.ts` — 26 auth-flow tests passed;
+  the full frontend suite passed 45/45, including the 19 portal-policy tests.
+- Scope note: the transport is mocked in these frontend tests. Live browser to
+  Spring API integration was not executed because Docker/backend was
+  unavailable in this environment; this result is not an end-to-end test claim.
+
 ## Function A — FE-02 asset catalog and organization scope (WF1)
 
 | Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |

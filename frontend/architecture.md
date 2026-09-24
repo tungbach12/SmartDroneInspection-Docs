@@ -7,45 +7,146 @@ aliases:
 
 # Frontend Architecture
 
-The web portal is a React 19 and TypeScript application built with Vite and Material UI. Its structure follows business features so pages, API calls, and UI components can evolve together.
+## Decision
+
+The web client is one React single-page application organized as a feature-first
+modular monolith. It serves the Admin, Client, and operations workspaces from
+one deployment and origin. Role-based routes and navigation provide separate
+entry experiences without duplicating the frontend or replacing backend
+authorization.
+
+The current stack is React 19, strict TypeScript, Vite, React Router Data Mode,
+Material UI, TanStack Query, Zustand, and Axios. Keep this API-first SPA; do not
+introduce micro-frontends or a separate app/port per role. Reconsider server
+rendering only if a concrete route needs public SEO, server rendering, or a
+backend-for-frontend boundary.
 
 ## Source layout
 
 ```text
 frontend/src/
-├── app/
-│   ├── layouts/                 # App shell and layout components
-│   ├── router/                  # Routes and route guards
-│   └── theme/                   # Material UI theme
-├── features/
-│   ├── auth/                    # Client registration, login, and role guard
-│   ├── assets/                  # Asset pages, API, and hooks
-│   └── ai/                      # AI dashboard pages
-├── shared/
-    ├── api/                     # Axios client and shared transport helpers
-    └── ui/                      # Reusable presentation components
-└── assets/                      # Static images and icons
+  app/
+    layouts/       Shared shell components, one shell configured per workspace
+    pages/         App-level pages such as the multi-workspace chooser
+    permissions/   Central role-to-workspace and screen-navigation policy
+    router/        Route tree, guards, and legacy path redirects
+    theme/         Material UI theme and layout tokens
+  features/
+    auth/          Session UX, role types, sign-in, access-denied page
+    assets/        Asset pages, API, and hooks
+    inspections/   Inspection pages and workflow UI
+    reports/       Report pages and workflow UI
+    maintenance/   Maintenance pages and workflow UI
+    ...            Add a feature when it has real implementation
+  shared/
+    api/           Axios client and transport helpers
+    ui/            Feature-neutral reusable presentation components
+  assets/          Imported static assets
 ```
 
-Feature folders are added as their screens are implemented. A feature may contain `api/`, `components/`, `pages/`, `hooks/`, and local types. Cross-feature relative imports are avoided; shared behavior belongs under `src/shared/`.
+Keep pages, API calls, hooks, components, and feature-specific types with their
+owning business feature. `app/` composes features and owns cross-feature route
+policy. Put code in `shared/` only when it is feature-neutral and reused.
+Avoid deep cross-feature imports and empty architecture layers.
+
+## Multi-role route model
+
+All workspaces use the same built application and browser origin. Route prefixes
+provide distinct entry pages and layouts:
+
+| Entry route | Roles | Visible sections |
+| --- | --- | --- |
+| `/admin/*` | `ADMIN` | Dashboard, assets, inspections, reports, maintenance |
+| `/client/*` | `CLIENT` | Dashboard, assets, inspections, reports, maintenance |
+| `/operations/*` | `SERVICE_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER` | Dashboard for all three; inspections/reports for Service Manager and Inspector; maintenance for Service Manager and Maintenance Engineer |
+
+The central `app/permissions/accessPolicy.ts` is the frontend navigation and
+route-guard policy. It follows the screen-access matrix in Report 3, section
+3.1.3. The operations workspace does not show the Assets section. A user with
+roles in multiple workspaces selects one at `/portals`; the shell also offers a
+workspace switcher. Existing flat paths such as `/assets` redirect to an
+authorized workspace path or to the chooser when more than one workspace is
+valid.
+
+These checks improve navigation and do not authorize API calls. The backend
+must still enforce role, organization, ownership, assignment, resource scope,
+workflow state, and separation-of-duties rules. Within a visible section, the
+API response and available actions remain scoped to the current user and
+resource.
 
 ## State and data flow
 
 - TanStack Query owns server state, cache invalidation, and request lifecycle.
-- Query key factories keep list and detail caches predictable.
-- Zustand owns small client-only state such as the current user, active organization, and UI notifications.
-- Axios provides the versioned `/api/v1` client and a single-flight queue for access-token refresh after a `401` response.
+- Query-key factories keep list and detail caches predictable.
+- Zustand owns small client-only state such as the current user's in-memory
+  session and UI notifications. Do not duplicate query data in Zustand.
+- Keep temporary form, dialog, and view state local to its component.
+- Axios provides the versioned `/api/v1` client and single-flight access-token
+  refresh handling. The browser does not persist credentials in local storage;
+  refresh credentials use the protected HttpOnly-cookie flow.
 
-## Routing and authorization
+## Browser authentication flow
 
-React Router lazy-loads feature routes. `RequireAuth` protects authenticated pages and checks the roles returned by the backend. These checks improve navigation but do not replace backend organization, assignment, or resource authorization.
+- `/login` is the shared sign-in page for every role. Users do not select a
+  role; the backend returns the account's assigned roles and organization scope.
+- On app startup, the client obtains a CSRF token and attempts one cookie-backed
+  refresh. The access token and user profile stay in Zustand memory only. An
+  expired or revoked refresh cookie leaves the user signed out; protected routes
+  preserve their internal return path and check the destination against the
+  role-to-screen policy after sign-in.
+- Successful sign-in opens the only permitted workspace, or `/portals` when the
+  user spans workspaces. Return paths are validated as internal and role-
+  permitted before navigation.
+- `/register` is only for first-Client organization onboarding. It calls the
+  existing `/auth/register` contract, which creates the organization and Client
+  profile but does not sign the user in. Platform and service-workforce roles
+  cannot be self-selected or self-registered.
+- Administrator-issued temporary credentials enter the required first-password
+  setup step before creating a browser session. Authenticated users can change
+  their password or revoke every session from Account security. Single-device
+  sign-out revokes that browser session.
+- Login, registration, password setup/change, refresh, and logout requests first
+  call `/auth/csrf` and send the returned token in its declared header. This
+  follows Spring Security's SPA CSRF flow and obtains a fresh token after
+  authentication/logout clears the cookie. The shared Axios client sends
+  credentials, retries an expired access-token request once through
+  single-flight refresh, and uses the browser Web Locks API when available to
+  serialize refresh rotation across tabs. It clears memory state if refresh is
+  rejected.
+- The login and Client registration surfaces use the light color scheme with
+  ocean-blue/teal accents. The global application theme remains switchable.
+- Email password recovery and MFA are not offered by the current backend/SRS;
+  the page directs account-recovery requests to an administrator instead of
+  presenting a nonfunctional reset link.
 
-The current role names are `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`.
+## Routing, authorization, and deployment
 
-The web auth feature owns the Client onboarding form as well as login and session UX. The first Client representative can create a new organization and account through the backend registration contract; the web does not collect or persist a refresh token in application state.
+React Router Data Mode owns nested portal routes, lazy feature pages, and route
+guards. Each workspace reuses feature pages and shared UI while configuring a
+role-appropriate navigation list. Legacy flat feature paths redirect to the
+canonical route so bookmarks and existing links do not silently bypass the
+screen policy.
 
-## UI conventions
+During local development, Vite proxies `/api` to the Spring Boot default
+`http://localhost:8080`; the frontend and API therefore use the same browser
+origin for CSRF and refresh cookies.
 
-Material UI provides the shared theme, including light and dark color schemes. Reusable components such as `DataTable`, `LoadingButton`, `StatusChip`, `PageHeader`, `ConfirmDialog`, and `QueryState` live in `src/shared/ui/`.
+Serve the built SPA from one host/port and configure the static host or reverse
+proxy to return `index.html` for valid nested frontend paths. Keep the API under
+its existing versioned contract. Do not treat a route guard, hidden menu item,
+URL prefix, or separate port as a security boundary.
 
-Run `npm run build` for the strict TypeScript build and `npm run lint` for Oxlint checks.
+Canonical roles are `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and
+`MAINTENANCE_ENGINEER`. The first Client representative may register the
+organization and its first Client account through the backend contract; the
+web client cannot self-assign platform or service-workforce roles.
+
+## UI and verification conventions
+
+Material UI provides the shared theme, including light and dark color schemes.
+Feature-neutral components such as `DataTable`, `LoadingButton`, `StatusChip`,
+`PageHeader`, `ConfirmDialog`, and `QueryState` live in `src/shared/ui/`.
+
+Run `npm test` for the role-to-workspace access-policy tests, `npm run lint` for
+Oxlint checks, and `npm run build` for strict TypeScript validation and the
+production Vite build.

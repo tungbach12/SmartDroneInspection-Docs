@@ -12,6 +12,10 @@ fixed: `No`, `Function Name`, `Sheet Name`, `Description`, `Pre-Condition`.
 | Test environment | Local/integration environment with PostgreSQL, Redis, MinIO, backend API, web client, and mobile client configured according to the active test run. |
 | Baseline | Current WF1–WF4 main-flow scope; no autonomous drone flight control. |
 
+The FE-01 supporting verification is intentionally outside the workbook case
+index and functional-case statistics; its auth-flow and role-policy evidence is
+recorded in `03-features/feature-1.md`.
+
 ## Case index
 
 The `Sheet Name` column refers to the fixed workbook sheet, not to an SRS
@@ -19,6 +23,11 @@ feature code. `FE-xx` identifies the product feature and `WFx-yyy` identifies
 the business-flow test case. For example, `WF4-001` is correctly placed on
 the `Feature 2` sheet because the template groups WF3 and WF4 there; it maps
 to FE-07, not FE-02.
+
+The FE-01 role-aware portal/navigation policy check and browser authentication
+flow checks are recorded separately in `03-features/feature-1.md`. They verify
+the existing SRS access matrix and auth API contract; they are not additional
+WFx functional cases or workbook rows.
 
 | No | Function Name | Sheet Name | Description | Pre-Condition |
 | ---: | --- | --- | --- | --- |
