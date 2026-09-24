@@ -11,7 +11,7 @@ round.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Test round | Round 1 — Week 3 automated verification |
-| Last updated | 2026-09-22 |
+| Last updated | 2026-09-24 |
 
 ## Module summary
 
@@ -20,6 +20,15 @@ round.
 | 1 | Feature 1 sheet (WF1/FE-02 + WF2/FE-03; FE-01 W3 gate separate) | 0 | 0 | 8 | 0 | 8 |
 | 2 | Feature 2 sheet (WF3/FE-04–FE-06 + WF4/FE-07) | 1 | 0 | 6 | 0 | 7 |
 | **Subtotal** |  | **1** | **0** | **14** | **0** | **15** |
+
+## Supporting FE-01 verification (not workbook cases)
+
+The FE-01 supporting gates are excluded from the functional workbook totals:
+19 role-to-screen policy tests and 26 browser-auth frontend tests passed in the
+45-test frontend suite on 2026-09-24. The browser-auth checks use a mocked HTTP
+transport; live Spring API integration was not run because Docker/backend was
+unavailable. See `03-features/feature-1.md` for the detailed procedure and
+scope.
 
 ## Coverage summary
 
