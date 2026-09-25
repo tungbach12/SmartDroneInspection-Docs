@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-09-24 |
 | Document Code | *Enter document code* |
-| Version | 0.9 |
+| Version | 1.1 |
 
 ## Record of change
 
@@ -27,4 +27,6 @@ revision; do not remove old entries.
 | 2026-09-22 | 0.6 | FE-04/FE-05 case-boundary correction | M | Removed finding creation from the FE-04 evidence case and assigned AI candidate verification/manual findings to FE-05, preserving the existing WF3 test IDs. | Report 3 SRS 3.5–3.6; `feature-2.md`; `test-case-list.md` |
 | 2026-09-24 | 0.7 | FE-01 role-aware frontend navigation | M | Recorded automated portal, screen-access, multi-role entry, legacy redirect, and denied-route verification against the existing SRS matrix; functional workbook case IDs and statistics are unchanged. | SmartDroneInspection-Frontend: `src/app/permissions/accessPolicy.test.ts`; Report 3 SRS 3.1.3 |
 | 2026-09-24 | 0.8 | FE-01 browser authentication flow | M | Recorded frontend auth-contract, validation, session-return, and role-routing tests; implemented shared light login and Client registration without changing functional workbook case IDs or statistics. | SmartDroneInspection-Frontend: `src/features/auth/`; Report 3 SRS 3.2; `npm.cmd test` |
-| 2026-09-24 | 0.9 | Shared API response contract | M | Recorded automated verification of the successful JSON envelope and unchanged Problem Details and 204 behavior; functional workbook case IDs and totals remain unchanged. | Backend `ApiResponseTest`; frontend/mobile envelope tests; Report 3 sections 4.1 and 5.2 |
+| 2026-09-24 | 0.9 | Shared API response contract | M | Recorded automated verification for the successful JSON envelope and unchanged Problem Details, 204, and binary-stream contracts; functional workbook case IDs and totals remain unchanged. | Backend `ApiResponseTest` and API integration tests; frontend/mobile envelope tests; Report 3 sections 4.1 and 5.2 |
+| 2026-09-24 | 1.0 | WF3 FE-04/FE-05/FE-06 automated verification | M | Recorded passing checklist/evidence, AI candidate/manual finding, and report lifecycle cases; updated test totals and coverage while preserving all workbook sheets and stable WFx IDs. | Jira SCRUM-85–SCRUM-93; backend `mvnw verify`; frontend and mobile regression; `feature-2.md` |
+| 2026-09-25 | 1.1 | WF3 S3 integration-test runner update | M | Recorded the unavailable MinIO CI image and successful S3Mock S3 API integration rerun; clarified that the CI mock does not replace MinIO runtime verification. | Backend PR #44 CI runs 36090635549 and 36092639825; `EvidenceApiIntegrationTest`; `MinioEvidenceObjectStoreIntegrationTest` |

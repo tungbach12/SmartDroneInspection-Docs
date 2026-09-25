@@ -89,6 +89,20 @@ resource.
   RFC 9457 error bodies, `204 No Content`, and binary evidence downloads remain
   unchanged.
 
+## WF3 inspection and report screens
+
+`/inspections` loads only accepted assignments visible to the authenticated
+Inspector. It starts or resumes an inspection, reads the published checklist
+and saved responses, uploads evidence as `WEB_UPLOAD`, and exposes candidate
+verification/manual-finding actions. The API computes evidence checksums and
+is the authorization boundary; the browser never receives a direct MinIO URL.
+
+`/reports` uses the same versioned report API for Inspector authors/reviewers,
+Service Managers, and Clients. It presents only actions permitted by the
+current role, while the backend scopes report lists and mutations to author,
+reviewer, organization, workflow state, and separation-of-duties rules. Client
+evidence content is streamed through the authenticated report endpoint.
+
 ## Browser authentication flow
 
 - `/login` is the shared sign-in page for every role. Users do not select a

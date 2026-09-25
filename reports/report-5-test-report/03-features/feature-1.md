@@ -67,10 +67,13 @@ row, and it does not change the 15 functional cases below.
   `src/features/auth/schemas/authSchemas.test.ts`,
   `src/features/auth/utils/authRedirect.test.ts`, and
   `src/features/auth/api/sessionBootstrap.test.ts` — 26 auth-flow tests passed;
-  the full frontend suite passed 45/45, including the 19 portal-policy tests.
-- Scope note: the transport is mocked in these frontend tests. Live browser to
-  Spring API integration was not executed because Docker/backend was
-  unavailable in this environment; this result is not an end-to-end test claim.
+  the full frontend suite at that auth-flow run passed 45/45, including the 19
+  portal-policy tests. The later complete run passed 52/52 after adding the
+  shared-envelope tests and WF3 inspection/report page tests; see the
+  cross-cutting verification below.
+- Scope note: the transport is mocked in these frontend tests. A live browser
+  to Spring auth API end-to-end run was not part of this verification; these
+  results are not an end-to-end test claim.
 
 ### Cross-cutting successful API response-envelope verification
 

@@ -486,6 +486,8 @@ Columns: `id`, unique `inspection_id`, `author_user_id`, `status`, `current_vers
 | `technically_approved_at` | `TIMESTAMPTZ` | Yes | Peer approval time. |
 | `released_at` | `TIMESTAMPTZ` | Yes | Service Manager release time. |
 | `accepted_at` | `TIMESTAMPTZ` | Yes | Client acceptance time. |
+| `client_decision_by_user_id` | `UUID` | Yes | Authenticated Client who accepted or requested revision; references `users.id`. |
+| `client_decision_reason` | `VARCHAR(2000)` | Yes | Required non-blank reason when the version status is `REVISION_REQUESTED`; absent for acceptance. |
 | `immutable` | `BOOLEAN` | No | Must be true after acceptance. |
 
 Constraints: unique `(report_id, version_number)`; an accepted version is append-only and cannot be updated.
@@ -716,7 +718,7 @@ The database model supports, but does not replace, application authorization. Re
 
 ## 12. Implementation status
 
-As of 2026-09-21, Flyway migrations `V1` through `V9` implement the complete **physical schema**: all 35
+As of 2026-09-24, Flyway migrations `V1` through `V10` implement the complete **physical schema**: all 35
 application tables in this document plus the Spring Modulith `event_publication` registry. The physical-schema phases
 are:
 
@@ -728,14 +730,16 @@ are:
 | `V7` | WF3 inspections, checklist responses, evidence, AI candidates, verified findings, reports, versions, and peer reviews. |
 | `V8` | WF4 maintenance tickets, findings, assessments, quotations, orders, assignments, work logs, change requests, and invoices. |
 | `V9` | Supporting notification delivery records. |
+| `V10` | Client actor and revision-reason audit columns on WF3 `report_versions`. |
 
-Physical tables do not by themselves mean that a workflow is runtime-complete. Every application table in `V1`-`V9`
+Physical tables do not by themselves mean that a workflow is runtime-complete. Every application table in `V1`-`V10`
 now has a feature-owned JPA entity and repository: identity tables belong to `users`; WF1 tables to `assets`; WF2
 tables to `inspectionrequests`; WF3 tables to `inspections`; WF4 tables to `maintenance`; and notifications to
 `notifications`. The Spring Modulith `event_publication` registry remains framework-owned and has no business entity.
-The `inspections`, `maintenance`, and `notifications` modules therefore have their persistence model in place, while
-their application services, HTTP APIs, authorization workflows, delivery adapters, and client flows are still delivered
-incrementally. `dashboard` and `infrastructure` remain package-only boundaries until they own real runtime code.
+The `inspections`, `maintenance`, and `notifications` modules therefore have their persistence model in place. WF3
+inspection/evidence, candidate-verification, and report-review/release/acceptance use cases and HTTP APIs are now
+implemented; delivery verification is tracked in Report 5. WF4 and notification delivery remain incremental work.
+`dashboard` remains a package-only boundary.
 
 ## 13. Recommended implementation order
 
@@ -750,7 +754,7 @@ Each phase should land as a small forward migration and a matching feature-level
 ## 14. Source references
 
 - [Report 3 Software Requirement Specification](../reports/report-3-software-requirement-specification/)
-- [Capstone Business Flow](../workflows/business-flows.md)
-- [Authentication and Access Control](../../backend/authentication-and-authorization.md)
-- [Backend Architecture](../../backend/architecture.md)
-- [AI Agent Rules](../../development/ai-agent-rules.md)
+- [Capstone Business Flow](business-flows.md)
+- [Authentication and Access Control](../backend/authentication-and-authorization.md)
+- [Backend Architecture](../backend/architecture.md)
+- [AI Agent Rules](../development/ai-agent-rules.md)
