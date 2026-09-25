@@ -10,7 +10,7 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | Round 1 — Week 3 automated verification |
+| Test round | Week 3 verification: Round 1 baseline plus Round 2 WF3-002 CI recheck |
 | Last updated | 2026-09-25 |
 
 ## Module summary
@@ -34,6 +34,10 @@ execute a live browser-to-auth-API end-to-end test. See
 `03-features/feature-1.md` for the detailed procedure and scope.
 
 ## Coverage summary
+
+The summary counts each unique workbook case once using its latest completed
+result across recorded rounds. The WF3-002 Round 2 recheck is not an additional
+case, so the total remains 15.
 
 Use the same definitions as the workbook:
 
