@@ -63,7 +63,8 @@ identify SRS capabilities and WF codes retain business-flow traceability:
 The FE-01 W3 auth/migration smoke gate is tracked by Jira `SCRUM-58/T001` under
 `SCRUM-108`; it is a delivery gate and is not counted as one of the 15
 functional Report 5 cases. MinIO/evidence storage is tracked separately under
-FE-04/WF3 task `T025/SCRUM-85`.
+FE-04/WF3 task `T025/SCRUM-85`. CI uses S3Mock for S3 API integration coverage;
+that mock does not replace runtime verification against MinIO.
 
 Current role codes are `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and
 `MAINTENANCE_ENGINEER`. A role check never replaces organization ownership,

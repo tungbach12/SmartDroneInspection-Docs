@@ -9,7 +9,7 @@ fixed: `No`, `Function Name`, `Sheet Name`, `Description`, `Pre-Condition`.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test environment | Local/integration environment with PostgreSQL, Redis, MinIO, backend API, web client, and mobile client configured according to the active test run. |
+| Test environment | Local/integration environment with PostgreSQL, Redis, backend API, web client, and mobile client; MinIO is used for runtime/storage verification, while S3Mock 5.2.3 is used by CI S3 API integration tests. |
 | Baseline | Current WF1–WF4 main-flow scope; no autonomous drone flight control. |
 
 The FE-01 supporting verification is intentionally outside the workbook case
@@ -41,7 +41,7 @@ cases or workbook rows.
 | 7 | `[WF2-003]` FE-03 — WF2 order and assignment | Feature 1 | Client approves the quotation and the system records the confirmed order and billing milestone. | Quotation is in an approvable state; client has organization scope. |
 | 8 | `[WF2-004]` FE-03 — WF2 order and assignment | Feature 1 | Service Manager assigns an Inspector; an unassigned or conflicting Inspector cannot access the task. | Confirmed order exists; candidate Inspector is active. |
 | 9 | `[WF3-001]` FE-04 — WF3 inspection execution | Feature 2 | Assigned Inspector starts an accepted inspection, loads and saves its checklist, and cannot access another Inspector's checklist. | Active Inspector owns an accepted assignment; its inspection is in progress and checklist is published. |
-| 10 | `[WF3-002]` FE-04 — WF3 evidence and traceability | Feature 2 | Inspector uploads supported evidence to MinIO with server checksum/source metadata, retry-safe persistence, and scoped read access. | Assigned inspection is in progress; valid image and PostgreSQL/MinIO test services are available. |
+| 10 | `[WF3-002]` FE-04 — WF3 evidence and traceability | Feature 2 | Inspector uploads supported evidence through the MinIO SDK adapter with server checksum/source metadata, retry-safe persistence, and scoped read access. | Assigned inspection is in progress; valid image, PostgreSQL, and an S3-compatible test endpoint are available (S3Mock in CI; MinIO in runtime verification). |
 | 11 | `[WF3-003]` FE-05 — WF3 AI candidate review | Feature 2 | Inspector reviews AI candidates or adds a manual finding; pending/rejected detections remain non-official and AI failure preserves manual entry. | Eligible evidence exists; deterministic inference stub or manual fallback is available. |
 | 12 | `[WF3-004]` FE-06 — WF3 report review and release | Feature 2 | Report progresses through independent review, Manager release, and Client accept/revision; accepted version and handoff are protected. | Checklist, evidence, and verified findings exist; author, reviewer, Manager, and owning Client scopes are configured. |
 | 13 | `[WF4-001]` FE-07 — WF4 maintenance ticket | Feature 2 | Client creates a maintenance ticket from an accepted finding and sees only its organization data. | A released report contains an accepted finding. |

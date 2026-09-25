@@ -11,7 +11,7 @@ round.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Test round | Round 1 — Week 3 automated verification |
-| Last updated | 2026-09-24 |
+| Last updated | 2026-09-25 |
 
 ## Module summary
 
