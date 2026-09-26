@@ -17,8 +17,8 @@ round.
 
 | No | Module code | Passed | Failed | Pending | N/A | Number of test cases |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 1 | Feature 1 sheet (WF1/FE-02 + WF2/FE-03; FE-01 W3 gate separate) | 0 | 0 | 8 | 0 | 8 |
-| 2 | Feature 2 sheet (WF3/FE-04–FE-06 + WF4/FE-07) | 4 | 0 | 3 | 0 | 7 |
+| 1 | Feature 1 sheet (FE-02/WF1 + FE-03/WF2; FE-01 gate separate) | 0 | 0 | 8 | 0 | 8 |
+| 2 | Feature 2 sheet (FE-04–FE-07; WF3 + WF4) | 4 | 0 | 3 | 0 | 7 |
 | **Subtotal** |  | **4** | **0** | **11** | **0** | **15** |
 
 ## Supporting FE-01 verification (not workbook cases)
@@ -31,7 +31,11 @@ and Problem Details checks passed as part of `mvnw verify`; mobile envelope
 checks passed as part of `flutter test`, and `flutter analyze` reported no
 issues. Browser-auth checks use a mocked HTTP transport; this delivery did not
 execute a live browser-to-auth-API end-to-end test. See
-`03-features/feature-1.md` for the detailed procedure and scope.
+`03-features/fe-01-identity-access-governance.md` for the detailed procedure and scope.
+
+These are workbook-sheet totals, not FE totals. The eight detailed sources are
+organized by FE; FE-08 has no assigned functional case in this baseline and is
+not included in the 15-case denominator.
 
 ## Coverage summary
 

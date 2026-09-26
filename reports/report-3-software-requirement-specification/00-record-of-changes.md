@@ -13,5 +13,7 @@ source: "report3-software-requirement-specification.docx"
 | 21 Sep 2026 | M | Project Team | Added Client organization self-registration and separate inspection and maintenance post-service billing milestones. |
 | 24 Sep 2026 | M | Project Team | Standardized successful JSON API bodies on `ApiResponse<T>` while preserving HTTP statuses, bodyless `204` responses, binary streams, and RFC 9457 error responses. |
 | 24 Sep 2026 | M | Project Team | Clarified the assigned-inspector checklist read API and Web/Mobile evidence source contract; documented optional YOLO fallback and persisted Client report-decision audit with the separate billing handoff. |
+| 25 Sep 2026 | M | Project Team | Specified on-demand AI narrative drafting with human review and inspection lifecycle completion to COMPLETED on Client acceptance. |
+| 26 Sep 2026 | M | Project Team | Documented last-write-wins between AI draft regeneration and narrative edits, and recorded the matching Report 5 note. |
 
 *A - Added M - Modified D - Deleted
