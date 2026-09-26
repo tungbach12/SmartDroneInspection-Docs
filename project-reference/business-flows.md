@@ -177,7 +177,7 @@ Inspector có quyền truy cập asset, checklist và assignment package.
 | WF3-08 | Inspector | Review every AI candidate and select Confirm, Modify or Reject. The Inspector may also manually add a defect missed by the AI model. | Inspector-verified findings |
 | WF3-09 | System | Exclude rejected and unverified AI candidates from official defect statistics and report content. | Official verified findings |
 | WF3-10 | Inspector | Complete the checklist and add the defect location, severity, technical notes and recommended action for each verified finding. | Completed inspection record |
-| WF3-11 | System | Compile a versioned draft report from the checklist, evidence and verified findings. LLM assistance may be used only with authorized data and remains subject to human review. | Versioned draft report |
+| WF3-11 | System | Compile a versioned draft report from the checklist, evidence and verified findings. On demand, the Inspector may request an LLM-assisted narrative draft generated from authorized snapshot data; it remains subject to human review and edit via the narrative endpoint. | Versioned draft report |
 | WF3-12 | Inspector | Review the draft report, correct its content and submit it for internal peer review. | Report awaiting peer review |
 | WF3-13 | Service Manager | Assign another qualified Inspector as the Peer Reviewer. The report author cannot review their own report. | Peer-review assignment |
 | WF3-14 | Inspector | Verify that the evidence supports the findings and check defect classification, severity, location, checklist consistency and technical conclusions. The report author cannot review the same report. | Peer-review result |
@@ -186,7 +186,7 @@ Inspector có quyền truy cập asset, checklist và assignment package.
 | WF3-17 | Service Manager | Check that the technically approved report is complete and contains all deliverables required by the confirmed service order. | Internally released report |
 | WF3-18 | Service Manager | Release the final report to the Client . Internal drafts and peer-review comments remain hidden from the customer. | Final customer report |
 | WF3-19 | Client | Review the released report and accept it or request clarification and revision. The Client does not directly edit the technical content. | Accepted report or revision request |
-| WF3-20 | System | When the Client accepts the report, record the Client actor; make the version immutable; preserve approval/revision history; and publish one accepted-report handoff. A revision request records its reason and leaves the released version visible to the owning Client organization. | Auditable customer decision and accepted-report event |
+| WF3-20 | System | When the Client accepts the report, record the Client actor; make the version immutable; transition the owning inspection to `COMPLETED`; preserve approval/revision history; and publish one accepted-report handoff. A revision request records its reason and leaves the released version visible to the owning Client organization. | Auditable customer decision and accepted-report event |
 | WF3-21 | Billing workflow | Consume the accepted-report handoff and record the inspection billing milestone and invoice/payment status according to the confirmed post-service terms. Invoice persistence belongs to the separately assigned billing work; no online payment gateway is required. | Inspection billing milestone and invoice/payment status |
 
 ### Peer-review loop
