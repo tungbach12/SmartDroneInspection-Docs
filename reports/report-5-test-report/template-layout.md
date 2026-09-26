@@ -12,8 +12,8 @@ explicitly approves a new template version.
 | 1 | `Cover` | `A2:F17` | `00-cover/cover.md`, `00-cover/record-of-changes.md` |
 | 2 | `Test Cases` | `B1:F21` | `01-test-cases/test-case-list.md` |
 | 3 | `Test Statistics` | `A1:H18` | `02-test-statistics/test-statistics.md` |
-| 4 | `Feature 1` | `A2:R19` | `03-features/feature-1.md` |
-| 5 | `Feature 2` | `A2:R18` | `03-features/feature-2.md` |
+| 4 | `Feature 1` | `A2:R19` | FE-02 and FE-03 sources, grouped by sheet only when exporting |
+| 5 | `Feature 2` | `A2:R18` | FE-04 through FE-07 sources, grouped by sheet only when exporting |
 
 Do not rename sheets or introduce a third feature sheet. If the project later
 needs more feature groups, extend the existing feature tables or obtain an
@@ -56,9 +56,20 @@ Both feature sheets use the same test execution columns:
 The template also has three trailing blank columns in the used range. They are
 formatting space, not new fields; leave them untouched.
 
-Each sheet groups rows under `Function A`, `Function B`, and so on. The
-Markdown files preserve those function headings while adding the current FE
-feature code and retaining the WF business-flow code in the heading text.
+Each sheet groups rows under `Function A`, `Function B`, and so on. The eight
+Markdown feature sources are separated by FE code; workbook rows are combined
+from those files only when exporting. Each case retains its FE and WF codes.
+
+| FE source | Workbook destination | Stable case IDs |
+| --- | --- | --- |
+| FE-01 identity/access governance | Supporting evidence, outside case sheets | No WFx IDs |
+| FE-02 asset registry/inspection schedule | `Feature 1` | WF1-001–WF1-004 |
+| FE-03 inspection request/work assignment | `Feature 1` | WF2-001–WF2-004 |
+| FE-04 inspection execution/evidence | `Feature 2` | WF3-001–WF3-002 |
+| FE-05 defect detection/verification | `Feature 2` | WF3-003 |
+| FE-06 inspection report/approval | `Feature 2` | WF3-004 |
+| FE-07 maintenance/defect resolution | `Feature 2` | WF4-001–WF4-003 |
+| FE-08 dashboard/analytics/notifications | Coverage gap; no current workbook case | None assigned |
 
 The sheet names are template labels, not SRS feature identifiers. The current
 mapping is:
@@ -67,6 +78,10 @@ mapping is:
 | --- | --- | --- |
 | `Feature 1` | FE-02 and FE-03; FE-01 gate tracked separately | WF1-001–004 and WF2-001–004 |
 | `Feature 2` | FE-04, FE-05, FE-06, and FE-07 | WF3-001–004 and WF4-001–003 |
+
+There are exactly eight FE-specific Markdown source files. The two fixed
+workbook sheets are presentation groupings, not source files or SRS features.
+FE-08 currently has no assigned case and remains an explicit coverage gap.
 
 ## Visual and status rules
 
@@ -81,5 +96,8 @@ mapping is:
 
 The supplied workbook contains existing formula/name problems in the project
 metadata area (including `#REF!` values and an `ACTION` defined name pointing
-to `#REF!`). They are documented here so they are not mistaken for a newly
-introduced test failure. Do not silently change them while filling cases.
+to `#REF!`). Its Feature 1 status summary also has missing Pending/N/A formulas
+and Round 2/3 summary cells reference Round 1 status data. The generated
+preview corrects only those per-round summary formulas in the output copy so
+the counts reflect each round; the original workbook under `template/` remains
+unchanged. The metadata `#REF!` values and `ACTION` name remain untouched.
