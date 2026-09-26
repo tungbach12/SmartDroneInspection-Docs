@@ -10,8 +10,8 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | Week 3 verification: Round 1 baseline plus Round 2 WF3-002 CI recheck |
-| Last updated | 2026-09-25 |
+| Test round | Week 3 verification: Round 1 baseline, Round 2 WF3-002 CI recheck, and Round 2 WF3-004 narrative config/provenance recheck |
+| Last updated | 2026-09-26 |
 
 ## Module summary
 
@@ -40,8 +40,10 @@ not included in the 15-case denominator.
 ## Coverage summary
 
 The summary counts each unique workbook case once using its latest completed
-result across recorded rounds. The WF3-002 Round 2 recheck is not an additional
-case, so the total remains 15.
+result across recorded rounds. The WF3-002 Round 2 recheck and the WF3-004
+Round 2 narrative config/provenance recheck are not additional cases, so the
+total remains 15. Both WF3-004 rounds completed as `Passed`, so the Feature 2
+`Passed` count is unchanged at 4.
 
 Use the same definitions as the workbook:
 

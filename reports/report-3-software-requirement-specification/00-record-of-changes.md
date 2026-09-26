@@ -15,5 +15,6 @@ source: "report3-software-requirement-specification.docx"
 | 24 Sep 2026 | M | Project Team | Clarified the assigned-inspector checklist read API and Web/Mobile evidence source contract; documented optional YOLO fallback and persisted Client report-decision audit with the separate billing handoff. |
 | 25 Sep 2026 | M | Project Team | Specified on-demand AI narrative drafting with human review and inspection lifecycle completion to COMPLETED on Client acceptance. |
 | 26 Sep 2026 | M | Project Team | Documented last-write-wins between AI draft regeneration and narrative edits, and recorded the matching Report 5 note. |
+| 26 Sep 2026 | M | Project Team | Recorded AI draft model provenance on the version snapshot and moved the narrative length limit to the `REPORT_NARRATIVE_MAX_CHARS` configuration key in SRS 3.7.1. |
 
 *A - Added M - Modified D - Deleted

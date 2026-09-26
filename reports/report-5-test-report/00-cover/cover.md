@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-09-26 |
 | Document Code | *Enter document code* |
-| Version | 1.3 |
+| Version | 1.4 |
 
 ## Record of change
 
