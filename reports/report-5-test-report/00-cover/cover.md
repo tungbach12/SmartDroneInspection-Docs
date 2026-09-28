@@ -8,9 +8,9 @@ when transferring values into the workbook.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Creator | *Enter team/member name* |
-| Issue Date | 2026-09-24 |
+| Issue Date | 2026-09-28 |
 | Document Code | *Enter document code* |
-| Version | 1.1 |
+| Version | 1.2 |
 
 ## Record of change
 
@@ -30,3 +30,4 @@ revision; do not remove old entries.
 | 2026-09-24 | 0.9 | Shared API response contract | M | Recorded automated verification for the successful JSON envelope and unchanged Problem Details, 204, and binary-stream contracts; functional workbook case IDs and totals remain unchanged. | Backend `ApiResponseTest` and API integration tests; frontend/mobile envelope tests; Report 3 sections 4.1 and 5.2 |
 | 2026-09-24 | 1.0 | WF3 FE-04/FE-05/FE-06 automated verification | M | Recorded passing checklist/evidence, AI candidate/manual finding, and report lifecycle cases; updated test totals and coverage while preserving all workbook sheets and stable WFx IDs. | Jira SCRUM-85–SCRUM-93; backend `mvnw verify`; frontend and mobile regression; `feature-2.md` |
 | 2026-09-25 | 1.1 | WF3 S3 integration-test runner update | M | Recorded the unavailable MinIO CI image and successful S3Mock S3 API integration rerun; clarified that the CI mock does not replace MinIO runtime verification. | Backend PR #44 CI runs 36090635549 and 36092639825; `EvidenceApiIntegrationTest`; `MinioEvidenceObjectStoreIntegrationTest` |
+| 2026-09-28 | 1.2 | WF1 proposal flow cases added | A | Added `WF1-011`-`WF1-019` for asset review, schedule-proposal generation/review/selection, document-upload rules, the due-cycle event, and the negative scope sweep; recounted Feature 1 to 17 cases and the total to 24. | Report 3 SRS 3.3; `project-reference/business-flows.md`; backend `mvnw verify`; `feature-1.md`; `test-statistics.md` |
