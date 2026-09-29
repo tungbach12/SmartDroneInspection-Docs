@@ -24,8 +24,9 @@ number look like an SRS feature code.
 
 - `template/Report5_Test Report.xlsx` is an unchanged copy of the supplied
   workbook. Do not edit this copy to add new sections or rename sheets.
-- The Markdown files are the editable working source. Keep test case IDs
-  stable when a case is reworded or re-tested.
+- Exactly eight FE-specific Markdown files in `03-features/` are the editable
+  feature sources. There are no aggregate `feature-1.md` or `feature-2.md`
+  sources. Keep test case IDs stable when a case is reworded or re-tested.
 - When the report is ready for submission, copy the Markdown values into the
   workbook while preserving the template's sheet names, order, column order,
   status vocabulary, colours, and table layout.
@@ -41,8 +42,14 @@ number look like an SRS feature code.
 | `00-cover/` | `Cover` | Project metadata and record of changes. |
 | `01-test-cases/` | `Test Cases` | The index of all cases and their preconditions. |
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary. |
-| `03-features/feature-1.md` | `Feature 1` sheet | WF1/FE-02 and WF2/FE-03 cases; FE-01 gate is recorded separately. |
-| `03-features/feature-2.md` | `Feature 2` sheet | WF3/FE-04–FE-06 and WF4/FE-07 cases. |
+| `03-features/fe-01-identity-access-governance.md` | Support evidence | FE-01 gates; not part of the 15 WFx workbook cases. |
+| `03-features/fe-02-asset-registry-inspection-schedule.md` | `Feature 1` sheet | WF1-001–WF1-004. |
+| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 1` sheet | WF2-001–WF2-004. |
+| `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 2` sheet | WF3-001–WF3-002. |
+| `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 2` sheet | WF3-003. |
+| `03-features/fe-06-inspection-report-approval.md` | `Feature 2` sheet | WF3-004. |
+| `03-features/fe-07-maintenance-defect-resolution.md` | `Feature 2` sheet | WF4-001–WF4-003. |
+| `03-features/fe-08-dashboard-analytics-notifications.md` | Coverage gap | No WFx case in the current baseline; do not infer execution. |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
 | `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
 
@@ -59,6 +66,8 @@ identify SRS capabilities and WF codes retain business-flow traceability:
 5. FE-05 — YOLO-assisted defect detection and verification (WF3; `WF3-003`).
 6. FE-06 — inspection report and approval (WF3; `WF3-004`).
 7. FE-07 — maintenance ticket, assessment/execution, rework, and billing status (WF4; `WF4-001`–`WF4-003`).
+8. FE-08 — dashboard, analytics, and notifications. No test case is assigned
+   in the current 15-case baseline; this is an explicit coverage gap.
 
 The FE-01 W3 auth/migration smoke gate is tracked by Jira `SCRUM-58/T001` under
 `SCRUM-108`; it is a delivery gate and is not counted as one of the 15
@@ -72,7 +81,8 @@ assignment, or separation-of-duties checks.
 
 ## Editing workflow
 
-1. Add or update the case in the appropriate feature file first.
+1. Add or update the case in its owning FE-specific file first. FE-01 support
+   evidence stays in FE-01; do not create aggregate sources by workbook sheet.
 2. Keep the existing ID format (`WF1-001`, `WF2-001`, `WF3-001`, `WF4-001`)
    stable. Add the mapped FE code in the function name or mapping note; do not
    interpret the workbook sheet number as the FE code.
@@ -80,7 +90,8 @@ assignment, or separation-of-duties checks.
 4. Record execution only in the matching Round 1, Round 2, or Round 3 cell.
    Use only `Passed`, `Failed`, `Pending`, or `N/A`.
 5. Update the corresponding module row and totals in
-   `02-test-statistics/test-statistics.md`.
+   `02-test-statistics/test-statistics.md`. The workbook feature sheets are
+   output groupings only; each may contain cases from multiple FE sources.
 6. Before exporting, check that the number of cases, IDs, statuses, dates, and
    testers agree across all Markdown files and the workbook.
 

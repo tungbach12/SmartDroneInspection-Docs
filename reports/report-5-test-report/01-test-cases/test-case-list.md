@@ -14,7 +14,7 @@ fixed: `No`, `Function Name`, `Sheet Name`, `Description`, `Pre-Condition`.
 
 The FE-01 supporting verification is intentionally outside the workbook case
 index and functional-case statistics; its auth-flow and role-policy evidence is
-recorded in `03-features/feature-1.md`.
+recorded in `03-features/fe-01-identity-access-governance.md`.
 
 ## Case index
 
@@ -26,9 +26,13 @@ to FE-07, not FE-02.
 
 The FE-01 role-aware portal/navigation policy check, browser authentication
 flow checks, and cross-cutting API response-envelope contract checks are
-recorded separately in `03-features/feature-1.md`. These supporting checks
+recorded separately in `03-features/fe-01-identity-access-governance.md`. These supporting checks
 verify SRS access and API contracts; they are not additional WFx functional
 cases or workbook rows.
+
+FE-08 Dashboard, Analytics and Notifications has no assigned WFx case in this
+baseline. Treat it as an uncovered feature, not an implicitly passed or
+pending workbook test.
 
 | No | Function Name | Sheet Name | Description | Pre-Condition |
 | ---: | --- | --- | --- | --- |
