@@ -31,7 +31,7 @@ The browser application provides administration, Client, and Service Manager wor
 | 9 | Assets | Asset List | Search, filter, and open assets within the user's authorized scope. |
 | 10 | Assets | Asset Details | View and update asset data, documents, schedules, requests, reports, findings, and maintenance history. |
 | 11 | Planning | Inspection Schedules and Proposals | Review proposed inspection cadences and manage the selected recurring inspection schedule. |
-| 12 | Requests | Inspection Request | Create, complete, review, or reject a periodic or ad hoc inspection request and its attachments. |
+| 12 | Requests | Inspection Request | Generate or review a periodic inspection request, or create a linked ad hoc re-inspection request, and manage its attachments. |
 | 13 | Commercial | Inspection Quotation and Order | Create versions, review scope and terms, approve, or request revision. |
 | 14 | Assignments | Inspector Assignment | Assign an Inspector and record accept or reject responses. |
 | 15 | Inspection | My Inspection Assignments | List only inspections assigned to the signed-in Inspector. |
@@ -62,7 +62,7 @@ The matrix preserves the five-column structure of the supplied template. The com
 | Categories and Checklists | Manage | V | I: V; M: V | V |
 | Asset List and Details | V |  |  | Manage own organization |
 | Asset Review and Schedule Proposals | V | Review and propose |  | Select own organization |
-| Inspection Requests | V | Manage and review | I: View assigned | Manage own organization |
+| Inspection Requests | V | Manage and review | I: View assigned | View own organization |
 | Inspection Quotation and Order | V | Manage and release | I: View assigned | Approve own organization |
 | Inspector Assignment | V | Manage | I: Respond to assigned | View own organization |
 | Inspection Session | V | Coordinate and view | I: Manage assigned | View own organization result |
@@ -91,7 +91,7 @@ The matrix preserves the five-column structure of the supplied template. The com
 | 6 | Reports | Draft compilation | Compile a versioned report draft from checklist responses, evidence, and Inspector-verified findings. |
 | 7 | Reports | Immutable acceptance | Preserve an accepted report version and its complete approval and revision history. |
 | 8 | Maintenance | Linked re-inspection | Create an ad hoc inspection request from a re-inspection decision and return it to WF2. |
-| 9 | Notifications | Workflow notification | Notify the next responsible actor after material assignments, decisions, deadlines, releases, and correction requests. |
+| 9 | Notifications | Workflow notification | Notify the Client when a periodic request is generated and notify the next responsible actor after material assignments, decisions, deadlines, releases, and correction requests. |
 | 10 | Audit | Security and workflow audit | Append material security and workflow events without storing passwords, raw tokens, or protected evidence content. |
 | 11 | Cleanup | Retention processing | Remove expired token history and apply configured audit and evidence retention rules. |
 
@@ -114,7 +114,7 @@ The diagram describes the principal transactional entities. The complete physica
 | 7 | Asset | Organization-owned infrastructure item subject to inspection and maintenance. |
 | 8 | Asset Document | Drawing, manual, previous report, or maintenance document linked to an asset. |
 | 9 | Inspection Schedule | Recurring schedule that generates periodic inspection requests. |
-| 10 | Inspection Request | Periodic or ad hoc request with scope, priority, deadline, contact, and access constraints. |
+| 10 | Inspection Request | Periodic request generated from an active schedule, or linked ad hoc re-inspection request, with scope, priority, deadline, contact, and access constraints. |
 | 11 | Quotation | Versioned commercial proposal for inspection or maintenance service. |
 | 12 | Service Order | Confirmed inspection scope, deliverables, and post-service payment terms. |
 | 13 | Assignment | Accepted or rejected assignment for inspection, peer review, assessment, or execution. |
@@ -179,10 +179,9 @@ FE-03 manages periodic inspection requests, commercial review, quotation and ord
 
 **Function description:**
 
-- The system automatically generates the periodic inspection request in the `SUBMITTED` state, inheriting the inspection scope, priority, site-access constraints, and responsible contact from the asset profile, derives the preferred deadline from the due cycle, and links available asset documents. The system sends an upcoming inspection notification to the Client with a cancellation window. The Client does not manually complete or submit request details.
-- Client opt-out mechanism: If the Client takes no action, the system automatically accepts the scheduled inspection upon expiration of the cancellation window; alternatively, the Client may submit a cancellation request with a documented reason, transitioning the request to `CANCELLED` and terminating the current cycle.
+- The system automatically generates the periodic inspection request in the `SUBMITTED` state, inheriting the inspection scope, priority, site-access constraints, and responsible contact from the asset profile, derives the preferred deadline from the due cycle, and links available asset documents. The system sends an upcoming inspection notification to the Client and routes the request to the Service Manager. The Client does not manually complete or submit request details.
 - The system verifies organization ownership, active asset status, and valid status transitions.
-- For an accepted request, the Service Manager assesses request feasibility, required checklist, duration, service capacity, and delivery expectations.
+- The Service Manager assesses request feasibility, required checklist, duration, service capacity, and delivery expectations.
 - The Service Manager creates a versioned quotation and draft service order. A revision creates a new version and preserves earlier versions.
 - The Client reviews the quotation and service order, and approves the current version accepting post-service payment terms, or requests revision.
 - After approval, the Service Manager selects a qualified and available Inspector and sends the assignment package.

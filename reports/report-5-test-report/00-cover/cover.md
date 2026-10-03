@@ -8,9 +8,9 @@ when transferring values into the workbook.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Creator | *Enter team/member name* |
-| Issue Date | 2026-09-29 |
+| Issue Date | 2026-10-03 |
 | Document Code | *Enter document code* |
-| Version | 1.8 |
+| Version | 1.9 |
 
 ## Record of change
 
@@ -36,3 +36,4 @@ revision; do not remove old entries.
 | 2026-09-28 | 1.6 | FE-01 admin user creation persistence defect fix | M | Fixed `POST /api/v1/platform/users` returning 500 (same audit-before-flush cause) and recorded the passing FE-01 admin-creation persistence gate; workbook case IDs, sheet totals, and statistics unchanged. | Backend `AdminUserApiIntegrationTest`, `AdminUserServiceTest`; `.\mvnw.cmd verify` 167/167 |
 | 2026-09-29 | 1.7 | WF1 proposal flow cases added | A | Added `WF1-011`-`WF1-019` for asset review, schedule-proposal generation/review/selection, document-upload rules, the due-cycle event, and the negative scope sweep; recounted Feature 1 to 17 cases and the total to 24. | Report 3 SRS 3.3; `project-reference/business-flows.md`; backend `mvnw verify`; `fe-02-asset-registry-inspection-schedule.md`, `fe-03-inspection-request-work-assignment.md`, `test-statistics.md` |
 | 2026-09-29 | 1.8 | WF2 periodic-only flow alignment | M | Updated WF2-001 from ad-hoc manual creation to automated periodic request generation with asset defaults, Client notification, auto-acceptance by default, and cancellation option; aligned FE-03 scope baseline and coverage boundary. | Report 3 SRS 3.4; `project-reference/business-flows.md`; `test-case-list.md`; `fe-03-inspection-request-work-assignment.md` |
+| 2026-10-03 | 1.9 | WF2 handoff contract correction | M | Aligned the Report 3, Report 5, and WF2 planning references with the current event-driven handoff: periodic requests are routed to Service Manager review, and linked AD_HOC requests are reserved for re-inspection. WF2-001 remains pending because no runtime test was executed. | Report 3 SRS 3.4; `project-reference/business-flows.md`; `development/plans/bach/2026-09-22-four-week-mainflow-delivery/`; `development/plans/quoc/plan.md` |

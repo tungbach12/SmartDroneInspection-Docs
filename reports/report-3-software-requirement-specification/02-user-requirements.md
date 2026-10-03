@@ -32,8 +32,8 @@ source: "report3-software-requirement-specification.docx"
 | 03 | Configure Categories and Checklists | Admin | Maintain asset categories, checklist templates, checklist versions, and platform-level reference data. |
 | 04 | Register Asset | Client | Create and update an infrastructure asset owned by the Client's organization. |
 | 05 | Manage Asset Documents | Client | Upload and maintain drawings, manuals, previous reports, and maintenance history for an authorized asset. |
-| 06 | Schedule Periodic Inspection | Client | Create, activate, pause, or update a recurring inspection schedule for an active asset and checklist template. |
-| 07 | Submit Inspection Request | Client | Submit an ad hoc request or complete a system-generated periodic request with scope, priority, deadline, access constraints, contact, and attachments. |
+| 06 | Schedule Periodic Inspection | Client | Select and manage the recurring inspection schedule proposed for an active asset and checklist template. |
+| 07 | Receive Periodic Inspection Request | System, Client | The system generates a periodic request with inherited scope, priority, deadline, access constraints, contact, and attachments and notifies the Client; the request is routed to the Service Manager. |
 | 08 | Review Inspection Request | Service Manager | Check request completeness, scope feasibility, service capacity, access conditions, and required supporting information. |
 | 09 | Prepare Inspection Quotation and Order | Service Manager | Create a versioned quotation and draft service order containing scope, deliverables, estimated price or rates, duration, and post-service payment terms. |
 | 10 | Approve Inspection Order | Client | Approve the current quotation and order or request a revised version. |

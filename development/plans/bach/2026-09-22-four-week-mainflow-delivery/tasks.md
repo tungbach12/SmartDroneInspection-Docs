@@ -47,7 +47,7 @@ The four owners are Hiếu (WF1), Quốc (WF2), Bách (WF3), and Như (WF4).
 **Independent test**: Seed an authorized asset or consume a periodic request, then complete one
 approval and one reject/reassign cycle.
 
-- [ ] T014 [US2] Implement ad hoc request creation and idempotent periodic-event consumption in `backend/src/main/java/com/smartdroneinspection/inspectionrequests/service/InspectionRequestService.java` (Quốc; W1; 2d; Client organization is derived from principal; due-cycle replay creates no duplicate).
+- [ ] T014 [US2] Implement linked ad hoc re-inspection request creation and idempotent periodic-event consumption in `backend/src/main/java/com/smartdroneinspection/inspectionrequests/service/InspectionRequestService.java` (Quốc; W1; 2d; Client organization is derived from principal or the trusted maintenance handoff; due-cycle replay creates no duplicate).
 - [ ] T015 [US2] Build Client request list/create/detail in `frontend/src/features/inspectionrequests/pages/InspectionRequestsPage.tsx` (Quốc; W3; 2d; Client submits scope, deadline, access and contact data for own asset with field errors shown).
 - [ ] T016 [US2] Implement manager review and immutable quotation revisions in `backend/src/main/java/com/smartdroneinspection/inspectionrequests/service/InspectionQuotationService.java` (Quốc; W1; 2d; only current version receives a Client decision and earlier versions remain readable).
 - [ ] T017 [US2] Implement Client approval and confirmed order transition in `backend/src/main/java/com/smartdroneinspection/inspectionrequests/service/InspectionOrderService.java` (Quốc; W2; 2d; approval records post-service terms; no payment gate; unapproved order cannot be assigned).

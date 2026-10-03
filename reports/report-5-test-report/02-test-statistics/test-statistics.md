@@ -10,8 +10,8 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | Week 3 verification: Round 1 baseline, Round 2 WF3-002 CI recheck, Round 2 WF3-004 narrative config/provenance recheck, 2026-09-28 WF1 schedule-proposal revision, and 2026-09-29 WF2 periodic-only flow alignment |
-| Last updated | 2026-09-29 |
+| Test round | Week 3 verification: Round 1 baseline, Round 2 WF3-002 CI recheck, Round 2 WF3-004 narrative config/provenance recheck, 2026-09-28 WF1 schedule-proposal revision, and 2026-09-29 WF2 periodic-request handoff alignment |
+| Last updated | 2026-10-03 |
 
 ## Module summary
 
@@ -58,7 +58,9 @@ so the Feature 2 `Passed` count is unchanged at 4. The nine WF1 cases added on
 2026-09-28 (`WF1-011`-`WF1-019`) raise the Feature 1 sheet to 17 and the
 grand total to 24. `WF1-017` counts as `Passed` for its producer-side
 assertions only; its WF2 consumer half is pending T021 and is recorded as a note
-rather than a separate case.
+rather than a separate case. WF2-001 remains `Pending` because this documentation
+alignment updates its expected periodic-request handoff but does not claim runtime
+execution.
 
 Use the same definitions as the workbook:
 

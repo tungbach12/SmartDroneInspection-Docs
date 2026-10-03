@@ -7,8 +7,9 @@
 
 ## Outcome
 
-An ad hoc or periodic request becomes a confirmed order and an accepted Inspector assignment,
-without bypassing quotation approval or organization scope.
+A system-generated periodic request, or a linked ad hoc re-inspection request, becomes a
+confirmed order and an accepted Inspector assignment without bypassing quotation approval or
+organization scope.
 
 ## Owner tasks
 
