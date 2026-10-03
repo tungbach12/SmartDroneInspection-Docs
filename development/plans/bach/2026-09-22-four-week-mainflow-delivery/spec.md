@@ -11,6 +11,15 @@
 > suggested frequency, the Manager reviews the proposals, and the Client selects exactly one to
 > create the active schedule. See [the WF1 schedule-proposal spec](../hieu/2026-09-25-wf1-schedule-proposal-flow/spec.md).
 
+> **Amended 2026-10-03: Multi-Provider Platform, Escrow and 5 Main Flows.** The target architecture
+> transitions from a single-operator setup to a Multi-Provider Platform with six canonical roles
+> (`PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`)
+> structured around five canonical Main Flows (`MF1` to `MF5`). Platform centrally provides and pays for
+> YOLO inference, data processing, MinIO storage, and LLM narrative drafting; Providers quote only direct
+> flight/labor services under one published uniform Platform commission rate `r`. Advance funding, if required,
+> utilizes an authorized bank/payment partner arrangement; `PLATFORM_OPERATOR` coordinates internal dispute
+> resolutions without displacing court or commercial-arbitration rights. See `project-reference/business-flows.md`.
+
 
 ## User Scenarios & Testing
 

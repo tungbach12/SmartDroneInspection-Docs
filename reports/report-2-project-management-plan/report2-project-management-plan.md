@@ -39,13 +39,13 @@ Table of Contents
 
 ### 1.1 Scope & Estimation
 
-SmartDroneInspection is a B2B infrastructure inspection service platform. The baseline covers Client self-registration of a customer organization, asset and inspection-zone management, schedules, service requests and orders, direct evidence upload to MinIO, human-verified YOLO findings, Inspector-reviewed LLM report drafting, approval and maintenance follow-up. Inspection and maintenance use separate post-service billing milestones with a shared invoice status lifecycle; the first release records external or manual payment confirmation and does not integrate a payment gateway. Direct upload is the core path. Autonomous flight control, complete 3D reconstruction, real payment settlement and full enterprise CMMS are outside the baseline. The eight bold parent rows map one-to-one to FE-01 through FE-08; each parent is a software feature roll-up and each numbered child is an estimable software function. Parent rows are not assigned as separate Jira work; the child functions are. The 135 man-days include analysis, design, implementation, testing and documentation for those functions.
+SmartDroneInspection's **implemented v1 baseline** is an inspection-and-maintenance service platform with five existing roles and separate post-service billing records; it does not have deployed multi-provider onboarding, licensed payment-partner settlement, or formal dispute management. The **approved target redesign** adds six proposed roles across Platform, Customer, and Provider zones; MF1–MF5 introduce Provider selection/RFQ, a single Platform-set commission accepted by every Provider, conditional payment-partner funding, internal complaint handling, and contractually specified warranty retention. Platform supplies YOLO, data processing, MinIO, and LLM narrative assistance for Provider/Client use and bears those operating costs; Provider quotations do not separately charge Clients for that infrastructure. These are scope changes, **not work already delivered**. The existing WBS and 135 man-days below describe the earlier baseline and must be re-estimated before anyone claims the redesign is deliverable within it. Drone flight control, unlicensed deposit custody and legal arbitration by the Platform remain out of scope.
 
 | # | WBS Item | Complexity | Est. Effort<br>(man-days) |
 | --- | --- | --- | --- |
 | 1 | FE-01 Identity & Access Governance |  | 16 |
 | 1.1 | Client organization self-registration, JWT authentication, account and profile management | Medium | 5 |
-| 1.2 | Role- and scope-based authorization for five roles | Complex | 6 |
+| 1.2 | Role- and scope-based authorization for five implemented v1 roles (six-role target requires re-estimation) | Complex | 6 |
 | 1.3 | Organization and assignment scope enforcement with audit logs | Complex | 5 |
 | 2 | FE-02 Asset Registry & Inspection Schedule |  | 16 |
 | 2.1 | Asset documents and inspection history management | Medium | 6 |
@@ -114,6 +114,11 @@ The team reviews the following risks weekly and before each review gate.
 | 8 | Member absence or prototype/site access delays the demonstration. | Medium | Medium | Maintain backup owners, setup notes and approved prerecorded evidence. |
 | 9 | Business parameters or AI thresholds are hardcoded or cannot be explained. | High | Medium | Store versioned policy values in database configuration, and record experiment rationale and metrics. |
 | 10 | PMP, SRS, Jira, code or review feedback becomes inconsistent. | High | Medium | Run a weekly consistency audit and maintain a Feedback Tracker with owner, deadline, evidence and status. |
+| 11 | Multi-provider target leaks Provider bids, workforce data or evidence across organizations. | High | Medium | Require tenant-scoped authorization and negative tests before launch; do not treat UI visibility as a security boundary. |
+| 12 | Proposed conditional funding exceeds Platform/payment partner licence or lacks a viable bank product. | High | High | Obtain written bank/payment-provider product and counsel approval before implementing custody, release, refund or retention; otherwise keep the v1 manual billing model. |
+| 13 | Fixed Provider commission `r` cannot cover Platform-funded YOLO/LLM/MinIO, payment, support or refund cost. | High | Medium | Publish one standard rate only after cost-based modeling; lock policy version per new order and reverse commission on refunded service value. |
+| 14 | Target dispute/autosettlement terms are treated as statutory or deployed without express assent. | High | High | Label time windows and remedies as proposed contract terms; secure informed acceptance and preserve court/commercial-arbitration rights. |
+| 15 | Drone registration, pilot credentials and permits are judged under superseded or incomplete provisions. | High | Medium | Recheck Law 49/2024 as amended plus Decrees 198/2025 and 288/2025 and actual mission conditions before launch. |
 
 ## 2. Management Approach
 
@@ -139,7 +144,7 @@ Quality is managed through prevention, review and layered testing. Requirements,
 
 - Integration Testing: verify web/mobile APIs, PostgreSQL, MinIO, AI services and manual invoice/payment-status recording. No online payment callback is in scope for the first release.
 
-- System Testing: execute the four workflows, all roles, AI failure paths, report approval, maintenance and access isolation.
+- System Testing: for the v1 baseline, execute its four existing WF1–WF4 workflows, five current roles, AI failure paths, report approval, maintenance and access isolation. MF1–MF5 and six proposed roles require new acceptance tests before they can be described as delivered.
 
 ### 2.3 Training Plan
 

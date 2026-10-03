@@ -14,7 +14,9 @@ source: "report3-software-requirement-specification.docx"
 - **REST API:** JSON endpoints are versioned under `/api/v1`. Successful JSON bodies use `{ success, message, data }`; HTTP status codes remain authoritative, while `204 No Content` and binary file streams are not wrapped. Errors use RFC 9457 Problem Details with a stable code and trace identifier. OpenAPI is available for development and protected appropriately in production.
 - **PostgreSQL:** PostgreSQL is the source of truth for transactional state, authorization data, audit metadata, and workflow history.
 - **MinIO:** S3-compatible object storage stores evidence and generated files; access is mediated by backend authorization rather than public object paths.
-- **YOLO service:** Eligible images may be sent for inference; responses contain the model version, predicted label, confidence, and bounding box.
+- **YOLO and LLM services (Platform-provided):** Platform hosts computer-vision YOLO inference and LLM narrative drafting; responses contain model version, labels, bounding boxes, or draft narrative. Providers and Clients consume these services through Platform interfaces without separate hosting or infrastructure fees.
+- **Payment & Escrow Partner (target):** When conditional funding is integrated, communication occurs with licensed bank/payment intermediary APIs for transaction status confirmation and conditional release instructions; the platform does not independently operate deposit-taking accounts or act as a payment gateway.
+- **Airspace Reference (target):** National restricted airspace and no-fly zone overlays reference public databases (`cambay.mod.gov.vn` per QĐ 18/2020/QĐ-TTg).
 
 ### 4.2 Quality Attributes
 
@@ -43,11 +45,12 @@ source: "report3-software-requirement-specification.docx"
 #### 4.2.4 Security, Privacy, Maintainability, and Compatibility
 
 - All non-public endpoints require authentication and deny access unless role and resource-scope checks pass.
-- Authorization enforces organization, ownership, assignment, release authority, and separation of duties as applicable.
+- Authorization enforces multi-tenant boundary checks: Client organizations cannot see other customers' assets or orders; independent Service Provider organizations cannot observe competitor quotations, margins, workforce records, or raw flight evidence.
+- Separation of duties is enforced between `PLATFORM_ADMIN` (technical/security policy management) and `PLATFORM_OPERATOR` (business operations, provider vetting, and dispute handling).
 - Passwords are hashed with the configured Spring Security password encoder and are never logged or returned.
 - Browser refresh tokens use Secure, HttpOnly, SameSite=Strict cookies; browser access tokens remain in memory.
 - Mobile tokens are returned only by the mobile authentication contract and are stored in secure platform storage.
 - Passwords, raw tokens, credentials, private keys, protected evidence content, and unnecessary personal data are excluded from logs and JWT claims.
 - Backend business capabilities remain separated by Spring Modulith boundaries, and schema changes use sequential forward Flyway migrations.
 - Web and mobile clients consume the same versioned API while using the token-delivery profile appropriate to each client.
-- Material security and workflow events include event type, outcome, timestamp, and trace identifier without exposing secrets.
+- Material security, commercial order, escrow transaction, and dispute events include event type, outcome, timestamp, and trace identifier without exposing secrets.

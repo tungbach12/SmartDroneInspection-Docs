@@ -12,30 +12,36 @@ It is not an executable Flyway migration and does not claim that every table bel
 
 ## 1. Design goals
 
-- Support the five roles `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`.
+- Support the six canonical roles across three actor zones:
+  - `PLATFORM_GOVERNANCE`: `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`.
+  - `CUSTOMER_ORGANIZATION`: `CLIENT`.
+  - `SERVICE_PROVIDER`: `PROVIDER_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`.
+- Support Multi-Provider multi-tenancy, isolating provider business assets, bids, assignments, and flight data.
+- Model the electronic contract, platform escrow cash-flow lifecycle, and internal dispute arbitration records.
 - Preserve organization, ownership, assignment, and separation-of-duties scope in relational keys.
-- Cover WF1-WF4 without adding speculative subsystems.
-- Preserve required quotation, order, report, assignment, approval, and resolution history.
+- Cover MF1–MF5 without adding speculative subsystems.
+- Preserve required quotation, order, report, assignment, approval, dispute, and resolution history.
 - Store transactional state and metadata in PostgreSQL while MinIO stores file bytes.
 - Keep JPA entities inside the feature that owns the business capability.
 - Use forward-only Flyway migrations for deployed environments; never use Hibernate schema update in production.
 
 ## 2. Right-sized schema
 
-The target contains **37 application tables** plus the Spring Modulith `event_publication` infrastructure table.
+The target contains **41 application tables** plus the Spring Modulith `event_publication` infrastructure table.
 
 | Capability | Tables | Count |
 | --- | --- | ---: |
-| Identity and access | `organizations`, `users`, `user_roles`, `auth_sessions`, `refresh_tokens` | 5 |
+| Identity, multi-provider and access | `organizations`, `provider_organizations`, `users`, `user_roles`, `auth_sessions`, `refresh_tokens` | 6 |
 | Audit | `security_audit_events` | 1 |
 | Asset catalog and planning | `asset_categories`, `category_frequency_suggestions`, `checklist_templates`, `checklist_items`, `assets`, `asset_documents`, `inspection_schedules`, `schedule_proposals` | 8 |
-| WF2 request and service preparation | `inspection_requests`, `inspection_request_attachments`, `inspection_quotations`, `inspection_service_orders`, `inspection_assignments` | 5 |
-| WF3 inspection and report delivery | `inspections`, `checklist_responses`, `evidence`, `ai_finding_candidates`, `verified_findings`, `inspection_reports`, `report_versions`, `peer_reviews` | 8 |
-| WF4 maintenance and billing | `maintenance_tickets`, `maintenance_ticket_findings`, `maintenance_assessments`, `maintenance_quotations`, `maintenance_orders`, `maintenance_assignments`, `maintenance_work_logs`, `maintenance_change_requests`, `invoices` | 9 |
+| MF2 request, quotation and escrow | `inspection_requests`, `inspection_request_attachments`, `inspection_quotations`, `inspection_service_orders`, `inspection_assignments`, `escrow_transactions` | 6 |
+| MF3 inspection and report delivery | `inspections`, `checklist_responses`, `evidence`, `ai_finding_candidates`, `verified_findings`, `inspection_reports`, `report_versions`, `peer_reviews` | 8 |
+| MF4 dispute arbitration | `dispute_tickets`, `dispute_evidence` | 2 |
+| MF5 maintenance and billing | `maintenance_tickets`, `maintenance_ticket_findings`, `maintenance_assessments`, `maintenance_quotations`, `maintenance_orders`, `maintenance_assignments`, `maintenance_work_logs`, `maintenance_change_requests`, `invoices` | 9 |
 | Supporting workflow | `notifications` | 1 |
 | Framework infrastructure | `event_publication` | 1 |
 
-The design deliberately does not create separate lookup tables for roles, statuses, priorities, severities, or actor zones. These are stable Java enums persisted as constrained strings. It also does not create dashboard, search-index, notification-template, payment-transaction, or file-blob tables.
+The design deliberately does not create separate lookup tables for roles, statuses, priorities, severities, or actor zones. These are stable Java enums persisted as constrained strings. It also does not create dashboard, search-index, notification-template, or file-blob tables. Platform-operated AI (YOLO inference and LLM narrative drafting) is delivered as centralized platform capability with metadata and candidate findings persisted directly in the core tables.
 
 ## 3. Code-first and migration policy
 
@@ -144,7 +150,7 @@ When a definition below says **mutable aggregate columns**, it means `created_at
 
 ### 6.1 Identity and access
 
-#### `organizations`
+#### `organizations` (Customer Organizations)
 
 | Column | Type | Null | Constraint or purpose |
 | --- | --- | --- | --- |
@@ -158,6 +164,26 @@ When a definition below says **mutable aggregate columns**, it means `created_at
 
 Indexes: unique `code`; index `active` when organization administration requires filtering.
 
+#### `provider_organizations` (Service Provider Organizations)
+
+| Column | Type | Null | Constraint or purpose |
+| --- | --- | --- | --- |
+| `id` | `UUID` | No | Primary key. |
+| `name` | `VARCHAR(200)` | No | Trade/display name. |
+| `legal_name` | `VARCHAR(250)` | No | Full legal company name per Business Registration. |
+| `tax_code` | `VARCHAR(32)` | No | Unique corporate tax code. |
+| `business_license_no` | `VARCHAR(64)` | No | Business registration certificate number. |
+| `drone_permit_code` | `VARCHAR(64)` | Yes | UAV registration identification code per Luật Phòng không nhân dân 2024 & Nghị định 288/2025/NĐ-CP. |
+| `insurance_policy_no` | `VARCHAR(128)` | Yes | Third-party aviation liability insurance certificate. |
+| `status` | `VARCHAR(32)` | No | `PENDING`, `VERIFIED`, `SUSPENDED`, or `BANNED`. |
+| `rating_score` | `NUMERIC(3,2)` | Yes | Quality rating calculated from completed orders (1.00 - 5.00). |
+| `approved_by_operator_id` | `UUID` | Yes | FK to `users` (`PLATFORM_OPERATOR` who vetted the provider). |
+| `approved_at` | `TIMESTAMPTZ` | Yes | Timestamp of vetting approval. |
+| `created_at` | `TIMESTAMPTZ` | No | Creation time. |
+| `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
+
+Indexes: unique `tax_code`; index `status`.
+
 #### `users`
 
 | Column | Type | Null | Constraint or purpose |
@@ -168,8 +194,9 @@ Indexes: unique `code`; index `active` when organization administration requires
 | `full_name` | `VARCHAR(200)` | No | User display name. |
 | `password_hash` | `VARCHAR(1024)` | Yes | Adaptive password hash; null only during controlled provisioning if supported. |
 | `status` | `VARCHAR(32)` | No | `ACTIVE`, `SUSPENDED`, or `DISABLED`. |
-| `actor_zone` | `VARCHAR(32)` | No | `PLATFORM`, `CUSTOMER_ORGANIZATION`, or `SERVICE_WORKFORCE`. |
+| `actor_zone` | `VARCHAR(32)` | No | `PLATFORM_GOVERNANCE`, `CUSTOMER_ORGANIZATION`, or `SERVICE_PROVIDER`. |
 | `organization_id` | `UUID` | Yes | FK to `organizations`; required only for customer identities. |
+| `provider_id` | `UUID` | Yes | FK to `provider_organizations`; required for service provider workforce. |
 | `auth_version` | `INTEGER` | No | Incremented when all tokens must become stale. |
 | `failed_login_count` | `INTEGER` | No | Non-negative failed-attempt counter. |
 | `lockout_until` | `TIMESTAMPTZ` | Yes | Temporary login cooldown. |
@@ -179,7 +206,7 @@ Indexes: unique `code`; index `active` when organization administration requires
 | `created_at` | `TIMESTAMPTZ` | No | Creation time. |
 | `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
 
-Constraints: normalized email is unique; customer-zone users require an organization; other zones must not have one.
+Constraints: normalized email is unique; customer-zone users require `organization_id` (and null `provider_id`); service-provider-zone users require `provider_id` (and null `organization_id`); platform-governance-zone users have both null.
 
 #### `user_roles`
 
@@ -187,7 +214,7 @@ Constraints: normalized email is unique; customer-zone users require an organiza
 | --- | --- | --- | --- |
 | `id` | `UUID` | No | Primary key. |
 | `user_id` | `UUID` | No | FK to `users`, cascade on user deletion before operational history exists. |
-| `role` | `VARCHAR(64)` | No | One of the five canonical role codes. |
+| `role` | `VARCHAR(64)` | No | One of the six canonical role codes: `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`. |
 
 Constraints: unique `(user_id, role)`; actor-zone combinations are validated in the domain policy and tests.
 
@@ -375,24 +402,25 @@ Columns: `id`, `inspection_request_id`, `uploaded_by_user_id`, `file_name`, `con
 
 #### `inspection_quotations`
 
-Each row is one immutable commercial version.
+Each row is one immutable commercial version prepared by the bidding or selected Service Provider.
 
 | Column | Type | Null | Constraint or purpose |
 | --- | --- | --- | --- |
 | `id` | `UUID` | No | Quotation-version identifier. |
 | `quotation_series_id` | `UUID` | No | Stable identifier shared by revisions. |
 | `inspection_request_id` | `UUID` | No | Quoted request. |
+| `provider_id` | `UUID` | No | FK to `provider_organizations` (Bidding Provider). |
 | `version_number` | `INTEGER` | No | Positive version number. |
 | `previous_version_id` | `UUID` | Yes | Self-FK to the prior version. |
-| `prepared_by_user_id` | `UUID` | No | Service Manager. |
-| `currency` | `CHAR(3)` | No | ISO currency code. |
-| `subtotal` | `NUMERIC(14,2)` | No | Non-negative. |
-| `tax_amount` | `NUMERIC(14,2)` | No | Non-negative. |
-| `total_amount` | `NUMERIC(14,2)` | No | Non-negative. |
-| `pricing_details` | `JSONB` | No | Immutable line-item snapshot. |
-| `scope_snapshot` | `JSONB` | No | Agreed scope and deliverables snapshot. |
+| `prepared_by_user_id` | `UUID` | No | FK to `users` (`PROVIDER_MANAGER`). |
+| `currency` | `CHAR(3)` | No | ISO currency code (defaults to `VND`). |
+| `subtotal` | `NUMERIC(14,2)` | No | Non-negative service fee (flight + technical labor). |
+| `tax_amount` | `NUMERIC(14,2)` | No | Non-negative VAT. |
+| `total_amount` | `NUMERIC(14,2)` | No | Total contract fee payable by Client to Provider. |
+| `pricing_details` | `JSONB` | No | Immutable line-item snapshot (flight fee, pilot labor, logistics). Excludes AI/storage fees (absorbed by Platform). |
+| `scope_snapshot` | `JSONB` | No | Agreed scope, required GSD, and deliverables snapshot. |
 | `estimated_duration_hours` | `NUMERIC(10,2)` | Yes | Positive estimate. |
-| `payment_terms` | `VARCHAR(2000)` | No | Post-service payment terms. |
+| `payment_terms` | `VARCHAR(2000)` | No | Escrow deposit and milestone terms. |
 | `status` | `VARCHAR(32)` | No | Draft, sent, revision requested, approved, rejected, or superseded. |
 | `sent_at` | `TIMESTAMPTZ` | Yes | Customer-visible time. |
 | `decided_by_user_id` | `UUID` | Yes | Client decision actor. |
@@ -401,13 +429,65 @@ Each row is one immutable commercial version.
 | `created_at` | `TIMESTAMPTZ` | No | Creation time. |
 | `row_version` | `BIGINT` | No | Optimistic-lock version for concurrent quotation decisions. |
 
-Constraints: unique `(quotation_series_id, version_number)`; only an approved version can create a service order. The
-commercial snapshot is immutable after finalization, while `row_version` protects concurrent state transitions before
-that point.
+Constraints: unique `(quotation_series_id, version_number)`; only an approved version can create a service order. The commercial snapshot is immutable after finalization, while `row_version` protects concurrent state transitions before that point.
 
 #### `inspection_service_orders`
 
-Columns: `id`, unique `order_number`, unique `approved_quotation_id`, `inspection_request_id`, `confirmed_by_user_id`, `confirmed_at`, `scope_snapshot JSONB`, `deliverables JSONB`, `payment_terms`, `status`, optional `started_at`, optional `completed_at`, and mutable aggregate columns.
+Each row is a legally binding tripartite order under *Luật Giao dịch điện tử 2023*.
+
+| Column | Type | Null | Constraint or purpose |
+| --- | --- | --- | --- |
+| `id` | `UUID` | No | Primary key. |
+| `order_number` | `VARCHAR(64)` | No | Unique business identifier. |
+| `approved_quotation_id` | `UUID` | No | FK to `inspection_quotations`. |
+| `inspection_request_id` | `UUID` | No | FK to `inspection_requests`. |
+| `client_organization_id`| `UUID` | No | FK to `organizations`. |
+| `provider_id` | `UUID` | No | FK to `provider_organizations`. |
+| `flight_permit_no` | `VARCHAR(128)` | Yes | Flight permit reference issued by Cục Tác chiến - Bộ Tổng Tham mưu. |
+| `confirmed_by_user_id` | `UUID` | No | Client actor confirming the order. |
+| `confirmed_at` | `TIMESTAMPTZ` | No | Order confirmation time. |
+| `scope_snapshot` | `JSONB` | No | SOW, resolution requirements, asset coordinates. |
+| `shot_list_snapshot` | `JSONB` | No | Mandatory camera angles, elevation, GSD specs. |
+| `deliverables` | `JSONB` | No | Expected deliverable files and reports. |
+| `payment_terms` | `VARCHAR(2000)` | No | 100% Escrow deposit requirement. |
+| `status` | `VARCHAR(32)` | No | `AWAITING_ESCROW`, `LEGALLY_BINDING`, `IN_PROGRESS`, `COMPLETED`, `DISPUTED`, `CANCELLED`. |
+| `started_at` | `TIMESTAMPTZ` | Yes | Execution start time. |
+| `completed_at` | `TIMESTAMPTZ` | Yes | Final acceptance / auto-settlement time. |
+| `created_at` | `TIMESTAMPTZ` | No | Creation time. |
+| `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
+| `row_version` | `BIGINT` | No | Optimistic locking. |
+
+#### `escrow_transactions` (target transaction/settlement records; not a deployed deposit-taking account)
+
+The proposed record reconciles conditional funding and settlement supplied by an authorized bank/payment partner; *Nghị định 52/2024/NĐ-CP* alone does not license the Platform to hold deposits. `HELD_IN_ESCROW` is an internal workflow label, not proof of statutory Civil Code ký quỹ. No Flyway table or partner integration is claimed to exist yet.
+
+| Column | Type | Null | Constraint or purpose |
+| --- | --- | --- | --- |
+| `id` | `UUID` | No | Primary key. |
+| `order_id` | `UUID` | No | Reference to the inspection or maintenance order, validated with `order_type`; cross-table FK enforcement needs a concrete schema design. |
+| `order_type` | `VARCHAR(32)` | No | `INSPECTION` or `MAINTENANCE`. |
+| `client_organization_id` | `UUID` | No | Customer scope. |
+| `provider_organization_id` | `UUID` | No | Provider scope. |
+| `customer_funded_amount` | `NUMERIC(14,2)` | No | Actual partner-confirmed amount including any applicable Provider VAT; not automatically 100% before contracting. |
+| `eligible_fee_base` | `NUMERIC(14,2)` | No | `B`: Provider VAT-exclusive service consideration after Provider-funded discount and valid service-price refund. |
+| `commission_policy_version` | `VARCHAR(64)` | No | Published one-rate policy accepted and locked on order. |
+| `commission_rate` | `NUMERIC(7,5)` | No | Uniform Platform-set `r` for all Provider organizations; no numeric default until approved. |
+| `commission_amount` | `NUMERIC(14,2)` | No | `C = r × B`, calculated once on eligible settled value; reverses proportionately on refunds. |
+| `provider_vat_amount` | `NUMERIC(14,2)` | Yes | Provider service VAT where applicable; not a Platform fee. |
+| `platform_commission_vat_amount` | `NUMERIC(14,2)` | Yes | VAT on Platform commission where applicable; separate invoice and tax classification. |
+| `provider_payout_amount` | `NUMERIC(14,2)` | No | Partner-confirmed Provider net payout after commission and any agreed retention. |
+| `retained_amount` | `NUMERIC(14,2)` | No | Contractually held warranty amount; later release does not earn a second commission. |
+| `disputed_amount` | `NUMERIC(14,2)` | No | Amount temporarily held under partner product and accepted contract terms. |
+| `status` | `VARCHAR(32)` | No | `PAYMENT_PENDING`, `HELD_IN_ESCROW`, `FROZEN_DISPUTED`, `DISBURSED`, `REFUNDED`, `PARTIALLY_REFUNDED`. |
+| `partner_transaction_ref` | `VARCHAR(128)` | Yes | Authorized bank/payment-partner reference. |
+| `deposited_at` | `TIMESTAMPTZ` | Yes | Partner-confirmed funding time. |
+| `released_at` | `TIMESTAMPTZ` | Yes | Partner-confirmed payout/refund time. |
+| `authorized_by_user_id` | `UUID` | Yes | Platform Operator instruction actor, or null for a controlled system instruction. |
+| `created_at` | `TIMESTAMPTZ` | No | Creation time. |
+| `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
+| `row_version` | `BIGINT` | No | Optimistic locking. |
+
+One order may produce multiple deposit/refund/retention events; do not impose unique `order_id` on transaction rows. Idempotency uses a unique partner event/instruction identity, and arithmetic reconciles across the order.
 
 #### `inspection_assignments`
 
@@ -415,8 +495,8 @@ Columns: `id`, unique `order_number`, unique `approved_quotation_id`, `inspectio
 | --- | --- | --- | --- |
 | `id` | `UUID` | No | Assignment attempt. |
 | `service_order_id` | `UUID` | No | Confirmed inspection order. |
-| `inspector_user_id` | `UUID` | No | Assigned Inspector. |
-| `assigned_by_user_id` | `UUID` | No | Service Manager. |
+| `inspector_user_id` | `UUID` | No | Assigned Inspector (must belong to the winning Provider). |
+| `assigned_by_user_id` | `UUID` | No | `PROVIDER_MANAGER`. |
 | `status` | `VARCHAR(24)` | No | `PENDING`, `ACCEPTED`, `REJECTED`, `CANCELLED`, or `COMPLETED`. |
 | `deadline` | `TIMESTAMPTZ` | Yes | Assignment deadline. |
 | `access_instructions` | `VARCHAR(2000)` | Yes | Assignment package instructions. |
@@ -522,7 +602,52 @@ Constraints: reviewer must differ from the report author; decision is `PENDING`,
 
 Use unique `report_version_id` so each submitted version has one assigned peer reviewer. A change request creates a new report version for the same reviewer instead of overwriting the reviewed version.
 
-### 6.5 WF4 maintenance and billing
+### 6.5 MF4 dispute arbitration
+
+#### `dispute_tickets`
+
+Target internal complaint records coordinated by `PLATFORM_OPERATOR` under published Platform Terms. The operator's decision is not a court judgment or commercial arbitration award; applicability of consumer law depends on transaction purpose.
+
+| Column | Type | Null | Constraint or purpose |
+| --- | --- | --- | --- |
+| `id` | `UUID` | No | Primary key. |
+| `dispute_number` | `VARCHAR(64)` | No | Unique business identifier (e.g., `DSP-2026-0001`). |
+| `order_id` | `UUID` | No | Inspection service order or maintenance order ID. |
+| `order_type` | `VARCHAR(32)` | No | `INSPECTION` or `MAINTENANCE`. |
+| `raised_by_user_id` | `UUID` | No | FK to `users` (Client admin or Provider manager). |
+| `client_organization_id`| `UUID` | No | FK to `organizations`. |
+| `provider_organization_id`| `UUID`| No | FK to `provider_organizations`. |
+| `category` | `VARCHAR(32)` | No | `QUALITY_DEFECT`, `MISSING_SHOTS`, `AIRSPACE_SAFETY`, `TIMELINESS`, or `BILLING`. |
+| `reason` | `VARCHAR(4000)` | No | Detailed explanation of the dispute. |
+| `client_claim` | `VARCHAR(4000)` | Yes | Specific relief requested by Client (e.g., reshoot, refund). |
+| `provider_response` | `VARCHAR(4000)` | Yes | Explanation submitted by Provider within 48h. |
+| `status` | `VARCHAR(32)` | No | `OPENED`, `UNDER_ARBITRATION`, `RESOLVED`, or `CLOSED`. |
+| `resolution_decision` | `VARCHAR(32)` | Yes | `FREE_RESHOOT`, `FULL_REFUND`, or `REJECTED_DISPUTE`. |
+| `arbitrated_by_operator_id`| `UUID` | Yes | FK to `users` (`PLATFORM_OPERATOR` arbitrator). |
+| `arbitrated_at` | `TIMESTAMPTZ` | Yes | Timestamp of internal Platform Terms resolution; external remedies remain available. |
+| `resolution_notes` | `VARCHAR(4000)` | Yes | Official findings and justification for the decision. |
+| `penalty_amount` | `NUMERIC(14,2)` | Yes | Optional punitive penalty charged to violating provider. |
+| `created_at` | `TIMESTAMPTZ` | No | Filing timestamp (triggers immediate escrow freeze). |
+| `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
+
+Indexes: unique `dispute_number`; index `order_id`; index `status`.
+
+#### `dispute_evidence`
+
+Binds forensic digital evidence to a dispute ticket.
+
+| Column | Type | Null | Constraint or purpose |
+| --- | --- | --- | --- |
+| `id` | `UUID` | No | Primary key. |
+| `dispute_ticket_id` | `UUID` | No | FK to `dispute_tickets`. |
+| `uploaded_by_user_id` | `UUID` | No | Submitting party. |
+| `evidence_type` | `VARCHAR(32)` | No | `FLIGHT_LOG`, `MINIO_IMAGE`, `CONTRACT_DOCUMENT`, or `DAMAGE_REPORT`. |
+| `minio_object_key` | `VARCHAR(1000)` | No | MinIO storage key. |
+| `checksum_sha256` | `CHAR(64)` | No | SHA-256 data integrity checksum. |
+| `description` | `VARCHAR(1000)` | Yes | Context note. |
+| `created_at` | `TIMESTAMPTZ` | No | Creation timestamp. |
+
+### 6.6 MF5 maintenance and warranty retention
 
 #### `maintenance_tickets`
 
@@ -555,7 +680,7 @@ Constraints: assessment mode is `REMOTE` or `ON_SITE`; minimum cost cannot excee
 
 #### `maintenance_quotations`
 
-Each row is one immutable version. Columns mirror `inspection_quotations` and use `quotation_series_id`, `maintenance_ticket_id`, `maintenance_assessment_id`, `version_number`, `previous_version_id`, pricing/scope snapshots, payment terms, status, and Client decision metadata.
+Each row is one immutable version. Columns mirror `inspection_quotations` and use `quotation_series_id`, `maintenance_ticket_id`, `maintenance_assessment_id`, `provider_id`, `version_number`, `previous_version_id`, pricing/scope snapshots, payment terms, status, and Client decision metadata.
 
 Constraints: unique `(quotation_series_id, version_number)`; the technical scope must originate from a completed Engineer assessment.
 
@@ -570,13 +695,18 @@ Each row is an immutable approved order version so approved changes never overwr
 | `order_number` | `VARCHAR(64)` | No | Customer-visible number. |
 | `maintenance_ticket_id` | `UUID` | No | Parent ticket. |
 | `approved_quotation_id` | `UUID` | Yes | Required for the initial version. |
+| `provider_id` | `UUID` | No | FK to `provider_organizations`. |
 | `change_request_id` | `UUID` | Yes | Required for an approved changed version. |
 | `version_number` | `INTEGER` | No | Positive version number. |
 | `previous_version_id` | `UUID` | Yes | Prior approved order version. |
 | `scope_snapshot` | `JSONB` | No | Approved work scope and materials. |
-| `approved_amount` | `NUMERIC(14,2)` | No | Approved post-service amount/rates. |
+| `approved_amount` | `NUMERIC(14,2)` | No | Approved contract amount. |
+| `retention_percentage` | `NUMERIC(5,2)` | No | Defaults to `10.00`% (warranty retention money). |
+| `retention_amount` | `NUMERIC(14,2)` | No | Retention amount withheld during warranty (10%). |
+| `retention_status` | `VARCHAR(32)` | No | `HELD`, `RELEASED`, or `FORFEITED`. |
+| `warranty_end_date` | `TIMESTAMPTZ` | Yes | End of 30-day warranty period from completion. |
 | `currency` | `CHAR(3)` | No | ISO currency code. |
-| `payment_terms` | `VARCHAR(2000)` | No | Approved post-service terms. |
+| `payment_terms` | `VARCHAR(2000)` | No | Two-stage milestone payment terms. |
 | `status` | `VARCHAR(24)` | No | `CONFIRMED`, `IN_PROGRESS`, `COMPLETED`, `SUPERSEDED`, or `CANCELLED`. |
 | `approved_by_user_id` | `UUID` | No | Client actor. |
 | `approved_at` | `TIMESTAMPTZ` | No | Approval time. |

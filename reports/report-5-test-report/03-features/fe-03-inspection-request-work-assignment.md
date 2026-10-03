@@ -1,8 +1,8 @@
 ﻿# FE-03: Inspection Request and Work Assignment
 
-## Scope baseline
+## Implemented v1 baseline and proposed MF2 target
 
-WF2 handles PERIODIC inspection requests generated automatically from active schedules with defaults inherited from asset profiles. The system notifies the Client of upcoming inspections and routes each request to the Service Manager for review. Service Manager review leads to a versioned quotation and service-order confirmation. The Client approves post-service payment terms before assignment; no upfront payment or online payment gateway is required.
+The existing WF2 case descriptions below describe the five-role, post-service-billing implementation baseline: periodic request handoff, Service Manager review, versioned quotation/order intent and assignment. They **do not** prove multi-provider quotation, funding, payment-partner integration, provider commission, or the proposed six-role authorization. MF2 target cases are listed separately below and remain `Pending` until executed against that implementation.
 
 ## Current acceptance cases
 
@@ -30,4 +30,14 @@ The 2026-09-28 WF1 revision adds the due-cycle event, document-upload rules, and
 
 ## Coverage boundary
 
-WF1-004 verifies schedule due-event emission, while WF2-001 verifies automated periodic request generation, inherited asset defaults, Client notification, and routing to Service Manager review.
+WF1-004 and WF1-017 verify the existing producer-side schedule event; WF2-001 remains Pending for the consumer-side automated periodic request with inherited defaults. None of these cases verifies Provider bidding or conditional funding.
+
+## Proposed MF2 target cases (not executed)
+
+The fixed workbook `Feature 1` sheet remains the output grouping. These are additional FE-03 cases, all Pending in every round; the quoted `r` is the same published Platform rate for every Provider and is not yet assigned a numerical percentage.
+
+| Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| WF2-005 | Verified Provider may quote only eligible RFQs; competitors cannot inspect each other's bid. | Create two verified Provider organizations and one unverified Provider; publish an RFQ; submit two quotations; attempt unverified bid and cross-Provider quotation read. | Only verified eligible Providers can bid; each sees own bid and approved customer request context; rival pricing remains hidden. | Two Provider orgs, one unverified org and a Client RFQ exist. | Pending |  |  | Pending |  |  | Pending |  |  | Target MF2; no runtime evidence. |
+| WF2-006 | Platform publishes one Provider commission rule and excludes AI/data charges from Provider quotation. | Publish one policy `r`; have two Provider orgs accept it; prepare quotations with service subtotal, Provider-funded discount and applicable Provider tax; attempt separate AI/LLM/MinIO charge and Provider-specific `r`. | Both Providers receive the same accepted policy; quotation has no Platform AI/data line; `B` excludes Provider VAT and Provider-funded discount; a Provider-specific commission override is denied. | Platform policy is published; two verified Providers and one RFQ exist. | Pending |  |  | Pending |  |  | Pending |  |  | Target policy; rate percentage not selected. |
+| WF2-007 | Order locks commission policy and waits for verified payment-partner funding. | Client approves a quotation; record policy version and `r`; attempt assignment before funding; send duplicate, failed and authenticated partner success notifications; change published `r` afterward. | Confirmed order preserves original rate/version; duplicate notifications cannot duplicate funding; assignment stays blocked until authorized partner confirms the agreed funding requirement; future policy changes do not reprice existing order. | Approved Provider quotation and contracted licensed-partner test fixture exist. | Pending |  |  | Pending |  |  | Pending |  |  | Target only; no bank/payment integration is claimed. |

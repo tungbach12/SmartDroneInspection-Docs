@@ -9,7 +9,7 @@ source: "report3-software-requirement-specification.docx"
 
 ## 1. Status Report
 
-As of 22 September 2026, SmartDroneInspection has an aligned requirements baseline for the four business workflows: asset registration and periodic scheduling (WF1), inspection request review and assignment (WF2), inspection execution and report release (WF3), and maintenance resolution and re-inspection (WF4). The baseline covers the five current roles: Admin, Client, Service Manager, Inspector, and Maintenance Engineer.
+As of 22 September 2026, SmartDroneInspection established an aligned v1 requirements baseline for four business workflows (WF1–WF4) and five initial roles. On 3 October 2026, the team completed an architectural redesign plan targeting a Multi-Provider Drone Inspection Platform structured around five canonical Main Flows (MF1–MF5) and six roles (adding `PLATFORM_OPERATOR` for provider vetting, customer operations, and internal dispute handling). The new multi-provider capabilities are specified as target requirements, while implemented v1 code remains the working baseline.
 
 | Area | Status | Evidence and next step |
 | --- | --- | --- |

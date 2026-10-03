@@ -6,6 +6,12 @@
 **Estimate**: One day = eight hours. Every implementation task includes a focused behavior test
 where a meaningful automated assertion is possible; write that test before changing behavior.
 
+> **Baseline note (2026-10-03):** Tasks T001–T045 define the working v1 implementation baseline.
+> Target multi-provider capabilities (independent provider onboarding, open RFQ sourcing,
+> uniform provider commission `r`, authorized payment partner funding, internal dispute resolution,
+> and maintenance retention) belong to the target redesign and will be broken down into a separate
+> implementation sprint following this baseline.
+
 ## Format
 
 `[ID] [P?] [Story] Description (owner; week; estimate; acceptance)`.

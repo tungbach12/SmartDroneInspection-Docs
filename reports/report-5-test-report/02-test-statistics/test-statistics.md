@@ -10,16 +10,16 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | Week 3 verification: Round 1 baseline, Round 2 WF3-002 CI recheck, Round 2 WF3-004 narrative config/provenance recheck, 2026-09-28 WF1 schedule-proposal revision, and 2026-09-29 WF2 periodic-request handoff alignment |
+| Test round | Historical WF1–WF4 evidence plus 2026-10-03 target MF1–MF5 case design; no new target runtime execution |
 | Last updated | 2026-10-03 |
 
 ## Module summary
 
 | No | Module code | Passed | Failed | Pending | N/A | Number of test cases |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 1 | Feature 1 sheet (FE-02/WF1 + FE-03/WF2; FE-01 gate separate) | 9 | 0 | 8 | 0 | 17 |
-| 2 | Feature 2 sheet (FE-04–FE-07; WF3 + WF4) | 4 | 0 | 3 | 0 | 7 |
-| **Subtotal** |  | **13** | **0** | **11** | **0** | **24** |
+| 1 | Feature 1 sheet (FE-02/WF1 + FE-03/WF2 + target MF2; FE-01 gate separate) | 9 | 0 | 11 | 0 | 20 |
+| 2 | Feature 2 sheet (FE-04–FE-07; WF3 + WF4 + target MF3–MF5) | 4 | 0 | 9 | 0 | 13 |
+| **Subtotal** |  | **13** | **0** | **20** | **0** | **33** |
 
 ## Supporting FE-01 verification (not workbook cases)
 
@@ -40,27 +40,29 @@ run). On 2026-09-28, the backend admin user creation persistence gate passed:
 assignment, and the `USER_CREATED` audit row in one transaction
 (`AdminUserApiIntegrationTest`, part of the 167/167 `mvnw verify` run).
 See `03-features/fe-01-identity-access-governance.md` for the detailed
-procedure and scope.
+procedure and scope. Target provider-vetting and operator-isolation checks
+(`FE01-T01` and `FE01-T02`) are recorded as pending supporting gates.
 
 These are workbook-sheet totals, not FE totals. The eight detailed sources are
 organized by FE; FE-08 has no assigned functional case in this baseline and is
 not included in the denominator. The `WF1-011`–`WF1-019` cases cover the
-schedule-proposal revision of WF1 and live on the same Feature 1 sheet as the
-earlier WF1/FE-02 and WF2/FE-03 cases.
+schedule-proposal revision of WF1, while `WF2-005`–`WF2-007` (Feature 1) and
+`WF3-005`–`WF4-005` (Feature 2) represent newly defined target acceptance cases,
+all tracked truthfully as `Pending`.
 
 ## Coverage summary
 
 The summary counts each unique workbook case once using its latest completed
 result across recorded rounds. The WF3-002 Round 2 recheck and the WF3-004
 Round 2 narrative config/provenance recheck are not additional cases, so the
-Feature 2 sheet still contributes 7. Both WF3-004 rounds completed as `Passed`,
-so the Feature 2 `Passed` count is unchanged at 4. The nine WF1 cases added on
-2026-09-28 (`WF1-011`-`WF1-019`) raise the Feature 1 sheet to 17 and the
-grand total to 24. `WF1-017` counts as `Passed` for its producer-side
-assertions only; its WF2 consumer half is pending T021 and is recorded as a note
-rather than a separate case. WF2-001 remains `Pending` because this documentation
-alignment updates its expected periodic-request handoff but does not claim runtime
-execution.
+baseline Feature 2 sheet still contributes 7 baseline cases. Both WF3-004 rounds
+completed as `Passed`, so the Feature 2 `Passed` count is unchanged at 4.
+The nine WF1 cases added on 2026-09-28 (`WF1-011`-`WF1-019`) raise the baseline
+Feature 1 sheet to 17. The nine target cases added on 2026-10-03 (`WF2-005`–`WF2-007`
+on Feature 1, and `WF3-005`–`WF4-005` on Feature 2) expand the total test case index
+to 33. All nine new target cases are recorded as `Pending`, strictly adhering to
+the guideline that planned features must never be represented as passed before
+executable verification exists.
 
 Use the same definitions as the workbook:
 
@@ -70,8 +72,8 @@ Use the same definitions as the workbook:
 
 | Measure | Value at baseline | Formula/source |
 | --- | ---: | --- |
-| Test coverage | 13 / 24 = 54.2% | Count non-`Pending` statuses in Feature 1 and Feature 2. |
-| Successful coverage | 13 / 24 = 54.2% | Count `Passed` statuses in Feature 1 and Feature 2. |
+| Test coverage | 13 / 33 = 39.4% | Count non-`Pending` statuses in Feature 1 and Feature 2. |
+| Successful coverage | 13 / 33 = 39.4% | Count `Passed` statuses in Feature 1 and Feature 2. |
 
 The two module rows are workbook-sheet totals, not SRS feature totals. This is
 why the Feature 2 sheet legitimately contains `WF4-001`–`WF4-003`: those cases
