@@ -83,18 +83,18 @@
 - Consumes: User-approved 5 Main Flows architecture, 6 roles, Vietnamese legal framework, and `error-prevention.md` guidelines.
 - Produces: Authoritative business-flow specification referenced by Report 3 SRS, Report 5 Test Report, and developer plans.
 
-- [ ] **Step 1: Write header, legal framework, and 6-role canonical matrix**
+- [x] **Step 1: Write header, legal framework, and 6-role canonical matrix**
   - Define 3 Actor Zones: `PLATFORM_GOVERNANCE` (`PLATFORM_ADMIN`, `PLATFORM_OPERATOR`), `CUSTOMER_ORGANIZATION` (`CLIENT`), `SERVICE_PROVIDER` (`PROVIDER_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`).
   - Cite Vietnamese laws: Luật PKND 2024 (Số 49/2024/QH15), NĐ 198/2025/NĐ-CP (effective 22/08/2025), NĐ 288/2025/NĐ-CP (effective 05/11/2025), Luật GDĐT 2023 (Số 20/2023/QH15), Luật BVQLNTD 2023 (Số 19/2023/QH15), NĐ 85/2021/NĐ-CP, NĐ 52/2024/NĐ-CP, QĐ 18/2020/QĐ-TTg (`cambay.mod.gov.vn`).
 
-- [ ] **Step 2: Detail MF1 — Onboarding Đối tác, Thẩm định & Hồ sơ Tài sản**
+- [x] **Step 2: Detail MF1 — Onboarding Đối tác, Thẩm định & Hồ sơ Tài sản**
   - MF1-01: Client Enterprise Self-Registration.
   - MF1-02: Provider Vetting by `PLATFORM_OPERATOR` (Kiểm tra giấy phép kinh doanh, khai báo định danh drone theo Luật PKND 2024, chứng chỉ phi công, chứng thư bảo hiểm trách nhiệm bên thứ ba). Operator phê duyệt, yêu cầu bổ sung hoặc từ chối.
   - MF1-03: Asset & Airspace Profiling (Khai báo tọa độ, ranh giới, tra cứu bản đồ cấm bay `cambay.mod.gov.vn`).
   - MF1-04: Periodic Inspection Cadence & Request Package Generation.
   - *Exception Section*: Answer all 5 questions for MF1 (invalid license, unverified provider bid, duplicate asset code, portal timeout, application rejection).
 
-- [ ] **Step 3: Detail MF2 — Yêu cầu Kiểm định, Khớp nối Provider, Hợp đồng & Ký quỹ Escrow**
+- [x] **Step 3: Detail MF2 — Yêu cầu Kiểm định, Khớp nối Provider, Hợp đồng & Ký quỹ Escrow**
   - MF2-01: Sourcing & RFQ (Chỉ định trực tiếp hoặc chào thầu mở; `PLATFORM_OPERATOR` hỗ trợ kết nối đối tác nếu cần; Shot list, yêu cầu độ phân giải GSD).
   - MF2-02: Versioned Quotation Breakdown (Phí bay + nhân công/kỹ thuật Provider + chi phí triển khai hợp lệ + VAT). Platform centrally absorbs YOLO, data processing, MinIO storage, and LLM costs; these are never Provider quotation line items.
   - MF2-03: Electronic Service Order & 100% Escrow Deposit (Ký hợp đồng điện tử theo Luật GDĐT 2023; Client nộp 100% tiền vào Platform Escrow Pool theo NĐ 52/2024/NĐ-CP; trạng thái `LEGALLY_BINDING`).
@@ -102,21 +102,21 @@
   - Cancellation Policy: Trước 24h hoàn 100%; Trong 24h phạt phí di chuyển Dry-run fee 20%; Bất khả kháng thời tiết dời lịch miễn phí.
   - *Exception Section*: Answer all 5 questions for MF2 (incomplete SOW, foreign provider quote, duplicate escrow payment, bank gateway timeout, quotation revision / cancellation).
 
-- [ ] **Step 4: Detail MF3 — Khảo sát Drone Hiện trường, Xử lý AI & Báo cáo Kỹ thuật (QA)**
+- [x] **Step 4: Detail MF3 — Khảo sát Drone Hiện trường, Xử lý AI & Báo cáo Kỹ thuật (QA)**
   - MF3-01: Field Survey & Evidence Ingestion (Nạp ảnh/video lên MinIO qua Web/Mobile; trích xuất GPS, timestamp; tính SHA-256 checksum chống trùng lặp và làm chứng cứ số hợp pháp).
   - MF3-02: YOLO AI Detection & Inspector Verification (AI phát hiện lỗi; Inspector Confirm/Modify/Reject; Manual finding entry fallback).
   - MF3-03: Internal Peer Review (Inspector độc lập cùng Provider duyệt chéo; người bay không duyệt báo cáo của mình).
   - MF3-04: Provider Manager Release (Ký duyệt phát hành báo cáo kỹ thuật; kích hoạt đồng hồ nghiệm thu 5 ngày).
   - *Exception Section*: Answer all 5 questions for MF3 (corrupt photo/missing GPS, cross-assignment edit, duplicate upload retry, YOLO service down / MinIO failure, peer-review change request).
 
-- [ ] **Step 5: Detail MF4 — Nghiệm thu Báo cáo, Quyết toán Tự động & Trọng tài Phân xử Tranh chấp**
+- [x] **Step 5: Detail MF4 — Nghiệm thu Báo cáo, Quyết toán Tự động & Trọng tài Phân xử Tranh chấp**
   - MF4-01: Client Technical Review & Clarification (Yêu cầu giải trình/sửa đổi trong 5 ngày làm việc).
   - MF4-02: Happy Path & Auto-Settlement (Client bấm Accept hoặc hết thời hạn nghiệm thu theo điều khoản đã duyệt; báo cáo trở thành bất biến `COMPLETED`; đối tác thanh toán giải ngân phần dịch vụ đủ điều kiện sau khi khấu trừ hoa hồng `C = r × B` theo một tỷ lệ chung do Platform công bố và khóa theo Service Order; Platform tự chịu chi phí AI/data/storage/LLM).
   - MF4-03: Dispute Filing (Client hoặc Provider mở tranh chấp; tiền Escrow lập tức bị ĐÓNG BĂNG `FROZEN_DISPUTED`).
   - MF4-04: `PLATFORM_OPERATOR` Internal Platform Resolution (Operator thụ lý hồ sơ theo Platform Terms; đối soát Hợp đồng MF2 vs. Bằng chứng MinIO MF3 vs. Khiếu nại; 3 biện pháp nội bộ: Free Reshoot / Hủy hợp đồng + hoàn tiền + phạt theo Terms / Bác khiếu nại + giải ngân; không thay thế Tòa án hoặc trọng tài thương mại).
   - *Exception Section*: Answer all 5 questions for MF4 (invalid dispute evidence, unauthorized third-party dispute access, concurrent dispute & accept, notification gateway down, provider appeal / reshoot refusal).
 
-- [ ] **Step 6: Detail MF5 — Xử lý Khiếm khuyết, Đơn hàng Bảo trì & Tiền Bảo lãnh Hoàn công**
+- [x] **Step 6: Detail MF5 — Xử lý Khiếm khuyết, Đơn hàng Bảo trì & Tiền Bảo lãnh Hoàn công**
   - MF5-01: Defect-to-Maintenance Ticket Creation.
   - MF5-02: Maintenance Quotation & Work Order (Ký quỹ gói bảo trì; áp dụng điều khoản Tiền giữ lại bảo hành Retention Money 10%).
   - MF5-03: Execution & Before/After Evidence (Kỹ sư thi công, nạp ảnh đối chứng trước/sau bắt buộc).
@@ -124,7 +124,7 @@
   - MF5-05: Two-Stage Settlement & Final Closure (Giai đoạn 1: Nghiệm thu hoàn công -> giải ngân 90%, giữ 10% Retention; Giai đoạn 2: Sau 30 ngày bảo hành không tái hỏng -> giải ngân nốt 10%; Operator xử lý tranh chấp bảo hành nội bộ theo Platform Terms).
   - *Exception Section*: Answer all 5 questions for MF5 (missing before/after photos, unauthorized engineer execution, duplicate change request, storage failure, client re-inspection / rework request).
 
-- [ ] **Step 7: Verify formatting and commit Task 1**
+- [x] **Step 7: Verify formatting and commit Task 1**
   - Run: `git -C SmartDroneInspection-docs diff --check`
   - Commit: `docs(flows): rebuild business flows with 6 roles, multi-provider platform, escrow and operator arbitration`
 
@@ -139,24 +139,24 @@
 - Consumes: 6 roles, Provider organizations, Escrow, and Dispute models from Task 1.
 - Produces: Data model specifications aligning schema tables and constraints with multi-provider requirements.
 
-- [ ] **Step 1: Document Provider Organization, Pilot Registry & Operator Role Extensions**
+- [x] **Step 1: Document Provider Organization, Pilot Registry & Operator Role Extensions**
   - Add `provider_organizations` (id, legal_name, tax_code, business_license_no, drone_permit_code, insurance_policy_no, status `PENDING/VERIFIED/SUSPENDED/BANNED`, rating_score, created_at, approved_by_operator_id).
   - Document role extension in `user_roles`: `PLATFORM_OPERATOR` in `PLATFORM_GOVERNANCE` zone; `provider_id` foreign key for `SERVICE_WORKFORCE` zone.
   - Document pilot registry: pilot license number, certified drone models, flight log summary.
 
-- [ ] **Step 2: Document Contract & Escrow Transaction Schema**
+- [x] **Step 2: Document Contract & Escrow Transaction Schema**
   - Add target settlement/transaction records with `order_id`, `client_org_id`, `provider_org_id`, partner reference, customer-funded amount, eligible fee base `B`, uniform policy version/rate `r`, calculated commission `C`, separate Provider-service and Platform-commission tax amounts, Provider net payout, disputed/retained/refunded amounts, and statuses `PAYMENT_PENDING/HELD_IN_ESCROW/FROZEN_DISPUTED/DISBURSED/REFUNDED/PARTIALLY_REFUNDED`. Distinguish these proposed tables from the current Flyway schema. The platform must integrate a bank/licensed payment provider whose actual product permits conditional release; it is not an independent bank or deposit-taking entity.
   - Extend `inspection_service_orders` with legal terms, shot list/GSD JSONB, flight permit number, SLA deadlines, escrow reference, and a clear statement that YOLO/data/MinIO/LLM costs are platform operational overhead rather than Provider quotation lines.
 
-- [ ] **Step 3: Document Dispute Entity Schema**
+- [x] **Step 3: Document Dispute Entity Schema**
   - Add `dispute_tickets` (id, order_id, raised_by_user_id, client_org_id, provider_org_id, dispute_category `QUALITY/AIRSPACE_SAFETY/TIMELINESS/BILLING`, dispute_reason, client_claim, provider_response, status `OPENED/UNDER_ARBITRATION/RESOLVED/CLOSED`, resolution_decision `FREE_RESHOOT/FULL_REFUND/REJECTED_DISPUTE`, decided_by_operator_id, decided_at, penalty_amount).
   - Add `dispute_evidence` (dispute_id, uploaded_by_user_id, evidence_type, minio_object_key, sha256_checksum, description).
 
-- [ ] **Step 4: Update Maintenance Retention & Invoices Schema**
+- [x] **Step 4: Update Maintenance Retention & Invoices Schema**
   - Add retention fields to `maintenance_orders`: `retention_percentage`, `retention_amount`, `warranty_end_date`, `retention_status` (`HELD/RELEASED/FORFEITED`).
   - Document dual-invoice model: Platform commission invoice (Platform -> Provider) and full Service invoice (Provider -> Client); their respective VAT classifications and invoice timing require tax review. Include proportional fee reversal for actual service-price refunds and no duplicate commission on the warranty-retention release.
 
-- [ ] **Step 5: Verify formatting and commit Task 2**
+- [x] **Step 5: Verify formatting and commit Task 2**
   - Run: `git -C SmartDroneInspection-docs diff --check`
   - Commit: `docs(database): document multi-provider, operator governance, escrow and dispute schemas`
 
@@ -172,18 +172,18 @@
 - Consumes: MF1–MF5, six roles, Platform-owned AI/data capabilities, and scope boundaries from `business-flows.md`.
 - Produces: Current product vision and management-plan sections consistent with Report 3 without rewriting dated historical baselines.
 
-- [ ] **Step 1: Update Report 1 current product scope and role narrative**
+- [x] **Step 1: Update Report 1 current product scope and role narrative**
   - Describe the platform as a multi-provider service marketplace connecting Client organizations with verified Provider organizations.
   - Introduce `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER` in current-scope sections.
   - State explicitly that Platform supplies/operates YOLO, data processing, MinIO, and LLM narrative assistance; providers and clients only consume these tools.
   - Add the current legal references (Luật PKND 2024, NĐ 198/2025/NĐ-CP, NĐ 288/2025/NĐ-CP, Luật GDĐT 2023, Luật BVQLNTD 2023, NĐ 85/2021/NĐ-CP, NĐ 52/2024/NĐ-CP) without claiming undocumented implementation.
 
-- [ ] **Step 2: Update Report 2 current scope, risks, responsibilities, and technology plan**
+- [x] **Step 2: Update Report 2 current scope, risks, responsibilities, and technology plan**
   - Replace current five-role target language with the six-role / three-zone target for the approved redesign.
   - Add delivery risks for provider isolation, authorized payment/escrow integration, airspace permit compliance, internal dispute resolution, and Platform AI availability.
   - Identify implementation dependencies as planned work; do not convert any new capability into a passed status.
 
-- [ ] **Step 3: Verify formatting and commit Task 3**
+- [x] **Step 3: Verify formatting and commit Task 3**
   - Run: `git -C SmartDroneInspection-docs diff --check`
   - Commit: `docs(scope): align Reports 1 and 2 with approved multi-provider architecture`
 
@@ -199,7 +199,7 @@
 - Consumes: 6 canonical roles, legal citations, and use cases adhering to Verb + Noun format.
 - Produces: System context, business rules, and user requirements.
 
-- [ ] **Step 1: Rewrite Product Overview and Actor Zones in `01-overall-description.md`**
+- [x] **Step 1: Rewrite Product Overview and Actor Zones in `01-overall-description.md`**
   - Describe the Multi-Provider Drone Inspection Platform and explicitly state that Platform owns/operates YOLO inference, data processing, MinIO storage, and LLM narrative assistance; Provider and Client only consume these capabilities.
   - Define the 3 Actor Zones and 6 canonical roles:
     - Platform Governance: `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`.
@@ -207,7 +207,7 @@
     - Service Provider: `PROVIDER_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`.
   - Cite current legal stack: Luật PKND 2024, NĐ 198/2025/NĐ-CP, NĐ 288/2025/NĐ-CP, Luật GDĐT 2023, Luật BVQLNTD 2023, NĐ 55/2024/NĐ-CP, NĐ 85/2021/NĐ-CP, NĐ 52/2024/NĐ-CP.
 
-- [ ] **Step 2: Revise Business Rules Table (BR-01 to BR-45+) in `01-overall-description.md`**
+- [x] **Step 2: Revise Business Rules Table (BR-01 to BR-45+) in `01-overall-description.md`**
   - Retain core evidence & AI rules (checksum, GPS, AI non-official, peer review separation).
   - Add Operator & Provider governance rules:
     - Provider must be verified by `PLATFORM_OPERATOR` before bidding/taking orders.
@@ -223,17 +223,17 @@
     - Dispute freezes escrow; `PLATFORM_OPERATOR` issues internal platform resolution under Platform Terms, without replacing courts or commercial arbitration.
     - Maintenance retention money (10%) held for 30-day warranty.
 
-- [ ] **Step 3: Update System Actors in `02-user-requirements.md`**
+- [x] **Step 3: Update System Actors in `02-user-requirements.md`**
   - Add detailed actor definitions for `PLATFORM_ADMIN` vs. `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`.
 
-- [ ] **Step 4: Update Use Case Matrix & Descriptions in `02-user-requirements.md` (Strict Verb + Noun)**
+- [x] **Step 4: Update Use Case Matrix & Descriptions in `02-user-requirements.md` (Strict Verb + Noun)**
   - Ensure every Use Case (UC01–UC32) follows Verb + Object naming and matches the actual six-role matrix:
     - Authenticate User; Configure System Security; Vet Service Provider; Register Infrastructure Asset; Manage Asset Documents; Schedule Periodic Inspection.
     - Solicit Quotations; Issue Inspection Quotation; Approve Service Order; Deposit Escrow Funds; Authorize Flight Assignment; Respond to Flight Assignment.
     - Conduct Drone Survey; Upload Chunked Evidence; Verify Defect Candidates; Compile Draft Report; Peer-Review Inspection Report; Release Inspection Report; Review Final Report.
     - Settle Escrow Payout; File Contract Dispute; Arbitrate Contract Dispute; Create Maintenance Ticket; Assess Defect Condition; Issue Maintenance Quotation; Approve Maintenance Order; Execute Maintenance Repair; Capture Before-After Evidence; Manage Maintenance Change; Verify Repair Completion; Release Warranty Retention.
 
-- [ ] **Step 5: Verify formatting and commit Task 3**
+- [x] **Step 5: Verify formatting and commit Task 3**
   - Run: `git -C SmartDroneInspection-docs diff --check`
   - Commit: `docs(srs): align overall description and user requirements with 6 roles, operator arbitration and verb-noun use cases`
 
@@ -251,46 +251,46 @@
 - Consumes: Detailed feature specifications mapped to MF1–MF5 and `error-prevention.md`.
 - Produces: Complete functional requirements for all software capabilities (FE-01 to FE-08).
 
-- [ ] **Step 1: Update Screen & Non-Screen Function Matrices in `03-functional-requirements.md`**
+- [x] **Step 1: Update Screen & Non-Screen Function Matrices in `03-functional-requirements.md`**
   - Add screens: Provider Verification Portal, RFQ/Bidding Screen, Escrow Payment & Transaction Screen, Dispute Filing & Internal Resolution Portal, Platform AI Candidate/Narrative Review.
   - Update non-screen functions: Escrow deposit verification via authorized payment provider, 5-day auto-settlement timer, airspace no-fly zone geofence check, frozen-funds enforcement, Platform-hosted YOLO inference, Platform-hosted LLM narrative generation, and manual fallback.
   - Update Screen Authorization Matrix for all 6 roles.
 
-- [ ] **Step 2: Update FE-01 (Identity, Provider Vetting & Platform Governance)**
+- [x] **Step 2: Update FE-01 (Identity, Provider Vetting & Platform Governance)**
   - Detail `PLATFORM_OPERATOR` workflow: vetting Provider license, drone registry, pilot certification, insurance.
 
-- [ ] **Step 3: Update FE-02 (Asset Registry & Airspace Compliance)**
+- [x] **Step 3: Update FE-02 (Asset Registry & Airspace Compliance)**
   - Integrate airspace compliance checking (`cambay.mod.gov.vn` no-fly zone lookup at asset coordinates).
 
-- [ ] **Step 4: Update FE-03 (Inspection Sourcing, Quotation, Escrow & Order)**
+- [x] **Step 4: Update FE-03 (Inspection Sourcing, Quotation, Escrow & Order)**
   - Sourcing mechanisms (direct select vs. open RFQ).
   - Quotation breakdown limited to Provider direct flight/labor/logistics/VAT; Platform AI/data/storage/LLM costs are excluded and absorbed by Platform.
   - Escrow deposit payment integration through authorized bank/payment provider.
   - Inspector assignment with flight permit validation.
 
-- [ ] **Step 5: Update FE-06 (Report Approval, Settlement & Internal Dispute Resolution)**
+- [x] **Step 5: Update FE-06 (Report Approval, Settlement & Internal Dispute Resolution)**
   - Contractually agreed client review period and auto-settlement: provider invoice remains on the full accepted service price while the licensed settlement partner pays the provider net of `C = r × B` and separately records Platform commission and applicable tax.
   - Dispute filing workflow with evidence attachment and immediate escrow freeze.
   - `PLATFORM_OPERATOR` internal platform resolution with three Platform Terms outcomes; explicitly preserve access to court/commercial arbitration where legally applicable.
   - Platform operational AI/data/storage costs are not deducted as Provider quotation lines.
 
-- [ ] **Step 6: Update FE-07 (Maintenance, Work Orders & Warranty Retention)**
+- [x] **Step 6: Update FE-07 (Maintenance, Work Orders & Warranty Retention)**
   - Maintenance quotation with 10% retention money.
   - Before/After evidence validation.
   - Two-stage milestone payment release.
 
-- [ ] **Step 7: Update `00-record-of-changes.md`**
+- [x] **Step 7: Update `00-record-of-changes.md`**
   - Append Version 2.0 entry: Complete architectural transition to Multi-Provider Drone Inspection Platform with `PLATFORM_OPERATOR`, Platform-owned YOLO/data/MinIO/LLM capabilities, escrow, and internal platform dispute resolution based on Luật PKND 2024, NĐ 198/2025/NĐ-CP, NĐ 288/2025/NĐ-CP, Luật GDĐT 2023, Luật BVQLNTD 2023, NĐ 85/2021/NĐ-CP, and NĐ 52/2024/NĐ-CP.
 
-- [ ] **Step 8: Update non-functional requirements and requirement appendix**
+- [x] **Step 8: Update non-functional requirements and requirement appendix**
   - Document multi-tenant isolation, Provider data boundaries, escrow/payment-provider security, AI availability/manual fallback, MinIO evidence integrity, auditability, privacy, and legal/compliance boundaries.
   - State that Platform-owned YOLO/data/MinIO/LLM capabilities are service dependencies, not Provider or Client infrastructure responsibilities.
   - Remove or qualify unsupported claims about online payment, procurement, drone-operation integrations, or Platform being a financial institution.
 
-- [ ] **Step 9: Update `00-record-of-changes.md`**
+- [x] **Step 9: Update `00-record-of-changes.md`**
   - Append Version 2.0 entry: Complete architectural transition to Multi-Provider Drone Inspection Platform with `PLATFORM_OPERATOR`, Platform-owned YOLO/data/MinIO/LLM capabilities, escrow, and internal platform dispute resolution based on the current legal stack.
 
-- [ ] **Step 10: Verify formatting and commit Task 5**
+- [x] **Step 10: Verify formatting and commit Task 5**
   - Run: `git -C SmartDroneInspection-docs diff --check`
   - Commit: `docs(srs): update functional, non-functional and legal requirement sources`
 
@@ -318,27 +318,27 @@
 - Consumes: Test case requirements for all newly introduced and modified workflows.
 - Produces: Fully reconciled Report 5 test plan showing verified baseline and pending multi-provider/operator/dispute test cases without false completion claims.
 
-- [ ] **Step 1: Update Cover and Record of Changes in Report 5**
+- [x] **Step 1: Update Cover and Record of Changes in Report 5**
   - Bump Version to 2.0 in `cover.md` and `record-of-changes.md`.
   - Document modification scope: Multi-Provider test cases, Platform Operator vetting, Platform-owned AI/data/storage consumption, authorized escrow lifecycle verification, and internal Platform dispute resolution test cases.
 
-- [ ] **Step 2: Update Test Case Index in `test-case-list.md`**
+- [x] **Step 2: Update Test Case Index in `test-case-list.md`**
   - Add test cases for Provider vetting by Operator (FE-01), Platform-owned YOLO/LLM/data-processing consumption and manual fallback (FE-05/FE-06), Escrow deposit (FE-03), Auto-settlement (FE-06), Dispute filing and Operator internal resolution (FE-06), and Maintenance retention money (FE-07).
   - Ensure all case IDs maintain a strict, non-overlapping format (`WF2-005`, `WF3-005`, `WF4-004`, etc.).
 
-- [ ] **Step 3: Update Test Statistics in `test-statistics.md` (Strict Compliance with `error-prevention.md`)**
+- [x] **Step 3: Update Test Statistics in `test-statistics.md` (Strict Compliance with `error-prevention.md`)**
   - Recalculate totals, passed, and pending counts.
   - Ensure new multi-provider and dispute cases are strictly marked `Pending` with truthful notes explaining that they define the target Multi-Provider acceptance baseline, preserving the council's rule: "Không mô tả planned feature như implemented feature".
 
-- [ ] **Step 4: Update all eight detailed feature sources (`03-features/`)**
+- [x] **Step 4: Update all eight detailed feature sources (`03-features/`)**
   - Update FE-01/FE-02/FE-03/FE-04/FE-05/FE-06/FE-07/FE-08 scope baselines and procedures.
   - Add new Provider vetting, Platform AI/data consumption, escrow, auto-settlement, dispute, retention, and cross-provider authorization cases as `Pending` because no corresponding runtime implementation exists yet.
   - Preserve existing passed evidence only where it still matches the current implementation; do not rewrite historical results.
 
-- [ ] **Step 5: Update Report 5 README and template layout**
+- [x] **Step 5: Update Report 5 README and template layout**
   - Preserve fixed workbook sheets and stable WFx IDs; document the new MF1–MF5/FE mapping and identify any newly planned cases as pending.
 
-- [ ] **Step 6: Verify formatting and commit Task 6**
+- [x] **Step 6: Verify formatting and commit Task 6**
   - Run: `git -C SmartDroneInspection-docs diff --check`
   - Commit: `docs(reports): synchronize Report 5 with operator governance, platform AI, escrow and dispute cases`
 
@@ -356,16 +356,16 @@
 - Consumes: Completed SRS and Test Report revisions.
 - Produces: Fully aligned development plans for engineering team implementation.
 
-- [ ] **Step 1: Align Four-Week Plan Documents**
+- [x] **Step 1: Align Four-Week Plan Documents**
   - Update `spec.md`, `plan.md`, `tasks.md`, and `quoc/plan.md` to reference the 5 Main Flows, 6 roles (including `PLATFORM_OPERATOR`), Platform-owned YOLO/data/MinIO/LLM capabilities, authorized escrow milestones, internal dispute resolution, and the current NĐ 198/2025 + NĐ 288/2025 drone legal stack.
   - Correct legacy single-provider/Service Manager language in current planning sections while preserving dated historical context where needed.
 
-- [ ] **Step 2: Run Documentation Integrity Suite**
+- [x] **Step 2: Run Documentation Integrity Suite**
   - Run: `git -C SmartDroneInspection-docs diff --check`
   - Run relative link verification across all modified files.
   - Verify that no source code files or migrations in other repositories were modified.
 
-- [ ] **Step 3: Review Full Working Tree Diff and Commit Task 7**
+- [x] **Step 3: Review Full Working Tree Diff and Commit Task 7**
   - Check `git -C SmartDroneInspection-docs status --short`
   - Run `git -C SmartDroneInspection-docs diff --check`.
   - Search modified reports for stale roles, stale fee splits, unsupported legal claims, and planned features marked as Passed.
