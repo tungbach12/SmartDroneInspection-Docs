@@ -38,10 +38,14 @@ source: "report3-software-requirement-specification.docx"
 | 25 | MSG25 | Toast | A maintenance ticket is resolved | Maintenance ticket closed successfully. |
 | 26 | MSG26 | In line | Provider onboarding documents are incomplete | Upload valid business registration, drone registration, pilot credentials, and insurance before submitting for verification. |
 | 27 | MSG27 | Toast | Provider verification is approved | Service Provider verified successfully. |
-| 28 | MSG28 | In line | Restricted airspace warning | Asset coordinates fall within a restricted flight zone. Valid flight clearance is required before mission dispatch. |
-| 29 | MSG29 | Toast | Escrow funding confirmed | Funds secured in escrow pool. Service order is legally binding. |
-| 30 | MSG30 | Toast | Dispute opened and funds frozen | Dispute submitted. Escrow funds have been frozen pending operator resolution. |
-| 31 | MSG31 | Dialog | Dispute resolution decision issued | Operator resolution has been recorded under platform terms. |
+| 28 | MSG28 | In line | Preliminary restricted-airspace warning | Public airspace data indicates a possible restriction. Verify applicable authority clearance; this lookup is not a flight permit. |
+| 29 | MSG29 | Toast | Partner funding status received | Payment partner confirmed the transaction status. This status alone does not establish electronic-contract validity. |
+| 30 | MSG30 | Toast | Complaint received | Complaint submitted. Any payment hold depends on the authorized partner product and accepted order terms. |
+| 31 | MSG31 | Dialog | Internal complaint outcome recorded | Platform Operator recorded an internal outcome under Platform Terms; external legal remedies remain available. |
+| 32 | MSG32 | Under field | Mission target conflicts with SOW or equipment | Revise mission-specific GSD, overlap, equipment or shot items to match the accepted SOW before requesting approval. |
+| 33 | MSG33 | In line | Commercial policy changed | New policy applies only to eligible future orders. Accepted order snapshots remain unchanged. |
+| 34 | MSG34 | Toast | Policy version published | Versioned commercial policy published with an effective date and audit record. |
+| 35 | MSG35 | In line | Payment partner cannot support requested terms | This funding or hold option is unavailable. Choose a reviewed supported payment arrangement; the Platform does not hold funds. |
 
 ### 5.2 Appendix 2 - Common Requirements
 
@@ -56,11 +60,14 @@ source: "report3-software-requirement-specification.docx"
 - Important workflow commands are idempotent or protected by state and uniqueness constraints against duplicate execution.
 - All list and detail queries apply organization, ownership, assignment, or release scope before returning data.
 - Audit records are append-only from normal application workflows and do not contain passwords, raw tokens, or protected file contents.
+- Commercial policies are versioned, effective-dated and published only by authorized `PLATFORM_OPERATOR` users; updates apply prospectively, with accepted policy values preserved in immutable order snapshots.
+- Drone mission targets (including GSD, overlap, altitude, gimbal, waypoint and shot items) are mission/equipment/SOW-specific and require scoped Provider/assignment authorization; no universal numeric defaults are implied.
+- Payment/funding/hold operations must check the authorized partner product and order terms. Platform roles may coordinate instructions but cannot custody funds or claim legal arbitration authority.
 
 ### 5.3 Appendix 3 - Scope and Technology Constraints
 
-- The implemented v1 solution supports Client organization self-registration, while the target design adds independent Service Provider onboarding and vetting by `PLATFORM_OPERATOR`. Neither version provides anonymous consumer registration, direct autonomous drone flight control, or autonomous publishing of AI findings.
-- Advance funding and escrow are target integrations requiring a licensed bank or payment partner; the Platform does not hold customer deposits or act as a financial institution.
+- The implemented v1 solution supports Client organization self-registration. The target design treats organization registration, Provider vetting, asset master data and schedule setup as SF, outside the five transactional MF1–MF5. Target drone mission planning is not evidence of deployed mission or flight-control functionality. Neither version provides anonymous consumer registration, direct autonomous drone flight control, or autonomous publishing of AI findings.
+- Advance funding, conditional release, dispute holds and retention are target integrations requiring an authorized bank/payment partner product that supports the accepted order terms; the Platform does not hold customer deposits or act as a financial institution. These target integrations are not implemented in v1.
 - Web access tokens remain in memory. Browser refresh credentials are delivered only through the protected cookie flow. Mobile credentials use platform secure storage.
 - PostgreSQL is the transactional source of truth. MinIO stores evidence objects. The backend mediates authorized file access.
 - Use cases use the template's two-digit IDs with Verb + Noun naming. Business rules and application messages retain `BR` and `MSG` prefixes. The business-flow reference defines five canonical Main Flows (`MF1` through `MF5`), while historical v1 tests retain their stable `WFx` identifiers in Report 5.
