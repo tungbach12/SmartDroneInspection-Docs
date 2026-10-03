@@ -15,12 +15,9 @@ result decision, and post-service invoice status. Each flow has one owner and an
 testable output. Downstream owners start from test fixtures, then replace them with the real handoff
 as predecessor flows become ready.
 
-> **Target Architecture Redesign (2026-10-03):** The target platform expands to a Multi-Provider
-> Marketplace with six canonical roles across three actor zones (`PLATFORM_ADMIN`, `PLATFORM_OPERATOR`,
-> `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`), structured around five canonical Main Flows
-> (`MF1` to `MF5`), Platform-owned AI/data/storage capabilities, one published uniform commission rate `r`,
-> authorized bank/payment partner conditional funding, and internal platform dispute resolution.
-> This target scope requires separate sprint re-estimation beyond the initial 4-week v1 delivery plan below.
+> **Target Architecture Redesign (2026-10-03):** The target platform expands to a Multi-Provider marketplace with six canonical roles (`PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`). Organization/provider onboarding, vetting, asset master data and schedules form Supporting Flow (SF); five transactional Main Flows (MF1–MF5) cover request/quotation/conditional funding, drone mission planning and clearance, survey/evidence/AI/QA, order review/partner settlement/internal complaint, and maintenance with agreed retention/warranty.
+>
+> MF2 mission values are structure/equipment-specific and agreed in the SOW/Mission Plan. `PLATFORM_OPERATOR` publishes versioned commercial policy, including one uniform Provider commission and any funding, review, cancellation, retention or warranty terms; orders snapshot accepted values and updates are prospective. `PLATFORM_ADMIN` controls technical settings. Platform provides and pays for AI/data/MinIO/LLM services. Payment-partner-dependent flows and internal complaint handling are target scope only; the Operator is not a legal arbitrator or funds custodian. This scope requires separate sprint re-estimation and new acceptance tests; the schedule and effort below remain the earlier v1 baseline.
 
 This is a **time-boxed main-flow release**, not full parity with every optional SRS screen and
 operational exception. The four-week target assumes four full-time members, a working PostgreSQL

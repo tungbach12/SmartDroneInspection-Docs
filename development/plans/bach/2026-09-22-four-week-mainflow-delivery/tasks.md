@@ -7,10 +7,14 @@
 where a meaningful automated assertion is possible; write that test before changing behavior.
 
 > **Baseline note (2026-10-03):** Tasks T001–T045 define the working v1 implementation baseline.
-> Target multi-provider capabilities (independent provider onboarding, open RFQ sourcing,
-> uniform provider commission `r`, authorized payment partner funding, internal dispute resolution,
-> and maintenance retention) belong to the target redesign and will be broken down into a separate
-> implementation sprint following this baseline.
+> Target capabilities are a separate, re-estimated sprint: organization/provider onboarding, vetting,
+> asset master data and schedules remain Supporting Flow (SF), outside five transactional MF1–MF5
+> Main Flows. MF2 adds equipment/structure-specific Drone Mission Planning (SOW-agreed GSD,
+> overlap, waypoints, shot items and applicable airspace/permit checks), not drone control. `PLATFORM_OPERATOR`
+> publishes versioned commercial policies with one uniform Provider commission; accepted order values
+> are snapshotted and later changes apply prospectively. Conditional funding, holds and retention require
+> a suitable authorized payment-partner product; no Platform funds custody or legal arbitration is assumed.
+> New target behaviors require their own Pending-to-executed test evidence; this note does not mark them delivered.
 
 ## Format
 

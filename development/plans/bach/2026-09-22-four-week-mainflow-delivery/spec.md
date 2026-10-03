@@ -11,14 +11,9 @@
 > suggested frequency, the Manager reviews the proposals, and the Client selects exactly one to
 > create the active schedule. See [the WF1 schedule-proposal spec](../hieu/2026-09-25-wf1-schedule-proposal-flow/spec.md).
 
-> **Amended 2026-10-03: Multi-Provider Platform, Escrow and 5 Main Flows.** The target architecture
-> transitions from a single-operator setup to a Multi-Provider Platform with six canonical roles
-> (`PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`)
-> structured around five canonical Main Flows (`MF1` to `MF5`). Platform centrally provides and pays for
-> YOLO inference, data processing, MinIO storage, and LLM narrative drafting; Providers quote only direct
-> flight/labor services under one published uniform Platform commission rate `r`. Advance funding, if required,
-> utilizes an authorized bank/payment partner arrangement; `PLATFORM_OPERATOR` coordinates internal dispute
-> resolutions without displacing court or commercial-arbitration rights. See `project-reference/business-flows.md`.
+> **Amended 2026-10-03: Drone-centric Multi-Provider target.** The target architecture separates organization/provider registration, vetting, asset master data and schedule setup into Supporting Flow (SF), outside five transactional Main Flows. MF1 covers request/RFQ, quotation, electronic order and partner-dependent conditional funding; MF2 covers structure/equipment-specific Drone Mission Planning (SOW-agreed GSD, overlap, AGL/waypoints, shot items and applicable airspace/permit verification); MF3 covers drone evidence, Platform AI assistance, Inspector verification and QA; MF4 covers order-policy review/settlement and internal complaint handling; MF5 covers maintenance and contractually agreed retention/warranty.
+>
+> The six target roles remain `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`. `PLATFORM_OPERATOR` publishes versioned commercial policy (one uniform commission rate for all Providers and any accepted funding/review/cancellation/retention/warranty terms); `PLATFORM_ADMIN` owns technical settings. Each confirmed order snapshots its accepted policy version/values and later updates are prospective. No numeric business/mission defaults are implied. Platform AI/data/MinIO/LLM costs are Platform operating costs. Partner-dependent funding and internal complaints remain proposed target scope, not deployed features or legal arbitration. See `project-reference/business-flows.md` and `development/plans/2026-10-03-drone-centric-mainflows-dynamic-config-plan.md`.
 
 
 ## User Scenarios & Testing
