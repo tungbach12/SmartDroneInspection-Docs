@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-03 |
 | Document Code | *Enter document code* |
-| Version | 1.9 |
+| Version | 2.0 (target-case design; no new execution) |
 
 ## Record of change
 
@@ -37,3 +37,4 @@ revision; do not remove old entries.
 | 2026-09-29 | 1.7 | WF1 proposal flow cases added | A | Added `WF1-011`-`WF1-019` for asset review, schedule-proposal generation/review/selection, document-upload rules, the due-cycle event, and the negative scope sweep; recounted Feature 1 to 17 cases and the total to 24. | Report 3 SRS 3.3; `project-reference/business-flows.md`; backend `mvnw verify`; `fe-02-asset-registry-inspection-schedule.md`, `fe-03-inspection-request-work-assignment.md`, `test-statistics.md` |
 | 2026-09-29 | 1.8 | WF2 periodic-only flow alignment | M | Updated WF2-001 from ad-hoc manual creation to automated periodic request generation with asset defaults, Client notification, auto-acceptance by default, and cancellation option; aligned FE-03 scope baseline and coverage boundary. | Report 3 SRS 3.4; `project-reference/business-flows.md`; `test-case-list.md`; `fe-03-inspection-request-work-assignment.md` |
 | 2026-10-03 | 1.9 | WF2 handoff contract correction | M | Aligned the Report 3, Report 5, and WF2 planning references with the current event-driven handoff: periodic requests are routed to Service Manager review, and linked AD_HOC requests are reserved for re-inspection. WF2-001 remains pending because no runtime test was executed. | Report 3 SRS 3.4; `project-reference/business-flows.md`; `development/plans/bach/2026-09-22-four-week-mainflow-delivery/`; `development/plans/quoc/plan.md` |
+| 2026-10-03 | 2.0 | Multi-provider target acceptance design | M | Documented proposed MF1–MF5 acceptance scope, six target roles, Platform-owned AI/data/MinIO/LLM, one Platform-set Provider commission, partner-dependent conditional settlement and internal complaint handling. Existing WF1–WF4 Passed evidence remains historical; all new target cases are Pending and no new runtime test was executed. | Report 3 target SRS; `project-reference/business-flows.md`; `01-test-cases/test-case-list.md`; `03-features/` |

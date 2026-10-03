@@ -27,8 +27,14 @@ to FE-07, not FE-02.
 The FE-01 role-aware portal/navigation policy check, browser authentication
 flow checks, and cross-cutting API response-envelope contract checks are
 recorded separately in `03-features/fe-01-identity-access-governance.md`. These supporting checks
-verify SRS access and API contracts; they are not additional WFx functional
-cases or workbook rows.
+verify v1 SRS access and API contracts; they are not additional WFx functional
+cases or workbook rows. Proposed FE01-T01/FE01-T02 provider/Operator checks remain
+Pending support gates, also excluded from workbook totals.
+
+Rows 1–24 retain their original v1 WFx identities, descriptions and historical outcomes;
+rows 25–33 define additional **target-only** MF1–MF5 acceptance criteria. Every new
+row is Pending in its detailed FE source until executable evidence exists. Do not
+interpret a v1 Passed result as proof of the new six-role/payment/dispute design.
 
 FE-08 Dashboard, Analytics and Notifications has no assigned WFx case in this
 baseline. Treat it as an uncovered feature, not an implicitly passed or
@@ -63,4 +69,13 @@ therefore not reused to close the gap.
 | 21 | `[WF1-016]` FE-02 — WF1 schedule proposals and due cycle | Feature 1 | Repeating a selection and selecting another organization's proposal are both denied. | An active schedule already exists, and a foreign-organization proposal exists. |
 | 22 | `[WF1-017]` FE-03 — WF1 schedule proposals and due cycle | Feature 1 | The due-cycle publisher emits one event per cycle and a replay stays silent. | An `ACTIVE` schedule has `next_due_at` in the past. |
 | 23 | `[WF1-018]` FE-03 — WF1 schedule proposals and due cycle | Feature 1 | Asset document upload enforces file type, size, asset state, and organization scope. | Active asset exists; png/jpeg/webp/pdf and oversize fixtures are available. |
-| 24 | `[WF1-019]` FE-03 — WF1 schedule proposals and due cycle | Feature 1 | Negative scope sweep across every WF1 endpoint. | Two organizations and the five role fixtures exist. |
+| 24 | `[WF1-019]` FE-03 — WF1 schedule proposals and due cycle | Feature 1 | Negative scope sweep across every WF1 endpoint. | Two organizations and the five v1 role fixtures exist. |
+| 25 | `[WF2-005]` FE-03 — MF2 Provider RFQ isolation (target) | Feature 1 | Verified Providers may quote eligible RFQs; rival bids and unverified Providers are denied. | Two verified Providers, one unverified Provider and a Client RFQ exist. |
+| 26 | `[WF2-006]` FE-03 — MF2 uniform commission (target) | Feature 1 | One published Provider-paid rate applies to every Provider, while quotation excludes Platform AI/data/storage costs. | Standard policy `r` is published and accepted by two Providers. |
+| 27 | `[WF2-007]` FE-03 — MF2 partner funding (target) | Feature 1 | Service Order locks commission policy; assignment waits for verified authorized-partner funding if contractually required. | Approved quote, locked terms and partner fixture exist. |
+| 28 | `[WF3-005]` FE-06 — MF3 Platform narrative (target) | Feature 2 | Platform-provided LLM draft remains human-reviewed and unavailable for arbitrary Provider model configuration. | Assigned report draft and Platform LLM adapter fixture exist. |
+| 29 | `[WF3-006]` FE-06 — MF4 review window (target) | Feature 2 | Deemed acceptance follows agreed terms and is blocked by timely clarification/dispute. | Released report and expressly accepted review policy exist. |
+| 30 | `[WF3-007]` FE-06 — MF4 commission settlement (target) | Feature 2 | Commission applies once to eligible VAT-exclusive service value and reverses proportionately on refund. | Two orders, published policy and authorized partner fixture exist. |
+| 31 | `[WF3-008]` FE-06 — MF4 complaint scope (target) | Feature 2 | Scoped internal complaint holds permitted disputed funds and preserves external legal remedies. | Client, Provider, Operator and accepted order exist. |
+| 32 | `[WF4-004]` FE-07 — MF5 Provider scope/retention (target) | Feature 2 | Only winning Provider may work; retention release creates no second commission. | Accepted report, two Providers, work order and partner fixture exist. |
+| 33 | `[WF4-005]` FE-07 — MF5 change/warranty dispute (target) | Feature 2 | Unauthorized extra work is blocked, warranty claims pause eligible retention, and genuine refunds reverse proportional commission. | Maintenance work order and before/after evidence exist. |

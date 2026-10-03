@@ -36,6 +36,12 @@ source: "report3-software-requirement-specification.docx"
 | 23 | MSG23 | Toast | A maintenance change request is submitted | Change request submitted for Client review. |
 | 24 | MSG24 | In line | Additional work is attempted without approval | Additional work requires an approved change request. |
 | 25 | MSG25 | Toast | A maintenance ticket is resolved | Maintenance ticket closed successfully. |
+| 26 | MSG26 | In line | Provider onboarding documents are incomplete | Upload valid business registration, drone registration, pilot credentials, and insurance before submitting for verification. |
+| 27 | MSG27 | Toast | Provider verification is approved | Service Provider verified successfully. |
+| 28 | MSG28 | In line | Restricted airspace warning | Asset coordinates fall within a restricted flight zone. Valid flight clearance is required before mission dispatch. |
+| 29 | MSG29 | Toast | Escrow funding confirmed | Funds secured in escrow pool. Service order is legally binding. |
+| 30 | MSG30 | Toast | Dispute opened and funds frozen | Dispute submitted. Escrow funds have been frozen pending operator resolution. |
+| 31 | MSG31 | Dialog | Dispute resolution decision issued | Operator resolution has been recorded under platform terms. |
 
 ### 5.2 Appendix 2 - Common Requirements
 
@@ -53,7 +59,8 @@ source: "report3-software-requirement-specification.docx"
 
 ### 5.3 Appendix 3 - Scope and Technology Constraints
 
-- The solution supports controlled Client organization self-registration, but does not provide anonymous consumer registration, online payment processing, procurement, inventory accounting, or autonomous approval of AI findings in this release.
+- The implemented v1 solution supports Client organization self-registration, while the target design adds independent Service Provider onboarding and vetting by `PLATFORM_OPERATOR`. Neither version provides anonymous consumer registration, direct autonomous drone flight control, or autonomous publishing of AI findings.
+- Advance funding and escrow are target integrations requiring a licensed bank or payment partner; the Platform does not hold customer deposits or act as a financial institution.
 - Web access tokens remain in memory. Browser refresh credentials are delivered only through the protected cookie flow. Mobile credentials use platform secure storage.
 - PostgreSQL is the transactional source of truth. MinIO stores evidence objects. The backend mediates authorized file access.
-- Use cases use the template's two-digit IDs. Business rules and application messages retain `BR` and `MSG` prefixes. Workflow steps retain `WF1` through `WF4` identifiers in the business-flow reference.
+- Use cases use the template's two-digit IDs with Verb + Noun naming. Business rules and application messages retain `BR` and `MSG` prefixes. The business-flow reference defines five canonical Main Flows (`MF1` through `MF5`), while historical v1 tests retain their stable `WFx` identifiers in Report 5.

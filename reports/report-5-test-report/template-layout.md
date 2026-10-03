@@ -76,12 +76,14 @@ mapping is:
 
 | Workbook sheet | Included SRS features | Included WF IDs |
 | --- | --- | --- |
-| `Feature 1` | FE-02 and FE-03; FE-01 gate tracked separately | WF1-001–004 and WF2-001–004 |
-| `Feature 2` | FE-04, FE-05, FE-06, and FE-07 | WF3-001–004 and WF4-001–003 |
+| `Feature 1` | FE-02 and FE-03; FE-01 gate tracked separately | WF1-001–004, WF1-011–019, and WF2-001–007 |
+| `Feature 2` | FE-04, FE-05, FE-06, and FE-07 | WF3-001–008 and WF4-001–005 |
 
 There are exactly eight FE-specific Markdown source files. The two fixed
 workbook sheets are presentation groupings, not source files or SRS features.
 FE-08 currently has no assigned case and remains an explicit coverage gap.
+Target-only cases (`WF2-005`–`WF2-007` on Feature 1, and `WF3-005`–`WF4-005` on Feature 2)
+remain `Pending` across all rounds.
 
 ## Visual and status rules
 

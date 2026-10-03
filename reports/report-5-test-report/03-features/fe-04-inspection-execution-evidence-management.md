@@ -2,7 +2,7 @@
 
 ## Scope baseline
 
-The Flutter application supports assignment acceptance, inspection sessions, evidence upload/retry and metadata. Evidence records the inspection, asset, Inspector, capture time and source; GPS or external mission references are retained when available. Manual drone piloting stays outside the platform.
+The Flutter and Web applications support assignment acceptance, inspection sessions, evidence upload/retry and metadata. Storage on MinIO and server-side validation are Platform-provided infrastructure capabilities consumed by the Inspector. Evidence records the inspection, asset, Inspector, capture time and source; GPS, timestamp, and SHA-256 integrity checksums are retained. Manual drone piloting stays outside the platform and flight permits are secured per applicable aviation regulations.
 
 ## Current acceptance cases
 

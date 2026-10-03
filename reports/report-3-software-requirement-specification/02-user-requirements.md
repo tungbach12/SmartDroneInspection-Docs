@@ -11,11 +11,12 @@ source: "report3-software-requirement-specification.docx"
 
 | # | Actor | Description |
 | --- | --- | --- |
-| 1 | Admin | Manages organizations, user accounts, role assignments, asset categories, checklist templates, platform configuration, and authorized audit views. Admin does not automatically perform Client or service-workforce actions. |
-| 2 | Service Manager | Reviews inspection and maintenance requests, prepares quotation and order versions, assigns qualified staff, coordinates peer review, verifies deliverables, and releases customer-visible results. |
-| 3 | Inspector | Accesses assigned inspections and assigned peer reviews; completes checklists, evidence, verified findings, and inspection reports. The report author cannot approve the same report as peer reviewer. |
-| 4 | Maintenance Engineer | Accesses assigned maintenance assessments and execution work; supplies technical estimates, work logs, change requests, before/after evidence, and completion results. |
-| 5 | Client | Represents one customer organization. The Client may self-register the organization and first Client account, then manages that organization's assets, inspection requests, commercial approvals, released reports, maintenance tickets, and resolution decisions. |
+| 1 | Platform Admin (`PLATFORM_ADMIN`) | Manages technical platform infrastructure, authentication policies, security configurations, standard checklist templates, and system audit views. Platform Admin does not perform commercial operations, customer management, or dispute arbitration. |
+| 2 | Platform Operator (`PLATFORM_OPERATOR`) | Manages commercial platform operations: vets and verifies provider credentials (business license, drone registration, pilot certifications, aviation insurance); monitors customer requests; oversees escrow cash flows; and serves as the binding internal platform dispute arbitrator. |
+| 3 | Client (`CLIENT`) | Represents an infrastructure customer organization. Registers assets, sets up periodic cadences, issues inspection requests/RFQs, selects providers, approves electronic contracts, deposits 100% escrow funds, reviews deliverables, files quality disputes, and creates maintenance tickets. |
+| 4 | Provider Manager (`PROVIDER_MANAGER`) | Executive/lead of an independent service provider company. Maintains company profile and pilot roster, reviews client RFQs, issues versioned quotations, coordinates Cục Tác chiến flight permits, assigns certified inspectors, and signs off QA reports. |
+| 5 | Inspector (`INSPECTOR`) | Certified drone pilot and inspection technician employed by a service provider. Conducts field flight surveys, uploads chunked media with GPS/EXIF/SHA-256 to MinIO, confirms or rejects AI YOLO candidate findings, and performs cross peer reviews. Cannot approve self-authored reports. |
+| 6 | Maintenance Engineer (`MAINTENANCE_ENGINEER`) | Repair technician employed by a maintenance provider. Performs defect assessments, provides technical estimates, executes physical maintenance work, and captures mandatory before/after photo evidence. |
 
 ### 2.2 Use Cases
 
@@ -27,33 +28,35 @@ source: "report3-software-requirement-specification.docx"
 
 | ID | Use Case | Actors | Use Case Description |
 | --- | --- | --- | --- |
-| 01 | Authenticate User | All roles | A Client may register a new organization and first active Client account; all users can sign in with an issued account, complete first-password setup when required, refresh the session, change the password, and sign out. Registration creates only the Client role and does not issue platform or service-workforce permissions. |
-| 02 | Manage Users and Organizations | Admin | Create organizations and accounts, assign valid roles, reset credentials, change account status, and revoke sessions. |
-| 03 | Configure Categories and Checklists | Admin | Maintain asset categories, checklist templates, checklist versions, and platform-level reference data. |
-| 04 | Register Asset | Client | Create and update an infrastructure asset owned by the Client's organization. |
-| 05 | Manage Asset Documents | Client | Upload and maintain drawings, manuals, previous reports, and maintenance history for an authorized asset. |
-| 06 | Schedule Periodic Inspection | Client | Select and manage the recurring inspection schedule proposed for an active asset and checklist template. |
-| 07 | Receive Periodic Inspection Request | System, Client | The system generates a periodic request with inherited scope, priority, deadline, access constraints, contact, and attachments and notifies the Client; the request is routed to the Service Manager. |
-| 08 | Review Inspection Request | Service Manager | Check request completeness, scope feasibility, service capacity, access conditions, and required supporting information. |
-| 09 | Prepare Inspection Quotation and Order | Service Manager | Create a versioned quotation and draft service order containing scope, deliverables, estimated price or rates, duration, and post-service payment terms. |
-| 10 | Approve Inspection Order | Client | Approve the current quotation and order or request a revised version. |
-| 11 | Assign Inspector | Service Manager | Select an available and qualified Inspector without a known conflict of interest. |
-| 12 | Respond to Inspection Assignment | Inspector | Accept or reject an assignment; rejection requires a reason and returns the work for reassignment. |
-| 13 | Conduct Inspection | Inspector | Start an assigned inspection session and execute the confirmed checklist and service scope. |
-| 14 | Upload Evidence | Inspector | Upload images or documents with file validation, checksum, duplicate prevention, provenance, and available metadata. |
-| 15 | Verify AI Candidates | Inspector | Confirm, modify, or reject AI-generated candidates and manually add defects missed by the AI service. |
-| 16 | Complete Checklist and Findings | Inspector | Complete checklist responses and record location, severity, technical notes, and recommended action for verified findings. |
-| 17 | Prepare Inspection Report | Inspector | Review the compiled report content, correct the working version, and submit it for peer review. |
-| 18 | Peer Review Report | Inspector | Review another Inspector's report, request changes, or technically approve the report when evidence supports its conclusions. |
-| 19 | Release Inspection Report | Service Manager | Verify deliverable completeness and release a technically approved report to the Client. |
-| 20 | Accept or Revise Report | Client | Accept the released report or request clarification or revision without editing technical content directly. |
-| 21 | Create Maintenance Ticket | Client | Create a maintenance ticket from one or more verified findings in an accepted report. |
-| 22 | Assess Maintenance Work | Maintenance Engineer | Review defect evidence, assess remotely or on site, and estimate work, materials, labor, duration, risks, assumptions, and cost range. |
-| 23 | Prepare Maintenance Quotation | Service Manager | Create a versioned maintenance quotation and draft order based on the Engineer's technical assessment. |
-| 24 | Approve Maintenance Order | Client | Approve the maintenance scope and post-service payment terms or request revision. |
-| 25 | Assign Maintenance Execution | Service Manager | Assign a qualified Maintenance Engineer after the maintenance order is approved. |
-| 26 | Execute Maintenance Work | Maintenance Engineer | Accept the execution assignment, perform approved work, and record progress, material use, time, evidence, and cost. |
-| 27 | Manage Maintenance Change Request | Maintenance Engineer, Service Manager, Client | Stop unapproved additional work, revise the order, and obtain the Client's decision before continuing. |
-| 28 | Release Maintenance Result | Service Manager | Verify the completion report, before/after evidence, and final cost against approved order versions before release. |
-| 29 | Resolve Maintenance Ticket | Client | Accept the result, request rework, or request a linked re-inspection. |
-| 30 | View Dashboard and Audit History | Admin, Service Manager | View authorized operational summaries and material workflow or security history without bypassing resource scope. |
+| 01 | Authenticate User | All roles | Register an enterprise customer organization or sign in with an issued account, complete multi-factor verification, refresh active sessions, update passwords, and sign out. |
+| 02 | Configure System Security | Platform Admin | Configure authentication parameters, security policies, standard checklist templates, asset classifications, and inspect system audit trails. |
+| 03 | Vet Service Provider | Platform Operator, Provider Manager | Submit company credentials, drone registration numbers per Luật PKND 2024, pilot licenses, and third-party insurance; Platform Operator verifies or rejects provider onboarding. |
+| 04 | Register Infrastructure Asset | Client | Create and maintain asset profiles, boundaries, technical specifications, and check coordinates against `cambay.mod.gov.vn` restricted airspace. |
+| 05 | Manage Asset Documents | Client | Upload, version, and maintain engineering drawings, manuals, and prior inspection records for authorized assets. |
+| 06 | Schedule Periodic Inspection | Client | Select recommended inspection cadences; system automatically generates inspection request packages upon due cycles. |
+| 07 | Solicit Quotations | Client | Publish an inspection request via direct provider selection or open RFQ with required shot list, camera specifications, and GSD resolution requirements. |
+| 08 | Issue Inspection Quotation | Provider Manager | Submit versioned quotations covering Provider direct flight/engineering/logistics services and applicable tax, not separately charging Platform AI/data services. Display one Platform-published commission rate and fee-base rule accepted by all Providers before they accept new orders; the commission is a Provider expense, not an extra Client charge. |
+| 09 | Approve Service Order | Client, Provider Manager | Review and approve quotation terms into a legally binding electronic service order under Luật Giao dịch điện tử 2023. |
+| 10 | Fund Service Order | Client, System, authorized payment partner | Target policy may require advance funding of the agreed service amount through a bank/licensed payment partner whose product supports conditional release; the Platform does not independently hold deposits. Funding alone does not constitute the entire electronic-contract validity test. |
+| 11 | Authorize Flight Assignment | Provider Manager, Inspector | Attach Cục Tác chiến flight permit references, verify pilot credentials, check conflict of interest, and dispatch assignment package to Inspector. |
+| 12 | Respond to Flight Assignment | Inspector | Review assignment package, airspace constraints, and shot list; accept or reject with formal justification. |
+| 13 | Conduct Drone Survey | Inspector | Conduct field flight operations adhering to authorized parameters, safety zones, and checklist scope. |
+| 14 | Upload Chunked Evidence | Inspector, System | Upload high-resolution imagery and video to MinIO with EXIF GPS/timestamp extraction and SHA-256 checksum calculation for digital evidence integrity. |
+| 15 | Verify Defect Candidates | Inspector, System | Review AI YOLO detections (cracks, spalling, corrosion); confirm, modify, reject candidates, or manually record unflagged defects. |
+| 16 | Compile Draft Report | Inspector, System | Compile draft technical report with checklist answers, verified findings, and on-demand LLM narrative summary provided by Platform. |
+| 17 | Peer-Review Inspection Report | Inspector | Review another Inspector's report within the same Provider; approve technical quality or request revisions (self-review strictly prohibited). |
+| 18 | Release Inspection Report | Provider Manager | Verify deliverable completeness and release final inspection report to Client; activates 5-day client review timer. |
+| 19 | Review Final Report | Client | Review released report; accept deliverables, request clarification, or initiate dispute. |
+| 20 | Settle Provider Payout | System, Platform Operator, authorized payment partner | At accepted/deemed-accepted service, settle eligible funds under the order-locked standard commission policy `C = r × B`; Provider receives the net service proceeds, while Provider and Platform issue separate service/commission invoices with applicable tax. This is a target workflow, not yet implemented. |
+| 21 | File Contract Dispute | Client, Provider Manager | File a contractual quality/safety/payment complaint; pause the disputed release under the authorized payment partner's agreed arrangement, not an unlicensed Platform wallet. |
+| 22 | Resolve Contract Dispute | Platform Operator | Review contract and traceable evidence and issue an internal Platform Terms decision; preserve lawful access to court or commercial arbitration. Refunds reverse the commission attributable to reduced service price. |
+| 23 | Create Maintenance Ticket | Client | Create repair ticket linked directly to verified defects from an accepted inspection report. |
+| 24 | Assess Defect Condition | Maintenance Engineer | Perform remote or on-site defect assessment; submit required scope, materials, labor hours, and cost estimates. |
+| 25 | Issue Maintenance Quotation | Provider Manager | Issue versioned maintenance quotation incorporating mandatory 10% warranty retention money clause. |
+| 26 | Approve Maintenance Order | Client, System, authorized payment partner | Approve maintenance terms including any expressly agreed advance funding and warranty retention; use a qualified payment partner rather than Platform custody of customer funds. |
+| 27 | Execute Maintenance Repair | Maintenance Engineer | Perform physical repair work according to approved scope; log materials and labor hours. |
+| 28 | Capture Before-After Evidence | Maintenance Engineer | Upload mandatory paired before-and-after photo evidence to MinIO to substantiate repair completion. |
+| 29 | Manage Maintenance Change | Maintenance Engineer, Client | Submit change order for unexpected subsurface defects; work pauses until Client approves and deposits supplemental escrow funds. |
+| 30 | Verify Repair Completion | Client, Provider Manager | Inspect before/after evidence; approve completion to trigger 90% payout disbursement and begin 30-day warranty period. |
+| 31 | Release Warranty Retention | System, Platform Operator, authorized payment partner | Release the agreed retained portion at the end of the contractual warranty period if there is no unresolved claim; do not charge Platform commission a second time on the same service consideration. |
+| 32 | Audit Security Events | Platform Admin, Platform Operator | Inspect immutable access, modification, financial transaction, and arbitration audit logs within authorized scope. |

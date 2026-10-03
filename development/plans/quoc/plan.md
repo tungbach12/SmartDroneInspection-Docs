@@ -11,6 +11,11 @@ A system-generated periodic request, or a linked ad hoc re-inspection request, b
 confirmed order and an accepted Inspector assignment without bypassing quotation approval or
 organization scope.
 
+> **Target MF2 Evolution (2026-10-03):** Expands to multi-provider RFQ/sourcing, one uniform Platform-set
+> Provider-paid commission rate `r`, authorized bank/payment partner conditional funding, and
+> flight-permit clearance per *Luật Phòng không nhân dân 2024* & *Nghị định 288/2025/NĐ-CP*.
+> See `project-reference/business-flows.md` (MF2).
+
 ## Owner tasks
 
 - `T002` — freeze the shared handoff DTO and state contract.

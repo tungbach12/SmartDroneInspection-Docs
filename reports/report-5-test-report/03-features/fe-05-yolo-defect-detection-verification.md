@@ -2,7 +2,7 @@
 
 ## Scope baseline
 
-Server-side inference generates candidates with defect label, confidence, bounding box and model version. Inspector Confirm, Modify, Reject and Manual Add actions determine official findings. Unverified candidates are excluded from official defect statistics.
+Server-side YOLO inference is a centralized Platform-provided capability operated within the Platform's operational budget. Service Providers and Clients consume inference through Platform interfaces; Providers do not self-host or charge clients separately for AI detection. Inference generates candidate detections with defect label, confidence, bounding box and model version. Inspector Confirm, Modify, Reject and Manual Add actions determine official findings. Unverified or rejected candidates are excluded from official defect statistics and customer reports. In case of AI unavailability, manual defect recording remains fully functional.
 
 ## Current acceptance case
 

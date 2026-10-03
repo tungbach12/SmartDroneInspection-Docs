@@ -1,8 +1,8 @@
 # FE-01: Identity and Access Governance
 
-## Scope baseline
+## Implemented v1 baseline and proposed MF1 target
 
-Client self-registration creates one active customer organization and its first Client account. JWT-based authentication, role- and scope-based authorization, organization and assignment scope, profile management, and audit logs enforce access on the server. Self-registration cannot create platform or service-workforce roles.
+The recorded authentication, organization-scope and audit checks below concern the existing `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER` roles. They do not verify proposed `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `PROVIDER_MANAGER`, Provider organizations, or the new cross-Provider isolation rules. Proposed MF1 target cases are Pending below; no existing Passed result is reused as evidence for those roles.
 
 ## Supporting verification
 
@@ -61,6 +61,15 @@ This is a shared API contract check recorded here for traceability. It is not an
 - Round 1: Passed on 2026-09-24; tester: Codex (automated).
 - Evidence: Backend ApiResponseTest and WorkflowBaselineTest; frontend src/shared/api/apiResponse.test.ts; mobile test/core/network/api_response_interceptor_test.dart. Full verification commands and results are listed in the delivery hand-off.
 
+## Proposed MF1 target cases (not executed)
+
+These FE-01 target cases are supporting checks outside the fixed WFx workbook rows, matching the existing FE-01 foundation-gate convention. They do not alter workbook statistics. Every status below is Pending with no execution date or tester.
+
+| Target check | Procedure | Expected result | Preconditions | Status | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| FE01-T01 Provider vetting and isolation | Submit one Provider with complete eligibility records and one with missing credentials; review both as Operator; attempt Provider self-approval and cross-Provider member access. | Only Platform Operator can approve complete records; unverified Provider cannot bid; Provider members cannot read competitors' data. | Two Provider organizations, Operator and Admin target-role fixtures. | Pending | No new runtime test executed. |
+| FE01-T02 Admin/Operator duty separation | Attempt Operator vetting/dispute decision as Platform Admin; attempt security-policy mutation as Operator. | Platform Admin has technical administration only; Operator has business review only; attempts outside scope are denied and audited. | Six target roles exist and are assigned under three zones. | Pending | No new runtime test executed. |
+
 ## Coverage boundary
 
-The recorded gates verify authentication/migration setup, role-to-screen policy, browser-auth contracts, client-registration persistence and its audit record, and the shared API envelope. They do not by themselves establish complete profile-management or audit-log acceptance coverage, nor a live browser end-to-end registration/login run. Those requirements remain in the FE-01 scope baseline.
+The recorded gates verify authentication/migration setup, v1 role-to-screen policy, browser-auth contracts, Client-registration persistence and audit, and the shared API envelope. They do not establish the proposed six-role/provider governance or a live browser end-to-end registration/login run. Those target requirements remain unverified.

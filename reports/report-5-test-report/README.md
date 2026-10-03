@@ -4,6 +4,8 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
+**Implementation boundary (2026-10-03):** Executed WF1–WF4 cases below document the existing five-role v1 application, not the proposed six-role/multi-provider MF1–MF5 redesign. Provider onboarding, the uniform Provider-paid commission, authorized payment-partner conditional settlement, internal disputes, and warranty retention are target requirements only. Preserve original Passed evidence for what those tests actually exercised; do not reuse a historical Passed case to claim target behavior works. New target cases must be `Pending` with no execution date/tester until run. The original workbook and preview output remain unchanged.
+
 ## Naming layers and mapping
 
 `Feature 1` and `Feature 2` are fixed workbook sheet names from the supplied
@@ -75,8 +77,10 @@ functional Report 5 cases. MinIO/evidence storage is tracked separately under
 FE-04/WF3 task `T025/SCRUM-85`. CI uses S3Mock for S3 API integration coverage;
 that mock does not replace runtime verification against MinIO.
 
-Current role codes are `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and
-`MAINTENANCE_ENGINEER`. A role check never replaces organization ownership,
+Implemented v1 role codes are `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and
+`MAINTENANCE_ENGINEER`. The target design proposes `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`,
+`CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`; those are not
+implemented roles. A role check never replaces customer/provider ownership,
 assignment, or separation-of-duties checks.
 
 ## Editing workflow
