@@ -32,7 +32,7 @@ The target browser application provides Platform Admin and Platform Operator gov
 | 6 | Administration | Asset Categories & Checklists | Maintain standardized asset categories, checklist templates, and suggested inspection frequencies. |
 | 7 | Assets | Asset Inventory & Airspace Map | Search, filter, and inspect asset profiles with integrated `cambay.mod.gov.vn` restricted airspace overlays. |
 | 8 | Assets | Asset Details & Documents | Maintain asset specifications, upload engineering drawings, and review historical inspection/maintenance records. |
-| 9 | Planning | Inspection Cadences | Manage proposed and selected recurring inspection schedules for active assets. |
+| 9 | Supporting Flow Planning | Inspection Cadences | Business reviewer approves generated schedule proposals and Client selects an approved proposal for an authorized active asset; the Client cannot create an active schedule directly. |
 | 10 | Sourcing & Bidding | Inspection Request & RFQ | Create inspection requests and choose direct provider selection or open RFQ; mission-specific shot list, GSD, overlap, camera and acceptance targets are defined in SOW/Mission Plan, not fixed global defaults. |
 | 11 | Commercial | Quotation Management | Provider Manager prepares versioned quotations (covering direct flight and labor fees); Client reviews, requests revision, or accepts. |
 | 12 | Commercial | Service Order & Conditional Funding | Review the electronic order, uniform Provider-paid commission terms and any contractually required advance funding via an authorized bank/payment partner; the Platform does not independently custody deposits. |
@@ -308,7 +308,7 @@ FE-07 targets maintenance assessment, versioned work orders, before/after eviden
 **Function description:**
 
 - `PROVIDER_MANAGER` prepares a versioned maintenance quotation based on the assessment.
-- Quotations disclose whether the parties adopt warranty retention, its calculation base, configured rate, duration and release conditions. These are published contractual policy values, not legal defaults.
+- Quotations disclose whether the parties adopt warranty retention; if adopted, they disclose its calculation base, configured rate, warranty duration and release conditions. These are optional published contractual policy values, not legal defaults.
 - The Client and Provider approve an electronic **Maintenance Work Order** with immutable snapshots of the applicable uniform commission, funding, retention and warranty policy versions/values.
 - Where advance funding is agreed, the Client funds the order through the authorized bank/payment partner. Platform does not take custody of deposits.
 - `PROVIDER_MANAGER` assigns an active `MAINTENANCE_ENGINEER` for physical execution.
@@ -332,7 +332,7 @@ FE-07 targets maintenance assessment, versioned work orders, before/after eviden
 
 **Result:** A verifiable maintenance completion report ready for completion acceptance.
 
-#### 3.8.4 Two-Stage Settlement, Warranty Release and Closure
+#### 3.8.4 Contracted Settlement Milestones, Optional Warranty Release and Closure
 
 **Function trigger:** The Maintenance Engineer submits the completion package.
 

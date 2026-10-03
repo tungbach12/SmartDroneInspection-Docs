@@ -386,7 +386,7 @@ A row is created only when a Client selects a `MANAGER_APPROVED` schedule propos
 
 #### `schedule_proposals`
 
-Platform-generated inspection-cadence options for an asset, reviewed by the Service Manager and selected by the Client. Columns: `id`, `asset_id` (FK to `assets`), `checklist_template_id` (FK to `checklist_templates`), `frequency_unit`, `frequency_interval`, `status`, `manager_note`, `reviewed_by_user_id`, `selected_by_user_id`, `created_at`, `updated_at`, `row_version`.
+Supporting Flow schedule setup: Platform-generated inspection-cadence options for an asset are reviewed/approved by the designated business reviewer (`PLATFORM_OPERATOR` in the target role model; `SERVICE_MANAGER` in the implemented v1 baseline), then selected by the Client to create the active schedule. The Client does not create an active schedule directly. Columns: `id`, `asset_id` (FK to `assets`), `checklist_template_id` (FK to `checklist_templates`), `frequency_unit`, `frequency_interval`, `status`, `manager_note`, `reviewed_by_user_id`, `selected_by_user_id`, `created_at`, `updated_at`, `row_version`.
 
 `status` is one of `GENERATED`, `MANAGER_APPROVED`, `MANAGER_REJECTED`, `CLIENT_SELECTED`, or `SUPERSEDED`.
 
@@ -501,7 +501,7 @@ The proposed record reconciles conditional funding and settlement supplied by an
 | `client_organization_id` | `UUID` | No | Customer scope. |
 | `provider_organization_id` | `UUID` | No | Provider scope. |
 | `customer_funded_amount` | `NUMERIC(14,2)` | No | Actual partner-confirmed amount including any applicable Provider VAT; must satisfy the order-snapshotted funding proportion and agreed terms. |
-| `advance_funding_rate` | `NUMERIC(7,5)` | No | Funding rate copied from the parent order snapshot and reconciled against partner-confirmed funds. |
+| `advance_funding_rate` | `NUMERIC(7,5)` | Yes | Funding rate copied from the parent order snapshot; null when the order does not require advance funding. |
 | `eligible_fee_base` | `NUMERIC(14,2)` | No | `B`: Provider VAT-exclusive service consideration after Provider-funded discount and valid service-price refund. |
 | `commission_policy_version` | `VARCHAR(64)` | No | Published one-rate policy accepted and locked on order. |
 | `commission_rate` | `NUMERIC(7,5)` | No | Rate copied from the order snapshot; must equal the uniform Platform-set rate, never a provider-specific negotiated rate. |
@@ -509,10 +509,13 @@ The proposed record reconciles conditional funding and settlement supplied by an
 | `provider_vat_amount` | `NUMERIC(14,2)` | Yes | Provider service VAT where applicable; not a Platform fee. |
 | `platform_commission_vat_amount` | `NUMERIC(14,2)` | Yes | VAT on Platform commission where applicable; separate invoice and tax classification. |
 | `provider_payout_amount` | `NUMERIC(14,2)` | No | Partner-confirmed Provider net payout after commission and any agreed retention. |
-| `retained_amount` | `NUMERIC(14,2)` | No | Contractually held warranty amount; later release does not earn a second commission. |
+| `retained_amount` | `NUMERIC(14,2)` | No | Held warranty amount; zero when the order did not adopt retention. Release does not earn a second commission. |
 | `disputed_amount` | `NUMERIC(14,2)` | No | Amount temporarily held under partner product and accepted contract terms. |
-| `status` | `VARCHAR(32)` | No | `PAYMENT_PENDING`, `HELD_IN_ESCROW`, `FROZEN_DISPUTED`, `DISBURSED`, `REFUNDED`, `PARTIALLY_REFUNDED`. |
-| `partner_transaction_ref` | `VARCHAR(128)` | Yes | Authorized bank/payment-partner reference. |
+| `status` | `VARCHAR(32)` | No | `PAYMENT_PENDING`, `HELD_IN_ESCROW`, `FROZEN_DISPUTED`, `DISBURSED`, `REFUNDED`, `PARTIALLY_REFUNDED`. `FROZEN_DISPUTED` records workflow/partner status; it does not imply Platform custody. |
+| `payment_partner_id` | `VARCHAR(96)` | No | Stable identifier for the authorized bank/payment partner configuration. |
+| `partner_transaction_ref` | `VARCHAR(128)` | Yes | Partner-confirmed transaction reference, scoped to the partner. |
+| `partner_instruction_id` | `VARCHAR(128)` | No | Idempotency key for a funding/release/refund instruction; unique with `payment_partner_id`. |
+| `partner_event_id` | `VARCHAR(128)` | Yes | Partner-issued callback/event identifier; unique with `payment_partner_id` when non-null to reject duplicate delivery. |
 | `deposited_at` | `TIMESTAMPTZ` | Yes | Partner-confirmed funding time. |
 | `released_at` | `TIMESTAMPTZ` | Yes | Partner-confirmed payout/refund time. |
 | `authorized_by_user_id` | `UUID` | Yes | Platform Operator instruction actor, or null for a controlled system instruction. |
@@ -520,7 +523,7 @@ The proposed record reconciles conditional funding and settlement supplied by an
 | `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
 | `row_version` | `BIGINT` | No | Optimistic locking. |
 
-One order may produce multiple deposit/refund/retention events; do not impose unique `order_id` on transaction rows. Idempotency uses a unique partner event/instruction identity, and arithmetic reconciles across the order.
+One order may produce multiple deposit/refund/retention events; do not impose unique `order_id` on transaction rows. Add unique constraints on `(payment_partner_id, partner_instruction_id)` and, where non-null, `(payment_partner_id, partner_event_id)`; callback retries then resolve to the same ledger event. Partner account/product support and order-level arithmetic reconcile all confirmed events.
 
 #### `drone_mission_plans` (target mission-planning aggregate)
 
@@ -710,10 +713,10 @@ Target internal complaint records coordinated by `PLATFORM_OPERATOR` under publi
 | `provider_response` | `VARCHAR(4000)` | Yes | Explanation submitted by Provider within the response period published for the case. |
 | `status` | `VARCHAR(32)` | No | `OPENED`, `UNDER_ARBITRATION`, `RESOLVED`, or `CLOSED`. |
 | `resolution_decision` | `VARCHAR(32)` | Yes | `FREE_RESHOOT`, `FULL_REFUND`, or `REJECTED_DISPUTE`. |
-| `arbitrated_by_operator_id`| `UUID` | Yes | FK to `users` (`PLATFORM_OPERATOR` arbitrator). |
-| `arbitrated_at` | `TIMESTAMPTZ` | Yes | Timestamp of internal Platform Terms resolution; external remedies remain available. |
-| `resolution_notes` | `VARCHAR(4000)` | Yes | Official findings and justification for the decision. |
-| `penalty_amount` | `NUMERIC(14,2)` | Yes | Optional punitive penalty charged to violating provider. |
+| `resolved_by_operator_id` | `UUID` | Yes | FK to `users` (`PLATFORM_OPERATOR` internal complaint handler; not a legal arbitrator). |
+| `resolved_at` | `TIMESTAMPTZ` | Yes | Timestamp of recorded internal Platform Terms outcome; external remedies remain available. |
+| `resolution_notes` | `VARCHAR(4000)` | Yes | Recorded rationale and terms-based outcome; not a court/arbitration award. |
+| `penalty_amount` | `NUMERIC(14,2)` | Yes | Optional contractually/lawfully grounded amount; not automatically imposed by an Operator. |
 | `created_at` | `TIMESTAMPTZ` | No | Filing timestamp (triggers immediate escrow freeze). |
 | `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
 
@@ -788,10 +791,16 @@ Each row is an immutable approved order version so approved changes never overwr
 | `previous_version_id` | `UUID` | Yes | Prior approved order version. |
 | `scope_snapshot` | `JSONB` | No | Approved work scope and materials. |
 | `approved_amount` | `NUMERIC(14,2)` | No | Approved contract amount. |
-| `locked_retention_rate` | `NUMERIC(7,5)` | No | Contract-snapshotted retention proportion configured by `PLATFORM_OPERATOR`; no fixed default. |
-| `retention_amount` | `NUMERIC(14,2)` | No | Monetary retention amount derived from the approved order amount and its locked retention rate. |
-| `retention_status` | `VARCHAR(32)` | No | `HELD`, `RELEASED`, or `FORFEITED`. |
-| `locked_warranty_days` | `INTEGER` | No | Contract-snapshotted warranty duration configured by `PLATFORM_OPERATOR`; no fixed default. |
+| `locked_commission_rate` | `NUMERIC(7,5)` | No | Uniform Platform commission rate accepted for this maintenance order; copied from policy version. |
+| `commission_policy_version` | `VARCHAR(64)` | No | Published uniform commission policy version captured at order confirmation. |
+| `locked_terms_snapshot` | `JSONB` | No | Immutable snapshot of accepted maintenance order terms and applicable policy-version identifiers. |
+| `funding_policy_version` | `VARCHAR(64)` | Yes | Accepted funding policy version when advance funding is adopted. |
+| `locked_funding_rate` | `NUMERIC(7,5)` | Yes | Accepted funding proportion; null when no advance-funding policy applies. |
+| `locked_retention_rate` | `NUMERIC(7,5)` | Yes | Contract-snapshotted retention proportion only when the parties adopt the retention policy; otherwise null. |
+| `retention_policy_version` | `VARCHAR(64)` | Yes | Published retention policy version, null when retention is not adopted. |
+| `retention_amount` | `NUMERIC(14,2)` | Yes | Monetary retention amount derived from the approved order amount and locked rate; null when retention is not adopted. |
+| `retention_status` | `VARCHAR(32)` | No | `NOT_APPLICABLE`, `HELD`, `RELEASED`, or `FORFEITED`; `NOT_APPLICABLE` when retention is not adopted. |
+| `locked_warranty_days` | `INTEGER` | Yes | Contract-snapshotted warranty duration when warranty/retention terms are adopted; no fixed default. |
 | `warranty_end_date` | `TIMESTAMPTZ` | Yes | Warranty end instant calculated from completion and the locked warranty duration. |
 | `currency` | `CHAR(3)` | No | ISO currency code. |
 | `payment_terms` | `VARCHAR(2000)` | No | Two-stage milestone payment terms. |
@@ -799,7 +808,7 @@ Each row is an immutable approved order version so approved changes never overwr
 | `approved_by_user_id` | `UUID` | No | Client actor. |
 | `approved_at` | `TIMESTAMPTZ` | No | Approval time. |
 
-Constraints: unique `(order_series_id, version_number)` and unique `(order_number, version_number)`.
+Constraints: unique `(order_series_id, version_number)` and unique `(order_number, version_number)`. `locked_commission_rate` and `commission_policy_version` are required on every approved order; retention fields are all null/`NOT_APPLICABLE` when not adopted, and are populated together with `retention_policy_version` when adopted. `locked_funding_rate` and `funding_policy_version` are populated only if advance funding applies.
 
 #### `maintenance_assignments`
 

@@ -43,10 +43,10 @@ Hệ thống được tổ chức thành **3 Khối tác nhân (Actor Zones)** �
 │                                                                        │
 │   🛠️ PLATFORM_ADMIN                  👔 PLATFORM_OPERATOR              │
 │   (Quản trị Kỹ thuật & Hạ tầng)      (Quản trị Nghiệp vụ, Chính sách   │
-│   • Cấu hình hệ thống, checklist     & Hòa giải viên Sàn)              │
+│   • Cấu hình hệ thống, checklist     & Xử lý Khiếu nại Nội bộ)              │
 │   • Phân quyền, bảo mật              • Thẩm định & Cấp phép Providers  │
 │   • Ngưỡng AI YOLO, upload MinIO     • Cấu hình Tham số Thương mại Sàn │
-│   • Giám sát hạ tầng, audit logs     • Trọng tài Phân xử Tranh chấp    │
+│   • Giám sát hạ tầng, audit logs     • Xử lý khiếu nại nội bộ theo Terms│
 │                                      • Điều phối Dòng tiền Ký quỹ      │
 └───────────────────┬──────────────────────────────────┬─────────────────┘
                     │                                  │
@@ -73,14 +73,14 @@ Hệ thống được tổ chức thành **3 Khối tác nhân (Actor Zones)** �
 ## III. Mô hình Dòng tiền Ký quỹ (Escrow Cash Flow) & Hợp đồng Điện tử
 
 ### 1. Kiến trúc Hợp đồng 3 Bên (Tripartite Agreement)
-* **Quy chế hoạt động Sàn (Platform Terms of Service)**: Ràng buộc cả Client và Provider khi tham gia nền tảng. Trao quyền cho `PLATFORM_OPERATOR` ban hành chính sách thương mại và phán xử tranh chấp nội bộ theo quy chế đã công bố.
+* **Quy chế hoạt động Sàn (Platform Terms of Service)**: Ràng buộc cả Client và Provider khi tham gia nền tảng. Cho phép `PLATFORM_OPERATOR` công bố chính sách thương mại và điều phối xử lý khiếu nại nội bộ theo quy chế; không trao thẩm quyền trọng tài pháp lý.
 * **Đơn dịch vụ điện tử (Inspection Service Order / Maintenance Work Order)**: Được sinh ra cho từng thương vụ kiểm định/bảo trì, có giá trị pháp lý theo *Luật Giao dịch điện tử 2023*. Bao gồm: Phạm vi công việc (SOW), Kế hoạch bay kỹ thuật (GSD, Shot list, Overlap), Tiến độ cam kết (SLA), Chi phí dịch vụ Provider và các điều khoản thương mại đã được khóa tại thời điểm ký kết.
 
-### 2. Mô hình Bảo vệ Giao dịch Có Điều kiện Qua Đối tác Thanh toán Được Cấp phép (Escrow Safeguard)
-Nhằm giải quyết rủi ro *"Client sợ mất tiền khi Provider làm ẩu"* và *"Provider sợ bị bùng tiền sau khi đã bay"*:
-1. **Nạp tiền trước khi bay theo chính sách đã chấp thuận**: Client nạp khoản tiền theo tỷ lệ chính sách đã snapshot vào tài khoản hoặc cơ chế thanh toán có điều kiện do đối tác ngân hàng/trung gian thanh toán được cấp phép cung cấp (`HELD_IN_ESCROW`). Nếu đối tác không hỗ trợ conditional release phù hợp, luồng phải chặn hoặc dùng phương án thanh toán đã được rà soát pháp lý; Platform không tự giữ tiền. Provider chỉ nhận lệnh cất cánh sau khi hệ thống nhận được xác nhận chính thức từ cổng thanh toán.
-2. **Quyết toán tự động (Auto-Settlement)**: Khi Client bấm "Nghiệm thu (Accept)" HOẶC hết thời hạn nghiệm thu tự động mà Client không phản hồi và không mở tranh chấp: Đối tác thanh toán tự động giải ngân tiền dịch vụ ròng cho Provider sau khi khấu trừ hoa hồng sàn theo chính sách đã khóa trong hợp đồng.
-3. **Đóng băng khi có Tranh chấp (`FROZEN_DISPUTED`)**: Tiền ký quỹ lập tức bị phong tỏa ngay khi một bên mở tranh chấp hợp lệ. Tiền chỉ được giải tỏa khi có phán quyết nội bộ của `PLATFORM_OPERATOR` hoặc quyết định của cơ quan tài phán có thẩm quyền.
+### 2. Funding, Settlement và Complaint Hold theo Đối tác được Cấp phép
+Các cơ chế dưới đây chỉ áp dụng nếu payment-partner product và điều khoản được các bên chấp thuận hỗ trợ:
+1. **Funding theo hợp đồng**: Nếu Service Order yêu cầu nạp trước, Client nạp khoản tiền theo tỷ lệ/điều kiện đã snapshot qua sản phẩm của đối tác được cấp phép (`HELD_IN_ESCROW`). Nếu không yêu cầu nạp trước, không tạo payment gate. Nếu order yêu cầu nhưng đối tác không hỗ trợ, dừng funding-dependent execution hoặc dùng phương án riêng đã được rà soát/chấp thuận; Platform không tự giữ tiền. Chỉ orders có funding requirement mới phải đợi partner confirmation trước khi bắt đầu.
+2. **Settlement theo terms (target)**: Sau Client acceptance hoặc điều kiện deemed-acceptance được ghi rõ trong order, chỉ instruct partner nếu product hỗ trợ; không suy diễn settlement tự động khi partner/order terms không cung cấp.
+3. **Complaint hold (`FROZEN_DISPUTED`)**: Khi có complaint hợp lệ, chỉ gửi request hold cho phần tiền liên quan nếu product/accepted terms cho phép. `FROZEN_DISPUTED` là workflow state, không xác nhận Platform custody. Release/continuation follows partner confirmation, accepted contract terms and legally competent external mechanisms; Operator handles only internal Platform Terms review.
 
 ### 3. Chính sách Cấu hình Động của `PLATFORM_OPERATOR` & Nguyên tắc Contract Snapshot
 Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đối không bị hardcode**, mà được quản trị tập trung bởi `PLATFORM_OPERATOR` thông qua giao diện Quản trị Chính sách Thương mại:
@@ -90,7 +90,7 @@ Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đ
 | **Tỷ lệ hoa hồng sàn** | $r$ (`commission_rate`) | Operator ban hành theo kỳ | `PLATFORM_OPERATOR` | Áp dụng thống nhất cho toàn bộ Provider; tính trên doanh thu dịch vụ hợp lệ trước VAT: $C = r \times B$. |
 | **Thời hạn nghiệm thu tự động** | $T_{rev}$ (`auto_settlement_review_days`) | Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Thời hạn làm việc Client được quyền thẩm định báo cáo; giá trị được snapshot vào Service Order. |
 | **Tỷ lệ nạp trước theo hợp đồng** | $D$ (`required_advance_funding_rate`) | Operator cấu hình theo policy và đối tác | `PLATFORM_OPERATOR` | Tỷ lệ tiền Client cần nạp trước khi khởi công; snapshot vào Service Order, nếu đối tác thanh toán hỗ trợ. |
-| **Tỷ lệ bảo lãnh hoàn công** | $H$ (`warranty_retention_rate`) | Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Tỷ lệ giữ lại bảo hành sau khi hoàn thành sửa chữa bảo trì (MF5); giá trị được snapshot vào Maintenance Order. |
+| **Tỷ lệ bảo lãnh hoàn công** | $H$ (`warranty_retention_rate`) | Nếu áp dụng: Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Tùy chọn retention được disclosure và chấp thuận trong Maintenance Order; nếu không adopted, không giữ khoản này. |
 | **Thời hạn bảo hành** | $T_{war}$ (`standard_warranty_days`) | Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Thời hạn bảo hành trước khi giải ngân nốt tiền giữ lại; giá trị được snapshot vào Maintenance Order. |
 | **Điều khoản hủy chuyến** | `cancellation_policy` | Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Chính sách, điều kiện và cách tính chi phí hủy được công bố và snapshot vào Service Order. |
 
@@ -122,7 +122,7 @@ Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đ
 * **SF-02 (Provider Onboarding & Vetting)**: Provider Manager đăng ký hồ sơ năng lực của công ty bay drone: Giấy phép kinh doanh, Danh mục drone kèm số đăng ký định danh phương tiện bay của Bộ Quốc phòng theo *Luật Phòng không nhân dân 2024* & *Nghị định 288/2025/NĐ-CP*, Danh sách phi công kèm chứng chỉ điều khiển bay hợp lệ, và Chứng thư bảo hiểm trách nhiệm dân sự bên thứ ba.
 * **SF-03 (Operator Vetting Approval)**: `PLATFORM_OPERATOR` thẩm định tính hợp lệ của hồ sơ Provider. Nếu đạt, cấp trạng thái `VERIFIED`. Nếu thiếu, yêu cầu bổ sung hoặc từ chối (`REJECTED`). Provider chưa được duyệt bị chặn toàn bộ quyền tham gia báo giá.
 * **SF-04 (Asset Profiling & Airspace Pre-check)**: Client khai báo thông tin tài sản công trình: Tọa độ địa lý (kinh độ, vĩ độ), ranh giới tiếp cận, cao độ kết cấu, tài liệu bản vẽ hoàn công. Hệ thống tự động tra cứu dữ liệu không phận công khai (`cambay.mod.gov.vn` theo QĐ 18/2020/QĐ-TTg) để hiển thị cảnh báo tham khảo nếu công trình nằm trong hoặc gần vùng cấm/hạn chế bay.
-* **SF-05 (Periodic Schedule Cadence)**: Client thiết lập lịch kiểm tra định kỳ cho tài sản (1 tháng, 3 tháng, 6 tháng, 1 năm). Khi đến hạn chu kỳ, hệ thống tự động sinh ra gói Yêu cầu kiểm tra chuyển tiếp sang MF1.
+* **SF-05 (Periodic Schedule Cadence)**: Platform sinh các schedule proposal theo tần suất đã cấu hình cho category; `PLATFORM_OPERATOR` (hoặc vai trò nghiệp vụ được giao trong baseline) kiểm tra/điều chỉnh proposal, sau đó Client chọn một proposal hợp lệ để tạo lịch. Client không tạo schedule trực tiếp. Khi lịch đã chọn đến hạn, hệ thống sinh request package cho MF1 theo Asset + Schedule + Due Cycle identity.
 
 #### 2. Xử lý Luồng Ngoại lệ SF (5 Câu hỏi Bắt buộc)
 * **Q1: Dữ liệu đầu vào thiếu hoặc sai?** Hồ sơ Provider thiếu chứng chỉ phi công hoặc bảo hiểm: Operator từ chối duyệt, hệ thống chuyển trạng thái `ADDITIONAL_INFO_REQUIRED`. Tọa độ tài sản nằm trong vùng cấm bay quân sự: Hệ thống gắn cờ cảnh báo `RESTRICTED_AIRSPACE`, yêu cầu phải có giấy phép bay Cục Tác chiến đặc biệt trước khi phát thầu.
@@ -148,7 +148,7 @@ Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đ
 | **MF1-03** | Provider Manager | Xem xét yêu cầu, khảo sát địa hình sơ bộ từ xa và lập **Báo giá dịch vụ (Quotation)**: Chỉ gồm (1) Chi phí nhân lực bay hiện trường; (2) Chi phí kỹ thuật chuyên môn; (3) Chi phí đi lại/triển khai hợp lệ; (4) Thuế VAT của Provider. **Tuyệt đối không tính phí xử lý AI/MinIO của Sàn vào báo giá.** | Báo giá dịch vụ (v1, v2) |
 | **MF1-04** | Client | Xem xét các báo giá cạnh tranh. Có thể yêu cầu điều chỉnh (Revision) hoặc chọn Báo giá phù hợp nhất để chấp thuận. | Báo giá được chấp thuận |
 | **MF1-05** | System | Khởi tạo **Hợp đồng Dịch vụ Điện tử (Inspection Service Order)**: Thực hiện **Contract Snapshot** để lưu tỷ lệ hoa hồng $r$, thời hạn nghiệm thu $T_{rev}$, tỷ lệ nạp trước $D$ và chính sách hủy do `PLATFORM_OPERATOR` ban hành tại thời điểm ký vào bản ghi hợp đồng. | Hợp đồng điện tử sẵn sàng ký |
-| **MF1-06** | Client & Provider Manager | Hai bên thực hiện ký số điện tử hợp đồng theo *Luật Giao dịch điện tử 2023*. Client nạp khoản tiền theo tỷ lệ đã cấu hình qua cổng thanh toán của đối tác ngân hàng/trung gian thanh toán được cấp phép (`HELD_IN_ESCROW`). Hợp đồng chính thức có hiệu lực (`LEGALLY_BINDING`). | Hợp đồng có hiệu lực & Tiền ký quỹ an toàn |
+| **MF1-06** | Client & Provider Manager | Hai bên chấp thuận/ký kết Service Order điện tử theo điều khoản đã công bố và pháp luật áp dụng. Nếu order quy định nạp trước, Client thanh toán qua đối tác được cấp phép; nếu không, áp dụng mốc thanh toán đã thỏa thuận. Funding status không tự quyết định thời điểm hình thành hợp đồng. | Service Order được chấp thuận; trạng thái funding theo order/đối tác |
 
 #### 2. Chính sách Hủy Hợp đồng & Rủi ro Thời tiết (Theo Snapshot hợp đồng)
 * **Hủy trước khi thực hiện**: Hoàn/khấu trừ khoản tiền theo điều khoản hủy đã công bố và snapshot vào Service Order; không mặc định cửa sổ hoặc tỷ lệ hoàn tiền toàn cục.
@@ -158,8 +158,8 @@ Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đ
 #### 3. Xử lý Luồng Ngoại lệ MF1 (5 Câu hỏi Bắt buộc)
 * **Q1: Dữ liệu đầu vào thiếu hoặc sai?** Yêu cầu khảo sát thiếu thông tin vị trí công trình hoặc mục tiêu kiểm định: Hệ thống yêu cầu Client bổ sung đầy đủ trước khi mở cổng nhận báo giá.
 * **Q2: Truy cập trái phép / Sai tổ chức?** Provider A không thể xem nội dung giá thầu của Provider B trong cùng một gói RFQ.
-* **Q3: Thao tác đồng thời / Trùng lặp?** Client bấm thanh toán 2 lần: Cơ chế Idempotency Key khóa cổng thanh toán, ngăn chặn tạo 2 giao dịch ký quỹ trùng lặp cho một đơn hàng.
-* **Q4: Dịch vụ ngoài / Mạng lỗi?** Cổng thanh toán timeout khi Client đang nạp tiền: Đơn hàng giữ trạng thái `PAYMENT_PENDING`; hệ thống chỉ chuyển sang `HELD_IN_ESCROW` khi nhận webhook xác thực hợp lệ từ cổng thanh toán.
+* **Q3: Thao tác đồng thời / Trùng lặp?** Client bấm thanh toán 2 lần: Idempotency key và partner event/instruction identity ngăn hai chỉ thị funding hoặc giao dịch trùng cho cùng order/milestone.
+* **Q4: Dịch vụ ngoài / Mạng lỗi?** Cổng thanh toán timeout khi order yêu cầu funding: đơn hàng giữ trạng thái `PAYMENT_PENDING`; chỉ trạng thái đã xác thực từ đối tác mới xác nhận funding. Nếu order không yêu cầu nạp trước, luồng thực hiện theo mốc thanh toán thay thế đã được các bên chấp thuận.
 * **Q5: Từ chối / Hủy giữa chừng?** Client hủy yêu cầu trước khi chọn báo giá: RFQ tự động đóng (`CANCELLED`), thông báo cho các Provider đã nộp báo giá.
 
 ---
@@ -219,11 +219,11 @@ Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đ
 
 ---
 
-### MF4 — Nghiệm thu Báo cáo, Quyết toán Tự động & Trọng tài Xử lý Tranh chấp (Report Acceptance, Commission Settlement & Operator Dispute Resolution)
+### MF4 — Nghiệm thu Báo cáo, Quyết toán Theo Điều khoản & Xử lý Khiếu nại Nội bộ (Report Acceptance, Conditional Settlement & Internal Complaint Handling)
 
-**Mục tiêu**: Khách hàng thẩm định kết quả khảo sát trong thời hạn đã khóa; tự động quyết toán giải ngân theo hoa hồng đã ấn định; hoặc kích hoạt cơ chế Trọng tài phân xử nội bộ của `PLATFORM_OPERATOR` khi phát sinh mâu thuẫn.
+**Mục tiêu**: Khách hàng thẩm định kết quả theo policy đã snapshot; đối tác thanh toán xử lý các mốc settlement theo điều khoản được chấp thuận; hoặc `PLATFORM_OPERATOR` điều phối xử lý khiếu nại nội bộ theo Platform Terms. Operator không phải trọng tài pháp lý và không tự ra lệnh vượt ngoài hợp đồng/sản phẩm đối tác.
 
-**Tác nhân chính**: `Client`, `Provider Manager`, `Platform Operator` (Trọng tài), `System`.
+**Tác nhân chính**: `Client`, `Provider Manager`, `PLATFORM_OPERATOR` (xử lý nội bộ), đối tác thanh toán được cấp phép khi áp dụng, `System`.
 
 #### 1. Quy trình chi tiết (Main Sequence)
 
@@ -235,30 +235,30 @@ Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đ
 | **MF4-03** | System và đối tác thanh toán | Báo cáo chuyển sang trạng thái bất biến (`COMPLETED`). **Giải ngân theo tỷ lệ hoa hồng đã khóa tại hợp đồng**: Với cơ sở tính phí $B$ và tỷ lệ hoa hồng $r$ đã khóa snapshot, hoa hồng sàn $C = r \times B$. Provider nhận số tiền ròng $B - C$; Platform ghi nhận hoa hồng $C$ kèm hóa đơn VAT riêng. Provider xuất hóa đơn dịch vụ đủ giá trị cho Client. | Dòng tiền tất toán (`DISBURSED`) & Hóa đơn riêng biệt |
 | **MF4-04** | Client (Nhánh Yêu cầu Làm rõ) | Nếu có nội dung kỹ thuật chưa rõ ràng, Client gửi yêu cầu giải trình. Provider Manager giải trình hoặc phát hành bản báo cáo hiệu chỉnh (Client không được trực tiếp sửa nội dung chuyên môn). | Báo cáo giải trình hiệu chỉnh |
 | **MF4-05** | Client / Provider (Nhánh Mở Tranh chấp) | Khi có mâu thuẫn nghiêm trọng (ảnh mờ sai lệch GSD cam kết, bỏ sót khuyết tật nghiêm trọng, làm rơi drone gây hư hỏng tài sản): Một trong hai bên bấm **"Mở Tranh chấp (Open Dispute)"**. | Hồ sơ tranh chấp (`OPENED`) |
-| **MF4-06** | System và đối tác thanh toán | **Tiền ký quỹ lập tức bị đóng băng (`FROZEN_DISPUTED`)**. Chuyển toàn bộ hồ sơ sang bàn làm việc của `PLATFORM_OPERATOR`. | Tiền ký quỹ bị phong tỏa |
-| **MF4-07** | Platform Operator | **Thụ lý & Hòa giải nội bộ theo Quy chế sàn**: Yêu cầu các bên cung cấp chứng cứ bổ sung. Operator tiến hành đối soát: Hợp đồng SOW & Kế hoạch bay MF2 (GSD, Shot list) ↔ Bằng chứng MinIO kèm dữ liệu telemetry và mã SHA-256 (MF3) ↔ Đơn khiếu nại của Client ↔ Giải trình của Provider. | Biên bản thẩm tra chứng cứ số |
-| **MF4-08** | Platform Operator | **Ban hành Phán quyết Xử lý Nội bộ** theo 1 trong 3 biện pháp của Sàn (không thay thế quyền khởi kiện Tòa án hoặc trọng tài thương mại). | Phán quyết xử lý có hiệu lực điều phối Escrow |
+| **MF4-06** | System và đối tác thanh toán (nếu được hỗ trợ) | Ghi nhận complaint state. Chỉ gửi yêu cầu hold cho phần tiền liên quan nếu order terms và partner product cho phép; không gọi platform ledger là khoản tiền bị phong tỏa. | Complaint đang mở; partner status riêng nếu có |
+| **MF4-07** | Platform Operator | **Thụ lý nội bộ theo Platform Terms**: Nhận phản hồi/chứng cứ, đối chiếu SOW MF1, Mission Plan MF2, bằng chứng MF3 và ý kiến các bên; ghi nhận lý do, scope xem xét và đường khiếu nại/ngoại lệ. | Hồ sơ xử lý nội bộ có audit trail |
+| **MF4-08** | Platform Operator & đối tác thanh toán (nếu được hỗ trợ) | Ghi nhận internal outcome/biện pháp hợp đồng được chấp thuận và gửi cho các bên. Chỉ instruct partner nếu sản phẩm và hợp đồng cho phép; outcome không phải phán quyết trọng tài pháp lý và không loại trừ cơ quan tài phán. | Internal complaint outcome; partner action/status nếu có |
 
-#### 2. Ba biện pháp xử lý nội bộ của `PLATFORM_OPERATOR`
-* **Biện pháp A — Lỗi chất lượng có thể khắc phục (Ảnh mờ, thiếu góc chụp so với Shot list)**:
-  - Operator ra lệnh cho **Provider bay chụp lại miễn phí (Free Reshoot)** hoàn thành trong thời hạn khắc phục đã thỏa thuận trong điều khoản dịch vụ. Tiền ký quỹ tiếp tục bị đóng băng cho đến khi Client nhận và nghiệm thu báo cáo bay lại.
-* **Biện pháp B — Vi phạm nghiêm trọng / Gian lận dữ liệu / Gây thiệt hại công trình**:
-  - Operator quyết định chấm dứt hợp đồng; đối tác thanh toán hoàn lại khoản tiền đủ điều kiện cho Client theo hợp đồng và kết quả xử lý; áp dụng chế tài phạt vi phạm đối với Provider và đình chỉ hoạt động (`SUSPENDED`).
-* **Biện pháp C — Client khiếu nại không có căn cứ**:
-  - Operator bác khiếu nại; đối tác thanh toán tự động giải ngân cho Provider theo đúng hợp đồng. Trường hợp có giảm giá/hoàn tiền một phần $Q$, hoa hồng sàn tự động đảo tỷ lệ tương ứng $r \times Q$.
+#### 2. Outcome có thể ghi nhận trong xử lý khiếu nại nội bộ theo Platform Terms
+* **Lỗi chất lượng có thể khắc phục (ví dụ ảnh/shot item thiếu so với SOW)**:
+  - Operator có thể ghi nhận/đề xuất reshoot theo remedy đã được các bên chấp thuận trong Order/Terms; thời hạn là giá trị cụ thể đã snapshot, không phải lệnh pháp lý độc lập. Hold (nếu có) chỉ tồn tại tại partner khi sản phẩm và hợp đồng hỗ trợ.
+* **Vi phạm nghiêm trọng / yêu cầu chấm dứt hoặc hoàn tiền**:
+  - Operator ghi nhận căn cứ và phối hợp các bên theo hợp đồng, chứng cứ, pháp luật áp dụng và quyền của các bên. Phạt vi phạm, chấm dứt, đình chỉ hoặc chuyển tiền không tự động; chỉ thực hiện khi có căn cứ hợp đồng/pháp luật và đúng thẩm quyền.
+* **Khiếu nại không có căn cứ**:
+  - Operator ghi nhận kết quả xử lý nội bộ và lý do; đối tác chỉ xử lý khoản tiền đủ điều kiện theo hợp đồng/sản phẩm. Nếu có hoàn/giảm giá dịch vụ thực tế, commission được điều chỉnh theo policy và chứng từ liên quan.
 
 #### 3. Xử lý Luồng Ngoại lệ MF4 (5 Câu hỏi Bắt buộc)
 * **Q1: Dữ liệu đầu vào thiếu hoặc sai?** Đơn khiếu nại không có ảnh/video bằng chứng chứng minh: Operator yêu cầu bổ sung theo thời hạn xử lý đã công bố; quá hạn, khiếu nại được xử lý theo Platform Terms.
 * **Q2: Truy cập trái phép / Sai tổ chức?** Nhân viên không có thẩm quyền trong Client Org cố tình bấm mở tranh chấp: Hệ thống chặn quyền ở tầng API, chỉ tài khoản đại diện pháp lý mới được mở tranh chấp.
-* **Q3: Thao tác đồng thời / Trùng lặp?** Client vừa bấm "Accept" vừa bấm "Open Dispute" cùng thời điểm: Giao dịch dùng Pessimistic Lock trên Service Order; trạng thái đầu tiên commit thành công sẽ chặn đứng thao tác còn lại.
-* **Q4: Dịch vụ ngoài / Mạng lỗi?** Cổng gửi SMS/Email thông báo phán quyết bị lỗi: Phán quyết vẫn lưu bất biến trong database kèm Audit Log; các bên nhận thông báo qua In-app Notification ngay khi đăng nhập.
-* **Q5: Từ chối / Hủy giữa chừng?** Provider từ chối thực hiện phán quyết "Free Reshoot": Operator kích hoạt chuyển sang Biện pháp B (hủy hợp đồng, hoàn tiền cho Client, phạt Provider).
+* **Q3: Thao tác đồng thời / Trùng lặp?** Client vừa gửi nghiệm thu vừa gửi complaint: order transition phải serialize/idempotent; chỉ một state transition hợp lệ được ghi. Complaint chỉ gửi partner hold request nếu policy/order và partner product cho phép.
+* **Q4: Dịch vụ ngoài / Mạng lỗi?** Notification gateway lỗi: complaint/outcome record vẫn được lưu với audit trail; không suy ra partner funds state khi webhook/status unavailable; cung cấp in-app retry/status.
+* **Q5: Từ chối / Hủy giữa chừng?** Một bên phản đối outcome nội bộ hoặc remedy đề xuất: lưu phản hồi/appeal theo Platform Terms; không tự động phạt, chuyển tiền hoặc hạn chế quyền ngoài accepted terms/law; các bên giữ quyền external remedy.
 
 ---
 
 ### MF5 — Xử lý Khiếm khuyết, Đơn hàng Bảo trì & Tiền Bảo lãnh Hoàn công (Defect Rectification, Maintenance & Retention)
 
-**Mục tiêu**: Chuyển các khuyết tật từ báo cáo drone thành đơn hàng sửa chữa công trình, kiểm soát phát sinh chi phí, nghiệm thu ảnh đối chứng Before/After và quản lý Dòng tiền Bảo lãnh hoàn công (Retention Money).
+**Mục tiêu**: Chuyển các khuyết tật từ báo cáo drone thành đơn hàng sửa chữa công trình, kiểm soát phát sinh chi phí, nghiệm thu ảnh đối chứng Before/After và thực hiện các điều khoản funding/retention/warranty nếu các bên đã chấp thuận và payment-partner product hỗ trợ.
 
 **Tác nhân chính**: `Client`, `Maintenance Provider Manager`, `Maintenance Engineer`, `Platform Operator`, `System`.
 
@@ -267,25 +267,25 @@ Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đ
 | Bước | Vai trò / Lane | Hoạt động chi tiết | Sản phẩm đầu ra |
 | :--- | :--- | :--- | :--- |
 | **MF5-01** | Client | Chọn các khuyết tật đã xác minh từ Báo cáo MF4 để tạo **Phiếu yêu cầu bảo trì (Maintenance Ticket)**. | Maintenance Ticket |
-| **MF5-02** | Maintenance Provider Manager | Khảo sát hiện trường (qua ảnh zoom 3D MF3 hoặc trực tiếp); lập Phương án kỹ thuật, dự toán vật tư và Báo giá bảo trì (Maintenance Quotation). Hợp đồng thi công bắt buộc áp dụng **Tiền bảo lãnh hoàn công** theo tỷ lệ đã cấu hình. | Báo giá bảo trì & Đơn dịch vụ |
-| **MF5-03** | System | Khởi tạo **Đơn dịch vụ bảo trì (Maintenance Order)**: Thực hiện **Contract Snapshot** khóa chính sách tỷ lệ bảo lãnh $H$ và thời hạn bảo hành $T_{war}$ do Operator ban hành vào đơn hàng. Client nạp khoản tiền theo tỷ lệ đã cấu hình vào tài khoản thanh toán có điều kiện. | Tiền bảo trì ký quỹ Escrow |
+| **MF5-02** | Maintenance Provider Manager | Khảo sát hiện trường (qua ảnh/telemetry MF3 hoặc trực tiếp); lập Phương án kỹ thuật, dự toán vật tư và Báo giá bảo trì. Báo giá phải nêu rõ có/không áp dụng retention, cơ sở tính, policy/version, điều kiện và thời hạn warranty nếu có. | Báo giá bảo trì & Đơn dịch vụ |
+| **MF5-03** | System | Khởi tạo **Đơn dịch vụ bảo trì (Maintenance Order)**: snapshot phiên bản policy và các giá trị hoa hồng, funding, retention (nếu các bên chấp thuận), warranty và hủy áp dụng cho đơn. Chỉ yêu cầu nạp trước nếu policy/order quy định và sản phẩm của đối tác thanh toán hỗ trợ các điều kiện đó. | Maintenance Order và trạng thái giao dịch do đối tác xác nhận (nếu có) |
 | **MF5-04** | Maintenance Engineer | Tiếp nhận phân công thi công. Đến hiện trường sửa chữa (trám trét vết nứt bê tông, xử lý ăn mòn, thay cáp). **Bắt buộc chụp và nạp ảnh đối chứng Trước và Sau thi công (Before/After Evidence)** lên MinIO kèm nhật ký vật tư. | Nhật ký thi công & Cặp ảnh đối chứng Before/After |
-| **MF5-05** | Maintenance Engineer & Provider Manager | Nếu phát hiện hư hỏng ngầm vượt quá dự toán: Dừng ngay phần việc phát sinh, lập **Yêu cầu thay đổi (Change Order)**. Client xem xét và ký quỹ bổ sung thì mới được thi công tiếp. | Change Order được duyệt |
-| **MF5-06** | Client & Provider Manager | **Nghiệm thu Đợt 1 (Nghiệm thu hoàn công)**: Client đối soát cặp ảnh Before/After. Nếu đạt chuẩn, Client ký biên bản nghiệm thu hoàn công. | Quyết toán Đợt 1 |
-| **MF5-07** | System và đối tác thanh toán | Đối tác giải ngân tiền đợt 1: Giải ngân phần dịch vụ hoàn công đủ điều kiện $(100\% - H)$ cho Đơn vị bảo trì sau khi trừ hoa hồng sàn; **giữ lại khoản bảo lãnh $H$ theo snapshot hợp đồng** trong tài khoản Escrow. Khuyết tật chuyển trạng thái `RESOLVED`. Kích hoạt thời hạn bảo hành $T_{war}$ đã snapshot trong Maintenance Order. | Giải ngân Đợt 1 & Giữ lại tiền bảo lãnh $H$ |
-| **MF5-08** | Client & Platform Operator | **Nghiệm thu Đợt 2 (Hết hạn bảo hành)**: Sau khi hết thời gian $T_{war}$, nếu không có khiếu nại hoặc tái hỏng: Đối tác thanh toán giải ngân nốt số tiền giữ lại $H$ cho Đơn vị bảo trì (**không tính thêm hoa hồng sàn lần 2**). Đóng vĩnh viễn vòng đời khuyết tật (`CLOSED`). | Giải ngân nốt tiền bảo lãnh & Đóng Ticket |
+| **MF5-05** | Maintenance Engineer & Provider Manager | Nếu phát hiện hư hỏng ngầm vượt quá dự toán: dừng phần việc phát sinh, lập **Yêu cầu thay đổi (Change Order)**. Client phê duyệt phiên bản mới; khoản nạp thêm chỉ bắt buộc nếu order đã chấp thuận yêu cầu và payment-partner product hỗ trợ điều kiện đó. | Change Order được duyệt và funding state theo order |
+| **MF5-06** | Client & Provider Manager | **Nghiệm thu hoàn công**: Client đối soát cặp ảnh Before/After. Nếu đạt chuẩn, Client ký nghiệm thu theo order đã chấp thuận. | Kết quả nghiệm thu; partner instruction nếu được quy định/hỗ trợ |
+| **MF5-07** | System và đối tác thanh toán | Theo các milestone và retention tùy chọn đã snapshot, đối tác giải ngân phần đủ điều kiện sau khi trừ một lần commission; nếu retention được chọn, giữ phần $H$ chỉ trong phạm vi sản phẩm/điều khoản đã chấp thuận. Kích hoạt warranty duration đã snapshot. | Partner settlement state và trạng thái maintenance được cập nhật |
+| **MF5-08** | Client & Platform Operator | Khi warranty duration đã snapshot hết hạn và điều kiện release được đáp ứng, `PLATFORM_OPERATOR` phối hợp yêu cầu partner release retention chỉ khi retention đã được adopted và partner product cho phép. Không áp commission lần hai lên consideration đã tính phí. Đóng ticket khi các nghĩa vụ đã hoàn tất. | Partner confirmation (nếu retention áp dụng) & Ticket đóng |
 
-#### 2. Nhánh Xử lý Rework / Re-inspection / Tranh chấp Bảo hành
-* **Yêu cầu làm lại (Rework)**: Chất lượng chắp vá cẩu thả -> Client yêu cầu Đơn vị bảo trì thi công lại miễn phí trước khi nghiệm thu Đợt 1.
-* **Yêu cầu kiểm tra lại bằng Drone (Re-inspection)**: Vị trí sửa chữa trên cao nguy hiểm khó nhìn bằng mắt thường -> Client kích hoạt yêu cầu bay chụp lại, tạo ra một đơn kiểm định liên kết quay trở lại MF1 & MF2.
-* **Tranh chấp bảo hành**: Mối hàn bị nứt lại trong thời hạn bảo hành nhưng Provider từ chối bảo hành -> Client mở tranh chấp; `PLATFORM_OPERATOR` xử lý theo quy chế: sử dụng khoản tiền giữ lại $H$ để thuê đơn vị khác khắc phục hoặc hoàn tiền cho Client.
+#### 2. Nhánh Xử lý Rework / Re-inspection / Warranty Complaint
+* **Yêu cầu làm lại (Rework)**: Nếu công việc không đạt SOW/Order, Client yêu cầu remedy theo điều khoản chất lượng/warranty đã chấp thuận; không tự suy diễn miễn phí ngoài scope/terms.
+* **Yêu cầu kiểm tra lại bằng Drone (Re-inspection)**: Client có thể mở request mới liên kết với defect/work order để quay lại MF1 sourcing và MF2 mission planning.
+* **Warranty complaint**: Nếu retention được adopt và còn tồn tại tại partner, khiếu nại có thể tạm dừng release theo product/accepted terms. `PLATFORM_OPERATOR` điều phối complaint process; không tự tịch thu, chiếm giữ hoặc chuyển khoản retention.
 
 #### 3. Xử lý Luồng Ngoại lệ MF5 (5 Câu hỏi Bắt buộc)
 * **Q1: Dữ liệu đầu vào thiếu hoặc sai?** Kỹ sư nộp nghiệm thu nhưng thiếu ảnh đối chứng Before/After: Hệ thống khóa nút Submit, bắt buộc phải đủ cặp ảnh đối chứng mới được trình nghiệm thu.
 * **Q2: Truy cập trái phép / Sai tổ chức?** Đơn vị bảo trì A không thể xem hồ sơ sửa chữa của Đơn vị bảo trì B.
 * **Q3: Thao tác đồng thời / Trùng lặp?** Kỹ sư gửi 2 Change Order liên tiếp: Hệ thống chỉ cho phép duy nhất 1 Change Order ở trạng thái `PENDING_APPROVAL` tại một thời điểm.
 * **Q4: Dịch vụ ngoài / Mạng lỗi?** Mất sóng di động tại hầm công trình: Mobile app lưu ảnh offline vào bộ nhớ mã hóa an toàn thiết bị (`flutter_secure_storage`), tự động đồng bộ lên MinIO khi có mạng trở lại.
-* **Q5: Từ chối / Hủy giữa chừng?** Client từ chối phê duyệt Change Order: Đơn vị bảo trì dừng phần phát sinh, chỉ thi công đúng phạm vi hợp đồng ban đầu.
+* **Q5: Từ chối / Hủy giữa chừng?** Client từ chối phê duyệt Change Order: đơn vị bảo trì dừng phần phát sinh và chỉ tiếp tục phạm vi đã duyệt. Cancellation/refund/retention follow the accepted order terms; partner action occurs only when its product supports them.
 
 ---
 
@@ -305,7 +305,7 @@ Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đ
 | **MF3: Thẩm định chéo (Internal Peer Review)** | - | - | - | I | **A / R** | - |
 | **MF3: Ký phát hành Báo cáo Kỹ thuật QA** | - | - | I | **A / R** | I | - |
 | **MF4: Nghiệm thu Báo cáo & Quyết toán Escrow** | I | C | **A / R** | I | - | - |
-| **MF4: Thụ lý & Trọng tài Phân xử Tranh chấp** | I | **A / R** | C | C | C | - |
+| **MF4: Xử lý khiếu nại nội bộ theo Terms** | I | **A / R** | C | C | C | - |
 | **MF5: Tạo Ticket & Báo giá Bảo trì** | - | - | **A** | **R** | - | C |
 | **MF5: Ký quỹ Bảo trì & Thi công Before/After** | - | - | **A** | I | - | **A / R** |
 | **MF5: Nghiệm thu Hoàn công & Tất toán Bảo hành** | I | **R** | **A** | I | - | I |

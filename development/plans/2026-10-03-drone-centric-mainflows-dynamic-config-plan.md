@@ -78,7 +78,7 @@
 - [ ] Bổ sung bảng `platform_configurations` lưu trữ các tham số thương mại do Operator cấu hình (có version, effective_from, updated_by), gồm tỷ lệ hoa hồng thống nhất, tỷ lệ nạp trước, thời hạn nghiệm thu, chính sách hủy, tỷ lệ retention và thời hạn bảo hành; không ghi sẵn giá trị mặc định.
 - [ ] Bổ sung bảng `drone_mission_plans` và `mission_shot_items` (lưu GSD mục tiêu, độ cao bay AGL, tỷ lệ overlap, gimbal pitch, waypoint tọa độ, giấy phép Cục Tác chiến).
 - [ ] Bổ sung các trường Snapshot trong `inspection_service_orders`: `locked_commission_rate`, `locked_review_period_days`, `locked_cancellation_policy`, `locked_advance_funding_rate`.
-- [ ] Bổ sung các trường Snapshot trong `maintenance_orders`: `locked_retention_rate`, `locked_warranty_days`.
+- [ ] Bổ sung các trường Snapshot trong `maintenance_orders`: `locked_commission_rate`, `commission_policy_version`, `locked_funding_rate`/`funding_policy_version` khi funding áp dụng, `locked_retention_rate`/`retention_policy_version` khi retention được adopted, và `locked_warranty_days` khi warranty áp dụng.
 
 ### Task 3: Đồng bộ Báo cáo Giới thiệu & Quản lý Dự án (Report 1 & Report 2)
 - [ ] Cập nhật Report 1: Bổ sung định vị Drone Mission Planning (GSD, không phận) và vai trò Operator quản trị tham số kinh doanh.
@@ -114,7 +114,7 @@
 ## IV. Tiêu chí Nghiệm thu (Acceptance Criteria)
 1. Luồng Onboarding & Vetting được hạ xuống thành Supporting Flow (SF), 5 Main Flows (MF1–MF5) thuần túy là chuỗi giá trị giao dịch kiểm định drone.
 2. MF2 thể hiện rõ nghiệp vụ đặc thù của Drone (GSD, Overlap, Shot List, `cambay.mod.gov.vn`, giấy phép bay Cục Tác chiến); mục tiêu kỹ thuật được xác định theo SOW/Mission Plan, không dùng ví dụ làm default toàn cục.
-3. Không dùng tỷ lệ phần trăm, số ngày, thời hạn hủy hoặc ngưỡng kỹ thuật như giá trị mặc định toàn cục; chính sách thương mại do `PLATFORM_OPERATOR` cấu hình, mục tiêu kỹ thuật được chốt theo SOW/Mission Plan, và các giá trị đã chấp thuận được snapshot vào đơn hàng.
+3. Không dùng tỷ lệ phần trăm, số ngày, thời hạn hủy hoặc ngưỡng kỹ thuật như giá trị mặc định toàn cục; chính sách thương mại do `PLATFORM_OPERATOR` cấu hình, mục tiêu kỹ thuật được chốt theo SOW/Mission Plan, và các giá trị đã chấp thuận được snapshot vào đơn hàng. Nạp trước và retention là tùy chọn theo order/product; thiếu funding yêu cầu thì không tạo funding gate. Callback partner phải có identity idempotent.
 4. Cơ chế Contract Snapshot được thể hiện rõ ràng trong database design và business rules để bảo vệ tính bất biến của hợp đồng.
 5. Đáp ứng đầy đủ 5 câu hỏi ngoại lệ cho cả 5 Main Flows theo `error-prevention.md`.
 6. Tất cả Use Case giữ đúng chuẩn Verb + Noun.
