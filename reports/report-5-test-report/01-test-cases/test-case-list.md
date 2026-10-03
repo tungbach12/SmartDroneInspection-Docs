@@ -33,8 +33,10 @@ Pending support gates, also excluded from workbook totals.
 
 Rows 1–24 retain their original v1 WFx identities, descriptions and historical outcomes;
 rows 25–33 define additional **target-only** MF1–MF5 acceptance criteria. Every new
-row is Pending in its detailed FE source until executable evidence exists. Do not
-interpret a v1 Passed result as proof of the new six-role/payment/dispute design.
+row is Pending in its detailed FE source until executable evidence exists. Target
+coverage includes drone mission planning and airspace verification, order-snapshotted
+commercial policies, and authorized payment-partner limits. Do not interpret a v1
+Passed result as proof of the new six-role/payment/dispute design.
 
 FE-08 Dashboard, Analytics and Notifications has no assigned WFx case in this
 baseline. Treat it as an uncovered feature, not an implicitly passed or
@@ -70,12 +72,12 @@ therefore not reused to close the gap.
 | 22 | `[WF1-017]` FE-03 — WF1 schedule proposals and due cycle | Feature 1 | The due-cycle publisher emits one event per cycle and a replay stays silent. | An `ACTIVE` schedule has `next_due_at` in the past. |
 | 23 | `[WF1-018]` FE-03 — WF1 schedule proposals and due cycle | Feature 1 | Asset document upload enforces file type, size, asset state, and organization scope. | Active asset exists; png/jpeg/webp/pdf and oversize fixtures are available. |
 | 24 | `[WF1-019]` FE-03 — WF1 schedule proposals and due cycle | Feature 1 | Negative scope sweep across every WF1 endpoint. | Two organizations and the five v1 role fixtures exist. |
-| 25 | `[WF2-005]` FE-03 — MF2 Provider RFQ isolation (target) | Feature 1 | Verified Providers may quote eligible RFQs; rival bids and unverified Providers are denied. | Two verified Providers, one unverified Provider and a Client RFQ exist. |
-| 26 | `[WF2-006]` FE-03 — MF2 uniform commission (target) | Feature 1 | One published Provider-paid rate applies to every Provider, while quotation excludes Platform AI/data/storage costs. | Standard policy `r` is published and accepted by two Providers. |
-| 27 | `[WF2-007]` FE-03 — MF2 partner funding (target) | Feature 1 | Service Order locks commission policy; assignment waits for verified authorized-partner funding if contractually required. | Approved quote, locked terms and partner fixture exist. |
+| 25 | `[WF2-005]` FE-03 — MF1 Provider RFQ isolation (target) | Feature 1 | Only verified eligible Providers may quote an RFQ; rival bids and cross-Provider data access are denied. | Two verified Providers, one unverified Provider and a Client RFQ exist. |
+| 26 | `[WF2-006]` FE-03 — MF1 uniform commission snapshot (target) | Feature 1 | One Platform-published Provider-paid rate applies to every Provider, is accepted before order confirmation, and is snapshotted; Provider quotes exclude Platform AI/data/storage costs. | Published versioned policy and two Providers exist. |
+| 27 | `[WF2-007]` FE-03 — MF2 Drone Mission Planning & Clearance (target) | Feature 1 | Mission-specific GSD, overlap, equipment, AGL/waypoints and shot items must satisfy the SOW; applicable airspace status and required permits are verified before mission approval, with no global numeric defaults. | Accepted service order/SOW, mission equipment data, Provider workforce, airspace/permit test fixtures exist. |
 | 28 | `[WF3-005]` FE-06 — MF3 Platform narrative (target) | Feature 2 | Platform-provided LLM draft remains human-reviewed and unavailable for arbitrary Provider model configuration. | Assigned report draft and Platform LLM adapter fixture exist. |
-| 29 | `[WF3-006]` FE-06 — MF4 review window (target) | Feature 2 | Deemed acceptance follows agreed terms and is blocked by timely clarification/dispute. | Released report and expressly accepted review policy exist. |
-| 30 | `[WF3-007]` FE-06 — MF4 commission settlement (target) | Feature 2 | Commission applies once to eligible VAT-exclusive service value and reverses proportionately on refund. | Two orders, published policy and authorized partner fixture exist. |
-| 31 | `[WF3-008]` FE-06 — MF4 complaint scope (target) | Feature 2 | Scoped internal complaint holds permitted disputed funds and preserves external legal remedies. | Client, Provider, Operator and accepted order exist. |
-| 32 | `[WF4-004]` FE-07 — MF5 Provider scope/retention (target) | Feature 2 | Only winning Provider may work; retention release creates no second commission. | Accepted report, two Providers, work order and partner fixture exist. |
-| 33 | `[WF4-005]` FE-07 — MF5 change/warranty dispute (target) | Feature 2 | Unauthorized extra work is blocked, warranty claims pause eligible retention, and genuine refunds reverse proportional commission. | Maintenance work order and before/after evidence exist. |
+| 29 | `[WF3-006]` FE-06 — MF4 order-snapshotted review policy (target) | Feature 2 | Deemed acceptance follows the accepted, order-snapshotted review policy and is blocked by timely clarification/complaint; later policy changes do not reprice the order. | Released report and expressly accepted review-policy version exist. |
+| 30 | `[WF3-007]` FE-06 — MF4 uniform commission settlement (target) | Feature 2 | Commission uses the order-locked uniform rate once on eligible VAT-exclusive service value and reverses proportionately on price refund. | Two orders, published policy and authorized partner fixture exist. |
+| 31 | `[WF3-008]` FE-06 — MF4 complaint hold boundary (target) | Feature 2 | Internal complaint processing requests a hold only where partner product/accepted terms support it; Operator is not a legal arbitrator and external remedies remain available. | Client, Provider, Operator, accepted order and partner-product fixture exist. |
+| 32 | `[WF4-004]` FE-07 — MF5 Provider scope and retention snapshot (target) | Feature 2 | Only the winning Provider may work; accepted retention/warranty terms are snapshotted and retention release creates no second commission. | Accepted report, two Providers, maintenance order and partner fixture exist. |
+| 33 | `[WF4-005]` FE-07 — MF5 change and warranty complaint (target) | Feature 2 | Unauthorized extra work is blocked; a supported unresolved warranty complaint blocks eligible retention release; actual service-price refunds reverse proportional commission. | Maintenance order, accepted warranty policy and before/after evidence exist. |

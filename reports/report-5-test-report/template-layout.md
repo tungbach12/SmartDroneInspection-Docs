@@ -71,7 +71,10 @@ from those files only when exporting. Each case retains its FE and WF codes.
 | FE-07 maintenance/defect resolution | `Feature 2` | WF4-001–WF4-003 |
 | FE-08 dashboard/analytics/notifications | Coverage gap; no current workbook case | None assigned |
 
-The sheet names are template labels, not SRS feature identifiers. The current
+The sheet names are template labels, not SRS feature identifiers. Historical
+WF1–WF4 IDs remain unchanged. The additional Pending target cases cover SF
+prerequisites and the transactional SF/MF1–MF5 architecture (including drone
+mission planning in MF2), while retaining the same workbook mapping. The current
 mapping is:
 
 | Workbook sheet | Included SRS features | Included WF IDs |
@@ -83,7 +86,10 @@ There are exactly eight FE-specific Markdown source files. The two fixed
 workbook sheets are presentation groupings, not source files or SRS features.
 FE-08 currently has no assigned case and remains an explicit coverage gap.
 Target-only cases (`WF2-005`–`WF2-007` on Feature 1, and `WF3-005`–`WF4-005` on Feature 2)
-remain `Pending` across all rounds.
+remain `Pending` across all rounds. `WF2-007` covers MF2 Drone Mission Planning,
+mission-specific GSD/overlap/shot items and applicable clearance; the other target
+rows cover versioned policy snapshots, payment-partner limits, internal complaints,
+and warranty/retention without fixing global numerical defaults.
 
 ## Visual and status rules
 
