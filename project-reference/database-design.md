@@ -27,18 +27,19 @@ It is not an executable Flyway migration and does not claim that every table bel
 
 ## 2. Right-sized schema
 
-The target contains **41 application tables** plus the Spring Modulith `event_publication` infrastructure table.
+The target contains **44 application tables** plus the Spring Modulith `event_publication` infrastructure table.
 
 | Capability | Tables | Count |
 | --- | --- | ---: |
 | Identity, multi-provider and access | `organizations`, `provider_organizations`, `users`, `user_roles`, `auth_sessions`, `refresh_tokens` | 6 |
 | Audit | `security_audit_events` | 1 |
 | Asset catalog and planning | `asset_categories`, `category_frequency_suggestions`, `checklist_templates`, `checklist_items`, `assets`, `asset_documents`, `inspection_schedules`, `schedule_proposals` | 8 |
-| MF2 request, quotation and escrow | `inspection_requests`, `inspection_request_attachments`, `inspection_quotations`, `inspection_service_orders`, `inspection_assignments`, `escrow_transactions` | 6 |
+| MF1 request, quotation and conditional funding | `inspection_requests`, `inspection_request_attachments`, `inspection_quotations`, `inspection_service_orders`, `inspection_assignments`, `escrow_transactions` | 6 |
+| MF2 drone mission planning | `drone_mission_plans`, `mission_shot_items` | 2 |
 | MF3 inspection and report delivery | `inspections`, `checklist_responses`, `evidence`, `ai_finding_candidates`, `verified_findings`, `inspection_reports`, `report_versions`, `peer_reviews` | 8 |
 | MF4 dispute arbitration | `dispute_tickets`, `dispute_evidence` | 2 |
 | MF5 maintenance and billing | `maintenance_tickets`, `maintenance_ticket_findings`, `maintenance_assessments`, `maintenance_quotations`, `maintenance_orders`, `maintenance_assignments`, `maintenance_work_logs`, `maintenance_change_requests`, `invoices` | 9 |
-| Supporting workflow | `notifications` | 1 |
+| Platform governance and supporting workflow | `platform_configurations`, `notifications` | 2 |
 | Framework infrastructure | `event_publication` | 1 |
 
 The design deliberately does not create separate lookup tables for roles, statuses, priorities, severities, or actor zones. These are stable Java enums persisted as constrained strings. It also does not create dashboard, search-index, notification-template, or file-blob tables. Platform-operated AI (YOLO inference and LLM narrative drafting) is delivered as centralized platform capability with metadata and candidate findings persisted directly in the core tables.
@@ -89,6 +90,7 @@ erDiagram
     USERS ||--o{ USER_ROLES : has
     USERS ||--o{ AUTH_SESSIONS : opens
     AUTH_SESSIONS ||--o{ REFRESH_TOKENS : rotates
+    USERS ||--o{ PLATFORM_CONFIGURATIONS : publishes
     ORGANIZATIONS ||--o{ ASSETS : owns
     ASSET_CATEGORIES ||--o{ ASSETS : classifies
     ASSET_CATEGORIES ||--o{ CHECKLIST_TEMPLATES : supports
@@ -107,6 +109,8 @@ erDiagram
     INSPECTION_REQUESTS ||--o{ INSPECTION_REQUEST_ATTACHMENTS : includes
     INSPECTION_REQUESTS ||--o{ INSPECTION_QUOTATIONS : quotes
     INSPECTION_QUOTATIONS ||--o| INSPECTION_SERVICE_ORDERS : approves
+    INSPECTION_SERVICE_ORDERS ||--o{ DRONE_MISSION_PLANS : plans
+    DRONE_MISSION_PLANS ||--o{ MISSION_SHOT_ITEMS : contains
     INSPECTION_SERVICE_ORDERS ||--o{ INSPECTION_ASSIGNMENTS : assigns
     INSPECTION_ASSIGNMENTS ||--o| INSPECTIONS : starts
     INSPECTIONS ||--o{ CHECKLIST_RESPONSES : records
@@ -244,6 +248,25 @@ Indexes: `(user_id, revoked_at)` and `expires_at` for cleanup.
 | `revoke_reason` | `VARCHAR(128)` | Yes | Stable operational reason. |
 
 Indexes: unique `token_hash`; `(session_id, issued_at DESC)`; `expires_at` for retention cleanup.
+
+#### `platform_configurations` (versioned target commercial policies)
+
+One immutable row represents one published version of a Platform commercial policy. This is a target schema addition, not an implemented table or migration. `PLATFORM_OPERATOR` may publish a prospective version; old versions remain queryable for contract/audit traceability. Platform technical settings owned by `PLATFORM_ADMIN` are outside this commercial-policy table.
+
+| Column | Type | Null | Constraint or purpose |
+| --- | --- | --- | --- |
+| `id` | `UUID` | No | Primary key. |
+| `policy_key` | `VARCHAR(96)` | No | Stable key such as `STANDARD_COMMISSION`, `ADVANCE_FUNDING`, `CLIENT_REVIEW_PERIOD`, `CANCELLATION`, `WARRANTY_RETENTION`, or `WARRANTY_DURATION`. |
+| `version` | `INTEGER` | No | Positive, monotonically increasing version for a policy key. |
+| `policy_value` | `JSONB` | No | Validated policy data; schema depends on `policy_key`, with no implicit numeric defaults. |
+| `status` | `VARCHAR(24)` | No | `DRAFT`, `PUBLISHED`, `SUPERSEDED`, or `RETIRED`. |
+| `effective_from` | `TIMESTAMPTZ` | No | Prospective effective instant; publication cannot mutate already snapshotted orders. |
+| `effective_until` | `TIMESTAMPTZ` | Yes | Optional end instant when superseded or retired. |
+| `published_by_user_id` | `UUID` | No | FK to `users`; must identify an authorized `PLATFORM_OPERATOR`. |
+| `published_at` | `TIMESTAMPTZ` | No | Publication audit time. |
+| `created_at` | `TIMESTAMPTZ` | No | Creation time. |
+
+Constraints: unique `(policy_key, version)`; at most one published version per key/effective interval; policy values are validated against the policy key and may not encode provider-specific commission rates. Every policy edit and publication is audited. Policy rows are append-only after publication.
 
 #### `security_audit_events`
 
@@ -402,7 +425,7 @@ Columns: `id`, `inspection_request_id`, `uploaded_by_user_id`, `file_name`, `con
 
 #### `inspection_quotations`
 
-Each row is one immutable commercial version prepared by the bidding or selected Service Provider.
+Each row is one immutable commercial version prepared by the bidding or selected Service Provider. Mission-planning values are negotiated and persisted against the service-order/SOW snapshot, not inferred from a global default.
 
 | Column | Type | Null | Constraint or purpose |
 | --- | --- | --- | --- |
@@ -433,7 +456,7 @@ Constraints: unique `(quotation_series_id, version_number)`; only an approved ve
 
 #### `inspection_service_orders`
 
-Each row is a legally binding tripartite order under *Luật Giao dịch điện tử 2023*.
+Each row is a target tripartite order under *Luật Giao dịch điện tử 2023*. It snapshots the commercial policy accepted for that order; policy changes apply prospectively and must not rewrite confirmed orders.
 
 | Column | Type | Null | Constraint or purpose |
 | --- | --- | --- | --- |
@@ -449,7 +472,16 @@ Each row is a legally binding tripartite order under *Luật Giao dịch điện
 | `scope_snapshot` | `JSONB` | No | SOW, resolution requirements, asset coordinates. |
 | `shot_list_snapshot` | `JSONB` | No | Mandatory camera angles, elevation, GSD specs. |
 | `deliverables` | `JSONB` | No | Expected deliverable files and reports. |
-| `payment_terms` | `VARCHAR(2000)` | No | 100% Escrow deposit requirement. |
+| `payment_terms` | `VARCHAR(2000)` | No | Human-readable funding and settlement terms agreed for this order. |
+| `locked_commission_rate` | `NUMERIC(7,5)` | No | Uniform Platform commission rate accepted for this order; copied from its policy version, not read live during settlement. |
+| `locked_review_period_days` | `INTEGER` | No | Client review period in business days, copied from the accepted policy; calendar/holiday interpretation is stated in the order terms. |
+| `locked_cancellation_policy` | `JSONB` | No | Accepted cancellation conditions, windows, and eligible-cost rules as an immutable order snapshot; no global numeric default. |
+| `locked_advance_funding_rate` | `NUMERIC(7,5)` | No | Funding proportion required before execution under the accepted policy and partner product; constrained to the supported range and snapshotted. |
+| `commission_policy_version` | `VARCHAR(64)` | No | Published one-rate commission policy version used to calculate the fee. |
+| `funding_policy_version` | `VARCHAR(64)` | No | Published funding policy version used by the partner instruction. |
+| `review_policy_version` | `VARCHAR(64)` | No | Published client-review policy version used by the order timer. |
+| `cancellation_policy_version` | `VARCHAR(64)` | No | Published cancellation policy version used by this order. |
+| `locked_terms_snapshot` | `JSONB` | No | Immutable snapshot of the accepted business terms, values, display labels, and policy version identifiers used to construct the electronic order. |
 | `status` | `VARCHAR(32)` | No | `AWAITING_ESCROW`, `LEGALLY_BINDING`, `IN_PROGRESS`, `COMPLETED`, `DISPUTED`, `CANCELLED`. |
 | `started_at` | `TIMESTAMPTZ` | Yes | Execution start time. |
 | `completed_at` | `TIMESTAMPTZ` | Yes | Final acceptance / auto-settlement time. |
@@ -468,10 +500,11 @@ The proposed record reconciles conditional funding and settlement supplied by an
 | `order_type` | `VARCHAR(32)` | No | `INSPECTION` or `MAINTENANCE`. |
 | `client_organization_id` | `UUID` | No | Customer scope. |
 | `provider_organization_id` | `UUID` | No | Provider scope. |
-| `customer_funded_amount` | `NUMERIC(14,2)` | No | Actual partner-confirmed amount including any applicable Provider VAT; not automatically 100% before contracting. |
+| `customer_funded_amount` | `NUMERIC(14,2)` | No | Actual partner-confirmed amount including any applicable Provider VAT; must satisfy the order-snapshotted funding proportion and agreed terms. |
+| `advance_funding_rate` | `NUMERIC(7,5)` | No | Funding rate copied from the parent order snapshot and reconciled against partner-confirmed funds. |
 | `eligible_fee_base` | `NUMERIC(14,2)` | No | `B`: Provider VAT-exclusive service consideration after Provider-funded discount and valid service-price refund. |
 | `commission_policy_version` | `VARCHAR(64)` | No | Published one-rate policy accepted and locked on order. |
-| `commission_rate` | `NUMERIC(7,5)` | No | Uniform Platform-set `r` for all Provider organizations; no numeric default until approved. |
+| `commission_rate` | `NUMERIC(7,5)` | No | Rate copied from the order snapshot; must equal the uniform Platform-set rate, never a provider-specific negotiated rate. |
 | `commission_amount` | `NUMERIC(14,2)` | No | `C = r × B`, calculated once on eligible settled value; reverses proportionately on refunds. |
 | `provider_vat_amount` | `NUMERIC(14,2)` | Yes | Provider service VAT where applicable; not a Platform fee. |
 | `platform_commission_vat_amount` | `NUMERIC(14,2)` | Yes | VAT on Platform commission where applicable; separate invoice and tax classification. |
@@ -488,6 +521,60 @@ The proposed record reconciles conditional funding and settlement supplied by an
 | `row_version` | `BIGINT` | No | Optimistic locking. |
 
 One order may produce multiple deposit/refund/retention events; do not impose unique `order_id` on transaction rows. Idempotency uses a unique partner event/instruction identity, and arithmetic reconciles across the order.
+
+#### `drone_mission_plans` (target mission-planning aggregate)
+
+A versioned operational plan is created from a confirmed inspection service order. It captures mission-specific engineering targets agreed in the SOW; no universal GSD, overlap, altitude, or camera-angle default is implied. This target entity is not implemented in the current schema.
+
+| Column | Type | Null | Constraint or purpose |
+| --- | --- | --- | --- |
+| `id` | `UUID` | No | Primary key. |
+| `service_order_id` | `UUID` | No | FK to `inspection_service_orders`. |
+| `provider_id` | `UUID` | No | Provider organization owning the mission plan; must match the order provider. |
+| `version_number` | `INTEGER` | No | Positive version; approved plan revisions create a new version. |
+| `previous_version_id` | `UUID` | Yes | Prior mission plan version. |
+| `created_by_user_id` | `UUID` | No | Assigned Provider workforce actor with mission-planning permission. |
+| `drone_registration_id` | `VARCHAR(128)` | Yes | Provider's registered drone identifier. |
+| `pilot_user_id` | `UUID` | Yes | Planned Inspector/pilot; must belong to the order Provider and meet applicable credential checks. |
+| `flight_permit_reference` | `VARCHAR(128)` | Yes | Applicable authority-issued flight permit reference; presence is validated for the mission's legal conditions. |
+| `camera_model` | `VARCHAR(200)` | Yes | Camera/sensor model used for planning. |
+| `sensor_width_mm` | `NUMERIC(10,4)` | Yes | Sensor input used in GSD calculation where available. |
+| `focal_length_mm` | `NUMERIC(10,4)` | Yes | Lens input used in GSD calculation where available. |
+| `image_width_px` | `INTEGER` | Yes | Image width used in GSD calculation where available. |
+| `target_gsd_mm_per_pixel` | `NUMERIC(12,6)` | Yes | SOW-agreed ground-sampling target; positive where specified. |
+| `planned_agl_m` | `NUMERIC(10,3)` | Yes | Planned above-ground-level altitude, subject to flight authorization and safety constraints. |
+| `forward_overlap_percent` | `NUMERIC(5,2)` | Yes | Mission-specific planned forward overlap; constrained to the valid percentage range. |
+| `side_overlap_percent` | `NUMERIC(5,2)` | Yes | Mission-specific planned side overlap; constrained to the valid percentage range. |
+| `airspace_check_status` | `VARCHAR(32)` | No | `NOT_CHECKED`, `CLEARANCE_REQUIRED`, `MANUAL_REVIEW`, `CLEARED`, or `BLOCKED`; public map lookup is not itself a permit. |
+| `status` | `VARCHAR(32)` | No | `DRAFT`, `SUBMITTED`, `REVISION_REQUIRED`, `APPROVED`, `CANCELLED`, or `SUPERSEDED`. |
+| `approved_by_user_id` | `UUID` | Yes | Provider Manager who approves the mission version. |
+| `approved_at` | `TIMESTAMPTZ` | Yes | Approval time. |
+| `created_at` | `TIMESTAMPTZ` | No | Creation time. |
+| `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
+| `row_version` | `BIGINT` | No | Optimistic locking for concurrent plan edits/approval. |
+
+Constraints: unique `(service_order_id, version_number)`; exactly one current approved plan per service order; cross-provider plan access is denied. Permit, pilot credential, drone registration, airspace clearance, and SOW consistency checks remain application/domain rules where external authorities determine applicability.
+
+#### `mission_shot_items` (target shot/waypoint rows)
+
+Ordered, mission-specific capture instructions belonging to one drone mission plan.
+
+| Column | Type | Null | Constraint or purpose |
+| --- | --- | --- | --- |
+| `id` | `UUID` | No | Primary key. |
+| `mission_plan_id` | `UUID` | No | FK to `drone_mission_plans`. |
+| `sequence_number` | `INTEGER` | No | Positive order within the plan; unique per mission plan. |
+| `component_reference` | `VARCHAR(200)` | No | Asset/component or surface being inspected. |
+| `waypoint_latitude` | `NUMERIC(10,7)` | Yes | Latitude where a waypoint is specified. |
+| `waypoint_longitude` | `NUMERIC(10,7)` | Yes | Longitude where a waypoint is specified. |
+| `waypoint_altitude_m` | `NUMERIC(10,3)` | Yes | Planned altitude reference, explicitly identified as AGL/AMSL in the plan. |
+| `camera_heading_degrees` | `NUMERIC(7,3)` | Yes | Planned camera heading where applicable. |
+| `gimbal_pitch_degrees` | `NUMERIC(7,3)` | Yes | Mission-specific gimbal pitch; not constrained to a fixed list of angles. |
+| `target_gsd_mm_per_pixel` | `NUMERIC(12,6)` | Yes | Optional shot-specific SOW target. |
+| `capture_instructions` | `VARCHAR(2000)` | Yes | Human-readable angle, overlap, focus, and evidence notes. |
+| `created_at` | `TIMESTAMPTZ` | No | Creation time. |
+
+Constraints: unique `(mission_plan_id, sequence_number)`; waypoint latitude/longitude must be supplied together and fall within valid geographic ranges; gimbal and camera parameters are validated for the selected equipment and flight plan.
 
 #### `inspection_assignments`
 
@@ -620,7 +707,7 @@ Target internal complaint records coordinated by `PLATFORM_OPERATOR` under publi
 | `category` | `VARCHAR(32)` | No | `QUALITY_DEFECT`, `MISSING_SHOTS`, `AIRSPACE_SAFETY`, `TIMELINESS`, or `BILLING`. |
 | `reason` | `VARCHAR(4000)` | No | Detailed explanation of the dispute. |
 | `client_claim` | `VARCHAR(4000)` | Yes | Specific relief requested by Client (e.g., reshoot, refund). |
-| `provider_response` | `VARCHAR(4000)` | Yes | Explanation submitted by Provider within 48h. |
+| `provider_response` | `VARCHAR(4000)` | Yes | Explanation submitted by Provider within the response period published for the case. |
 | `status` | `VARCHAR(32)` | No | `OPENED`, `UNDER_ARBITRATION`, `RESOLVED`, or `CLOSED`. |
 | `resolution_decision` | `VARCHAR(32)` | Yes | `FREE_RESHOOT`, `FULL_REFUND`, or `REJECTED_DISPUTE`. |
 | `arbitrated_by_operator_id`| `UUID` | Yes | FK to `users` (`PLATFORM_OPERATOR` arbitrator). |
@@ -701,10 +788,11 @@ Each row is an immutable approved order version so approved changes never overwr
 | `previous_version_id` | `UUID` | Yes | Prior approved order version. |
 | `scope_snapshot` | `JSONB` | No | Approved work scope and materials. |
 | `approved_amount` | `NUMERIC(14,2)` | No | Approved contract amount. |
-| `retention_percentage` | `NUMERIC(5,2)` | No | Defaults to `10.00`% (warranty retention money). |
-| `retention_amount` | `NUMERIC(14,2)` | No | Retention amount withheld during warranty (10%). |
+| `locked_retention_rate` | `NUMERIC(7,5)` | No | Contract-snapshotted retention proportion configured by `PLATFORM_OPERATOR`; no fixed default. |
+| `retention_amount` | `NUMERIC(14,2)` | No | Monetary retention amount derived from the approved order amount and its locked retention rate. |
 | `retention_status` | `VARCHAR(32)` | No | `HELD`, `RELEASED`, or `FORFEITED`. |
-| `warranty_end_date` | `TIMESTAMPTZ` | Yes | End of 30-day warranty period from completion. |
+| `locked_warranty_days` | `INTEGER` | No | Contract-snapshotted warranty duration configured by `PLATFORM_OPERATOR`; no fixed default. |
+| `warranty_end_date` | `TIMESTAMPTZ` | Yes | Warranty end instant calculated from completion and the locked warranty duration. |
 | `currency` | `CHAR(3)` | No | ISO currency code. |
 | `payment_terms` | `VARCHAR(2000)` | No | Two-stage milestone payment terms. |
 | `status` | `VARCHAR(24)` | No | `CONFIRMED`, `IN_PROGRESS`, `COMPLETED`, `SUPERSEDED`, or `CANCELLED`. |
@@ -784,8 +872,8 @@ These values are persisted as strings and must use the same names in Java, API c
 
 | Field | Values |
 | --- | --- |
-| User role | `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER` |
-| Actor zone | `PLATFORM`, `CUSTOMER_ORGANIZATION`, `SERVICE_WORKFORCE` |
+| User role | `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER` |
+| Actor zone | `PLATFORM_GOVERNANCE`, `CUSTOMER_ORGANIZATION`, `SERVICE_PROVIDER` |
 | User status | `ACTIVE`, `SUSPENDED`, `DISABLED` |
 | Asset status | `ACTIVE`, `INACTIVE`, `RETIRED` |
 | Template status | `DRAFT`, `ACTIVE`, `RETIRED` |
@@ -803,6 +891,9 @@ These values are persisted as strings and must use the same names in Java, API c
 | Work-log status | `IN_PROGRESS`, `PAUSED_FOR_CHANGE`, `SUBMITTED`, `VERIFIED` |
 | Change-request status | `SUBMITTED`, `QUOTED`, `APPROVED`, `REJECTED`, `IMPLEMENTED` |
 | Invoice status | `DRAFT`, `ISSUED`, `PAID`, `OVERDUE`, `VOID` |
+| Mission plan status | `DRAFT`, `SUBMITTED`, `REVISION_REQUIRED`, `APPROVED`, `CANCELLED`, `SUPERSEDED` |
+| Airspace check status | `NOT_CHECKED`, `CLEARANCE_REQUIRED`, `MANUAL_REVIEW`, `CLEARED`, `BLOCKED` |
+| Platform configuration status | `DRAFT`, `PUBLISHED`, `SUPERSEDED`, `RETIRED` |
 
 ## 7. Critical database constraints
 
@@ -870,9 +961,7 @@ The database model supports, but does not replace, application authorization. Re
 
 ## 12. Implementation status
 
-As of 2026-09-28, Flyway migrations `V1` through `V11` implement the complete **physical schema**: all 37
-application tables in this document plus the Spring Modulith `event_publication` registry. The physical-schema phases
-are:
+As of 2026-09-28, Flyway migrations `V1` through `V11` implement the **v1 physical schema**: 37 application tables plus the Spring Modulith `event_publication` registry. The additional target tables `platform_configurations`, `drone_mission_plans`, and `mission_shot_items`, plus the commercial/technical snapshot columns in this plan, are documentation-only target design and are **not** implemented by those migrations or current JPA entities. The table inventory above includes these target additions, not only the deployed v1 schema. The physical-schema phases are:
 
 | Migration | Physical scope |
 | --- | --- |
