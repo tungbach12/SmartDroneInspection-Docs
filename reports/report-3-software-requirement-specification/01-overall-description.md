@@ -22,7 +22,7 @@ The product does not pilot drones, control flights, own drone telemetry, or repl
 The main business flow is:
 
 - WF1: the Client registers an asset and configures periodic inspection scheduling.
-- WF2: the Client submits or completes an inspection request; the Service Manager reviews it, prepares a quotation and service order, and assigns an Inspector.
+- WF2: the system generates a periodic inspection request from the active schedule and inherited asset defaults; the Service Manager reviews it, prepares a quotation and service order, and assigns an Inspector.
 - WF3: the Inspector performs the inspection, uploads evidence, verifies AI candidates, prepares the report, and completes peer review before the Service Manager releases the report to the Client.
 - WF4: the Client creates a maintenance ticket from verified findings; the Maintenance Engineer assesses and performs approved work; the Service Manager releases the result; and the Client accepts, requests rework, or requests re-inspection.
 

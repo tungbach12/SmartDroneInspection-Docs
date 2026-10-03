@@ -91,7 +91,7 @@ If the four members are not full-time, re-estimate dates before Jira sprint comm
 | Gate | Target | Producer → consumer | Contract and test |
 | --- | --- | --- | --- |
 | G1 | End W1 | Shared auth/catalog → all flows | Five roles and seed fixture login; V1–V9 migration and MinIO smoke test. |
-| G2 | End W2 | WF1 → WF2 | One periodic request per asset/schedule/due cycle; Client can complete it. |
+| G2 | End W2 | WF1 → WF2 | One periodic request per asset/schedule/due cycle; the request enters Service Manager review. |
 | G3 | End W2 | WF2 → WF3 | Confirmed order plus accepted Inspector assignment creates ready inspection. |
 | G4 | End W3 | WF3 → WF4 | Released and Client-accepted immutable report exposes verified findings for ticket creation. |
 | G5 | W4 | WF4 → WF2 | Re-inspection decision creates a linked ad hoc request; no module dependency cycle. |

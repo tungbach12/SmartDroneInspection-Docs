@@ -35,9 +35,10 @@ completing WF2.
 
 ### User Story 2 - Convert a request into accepted field work (Priority: P1)
 
-A Client submits an ad hoc or periodic request. A Service Manager reviews it, prepares a versioned
-quotation and order, and assigns an Inspector after Client approval. The Inspector accepts or
-rejects; a rejection returns the work for reassignment.
+The system generates a periodic request from an active schedule, or a linked ad hoc request is
+created for re-inspection. A Service Manager reviews it, prepares a versioned quotation and order,
+and assigns an Inspector after Client approval. The Inspector accepts or rejects; a rejection
+returns the work for reassignment.
 
 **Independent Test**: Start with a seeded authorized asset or a WF1 periodic request and finish
 with a confirmed order and accepted assignment. No inspection execution is required to verify WF2.

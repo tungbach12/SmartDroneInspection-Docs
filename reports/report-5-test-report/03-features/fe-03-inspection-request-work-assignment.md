@@ -2,7 +2,7 @@
 
 ## Scope baseline
 
-WF2 handles PERIODIC inspection requests generated automatically from active schedules with defaults inherited from asset profiles. The system notifies the Client of upcoming inspections; the Client auto-accepts by default or may submit a cancellation request. For accepted requests, Service Manager review leads to a versioned quotation and service-order confirmation. The Client approves post-service payment terms before assignment; no upfront payment or online payment gateway is required.
+WF2 handles PERIODIC inspection requests generated automatically from active schedules with defaults inherited from asset profiles. The system notifies the Client of upcoming inspections and routes each request to the Service Manager for review. Service Manager review leads to a versioned quotation and service-order confirmation. The Client approves post-service payment terms before assignment; no upfront payment or online payment gateway is required.
 
 ## Current acceptance cases
 
@@ -10,7 +10,7 @@ These four cases map to FE-03 and WF2. WF2-001 and WF2-002 were in workbook Func
 
 | Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| WF2-001 | System generates periodic request with notification and auto-accept/cancel options. | A recurring inspection schedule reaches its due cycle; system generates the PERIODIC request with scope, priority, access constraints, and contact inherited from the asset profile; notification is dispatched to Client. Client may take no action (auto-accepts) or submit a cancellation request. | PERIODIC request is created; Client receives notification with cancellation window; taking no action auto-accepts and advances to Service Manager review; a cancellation request transitions request to CANCELLED. | Active asset with inspection defaults and active schedule reached due cycle. | Pending |  |  | Pending |  |  | Pending |  |  |  |
+| WF2-001 | System generates and routes a periodic request for Service Manager review. | A recurring inspection schedule reaches its due cycle; the system generates the PERIODIC request with scope, priority, access constraints, and contact inherited from the asset profile, dispatches the Client notification, and routes the request to the Service Manager. | PERIODIC request is created once for the due cycle with inherited asset defaults; the Client notification is recorded; the request is available to the Service Manager for review. | Active asset with inspection defaults and active schedule reached due cycle. | Pending |  |  | Pending |  |  | Pending |  |  | Pending |  |  |  |
 | WF2-002 | Service Manager prepares and sends a quotation. | Sign in as Service Manager; open the request; add price, scope, and validity; save a version; send it. | A versioned quotation is stored and visible to the correct client; prior versions remain traceable. | Request is actionable; manager is active. | Pending |  |  | Pending |  |  | Pending |  |  |  |
 | WF2-003 | Client approves a quotation and confirms the service order. | Sign in as Client; review the latest quotation; approve it; open the order and billing status. | The approved quotation becomes the confirmed order; the first service billing milestone is recorded. | Quotation is in an approvable state; client owns the request. | Pending |  |  | Pending |  |  | Pending |  |  |  |
 | WF2-004 | Service Manager assigns an Inspector with assignment scope. | Sign in as Service Manager; assign an active Inspector; open the task as the Inspector; attempt an unrelated task. | Assigned Inspector can access only the assigned task; unassigned or conflicting access is denied. | Confirmed order exists; candidate Inspector is active. | Pending |  |  | Pending |  |  | Pending |  |  |  |
@@ -30,4 +30,4 @@ The 2026-09-28 WF1 revision adds the due-cycle event, document-upload rules, and
 
 ## Coverage boundary
 
-WF1-004 verifies schedule due-event emission, while WF2-001 verifies automated periodic request generation with inherited asset defaults and Client notification.
+WF1-004 verifies schedule due-event emission, while WF2-001 verifies automated periodic request generation, inherited asset defaults, Client notification, and routing to Service Manager review.
