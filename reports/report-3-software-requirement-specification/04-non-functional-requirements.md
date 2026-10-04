@@ -49,7 +49,7 @@ source: "report3-software-requirement-specification.docx"
 - All non-public endpoints require authentication and deny access unless role and resource-scope checks pass.
 - Authorization enforces multi-tenant boundary checks: Client organizations cannot see other customers' assets or orders; independent Service Provider organizations cannot observe competitor quotations, margins, workforce records, or raw flight evidence.
 - Separation of duties is enforced between `PLATFORM_ADMIN` (technical/security policy management) and `PLATFORM_OPERATOR` (business operations, provider vetting, commercial-policy publication and internal complaint handling). `PLATFORM_OPERATOR` is not a legal arbitrator or deposit custodian.
-- Mission-plan, waypoint, drone/pilot and evidence reads/writes enforce Provider-organization, owning-order and assignment scope at the backend; public airspace lookup data never substitutes for authority clearance.
+- Mission-plan, any waypoint-route data, drone/pilot and evidence reads/writes enforce Provider-organization, owning-order and assignment scope at the backend; waypoint records are optional, manual piloting under the accepted shot plan is supported, and public airspace lookup never substitutes for authority clearance.
 - Commercial policy updates require an authorized Operator, schema validation, effective-time/version ordering and an audit event. No Provider-specific commission override is allowed; technical parameters belong to Platform Admin-controlled configuration.
 - Passwords are hashed with the configured Spring Security password encoder and are never logged or returned.
 - Browser refresh tokens use Secure, HttpOnly, SameSite=Strict cookies; browser access tokens remain in memory.

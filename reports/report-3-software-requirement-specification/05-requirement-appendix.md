@@ -61,7 +61,7 @@ source: "report3-software-requirement-specification.docx"
 - All list and detail queries apply organization, ownership, assignment, or release scope before returning data.
 - Audit records are append-only from normal application workflows and do not contain passwords, raw tokens, or protected file contents.
 - Commercial policies are versioned, effective-dated and published only by authorized `PLATFORM_OPERATOR` users; updates apply prospectively, with accepted policy values preserved in immutable order snapshots.
-- Drone mission targets (including GSD, overlap, altitude, gimbal, waypoint and shot items) are mission/equipment/SOW-specific and require scoped Provider/assignment authorization; no universal numeric defaults are implied.
+- Drone mission targets (including GSD, overlap, altitude, gimbal and shot items) are mission/equipment/SOW-specific and require scoped Provider/assignment authorization. Waypoint coordinates are optional for waypoint-assisted capture; manual piloting under the approved shot plan is supported, with no autonomous flight control implied.
 - Payment/funding/hold operations must check the authorized partner product and order terms. Platform roles may coordinate instructions but cannot custody funds or claim legal arbitration authority.
 
 ### 5.3 Appendix 3 - Scope and Technology Constraints
