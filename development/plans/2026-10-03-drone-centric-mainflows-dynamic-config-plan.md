@@ -35,7 +35,7 @@
   * Inspector thực hiện bay khảo sát theo Mission Plan đã phê duyệt; tải ảnh/video lên MinIO qua Web/Mobile.
   * Hệ thống tự động bóc tách **dữ liệu không gian (Spatial Telemetry / EXIF GPS 3D, độ cao, góc gimbal)** và tính mã băm SHA-256 bảo đảm toàn vẹn chứng cứ số.
   * AI YOLO tập trung do Platform cung cấp tự động nhận diện khuyết tật (vết nứt, rỉ sét, bong tróc); tính toán kích thước vật lý thực tế của vết nứt dựa trên GSD đã tính ở MF2.
-  * Inspector Xác nhận (Confirm) / Sửa đổi (Modify) / Bác bỏ (Reject) hoặc thêm lỗi thủ công; duyệt chéo độc lập (Peer Review); Provider Manager phát hành Báo cáo Kỹ thuật QA (kích hoạt đồng hồ nghiệm thu tự động).
+  * Inspector Confirm/Modify/Rejects or manually adds findings, then personally verifies and edits the AI-generated report draft against evidence, checklist and SOW. Provider Manager checks deliverable completeness and releases the QA report.
 
 * **MF4 — Nghiệm thu Báo cáo, Quyết toán Tự động & Xử lý Khiếu nại Nội bộ (Report Acceptance, Commission Settlement & Internal Complaint Handling)**
   * Client thẩm định báo cáo kỹ thuật trong thời hạn nghiệm thu được cấu hình và snapshot vào hợp đồng.

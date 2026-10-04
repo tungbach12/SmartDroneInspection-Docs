@@ -72,7 +72,7 @@ Các rule quan trọng của dự án:
 - Một due cycle chỉ tạo tối đa một periodic inspection request cho cùng Asset + Schedule + Due Cycle.
 - Client phải duyệt điều khoản dịch vụ trước khi order được xác nhận; không mặc định thanh toán trước.
 - Inspector phải chấp nhận assignment trước khi inspection chuyển sang sẵn sàng thực hiện.
-- Inspector tạo báo cáo không được peer-review chính báo cáo đó.
+- Inspector là tác giả phải xác minh và chỉnh sửa AI-generated report draft, đối chiếu evidence, findings, checklist và SOW trước khi Provider Manager kiểm tra tính đầy đủ và phát hành.
 - AI chỉ tạo defect candidate; Inspector phải confirm, modify hoặc reject trước khi đưa vào báo cáo.
 - Service Manager không tự đưa ra technical maintenance estimate thay cho Maintenance Engineer.
 - Công việc maintenance phải có bằng chứng before/after; phát sinh ngoài phạm vi cần change approval.
@@ -99,7 +99,7 @@ Các rule quan trọng của dự án:
 
 - Test case phải xuất phát từ functional requirement, business rule và exception flow; không chỉ kiểm thử UI happy path.
 - Lưu kết quả chạy test thực tế. Không dùng bảng test “Pass” nếu chưa chạy hoặc không có evidence.
-- Ưu tiên test các ranh giới quyền: cross-organization, unassigned Inspector/Engineer, self peer-review và unauthorized state transition.
+- Ưu tiên test các ranh giới quyền: cross-organization, unassigned Inspector/Engineer, chỉ tác giả được xác nhận/chỉnh sửa report draft của mình, Provider Manager chỉ kiểm tra/phát hành trong Provider scope, và unauthorized state transition.
 - Kiểm thử tính idempotent và concurrent ở các thao tác tạo periodic request, approve order, refresh token và upload evidence.
 - Kiểm thử lỗi dịch vụ ngoài: MinIO hoặc YOLO unavailable/timeout.
 - Traceability tối thiểu nên nối: `Workflow → Use Case → Requirement → Business Rule → Test Case → Demo Step`.
@@ -117,7 +117,7 @@ Các rule quan trọng của dự án:
 1. Admin tạo hoặc quản lý tài khoản và role.
 2. Client đăng ký asset và cấu hình lịch kiểm tra định kỳ (WF1).
 3. Service Manager review request, lập quotation/order và assign Inspector; Client duyệt, Inspector nhận việc (WF2).
-4. Inspector tải evidence, review AI candidates, hoàn tất checklist/report; Inspector khác peer-review; Service Manager release; Client phản hồi (WF3).
+4. Inspector tải evidence, xác minh AI candidates, hoàn tất checklist, kiểm tra và chỉnh sửa AI-assisted report draft mình là tác giả; Provider Manager kiểm tra tính đầy đủ và phát hành; Client phản hồi (MF3/MF4 target; version baseline/status phải được nêu rõ trong demo).
 5. Service Manager tạo ticket; Maintenance Engineer đánh giá, lập estimate và thực hiện; Client duyệt thay đổi/accept hoặc yêu cầu rework/reinspection (WF4).
 6. Trình bày ít nhất một tình huống từ chối truy cập hoặc luồng lỗi có kiểm soát.
 
@@ -181,7 +181,7 @@ Nếu chưa làm, trả lời thẳng: “Chưa có trong phiên bản hiện t�
 ## 14. Câu hỏi nhóm phải tự trả lời được
 
 - Tại sao hệ thống có đúng năm role này và quyền của từng role nằm ở đâu?
-- Bằng cách nào ngăn truy cập chéo organization và ngăn self peer-review?
+- Bằng cách nào ngăn truy cập chéo organization, và bằng chứng nào ghi nhận Inspector tác giả đã xác minh/chỉnh sửa report draft trước khi Provider Manager phát hành?
 - Nếu YOLO đưa kết quả sai hoặc ngừng hoạt động, workflow tiếp tục ra sao?
 - Requirement nào chứng minh một periodic request không bị tạo trùng?
 - Khi maintenance phát sinh ngoài quotation đã duyệt, ai duyệt và hệ thống chặn ở bước nào?
