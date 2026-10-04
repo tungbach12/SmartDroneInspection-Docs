@@ -174,7 +174,7 @@ git diff --check
 
 WF1 already has a Java implementation under `backend/src/main/java/com/smartdroneinspection/assets/`. This phase audits and aligns that implementation to the documents before later SF/MF1 work consumes it; it must not recreate WF1 tables or silently discard the current schedule/proposal behavior.
 
-### Task 1A.1: Lock the documented WF1 state and authorization contract with regression tests
+### Task 0.3: Lock the documented WF1 state and authorization contract with regression tests
 
 **Files:**
 - Read/modify tests under `backend/src/test/java/com/smartdroneinspection/assets/`:
@@ -227,7 +227,7 @@ Keep entities in `assets`, use organization-scoped repository queries, and prese
 
 ---
 
-### Task 1A.2: Reconcile WF1 schema/migration and API contract with Report 3
+### Task 0.4: Reconcile WF1 schema/migration and API contract with Report 3
 
 **Files:**
 - Inspect/modify: `backend/src/main/resources/db/migration/V5__asset_catalog_and_planning.sql`
@@ -264,7 +264,7 @@ Never rewrite V5/V11. Keep all timestamps UTC, use explicit foreign-key delete b
 
 ---
 
-### Task 1A.3: Synchronize WF1 web/mobile behavior and Report 5 evidence
+### Task 0.5: Synchronize WF1 web/mobile behavior and Report 5 evidence
 
 **Files:**
 - Frontend: `frontend/src/features/assets/`, especially `AssetsPage.tsx`, `AssetReviewPage.tsx`, `ScheduleProposalsPage.tsx`, `InspectionSchedulesPage.tsx`, and their tests.
