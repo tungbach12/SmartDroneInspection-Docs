@@ -30,8 +30,8 @@ source: "report3-software-requirement-specification.docx"
 | 17 | MSG17 | In line | Duplicate evidence is detected | This evidence has already been uploaded. |
 | 18 | MSG18 | Toast | Evidence upload completes | Evidence uploaded successfully. |
 | 19 | MSG19 | In line | The AI service is temporarily unavailable | AI analysis is unavailable. The evidence is saved for manual review or later processing. |
-| 20 | MSG20 | Toast | A report is submitted for peer review | Report submitted for peer review. |
-| 21 | MSG21 | In line | The report author attempts self-review | The report author cannot review the same report. |
+| 20 | MSG20 | Toast | Inspector submits an author-verified report draft | Report draft submitted to Provider Manager for completeness review. |
+| 21 | MSG21 | In line | Required author verification is incomplete | Check each required report section against evidence and the SOW, then confirm your draft before submitting. |
 | 22 | MSG22 | Toast | A report is released | Report released to the Client successfully. |
 | 23 | MSG23 | Toast | A maintenance change request is submitted | Change request submitted for Client review. |
 | 24 | MSG24 | In line | Additional work is attempted without approval | Additional work requires an approved change request. |

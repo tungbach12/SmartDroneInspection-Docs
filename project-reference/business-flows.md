@@ -65,7 +65,7 @@ Hệ thống được tổ chức thành **3 Khối tác nhân (Actor Zones)** �
 | | `PLATFORM_OPERATOR` | **Quản trị viên Vận hành Nghiệp vụ & Hòa giải Sàn**: Thẩm định năng lực pháp lý Provider (giấy phép, bảo hiểm, định danh drone); **quản trị và điều chỉnh các tham số thương mại sàn (Tỷ lệ hoa hồng $r$, Tỷ lệ bảo lãnh $H$, Thời hạn nghiệm thu, Phí phạt hủy dry-run)**; giám sát Escrow; **phán xử tranh chấp nội bộ theo quy chế sàn**. |
 | **2. Customer Organization** | `CLIENT` | **Khách hàng Doanh nghiệp / Chủ sở hữu hạ tầng**: Tự đăng ký pháp nhân; quản lý danh mục tài sản hạ tầng; tạo yêu cầu khảo sát (chỉ định hoặc chào thầu mở RFQ); ký Hợp đồng dịch vụ điện tử; **nạp khoản tiền theo tỷ lệ chính sách đã snapshot qua đối tác thanh toán được cấp phép**; nghiệm thu báo cáo kỹ thuật; mở tranh chấp khi có vi phạm; duyệt đơn bảo trì. |
 | **3. Service Provider** | `PROVIDER_MANAGER` | **Quản lý Đơn vị Dịch vụ Drone / Bảo trì**: Khai báo hồ sơ công ty và đội ngũ phi công; tiếp nhận RFQ; lập Báo giá dịch vụ (chỉ gồm công bay, kỹ thuật, di chuyển, VAT — **không** tính phí AI/MinIO của Sàn); nộp giấy phép bay Cục Tác chiến; phê duyệt Kế hoạch bay Drone (Mission Plan); phân công phi công; duyệt phát hành báo cáo QA. |
-| | `INSPECTOR` | **Phi công Drone / Thanh tra viên Hiện trường**: Lập kế hoạch bay chi tiết (tính GSD, Overlap, Shot list, góc Gimbal); bay khảo sát hiện trường; nạp ảnh/video lên MinIO kèm dữ liệu telemetry không gian (GPS 3D, độ cao, góc gimbal, mã SHA-256); xác minh ứng viên lỗi AI YOLO; duyệt chéo độc lập (Peer Review) báo cáo của đồng nghiệp. |
+| | `INSPECTOR` | **Phi công Drone / Thanh tra viên Hiện trường**: Lập shot plan (GSD, overlap, shot items, gimbal); bay thủ công hoặc waypoint-assisted nếu có; nạp ảnh/video và metadata khả dụng; xác minh AI candidates; tự xác minh từng kết luận và chỉnh sửa AI draft mình lập trước khi nộp Provider Manager. |
 | | `MAINTENANCE_ENGINEER` | **Kỹ sư Bảo trì / Sửa chữa**: Khảo sát hiện trường khuyết tật sau kiểm định; lập dự toán vật tư & nhân công; thi công sửa chữa; **bắt buộc nạp ảnh đối chứng Trước/Sau (Before/After Evidence)** lên MinIO để nghiệm thu giải ngân đợt 1 và kích hoạt thời hạn bảo hành. |
 
 ---
@@ -192,9 +192,9 @@ Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đ
 
 ### MF3 — Khảo sát Hiện trường, Thu nạp Telemetry & Phân tích AI YOLO (Flight Survey, Telemetry Capture & AI Defect Verification)
 
-**Mục tiêu**: Thực hiện bay khảo sát theo kế hoạch đã duyệt, thu thập hình ảnh kèm dữ liệu không gian telemetry (GPS 3D, gimbal pitch), bảo đảm toàn vẹn chứng cứ số bằng mã SHA-256, chạy mô hình AI YOLO tập trung của Platform để phát hiện khuyết tật, tính toán kích thước vật lý theo GSD, thẩm định chéo nội bộ (Peer Review) và phát hành báo cáo kỹ thuật QA.
+**Mục tiêu**: Thực hiện bay thủ công hoặc waypoint-assisted theo Mission Plan đã duyệt, thu thập ảnh và metadata khả dụng, xử lý AI candidates, rồi để chính Inspector lập báo cáo xác minh và chỉnh sửa bản thảo AI trước khi Provider Manager kiểm tra tính đầy đủ theo SOW và phát hành QA report.
 
-**Tác nhân chính**: `Inspector` (Người bay), `Inspector` (Người review chéo), `Provider Manager`, `Platform MinIO`, `Platform AI YOLO Service`, `System`.
+**Tác nhân chính**: `Inspector` (người bay và tác giả/xác minh báo cáo), `Provider Manager` (kiểm tra tính đầy đủ và phát hành), Platform MinIO, Platform AI Services, `System`.
 
 #### 1. Quy trình chi tiết (Main Sequence)
 
@@ -205,17 +205,17 @@ Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đ
 | **MF3-03** | System (Platform MinIO & Ingestion) | Tự động bóc tách **Dữ liệu Không gian Telemetry (Spatial Telemetry Metadata)**: Tọa độ GPS 3D, độ cao tương đối AGL, góc nghiêng gimbal camera, timestamp; tự động tính mã băm toàn vẹn **SHA-256** cho từng file ảnh. Từ chối tệp trùng lặp. | Bằng chứng số được bảo vệ toàn vẹn |
 | **MF3-04** | System (Platform YOLO AI Service) | Pipeline AI YOLO do Platform trực tiếp host tự động quét toàn bộ ảnh hợp lệ; phát hiện các khuyết tật (vết nứt bê tông, gỉ sét cốt thép, bong tróc). Hệ thống **tự động tính kích thước vật lý thực tế của vết nứt (chiều dài mm, bề rộng mm)** bằng cách nhân kích thước pixel nhận diện với giá trị **GSD** đã thiết lập ở MF2. Tạo danh sách **Ứng viên lỗi (Defect Candidates)** kèm hộp bao (Bounding Box). | Danh mục ứng viên lỗi kèm kích thước vật lý (GSD) |
 | **MF3-05** | Inspector (Người bay) | Kiểm tra trực quan từng ảnh và từng ứng viên AI: Chọn **Xác nhận (Confirm)**, **Sửa đổi (Modify)**, hoặc **Bác bỏ (Reject)**. Nếu AI bỏ sót, Inspector **thêm lỗi thủ công (Manual Finding)**. Hoàn tất trả lời checklist kỹ thuật. | Hồ sơ khiếm khuyết đã xác minh |
-| **MF3-06** | System | Tự động tổng hợp Bản thảo Báo cáo Kỹ thuật (Draft Report v1.0) kết hợp checklist, dữ liệu telemetry, ảnh khuyết tật và phần tóm tắt thuyết minh do **Trợ lý AI LLM của Platform** tự động soạn thảo. Loại bỏ toàn bộ ứng viên AI bị bác bỏ khỏi báo cáo chính thức. | Bản thảo báo cáo kỹ thuật |
-| **MF3-07** | Inspector (Người review chéo) | **Thẩm định chéo kỹ thuật (Internal Peer Review)**: Một Inspector độc lập khác trong cùng Provider thẩm định tính chính xác của báo cáo. *Quy tắc bắt buộc: Người bay tuyệt đối không được tự duyệt báo cáo của mình*. | Biên bản thẩm định chéo kỹ thuật |
-| **MF3-08** | Inspector (Người bay) | Nếu reviewer yêu cầu chỉnh sửa: cập nhật lại báo cáo (v1.1) và nộp lại. Nếu đạt chuẩn, reviewer ký duyệt kỹ thuật (`TECHNICALLY_APPROVED`). | Báo cáo đạt chuẩn kỹ thuật |
-| **MF3-09** | Provider Manager | Kiểm tra tổng thể hồ sơ bàn giao so với Service Order và chính thức **Ký phát hành Báo cáo (Release Final Report)** gửi Client. Hệ thống tự động kích hoạt đồng hồ đếm ngược thời hạn nghiệm thu theo $T_{rev}$ đã snapshot trong hợp đồng. | Báo cáo chính thức & Kích hoạt đồng hồ nghiệm thu |
+| **MF3-06** | System (Platform LLM) | Tạo bản thảo báo cáo từ checklist, dữ liệu telemetry khả dụng, ảnh và các defect candidates đã xác minh; loại bỏ candidates bị reject/chưa xác minh; ghi rõ nội dung nào AI soạn và phiên bản model. | Bản thảo AI chưa được phát hành |
+| **MF3-07** | Inspector (Tác giả báo cáo) | **Tự xác minh và chỉnh sửa bản thảo AI**: đối chiếu từng kết luận với ảnh/bằng chứng, shot list, SOW, checklist và kết quả defect verification; sửa hoặc xóa nội dung sai/thiếu, bổ sung nhận xét chuyên môn, xác nhận phiên bản cuối do mình lập trước khi Submit to Provider Manager. Đây là bước bắt buộc; AI draft không được phát hành trực tiếp. | Bản thảo do Inspector xác minh/chỉnh sửa, sẵn sàng kiểm tra tính đầy đủ |
+| **MF3-08** | Provider Manager | Kiểm tra tính đầy đủ hành chính/deliverables so với Service Order/SOW; trách nhiệm về kết luận chuyên môn vẫn thuộc Inspector tác giả. Nếu thiếu thành phần, trả cho tác giả kèm lý do; nếu đủ, cho phép release. | Hồ sơ đủ điều kiện phát hành hoặc yêu cầu bổ sung |
+| **MF3-09** | Provider Manager | Chính thức **Phát hành Báo cáo (Release Final Report)** gửi Client sau khi Inspector xác nhận bản thảo và checklist MF3-08 đạt. Hệ thống kích hoạt thời hạn nghiệm thu theo $T_{rev}$ đã snapshot trong hợp đồng. | Báo cáo chính thức & Kích hoạt đồng hồ nghiệm thu |
 
 #### 2. Xử lý Luồng Ngoại lệ MF3 (5 Câu hỏi Bắt buộc)
 * **Q1: Dữ liệu đầu vào thiếu hoặc sai?** Ảnh tải lên bị mờ, rung lắc hoặc thiếu tọa độ GPS do mất tín hiệu vệ tinh: Hệ thống gắn cờ cảnh báo `METADATA_INCOMPLETE`. Nếu ảnh không đủ chuẩn đo lường vết nứt theo GSD, Inspector bắt buộc phải chụp lại ngay tại hiện trường.
-* **Q2: Truy cập trái phép / Sai tổ chức?** Tác giả báo cáo cố tình chọn chính mình làm Peer Reviewer: Hệ thống chặn đứng ở tầng API với mã lỗi `PEER_REVIEW_SELF_APPROVAL_PROHIBITED`.
+* **Q2: Truy cập trái phép / Sai tổ chức?** Inspector cố mở/chỉnh sửa inspection, evidence hoặc report draft không thuộc Provider/order/assignment được giao: API từ chối theo resource scope; chỉ tác giả được sửa draft của mình, Provider Manager chỉ kiểm tra completeness/release trong phạm vi Provider được giao.
 * **Q3: Thao tác đồng thời / Trùng lặp?** Mạng chập chờn khiến Inspector tải lên 1 tệp nhiều lần: Hệ thống đối soát mã băm SHA-256; nếu trùng lặp, bỏ qua file thứ hai mà không tạo bản ghi rác.
 * **Q4: Dịch vụ ngoài / Mạng lỗi?** Dịch vụ AI YOLO của Platform bị quá tải hoặc tạm ngừng phục vụ: Hệ thống tự động chuyển sang cơ chế **Manual Fallback**, cho phép Inspector tự khoanh vùng và đo vẽ vết nứt thủ công trên ảnh, tiến độ bàn giao báo cáo không bị đình trệ.
-* **Q5: Từ chối / Hủy giữa chừng?** Peer Reviewer phát hiện vết nứt bị đánh giá sai cấp độ nghiêm trọng: Từ chối duyệt, trả về trạng thái `REVISION_REQUIRED` kèm ghi chú kỹ thuật; tác giả phải kiểm tra lại dữ liệu đo lường GSD và hiệu chỉnh kết luận.
+* **Q5: Từ chối / yêu cầu sửa / hủy giữa luồng?** Trong bước tự xác minh, Inspector phát hiện AI draft sai/thiếu hoặc bằng chứng không hỗ trợ kết luận: Inspector phải sửa/bỏ kết luận, gắn trạng thái cần bổ sung hoặc chụp lại nếu còn khả thi; không thể Submit cho Provider Manager như final cho tới khi checklist/SOW được xử lý hoặc exception được ghi rõ.
 
 ---
 
@@ -302,7 +302,7 @@ Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đ
 | **MF2: Kiểm tra Không phận Số & Giấy phép Bay** | I | C | I | **A / R** | **R** | - |
 | **MF3: Khảo sát Hiện trường & Bóc tách Telemetry** | - | - | I | I | **A / R** | - |
 | **MF3: Nhận diện AI YOLO & Xác minh Lỗi (GSD)** | - | - | - | I | **A / R** | - |
-| **MF3: Thẩm định chéo (Internal Peer Review)** | - | - | - | I | **A / R** | - |
+| **MF3: Tự xác minh/chỉnh sửa bản thảo bởi Inspector tác giả** | - | - | - | I | **A / R** | - |
 | **MF3: Ký phát hành Báo cáo Kỹ thuật QA** | - | - | I | **A / R** | I | - |
 | **MF4: Nghiệm thu Báo cáo & Quyết toán Escrow** | I | C | **A / R** | I | - | - |
 | **MF4: Xử lý khiếu nại nội bộ theo Terms** | I | **A / R** | C | C | C | - |

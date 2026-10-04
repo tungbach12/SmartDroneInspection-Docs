@@ -68,7 +68,7 @@ SmartDroneInspection's **implemented v1 baseline** is an inspection-and-maintena
 | 5.4 | Include only Inspector-verified defects in official reports and statistics. | Simple | 3 |
 | 6 | FE-06 Inspection Report & Approval |  | 16 |
 | 6.1 | LLM-assisted versioned report compilation from verified data | Complex | 5 |
-| 6.2 | Inspector peer review and Service Manager release workflow | Complex | 6 |
+| 6.2 | Inspector AI-draft verification/edit and Provider Manager completeness/release workflow | Complex | 6 |
 | 6.3 | Approved-version immutability and correction history | Complex | 5 |
 | 7 | FE-07 Maintenance & Defect Resolution |  | 17 |
 | 7.1 | Approved-defect linkage to maintenance orders and tickets | Medium | 4 |
@@ -88,7 +88,7 @@ Quality: 100% of Must requirements are linked to test evidence; all critical wor
 
 | # | Testing Stage | Test Coverage | No. of Defects | % of Defect | Notes |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Reviewing | 100% baseline documents |  |  | Peer review, traceability and feedback closure. |
+| 1 | Reviewing | 100% baseline documents |  |  | Cross-review, traceability and feedback closure. |
 | 2 | Unit Test | >=80% branch coverage in core rule modules |  |  | Permissions, pricing, configuration and state transitions. |
 | 3 | Integration Test | 100% critical API contracts |  |  | PostgreSQL, MinIO, AI, and manual invoice/payment-status recording. |
 | 4 | System Test | 100% critical end-to-end scenarios |  |  | No Critical/High defect; mainflows, failures and organization isolation. |

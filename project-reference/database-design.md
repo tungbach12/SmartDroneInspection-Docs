@@ -27,7 +27,7 @@ It is not an executable Flyway migration and does not claim that every table bel
 
 ## 2. Right-sized schema
 
-The target contains **44 application tables** plus the Spring Modulith `event_publication` infrastructure table.
+The target contains **43 application tables** plus the Spring Modulith `event_publication` infrastructure table. The target report-version model stores the Inspector author's verification/edit confirmation and Provider Manager completeness/release metadata.
 
 | Capability | Tables | Count |
 | --- | --- | ---: |
@@ -36,7 +36,7 @@ The target contains **44 application tables** plus the Spring Modulith `event_pu
 | Asset catalog and planning | `asset_categories`, `category_frequency_suggestions`, `checklist_templates`, `checklist_items`, `assets`, `asset_documents`, `inspection_schedules`, `schedule_proposals` | 8 |
 | MF1 request, quotation and conditional funding | `inspection_requests`, `inspection_request_attachments`, `inspection_quotations`, `inspection_service_orders`, `inspection_assignments`, `escrow_transactions` | 6 |
 | MF2 drone mission planning | `drone_mission_plans`, `mission_shot_items` | 2 |
-| MF3 inspection and report delivery | `inspections`, `checklist_responses`, `evidence`, `ai_finding_candidates`, `verified_findings`, `inspection_reports`, `report_versions`, `peer_reviews` | 8 |
+| MF3 inspection and report delivery | `inspections`, `checklist_responses`, `evidence`, `ai_finding_candidates`, `verified_findings`, `inspection_reports`, `report_versions` | 7 |
 | MF4 dispute arbitration | `dispute_tickets`, `dispute_evidence` | 2 |
 | MF5 maintenance and billing | `maintenance_tickets`, `maintenance_ticket_findings`, `maintenance_assessments`, `maintenance_quotations`, `maintenance_orders`, `maintenance_assignments`, `maintenance_work_logs`, `maintenance_change_requests`, `invoices` | 9 |
 | Platform governance and supporting workflow | `platform_configurations`, `notifications` | 2 |
@@ -126,7 +126,6 @@ erDiagram
     AI_FINDING_CANDIDATES o|--o| VERIFIED_FINDINGS : becomes
     INSPECTIONS ||--|| INSPECTION_REPORTS : compiles
     INSPECTION_REPORTS ||--o{ REPORT_VERSIONS : versions
-    REPORT_VERSIONS ||--o{ PEER_REVIEWS : reviews
 ```
 
 ### 5.4 Maintenance and supporting records
@@ -673,24 +672,21 @@ Columns: `id`, unique `inspection_id`, `author_user_id`, `status`, `current_vers
 | `created_by_user_id` | `UUID` | No | Report author. |
 | `content_snapshot` | `JSONB` | No | Immutable report content snapshot. |
 | `pdf_object_key` | `VARCHAR(1000)` | Yes | Generated report file in MinIO. |
-| `status` | `VARCHAR(32)` | No | Draft through accepted lifecycle. |
-| `submitted_at` | `TIMESTAMPTZ` | Yes | Peer-review submission. |
-| `technically_approved_at` | `TIMESTAMPTZ` | Yes | Peer approval time. |
-| `released_at` | `TIMESTAMPTZ` | Yes | Service Manager release time. |
+| `status` | `VARCHAR(32)` | No | Draft, `AUTHOR_VERIFIED`, `COMPLETENESS_RETURNED`, `RELEASED`, `REVISION_REQUESTED`, or `ACCEPTED`. |
+| `author_verified_by_user_id` | `UUID` | Yes | Report-author Inspector who verified/edited the draft; must equal `created_by_user_id` for submission. |
+| `author_verified_at` | `TIMESTAMPTZ` | Yes | Time the author confirmed evidence, findings, checklist and AI-assisted text. |
+| `author_verification_snapshot` | `JSONB` | Yes | Version-specific checklist/confirmation flags and edit provenance. |
+| `completeness_checked_by_user_id` | `UUID` | Yes | Provider Manager who checked deliverables against SOW. |
+| `completeness_checked_at` | `TIMESTAMPTZ` | Yes | Time of Provider Manager completeness check. |
+| `completeness_return_reason` | `VARCHAR(2000)` | Yes | Reason returned to author when required deliverables are incomplete. |
+| `submitted_at` | `TIMESTAMPTZ` | Yes | Author submission time after verification. |
+| `released_at` | `TIMESTAMPTZ` | Yes | Provider Manager release time after completeness check. |
 | `accepted_at` | `TIMESTAMPTZ` | Yes | Client acceptance time. |
 | `client_decision_by_user_id` | `UUID` | Yes | Authenticated Client who accepted or requested revision; references `users.id`. |
 | `client_decision_reason` | `VARCHAR(2000)` | Yes | Required non-blank reason when the version status is `REVISION_REQUESTED`; absent for acceptance. |
 | `immutable` | `BOOLEAN` | No | Must be true after acceptance. |
 
 Constraints: unique `(report_id, version_number)`; an accepted version is append-only and cannot be updated.
-
-#### `peer_reviews`
-
-Columns: `id`, `report_version_id`, `reviewer_user_id`, `assigned_by_user_id`, `assigned_at`, `decision`, optional `comments`, optional `reviewed_at`, and `created_at`.
-
-Constraints: reviewer must differ from the report author; decision is `PENDING`, `CHANGES_REQUESTED`, or `APPROVED`; only an approved review can make the version technically approved.
-
-Use unique `report_version_id` so each submitted version has one assigned peer reviewer. A change request creates a new report version for the same reviewer instead of overwriting the reviewed version.
 
 ### 6.5 MF4 dispute arbitration
 
@@ -892,7 +888,7 @@ These values are persisted as strings and must use the same names in Java, API c
 | Inspection order status | `CONFIRMED`, `ASSIGNMENT_PENDING`, `READY_FOR_INSPECTION`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED` |
 | Assignment status | `PENDING`, `ACCEPTED`, `REJECTED`, `CANCELLED`, `COMPLETED` |
 | Inspection status | `READY_FOR_INSPECTION`, `IN_PROGRESS`, `AWAITING_AI_REVIEW`, `AWAITING_REPORT`, `COMPLETED`, `CANCELLED` |
-| Report status | `DRAFT`, `AWAITING_PEER_REVIEW`, `CHANGES_REQUESTED`, `TECHNICALLY_APPROVED`, `RELEASED`, `REVISION_REQUESTED`, `ACCEPTED` |
+| Target report-version status | `DRAFT`, `AUTHOR_VERIFIED`, `COMPLETENESS_RETURNED`, `RELEASED`, `REVISION_REQUESTED`, `ACCEPTED` |
 | Finding severity | `LOW`, `MEDIUM`, `HIGH`, `CRITICAL` |
 | Finding status | `OPEN`, `IN_MAINTENANCE`, `RESOLVED` |
 | Maintenance ticket status | `SUBMITTED`, `ASSESSMENT_PENDING`, `ASSESSED`, `QUOTATION_PENDING`, `AWAITING_CLIENT_APPROVAL`, `ORDER_CONFIRMED`, `EXECUTION_PENDING`, `IN_PROGRESS`, `CHANGE_PENDING`, `INTERNAL_REVIEW`, `RELEASED`, `REWORK_REQUESTED`, `REINSPECTION_REQUESTED`, `CLOSED`, `CANCELLED` |
@@ -916,7 +912,7 @@ The following rules must exist in the database where relational checks are pract
 | Rejected assignment has a reason | Check constraint tied to assignment status. |
 | Evidence is not duplicated in one work context | Partial unique parent/checksum indexes. |
 | AI candidate is not an official defect | Only `verified_findings` feed reports and tickets. |
-| Report author cannot peer review their report | Service policy plus integration test; cross-table rule is not implemented as a fragile trigger. |
+| Report release requires author verification and Provider Manager completeness check | State transition validation requires an author-verification snapshot and a successful SOW deliverable check by Provider Manager. |
 | Ticket contains at least one accepted-report finding | Transactional service validation plus join-table constraint. |
 | Assessment and execution are distinct assignments | `assignment_type` and active-assignment uniqueness. |
 | Additional work waits for Client approval | State-transition service checks using an approved changed order version. |
@@ -943,11 +939,11 @@ Do not add indexes for every enum or boolean. Verify expensive queries with Post
 The database model supports, but does not replace, application authorization. Repository methods must start from the caller's scope:
 
 - Client queries include `organization_id` from the authenticated principal.
-- Inspector queries join the accepted inspection assignment or peer-review assignment to the signed-in user.
+- Inspector queries join the accepted inspection assignment to the signed-in user; report draft verification is scoped to its author Inspector.
 - Maintenance Engineer queries join the active assessment/execution assignment to the signed-in user.
 - Service Manager queries may cross organizations but only for service workflows.
 - Admin queries do not automatically grant customer-workflow mutation privileges.
-- Report peer-review commands compare reviewer and author identifiers before changing state.
+- Target report release requires the author-verification snapshot and Provider Manager completeness check.
 
 ## 10. Transaction and concurrency boundaries
 
@@ -964,7 +960,7 @@ The database model supports, but does not replace, application authorization. Re
 
 - Authentication refresh-token history is removed after its operational reuse-detection window.
 - Expired sessions may be removed only after related audit needs are satisfied.
-- Accepted quotations, orders, report versions, peer reviews, assessments, changes, invoices, and audit events are retained as business history.
+- Accepted quotations, orders, report versions, author verification snapshots, assessments, changes, invoices, and audit events are retained as business history.
 - MinIO object deletion is coordinated with database retention; deleting a database row alone must not orphan or prematurely expose an object.
 - Organization, asset, user, finding, report, and ticket records referenced by business history are disabled or retired rather than hard-deleted.
 
@@ -977,7 +973,7 @@ As of 2026-09-28, Flyway migrations `V1` through `V11` implement the **v1 physic
 | `V1`-`V4` | Extensions, event publication, authentication, and role-value alignment. |
 | `V5` | WF1 asset catalog and recurring inspection scheduling. |
 | `V6` | WF2 requests, attachments, quotations, service orders, and Inspector assignments. |
-| `V7` | WF3 inspections, checklist responses, evidence, AI candidates, verified findings, reports, versions, and peer reviews. |
+| `V7` | Historical v1 WF3 schema: inspections, checklist responses, evidence, AI candidates, verified findings, reports, versions, and the v1 report-review records. This is migration history only; it does not define the current target MF3 report workflow. |
 | `V8` | WF4 maintenance tickets, findings, assessments, quotations, orders, assignments, work logs, change requests, and invoices. |
 | `V9` | Supporting notification delivery records. |
 | `V10` | Client actor and revision-reason audit columns on WF3 `report_versions`. |
@@ -998,7 +994,7 @@ incremental work. WF4 and notification delivery remain incremental work.
 
 1. **WF1 foundation:** categories, checklist versions/items, assets, documents, and schedules.
 2. **WF2 preparation:** requests, attachments, quotations, orders, and Inspector assignments.
-3. **WF3 execution:** inspections, checklist responses, evidence, AI candidates, verified findings, reports, versions, and peer reviews.
+3. **MF3 execution:** mission-linked inspection sessions, checklist responses, evidence/telemetry, AI candidates, Inspector-verified findings, author-verified report drafts, Provider Manager completeness checks and released report versions.
 4. **WF4 maintenance:** tickets, finding links, assessments, quotations, orders, assignments, work logs, change requests, and invoices.
 5. **Supporting workflow:** notifications and the additional general-audit columns.
 
