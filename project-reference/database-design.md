@@ -560,7 +560,7 @@ Constraints: unique `(service_order_id, version_number)`; exactly one current ap
 
 #### `mission_shot_items` (target shot/waypoint rows)
 
-Ordered, mission-specific capture instructions belonging to one drone mission plan.
+Ordered, mission-specific capture instructions belonging to one drone mission plan. Waypoint fields are optional when the approved plan uses manual piloting; mission objectives, required shot items and SOW acceptance targets still apply.
 
 | Column | Type | Null | Constraint or purpose |
 | --- | --- | --- | --- |
@@ -577,7 +577,7 @@ Ordered, mission-specific capture instructions belonging to one drone mission pl
 | `capture_instructions` | `VARCHAR(2000)` | Yes | Human-readable angle, overlap, focus, and evidence notes. |
 | `created_at` | `TIMESTAMPTZ` | No | Creation time. |
 
-Constraints: unique `(mission_plan_id, sequence_number)`; waypoint latitude/longitude must be supplied together and fall within valid geographic ranges; gimbal and camera parameters are validated for the selected equipment and flight plan.
+Constraints: unique `(mission_plan_id, sequence_number)`; waypoint latitude/longitude, when supplied, must be supplied together and fall within valid geographic ranges. A manual-flight plan may contain shot items without waypoint coordinates. Gimbal and camera parameters are validated for the selected equipment and flight plan.
 
 #### `inspection_assignments`
 
