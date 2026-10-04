@@ -106,7 +106,7 @@ The team reviews the following risks weekly and before each review gate.
 | --- | --- | --- | --- | --- |
 | 1 | Scope exceeds four-person capacity. | High | High | Freeze the baseline, re-estimate weekly and defer optional work. |
 | 2 | Dataset or YOLO results do not support the selected defect classes. | Medium | High | Validate data rights and labels early, limit classes and keep Inspector verification mandatory. |
-| 3 | LLM draft contains omissions or unsupported statements. | High | Medium | Restrict input to authorized findings; Inspector reviews and edits every draft. |
+| 3 | LLM draft contains omissions or unsupported statements. | High | Medium | Restrict input to authorized findings; the report-author Inspector checks each AI-generated statement against evidence, verified findings, checklist and SOW, edits it, and records confirmation before Provider Manager completeness/release. |
 | 4 | Third-party services or APIs may be unavailable, rate-limited, or change their interfaces. | High | Medium | Isolate each external integration behind an adapter, add timeout and retry handling, provide local or fallback alternatives where possible, and prepare clearly labelled mocks for demonstration. |
 | 5 | Interrupted upload loses or duplicates evidence. | High | Medium | Implement a recoverable upload queue with checksum verification and idempotent retry handling to prevent data loss or duplication during connection interruptions. |
 | 6 | Customer data is exposed across organizations. | High | Medium | Enforce server-side scope and test two-organization access denial. |
@@ -125,7 +125,7 @@ The team reviews the following risks weekly and before each review gate.
 
 ## 2. Management Approach
 
-The team uses iterative, risk-driven delivery with a prioritized Jira backlog, weekly planning, peer review and demonstrations at the university review gates. Trần Hoàng Trung Hiếu coordinates planning and reporting. Each WBS leaf has one primary owner, acceptance criteria and a due week in Jira; the Responsibility Matrix and Deliverables table provide the PMP baseline.
+The team uses iterative, risk-driven delivery with a prioritized Jira backlog, weekly planning, code/document cross-review at project quality gates, and demonstrations at the university review gates. This project-governance practice is separate from the product's MF3 report workflow. Trần Hoàng Trung Hiếu coordinates planning and reporting. Each WBS leaf has one primary owner, acceptance criteria and a due week in Jira; the Responsibility Matrix and Deliverables table provide the PMP baseline.
 
 ### 2.1 Project Process
 
@@ -206,7 +206,7 @@ D~Do; R~Review; S~Support; I~Informed; <blank>- Omitted
 | 5.3 Inspector verification actions (W11) | D | S | R | S | R |
 | 5.4 Verified-only findings and statistics (W11) | S | R | D | S | R |
 | 6.1 LLM-assisted versioned report compilation (W11) | D | S | R | S | R |
-| 6.2 Submission, review and approval workflow (W11) | D | S | R | S | R |
+| 6.2 Inspector AI-draft verification and Provider Manager completeness/release (W11) | D | S | R | S | R |
 | 6.3 Approved-version immutability and history (W11) | R | S | S | D | R |
 | 7.1 Defect linkage to maintenance orders/tickets (W11) | R | S | S | D | I |
 | 7.2 Engineer assignment after approved post-service terms (W11) | R | S | S | D | R |

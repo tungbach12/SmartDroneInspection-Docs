@@ -260,14 +260,14 @@ Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đ
 
 **Mục tiêu**: Chuyển các khuyết tật từ báo cáo drone thành đơn hàng sửa chữa công trình, kiểm soát phát sinh chi phí, nghiệm thu ảnh đối chứng Before/After và thực hiện các điều khoản funding/retention/warranty nếu các bên đã chấp thuận và payment-partner product hỗ trợ.
 
-**Tác nhân chính**: `Client`, `Maintenance Provider Manager`, `Maintenance Engineer`, `Platform Operator`, `System`.
+**Tác nhân chính**: `Client`, `PROVIDER_MANAGER` (thuộc nhà cung cấp có năng lực bảo trì), `Maintenance Engineer`, `Platform Operator`, `System`.
 
 #### 1. Quy trình chi tiết (Main Sequence)
 
 | Bước | Vai trò / Lane | Hoạt động chi tiết | Sản phẩm đầu ra |
 | :--- | :--- | :--- | :--- |
 | **MF5-01** | Client | Chọn các khuyết tật đã xác minh từ Báo cáo MF4 để tạo **Phiếu yêu cầu bảo trì (Maintenance Ticket)**. | Maintenance Ticket |
-| **MF5-02** | Maintenance Provider Manager | Khảo sát hiện trường (qua ảnh/telemetry MF3 hoặc trực tiếp); lập Phương án kỹ thuật, dự toán vật tư và Báo giá bảo trì. Báo giá phải nêu rõ có/không áp dụng retention, cơ sở tính, policy/version, điều kiện và thời hạn warranty nếu có. | Báo giá bảo trì & Đơn dịch vụ |
+| **MF5-02** | `PROVIDER_MANAGER` (thuộc nhà cung cấp có năng lực bảo trì) | Khảo sát hiện trường (qua ảnh/telemetry MF3 hoặc trực tiếp); lập Phương án kỹ thuật, dự toán vật tư và Báo giá bảo trì. Báo giá phải nêu rõ có/không áp dụng retention, cơ sở tính, policy/version, điều kiện và thời hạn warranty nếu có. | Báo giá bảo trì & Đơn dịch vụ |
 | **MF5-03** | System | Khởi tạo **Đơn dịch vụ bảo trì (Maintenance Order)**: snapshot phiên bản policy và các giá trị hoa hồng, funding, retention (nếu các bên chấp thuận), warranty và hủy áp dụng cho đơn. Chỉ yêu cầu nạp trước nếu policy/order quy định và sản phẩm của đối tác thanh toán hỗ trợ các điều kiện đó. | Maintenance Order và trạng thái giao dịch do đối tác xác nhận (nếu có) |
 | **MF5-04** | Maintenance Engineer | Tiếp nhận phân công thi công. Đến hiện trường sửa chữa (trám trét vết nứt bê tông, xử lý ăn mòn, thay cáp). **Bắt buộc chụp và nạp ảnh đối chứng Trước và Sau thi công (Before/After Evidence)** lên MinIO kèm nhật ký vật tư. | Nhật ký thi công & Cặp ảnh đối chứng Before/After |
 | **MF5-05** | Maintenance Engineer & Provider Manager | Nếu phát hiện hư hỏng ngầm vượt quá dự toán: dừng phần việc phát sinh, lập **Yêu cầu thay đổi (Change Order)**. Client phê duyệt phiên bản mới; khoản nạp thêm chỉ bắt buộc nếu order đã chấp thuận yêu cầu và payment-partner product hỗ trợ điều kiện đó. | Change Order được duyệt và funding state theo order |

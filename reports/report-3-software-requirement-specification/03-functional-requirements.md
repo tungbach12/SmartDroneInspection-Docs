@@ -145,7 +145,7 @@ The diagram describes the **target** multi-provider model. The Supporting Flow h
 | 18 | Verified Finding | Inspector-confirmed defect with location, severity, and technical notes. |
 | 19 | Inspection Report | Formal aggregate reporting document linked to an inspection. |
 | 20 | Report Version | Versioned technical deliverable with AI-draft provenance, author verification/edit status, and Provider Manager completeness/release tracking. |
-| 22 | Dispute Ticket | Formal dispute filed by Client or Provider freezing escrow and initiating operator arbitration. |
+| 22 | Internal Complaint Case | Order-scoped complaint record, evidence references, party responses and Platform Terms handling status; any partner hold status is recorded separately from Platform custody. |
 | 22a | Dispute Evidence | Forensic digital evidence (logs, MinIO files, SOW) attached to an active dispute. |
 | 23 | Maintenance Ticket | Customer repair request referencing verified findings from an accepted report. |
 | 24 | Maintenance Assessment | Technical estimate of repair scope, materials, labor, and cost range. |
