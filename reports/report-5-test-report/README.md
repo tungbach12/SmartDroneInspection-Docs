@@ -45,23 +45,25 @@ number look like an SRS feature code.
 | `01-test-cases/` | `Test Cases` | The index of all cases and their preconditions. |
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary. |
 | `03-features/fe-01-identity-access-governance.md` | Support evidence | FE-01 gates; not part of the 15 WFx workbook cases. |
-| `03-features/fe-02-asset-registry-inspection-schedule.md` | `Feature 1` sheet | WF1-001–WF1-004. |
-| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 1` sheet | WF2-001–WF2-004. |
-| `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 2` sheet | WF3-001–WF3-002. |
-| `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 2` sheet | WF3-003. |
-| `03-features/fe-06-inspection-report-approval.md` | `Feature 2` sheet | WF3-004. |
-| `03-features/fe-07-maintenance-defect-resolution.md` | `Feature 2` sheet | WF4-001–WF4-003. |
+| `03-features/fe-02-asset-registry-inspection-schedule.md` | `Feature 1` sheet | v1 SF prerequisite cases WF1-001–WF1-004, WF1-011–WF1-016. |
+| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 1` sheet | v1 WF1/WF2 cases and target MF1/MF2 cases WF2-005–WF2-007. |
+| `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 2` sheet | v1 MF3/WF3-001–WF3-002. |
+| `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 2` sheet | v1 MF3/WF3-003. |
+| `03-features/fe-06-inspection-report-approval.md` | `Feature 2` sheet | v1 MF3/WF3-004 and target MF3/MF4 cases WF3-005–WF3-008. |
+| `03-features/fe-07-maintenance-defect-resolution.md` | `Feature 2` sheet | v1 MF5/WF4-001–WF4-003 and target MF5 cases WF4-004–WF4-005. |
 | `03-features/fe-08-dashboard-analytics-notifications.md` | Coverage gap | No WFx case in the current baseline; do not infer execution. |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
 | `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
 
-## Current test scope
+## Current and target test scope
 
-The working cases cover the four main business flows without testing drone
-flight control. The fixed workbook sheets combine these groups, while FE codes
-identify SRS capabilities and WF codes retain business-flow traceability:
+Historical cases cover the v1 WF1–WF4 baseline and do not test autonomous drone
+flight. Target-only cases extend traceability to a Supporting Flow (SF) and five
+transactional MF1–MF5 Main Flows, including Drone Mission Planning (MF2). The
+fixed workbook sheets combine groups, while FE codes identify SRS capabilities
+and WFx IDs retain stable case identity:
 
-1. FE-01 — identity/access foundation, including the W3 auth/migration smoke gate and shared API contract supporting checks. These supporting gates are documented separately and are not additional functional workbook cases.
+1. FE-01 — identity/access foundation, including the W3 auth/migration smoke gate and shared API contract supporting checks. These supporting gates are documented separately and are not additional functional workbook cases. Target FE-01 provider vetting/Operator separation checks remain Pending support gates outside the workbook count.
 2. FE-02 — asset and inspection scheduling (WF1; `WF1-001`–`WF1-004`).
 3. FE-03 — client request, quotation/order, and service assignment (WF2; `WF2-001`–`WF2-004`).
 4. FE-04 — inspection execution and evidence (WF3; `WF3-001`–`WF3-002`).
@@ -69,13 +71,22 @@ identify SRS capabilities and WF codes retain business-flow traceability:
 6. FE-06 — inspection report and approval (WF3; `WF3-004`).
 7. FE-07 — maintenance ticket, assessment/execution, rework, and billing status (WF4; `WF4-001`–`WF4-003`).
 8. FE-08 — dashboard, analytics, and notifications. No test case is assigned
-   in the current 15-case baseline; this is an explicit coverage gap.
+   in the baseline or added target cases; this remains an explicit coverage gap.
+
+The nine cases WF2-005–WF4-005 are target acceptance criteria only and remain
+`Pending` until the associated implementation and verification evidence exist.
+They cover Provider RFQ/policy, mission-specific GSD/overlap/clearance, Platform
+AI narrative consumption, snapshotted review and settlement policies, authorized
+complaint holds, and maintenance retention/change/warranty boundaries. Their
+existence does not claim runtime delivery.
 
 The FE-01 W3 auth/migration smoke gate is tracked by Jira `SCRUM-58/T001` under
-`SCRUM-108`; it is a delivery gate and is not counted as one of the 15
-functional Report 5 cases. MinIO/evidence storage is tracked separately under
-FE-04/WF3 task `T025/SCRUM-85`. CI uses S3Mock for S3 API integration coverage;
-that mock does not replace runtime verification against MinIO.
+`SCRUM-108`; it is a delivery gate and is not counted in the functional Report 5
+case index. The workbook now maps 24 v1 WF1–WF4 cases plus nine target-only
+Pending cases, for 33 total: 13 Passed, 20 Pending, and zero Failed at the recorded
+baseline. MinIO/evidence storage is tracked separately under FE-04/WF3 task
+`T025/SCRUM-85`. CI uses S3Mock for S3 API integration coverage; that mock does not
+replace runtime verification against MinIO.
 
 Implemented v1 role codes are `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and
 `MAINTENANCE_ENGINEER`. The target design proposes `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`,

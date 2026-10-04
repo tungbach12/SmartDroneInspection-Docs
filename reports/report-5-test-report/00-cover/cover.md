@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-03 |
 | Document Code | *Enter document code* |
-| Version | 2.0 (target-case design; no new execution) |
+| Version | 2.1 (drone-centric target-case design; no new execution) |
 
 ## Record of change
 
@@ -38,3 +38,4 @@ revision; do not remove old entries.
 | 2026-09-29 | 1.8 | WF2 periodic-only flow alignment | M | Updated WF2-001 from ad-hoc manual creation to automated periodic request generation with asset defaults, Client notification, auto-acceptance by default, and cancellation option; aligned FE-03 scope baseline and coverage boundary. | Report 3 SRS 3.4; `project-reference/business-flows.md`; `test-case-list.md`; `fe-03-inspection-request-work-assignment.md` |
 | 2026-10-03 | 1.9 | WF2 handoff contract correction | M | Aligned the Report 3, Report 5, and WF2 planning references with the current event-driven handoff: periodic requests are routed to Service Manager review, and linked AD_HOC requests are reserved for re-inspection. WF2-001 remains pending because no runtime test was executed. | Report 3 SRS 3.4; `project-reference/business-flows.md`; `development/plans/bach/2026-09-22-four-week-mainflow-delivery/`; `development/plans/quoc/plan.md` |
 | 2026-10-03 | 2.0 | Multi-provider target acceptance design | M | Documented proposed MF1–MF5 acceptance scope, six target roles, Platform-owned AI/data/MinIO/LLM, one Platform-set Provider commission, partner-dependent conditional settlement and internal complaint handling. Existing WF1–WF4 Passed evidence remains historical; all new target cases are Pending and no new runtime test was executed. | Report 3 target SRS; `project-reference/business-flows.md`; `01-test-cases/test-case-list.md`; `03-features/` |
+| 2026-10-03 | 2.1 | Drone-centric target case alignment | M | Clarified Supporting Flow vs MF1–MF5 boundaries and updated target case descriptions for mission-specific GSD/overlap/airspace checks, order-snapshotted commercial policies, partner-product constraints, and maintenance retention/warranty terms. Preserved 33 total cases (13 Passed, 20 Pending); all nine new target cases remain Pending and no runtime tests were executed. | Report 3 target SRS; `project-reference/business-flows.md`; `test-case-list.md`; `test-statistics.md`; FE-03, FE-06, FE-07 |

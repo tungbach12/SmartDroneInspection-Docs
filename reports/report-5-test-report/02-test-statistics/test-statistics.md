@@ -10,7 +10,7 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | Historical WF1–WF4 evidence plus 2026-10-03 target MF1–MF5 case design; no new target runtime execution |
+| Test round | Historical WF1–WF4 evidence plus 2026-10-03 target SF/MF1–MF5 case design; no new target runtime execution |
 | Last updated | 2026-10-03 |
 
 ## Module summary
@@ -41,14 +41,17 @@ assignment, and the `USER_CREATED` audit row in one transaction
 (`AdminUserApiIntegrationTest`, part of the 167/167 `mvnw verify` run).
 See `03-features/fe-01-identity-access-governance.md` for the detailed
 procedure and scope. Target provider-vetting and operator-isolation checks
-(`FE01-T01` and `FE01-T02`) are recorded as pending supporting gates.
+(`FE01-T01` and `FE01-T02`) are recorded as pending supporting gates. They
+remain outside the fixed workbook count, as specified in the Report 5 mapping.
 
 These are workbook-sheet totals, not FE totals. The eight detailed sources are
 organized by FE; FE-08 has no assigned functional case in this baseline and is
 not included in the denominator. The `WF1-011`–`WF1-019` cases cover the
 schedule-proposal revision of WF1, while `WF2-005`–`WF2-007` (Feature 1) and
-`WF3-005`–`WF4-005` (Feature 2) represent newly defined target acceptance cases,
-all tracked truthfully as `Pending`.
+`WF3-005`–`WF4-005` (Feature 2) represent newly defined target acceptance cases
+for SF/MF1–MF5, all tracked truthfully as `Pending`. `WF2-007` specifically
+exercises the MF2 Drone Mission Plan, SOW-based GSD/overlap requirements and
+applicable permit/airspace gates.
 
 ## Coverage summary
 
@@ -60,9 +63,12 @@ completed as `Passed`, so the Feature 2 `Passed` count is unchanged at 4.
 The nine WF1 cases added on 2026-09-28 (`WF1-011`-`WF1-019`) raise the baseline
 Feature 1 sheet to 17. The nine target cases added on 2026-10-03 (`WF2-005`–`WF2-007`
 on Feature 1, and `WF3-005`–`WF4-005` on Feature 2) expand the total test case index
-to 33. All nine new target cases are recorded as `Pending`, strictly adhering to
-the guideline that planned features must never be represented as passed before
-executable verification exists.
+to 33. They define target MF1–MF5 coverage for Provider RFQ isolation, uniform
+commission/policy snapshots, MF2 mission-specific GSD/overlap/permit checks,
+Platform AI consumption, review/settlement, partner-supported complaint holds,
+and maintenance retention/change/warranty. All nine remain `Pending` in every
+round because no target runtime implementation/evidence was executed; planned
+features must never be represented as passed.
 
 Use the same definitions as the workbook:
 

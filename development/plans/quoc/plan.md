@@ -11,10 +11,9 @@ A system-generated periodic request, or a linked ad hoc re-inspection request, b
 confirmed order and an accepted Inspector assignment without bypassing quotation approval or
 organization scope.
 
-> **Target MF2 Evolution (2026-10-03):** Expands to multi-provider RFQ/sourcing, one uniform Platform-set
-> Provider-paid commission rate `r`, authorized bank/payment partner conditional funding, and
-> flight-permit clearance per *Luật Phòng không nhân dân 2024* & *Nghị định 288/2025/NĐ-CP*.
-> See `project-reference/business-flows.md` (MF2).
+> **Target redesign note (2026-10-03):** The approved transactional chain uses five MFs; MF1 owns request/RFQ, quotation, electronic order and partner-dependent conditional funding. The dedicated MF2 is **Drone Mission Planning & Airspace Clearance**: Provider workforce drafts versioned, SOW/equipment-specific GSD, overlap, AGL/waypoints and shot items, then verifies applicable airspace status and flight-permit requirements under current law. No global numeric mission default or drone-control feature is implied.
+>
+> `PLATFORM_OPERATOR` publishes one uniform Provider-paid commission and versioned funding/review/cancellation/retention/warranty policies. Values accepted in an order are snapshotted; policy updates are prospective. Conditional funding/hold/release is possible only through an authorized partner product that supports the agreed terms; the Platform is not a funds custodian and Operator decisions are not legal arbitration. This is target scope for a separate re-estimated sprint, not part of the WF2 baseline tasks above. See the drone-centric implementation plan and `project-reference/business-flows.md`.
 
 ## Owner tasks
 

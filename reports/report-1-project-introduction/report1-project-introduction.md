@@ -136,13 +136,16 @@ Unlike fragmented manual communications and generic software lacking complete se
 
 ## 6. Project Scope & Limitations
 
-The approved redesign scope covers **five canonical Main Flows** for a multi-provider infrastructure inspection platform:
+The approved redesign scope separates one-time setup from the **five core transactional Main Flows** for a multi-provider infrastructure inspection platform. Organization registration, Provider vetting, asset master-data management, and recurring schedule setup are a **Supporting Flow (SF)**: prerequisites for work, not Main Flows.
 
-- **MF1**: Legal onboarding of Client and Provider organizations, Provider vetting, asset registration, airspace compliance profiling, and periodic schedule setup.
-- **MF2**: Inspection sourcing/RFQ, Provider quotation, electronic Service Order, authorized-bank escrow deposit, flight authorization, and Inspector assignment.
-- **MF3**: Drone field survey, Platform-hosted data processing, YOLO candidate detection, Inspector verification, LLM narrative assistance, internal Provider peer review, and Provider QA release.
-- **MF4 (target)**: Client report review within an agreed contract period, authorized-partner settlement of Provider proceeds net of the published one-rate Platform commission, contractual complaint handling, and `PLATFORM_OPERATOR` internal resolution; no legally final arbitration power is claimed.
-- **MF5**: Defect-to-maintenance ticketing, Provider maintenance quotation, 10% warranty retention, before/after evidence, change orders, and two-stage closure.
+- **SF — Organization, Provider & Asset Setup**: Client organization registration; legal/provider qualification review by `PLATFORM_OPERATOR`; asset documents, coordinates and periodic schedule setup. SF does not count among MF1–MF5.
+- **MF1 — Survey Request, Quotation Sourcing & Conditional Funding**: Client creates an inspection request and sources providers directly or by RFQ; Providers submit versioned direct-service quotes; parties accept an electronic service order and funding terms. Any advance funding uses an authorized payment-partner product that supports the agreed conditions; no fixed advance percentage or Platform custody is presumed.
+- **MF2 — Drone Mission Planning & Airspace Clearance**: Provider workforce prepares mission-specific GSD and overlap targets, camera/sensor assumptions, AGL/waypoints, structural shot items and airspace/permit checks. Targets are agreed in the SOW/Mission Plan for the structure and equipment; no global numeric default is assumed. The platform does not pilot the drone.
+- **MF3 — Drone Survey, Telemetry, AI Verification & QA Report**: Inspector captures the approved mission evidence; Platform services provide storage and AI assistance; Inspector verifies candidates, peer review is independent, and Provider Manager releases the report.
+- **MF4 (target)**: Client reviews the report within the order-snapshotted policy period; the authorized partner processes settlement using the Platform-wide uniform commission policy accepted for the order. `PLATFORM_OPERATOR` handles internal complaints under published terms; no legally final arbitration power is claimed.
+- **MF5**: Verified drone findings can create separately quoted and approved maintenance work. Client and Provider agree the maintenance funding and retention terms; the agreed retention and warranty duration are configured and snapshotted per order, with before/after evidence, change control and conditional release milestones.
+
+`PLATFORM_OPERATOR` owns commercial policy publication, including the single uniform rate for all Providers, advance-funding terms, review period, cancellation policy, retention and warranty duration. Each order stores the policy versions and terms accepted at confirmation; later policy edits apply prospectively, not retroactively. `PLATFORM_ADMIN` owns technical configuration such as infrastructure and AI operational settings, not commercial decisions. These are target requirements, not deployed capabilities.
 
 The platform supports six canonical roles across three actor zones: `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`. `PLATFORM_ADMIN` manages technical configuration and security; `PLATFORM_OPERATOR` vets Providers, supports customer/provider operations, monitors escrow, and resolves disputes under published Platform Terms. Provider organizations are independent businesses whose staff and data are isolated from other Providers.
 

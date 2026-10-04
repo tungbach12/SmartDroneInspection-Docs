@@ -32,7 +32,9 @@ source: "report3-software-requirement-specification.docx"
 - Committed transactional records are not lost after application restart, and multi-record workflow transitions are atomic.
 - Periodic request generation is idempotent for the Asset, Schedule, and Due Cycle key.
 - AI-service failure does not discard uploaded evidence or block manual finding entry.
-- Report and order revisions preserve prior versions and approval decisions.
+- Report, quotation, order, commercial-policy and mission-plan revisions preserve prior versions and approval decisions.
+- Policy publication is prospective, versioned and auditable. Confirmed order/maintenance records retain immutable snapshots of the policy values and terms accepted at confirmation; settlement must not read a newer live policy.
+- Target mission plans are versioned and bound to the owning service order, Provider organization and permitted workforce; approved plan amendments preserve the previous plan and approval trail.
 - Database and object-storage backups require a documented and tested restore procedure before production release.
 
 #### 4.2.3 Performance
@@ -46,7 +48,9 @@ source: "report3-software-requirement-specification.docx"
 
 - All non-public endpoints require authentication and deny access unless role and resource-scope checks pass.
 - Authorization enforces multi-tenant boundary checks: Client organizations cannot see other customers' assets or orders; independent Service Provider organizations cannot observe competitor quotations, margins, workforce records, or raw flight evidence.
-- Separation of duties is enforced between `PLATFORM_ADMIN` (technical/security policy management) and `PLATFORM_OPERATOR` (business operations, provider vetting, and dispute handling).
+- Separation of duties is enforced between `PLATFORM_ADMIN` (technical/security policy management) and `PLATFORM_OPERATOR` (business operations, provider vetting, commercial-policy publication and internal complaint handling). `PLATFORM_OPERATOR` is not a legal arbitrator or deposit custodian.
+- Mission-plan, waypoint, drone/pilot and evidence reads/writes enforce Provider-organization, owning-order and assignment scope at the backend; public airspace lookup data never substitutes for authority clearance.
+- Commercial policy updates require an authorized Operator, schema validation, effective-time/version ordering and an audit event. No Provider-specific commission override is allowed; technical parameters belong to Platform Admin-controlled configuration.
 - Passwords are hashed with the configured Spring Security password encoder and are never logged or returned.
 - Browser refresh tokens use Secure, HttpOnly, SameSite=Strict cookies; browser access tokens remain in memory.
 - Mobile tokens are returned only by the mobile authentication contract and are stored in secure platform storage.
