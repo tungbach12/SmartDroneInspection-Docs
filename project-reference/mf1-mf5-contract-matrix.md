@@ -57,6 +57,7 @@ documentation:
 | `frontend` (main) | `d717fb3` | Role union, portal policy, route guards. |
 | `mobile` (main) | `aaa946b` | Consumed API paths. |
 | `docs` (this worktree) | `585ca3c0763d7e1f8bf81a10883c02fcbfb58ebb` | The target documents. |
+| `backend` (`refactor/mf1-mf5-backend`) | `451a2af` | Task 1.4, commit under review. Post-fix-round-1 rows below were read from this tree, not from the documents. |
 
 **Report 3 capability-vetting basis.** This worktree is based on `main` and therefore
 does **not** contain the uncommitted Report 3 edits living in
@@ -177,6 +178,34 @@ no cascade path in code, in the UI, or in a database constraint.
 **No capability decision exists for an undeclared capability.** A decision against a
 capability the Provider did not declare is rejected.
 
+### 2.6 Organization standing is its own operator decision (settled, Task 1.4 fix round 1)
+
+Matrix §2.4 separates organization standing from capability eligibility, and `GAP-D-13`
+exists because a single `status` column conflated them. That separation fixes more than
+the schema. `ProviderEligibilityFacade` ANDs the two, so standing is a **precondition**
+of eligibility — which means a design that reaches standing *through* a capability
+decision makes the gate a product of the decision it is supposed to constrain.
+
+Settled rule:
+
+| Rule | Detail |
+| --- | --- |
+| Standing is decided only by its own action | `POST /api/v1/provider-organizations/{providerId}/standing/decisions`. No capability decision writes `provider_organizations.status`, in any direction. |
+| Owner | `PLATFORM_OPERATOR`, per §1.1 "Provider vetting". No seventh role (§10 rule 4). |
+| Independent of capabilities | Exercisable with no capability declared. Reads and writes no capability, evidence, or decision-history row. |
+| Reason required | A legal-identity approval with no stated ground is refused. Persisted in `provider_organizations.standing_decision_reason` (V15). |
+| Own audit event | `PROVIDER_ORGANIZATION_LEGAL_IDENTITY_ACCEPTED`, distinct from `PROVIDER_CAPABILITY_VETTED`. |
+| Observable | The capability-decision response carries `organizationStatus`, so a caller can see that the decision did not move standing rather than inferring it from an absent field. |
+
+`PENDING` → `VERIFIED` only. `SUSPENDED` and `BANNED` remain unreachable from any
+endpoint, which is a **known open item**, not a settled part of this rule: they need their
+own operator action and their own lifecycle, and no task currently owns them. Recorded
+here so a later task does not mistake the four-value vocabulary for a four-value API.
+
+An approval without a recorded `standing_decision_reason` remains representable on purpose:
+it is how a Provider accepted before V15 exists looks. A fabricated reason would be worse
+than a missing one, because a missing one is visibly missing.
+
 ---
 
 ## 3. Flow matrix
@@ -197,8 +226,8 @@ Mandatory flow → module mapping (fixed):
 | Step | Target | Implemented state | Status | Gap |
 | --- | --- | --- | --- | --- |
 | SF-01 Client organization self-registration | `POST /api/v1/auth/register`, creates organization + first `CLIENT` in one transaction | Present. `BrowserAuthController:57`, `MobileAuthController:40`. Assigns only `CLIENT` in `CUSTOMER_ORGANIZATION`. | `implemented` | — |
-| SF-02 Provider onboarding, capability declaration, evidence submission | `POST /api/v1/provider-organizations` | No controller, service, entity, or table. | `target-only` | `GAP-F-01`, `GAP-A-01` |
-| SF-03 Operator vetting, per capability | `GET /api/v1/provider-organizations/{providerId}/capabilities`, `POST /api/v1/provider-organizations/{providerId}/capabilities/{capability}/decisions` | Nothing. `platform_organizations` absent. | `target-only` | `GAP-F-01`, `GAP-R-05` |
+| SF-02 Provider onboarding, capability declaration, evidence submission | `POST /api/v1/provider-organizations` | Implemented at backend `451a2af` (fix round 1: see §0.2). `ProviderOrganizationController.onboard` + `ProviderOnboardingService.onboard`. One transaction writes `provider_organizations`, one row per declared capability, its evidence rows, `users.provider_id`, and one `PROVIDER_ORGANIZATION_ONBOARDED` audit row. Every capability lands PENDING; no order, quotation or clearance is created. | `implemented` | — |
+| SF-03 Operator vetting, per capability | `GET /api/v1/provider-organizations/{providerId}/capabilities`, `POST /api/v1/provider-organizations/{providerId}/capabilities/{capability}/decisions`, `POST /api/v1/provider-organizations/{providerId}/standing/decisions` | Implemented at backend `451a2af` (fix round 1: see §0.2). `ProviderVettingController` (capability decisions, `PLATFORM_OPERATOR` only) and `ProviderOrganizationController.capabilities` (read, own provider or any for the `VET_PROVIDER` duty). The third endpoint is **organization standing**, added by the fix round and described under §2.6. | `implemented` | — |
 | SF-04 Asset profile + airspace pre-check | Asset CRUD present; airspace pre-check warning | Asset CRUD implemented. **No airspace column, no lookup, no `AIRSPACE_CHECK_PENDING` / `RESTRICTED_AIRSPACE` state anywhere in source or migrations.** | `partial` | `GAP-F-02`, `GAP-D-15` |
 | SF-05 Due cycle → one MF1 request package | `assets` publishes `InspectionScheduleDue`; `inspectionrequests` consumes and creates the request | Publisher exists (`InspectionScheduleDuePublisher`, `assets/events/InspectionScheduleDue`). **No listener exists; `inspectionrequests` has zero services.** | `partial` | `GAP-F-03` |
 | SF-05 schedule proposal review by business reviewer | Target reviewer is `PLATFORM_OPERATOR` | `ScheduleProposalController:47` hardcodes `SERVICE_MANAGER` or `ADMIN`. | `partial` | `GAP-R-08` |
@@ -295,9 +324,10 @@ Mandatory flow → module mapping (fixed):
 
 | Endpoint | Target role | Implemented `@PreAuthorize` | Status | Gap |
 | --- | --- | --- | --- | --- |
-| `POST /api/v1/provider-organizations` | `PROVIDER_MANAGER` declares capabilities | **absent** | `target-only` | `GAP-A-01` |
-| `GET /api/v1/provider-organizations/{providerId}/capabilities` | `PROVIDER_MANAGER` own org, `PLATFORM_OPERATOR` any | **absent** | `target-only` | `GAP-A-01` |
-| `POST /api/v1/provider-organizations/{providerId}/capabilities/{capability}/decisions` | `PLATFORM_OPERATOR` only | **absent** | `target-only` | `GAP-A-01` |
+| `POST /api/v1/provider-organizations` | `PROVIDER_MANAGER` declares capabilities | `hasRole('PROVIDER_MANAGER')` | `implemented` | — |
+| `GET /api/v1/provider-organizations/{providerId}/capabilities` | `PROVIDER_MANAGER` own org, `PLATFORM_OPERATOR` any | `hasAnyRole('PLATFORM_OPERATOR', 'PROVIDER_MANAGER')`, foreign provider refused 403 in service | `implemented` | — |
+| `POST /api/v1/provider-organizations/{providerId}/capabilities/{capability}/decisions` | `PLATFORM_OPERATOR` only | class-level `hasRole('PLATFORM_OPERATOR')` | `implemented` | — |
+| `POST /api/v1/provider-organizations/{providerId}/standing/decisions` | `PLATFORM_OPERATOR` accepts the legal identity (§2.6) | class-level `hasRole('PLATFORM_OPERATOR')` | `implemented` | — |
 | Mission plan CRUD + approve | `PROVIDER_MANAGER` manage, `INSPECTOR` manage assigned, `CLIENT` view agreed | **absent** | `target-only` | `GAP-A-03` |
 | Inspection request create / RFQ | `CLIENT` own org | **absent** — `inspectionrequests` has no controller | `target-only` | `GAP-A-02` |
 | Quotation create / revise / decide | `PROVIDER_MANAGER` own org, `CLIENT` decide | **absent** | `target-only` | `GAP-A-02` |
@@ -328,6 +358,8 @@ Mandatory flow → module mapping (fixed):
 **Endpoint names recorded as required by the Task 1.4 brief** ("final endpoint names must
 be recorded in the contract matrix"): `POST /api/v1/provider-organizations`,
 `GET /api/v1/provider-organizations/{providerId}/capabilities`,
+`POST /api/v1/provider-organizations/{providerId}/standing/decisions` (added by the Task 1.4
+fix round; see §2.6 for why organization standing needed its own endpoint),
 `POST /api/v1/provider-organizations/{providerId}/capabilities/{capability}/decisions`.
 These are binding on Task 1.4.
 
@@ -394,7 +426,7 @@ rule. Recorded as conformant.
 
 | ID | Gap | Owner |
 | --- | --- | --- |
-| `GAP-F-01` | Provider onboarding and per-capability vetting flow (SF-02/SF-03) has no runtime. `business-flows.md` SF-03 also still grants org-wide `VERIFIED` and blocks all quotation rights, contradicting BR-05. | **1.4** (runtime), **7.1** (SF-03 text) |
+| `GAP-F-01` | **Runtime half CLOSED by Task 1.4** (backend `451a2af`, fix round 1): SF-02 and SF-03 are `implemented` per §3.1, with organization standing decided by its own operator action rather than as a side effect of a capability verdict (§2.6). **Text half still open**: `business-flows.md` SF-03 still grants org-wide `VERIFIED` and blocks all quotation rights, contradicting the capability-scoped BR-05 gate (C-4). | **7.1** (SF-03 text) |
 | `GAP-F-02` | Asset-level airspace pre-check absent; no `RESTRICTED_AIRSPACE`, `AIRSPACE_CHECK_PENDING`, or `AIRSPACE_MANUAL_VERIFY_REQUIRED` state exists in any form. | **2.3** |
 | `GAP-F-03` | Due-cycle publisher has no consumer. `InspectionScheduleDuePublisher` emits; nothing in `inspectionrequests` listens, so MF1 request packages are never generated. | **2.1** |
 | `GAP-F-04` | MF1 request creation and RFQ sourcing have no runtime. | **2.1** |
@@ -428,7 +460,7 @@ rule. Recorded as conformant.
 
 | ID | Gap | Owner |
 | --- | --- | --- |
-| `GAP-A-01` | The three provider onboarding/vetting endpoints do not exist. Names recorded in §4.2 and binding on Task 1.4. | **1.4** |
+| `GAP-A-01` | **CLOSED by Task 1.4** (backend `451a2af`, fix round 1). Four endpoints, recorded in §4.2 and listed under §2.6: onboarding POST, capabilities GET, per-capability decision POST, and legal-identity standing POST. | — (closed) |
 | `GAP-A-02` | `inspectionrequests` has zero controllers, so **no HTTP path can create a request, quotation, or order**. MF1 is unreachable, yet `inspections` requires a confirmed service order to start. | **2.1** |
 | `GAP-A-03` | No mission-plan endpoint of any kind. | **2.3** |
 | `GAP-A-04` | `maintenance` has zero controllers: no ticket, assessment, order, work-log, evidence, or completion endpoint. | **5.1**, **5.2** |
@@ -460,7 +492,7 @@ rule. Recorded as conformant.
 | `GAP-D-10` | `escrow_transactions` has no DDL. | **4.2** |
 | `GAP-D-11` | `dispute_tickets` and `dispute_evidence` have no DDL. | **4.1** |
 | `GAP-D-12` | No capability table, no `(provider_id, capability)` unique key, no status CHECK. BR-41 is unrepresentable. | **1.3** |
-| `GAP-D-13` | `provider_organizations.status` (`PENDING/VERIFIED/SUSPENDED/BANNED`) has no room for a per-capability rejection or `ADDITIONAL_INFO_REQUIRED`, and conflates organization standing with capability eligibility. | **1.3** |
+| `GAP-D-13` | **CLOSED by Task 1.3** (V14): `provider_organizations.status` and `provider_capabilities.status` are two columns with two CHECK vocabularies, so a per-capability rejection and `ADDITIONAL_INFO_REQUIRED` are both expressible. **Extended by the Task 1.4 fix round**: the two axes are now also independently *reachable* — standing via its own endpoint and audit event (§2.6), capability status via its own. `SUSPENDED`/`BANNED` remain unreachable from any endpoint; no task owns that lifecycle yet. | — (closed); suspension lifecycle unowned |
 | `GAP-D-14` | `invoices` has no commission or platform-fee split, so BR-36's single-commission rule and `WF3-007`/`WF4-004` are unrepresentable. | **4.2** |
 | `GAP-D-15` | `evidence` has `latitude`, `longitude`, `capture_time` but no altitude/AGL, no gimbal angle, no 3D coordinate. `assets` has no airspace-restriction column. | **3.1**, **2.3** |
 | `GAP-D-16` | `inspection_requests.linked_maintenance_ticket_id` (`V6:13`) is a bare `UUID` with **no foreign key** to `maintenance_tickets`. | **5.3** |
@@ -495,8 +527,8 @@ cases stay `Pending` until executed.
 | --- | --- | --- | --- | --- |
 | N-1 | **Legacy role migration** | `SERVICE_MANAGER` rows must not be silently reinterpreted. If the data cannot distinguish `PLATFORM_OPERATOR` from `PROVIDER_MANAGER`, migration stops at `blocked-by-baseline` and ambiguous rows are rejected rather than guessed. | 1.1, 1.2 | `RolePolicyTest`, `AdminUserServiceTest`, migration contract test |
 | N-2 | **No maintenance-manager role** | `MAINTENANCE_PROVIDER_MANAGER` must not exist in any enum, role string, JWT claim, or UI role union. | 1.1, 6.1 | `RolePolicyTest` enum assertion; frontend role-union test |
-| N-3 | **Provider capability independence** | Verifying `INSPECTION` must leave `MAINTENANCE` at its prior status. Rejecting `MAINTENANCE` must leave `INSPECTION` verified. All four combinations (neither, inspection only, maintenance only, both) plus a decision on an undeclared capability must be covered. | 1.3 | `ProviderCapabilityDomainTest`; Report 5 case in 7.2 |
-| N-4 | **Provider self-approval** | A `PROVIDER_MANAGER` attempting a capability decision must receive 403, not 400 or 500. | 1.4 | `ProviderVettingApiIntegrationTest` |
+| N-3 | **Provider capability independence** | Verifying `INSPECTION` must leave `MAINTENANCE` at its prior status. Rejecting `MAINTENANCE` must leave `INSPECTION` verified. All four combinations (neither, inspection only, maintenance only, both) plus a decision on an undeclared capability must be covered. | 1.3, 1.4 | `ProviderCapabilityDomainTest` (four combinations); `ProviderVettingApiIntegrationTest.platformOperatorVerifiesInspectionOnly_maintenanceRemainsPending_BR41` (over HTTP, asserting both persisted rows, the untouched organization standing, and `ProviderEligibilityFacade` before and after the standing decision); Report 5 case in 7.2 |
+| N-4 | **Provider self-approval** | A `PROVIDER_MANAGER` attempting a capability decision must receive 403, not 400 or 500. The same applies to the legal-identity standing decision. | 1.4 | `ProviderAuthorizationScopeTest.providerManagerDecisionAttempt_returns403Forbidden`, `platformAdminDecisionAttempt_returns403Forbidden`, `clientDecisionAttempt_returns403Forbidden`, `providerManagerStandingDecisionAttempt_returns403Forbidden`, `platformAdminStandingDecisionAttempt_returns403Forbidden` |
 | N-5 | **Capability-scoped commercial gating** | A maintenance-only verified Provider cannot quote inspection or receive a flight assignment. An inspection-only verified Provider cannot issue a maintenance quotation or receive a repair assignment. | 2.1, 5.1 | `ProviderEligibilityInspectionTest`, `ProviderEligibilityMaintenanceTest` |
 | N-6 | **Cross-organization reads** | Client Org A cannot read Client Org B's assets, requests, orders, reports, tickets, or financials. Provider A cannot read Provider B's quotations, margins, workforce, orders, or raw flight evidence. | 2.1, 3.2, 5.1 | `ProviderAuthorizationScopeTest`; existing `WF1-003`, `WF1-016`, `WF1-019`, `WF2-005` |
 | N-7 | **Unassigned workforce access** | An Inspector or Maintenance Engineer with no assignment cannot read or mutate the target inspection, checklist, evidence, report, work log, or ticket. Assignment scope is enforced before the record is loaded, not after. | 3.1, 5.2, 6.4 | `InspectionWorkflowTest`, mobile widget tests; new Report 5 case in 7.2 |
@@ -508,7 +540,7 @@ cases stay `Pending` until executed.
 | N-13 | **Complaint blocks deemed acceptance and release** | A timely complaint blocks deemed acceptance. An unresolved supported warranty complaint blocks eligible retention release. Concurrent accept and complaint serialize to one transition. | 4.1, 5.3 | `ComplaintWorkflowTest`, `MaintenanceWarrantyRetentionTest` |
 | N-14 | **Evidence duplicate and integrity** | A duplicate SHA-256 within one inspection or one maintenance work log is rejected without creating a junk row. Missing GPS is recorded, not rejected. An object-storage path alone grants no access. | 3.1, 5.2 | `EvidenceServiceTest`, `EvidenceApiIntegrationTest`; `WF3-002` (Passed) |
 | N-15 | **AI failure fallback** | YOLO or LLM unavailability never discards evidence and never blocks manual finding entry. Rejected or unverified candidates never reach Client-visible statistics or reports. | 3.1 | `InspectionWorkflowTest`; `WF3-003` (Passed) |
-| N-16 | **Onboarding grants no downstream authority** | Provider onboarding must not create an accepted order, grant inspection or maintenance eligibility, or grant mission clearance. | 1.4 | `ProviderOnboardingApiIntegrationTest` |
+| N-16 | **Onboarding grants no downstream authority** | Provider onboarding must not create an accepted order, grant inspection or maintenance eligibility, or grant mission clearance. | 1.4 | `ProviderOnboardingApiIntegrationTest.onboardingGrantsNoCapabilityEligibilityThroughTheGate_N16` (asserted through `ProviderEligibilityFacade`, not only through the record) |
 | N-17 | **Client-contract drift** | Web and mobile must decode the same success envelope, `204`, binary stream, and Problem Details with `code`/`traceId`, and must not silently break on legacy role strings. | 6.1, 6.4, 8.1 | Cross-client contract fixtures |
 | N-18 | **Separation of duties** | `PLATFORM_ADMIN` cannot publish commercial policy or vet a Provider. `PLATFORM_OPERATOR` cannot administer platform security settings. | 1.2, 1.4 | `RolePolicyTest`, `ProviderVettingApiIntegrationTest` |
 
@@ -559,8 +591,9 @@ dropped, and each needs a decision before the phase that depends on it.
 3. **Migration numbers are forward-only.** `V1`–`V11` are applied. `V12` exists on
    `refactor/wf1-contract`. Tasks 1.2, 1.3, 2.2, 2.3, 4.1, 4.2, 5.2, and 5.3 each add a
    new version and must re-check the highest applied version before choosing a number —
-   the plan's illustrative `V12`–`V15` numbers are stale because Task 0.4 already took
-   `V12`.
+   the plan's illustrative `V12`–`V15` numbers are stale: Task 0.4 took `V12`, Task 1.3
+   took `V14`, and the Task 1.4 fix round took `V15`. `V13` is applied on this branch, so
+   the chain has a deliberate gap at `V12` until WF1 lands.
 4. **Never introduce `MAINTENANCE_PROVIDER_MANAGER`** or any seventh role. If a
    requirement appears to need one, the requirement is wrong, not the role list.
 5. **A capability decision never cascades.** If a code path, constraint, or UI action
