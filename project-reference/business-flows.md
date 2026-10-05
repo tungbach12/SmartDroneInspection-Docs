@@ -1,41 +1,42 @@
 ---
 title: "SmartDroneInspection Multi-Provider Business Flows"
 document_type: business-flow-reference
-purpose: "Đặc tả chi tiết Luồng Bổ trợ (SF) và 5 Luồng nghiệp vụ cốt lõi (MF1–MF5) chuyên sâu Drone cho Nền tảng Kiểm định Hạ tầng nhiều Nhà cung cấp (Multi-Provider Platform)"
-version: "2.1"
-updated: 2026-10-03
+purpose: "Đặc tả chi tiết Luồng Bổ trợ (SF), 5 Luồng nghiệp vụ cốt lõi (MF1–MF5), Các nhánh Ngoại lệ (Exceptions) và Vòng lặp Phi tuyến tính (Non-linear Loops) chuyên sâu Drone cho Nền tảng Kiểm định & Bảo trì Hạ tầng"
+version: "3.2"
+updated: 2026-10-05
 ---
 
-# SmartDroneInspection Multi-Provider Business Flows (v2.1)
+# SmartDroneInspection Multi-Provider Business Flows (v3.2)
 
-> Tài liệu này là đặc tả chuẩn mực về Luồng Bổ trợ (Supporting Flow - SF) và **5 Luồng nghiệp vụ giao dịch cốt lõi (MF1–MF5)** của nền tảng SmartDroneInspection. Toàn bộ thiết kế được xây dựng dựa trên mô hình Nền tảng số trung gian (Intermediary Platform), kiến trúc chuyên sâu về **Nhiệm vụ Khảo sát Drone (Drone Mission Planning & Telemetry)**, cơ chế Hợp đồng điện tử, Dòng tiền Ký quỹ có điều kiện (Escrow), chính sách **Cấu hình Động của `PLATFORM_OPERATOR`**, Trọng tài xử lý tranh chấp nội bộ sàn, tuân thủ nghiêm ngặt Hướng dẫn tránh lỗi Capstone (`error-prevention.md`) và căn cứ theo hệ thống pháp luật Việt Nam mới nhất.
+> Tài liệu này là đặc tả chuẩn mực về Luồng Bổ trợ (Supporting Flow - SF) và **5 Luồng nghiệp vụ giao dịch cốt lõi (MF1–MF5)** của nền tảng SmartDroneInspection. Toàn bộ thiết kế được xây dựng dựa trên mô hình **Nền tảng số trung gian (Intermediary Platform)**, kiến trúc chuyên sâu về **Nhiệm vụ Khảo sát Drone (Drone Mission Planning & Telemetry)**, cơ chế Hợp đồng điện tử, **Điều phối dòng tiền thanh toán có điều kiện (Conditional Payment Lifecycle Orchestration)** qua đối tác thanh toán được cấp phép, chính sách **Cấu hình Động của `PLATFORM_OPERATOR`**, bổ sung **Các vòng lặp phản hồi phi tuyến tính (Feedback Loops)** và **Xử lý sự cố hiện trường (Incident & Exception Handling)**, tuân thủ nghiêm ngặt Hướng dẫn tránh lỗi Capstone (`error-prevention.md`) và căn cứ theo hệ thống pháp luật Việt Nam hiện hành.
 
 ---
 
 ## I. Căn cứ Pháp lý Việt Nam Áp dụng
 
-> **Phạm vi pháp lý:** Đây là bản thiết kế mục tiêu của dự án đồ án. Các văn bản dưới đây là khung tham chiếu đang được rà soát; không được suy luận rằng nền tảng đã hoạt động, đã tuân thủ, đã tích hợp ngân hàng/đơn vị thanh toán, hoặc đã được cấp bất kỳ giấy phép nào.
+> **Phạm vi pháp lý:** Đây là bản thiết kế mục tiêu phục vụ đồ án kỹ thuật. Các văn bản dưới đây là khung tham chiếu pháp luật áp dụng cho các hoạt động khảo sát drone, hợp đồng số, thanh toán trung gian và bảo trì công trình tại Việt Nam:
 
-1. **Luật Phòng không nhân dân 2024 (Luật số 49/2024/QH15, hiệu lực từ 01/07/2025), được sửa đổi bởi Luật số 98/2025/QH15, hướng dẫn bởi Nghị định 198/2025/NĐ-CP và Nghị định 288/2025/NĐ-CP**:
-   - Khung pháp lý bắt buộc để kiểm tra đăng ký định danh phương tiện bay không người lái (UAV) do Bộ Quốc phòng cấp, chứng chỉ/giấy phép điều khiển phương tiện bay của phi công (Inspector), giấy phép bay do Cục Tác chiến - Bộ Tổng Tham mưu cấp và kiểm soát không phận bay.
-   - Không áp dụng Nghị định 36/2008/NĐ-CP và Nghị định 79/2011/NĐ-CP như văn bản duy nhất còn hiệu lực.
-2. **Quyết định số 18/2020/QĐ-TTg & Cổng thông tin Vùng cấm bay (`cambay.mod.gov.vn`)**:
-   - Tra cứu tham khảo công khai về khu vực cấm bay, khu vực hạn chế bay số quốc gia. Việc triển khai chuyến bay thực tế bắt buộc phải kiểm tra giấy phép bay và ranh giới không phận có thẩm quyền.
-3. **Luật Giao dịch điện tử 2023 (Luật số 20/2023/QH15, hiệu lực từ 01/07/2024)**:
-   - Dùng làm căn cứ thiết kế Hợp đồng điện tử 3 bên và quản lý thông điệp dữ liệu số.
-   - Hệ thống lưu trữ MinIO, dữ liệu không gian GPS 3D, mã băm SHA-256 và timestamp hỗ trợ bảo đảm tính toàn vẹn kỹ thuật và truy xuất nguồn gốc; không tự suy diễn là chứng cứ pháp lý mặc nhiên nếu chưa qua quy trình tố tụng/giám định tư pháp.
-4. **Luật Bảo vệ quyền lợi người tiêu dùng 2023 (Luật số 19/2023/QH15, hiệu lực từ 01/07/2024)** và Nghị định 55/2024/NĐ-CP:
-   - Căn cứ thiết kế trách nhiệm công khai quy chế sàn, minh bạch thông tin Provider và cơ chế tiếp nhận, xử lý khiếu nại. Phán quyết nội bộ của Sàn không thay thế quyền khởi kiện ra Tòa án hoặc trọng tài thương mại (VIAC).
-5. **Khung pháp luật thương mại điện tử hiện hành từ 01/07/2026**:
-   - Đối chiếu **Luật Thương mại điện tử 2025 (Luật số 122/2025/QH15)** và **Nghị định 248/2026/NĐ-CP** (thay thế/bổ sung Nghị định 52/2013/NĐ-CP và Nghị định 85/2021/NĐ-CP).
-6. **Thanh toán, bảo đảm thanh toán và ký quỹ**:
-   - Tích hợp tài khoản đảm bảo thanh toán với ngân hàng thương mại hoặc tổ chức trung gian thanh toán được cấp phép theo **Nghị định 52/2024/NĐ-CP** và Điều 330 Bộ luật Dân sự 2015. Platform không tự xưng là tổ chức tín dụng và không trực tiếp nhận tiền gửi độc lập.
+Lưu ý cập nhật pháp lý 2026: Nghị định 288/2025/NĐ-CP đang có hiệu lực. Có thông tin cho biết Chính phủ đang lấy ý kiến dự thảo sửa đổi Nghị định này — **thông tin này chưa được kiểm chứng tại thời điểm cập nhật tài liệu và cần được xác nhận lại với cố vấn pháp lý trước khi nộp**. Vì vậy workflow chỉ mô hình hóa bước kiểm tra điều kiện/hồ sơ và không hard-code cơ quan hoặc thủ tục cấp phép nếu chưa được xác nhận theo quy định áp dụng cho từng chuyến bay.
+
+1. **Luật Phòng không nhân dân 2024 (Luật số 49/2024/QH15, hiệu lực từ 01/07/2025) & Nghị định số 288/2025/NĐ-CP (hiệu lực từ 05/11/2025 về Quản lý tàu bay không người lái và phương tiện bay siêu nhẹ)**:
+   - Khung pháp lý bắt buộc để kiểm tra: thông tin đăng ký/định danh phương tiện bay; điều kiện của người điều khiển; và giấy phép/chấp thuận bay khi thuộc trường hợp phải có theo quy định hiện hành. Tên cơ quan, loại giấy phép và quy trình cụ thể không được hard-code trong workflow nếu chưa được xác nhận theo quy định áp dụng cho từng chuyến bay.
+   - Hệ thống quản lý hồ sơ giấy phép và kiểm soát điều kiện bay trước khi phát lệnh cất cánh; **hệ thống không tự ý cấp phép bay thay cơ quan nhà nước**.
+2. **Quyết định số 18/2020/QĐ-TTg & Cổng thông tin Vùng cấm bay quốc gia (`cambay.mod.gov.vn`)**:
+   - Tra cứu tham khảo không phận số về khu vực cấm bay, hạn chế bay. Đóng vai trò lớp cảnh báo sớm (Pre-flight Early Warning) trong giai đoạn lập kế hoạch.
+3. **Quy định về Thanh toán không dùng tiền mặt và Dịch vụ Trung gian Thanh toán**:
+   - Tuân thủ **Nghị định số 52/2024/NĐ-CP** và Điều 330 Bộ luật Dân sự 2015. Nền tảng đóng vai trò đơn vị điều phối trạng thái thanh toán (Payment Orchestration) tích hợp với Ngân hàng thương mại / Cổng trung gian thanh toán được cấp phép (qua tài khoản chuyên dụng/đảm bảo thanh toán). Nền tảng không trực tiếp nắm giữ tiền gửi hoặc hoạt động như tổ chức tín dụng.
+4. **Luật Giao dịch điện tử 2023 (Luật số 20/2023/QH15, hiệu lực từ 01/07/2024)**:
+   - Căn cứ pháp lý cho Hợp đồng Dịch vụ Điện tử (Inspection Service Order / Maintenance Work Order). Lưu trữ bằng chứng số (MinIO, mã băm SHA-256, tọa độ không gian 3D, timestamp) bảo đảm tính toàn vẹn dữ liệu kỹ thuật và chuỗi truy xuất nguồn gốc.
+5. **Nghị định số 123/2020/NĐ-CP & Thông tư số 78/2021/TT-BTC về Hóa đơn, Chứng từ điện tử**:
+   - Phân định rõ trách nhiệm hóa đơn: `PROVIDER_MANAGER` (đơn vị cung cấp dịch vụ) lập hóa đơn giá trị gia tăng dịch vụ kiểm định/bảo trì gửi `CLIENT`; Nền tảng (Platform) lập hóa đơn điện tử thu phí dịch vụ sàn (hoa hồng kết nối $C$) gửi `PROVIDER_MANAGER`.
+6. **Luật Thương mại điện tử 2025 & Luật Bảo vệ quyền lợi người tiêu dùng 2023**:
+   - Quy chế công khai điều khoản sàn, minh bạch năng lực Provider, cơ chế hòa giải khiếu nại nội bộ có ghi nhận audit log, không hạn chế quyền khởi kiện của các bên ra Tòa án hoặc Trọng tài thương mại (VIAC).
 
 ---
 
 ## II. Hệ thống Vai trò & Khối Tác quyền (Actor Zones & 6 Canonical Roles)
 
-Hệ thống được tổ chức thành **3 Khối tác nhân (Actor Zones)** độc lập, đảm bảo nguyên tắc phân chia trách nhiệm (Separation of Duties) và ngăn chặn xung đột lợi ích:
+Hệ thống được tổ chức thành **3 Khối tác nhân (Actor Zones)** độc lập, bảo đảm nguyên tắc phân chia trách nhiệm (Separation of Duties):
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -43,11 +44,11 @@ Hệ thống được tổ chức thành **3 Khối tác nhân (Actor Zones)** �
 │                                                                        │
 │   🛠️ PLATFORM_ADMIN                  👔 PLATFORM_OPERATOR              │
 │   (Quản trị Kỹ thuật & Hạ tầng)      (Quản trị Nghiệp vụ, Chính sách   │
-│   • Cấu hình hệ thống, checklist     & Xử lý Khiếu nại Nội bộ)              │
+│   • Cấu hình hệ thống, checklist     & Xử lý Khiếu nại Nội bộ)         │
 │   • Phân quyền, bảo mật              • Thẩm định & Cấp phép Providers  │
 │   • Ngưỡng AI YOLO, upload MinIO     • Cấu hình Tham số Thương mại Sàn │
-│   • Giám sát hạ tầng, audit logs     • Xử lý khiếu nại nội bộ theo Terms│
-│                                      • Điều phối Dòng tiền Ký quỹ      │
+│   • Giám sát hạ tầng, audit logs     • Tiếp nhận & Hòa giải Khiếu nại  │
+│                                      • Điều phối Trạng thái Thanh toán │
 └───────────────────┬──────────────────────────────────┬─────────────────┘
                     │                                  │
                     ▼                                  ▼
@@ -61,257 +62,321 @@ Hệ thống được tổ chức thành **3 Khối tác nhân (Actor Zones)** �
 
 | Khối quyền lực (Actor Zone) | Mã Role | Định danh & Trách nhiệm chuẩn mực |
 | :--- | :--- | :--- |
-| **1. Platform Governance** | `PLATFORM_ADMIN` | **Quản trị viên Kỹ thuật & Hệ thống**: Quản trị tài khoản, cấu hình bảo mật, duy trì bộ Checklist tiêu chuẩn ngành, cấu hình ngưỡng AI YOLO (`yolo_confidence_threshold`), giới hạn upload MinIO, kiểm tra audit log. Không can thiệp vào tham số thương mại hay phân xử tranh chấp. |
-| | `PLATFORM_OPERATOR` | **Quản trị viên Vận hành Nghiệp vụ & Hòa giải Sàn**: Thẩm định năng lực pháp lý Provider (giấy phép, bảo hiểm, định danh drone); **quản trị và điều chỉnh các tham số thương mại sàn (Tỷ lệ hoa hồng $r$, Tỷ lệ bảo lãnh $H$, Thời hạn nghiệm thu, Phí phạt hủy dry-run)**; giám sát Escrow; **phán xử tranh chấp nội bộ theo quy chế sàn**. |
-| **2. Customer Organization** | `CLIENT` | **Khách hàng Doanh nghiệp / Chủ sở hữu hạ tầng**: Tự đăng ký pháp nhân; quản lý danh mục tài sản hạ tầng; tạo yêu cầu khảo sát (chỉ định hoặc chào thầu mở RFQ); ký Hợp đồng dịch vụ điện tử; **nạp khoản tiền theo tỷ lệ chính sách đã snapshot qua đối tác thanh toán được cấp phép**; nghiệm thu báo cáo kỹ thuật; mở tranh chấp khi có vi phạm; duyệt đơn bảo trì. |
-| **3. Service Provider** | `PROVIDER_MANAGER` | **Quản lý Đơn vị Dịch vụ Drone / Bảo trì**: Khai báo hồ sơ công ty và đội ngũ phi công; tiếp nhận RFQ; lập Báo giá dịch vụ (chỉ gồm công bay, kỹ thuật, di chuyển, VAT — **không** tính phí AI/MinIO của Sàn); nộp giấy phép bay Cục Tác chiến; phê duyệt Kế hoạch bay Drone (Mission Plan); phân công phi công; duyệt phát hành báo cáo QA. |
-| | `INSPECTOR` | **Phi công Drone / Thanh tra viên Hiện trường**: Lập shot plan (GSD, overlap, shot items, gimbal); bay thủ công hoặc waypoint-assisted nếu có; nạp ảnh/video và metadata khả dụng; xác minh AI candidates; tự xác minh từng kết luận và chỉnh sửa AI draft mình lập trước khi nộp Provider Manager. |
-| | `MAINTENANCE_ENGINEER` | **Kỹ sư Bảo trì / Sửa chữa**: Khảo sát hiện trường khuyết tật sau kiểm định; lập dự toán vật tư & nhân công; thi công sửa chữa; **bắt buộc nạp ảnh đối chứng Trước/Sau (Before/After Evidence)** lên MinIO để nghiệm thu giải ngân đợt 1 và kích hoạt thời hạn bảo hành. |
+| **1. Platform Governance** | `PLATFORM_ADMIN` | **Quản trị viên Kỹ thuật & Hệ thống**: Quản trị tài khoản, cấu hình bảo mật, duy trì bộ Checklist tiêu chuẩn ngành, cấu hình ngưỡng phát hiện AI YOLO (`yolo_confidence_threshold`), giám sát đường ống dữ liệu MinIO, kiểm tra audit log. Không can thiệp vào tham số thương mại hay phân xử tranh chấp. |
+| | `PLATFORM_OPERATOR` | **Quản trị viên Vận hành Nghiệp vụ & Hòa giải Sàn**: Thẩm định năng lực pháp lý Provider (giấy phép kinh doanh, bảo hiểm, định danh drone, chứng chỉ bay); **quản trị và điều chỉnh các tham số thương mại sàn (Tỷ lệ hoa hồng $r$, Tỷ lệ bảo lãnh $H$, Thời hạn nghiệm thu, Phí phạt hủy)**; giám sát luồng thanh toán có điều kiện; **chủ trì hòa giải khiếu nại nội bộ theo Quy chế Sàn (Platform Terms)**. Khi có tranh chấp kỹ thuật phức tạp, có thẩm quyền yêu cầu biên bản giám định của bên thứ ba độc lập do các bên cung cấp. |
+| **2. Customer Organization** | `CLIENT` | **Khách hàng Doanh nghiệp / Chủ sở hữu hạ tầng**: Quản lý danh mục tài sản hạ tầng; tạo yêu cầu khảo sát (chỉ định hoặc chào thầu mở RFQ); ký Hợp đồng dịch vụ điện tử; thực hiện nạp tiền đảm bảo thanh toán qua đối tác thanh toán được cấp phép; nghiệm thu báo cáo kỹ thuật; mở khiếu nại/tranh chấp khi có sai lệch kỹ thuật; duyệt đơn bảo trì và nghiệm thu hoàn công. |
+| **3. Service Provider** | `PROVIDER_MANAGER` | **Quản lý Đơn vị Dịch vụ Drone / Bảo trì**: Khai báo hồ sơ công ty và đội ngũ kỹ thuật; tiếp nhận RFQ; lập Báo giá dịch vụ (chỉ gồm công bay, kỹ thuật, vật tư, di chuyển, VAT — **không** tính phí AI/MinIO của Sàn); đính kèm giấy phép bay của cơ quan có thẩm quyền; phê duyệt Kế hoạch bay Drone (Mission Plan); phân công phi công; kiểm tra tính đầy đủ và ký phát hành báo cáo QA chính thức. |
+| | `INSPECTOR` | **Phi công Drone / Thanh tra viên Hiện trường**: Lập kế hoạch trắc địa (GSD, overlap, shot items, gimbal); **chịu trách nhiệm trực tiếp về an toàn bay tại hiện trường (Pilot-in-Command)**; kích hoạt bay bù/bay lại khi ảnh không đạt chuẩn; nạp ảnh và bóc tách telemetry; xác minh và hiệu chỉnh kích thước khuyết tật do AI ước lượng; tự hoàn thiện và ký xác nhận bản thảo báo cáo trước khi trình Provider Manager. |
+| | `MAINTENANCE_ENGINEER` | **Kỹ sư Bảo trì / Sửa chữa**: Khảo sát hiện trường khuyết tật; lập Phương án kỹ thuật sửa chữa & dự toán vật tư; dừng thi công và lập Change Order khi phát hiện hư hỏng ngầm; thi công sửa chữa; **bắt buộc nạp cặp ảnh đối chứng Trước/Sau (Before/After Evidence)** kèm nhật ký vật tư để làm căn cứ nghiệm thu. |
 
 ---
 
-## III. Mô hình Dòng tiền Ký quỹ (Escrow Cash Flow) & Hợp đồng Điện tử
+## III. Mô hình Điều phối Thanh toán có Điều kiện (Conditional Payment) & Hợp đồng Điện tử
 
-### 1. Kiến trúc Hợp đồng 3 Bên (Tripartite Agreement)
-* **Quy chế hoạt động Sàn (Platform Terms of Service)**: Ràng buộc cả Client và Provider khi tham gia nền tảng. Cho phép `PLATFORM_OPERATOR` công bố chính sách thương mại và điều phối xử lý khiếu nại nội bộ theo quy chế; không trao thẩm quyền trọng tài pháp lý.
-* **Đơn dịch vụ điện tử (Inspection Service Order / Maintenance Work Order)**: Được sinh ra cho từng thương vụ kiểm định/bảo trì, có giá trị pháp lý theo *Luật Giao dịch điện tử 2023*. Bao gồm: Phạm vi công việc (SOW), Kế hoạch bay kỹ thuật (GSD, Shot list, Overlap), Tiến độ cam kết (SLA), Chi phí dịch vụ Provider và các điều khoản thương mại đã được khóa tại thời điểm ký kết.
+### 1. Mô hình Hợp đồng Điện tử (Platform Terms + Bilateral Service Order)
+* **Quy chế hoạt động Sàn (Platform Terms of Service)**: Ràng buộc Client và Provider khi tham gia nền tảng. Trao quyền cho `PLATFORM_OPERATOR` điều chỉnh chính sách thương mại công khai và đóng vai trò trung gian hòa giải khiếu nại theo quy chế; không thay thế cơ quan tài phán nhà nước.
+* **Đơn dịch vụ điện tử (Inspection Service Order / Maintenance Work Order)**: Hợp đồng giao kết điện tử giữa Client và Provider cho từng thương vụ, tuân thủ *Luật Giao dịch điện tử 2023*. Bao gồm: Phạm vi công việc (SOW), Kế hoạch bay kỹ thuật (GSD mục tiêu, Shot list, Overlap), Tiến độ cam kết (SLA), Chi phí dịch vụ Provider và các điều khoản thương mại đã được khóa bất biến (Snapshot) tại thời điểm ký kết.
 
-### 2. Funding, Settlement và Complaint Hold theo Đối tác được Cấp phép
-Các cơ chế dưới đây chỉ áp dụng nếu payment-partner product và điều khoản được các bên chấp thuận hỗ trợ:
-1. **Funding theo hợp đồng**: Nếu Service Order yêu cầu nạp trước, Client nạp khoản tiền theo tỷ lệ/điều kiện đã snapshot qua sản phẩm của đối tác được cấp phép (`HELD_IN_ESCROW`). Nếu không yêu cầu nạp trước, không tạo payment gate. Nếu order yêu cầu nhưng đối tác không hỗ trợ, dừng funding-dependent execution hoặc dùng phương án riêng đã được rà soát/chấp thuận; Platform không tự giữ tiền. Chỉ orders có funding requirement mới phải đợi partner confirmation trước khi bắt đầu.
-2. **Settlement theo terms (target)**: Sau Client acceptance hoặc điều kiện deemed-acceptance được ghi rõ trong order, chỉ instruct partner nếu product hỗ trợ; không suy diễn settlement tự động khi partner/order terms không cung cấp.
-3. **Complaint hold (`FROZEN_DISPUTED`)**: Khi có complaint hợp lệ, chỉ gửi request hold cho phần tiền liên quan nếu product/accepted terms cho phép. `FROZEN_DISPUTED` là workflow state, không xác nhận Platform custody. Release/continuation follows partner confirmation, accepted contract terms and legally competent external mechanisms; Operator handles only internal Platform Terms review.
+### 2. Quản lý Vòng đời Thanh toán có Điều kiện qua Đối tác Thanh toán được Cấp phép
+1. **Nạp tiền đảm bảo thanh toán (Advance Funding)**: Nếu Service Order quy định nạp trước, Client chuyển tiền vào tài khoản đảm bảo thanh toán mở tại Ngân hàng thương mại / Cổng trung gian thanh toán đối tác được cấp phép theo Nghị định 52/2024/NĐ-CP. Trạng thái hợp đồng ghi nhận `FUNDED_IN_PARTNER_ESCROW`. Platform **chỉ quản lý máy trạng thái (State Machine)**, không trực tiếp nắm giữ tiền gửi của khách hàng.
+2. **Giải ngân theo điều kiện nghiệm thu (Settlement on Acceptance)**: Sau khi Client bấm "Nghiệm thu (Accept)" hoặc điều kiện tự động nghiệm thu theo hợp đồng đạt đến, Platform gửi chỉ thị thanh toán điện tử sang đối tác cổng thanh toán để giải ngân phần tiền ròng $(B - C)$ cho Provider và trích phí hoa hồng $C$ cho Platform.
+3. **Tạm dừng thanh toán khi có tranh chấp (`FROZEN_DISPUTED`)**: Khi một bên mở tranh chấp hợp lệ, Platform ghi nhận trạng thái tranh chấp và chỉ gửi yêu cầu tạm dừng/không giải ngân nếu đối tác thanh toán hỗ trợ cơ chế này theo hợp đồng tích hợp. Nếu không hỗ trợ, giao dịch được xử lý theo cơ chế dispute/refund/settlement của đối tác. Khoản tiền chỉ được giải quyết theo điều khoản hợp đồng, kết quả hòa giải được các bên chấp thuận hoặc quyết định của cơ quan tài phán có thẩm quyền.
 
 ### 3. Chính sách Cấu hình Động của `PLATFORM_OPERATOR` & Nguyên tắc Contract Snapshot
-Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đối không bị hardcode**, mà được quản trị tập trung bởi `PLATFORM_OPERATOR` thông qua giao diện Quản trị Chính sách Thương mại:
+Toàn bộ các tham số thương mại và vận hành trên sàn **tuyệt đối không bị hardcode**, được cấu hình tập trung bởi `PLATFORM_OPERATOR`:
 
 | Tham số Cấu hình | Ký hiệu | Giá trị áp dụng | Thẩm quyền Quản lý | Phạm vi & Tác động |
 | :--- | :---: | :---: | :---: | :--- |
-| **Tỷ lệ hoa hồng sàn** | $r$ (`commission_rate`) | Operator ban hành theo kỳ | `PLATFORM_OPERATOR` | Áp dụng thống nhất cho toàn bộ Provider; tính trên doanh thu dịch vụ hợp lệ trước VAT: $C = r \times B$. |
-| **Thời hạn nghiệm thu tự động** | $T_{rev}$ (`auto_settlement_review_days`) | Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Thời hạn làm việc Client được quyền thẩm định báo cáo; giá trị được snapshot vào Service Order. |
-| **Tỷ lệ nạp trước theo hợp đồng** | $D$ (`required_advance_funding_rate`) | Operator cấu hình theo policy và đối tác | `PLATFORM_OPERATOR` | Tỷ lệ tiền Client cần nạp trước khi khởi công; snapshot vào Service Order, nếu đối tác thanh toán hỗ trợ. |
-| **Tỷ lệ bảo lãnh hoàn công** | $H$ (`warranty_retention_rate`) | Nếu áp dụng: Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Tùy chọn retention được disclosure và chấp thuận trong Maintenance Order; nếu không adopted, không giữ khoản này. |
-| **Thời hạn bảo hành** | $T_{war}$ (`standard_warranty_days`) | Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Thời hạn bảo hành trước khi giải ngân nốt tiền giữ lại; giá trị được snapshot vào Maintenance Order. |
-| **Điều khoản hủy chuyến** | `cancellation_policy` | Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Chính sách, điều kiện và cách tính chi phí hủy được công bố và snapshot vào Service Order. |
+| **Tỷ lệ hoa hồng sàn** | $r$ (`commission_rate`) | Operator ban hành theo kỳ | `PLATFORM_OPERATOR` | Áp dụng cho Provider; tính trên doanh thu dịch vụ hợp lệ trước VAT: $C = r \times B$. |
+| **Thời hạn nghiệm thu hợp đồng** | $T_{rev}$ (`contract_review_period_days`) | Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Thời hạn Client thẩm định báo cáo; giá trị được snapshot vào Service Order làm căn cứ nghiệm thu mặc định. |
+| **Tỷ lệ nạp tiền đảm bảo** | $D$ (`advance_funding_rate`) | Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Tỷ lệ tiền Client cần nạp trước khi khởi công; snapshot vào Service Order. |
+| **Tỷ lệ bảo lãnh hoàn công** | $H$ (`warranty_retention_rate`) | Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Tỷ lệ giữ lại bảo hành hoàn công trong Maintenance Order (nếu hai bên thỏa thuận áp dụng). |
+| **Thời hạn bảo hành tiêu chuẩn** | $T_{war}$ (`standard_warranty_days`) | Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Thời hạn bảo hành công trình trước khi giải ngân phần tiền bảo lãnh $H$. |
+| **Chính sách hủy và bồi hoàn** | `cancellation_policy` | Operator cấu hình theo policy | `PLATFORM_OPERATOR` | Quy định mức bồi hoàn/chi phí phát sinh theo từng mốc thời gian và lý do hủy chuyến bay. |
 
 * **Nguyên tắc Khóa Bất biến Hợp đồng (Contract Snapshot Pattern)**:
-  * Khi Client và Provider ký kết Hợp đồng Dịch vụ (Service Order), hệ thống thực hiện sao chép (snapshot) các giá trị tham số tại thời điểm đó vào bản ghi hợp đồng (`locked_commission_rate`, `locked_review_period_days`, `locked_cancellation_policy`, `locked_advance_funding_rate`, `locked_retention_rate`, `locked_warranty_days`).
-  * Mọi sự điều chỉnh chính sách của `PLATFORM_OPERATOR` sau đó **chỉ có hiệu lực đối với các hợp đồng phát sinh mới**, tuyệt đối không hồi tố (non-retroactive) làm thay đổi quyền lợi của các hợp đồng đang thực hiện.
+  * Khi Service Order được xác lập, hệ thống sao chép (snapshot) toàn bộ giá trị tham số tại thời điểm đó vào bản ghi hợp đồng.
+  * Mọi thay đổi chính sách của `PLATFORM_OPERATOR` sau đó chỉ áp dụng cho các hợp đồng tạo mới, tuyệt đối không làm thay đổi các hợp đồng đang thực hiện.
 
-### 4. Hạ tầng Dữ liệu, Mô hình AI YOLO và Trợ lý LLM do Nền tảng (Platform) Cung cấp Tập trung
-* **Nguyên tắc Nền tảng cung cấp trọn gói**: Hệ thống lưu trữ MinIO, đường ống xử lý dữ liệu, mô hình **AI YOLO** và **trợ lý LLM** là **Năng lực dùng chung do Platform trực tiếp host, cung cấp và tự chi trả chi phí vận hành** (GPU, API tokens, storage) từ nguồn thu hoa hồng của Sàn.
-* **Người dùng thuần túy (Consumers)**:
-  - **Provider**: Chỉ sử dụng công cụ AI trên Web/Mobile của Platform để hỗ trợ khảo sát và lập báo cáo. Provider **không được phép bóc tách hoặc tính thêm bất kỳ khoản phí AI / xử lý dữ liệu nào vào Báo giá gửi Client**. Báo giá chỉ bao gồm công bay, nhân lực kỹ thuật, chi phí di chuyển và thuế của Provider.
-  - **Client**: Xem hộp bao khuyết tật AI và đối soát kích thước vật lý dựa trên thông số trắc địa GSD.
-  - AI chỉ đóng vai trò đề xuất ứng viên (Candidate), không thay thế sự thẩm định và xác nhận của con người (Inspector).
+### 4. Hạ tầng Dữ liệu, Mô hình AI YOLO và LLM do Nền tảng Cung cấp Tập trung
+* Hệ thống lưu trữ đối tượng MinIO, pipeline thị giác máy tính **AI YOLO** và trợ lý **LLM** là năng lực hạ tầng dùng chung do Platform trực tiếp host và chịu chi phí vận hành từ nguồn thu hoa hồng $C$.
+* **Provider** không được phép bóc tách hay tính thêm chi phí xử lý AI/lưu trữ dữ liệu vào Báo giá gửi Client.
+* **Nguyên tắc Phản biện Con người (Human-in-the-loop)**: AI chỉ đóng vai trò trợ lý đề xuất ứng viên lỗi (Candidates) và soạn thảo bản thảo (Draft). Toàn bộ kết quả kiểm định chính thức bắt buộc phải do con người (`INSPECTOR` và `PROVIDER_MANAGER`) thẩm định, đo đạc, chỉnh sửa và ký duyệt.
 
 ---
 
-## IV. Chi tiết Luồng Nghiệp vụ (Supporting Flow & 5 Core Main Flows)
+## IV. Sơ đồ Kiến trúc Nghiệp vụ Tổng thể & Vòng lặp Phi tuyến tính (End-to-End Dynamic Workflow)
+
+Hệ thống hoạt động theo mô hình vòng đời hoàn chỉnh có phản hồi và xử lý ngoại lệ:
+
+```
+                      ┌──────────────────────────────────────────┐
+                      │    SF: ASSET & PROVIDER ONBOARDING       │
+                      └────────────────────┬─────────────────────┘
+                                           │
+                                           ▼
+                      ┌──────────────────────────────────────────┐
+                      │    MF1: RFQ & CONDITIONAL FUNDING        │
+                      └────────────────────┬─────────────────────┘
+                                           │
+                                           ▼
+                      ┌──────────────────────────────────────────┐
+                      │    MF2: FLIGHT PLANNING & CLEARANCE      │
+                      └─────────┬──────────────────────┬─────────┘
+                                │                      │
+                        [Permit/Plan OK]        [Weather/Safety Abort]
+                                │                      │
+                                ▼                      ▼
+                      ┌───────────────────┐    [Reschedule / Re-plan]
+                      │ MF3: FIELD FLIGHT │
+                      └─────────┬─────────┘
+                                │
+                                ▼
+                      ┌──────────────────────────────────────────┐
+                      │     EVIDENCE QUALITY & COVERAGE GATE     │
+                      └─────────┬──────────────────────┬─────────┘
+                                │                      │
+                          [Data Valid]          [Blur / Missing / No GPS]
+                                │                      │
+                                │                      ▼
+                                │              [Re-flight / Bay bù]
+                                │                      │
+                                ├──────────────────────┘
+                                ▼
+                      ┌──────────────────────────────────────────┐
+                      │ AI ESTIMATION & INSPECTOR VERIFICATION   │
+                      └────────────────────┬─────────────────────┘
+                                           │
+                                           ▼
+                      ┌──────────────────────────────────────────┐
+                      │     LLM DRAFT & QA REPORT RELEASE        │
+                      └────────────────────┬─────────────────────┘
+                                           │
+                                           ▼
+                      ┌──────────────────────────────────────────┐
+                      │         MF4: CLIENT ACCEPTANCE           │
+                      └─────────┬──────────────┬───────────────┬─┘
+                                │              │               │
+                            [Accept]      [Clarify]        [Dispute]
+                                │              │               │
+                                ▼              ▼               ▼
+                        [Disburse Funds] [Revise Report] [Internal Dispute
+                                │              │         & Expert Review]
+                                │              └───────────────┘
+                                ▼
+                      ┌──────────────────────────────────────────┐
+                      │     MF5: MAINTENANCE WORK ORDER          │
+                      └────────────────────┬─────────────────────┘
+                                           │
+                                           ▼
+                      ┌──────────────────────────────────────────┐
+                      │    TECHNICAL ASSESSMENT & QUOTATION      │
+                      └────────────────────┬─────────────────────┘
+                                           │
+                                           ▼
+                      ┌──────────────────────────────────────────┐
+                      │       REPAIR & BEFORE/AFTER EVIDENCE     │
+                      └─────────┬──────────────────────┬─────────┘
+                                │                      │
+                          [Work Complete]        [Hidden Defect Found]
+                                │                      │
+                                │                      ▼
+                                │             [Change Order Approval]
+                                │                      │
+                                ├──────────────────────┘
+                                ▼
+                      ┌──────────────────────────────────────────┐
+                      │        MAINTENANCE ACCEPTANCE            │
+                      └─────────┬──────────────────────┬─────────┘
+                                │                      │
+                            [Passed]                [Failed]
+                                │                      │
+                                ▼                      ▼
+                        [Warranty Clock]        [Rework Loop]
+                                │
+                                ▼
+                         [Ticket Closed]
+```
 
 ---
 
-### Supporting Flow (SF) — Onboarding Doanh nghiệp, Thẩm định Pháp lý & Quản trị Danh mục Tài sản
+## V. Chi tiết Luồng Nghiệp vụ (Supporting Flow & 5 Core Main Flows)
 
-> **Bản chất**: Đây là Luồng Bổ trợ Tiền đề (Supporting Flow) quản lý dữ liệu danh mục ban đầu (Master Data Management / Onboarding), diễn ra một lần hoặc định kỳ cập nhật hồ sơ, là điều kiện tiên quyết để vận hành các Main Flows giao dịch cốt lõi.
+---
 
-**Tác nhân chính**: `Platform Admin`, `Platform Operator`, `Client`, `Provider Manager`, `System`.
+### Supporting Flow (SF) — Khai báo Danh mục, Thẩm định Pháp lý & Quản trị Không phận Ban đầu
+
+> **Bản chất**: Luồng Tiền đề quản trị dữ liệu danh mục ban đầu (Master Data Management / Onboarding) để thiết lập môi trường hoạt động an toàn và hợp pháp cho các giao dịch.
+
+**Tác nhân chính**: `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `System`.
 
 #### 1. Quy trình chi tiết (Sequence Steps)
-* **SF-01 (Client Self-Registration)**: Đại diện doanh nghiệp khách hàng tự đăng ký tài khoản tổ chức, cung cấp mã số thuế, hồ sơ pháp lý công ty và kích hoạt tài khoản `CLIENT`.
-* **SF-02 (Provider Onboarding & Vetting)**: Provider Manager đăng ký hồ sơ năng lực của công ty bay drone: Giấy phép kinh doanh, Danh mục drone kèm số đăng ký định danh phương tiện bay của Bộ Quốc phòng theo *Luật Phòng không nhân dân 2024* & *Nghị định 288/2025/NĐ-CP*, Danh sách phi công kèm chứng chỉ điều khiển bay hợp lệ, và Chứng thư bảo hiểm trách nhiệm dân sự bên thứ ba.
-* **SF-03 (Operator Vetting Approval)**: `PLATFORM_OPERATOR` thẩm định tính hợp lệ của hồ sơ Provider. Nếu đạt, cấp trạng thái `VERIFIED`. Nếu thiếu, yêu cầu bổ sung hoặc từ chối (`REJECTED`). Provider chưa được duyệt bị chặn toàn bộ quyền tham gia báo giá.
-* **SF-04 (Asset Profiling & Airspace Pre-check)**: Client khai báo thông tin tài sản công trình: Tọa độ địa lý (kinh độ, vĩ độ), ranh giới tiếp cận, cao độ kết cấu, tài liệu bản vẽ hoàn công. Hệ thống tự động tra cứu dữ liệu không phận công khai (`cambay.mod.gov.vn` theo QĐ 18/2020/QĐ-TTg) để hiển thị cảnh báo tham khảo nếu công trình nằm trong hoặc gần vùng cấm/hạn chế bay.
-* **SF-05 (Periodic Schedule Cadence)**: Platform sinh các schedule proposal theo tần suất đã cấu hình cho category; `PLATFORM_OPERATOR` (hoặc vai trò nghiệp vụ được giao trong baseline) kiểm tra/điều chỉnh proposal, sau đó Client chọn một proposal hợp lệ để tạo lịch. Client không tạo schedule trực tiếp. Khi lịch đã chọn đến hạn, hệ thống sinh request package cho MF1 theo Asset + Schedule + Due Cycle identity.
+* **SF-01 (Client Self-Registration)**: Đại diện doanh nghiệp khách hàng tự đăng ký tài khoản tổ chức, cung cấp mã số thuế, thông tin người đại diện theo pháp luật và kích hoạt tài khoản `CLIENT`.
+* **SF-02 (Provider Onboarding & Vetting Submission)**: Provider Manager đăng ký hồ sơ năng lực của công ty: Giấy phép kinh doanh dịch vụ khảo sát; Danh mục phương tiện bay drone kèm Giấy chứng nhận đăng ký định danh phương tiện bay của Bộ Quốc phòng theo *Nghị định 288/2025/NĐ-CP*; Danh sách phi công kèm Chứng chỉ điều khiển phương tiện bay hợp lệ; Chứng thư bảo hiểm trách nhiệm dân sự bên thứ ba còn hiệu lực.
+* **SF-03 (Operator Vetting Approval)**: `PLATFORM_OPERATOR` thẩm định tính pháp lý và hiệu lực của hồ sơ Provider. Nếu đạt, cấp trạng thái `VERIFIED`. Nếu thiếu hoặc hết hạn, chuyển `ADDITIONAL_INFO_REQUIRED` hoặc `REJECTED`. Provider chưa được duyệt bị chặn toàn bộ quyền tham gia báo giá.
+* **SF-04 (Asset Profiling & Airspace Pre-check)**: Client khai báo thông tin tài sản công trình: Tọa độ địa lý (kinh độ, vĩ độ), ranh giới tiếp cận, chiều cao đỉnh công trình, bản vẽ hoàn công. Hệ thống tự động tra cứu dữ liệu không phận số (`cambay.mod.gov.vn` theo QĐ 18/2020/QĐ-TTg) để hiển thị cảnh báo tham khảo sớm nếu tài sản nằm trong hoặc tiếp giáp vùng cấm/hạn chế bay.
+* **SF-05 (Periodic Schedule Cadence)**: Platform tự động sinh các đề xuất lịch kiểm định (Schedule Proposals) theo chu kỳ bảo trì cấu hình sẵn cho từng loại công trình; Client rà soát và xác nhận lịch chính thức để làm căn cứ tự động tạo gói yêu cầu kiểm tra khi đến hạn.
 
-#### 2. Xử lý Luồng Ngoại lệ SF (5 Câu hỏi Bắt buộc)
-* **Q1: Dữ liệu đầu vào thiếu hoặc sai?** Hồ sơ Provider thiếu chứng chỉ phi công hoặc bảo hiểm: Operator từ chối duyệt, hệ thống chuyển trạng thái `ADDITIONAL_INFO_REQUIRED`. Tọa độ tài sản nằm trong vùng cấm bay quân sự: Hệ thống gắn cờ cảnh báo `RESTRICTED_AIRSPACE`, yêu cầu phải có giấy phép bay Cục Tác chiến đặc biệt trước khi phát thầu.
-* **Q2: Truy cập trái phép / Sai tổ chức?** Client Org A không thể xem tài sản của Client Org B. Provider chưa được duyệt (`PENDING/SUSPENDED`) bị chặn toàn bộ các API xem danh sách tài sản hay nhận yêu cầu.
-* **Q3: Thao tác đồng thời / Trùng lặp?** Mã số thuế và Mã tài sản (Asset Code) có ràng buộc duy nhất (Unique Constraint) trong phạm vi tổ chức. Gửi lại form bị chặn ngay với mã lỗi `DUPLICATE_ENTITY`.
-* **Q4: Dịch vụ ngoài / Mạng lỗi?** Cổng tra cứu `cambay.mod.gov.vn` bị gián đoạn: Hệ thống lưu trạng thái `AIRSPACE_CHECK_PENDING`, cho phép lưu hồ sơ tài sản nhưng đánh dấu cần thẩm định không phận thủ công trước khi phát thầu.
-* **Q5: Từ chối / Hủy giữa chừng?** Provider bị Operator từ chối có quyền bổ sung giấy tờ và gửi thẩm định lại tối đa 3 lần.
+#### 2. Xử lý Ngoại lệ SF
+* **Hồ sơ Provider giả mạo hoặc hết hạn bảo hiểm**: Operator từ chối duyệt, khóa quyền tham gia sàn và ghi log kiểm toán.
+* **Tài sản nằm trong vùng cấm bay tuyệt đối (khu quân sự, khu vực trọng yếu)**: Hệ thống gắn cờ cảnh báo `NO_FLY_ZONE_ALERT`, khuyến cáo Client cần chuẩn bị phương án xin cấp phép bay đặc biệt trước khi phát hành RFQ.
 
 ---
 
-### MF1 — Yêu cầu Khảo sát, Đấu thầu Báo giá & Thanh toán có Điều kiện (Survey Request, Quotation Sourcing & Conditional Funding)
+### MF1 — Yêu cầu Khảo sát, Đấu thầu Chọn thầu Thông minh & Nạp tiền Đảm bảo Thanh toán (Survey Request, Smart RFQ & Conditional Funding)
 
-**Mục tiêu**: Khởi tạo nhu cầu kiểm định, kết nối Provider đủ điều kiện thông qua chỉ định hoặc đấu thầu mở (RFQ), ký hợp đồng điện tử 3 bên và nạp khoản tiền theo tỷ lệ đã cấu hình vào cơ chế thanh toán có điều kiện.
+**Mục tiêu**: Tiếp nhận nhu cầu kiểm định, kết nối thông minh đến các Provider đủ năng lực, chốt báo giá, ký hợp đồng điện tử song phương và nạp tiền đảm bảo thanh toán theo điều kiện hợp đồng.
 
-**Tác nhân chính**: `Client`, `Platform Operator`, `Provider Manager`, `System`.
+**Tác nhân chính**: `CLIENT`, `PLATFORM_OPERATOR`, `PROVIDER_MANAGER`, `System`.
 
 #### 1. Quy trình chi tiết (Main Sequence)
 
 | Bước | Vai trò / Lane | Hoạt động chi tiết | Sản phẩm đầu ra |
 | :--- | :--- | :--- | :--- |
-| **MF1-01** | Client | Khởi tạo Yêu cầu khảo sát (từ lịch định kỳ SF-05 hoặc đột xuất). Chọn phương thức chọn thầu: (A) **Chỉ định trực tiếp** Provider đối tác quen thuộc; hoặc (B) **Chào thầu mở (Open RFQ)** cho các Provider trong khu vực. Nêu rõ mục tiêu kiểm tra (tìm nứt bê tông, kiểm tra ăn mòn dầm thép). | Yêu cầu kiểm tra (RFQ) |
-| **MF1-02** | Platform Operator | *(Tùy chọn hỗ trợ)*: Kiểm tra yêu cầu chào thầu mở của Client, hỗ trợ kết nối và gửi thông báo đến các Provider có năng lực và phạm vi hoạt động phù hợp. | Danh sách Provider tiếp cận RFQ |
-| **MF1-03** | Provider Manager | Xem xét yêu cầu, khảo sát địa hình sơ bộ từ xa và lập **Báo giá dịch vụ (Quotation)**: Chỉ gồm (1) Chi phí nhân lực bay hiện trường; (2) Chi phí kỹ thuật chuyên môn; (3) Chi phí đi lại/triển khai hợp lệ; (4) Thuế VAT của Provider. **Tuyệt đối không tính phí xử lý AI/MinIO của Sàn vào báo giá.** | Báo giá dịch vụ (v1, v2) |
-| **MF1-04** | Client | Xem xét các báo giá cạnh tranh. Có thể yêu cầu điều chỉnh (Revision) hoặc chọn Báo giá phù hợp nhất để chấp thuận. | Báo giá được chấp thuận |
-| **MF1-05** | System | Khởi tạo **Hợp đồng Dịch vụ Điện tử (Inspection Service Order)**: Thực hiện **Contract Snapshot** để lưu tỷ lệ hoa hồng $r$, thời hạn nghiệm thu $T_{rev}$, tỷ lệ nạp trước $D$ và chính sách hủy do `PLATFORM_OPERATOR` ban hành tại thời điểm ký vào bản ghi hợp đồng. | Hợp đồng điện tử sẵn sàng ký |
-| **MF1-06** | Client & Provider Manager | Hai bên chấp thuận/ký kết Service Order điện tử theo điều khoản đã công bố và pháp luật áp dụng. Nếu order quy định nạp trước, Client thanh toán qua đối tác được cấp phép; nếu không, áp dụng mốc thanh toán đã thỏa thuận. Funding status không tự quyết định thời điểm hình thành hợp đồng. | Service Order được chấp thuận; trạng thái funding theo order/đối tác |
+| **MF1-01** | Client | Khởi tạo Yêu cầu khảo sát: Chọn phương thức (A) **Chỉ định trực tiếp** Provider quen thuộc, hoặc (B) **Chào thầu mở (Open RFQ)**. Xác định rõ mục tiêu kiểm tra (tìm nứt bê tông, gỉ sét cấu kiện, thấm dột), phạm vi cấu kiện và tiến độ mong muốn. | Yêu cầu kiểm tra (RFQ) |
+| **MF1-02** | System | **Bộ lọc Nhà cung cấp Đủ điều kiện (Smart Eligibility Filter)**: Hệ thống tự động lọc danh sách Provider dựa trên: (1) Khu vực địa lý hoạt động; (2) Sở hữu loại drone và cảm biến phù hợp với mục tiêu kiểm định; (3) Phi công có chứng chỉ hợp lệ; (4) Trạng thái hồ sơ `VERIFIED`; (5) Lịch khả dụng. Chỉ gửi thư mời chào thầu (RFQ Invitation) tới các Provider đáp ứng tiêu chí. | Danh sách Eligible Providers nhận RFQ |
+| **MF1-03** | Provider Manager | Nghiên cứu yêu cầu, khảo sát thực địa từ xa qua bản đồ/bản vẽ và lập **Báo giá dịch vụ (Quotation)**: Chi tiết hóa gồm (1) Chi phí nhân lực phi công hiện trường; (2) Chi phí thiết bị drone/cảm biến; (3) Chi phí di chuyển/triển khai; (4) Thuế VAT. **Tuyệt đối không tính phí xử lý AI/MinIO của Sàn vào báo giá.** | Báo giá dịch vụ (Quotation) |
+| **MF1-04** | Client | Xem xét các báo giá cạnh tranh. Có thể gửi yêu cầu đàm phán/hiệu chỉnh (Revision) hoặc chọn Báo giá tối ưu nhất để chấp thuận. | Báo giá được chấp thuận |
+| **MF1-05** | System | Khởi tạo **Hợp đồng Dịch vụ Điện tử (Inspection Service Order)**: Thực hiện **Contract Snapshot** lưu trữ bất biến các giá trị tỷ lệ hoa hồng $r$, thời hạn nghiệm thu $T_{rev}$, tỷ lệ nạp tiền đảm bảo $D$ và chính sách hủy tại thời điểm giao kết. | Hợp đồng điện tử sẵn sàng ký |
+| **MF1-06** | Client & Provider Manager | Hai bên thực hiện ký số/chấp thuận Service Order điện tử. Client nạp khoản tiền đảm bảo $D$ vào tài khoản chỉ định của đối tác thanh toán được cấp phép (theo NĐ 52/2024/NĐ-CP). Hệ thống cập nhật trạng thái hợp đồng sang `FUNDED_IN_PARTNER_ESCROW` và kích hoạt luồng lập kế hoạch bay. | Hợp đồng có hiệu lực & Trạng thái thanh toán kích hoạt |
 
-#### 2. Chính sách Hủy Hợp đồng & Rủi ro Thời tiết (Theo Snapshot hợp đồng)
-* **Hủy trước khi thực hiện**: Hoàn/khấu trừ khoản tiền theo điều khoản hủy đã công bố và snapshot vào Service Order; không mặc định cửa sổ hoặc tỷ lệ hoàn tiền toàn cục.
-* **Hủy sau khi Provider đã phát sinh chi phí**: Áp dụng điều khoản chi phí hủy/chi phí đã thực hiện trong Service Order đã chấp thuận; không áp một tỷ lệ hoặc mốc thời gian mặc định cho mọi đơn.
-* **Bất khả kháng do thời tiết xấu**: Nếu có bão, mưa lớn hoặc gió vượt ngưỡng an toàn bay, hai bên thống nhất dời lịch bay mà không phạt tiền và không tính vi phạm SLA.
-
-#### 3. Xử lý Luồng Ngoại lệ MF1 (5 Câu hỏi Bắt buộc)
-* **Q1: Dữ liệu đầu vào thiếu hoặc sai?** Yêu cầu khảo sát thiếu thông tin vị trí công trình hoặc mục tiêu kiểm định: Hệ thống yêu cầu Client bổ sung đầy đủ trước khi mở cổng nhận báo giá.
-* **Q2: Truy cập trái phép / Sai tổ chức?** Provider A không thể xem nội dung giá thầu của Provider B trong cùng một gói RFQ.
-* **Q3: Thao tác đồng thời / Trùng lặp?** Client bấm thanh toán 2 lần: Idempotency key và partner event/instruction identity ngăn hai chỉ thị funding hoặc giao dịch trùng cho cùng order/milestone.
-* **Q4: Dịch vụ ngoài / Mạng lỗi?** Cổng thanh toán timeout khi order yêu cầu funding: đơn hàng giữ trạng thái `PAYMENT_PENDING`; chỉ trạng thái đã xác thực từ đối tác mới xác nhận funding. Nếu order không yêu cầu nạp trước, luồng thực hiện theo mốc thanh toán thay thế đã được các bên chấp thuận.
-* **Q5: Từ chối / Hủy giữa chừng?** Client hủy yêu cầu trước khi chọn báo giá: RFQ tự động đóng (`CANCELLED`), thông báo cho các Provider đã nộp báo giá.
+#### 2. Xử lý Ngoại lệ & Rủi ro Thời tiết MF1
+* **Không có Provider nào nộp báo giá sau thời hạn RFQ**: Hệ thống thông báo Client mở rộng phạm vi địa lý hoặc điều chỉnh ngân sách/tiến độ mong muốn.
+* **Thời tiết bất khả kháng (Mưa bão, gió lớn vượt ngưỡng bay an toàn)**: Hai bên lập biên bản hoãn chuyến bay trên hệ thống; dời lịch bay mà không áp dụng chế tài phạt hủy hay tính vi phạm tiến độ SLA.
+* **Client hủy chuyến bay trước khi khởi hành**: Áp dụng chính sách bồi hoàn snapshot trong Service Order: Khấu trừ chi phí chuẩn bị thực tế hợp lý cho Provider (nếu có), phần còn lại đối tác thanh toán hoàn trả Client.
 
 ---
 
-### MF2 — Lập Kế hoạch Bay Drone Chuyên dụng & Thẩm định Không phận (Drone Mission Planning & Airspace Clearance) 🚀 [FLOW NỔI BẬT DRONE]
+### MF2 — Lập Kế hoạch Bay Chuyên dụng, Đề xuất GSD & Kiểm tra Điều kiện Bay & Hồ sơ Pháp lý (Mission Planning & Flight Compliance) 🚀 [FLOW NỔI BẬT DRONE]
 
-> **Trọng tâm công nghệ Drone**: Đây là luồng kỹ thuật chuyên sâu làm nổi bật năng lực quản trị bay trắc địa và pháp lý không phận của nền tảng, thiết lập các tham số trắc địa ảnh chuẩn mực trước khi cất cánh.
+> **Trọng tâm kỹ thuật Drone**: Phân tách rõ ràng giữa năng lực tính toán trắc địa ảnh và thẩm quyền an toàn bay; kiểm soát chặt chẽ hồ sơ cấp phép bay theo quy định pháp luật mới nhất.
 
-**Tác nhân chính**: `Provider Manager`, `Inspector` (Phi công), `Platform Operator`, `System`.
+**Tác nhân chính**: `INSPECTOR` (Phi công - Pilot in Command), `PROVIDER_MANAGER`, `System`.
 
 #### 1. Quy trình chi tiết (Main Sequence)
 
 | Bước | Vai trò / Lane | Hoạt động chi tiết | Sản phẩm đầu ra |
 | :--- | :--- | :--- | :--- |
-| **MF2-01** | Inspector | **Tính toán trắc địa ảnh & Độ phân giải mặt đất (Photogrammetric GSD Planning)**: Dựa trên yêu cầu phát hiện vết nứt của SOW (theo ngưỡng kích thước khuyết tật và GSD đã thỏa thuận trong SOW). Inspector nhập thông số camera/cảm biến drone (tiêu cự focal length, kích thước cảm biến sensor size, độ phân giải ảnh); hệ thống tính toán ra **Độ cao bay an toàn (AGL - Above Ground Level)** và **Khoảng cách chụp tối ưu** tới bề mặt kết cấu. | Tham số GSD & Độ cao bay chuẩn |
-| **MF2-02** | Inspector | **Thiết lập tỷ lệ chồng phủ ảnh (Image Overlap Calculation)**: Cấu hình tỷ lệ chồng phủ dọc (Forward Overlap) và ngang (Side Overlap) theo loại cấu kiện, cảm biến, mục tiêu GSD và phương án bay đã duyệt để đảm bảo không bỏ sót điểm mù kết cấu và phục vụ mô hình hóa khuyết tật. | Tham số Overlap đạt chuẩn trắc địa |
-| **MF2-03** | Inspector | **Xây dựng Danh mục Góc chụp Cấu kiện (Structural Shot List & Gimbal Pitch)**: Lập shot list theo từng cấu kiện, thiết lập hướng quan sát và góc gimbal phù hợp với camera, hình học bề mặt, mục tiêu GSD và tiêu chí nghiệm thu trong SOW. Waypoints/route coordinates là tùy chọn: ghi vào Mission Plan nếu Provider dùng lập trình waypoint; nếu không, Inspector dùng shot list đã duyệt để bay thủ công. | Structural Shot List hoàn chỉnh; waypoint plan nếu sử dụng |
-| **MF2-04** | Inspector & System | **Thẩm định An toàn Không phận Số (Airspace Digital Clearance)**: Hệ thống tự động nạp tọa độ không gian 3D của khu vực bay, đối chiếu với Cổng thông tin Vùng cấm bay (`cambay.mod.gov.vn` theo QĐ 18/2020/QĐ-TTg). Nếu tọa độ nằm trong hành lang an toàn hàng không hoặc khu vực hạn chế bay, hệ thống kích hoạt cảnh báo bắt buộc đính kèm giấy phép đặc biệt. | Báo cáo thẩm định không phận số |
-| **MF2-05** | Provider Manager | **Kiểm soát Pháp lý Bay theo Luật PKND 2024 & NĐ 288/2025/NĐ-CP**: Đính kèm số hiệu Giấy phép bay do Cục Tác chiến - Bộ Tổng Tham mưu cấp; chọn phi công `Inspector` có chứng chỉ bay hợp lệ; kiểm tra mã định danh drone của Bộ Quốc phòng; kiểm tra cam kết không có xung đột lợi ích. | Hồ sơ cấp phép bay hoàn tất |
-| **MF2-06** | Provider Manager | Phê duyệt Kế hoạch Bay Drone (Drone Mission Plan), ký lệnh bay điện tử và phát hành Gói nhiệm vụ bay (Mission Package) cho phi công. Chuyển trạng thái đơn hàng sang **`READY_FOR_FLIGHT`**. | Kế hoạch bay được phê duyệt (`READY_FOR_FLIGHT`) |
+| **MF2-01** | Inspector | **Tính toán trắc địa ảnh & Đề xuất khoảng cách chụp theo GSD mục tiêu**: Dựa trên độ rộng vết nứt tối thiểu cần phát hiện (ví dụ vết nứt $\ge 1.0\text{ mm}$ yêu cầu $\text{GSD} \le 0.5\text{ mm/pixel}$). Inspector nhập thông số camera/cảm biến (tiêu cự focal length, kích thước cảm biến sensor size, độ phân giải). Hệ thống tính toán/đề xuất **khoảng cách chụp và thông số ảnh phù hợp**; thông số này chỉ phục vụ chất lượng dữ liệu, không được hiểu là hệ thống tự xác định độ cao bay an toàn. | Thông số GSD & Khoảng cách chụp khuyến nghị |
+| **MF2-02** | Inspector | **Thiết lập tỷ lệ chồng phủ ảnh (Image Overlap Calculation)**: Cấu hình tỷ lệ chồng phủ dọc (Forward Overlap $\ge 75\%$) và ngang (Side Overlap $\ge 60\%$) phù hợp với hình học bề mặt kết cấu, bảo đảm không có điểm mù và phục vụ dựng mô hình khuyết tật 3D. | Tham số Overlap đạt chuẩn trắc địa |
+| **MF2-03** | Inspector | **Xây dựng Danh mục Điểm chụp Cấu kiện (Structural Shot List & Gimbal Pitch)**: Thiết lập danh mục cấu kiện cần chụp, góc nghiêng camera (Gimbal Pitch: $0^\circ, -45^\circ, -90^\circ$). Thiết lập tọa độ điểm bay (Waypoints) nếu dùng chế độ bay lập trình, hoặc shot list hướng dẫn chi tiết nếu bay thủ công. | Structural Shot List & Waypoint Mission Plan |
+| **MF2-04** | Inspector & System | **Kiểm tra Không phận & Cảnh báo Quy định (Airspace Check & Regulatory Alert)**: Hệ thống kiểm tra tọa độ/khu vực bay với nguồn dữ liệu không phận được cấu hình hoặc cập nhật hợp lệ; có thể tham chiếu Cổng thông tin Vùng cấm bay. Kết quả chỉ là cảnh báo hỗ trợ lập kế hoạch, không phải giấy phép bay và không thay thế xác nhận của cơ quan có thẩm quyền. | Báo cáo kiểm tra không phận tham khảo |
+| **MF2-05** | Provider Manager | **Kiểm soát Hồ sơ Pháp lý & Điều kiện Bay (Theo quy định hiện hành)**: Đính kèm giấy phép/chấp thuận hoặc hồ sơ pháp lý cần thiết nếu hoạt động thuộc trường hợp phải thực hiện thủ tục; kiểm tra thông tin định danh phương tiện bay và điều kiện của người điều khiển theo quy định hiện hành. Provider chịu trách nhiệm bảo đảm hồ sơ pháp lý của chuyến bay; hệ thống chỉ kiểm tra tính đầy đủ và thời hạn của hồ sơ đã được cung cấp. | Hồ sơ cấp phép bay hoàn tất |
+| **MF2-06** | Inspector & Provider Manager | **Xác nhận An toàn Bay Hiện trường (Pilot-in-Command Safety Sign-off)**: Phi công trực tiếp kiểm tra chướng ngại vật thực địa, tĩnh không công trình và điều kiện khí tượng. **Phi công ký cam kết an toàn bay**; Provider Manager phê duyệt ban hành Kế hoạch bay. Hệ thống chuyển trạng thái đơn hàng sang **`READY_FOR_FLIGHT`**. | Kế hoạch bay được phê duyệt (`READY_FOR_FLIGHT`) |
 
-#### 2. Xử lý Luồng Ngoại lệ MF2 (5 Câu hỏi Bắt buộc)
-* **Q1: Dữ liệu đầu vào thiếu hoặc sai?** Inspector thiết lập thông số camera/độ cao không đáp ứng GSD hoặc shot requirement trong SOW: không phê duyệt Mission Plan cho đến khi sửa thiết bị/phương án. Waypoints chỉ được yêu cầu nếu route dùng waypoint; chúng không bắt buộc cho phương án bay tay đã đáp ứng tiêu chí nghiệm thu.
-* **Q2: Truy cập trái phép / Sai tổ chức?** Phi công thuộc Provider A không thể xem hoặc chỉnh sửa Kế hoạch bay của Provider B. Inspector chưa có chứng chỉ bay không được phép gán vào Mission Plan.
-* **Q3: Thao tác đồng thời / Trùng lặp?** Hai người quản lý cùng gán phi công cho một gói nhiệm vụ: Hệ thống áp dụng khóa lạc quan (Optimistic Lock) trên Mission Plan; lệnh gán thứ hai bị từ chối với thông báo nhiệm vụ đã được phân công.
-* **Q4: Dịch vụ ngoài / Mạng lỗi?** Cổng thông tin không phận số `cambay.mod.gov.vn` bị gián đoạn kết nối: Hệ thống gắn cờ `AIRSPACE_MANUAL_VERIFY_REQUIRED`, yêu cầu Provider Manager đối chiếu bản đồ giấy/văn bản cấp phép của Bộ Quốc phòng trước khi phê duyệt bay.
-* **Q5: Từ chối / Hủy giữa chừng?** Inspector được phân công nhận thấy hiện trường có chướng ngại vật nguy hiểm mới phát sinh (cần cẩu, đường điện cao thế): Inspector từ chối nhận lệnh bay kèm biên bản giải trình an toàn; Mission Plan được trả lại cho Provider Manager để điều chỉnh đường bay hoặc đổi phương án.
+#### 2. Xử lý Ngoại lệ MF2
+* **Không xin được giấy phép bay của cơ quan có thẩm quyền**: Kế hoạch bay bị từ chối; Provider Manager thông báo Client để gia hạn thời gian xin phép hoặc hủy hợp đồng theo điều khoản bất khả kháng pháp lý.
+* **Thiết bị camera không đạt GSD yêu cầu**: Hệ thống chặn bước phê duyệt, yêu cầu Inspector thay đổi ống kính/loại cảm biến hoặc giảm khoảng cách chụp tiếp cận (khi điều kiện an toàn cho phép).
 
 ---
 
-### MF3 — Khảo sát Hiện trường, Thu nạp Telemetry & Phân tích AI YOLO (Flight Survey, Telemetry Capture & AI Defect Verification)
+### MF3 — Khảo sát Hiện trường, Cổng kiểm soát Chất lượng Ảnh, AI YOLO & Phát hành Báo cáo (Field Survey, Evidence Quality Gate, AI Analysis & QA Release)
 
-**Mục tiêu**: Thực hiện bay thủ công hoặc waypoint-assisted theo Mission Plan đã duyệt, thu thập ảnh và metadata khả dụng, xử lý AI candidates, rồi để chính Inspector lập báo cáo xác minh và chỉnh sửa bản thảo AI trước khi Provider Manager kiểm tra tính đầy đủ theo SOW và phát hành QA report.
+**Mục tiêu**: Thực hiện chuyến bay an toàn, kiểm soát chất lượng ảnh chụp ngay tại hiện trường, ước lượng khuyết tật qua AI YOLO có người xác minh (Human-in-the-loop), tổng hợp báo cáo bằng LLM và phát hành báo cáo QA chính thức.
 
-**Tác nhân chính**: `Inspector` (người bay và tác giả/xác minh báo cáo), `Provider Manager` (kiểm tra tính đầy đủ và phát hành), Platform MinIO, Platform AI Services, `System`.
+**Tác nhân chính**: `Inspector` (Phi công hiện trường & tác giả báo cáo), `Provider Manager`, Platform MinIO, Platform AI Services, `System`.
 
 #### 1. Quy trình chi tiết (Main Sequence)
 
 | Bước | Vai trò / Lane | Hoạt động chi tiết | Sản phẩm đầu ra |
 | :--- | :--- | :--- | :--- |
-| **MF3-01** | Inspector | Mở ứng dụng Web/Mobile tại hiện trường, kích hoạt phiên khảo sát (`IN_PROGRESS`) và tự điều khiển drone thủ công theo quy định an toàn. Thực hiện shot list đã duyệt; nếu mission plan có waypoint thì có thể dùng waypoint, nếu không thì phi công tự điều khiển theo cấu kiện/góc chụp/yêu cầu SOW. Platform không điều khiển drone hoặc yêu cầu tự động hóa đường bay. | Phiên khảo sát hiện trường được ghi nhận |
-| **MF3-02** | Inspector | Tải toàn bộ tệp ảnh/video độ phân giải cao thu được lên hệ thống MinIO do Platform cung cấp qua giao thức phân đoạn (Chunked Upload). | Bằng chứng kiểm định thô |
-| **MF3-03** | System (Platform MinIO & Ingestion) | Tự động bóc tách **Dữ liệu Không gian Telemetry (Spatial Telemetry Metadata)**: Tọa độ GPS 3D, độ cao tương đối AGL, góc nghiêng gimbal camera, timestamp; tự động tính mã băm toàn vẹn **SHA-256** cho từng file ảnh. Từ chối tệp trùng lặp. | Bằng chứng số được bảo vệ toàn vẹn |
-| **MF3-04** | System (Platform YOLO AI Service) | Pipeline AI YOLO do Platform trực tiếp host tự động quét toàn bộ ảnh hợp lệ; phát hiện các khuyết tật (vết nứt bê tông, gỉ sét cốt thép, bong tróc). Hệ thống **tự động tính kích thước vật lý thực tế của vết nứt (chiều dài mm, bề rộng mm)** bằng cách nhân kích thước pixel nhận diện với giá trị **GSD** đã thiết lập ở MF2. Tạo danh sách **Ứng viên lỗi (Defect Candidates)** kèm hộp bao (Bounding Box). | Danh mục ứng viên lỗi kèm kích thước vật lý (GSD) |
-| **MF3-05** | Inspector (Người bay) | Kiểm tra trực quan từng ảnh và từng ứng viên AI: Chọn **Xác nhận (Confirm)**, **Sửa đổi (Modify)**, hoặc **Bác bỏ (Reject)**. Nếu AI bỏ sót, Inspector **thêm lỗi thủ công (Manual Finding)**. Hoàn tất trả lời checklist kỹ thuật. | Hồ sơ khiếm khuyết đã xác minh |
-| **MF3-06** | System (Platform LLM) | Tạo bản thảo báo cáo từ checklist, dữ liệu telemetry khả dụng, ảnh và các defect candidates đã xác minh; loại bỏ candidates bị reject/chưa xác minh; ghi rõ nội dung nào AI soạn và phiên bản model. | Bản thảo AI chưa được phát hành |
-| **MF3-07** | Inspector (Tác giả báo cáo) | **Tự xác minh và chỉnh sửa bản thảo AI**: đối chiếu từng kết luận với ảnh/bằng chứng, shot list, SOW, checklist và kết quả defect verification; sửa hoặc xóa nội dung sai/thiếu, bổ sung nhận xét chuyên môn, xác nhận phiên bản cuối do mình lập trước khi Submit to Provider Manager. Đây là bước bắt buộc; AI draft không được phát hành trực tiếp. | Bản thảo do Inspector xác minh/chỉnh sửa, sẵn sàng kiểm tra tính đầy đủ |
-| **MF3-08** | Provider Manager | Kiểm tra tính đầy đủ hành chính/deliverables so với Service Order/SOW; trách nhiệm về kết luận chuyên môn vẫn thuộc Inspector tác giả. Nếu thiếu thành phần, trả cho tác giả kèm lý do; nếu đủ, cho phép release. | Hồ sơ đủ điều kiện phát hành hoặc yêu cầu bổ sung |
-| **MF3-09** | Provider Manager | Chính thức **Phát hành Báo cáo (Release Final Report)** gửi Client sau khi Inspector xác nhận bản thảo và checklist MF3-08 đạt. Hệ thống kích hoạt thời hạn nghiệm thu theo $T_{rev}$ đã snapshot trong hợp đồng. | Báo cáo chính thức & Kích hoạt đồng hồ nghiệm thu |
+| **MF3-01** | Inspector | Mở ứng dụng Mobile/Web tại hiện trường, kích hoạt phiên khảo sát (`IN_PROGRESS`). Thực hiện kiểm tra an toàn trước bay (Pre-flight Check). Trực tiếp điều khiển drone thực hiện danh mục chụp cấu kiện theo Mission Plan đã duyệt. | Phiên bay hiện trường được ghi nhận |
+| **MF3-02** | Inspector | Tải toàn bộ tệp ảnh/video độ phân giải cao thu được lên hệ thống lưu trữ MinIO của Platform qua cơ chế tải phân đoạn (Chunked Upload). | Dữ liệu hình ảnh thô |
+| **MF3-03** | System (MinIO & Metadata Ingestion) | Tự động bóc tách **Dữ liệu Không gian Telemetry**: Tọa độ GPS 3D, độ cao tương đối AGL, góc gimbal, timestamp; tính mã băm toàn vẹn **SHA-256** cho từng file ảnh để chống giả mạo bằng chứng số. | Bằng chứng số được bảo vệ toàn vẹn |
+| **MF3-04** | Inspector & System | **Cổng Kiểm soát Chất lượng & Độ bao phủ Bằng chứng (Evidence Quality & Coverage Gate)**: Hệ thống tự động kiểm tra độ sắc nét (phát hiện ảnh mờ/blur), tính hợp lệ của GPS và độ đủ của shot list. Nếu phát hiện ảnh mờ, thiếu sáng hoặc thiếu góc chụp cấu kiện quan trọng, hệ thống kích hoạt cảnh báo. Inspector thực hiện **Chuyến bay bổ sung / Bay bù (Re-flight / Additional Flight)** ngay tại hiện trường trước khi thu dọn thiết bị. | Bộ bằng chứng kiểm định đạt chuẩn |
+| **MF3-05** | System (Platform YOLO AI Service) | Pipeline AI YOLO của Platform tự động quét các ảnh hợp lệ; nhận diện các khuyết tật (vết nứt bê tông, gỉ sét cốt thép, bong tróc). Hệ thống **ước lượng kích thước hình học sơ bộ của khuyết tật** dựa trên GSD, thông tin hiệu chuẩn/hình học ảnh và vùng khuyết tật được AI nhận diện. Kết quả là ước lượng hỗ trợ chuyên gia, không được coi là số đo kiểm định cuối cùng nếu chưa được Inspector xác minh. Xuất danh mục **Ứng viên lỗi (Defect Candidates)** kèm hộp bao (Bounding Box). | Danh mục ứng viên lỗi kèm ước lượng GSD |
+| **MF3-06** | Inspector (Human-in-the-loop) | Trực quan kiểm tra từng ảnh và ứng viên AI: **Xác nhận (Confirm)**, **Hiệu chỉnh kích thước/vị trí (Modify)**, hoặc **Bác bỏ (Reject)** các nhận diện sai của AI. Nếu AI bỏ sót khuyết tật, Inspector **thêm lỗi thủ công (Manual Finding)** và sử dụng thước đo trắc địa để nhập số đo chính xác. Hoàn tất checklist kiểm định. | Danh mục khuyết tật đã thẩm định chuyên môn |
+| **MF3-07** | System (Platform LLM Assistant) | Trợ lý LLM tổng hợp dữ liệu có cấu trúc từ checklist, telemetry, ảnh bằng chứng và các khuyết tật đã được Inspector xác nhận; tự động tạo bản thảo báo cáo kỹ thuật. Đánh dấu rõ nội dung do AI hỗ trợ soạn thảo và phiên bản model. | Bản thảo Báo cáo Kỹ thuật (Draft) |
+| **MF3-08** | Inspector (Tác giả Báo cáo) | **Tự xác minh, chỉnh sửa và chịu trách nhiệm chuyên môn**: Inspector rà soát từng kết luận, phân tích nguyên nhân sơ bộ, khuyến nghị khắc phục, sửa đổi câu chữ cho chuẩn xác thuật ngữ xây dựng. Ký điện tử xác nhận bản thảo hoàn thiện trình Provider Manager. | Báo cáo hoàn chỉnh do Inspector xác nhận |
+| **MF3-09** | Provider Manager | Kiểm tra tính đầy đủ hành chính và mức độ tuân thủ SOW/hợp đồng. Nếu đạt, **Ký phát hành Báo cáo Chính thức (Release Final QA Report)** gửi Client. Hệ thống kích hoạt thời hạn nghiệm thu $T_{rev}$ đã snapshot trong hợp đồng. | Báo cáo chính thức ban hành & Kích hoạt $T_{rev}$ |
 
-#### 2. Xử lý Luồng Ngoại lệ MF3 (5 Câu hỏi Bắt buộc)
-* **Q1: Dữ liệu đầu vào thiếu hoặc sai?** Ảnh tải lên bị mờ, rung lắc hoặc thiếu tọa độ GPS do mất tín hiệu vệ tinh: Hệ thống gắn cờ cảnh báo `METADATA_INCOMPLETE`. Nếu ảnh không đủ chuẩn đo lường vết nứt theo GSD, Inspector bắt buộc phải chụp lại ngay tại hiện trường.
-* **Q2: Truy cập trái phép / Sai tổ chức?** Inspector cố mở/chỉnh sửa inspection, evidence hoặc report draft không thuộc Provider/order/assignment được giao: API từ chối theo resource scope; chỉ tác giả được sửa draft của mình, Provider Manager chỉ kiểm tra completeness/release trong phạm vi Provider được giao.
-* **Q3: Thao tác đồng thời / Trùng lặp?** Mạng chập chờn khiến Inspector tải lên 1 tệp nhiều lần: Hệ thống đối soát mã băm SHA-256; nếu trùng lặp, bỏ qua file thứ hai mà không tạo bản ghi rác.
-* **Q4: Dịch vụ ngoài / Mạng lỗi?** Dịch vụ AI YOLO của Platform bị quá tải hoặc tạm ngừng phục vụ: Hệ thống tự động chuyển sang cơ chế **Manual Fallback**, cho phép Inspector tự khoanh vùng và đo vẽ vết nứt thủ công trên ảnh, tiến độ bàn giao báo cáo không bị đình trệ.
-* **Q5: Từ chối / yêu cầu sửa / hủy giữa luồng?** Trong bước tự xác minh, Inspector phát hiện AI draft sai/thiếu hoặc bằng chứng không hỗ trợ kết luận: Inspector phải sửa/bỏ kết luận, gắn trạng thái cần bổ sung hoặc chụp lại nếu còn khả thi; không thể Submit cho Provider Manager như final cho tới khi checklist/SOW được xử lý hoặc exception được ghi rõ.
+#### 2. Xử lý Ngoại lệ Hiện trường MF3 (Exception Flows)
+* **Sự cố drone giữa chuyến bay (In-flight Hardware/Telemetry Failure)**:
+  - Nếu mất tín hiệu điều khiển, pin tụt đột ngột hoặc hỏng động cơ: Inspector kích hoạt quy trình hạ cánh khẩn cấp an toàn (Fail-safe Return-to-Home / Emergency Landing).
+  - Inspector lập **Biên bản sự cố hiện trường (Incident Log)** trên hệ thống, ghi nhận nguyên nhân, tình trạng hư hỏng thiết bị và hiện trạng tài sản công trình.
+  - Thông báo Provider Manager và Client để dời lịch bay lại (Reschedule) sau khi đã kiểm tra an toàn thiết bị thay thế.
+* **Thời tiết xấu đột xuất khi đang bay (Gió giật, mưa bất chợt)**:
+  - Inspector ra lệnh thu hồi drone ngay lập tức (Abort Flight). Chuyến bay được tạm dừng, lưu trữ phần dữ liệu đã chụp thành công và thiết lập lịch bay bù cho phần còn lại.
+* **Dịch vụ AI YOLO / LLM tạm thời gián đoạn**:
+  - Hệ thống tự động chuyển sang cơ chế **Manual Fallback**: Inspector tự khoanh vùng khuyết tật và lập báo cáo thủ công trên mẫu chuẩn, bảo đảm tiến độ bàn giao báo cáo cho Client không bị đình trệ.
 
 ---
 
-### MF4 — Nghiệm thu Báo cáo, Quyết toán Theo Điều khoản & Xử lý Khiếu nại Nội bộ (Report Acceptance, Conditional Settlement & Internal Complaint Handling)
+### MF4 — Nghiệm thu Báo cáo, Quyết toán Theo Điều khoản & Xử lý Khiếu nại Nội bộ (Report Acceptance, Settlement & Internal Dispute Resolution)
 
-**Mục tiêu**: Khách hàng thẩm định kết quả theo policy đã snapshot; đối tác thanh toán xử lý các mốc settlement theo điều khoản được chấp thuận; hoặc `PLATFORM_OPERATOR` điều phối xử lý khiếu nại nội bộ theo Platform Terms. Operator không phải trọng tài pháp lý và không tự ra lệnh vượt ngoài hợp đồng/sản phẩm đối tác.
+**Mục tiêu**: Khách hàng thẩm định kết quả kiểm định; thực hiện thanh toán giải ngân theo hợp đồng đã snapshot; giải quyết yêu cầu làm rõ kỹ thuật và hòa giải khiếu nại nội bộ bảo vệ quyền lợi các bên.
 
-**Tác nhân chính**: `Client`, `Provider Manager`, `PLATFORM_OPERATOR` (xử lý nội bộ), đối tác thanh toán được cấp phép khi áp dụng, `System`.
+**Tác nhân chính**: `Client`, `Provider Manager`, `PLATFORM_OPERATOR`, Đối tác thanh toán được cấp phép, `System`.
 
 #### 1. Quy trình chi tiết (Main Sequence)
 
 | Bước | Vai trò / Lane | Hoạt động chi tiết | Sản phẩm đầu ra |
 | :--- | :--- | :--- | :--- |
-| **MF4-01** | Client | Xem xét báo cáo kiểm định hoàn chỉnh trên Web/Mobile (ảnh khuyết tật độ phân giải cao, vị trí 3D, số đo vết nứt). Bắt đầu tính thời hạn nghiệm thu $T_{rev}$ theo giá trị snapshot đã khóa trong hợp đồng MF1. | Báo cáo đang thẩm định nghiệm thu |
-| **MF4-02a** | Client (Nhánh Nghiệm thu) | Client hài lòng với chất lượng -> Bấm **"Nghiệm thu (Accept)"**. | Quyết định nghiệm thu |
-| **MF4-02b** | System (Nhánh Auto-Settlement) | Quá thời hạn $T_{rev}$ đã snapshot, nếu Client không phản hồi và không mở tranh chấp hợp lệ -> Hệ thống tự động kích hoạt **Nghiệm thu mặc định (Auto-Settlement)** nhằm bảo vệ dòng tiền chính đáng cho Provider. | Quyết định nghiệm thu tự động |
-| **MF4-03** | System và đối tác thanh toán | Báo cáo chuyển sang trạng thái bất biến (`COMPLETED`). **Giải ngân theo tỷ lệ hoa hồng đã khóa tại hợp đồng**: Với cơ sở tính phí $B$ và tỷ lệ hoa hồng $r$ đã khóa snapshot, hoa hồng sàn $C = r \times B$. Provider nhận số tiền ròng $B - C$; Platform ghi nhận hoa hồng $C$ kèm hóa đơn VAT riêng. Provider xuất hóa đơn dịch vụ đủ giá trị cho Client. | Dòng tiền tất toán (`DISBURSED`) & Hóa đơn riêng biệt |
-| **MF4-04** | Client (Nhánh Yêu cầu Làm rõ) | Nếu có nội dung kỹ thuật chưa rõ ràng, Client gửi yêu cầu giải trình. Provider Manager giải trình hoặc phát hành bản báo cáo hiệu chỉnh (Client không được trực tiếp sửa nội dung chuyên môn). | Báo cáo giải trình hiệu chỉnh |
-| **MF4-05** | Client / Provider (Nhánh Mở Tranh chấp) | Khi có mâu thuẫn nghiêm trọng (ảnh mờ sai lệch GSD cam kết, bỏ sót khuyết tật nghiêm trọng, làm rơi drone gây hư hỏng tài sản): Một trong hai bên bấm **"Mở Tranh chấp (Open Dispute)"**. | Hồ sơ tranh chấp (`OPENED`) |
-| **MF4-06** | System và đối tác thanh toán (nếu được hỗ trợ) | Ghi nhận complaint state. Chỉ gửi yêu cầu hold cho phần tiền liên quan nếu order terms và partner product cho phép; không gọi platform ledger là khoản tiền bị phong tỏa. | Complaint đang mở; partner status riêng nếu có |
-| **MF4-07** | Platform Operator | **Thụ lý nội bộ theo Platform Terms**: Nhận phản hồi/chứng cứ, đối chiếu SOW MF1, Mission Plan MF2, bằng chứng MF3 và ý kiến các bên; ghi nhận lý do, scope xem xét và đường khiếu nại/ngoại lệ. | Hồ sơ xử lý nội bộ có audit trail |
-| **MF4-08** | Platform Operator & đối tác thanh toán (nếu được hỗ trợ) | Ghi nhận internal outcome/biện pháp hợp đồng được chấp thuận và gửi cho các bên. Chỉ instruct partner nếu sản phẩm và hợp đồng cho phép; outcome không phải phán quyết trọng tài pháp lý và không loại trừ cơ quan tài phán. | Internal complaint outcome; partner action/status nếu có |
+| **MF4-01** | Client | Nhận thông báo và xem xét Báo cáo kỹ thuật chính thức trên Web/Mobile (ảnh khuyết tật độ phân giải cao, tọa độ 3D, số đo vết nứt, phân loại mức độ rủi ro). Bắt đầu đếm ngược thời hạn nghiệm thu $T_{rev}$ đã snapshot trong hợp đồng. | Báo cáo trong giai đoạn thẩm định |
+| **MF4-02a** | Client (Nhánh Nghiệm thu Đạt) | Client hài lòng với chất lượng báo cáo -> Bấm **"Nghiệm thu (Accept)"**. | Quyết định nghiệm thu chính thức |
+| **MF4-02b** | System (Nhánh Nghiệm thu Mặc định theo Hợp đồng) | Hết thời hạn $T_{rev}$ theo thỏa thuận trong Service Order mà Client không có phản hồi và không mở yêu cầu làm rõ/tranh chấp -> Hệ thống kích hoạt **Nghiệm thu mặc định (Contractual Auto-Acceptance)** chỉ được kích hoạt khi Service Order quy định rõ thời hạn nghiệm thu và cơ chế này được áp dụng cho giao dịch đó. | Quyết định nghiệm thu theo điều khoản hợp đồng |
+| **MF4-03** | System & Đối tác Thanh toán | Hợp đồng chuyển trạng thái hoàn thành (`COMPLETED`). Platform gửi chỉ thị thanh toán điện tử sang đối tác cổng thanh toán: Giải ngân số tiền ròng $(B - C)$ cho Provider; trích hoa hồng sàn $C = r \times B$ cho Platform. **Nghĩa vụ Hóa đơn Điện tử (NĐ 123/2020/NĐ-CP)**: `PROVIDER_MANAGER` (đơn vị cung cấp dịch vụ) thực hiện lập hóa đơn điện tử cho dịch vụ cung cấp cho `CLIENT` theo phương pháp và quy định thuế áp dụng; Nền tảng (Platform) thực hiện nghĩa vụ hóa đơn đối với khoản phí dịch vụ sàn/hoa hồng mà Provider phải trả theo quy định áp dụng. | Lệnh giải ngân hoàn tất & Hóa đơn điện tử hợp lệ |
+| **MF4-04** | Client & Provider Manager | **Nhánh Yêu cầu Làm rõ Kỹ thuật (Clarification Loop)**: Nếu một số kết luận chưa rõ, Client gửi yêu cầu làm rõ trên hệ thống kèm mốc thời gian phản hồi. Provider Manager và Inspector rà soát dữ liệu ảnh gốc, cập nhật báo cáo giải trình hoặc phát hành bản báo cáo hiệu chỉnh (Client không được tự ý sửa đổi kết luận chuyên môn). Client thẩm định lại để nghiệm thu. | Báo cáo giải trình hiệu chỉnh |
+| **MF4-05** | Client / Provider | **Nhánh Mở Tranh chấp (Open Dispute)**: Khi có mâu thuẫn kỹ thuật nghiêm trọng (ảnh chụp sai lệch GSD cam kết dẫn đến đo sai vết nứt, bỏ sót khuyết tật nguy hiểm, drone va quẹt gây hư hỏng công trình): Một trong hai bên bấm **"Mở Tranh chấp"** và nộp hồ sơ chứng cứ. | Hồ sơ tranh chấp (`DISPUTE_OPENED`) |
+| **MF4-06** | System & Đối tác Thanh toán | Hệ thống ghi nhận trạng thái tranh chấp. Nếu đối tác thanh toán hỗ trợ cơ chế giữ/tạm dừng theo hợp đồng tích hợp, hệ thống gửi yêu cầu tạm dừng giải ngân (`FROZEN_DISPUTED`). Nếu không hỗ trợ, xử lý theo cơ chế dispute/refund/settlement mà đối tác cung cấp. | Trạng thái thanh toán bị tạm giữ |
+| **MF4-07** | Platform Operator | **Chủ trì Hòa giải Nội bộ theo Quy chế Sàn (Platform Terms)**: Tiếp nhận chứng cứ hai bên; đối chiếu SOW MF1, Mission Plan MF2, ảnh gốc MinIO và dữ liệu telemetry SHA-256. Trường hợp tranh chấp phức tạp về an toàn kết cấu, Operator có thể yêu cầu các bên cung cấp đánh giá kỹ thuật độc lập để hỗ trợ hòa giải. Platform không tự xác định trách nhiệm chuyên môn thay cho đơn vị giám định hoặc cơ quan có thẩm quyền. | Biên bản hòa giải / Kết quả xử lý nội bộ |
+| **MF4-08** | Platform Operator & Đối tác Thanh toán | Thực hiện kết quả xử lý theo Quy chế Sàn và điều khoản hợp đồng: (1) yêu cầu Provider khắc phục/bay bổ sung nếu thuộc trách nhiệm Provider; (2) thực hiện hoàn tiền hoặc điều chỉnh thanh toán nếu có căn cứ và cơ chế thanh toán hỗ trợ; hoặc (3) đóng khiếu nại nếu không có căn cứ. Trường hợp không đạt được thỏa thuận, các bên giữ quyền sử dụng cơ chế giải quyết tranh chấp được quy định trong hợp đồng. Đối tác thanh toán thực hiện lệnh chuyển tiền căn cứ trên kết quả hòa giải đã được các bên chấp thuận. | Kết quả tranh chấp xử lý xong & Tài chính tất toán |
 
-#### 2. Outcome có thể ghi nhận trong xử lý khiếu nại nội bộ theo Platform Terms
-* **Lỗi chất lượng có thể khắc phục (ví dụ ảnh/shot item thiếu so với SOW)**:
-  - Operator có thể ghi nhận/đề xuất reshoot theo remedy đã được các bên chấp thuận trong Order/Terms; thời hạn là giá trị cụ thể đã snapshot, không phải lệnh pháp lý độc lập. Hold (nếu có) chỉ tồn tại tại partner khi sản phẩm và hợp đồng hỗ trợ.
-* **Vi phạm nghiêm trọng / yêu cầu chấm dứt hoặc hoàn tiền**:
-  - Operator ghi nhận căn cứ và phối hợp các bên theo hợp đồng, chứng cứ, pháp luật áp dụng và quyền của các bên. Phạt vi phạm, chấm dứt, đình chỉ hoặc chuyển tiền không tự động; chỉ thực hiện khi có căn cứ hợp đồng/pháp luật và đúng thẩm quyền.
-* **Khiếu nại không có căn cứ**:
-  - Operator ghi nhận kết quả xử lý nội bộ và lý do; đối tác chỉ xử lý khoản tiền đủ điều kiện theo hợp đồng/sản phẩm. Nếu có hoàn/giảm giá dịch vụ thực tế, commission được điều chỉnh theo policy và chứng từ liên quan.
-
-#### 3. Xử lý Luồng Ngoại lệ MF4 (5 Câu hỏi Bắt buộc)
-* **Q1: Dữ liệu đầu vào thiếu hoặc sai?** Đơn khiếu nại không có ảnh/video bằng chứng chứng minh: Operator yêu cầu bổ sung theo thời hạn xử lý đã công bố; quá hạn, khiếu nại được xử lý theo Platform Terms.
-* **Q2: Truy cập trái phép / Sai tổ chức?** Nhân viên không có thẩm quyền trong Client Org cố tình bấm mở tranh chấp: Hệ thống chặn quyền ở tầng API, chỉ tài khoản đại diện pháp lý mới được mở tranh chấp.
-* **Q3: Thao tác đồng thời / Trùng lặp?** Client vừa gửi nghiệm thu vừa gửi complaint: order transition phải serialize/idempotent; chỉ một state transition hợp lệ được ghi. Complaint chỉ gửi partner hold request nếu policy/order và partner product cho phép.
-* **Q4: Dịch vụ ngoài / Mạng lỗi?** Notification gateway lỗi: complaint/outcome record vẫn được lưu với audit trail; không suy ra partner funds state khi webhook/status unavailable; cung cấp in-app retry/status.
-* **Q5: Từ chối / Hủy giữa chừng?** Một bên phản đối outcome nội bộ hoặc remedy đề xuất: lưu phản hồi/appeal theo Platform Terms; không tự động phạt, chuyển tiền hoặc hạn chế quyền ngoài accepted terms/law; các bên giữ quyền external remedy.
+#### 2. Xử lý Ngoại lệ MF4
+* **Một bên không đồng ý với kết quả hòa giải nội bộ của Sàn**: Kết quả xử lý của Sàn chỉ là cơ chế giải quyết nội bộ theo Quy chế tham gia sàn, không phải phán quyết tài phán. Các bên giữ nguyên quyền khởi kiện vụ việc ra Tòa án có thẩm quyền hoặc Trọng tài thương mại (VIAC) theo quy định pháp luật.
 
 ---
 
-### MF5 — Xử lý Khiếm khuyết, Đơn hàng Bảo trì & Tiền Bảo lãnh Hoàn công (Defect Rectification, Maintenance & Retention)
+### MF5 — Xử lý Khuyết tật, Đơn hàng Bảo trì & Quản lý Bảo hành Hoàn công (Defect Rectification, Maintenance & Retention)
 
-**Mục tiêu**: Chuyển các khuyết tật từ báo cáo drone thành đơn hàng sửa chữa công trình, kiểm soát phát sinh chi phí, nghiệm thu ảnh đối chứng Before/After và thực hiện các điều khoản funding/retention/warranty nếu các bên đã chấp thuận và payment-partner product hỗ trợ.
+**Mục tiêu**: Chuyển giao các khuyết tật từ báo cáo kiểm định thành đơn hàng sửa chữa công trình, lập phương án kỹ thuật thi công, kiểm soát chi phí phát sinh qua Change Order, đối soát ảnh Before/After và quản lý bảo lãnh bảo hành.
 
-**Tác nhân chính**: `Client`, `PROVIDER_MANAGER` (thuộc nhà cung cấp có năng lực bảo trì), `Maintenance Engineer`, `Platform Operator`, `System`.
+**Tác nhân chính**: `Client`, `PROVIDER_MANAGER` (đơn vị có năng lực bảo trì), `Maintenance Engineer`, `Platform Operator`, `System`.
 
 #### 1. Quy trình chi tiết (Main Sequence)
 
 | Bước | Vai trò / Lane | Hoạt động chi tiết | Sản phẩm đầu ra |
 | :--- | :--- | :--- | :--- |
-| **MF5-01** | Client | Chọn các khuyết tật đã xác minh từ Báo cáo MF4 để tạo **Phiếu yêu cầu bảo trì (Maintenance Ticket)**. | Maintenance Ticket |
-| **MF5-02** | `PROVIDER_MANAGER` (thuộc nhà cung cấp có năng lực bảo trì) | Khảo sát hiện trường (qua ảnh/telemetry MF3 hoặc trực tiếp); lập Phương án kỹ thuật, dự toán vật tư và Báo giá bảo trì. Báo giá phải nêu rõ có/không áp dụng retention, cơ sở tính, policy/version, điều kiện và thời hạn warranty nếu có. | Báo giá bảo trì & Đơn dịch vụ |
-| **MF5-03** | System | Khởi tạo **Đơn dịch vụ bảo trì (Maintenance Order)**: snapshot phiên bản policy và các giá trị hoa hồng, funding, retention (nếu các bên chấp thuận), warranty và hủy áp dụng cho đơn. Chỉ yêu cầu nạp trước nếu policy/order quy định và sản phẩm của đối tác thanh toán hỗ trợ các điều kiện đó. | Maintenance Order và trạng thái giao dịch do đối tác xác nhận (nếu có) |
-| **MF5-04** | Maintenance Engineer | Tiếp nhận phân công thi công. Đến hiện trường sửa chữa (trám trét vết nứt bê tông, xử lý ăn mòn, thay cáp). **Bắt buộc chụp và nạp ảnh đối chứng Trước và Sau thi công (Before/After Evidence)** lên MinIO kèm nhật ký vật tư. | Nhật ký thi công & Cặp ảnh đối chứng Before/After |
-| **MF5-05** | Maintenance Engineer & Provider Manager | Nếu phát hiện hư hỏng ngầm vượt quá dự toán: dừng phần việc phát sinh, lập **Yêu cầu thay đổi (Change Order)**. Client phê duyệt phiên bản mới; khoản nạp thêm chỉ bắt buộc nếu order đã chấp thuận yêu cầu và payment-partner product hỗ trợ điều kiện đó. | Change Order được duyệt và funding state theo order |
-| **MF5-06** | Client & Provider Manager | **Nghiệm thu hoàn công**: Client đối soát cặp ảnh Before/After. Nếu đạt chuẩn, Client ký nghiệm thu theo order đã chấp thuận. | Kết quả nghiệm thu; partner instruction nếu được quy định/hỗ trợ |
-| **MF5-07** | System và đối tác thanh toán | Theo các milestone và retention tùy chọn đã snapshot, đối tác giải ngân phần đủ điều kiện sau khi trừ một lần commission; nếu retention được chọn, giữ phần $H$ chỉ trong phạm vi sản phẩm/điều khoản đã chấp thuận. Kích hoạt warranty duration đã snapshot. | Partner settlement state và trạng thái maintenance được cập nhật |
-| **MF5-08** | Client & Platform Operator | Khi warranty duration đã snapshot hết hạn và điều kiện release được đáp ứng, `PLATFORM_OPERATOR` phối hợp yêu cầu partner release retention chỉ khi retention đã được adopted và partner product cho phép. Không áp commission lần hai lên consideration đã tính phí. Đóng ticket khi các nghĩa vụ đã hoàn tất. | Partner confirmation (nếu retention áp dụng) & Ticket đóng |
+| **MF5-01** | Client | Chọn các khuyết tật cần xử lý từ Báo cáo MF4 (ví dụ vết nứt bê tông dầm, rỉ sét lan can) để khởi tạo **Phiếu yêu cầu sửa chữa (Maintenance Ticket)**. | Maintenance Ticket |
+| **MF5-02** | Provider Manager & Kỹ sư | **Lập Phương án Kỹ thuật Sửa chữa & Báo giá (Technical Assessment & Quotation)**: Kỹ sư bảo trì khảo sát thực tế và phân tích: (1) Phân loại khuyết tật (kết cấu hay bề mặt); (2) Đề xuất biện pháp xử lý (bơm keo epoxy áp lực, trám vữa polyme, cạo rỉ sơn chống ăn mòn); (3) Tiêu chuẩn vật tư sử dụng; (4) Dự toán nhân công và thời gian thi công. Lập Báo giá bảo trì chi tiết gửi Client. | Hồ sơ Phương án kỹ thuật & Báo giá bảo trì |
+| **MF5-03** | System | Khởi tạo **Đơn dịch vụ bảo trì (Maintenance Work Order)**: Snapshot các tham số tỷ lệ bảo lãnh hoàn công $H$ (nếu áp dụng), thời hạn bảo hành $T_{war}$ và điều khoản hủy. Client nạp khoản tiền đảm bảo qua đối tác thanh toán. | Maintenance Order có hiệu lực |
+| **MF5-04** | Maintenance Engineer | Tiếp nhận phân công thi công. Đến hiện trường thực hiện sửa chữa theo đúng phương án kỹ thuật đã duyệt. **Bắt buộc chụp và nạp tệp ảnh đối chứng Trước và Sau khi thi công (Before/After Evidence)** lên hệ thống MinIO kèm nhật ký vật tư và định vị cấu kiện. | Nhật ký thi công & Cặp ảnh đối chứng Before/After |
+| **MF5-05** | Maintenance Engineer & Provider Manager | **Xử lý Phát sinh Hư hỏng Ngầm (Change Order Flow)**: Nếu trong quá trình đục phá phát hiện hư hỏng ngầm nghiêm trọng vượt quá dự toán ban đầu (cốt thép rỉ mục hoàn toàn): Kỹ sư dừng ngay phần việc phát sinh, chụp ảnh hiện trạng và lập **Yêu cầu Thay đổi (Change Order)**. Client thẩm định và phê duyệt phương án bổ sung chi phí trước khi tiếp tục thi công. | Change Order được phê duyệt & Cập nhật hợp đồng |
+| **MF5-06** | Client & Provider Manager | **Nghiệm thu Hoàn công Kỹ thuật**: Client kiểm tra đối soát cặp ảnh Before/After và nhật ký vật tư trên ứng dụng. Nếu đạt chuẩn, Client ký Biên bản nghiệm thu hoàn công. | Biên bản nghiệm thu hoàn công |
+| **MF5-07** | System & Đối tác Thanh toán | Căn cứ điều khoản snapshot: Đối tác thanh toán giải ngân phần tiền thi công đến hạn cho Provider theo hợp đồng; tạm giữ lại tỷ lệ bảo lãnh hoàn công $H$ (ví dụ 5%–10% giá trị gói sửa chữa) tại đối tác thanh toán nếu hợp đồng có áp dụng. Kích hoạt đồng hồ tính thời hạn bảo hành $T_{war}$. | Giải ngân đợt 1 & Kích hoạt thời hạn bảo hành |
+| **MF5-08** | Client, Provider & Operator | Hết thời hạn bảo hành $T_{war}$, nếu công trình không phát sinh tái nứt/hư hỏng, hệ thống tự động gửi lệnh giải ngân nốt khoản bảo lãnh hoàn công $H$ cho Provider. Chính thức đóng hồ sơ Maintenance Ticket. | Giải ngân bảo hành $H$ & Đóng ticket hoàn tất |
 
-#### 2. Nhánh Xử lý Rework / Re-inspection / Warranty Complaint
-* **Yêu cầu làm lại (Rework)**: Nếu công việc không đạt SOW/Order, Client yêu cầu remedy theo điều khoản chất lượng/warranty đã chấp thuận; không tự suy diễn miễn phí ngoài scope/terms.
-* **Yêu cầu kiểm tra lại bằng Drone (Re-inspection)**: Client có thể mở request mới liên kết với defect/work order để quay lại MF1 sourcing và MF2 mission planning.
-* **Warranty complaint**: Nếu retention được adopt và còn tồn tại tại partner, khiếu nại có thể tạm dừng release theo product/accepted terms. `PLATFORM_OPERATOR` điều phối complaint process; không tự tịch thu, chiếm giữ hoặc chuyển khoản retention.
-
-#### 3. Xử lý Luồng Ngoại lệ MF5 (5 Câu hỏi Bắt buộc)
-* **Q1: Dữ liệu đầu vào thiếu hoặc sai?** Kỹ sư nộp nghiệm thu nhưng thiếu ảnh đối chứng Before/After: Hệ thống khóa nút Submit, bắt buộc phải đủ cặp ảnh đối chứng mới được trình nghiệm thu.
-* **Q2: Truy cập trái phép / Sai tổ chức?** Đơn vị bảo trì A không thể xem hồ sơ sửa chữa của Đơn vị bảo trì B.
-* **Q3: Thao tác đồng thời / Trùng lặp?** Kỹ sư gửi 2 Change Order liên tiếp: Hệ thống chỉ cho phép duy nhất 1 Change Order ở trạng thái `PENDING_APPROVAL` tại một thời điểm.
-* **Q4: Dịch vụ ngoài / Mạng lỗi?** Mất sóng di động tại hầm công trình: Mobile app lưu ảnh offline vào bộ nhớ mã hóa an toàn thiết bị (`flutter_secure_storage`), tự động đồng bộ lên MinIO khi có mạng trở lại.
-* **Q5: Từ chối / Hủy giữa chừng?** Client từ chối phê duyệt Change Order: đơn vị bảo trì dừng phần phát sinh và chỉ tiếp tục phạm vi đã duyệt. Cancellation/refund/retention follow the accepted order terms; partner action occurs only when its product supports them.
+#### 2. Nhánh Xử lý Rework / Re-inspection trong Bảo trì
+* **Nghiệm thu Before/After không đạt chuẩn (Maintenance Rework Loop)**:
+  - Nếu ảnh After cho thấy vết trám bị rỗ, màu sắc vật liệu không đạt hoặc vết nứt chưa được xử lý kín: Client bấm "Từ chối nghiệm thu" kèm hình ảnh yêu cầu sửa đổi.
+  - Nếu lỗi thuộc trách nhiệm của Provider và nằm trong phạm vi công việc đã cam kết, Kỹ sư bảo trì thực hiện Rework mà không tính thêm chi phí; nếu phát sinh do thay đổi phạm vi hoặc nguyên nhân ngoài trách nhiệm Provider thì phải lập Change Request/Change Order trước khi thực hiện.
+* **Yêu cầu kiểm tra lại bằng Drone (Post-repair Drone Re-inspection)**:
+  - Với các công trình trên cao hoặc vị trí nguy hiểm, Client có thể tạo yêu cầu kiểm tra lại bằng drone theo một Inspection Request mới hoặc theo cơ chế Re-inspection đã quy định trong hợp đồng để bay chụp đối chứng chất lượng sửa chữa ở độ cao lớn.
 
 ---
 
-## V. Ma trận Phân quyền & Trách nhiệm (RACI Matrix)
+## VI. Ma trận Phân quyền & Trách nhiệm (RACI Matrix v3.2)
 
 | Quy trình / Nghiệp vụ cốt lõi | `PLATFORM_ADMIN` | `PLATFORM_OPERATOR` | `CLIENT` | `PROVIDER_MANAGER` | `INSPECTOR` | `MAINTENANCE_ENGINEER` |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **SF: Thẩm định Provider & Khai báo Drone** | I | **A / R** | I | **R** | C | - |
+| **SF: Thẩm định Provider & Đăng ký Drone (NĐ 288)** | I | **A / R** | I | **R** | C | - |
 | **SF: Khai báo Tài sản & Cảnh báo Cấm bay** | I | C | **A / R** | - | - | - |
 | **Chính sách: Cấu hình Động Tham số Thương mại** | I | **A / R** | I | I | - | - |
-| **MF1: Đấu thầu RFQ & Báo giá Kiểm định** | - | C | **A** | **R** | - | - |
-| **MF1: Ký Hợp đồng & Nạp tiền theo chính sách Escrow** | I | C | **A / R** | **R** | - | - |
+| **MF1: Lọc Thông minh Eligible Providers & RFQ** | - | C | **A** | **R** | - | - |
+| **MF1: Ký Hợp đồng & Nạp tiền Đảm bảo Thanh toán** | I | C | **A / R** | **R** | - | - |
 | **MF2: Lập Kế hoạch Bay (GSD, Overlap, Shot List)** | - | - | I | **A** | **R** | - |
-| **MF2: Kiểm tra Không phận Số & Giấy phép Bay** | I | C | I | **A / R** | **R** | - |
-| **MF3: Khảo sát Hiện trường & Bóc tách Telemetry** | - | - | I | I | **A / R** | - |
-| **MF3: Nhận diện AI YOLO & Xác minh Lỗi (GSD)** | - | - | - | I | **A / R** | - |
-| **MF3: Tự xác minh/chỉnh sửa bản thảo bởi Inspector tác giả** | - | - | - | I | **A / R** | - |
-| **MF3: Ký phát hành Báo cáo Kỹ thuật QA** | - | - | I | **A / R** | I | - |
-| **MF4: Nghiệm thu Báo cáo & Quyết toán Escrow** | I | C | **A / R** | I | - | - |
-| **MF4: Xử lý khiếu nại nội bộ theo Terms** | I | **A / R** | C | C | C | - |
-| **MF5: Tạo Ticket & Báo giá Bảo trì** | - | - | **A** | **R** | - | C |
-| **MF5: Ký quỹ Bảo trì & Thi công Before/After** | - | - | **A** | I | - | **A / R** |
-| **MF5: Nghiệm thu Hoàn công & Tất toán Bảo hành** | I | **R** | **A** | I | - | I |
+| **MF2: Hồ sơ Cấp phép Bay & Ký Cam kết An toàn** | I | C | I | **A / R** | **R (Pilot)** | - |
+| **MF3: Khảo sát Hiện trường, Xử lý Sự cố & Re-flight** | - | - | I | I | **A / R** | - |
+| **MF3: Nhận diện AI YOLO & Xác minh Kích thước Lỗi** | - | - | - | I | **A / R** | - |
+| **MF3: Tự xác minh bản thảo LLM & Ký phát hành QA** | - | - | I | **A (Release)**| **R (Author)**| - |
+| **MF4: Nghiệm thu Báo cáo & Lập Hóa đơn Điện tử** | I | C | **A / R** | **R (Invoice)**| - | - |
+| **MF4: Hòa giải Tranh chấp & Thẩm định Độc lập** | I | **A / R** | C | C | C | - |
+| **MF5: Phương án Kỹ thuật & Báo giá Bảo trì** | - | - | **A** | **R** | - | C |
+| **MF5: Thi công Before/After & Change Order** | - | - | **A** | I | - | **A / R** |
+| **MF5: Nghiệm thu Hoàn công, Rework & Tất toán $H$** | I | **R** | **A** | I | - | I |
 
 *Ghi chú*:
 * **R (Responsible)**: Người trực tiếp thực hiện công việc.
 * **A (Accountable)**: Người chịu trách nhiệm phê duyệt cuối cùng và sở hữu kết quả.
-* **C (Consulted)**: Người được tham vấn ý kiến, cung cấp dữ liệu đối soát.
+* **C (Consulted)**: Người được tham vấn ý kiến, cung cấp dữ liệu đối soát kỹ thuật.
 * **I (Informed)**: Người được nhận thông báo kết quả.
