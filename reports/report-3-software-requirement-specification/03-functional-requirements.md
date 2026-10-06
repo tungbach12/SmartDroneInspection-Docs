@@ -21,12 +21,12 @@ The target browser application provides Platform Admin and Platform Operator gov
 | --- | --- | --- | --- |
 | 1 | Authentication | Login | Authenticate an issued account across any actor zone and route the user to the permitted portal experience. |
 | 1a | Authentication | Client Enterprise Registration | Register a new customer organization and its initial Client administrator account atomically. |
-| 1b | Authentication | Provider Onboarding Registration | Register an independent service provider company, upload business license, drone registration codes per Luật PKND 2024, and third-party insurance. |
+| 1b | Authentication | Provider Onboarding Registration | Register an independent service provider organization and declare inspection capability, maintenance capability, or both. Submit the shared legal-identity evidence and the evidence applicable to each declared capability; selecting both does not combine or bypass their separate vetting. |
 | 2 | Authentication | First Password Setup | Replace administrator-provisioned setup password before normal application access. |
 | 3 | Common | Role Dashboard | Show role-filtered operational queues, upcoming flight deadlines, escrow balances, and recent inspection results. |
 | 4 | Common | Profile and Security | View account information, update security settings, and revoke active sessions. |
 | 5 | Platform Governance | User Management | Provision accounts, assign canonical roles, manage operational status, and audit security events. |
-| 5a | Platform Governance | Provider Vetting Portal | Platform Operator portal to review provider business licenses, pilot certificates, drone registries, and insurance policies to approve or reject provider credentials. |
+| 5a | Platform Governance | Provider Vetting Portal | Platform Operator portal to review shared legal-identity evidence and separately vet each declared service capability. Inspection vetting reviews applicable drone registrations, pilot qualifications, and insurance; maintenance vetting reviews the declared repair scope, qualified personnel, and applicable credentials/insurance. Each capability has an independent decision; approval of one cannot approve the other. |
 | 5b | Platform Governance | Commercial Policy Settings | Platform Operator drafts, publishes and audits versioned uniform commission, advance funding, review, cancellation, retention and warranty policies; no provider-specific commission negotiation or retroactive order edits. |
 | 5c | Platform Governance | Platform Technical Settings | Platform Admin configures technical infrastructure and AI operational parameters separately from commercial policy. |
 | 6 | Administration | Asset Categories & Checklists | Maintain standardized asset categories, checklist templates, and suggested inspection frequencies. |
@@ -121,7 +121,7 @@ The diagram describes the **target** multi-provider model. The Supporting Flow h
 | # | Entity | Description |
 | --- | --- | --- |
 | 1 | Organization | Customer enterprise owning infrastructure assets and Client accounts. |
-| 1a | Provider Organization | Independent commercial inspection/maintenance company with verified legal license, drone permits, and pilot roster. |
+| 1a | Provider Organization | Independent service company with a verified legal identity and one or both declared capabilities: inspection and maintenance. The organization records each declared capability and its independent vetting decision/evidence; a capability may be verified while another remains pending, requires more information, or is rejected. Inspection evidence covers applicable drone, pilot, and insurance requirements; maintenance evidence covers the declared repair scope, qualified personnel, and credentials/insurance applicable to those services. Verification for one capability never implies verification for the other. |
 | 2 | User | System user account bound to an actor zone and owning customer or provider organization. |
 | 3 | User Role Assignment | Role assignment enforcing canonical permissions across the three actor zones. |
 | 4 | Auth Session | Web or mobile session token with independent revocation tracking. |
@@ -166,8 +166,10 @@ FE-01 defines the Supporting Flow prerequisites (Client organization self-regist
 
 - All users sign in through the versioned authentication API. The browser keeps access tokens in memory, uses the protected refresh-cookie flow, and does not persist credentials in browser storage. Mobile authentication uses the secure token-delivery contract and platform secure storage.
 - A Client representative may self-register a new customer organization and its initial Client administrator account atomically.
-- An independent service provider company registers by submitting corporate credentials: legal company name, tax code, business registration license, UAV identification registration numbers per *Luật Phòng không nhân dân 2024* & *Nghị định 288/2025/NĐ-CP*, certified drone pilot roster, and third-party aviation liability insurance.
-- `PLATFORM_OPERATOR` audits and vets provider credentials in the Provider Vetting Portal, transitioning status to `VERIFIED` upon approval, or requesting supplementary documentation. Unverified providers cannot submit quotations or receive flight missions.
+- A Provider Organization declares one or both service capabilities during onboarding: **inspection**, **maintenance**, or **both**. Shared legal-identity evidence is submitted once; evidence is also supplied and assessed for each declared capability.
+- For inspection capability, the Provider Manager submits the applicable drone registration, qualified-pilot credentials, and insurance evidence required for the declared inspection scope. Mission-specific flight permits and clearance are still verified separately in MF2.
+- For maintenance capability, the Provider Manager declares the repair service scope and submits evidence of qualified personnel and credentials/insurance applicable to that scope and current requirements. No inspection drone/pilot evidence is substituted for maintenance evidence, or vice versa.
+- `PLATFORM_OPERATOR` records a separate vetting decision for each declared capability, requesting supplementary evidence or rejecting that capability as appropriate. `VERIFIED` inspection capability is required for inspection-provider eligibility, inspection quotations, and flight assignments; `VERIFIED` maintenance capability is required for maintenance-provider eligibility, maintenance quotations/orders, and maintenance-work assignments. A Provider verified for one capability remains ineligible for activities requiring the other unless that capability is separately verified.
 - `PLATFORM_ADMIN` maintains administrative security policies, technical parameters, standard checklist templates and infrastructure settings; it cannot publish commercial rates or order terms.
 - `PLATFORM_OPERATOR` may draft, publish and audit versioned commercial policies with effective dates and audit attribution. Publication applies prospectively; accepted orders preserve policy versions and values in immutable snapshots.
 - Logout, password change, disablement, role reassignment, and session revocation immediately invalidate affected active sessions.
