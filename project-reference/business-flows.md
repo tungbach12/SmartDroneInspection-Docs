@@ -2,14 +2,16 @@
 title: "SmartDroneInspection Multi-Provider Business Flows"
 document_type: business-flow-reference
 purpose: "Authoritative specification of the Supporting Flow (SF) and the five core Main Flows (MF1–MF5) for the multi-provider drone inspection & maintenance platform, including exception branches and non-linear feedback loops."
-version: "3.3"
+version: "3.4"
 updated: 2026-10-06
 ---
 
-# SmartDroneInspection Multi-Provider Business Flows (v3.3)
+# SmartDroneInspection Multi-Provider Business Flows (v3.4)
 
 > This document is the authoritative specification of the Supporting Flow (SF) and the **five core transactional Main Flows (MF1–MF5)** of the SmartDroneInspection platform. The design is built on an **intermediary marketplace (Intermediary Platform)** model with deep **Drone Mission Planning & Telemetry** capabilities, electronic contracts under Vietnamese law, **direct bank-transfer settlement (no platform custody of funds)**, **dynamic `PLATFORM_OPERATOR` configuration**, internal complaint mediation, non-linear feedback loops, field incident handling, and the Capstone error-prevention guide (`error-prevention.md`).
 >
+> **v3.4 change from v3.3:** field flight execution has moved from MF3-01 to the new **MF2-07**, splitting the flows cleanly by phase: **MF2 = the flight phase** (plan → airspace/permit → safety sign-off → execute → logged field session) and **MF3 = the processing phase** (ingest → integrity → quality gate → AI → human verification → draft → author sign-off → QA release). MF3 steps renumber accordingly (old MF3-02…09 → new MF3-01…08). Weather postponement and in-flight incidents now loop inside MF2, because the clearance is date-bound.
+
 > **v3.3 change from v3.2:** advance funding / partner escrow has been removed entirely. The platform is **never a custodian or intermediary of money**. The client pays the provider directly by bank transfer after acceptance; the platform only computes and invoices its commission.
 
 ---
@@ -260,9 +262,9 @@ The platform runs a full lifecycle with feedback and exception handling:
 
 ---
 
-### MF2 — Mission Planning & Flight Compliance 🚀 [DRONE-CENTRED FLOW]
+### MF2 — Mission Planning, Flight Compliance & Field Execution 🚀 [DRONE-CENTRED FLOW]
 
-> **Technical focus**: separate photogrammetric capability from flight-safety authority; enforce the flight dossier under current law. The system checks records; it never grants permission.
+> **Technical focus**: separate photogrammetric capability from flight-safety authority; enforce the flight dossier under current law. The system checks records; it never grants permission. **This flow covers the whole flight phase** and ends with the logged field session handed over to MF3 (processing phase).
 
 **Main actors**: `INSPECTOR` (Pilot-in-Command), `PROVIDER_MANAGER`, `System`.
 
@@ -276,38 +278,39 @@ The platform runs a full lifecycle with feedback and exception handling:
 | **MF2-04** | System | **Airspace check & regulatory alert**: intersect flight coordinates with the configured no-fly/restricted dataset (`cambay.mod.gov.vn` reference). Result is a **planning warning only** — not a permit and not a substitute for authority confirmation. | Reference airspace report |
 | **MF2-05** | PROVIDER_MANAGER | **Flight-legal dossier**: attach the flight permit/approval issued by the competent military authority when the flight is permit-required under current regulations; verify UAV registration identity and pilot licence conditions. The provider owns the legality of the flight; the system only checks completeness and validity of provided records. | Complete flight-legal dossier |
 | **MF2-06** | INSPECTOR & PROVIDER_MANAGER | **Pilot-in-command safety sign-off**: the pilot inspects live obstacles, structure clearance and weather, and **signs the flight-safety commitment**; PROVIDER_MANAGER approves and releases the mission. The order transitions to **`READY_FOR_FLIGHT`**. | Approved mission plan (`READY_FOR_FLIGHT`) |
+| **MF2-07** | INSPECTOR | **Field execution of the approved shot list**: open the mobile/web app on site, start the survey session (`IN_PROGRESS`), run the pre-flight check, and manually fly the approved shot list. (Severe weather → abort safely, log the reason, return to MF2-05 for a new-date clearance, then schedule the make-up flight.) | Logged field session (handed over to MF3) |
 
 #### 2. MF2 exceptions
 
 * **Cannot obtain the flight permit**: the plan is rejected; PROVIDER_MANAGER notifies the CLIENT to extend the permit timeline or cancel under the legal force-majeure clause.
 * **Camera cannot meet the required GSD**: approval is blocked; the pilot must change lens/sensor or (when safely possible) reduce capture distance.
+* **In-flight incident (signal loss, battery drop, motor failure)**: the pilot executes fail-safe return-to-home / emergency landing, files an **incident log** (cause, equipment state, site condition), notifies PROVIDER_MANAGER and CLIENT, and reschedules after safety checks.
+* **Sudden weather deterioration**: immediate abort; captured data is preserved; because the clearance is date-bound, the make-up flight returns to **MF2-05** for a new-date clearance before MF2-07 runs again.
 
 ---
 
-### MF3 — Field Survey, Evidence Quality Gate, AI Analysis & QA Release
+### MF3 — Evidence Ingestion, Quality Gate, AI Analysis & QA Release
 
-**Goal**: fly safely, enforce image quality on site, verify AI-assisted defect candidates with a human in the loop, compile the LLM draft, and release the official QA report.
+**Goal**: ingest the logged field session handed over by MF2-07, enforce evidence quality, verify AI-assisted defect candidates with a human in the loop, compile the LLM draft, and release the official QA report.
 
-**Main actors**: `INSPECTOR` (field pilot & report author), `PROVIDER_MANAGER`, Platform MinIO, Platform AI services, `System`.
+**Main actors**: `INSPECTOR` (report author & verifier), `PROVIDER_MANAGER`, Platform MinIO, Platform AI services, `System`.
 
 #### 1. Main sequence
 
 | Step | Role / Lane | Activity | Output |
 | :--- | :--- | :--- | :--- |
-| **MF3-01** | INSPECTOR | Open the mobile/web app on site, start the survey session (`IN_PROGRESS`), run the pre-flight check, and manually fly the approved shot list. (Severe weather → abort safely, log the reason, schedule a make-up flight.) | Logged field session |
-| **MF3-02** | INSPECTOR | Upload all high-resolution photos/videos to platform MinIO via chunked upload. | Raw field imagery |
-| **MF3-03** | System | **Telemetry extraction & integrity**: parse GPS 3D coordinates, relative AGL altitude, gimbal angle, timestamp; compute a **SHA-256** checksum per file to protect evidence integrity. | Integrity-protected evidence |
-| **MF3-04** | System & INSPECTOR | **Evidence quality & coverage gate**: automatic checks for blur, GPS validity, and shot-list coverage. Blurry/underexposed/missing-angle images raise an alert so the pilot performs a **same-day re-flight** before leaving site. | Quality-passed evidence set |
-| **MF3-05** | System (YOLO) | Platform YOLO pipeline scans valid images, detects defects (concrete cracks, rebar corrosion, spalling) and **estimates physical dimensions (mm)** from the defect region, GSD, and image geometry. Estimates support the expert; they are not final measurements until verified. Output: **defect candidates** with bounding boxes. | Candidate defects with GSD estimates |
-| **MF3-06** | INSPECTOR (human-in-the-loop) | Review every image and candidate: **Confirm, Modify, or Reject**; add **manual findings** for anything the AI missed, using survey-grade measurement for exact dimensions. Complete the inspection checklist. | Professionally verified defect list |
-| **MF3-07** | System (LLM) | The assistant compiles structured checklist/telemetry/evidence/verified-defect data into a **technical report draft**, marking AI-assisted content and model version. | Report draft |
-| **MF3-08** | INSPECTOR (author) | **Self-verify, edit, take professional responsibility**: review each conclusion against the imagery, fix terminology and omissions, then electronically sign the finished draft before submitting to PROVIDER_MANAGER. Mandatory — an AI draft is never published directly. | Author-verified report |
-| **MF3-09** | PROVIDER_MANAGER | Check administrative completeness and SOW conformity; if complete, **sign and release the official QA report** to the client. The system starts the acceptance countdown $T_{rev}$ snapshotted in the contract. | Released report & $T_{rev}$ started |
+| **MF3-01** | INSPECTOR | Upload all high-resolution photos/videos of the logged field session to platform MinIO via chunked upload. | Raw field imagery |
+| **MF3-02** | System | **Telemetry extraction & integrity**: parse GPS 3D coordinates, relative AGL altitude, gimbal angle, timestamp; compute a **SHA-256** checksum per file to protect evidence integrity. | Integrity-protected evidence |
+| **MF3-03** | System & INSPECTOR | **Evidence quality & coverage gate**: automatic checks for blur, GPS validity, and shot-list coverage. Blurry/underexposed/missing-angle images raise an alert so the pilot performs a **same-day re-flight** (re-enters at MF2-07) before leaving site. | Quality-passed evidence set |
+| **MF3-04** | System (YOLO) | Platform YOLO pipeline scans valid images, detects defects (concrete cracks, rebar corrosion, spalling) and **estimates physical dimensions (mm)** from the defect region, GSD, and image geometry. Estimates support the expert; they are not final measurements until verified. Output: **defect candidates** with bounding boxes. | Candidate defects with GSD estimates |
+| **MF3-05** | INSPECTOR (human-in-the-loop) | Review every image and candidate: **Confirm, Modify, or Reject**; add **manual findings** for anything the AI missed, using survey-grade measurement for exact dimensions. Complete the inspection checklist. | Professionally verified defect list |
+| **MF3-06** | System (LLM) | The assistant compiles structured checklist/telemetry/evidence/verified-defect data into a **technical report draft**, marking AI-assisted content and model version. | Report draft |
+| **MF3-07** | INSPECTOR (author) | **Self-verify, edit, take professional responsibility**: review each conclusion against the imagery, fix terminology and omissions, then electronically sign the finished draft before submitting to PROVIDER_MANAGER. Mandatory — an AI draft is never published directly. | Author-verified report |
+| **MF3-08** | PROVIDER_MANAGER | Check administrative completeness and SOW conformity; if complete, **sign and release the official QA report** to the client. The system starts the acceptance countdown $T_{rev}$ snapshotted in the contract. | Released report & $T_{rev}$ started |
 
-#### 2. MF3 field exceptions
+#### 2. MF3 processing exceptions
 
-* **In-flight incident (signal loss, battery drop, motor failure)**: pilot executes fail-safe return-to-home / emergency landing, files an **incident log** (cause, equipment state, site condition), notifies PROVIDER_MANAGER and CLIENT, reschedules after safety checks.
-* **Sudden weather deterioration**: immediate abort; captured data preserved; make-up flight scheduled for the remainder.
+* **Evidence quality gate fails**: flagged images trigger a same-day re-flight alert; the pilot re-enters at **MF2-07** (new-date clearance if the date changed) before ingestion continues.
 * **YOLO/LLM service outage**: automatic **manual fallback** — the inspector boxes defects and drafts on the standard template so the delivery schedule holds.
 
 ---
@@ -361,7 +364,7 @@ The platform runs a full lifecycle with feedback and exception handling:
 
 ---
 
-## VI. RACI Matrix (v3.3)
+## VI. RACI Matrix (v3.4)
 
 | Process / core business | `PLATFORM_ADMIN` | `PLATFORM_OPERATOR` | `CLIENT` | `PROVIDER_MANAGER` | `INSPECTOR` | `MAINTENANCE_ENGINEER` |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -372,7 +375,7 @@ The platform runs a full lifecycle with feedback and exception handling:
 | **MF1: E-contract signing (no funding step)** | I | C | **A / R** | **R** | - | - |
 | **MF2: Mission planning (GSD, overlap, shot list)** | - | - | I | **A** | **R** | - |
 | **MF2: Flight-legal dossier & safety sign-off** | I | C | I | **A / R** | **R (Pilot)** | - |
-| **MF3: Field survey, incident handling & re-flight** | - | - | I | I | **A / R** | - |
+| **MF2: Field execution, incident handling & re-flight** | - | - | I | I | **A / R** | - |
 | **MF3: YOLO detection & measurement verification** | - | - | - | I | **A / R** | - |
 | **MF3: LLM draft self-review & QA release signature** | - | - | I | **A (Release)** | **R (Author)** | - |
 | **MF4: Acceptance & payment invoice / direct transfer** | I | C | **A / R** | **R (Confirm receipt)** | - | - |

@@ -18,7 +18,7 @@ no later task has to rediscover a documented-vs-implemented difference.
 1. The six canonical roles and the capability-vetting model below (settled decisions,
    recorded in §2). These are not re-litigated by any task.
 2. Report 3 (`reports/report-3-software-requirement-specification/`) and
-   `project-reference/business-flows.md` (v3.3 — direct-transfer settlement, no platform
+   `project-reference/business-flows.md` (v3.4 — flight phase = MF2 / processing phase = MF3; direct-transfer settlement, no platform
    custody of funds) define the **target**.
 3. `project-reference/database-design.md` defines the **target schema**.
 4. The Java/React/Flutter source defines the **as-implemented state**.
@@ -245,7 +245,7 @@ Mandatory flow → module mapping (fixed):
 | MF1-06 Signature, contract effectiveness | Both parties sign electronically; the contract takes effect immediately and payment happens later by direct bank transfer — no funding step, no Platform custody | No contract-signature flow exists in `src/main/java`; no funding or escrow code exists because the target no longer contains either. | `target-only` | `GAP-F-07`, `GAP-D-10` (both obsolete) |
 | MF1 cancellation / weather force majeure (MF1 §2) | Order-snapshotted cancellation terms; BR-13, BR-14 | No cancellation terms, no policy source. | `target-only` | `GAP-F-06`, `GAP-D-08` |
 
-### 3.3 MF2 — Drone mission planning and airspace clearance
+### 3.3 MF2 — Drone mission planning, airspace clearance and field execution
 
 | Step | Target | Implemented state | Status | Gap |
 | --- | --- | --- | --- | --- |
@@ -255,20 +255,20 @@ Mandatory flow → module mapping (fixed):
 | MF2-04 Airspace digital clearance | Lookup ≠ clearance; `AIRSPACE_MANUAL_VERIFY_REQUIRED` on outage | Absent entirely. | `target-only` | `GAP-F-02`, `GAP-F-09` |
 | MF2-05 Legal flight clearance, certified pilot, drone registration, conflict-of-interest | Recorded before approval | `inspection_assignments` carries `inspector_user_id` and `assigned_by_user_id` only. No credential/licence linkage, no conflict check. | `target-only` | `GAP-F-10`, `GAP-D-02` |
 | MF2-06 Provider Manager approves plan, issues mission package, `READY_FOR_FLIGHT` | Order transitions to `READY_FOR_FLIGHT` | **`READY_FOR_FLIGHT` does not exist in any enum or CHECK constraint.** Order status set is `CONFIRMED, ASSIGNMENT_PENDING, READY_FOR_INSPECTION, IN_PROGRESS, COMPLETED, CANCELLED`. | `target-only` | `GAP-F-09` |
+| MF2-07 Field execution of the approved shot list; session logged (moved from old MF3-01 in `business-flows.md` v3.4) | Assigned Inspector only, mission-linked; weather abort returns to MF2-05 for a new-date clearance | `InspectionController` is class-level `hasRole('INSPECTOR')` with assignment scoping in service. **`inspections` has no `mission_plan_id`; execution is not mission-linked.** | `partial` | `GAP-F-11` |
 
-### 3.4 MF3 — Field survey, evidence, AI verification, QA report
+### 3.4 MF3 — Evidence ingestion, quality gate, AI verification, QA report
 
 | Step | Target | Implemented state | Status | Gap |
 | --- | --- | --- | --- | --- |
-| MF3-01 Start assigned session | Assigned Inspector only, mission-linked | `InspectionController` is class-level `hasRole('INSPECTOR')` with assignment scoping in service. **`inspections` has no `mission_plan_id`; execution is not mission-linked.** | `partial` | `GAP-F-11` |
-| MF3-02 Chunked upload to MinIO | Server-computed SHA-256, retry-safe | Implemented. `EvidenceService:74` computes checksum; `uq_evidence_inspection_checksum` and `uq_evidence_work_log_checksum` reject duplicates; object key is `inspections/{inspectionId}/{objectId}`. | `implemented` | — |
-| MF3-03 Spatial telemetry: 3D GPS, AGL, gimbal angle, timestamp | Per-file spatial metadata | `evidence` stores `latitude`, `longitude`, `capture_time`. **No altitude/AGL, no gimbal angle, no 3D coordinate.** | `partial` | `GAP-F-13`, `GAP-D-15` |
+| MF3-01 Chunked upload to MinIO | Server-computed SHA-256, retry-safe | Implemented. `EvidenceService:74` computes checksum; `uq_evidence_inspection_checksum` and `uq_evidence_work_log_checksum` reject duplicates; object key is `inspections/{inspectionId}/{objectId}`. | `implemented` | — |
+| MF3-02 Spatial telemetry: 3D GPS, AGL, gimbal angle, timestamp | Per-file spatial metadata | `evidence` stores `latitude`, `longitude`, `capture_time`. **No altitude/AGL, no gimbal angle, no 3D coordinate.** | `partial` | `GAP-F-13`, `GAP-D-15` |
+| MF3-03 Evidence quality & coverage gate (blur, exposure, GPS validity, shot-list coverage) | Automatic gate with same-day re-flight alert (re-entry MF2-07) | **No blur, sharpness, exposure, or coverage assessment exists anywhere** in the implementation (v1 or `main`); only checksum integrity and duplicate rejection exist (row MF3-01). | `target-only` | `GAP-F-28` |
 | MF3-04 YOLO candidates + GSD-derived physical defect size in mm | Multiply pixel size by mission GSD | `AiInferencePort` exists; candidates persist. **No GSD anywhere in the codebase, so no physical-size derivation.** | `partial` | `GAP-F-12` |
 | MF3-05 Inspector confirm/modify/reject, manual finding, checklist | Non-official until verified | Implemented. `AiFindingCandidateStatus`, `VerifiedFindingSource`, `VerifiedFindingStatus`, manual finding endpoint. | `implemented` | — |
 | MF3-06 Platform LLM narrative draft | Labelled draft, not released directly | `ReportDraftPort` + `ai-draft` endpoint exist. | `implemented` | — |
 | MF3-07 **Author verification and edit by the authoring Inspector** | Required before submit; BR-23 | **Not implemented. The workflow uses peer review instead:** `peer_reviews` table, `PeerReviewDecision{PENDING, CHANGES_REQUESTED, APPROVED}`, report status `AWAITING_PEER_REVIEW`, and `technically_approved_at`. `report_versions` has **no** author-verification or completeness column. | `target-only` | `GAP-F-14`, `GAP-D-04`, `GAP-D-05` |
-| MF3-08 Provider Manager completeness check with reasons | `PROVIDER_MANAGER` checks SOW deliverables | Absent. `POST /reports/{id}/versions/{v}/review` is `hasRole('INSPECTOR')` — the peer-review decision endpoint, not a Manager completeness check. | `target-only` | `GAP-F-14`, `GAP-A-05` |
-| MF3-09 Manager releases report; review clock starts from snapshot | BR-24: release requires author verification **and** Manager completeness | `POST /reports/{id}/versions/{v}/release` is `hasRole('SERVICE_MANAGER')` with **no verification precondition**, because neither state exists. Review-period snapshot does not exist. | `partial` | `GAP-F-15` |
+| MF3-08 Provider Manager completeness check with reasons, then signed release; review clock starts from snapshot | BR-24: release requires author verification **and** Manager completeness | Completeness check absent (`POST /reports/{id}/versions/{v}/review` is `hasRole('INSPECTOR')` — the peer-review decision endpoint). `POST .../release` is `hasRole('SERVICE_MANAGER')` with **no verification precondition**, because neither state exists. Review-period snapshot does not exist. | `partial` | `GAP-F-14`, `GAP-A-05`, `GAP-F-15` |
 | BR-25 Client visibility | Unverified candidates and unreleased drafts hidden | Service-scoped reads exist. | `implemented` | — |
 
 ### 3.5 MF4 — Report acceptance, settlement, internal complaints
@@ -437,7 +437,7 @@ rule. Recorded as conformant.
 | `GAP-F-08` | MF2 mission plan, shot items, GSD, overlap, AGL, gimbal all absent. | **2.3** |
 | `GAP-F-09` | MF2 clearance/permit state absent and `READY_FOR_FLIGHT` does not exist as a status. | **2.3** |
 | `GAP-F-10` | MF2 pilot-credential, drone-registration, and conflict-of-interest checks absent. | **2.3** |
-| `GAP-F-11` | MF3 execution is not mission-linked; `inspections` has no `mission_plan_id`. | **3.1** |
+| `GAP-F-11` | MF2 field execution (MF2-07) is not mission-linked; `inspections` has no `mission_plan_id`. | **3.1** |
 | `GAP-F-12` | GSD-derived physical defect size (mm) cannot exist; no GSD value is stored anywhere. | **3.1** (with **2.3**) |
 | `GAP-F-13` | Spatial telemetry depth missing: no AGL, no gimbal angle, no 3D coordinate on `evidence`. | **3.1** |
 | `GAP-F-14` | MF3 uses peer review instead of author verification plus Provider Manager completeness. | **3.2** |
@@ -454,6 +454,7 @@ rule. Recorded as conformant.
 | `GAP-F-25` | MF5 Q3 single-pending-change-request rule absent. | **5.2** |
 | `GAP-F-26` | Notification delivery runtime absent although MF1 Q5, MF4 Q4, and FE-08 all require it. | **ORPHAN** |
 | `GAP-F-27` | `dashboard` is a package-only module; FE-08 has no runtime and no Report 5 case. | **ORPHAN** |
+| `GAP-F-28` | MF3 evidence quality & coverage gate absent: no blur, exposure, GPS-validity, or shot-list-coverage assessment exists in any form; no re-flight alert can be raised. | **3.1** |
 
 **Flow-area gap count: 27** (25 owned, 2 orphan).
 
@@ -511,10 +512,10 @@ rule. Recorded as conformant.
 | Area | Gaps | Owned by a task | Orphan |
 | --- | ---: | ---: | ---: |
 | Role / actor-zone | 15 | 15 | 0 |
-| Flow | 27 | 25 | 2 |
+| Flow | 28 | 26 | 2 |
 | API | 13 | 13 | 0 |
 | Data | 22 | 21 | 1 (same as `GAP-F-26`) |
-| **Total recorded** | **77** | **74** | **3** |
+| **Total recorded** | **78** | **75** | **3** |
 
 `GAP-F-07` and `GAP-D-10` are **obsolete by contract change**: `business-flows.md` v3.3
 removed funding/escrow from the target entirely, so their owning task closes them as
@@ -565,7 +566,7 @@ listed against it. The two rows obsolete by the direct-transfer contract change
 | R-C. `inspectionrequests` is persistence-only | `GAP-F-03`, `GAP-F-04`, `GAP-A-02` |
 | R-D. No commercial-policy or snapshot layer | `GAP-F-06`, `GAP-D-06`, `GAP-D-08` |
 | R-E. MF2 mission planning absent | `GAP-F-08`, `GAP-F-09`, `GAP-F-10`, `GAP-A-03`, `GAP-D-09` |
-| R-F. MF3 execution not mission- or telemetry-linked | `GAP-F-11`, `GAP-F-12`, `GAP-F-13`, `GAP-D-15` |
+| R-F. Field execution not mission-linked; telemetry depth insufficient | `GAP-F-11`, `GAP-F-12`, `GAP-F-13`, `GAP-D-15` |
 | R-G. Report workflow is peer review, not author verification | `GAP-F-14`, `GAP-F-15`, `GAP-D-04`, `GAP-D-05`, `GAP-A-05` |
 | R-H. No complaint or direct-settlement layer | `GAP-F-16`, `GAP-F-17`, `GAP-F-18`, `GAP-D-11`, `GAP-D-14` |
 | R-I. `maintenance` is persistence-only | `GAP-F-19`, `GAP-F-20`, `GAP-F-21`, `GAP-F-22`, `GAP-F-23`, `GAP-F-24`, `GAP-F-25`, `GAP-A-04`, `GAP-D-07`, `GAP-D-16`, `GAP-D-17` |

@@ -1,8 +1,8 @@
 ---
 title: "SmartDroneInspection - Business Flow Summary (MF1–MF5)"
 document_type: business-flow-summary
-purpose: "Concise English summary of the 6 canonical roles and the 5 core main flows (MF1–MF5), aligned with business-flows.md v3.3 (direct-transfer settlement, no platform custody of funds)."
-version: "2.0"
+purpose: "Concise English summary of the 6 canonical roles and the 5 core main flows (MF1–MF5), aligned with business-flows.md v3.4 (direct-transfer settlement, no platform custody; MF2 = flight phase, MF3 = processing phase)."
+version: "2.1"
 updated: 2026-10-06
 ---
 
@@ -40,9 +40,9 @@ This document is the concise, plain-language view of how the SmartDroneInspectio
 
 *Exceptions*: no bids before RFQ close → widen geography or adjust budget; force-majeure weather → free reschedule, no penalty; client cancels pre-mobilisation → only reasonable evidenced preparation costs are deducted (per contract), remainder is simply never transferred.
 
-### MF2 — Mission Planning & Flight-Legal Checks
+### MF2 — Mission Planning, Flight-Legal Checks & Field Execution
 
-**Goal**: set image sharpness parameters, guarantee flight safety, and attach the flight permit before mobilising.
+**Goal**: set image sharpness parameters, guarantee flight safety, attach the flight permit, then execute the flight — the whole flight phase, ending with a logged field session handed to MF3.
 
 - **MF2-01**: from the minimum crack size to find (e.g. ≥ 1.0 mm needs GSD ≤ 0.5 mm/px), the system recommends capture distance and camera settings for resolvable imagery.
 - **MF2-02**: `INSPECTOR` sets overlap ratios (forward ≥ 75%, side ≥ 60%) so no structural corner is missed.
@@ -50,24 +50,24 @@ This document is the concise, plain-language view of how the SmartDroneInspectio
 - **MF2-04**: `SYSTEM` cross-checks site coordinates against the national no-fly map (`cambay.mod.gov.vn`) — **a planning warning only, never a permit**.
 - **MF2-05**: `PROVIDER_MANAGER` attaches the permit number issued by the competent military authority (when permit-required under current regulations) and verifies UAV registration and pilot licence conditions.
 - **MF2-06**: pilot signs the live safety commitment; `PROVIDER_MANAGER` approves and releases the order: **`READY_FOR_FLIGHT`**.
+- **MF2-07**: `INSPECTOR` starts the session on site (`IN_PROGRESS`), runs the pre-flight check and flies the planned angles; the logged session hands over to MF3. Severe weather → safe abort, reason logged, back to `MF2-05` for a new-date clearance, make-up flight scheduled.
 
-*Exceptions*: no permit obtainable → plan rejected, notify client for extension or force-majeure cancellation; camera cannot meet GSD → approval blocked until equipment/geometry corrected.
+*Exceptions*: no permit obtainable → plan rejected, notify client for extension or force-majeure cancellation; camera cannot meet GSD → approval blocked until equipment/geometry corrected; in-flight incident → fail-safe landing, incident log, reschedule; sudden weather → abort, preserve captured data, new-date clearance for the make-up flight.
 
-### MF3 — Field Flight, Quality Gate, AI Detection & Technical Report
+### MF3 — Evidence Ingestion, Quality Gate, AI Detection & Technical Report
 
-**Goal**: fly safely, enforce image quality on site, use AI to spot cracks, and release the report through mandatory human verification.
+**Goal**: ingest the logged field session from MF2-07, enforce evidence quality, use AI to spot cracks, and release the report through mandatory human verification.
 
-- **MF3-01**: `INSPECTOR` activates the session, runs the pre-flight check and flies the planned angles. Severe weather → safe abort, reason logged, make-up flight scheduled.
-- **MF3-02**: `INSPECTOR` uploads all high-resolution originals to platform MinIO (chunked upload).
-- **MF3-03**: `SYSTEM` stores GPS coordinates, altitude, gimbal angle, timestamp and a tamper-evident **SHA-256** checksum per file.
-- **MF3-04**: quality gate flags blurry/dark/incomplete images so the pilot **re-shoots on the spot** before leaving site.
-- **MF3-05**: `SYSTEM` (YOLO) boxes cracks/corrosion/spalling and **estimates length/width in mm** from capture geometry → defect candidates with bounding boxes.
-- **MF3-06**: `INSPECTOR` reviews each candidate: **Confirm / Modify / Reject**, and draws anything the AI missed (manual findings) with survey-grade measurement.
-- **MF3-07**: `SYSTEM` (LLM) compiles flight data, approved defects and evidence images into a report draft, marking AI-assisted content.
-- **MF3-08**: `INSPECTOR` (as author) re-reads the draft against the imagery, fixes wording and conclusions, and **electronically signs it**.
-- **MF3-09**: `PROVIDER_MANAGER` checks completeness against the contract and **signs the official release**; the contractual review clock $T_{rev}$ starts.
+- **MF3-01**: `INSPECTOR` uploads all high-resolution originals of the logged session to platform MinIO (chunked upload).
+- **MF3-02**: `SYSTEM` stores GPS coordinates, altitude, gimbal angle, timestamp and a tamper-evident **SHA-256** checksum per file.
+- **MF3-03**: quality gate flags blurry/dark/incomplete images so the pilot **re-shoots on the spot** (re-enters at `MF2-07`) before leaving site.
+- **MF3-04**: `SYSTEM` (YOLO) boxes cracks/corrosion/spalling and **estimates length/width in mm** from capture geometry → defect candidates with bounding boxes.
+- **MF3-05**: `INSPECTOR` reviews each candidate: **Confirm / Modify / Reject**, and draws anything the AI missed (manual findings) with survey-grade measurement.
+- **MF3-06**: `SYSTEM` (LLM) compiles flight data, approved defects and evidence images into a report draft, marking AI-assisted content.
+- **MF3-07**: `INSPECTOR` (as author) re-reads the draft against the imagery, fixes wording and conclusions, and **electronically signs it**.
+- **MF3-08**: `PROVIDER_MANAGER` checks completeness against the contract and **signs the official release**; the contractual review clock $T_{rev}$ starts.
 
-*Exceptions*: in-flight incident (signal/battery/motor) → fail-safe landing, incident log, reschedule; sudden weather → abort and preserve captured data; AI service outage → manual fallback so the deadline holds.
+*Exceptions*: quality gate failure → same-day re-flight via `MF2-07`; AI service outage → manual fallback so the deadline holds.
 
 ### MF4 — Report Review, Acceptance & Direct Payment
 
@@ -111,7 +111,8 @@ This document is the concise, plain-language view of how the SmartDroneInspectio
 | **MF1: E-contract signing (no funding step)** | I | C | **A / R** | **R** | - | - |
 | **MF2: Mission plan (GSD, overlap, shot list)** | - | - | I | **A** | **R** | - |
 | **MF2: Flight dossier & safety sign-off** | I | C | I | **A / R** | **R (Pilot)** | - |
-| **MF3: Field flight & evidence upload** | - | - | I | I | **A / R** | - |
+| **MF2: Field flight execution** | - | - | I | I | **A / R** | - |
+| **MF3: Evidence upload & quality gate** | - | - | I | I | **A / R** | - |
 | **MF3: AI verification & author signature** | - | - | - | I | **A / R** | - |
 | **MF3: QA release signature** | - | - | I | **A (Release)** | **R (Author)** | - |
 | **MF4: Acceptance & payment invoice / direct transfer** | I | C | **A / R** | **R (Confirm receipt)** | - | - |
