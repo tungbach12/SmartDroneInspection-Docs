@@ -185,11 +185,7 @@ Indexes: unique `code`; index `active` when organization administration requires
 | `created_at` | `TIMESTAMPTZ` | No | Creation time. |
 | `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
 
-| `bank_name` | `VARCHAR(120)` | Yes | Provider payout bank display name shown on the Payment Invoice. |
-| `bank_account_number` | `VARCHAR(34)` | Yes | Provider payout account number (domestic or IBAN text) — never a token or secret. |
-| `bank_account_holder` | `VARCHAR(200)` | Yes | Account holder name as registered at the bank. |
-
-Indexes: unique `tax_code`; index `status`.
+Indexes: unique `tax_code`; index `status`. Bank account details live on each order (order-level Payment Invoice), not on the organization row.
 
 #### `provider_capabilities`, `provider_capability_evidence`, `provider_vetting_decisions`
 
@@ -487,11 +483,14 @@ Each row is a target tripartite order under *Luật Giao dịch điện tử 202
 | `review_policy_version` | `VARCHAR(64)` | No | Published client-review policy version used by the order timer. |
 | `cancellation_policy_version` | `VARCHAR(64)` | No | Published cancellation policy version used by this order. |
 | `locked_terms_snapshot` | `JSONB` | No | Immutable snapshot of the accepted business terms, values, display labels, and policy version identifiers used to construct the electronic order. |
-| `status` | `VARCHAR(32)` | No | `CONFIRMED` (signed & in force), `ASSIGNMENT_PENDING`, `READY_FOR_INSPECTION`, `READY_FOR_FLIGHT`, `IN_PROGRESS`, `COMPLETED` (accepted), `AWAITING_PAYMENT` (Payment Invoice issued), `PAID` (Provider confirmed the direct transfer), `DISPUTED` (complaint pauses acceptance/payment), `CANCELLED`. |
+| `status` | `VARCHAR(32)` | No | `CONFIRMED` (signed & in force), `ASSIGNMENT_PENDING`, `READY_FOR_INSPECTION`, `READY_FOR_FLIGHT`, `IN_PROGRESS`, `AWAITING_ACCEPTANCE` (report released, review window running), `COMPLETED` (accepted), `AWAITING_PAYMENT` (Payment Invoice issued), `PAID` (Provider confirmed the direct transfer), `DISPUTED` (complaint pauses acceptance/payment), `CANCELLED`. |
 | `started_at` | `TIMESTAMPTZ` | Yes | Execution start time. |
 | `completed_at` | `TIMESTAMPTZ` | Yes | Final acceptance / auto-acceptance time. |
 | `payment_invoice_issued_at` | `TIMESTAMPTZ` | Yes | Time the SYSTEM issued the Payment Invoice after acceptance. |
 | `paid_at` | `TIMESTAMPTZ` | Yes | Time the Provider confirmed receipt of the Client's direct bank transfer (status `PAID`). |
+| `client_review_ends_at` | `TIMESTAMPTZ` | Yes | Instant the contractual review window expires (MF4-04b auto-acceptance sweep target). |
+| `provider_bank_account_number` | `VARCHAR(34)` | Yes | Provider account number shown on this order's Payment Invoice; snapshotted per order. |
+| `provider_bank_name` | `VARCHAR(200)` | Yes | Provider bank name shown on this order's Payment Invoice. |
 | `created_at` | `TIMESTAMPTZ` | No | Creation time. |
 | `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
 | `row_version` | `BIGINT` | No | Optimistic locking. |
@@ -504,7 +503,7 @@ The direct-transfer model means **no escrow, ledger, or payment-partner table ex
 | --- | --- |
 | `inspection_service_orders.status` | The `AWAITING_PAYMENT` → `PAID` transition driven by the Provider's "Confirm receipt" action, plus `paid_at` / confirming user. |
 | `invoices` | The Payment Invoice issued after acceptance, and the Platform's commission (+ commission VAT) invoice issued to the Provider (§6.6). |
-| `provider_organizations` bank columns | Bank name, account number, account holder displayed on the Payment Invoice — account numbers only, never tokens or secrets. |
+| `inspection_service_orders` / `maintenance_orders` bank pair | `provider_bank_account_number` + `provider_bank_name` snapshotted on the order — the Payment Invoice is an order-level document, so the account shown is the one current for that contract. Account numbers only, never tokens or secrets. |
 
 A complaint (MF4-03) flips the order to `DISPUTED`, which pauses acceptance and therefore the payment sequence. This is a workflow state only — there are no platform-held funds to freeze.
 
@@ -765,7 +764,7 @@ Each row is an immutable approved order version so approved changes never overwr
 | `warranty_end_date` | `TIMESTAMPTZ` | Yes | Warranty end instant calculated from completion and the locked warranty duration. |
 | `currency` | `CHAR(3)` | No | ISO currency code. |
 | `payment_terms` | `VARCHAR(2000)` | No | Two-stage milestone payment terms. |
-| `status` | `VARCHAR(24)` | No | `CONFIRMED`, `IN_PROGRESS`, `COMPLETED`, `SUPERSEDED`, or `CANCELLED`. |
+| `status` | `VARCHAR(24)` | No | `CONFIRMED`, `IN_PROGRESS`, `AWAITING_PAYMENT` (Payment Invoice issued after acceptance), `PAID`, `COMPLETED`, `SUPERSEDED`, `CANCELLED`. |
 | `approved_by_user_id` | `UUID` | No | Client actor. |
 | `approved_at` | `TIMESTAMPTZ` | No | Approval time. |
 
@@ -858,7 +857,7 @@ These values are persisted as strings and must use the same names in Java, API c
 | Schedule status | `ACTIVE`, `PAUSED`, `DISABLED` |
 | Request status | `DRAFT`, `SUBMITTED`, `UNDER_REVIEW`, `REVISION_REQUIRED`, `QUOTED`, `AWAITING_CLIENT_APPROVAL`, `ORDER_CONFIRMED`, `ASSIGNMENT_PENDING`, `READY_FOR_INSPECTION`, `MANUAL_REVIEW`, `CANCELLED` |
 | Quotation status | `DRAFT`, `SENT`, `REVISION_REQUESTED`, `APPROVED`, `REJECTED`, `SUPERSEDED` |
-| Inspection order status | `CONFIRMED`, `ASSIGNMENT_PENDING`, `READY_FOR_INSPECTION`, `READY_FOR_FLIGHT`, `IN_PROGRESS`, `COMPLETED`, `AWAITING_PAYMENT`, `PAID`, `DISPUTED`, `CANCELLED` |
+| Inspection order status | `CONFIRMED`, `ASSIGNMENT_PENDING`, `READY_FOR_INSPECTION`, `READY_FOR_FLIGHT`, `IN_PROGRESS`, `AWAITING_ACCEPTANCE`, `COMPLETED`, `AWAITING_PAYMENT`, `PAID`, `DISPUTED`, `CANCELLED` |
 | Assignment status | `PENDING`, `ACCEPTED`, `REJECTED`, `CANCELLED`, `COMPLETED` |
 | Inspection status | `READY_FOR_INSPECTION`, `IN_PROGRESS`, `AWAITING_AI_REVIEW`, `AWAITING_REPORT`, `COMPLETED`, `CANCELLED` |
 | Target report-version status | `DRAFT`, `AUTHOR_VERIFIED`, `COMPLETENESS_RETURNED`, `RELEASED`, `REVISION_REQUESTED`, `ACCEPTED` |
@@ -867,6 +866,7 @@ These values are persisted as strings and must use the same names in Java, API c
 | Maintenance ticket status | `SUBMITTED`, `ASSESSMENT_PENDING`, `ASSESSED`, `QUOTATION_PENDING`, `AWAITING_CLIENT_APPROVAL`, `ORDER_CONFIRMED`, `EXECUTION_PENDING`, `IN_PROGRESS`, `CHANGE_PENDING`, `INTERNAL_REVIEW`, `RELEASED`, `REWORK_REQUESTED`, `REINSPECTION_REQUESTED`, `CLOSED`, `CANCELLED` |
 | Maintenance assignment type | `ASSESSMENT`, `EXECUTION`, `REWORK` |
 | Work-log status | `IN_PROGRESS`, `PAUSED_FOR_CHANGE`, `SUBMITTED`, `VERIFIED` |
+| Maintenance order status | `CONFIRMED`, `IN_PROGRESS`, `AWAITING_PAYMENT`, `PAID`, `COMPLETED`, `SUPERSEDED`, `CANCELLED` |
 | Change-request status | `SUBMITTED`, `QUOTED`, `APPROVED`, `REJECTED`, `IMPLEMENTED` |
 | Invoice status | `DRAFT`, `ISSUED`, `PAID`, `OVERDUE`, `VOID` |
 | Mission plan status | `DRAFT`, `SUBMITTED`, `REVISION_REQUIRED`, `APPROVED`, `CANCELLED`, `SUPERSEDED` |
