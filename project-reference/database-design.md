@@ -27,11 +27,11 @@ It is not an executable Flyway migration and does not claim that every table bel
 
 ## 2. Right-sized schema
 
-The target contains **42 application tables** plus the Spring Modulith `event_publication` infrastructure table. The target report-version model stores the Inspector author's verification/edit confirmation and Provider Manager completeness/release metadata.
+The target contains **45 application tables** plus the Spring Modulith `event_publication` infrastructure table. The target report-version model stores the Inspector author's verification/edit confirmation and Provider Manager completeness/release metadata.
 
 | Capability | Tables | Count |
 | --- | --- | ---: |
-| Identity, multi-provider and access | `organizations`, `provider_organizations`, `users`, `user_roles`, `auth_sessions`, `refresh_tokens` | 6 |
+| Identity, multi-provider and access | `organizations`, `provider_organizations`, `provider_capabilities`, `provider_capability_evidence`, `provider_vetting_decisions`, `users`, `user_roles`, `auth_sessions`, `refresh_tokens` | 9 |
 | Audit | `security_audit_events` | 1 |
 | Asset catalog and planning | `asset_categories`, `category_frequency_suggestions`, `checklist_templates`, `checklist_items`, `assets`, `asset_documents`, `inspection_schedules`, `schedule_proposals` | 8 |
 | MF1 request, quotation & direct settlement | `inspection_requests`, `inspection_request_attachments`, `inspection_quotations`, `inspection_service_orders`, `inspection_assignments` | 5 |
@@ -185,7 +185,15 @@ Indexes: unique `code`; index `active` when organization administration requires
 | `created_at` | `TIMESTAMPTZ` | No | Creation time. |
 | `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
 
+| `bank_name` | `VARCHAR(120)` | Yes | Provider payout bank display name shown on the Payment Invoice. |
+| `bank_account_number` | `VARCHAR(34)` | Yes | Provider payout account number (domestic or IBAN text) — never a token or secret. |
+| `bank_account_holder` | `VARCHAR(200)` | Yes | Account holder name as registered at the bank. |
+
 Indexes: unique `tax_code`; index `status`.
+
+#### `provider_capabilities`, `provider_capability_evidence`, `provider_vetting_decisions`
+
+Capability is organization data, never a role. Each provider organization has at most one row per declared capability (`provider_capabilities`: `provider_id`, `capability_type` in `INSPECTION`/`MAINTENANCE` — there is no `BOTH` value, "both" means two rows — unique `(provider_id, capability_type)`), carrying the current `status` in exactly `PENDING`, `ADDITIONAL_INFO_REQUIRED`, `VERIFIED`, `REJECTED`. Inspection evidence (drone registrations, pilot licences, insurance) is never substitutable for maintenance evidence (repair scope, qualified personnel, credentials): `provider_capability_evidence` stores one row per submitted document with its `evidence_kind`, object key and validity window. `provider_vetting_decisions` is the append-only decision history — each row records which capability, which outcome, which `PLATFORM_OPERATOR`, when, and the stated reason. A decision on one capability never changes the other (BR-41: no cascade in schema), and organization standing lives separately in `provider_organizations.status` with its own standing decision record.
 
 #### `users`
 
