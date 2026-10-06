@@ -675,7 +675,7 @@ Constraints: unique `(report_id, version_number)`; an accepted version is append
 
 #### `dispute_tickets`
 
-Target internal complaint records coordinated by `PLATFORM_OPERATOR` under published Platform Terms. The operator's decision is not a court judgment or commercial arbitration award; applicability of consumer law depends on transaction purpose.
+Target internal complaint records coordinated by `PLATFORM_OPERATOR` under published Platform Terms. Filing flips the referenced order — inspection **or** maintenance — to `DISPUTED` (both status checks admit the value since `V16` and `V21`), pausing acceptance and the payment sequence as a workflow state; no funds are ever held. The operator's decision is not a court judgment or commercial arbitration award; applicability of consumer law depends on transaction purpose.
 
 | Column | Type | Null | Constraint or purpose |
 | --- | --- | --- | --- |
@@ -764,7 +764,7 @@ Each row is an immutable approved order version so approved changes never overwr
 | `warranty_end_date` | `TIMESTAMPTZ` | Yes | Warranty end instant calculated from completion and the locked warranty duration. |
 | `currency` | `CHAR(3)` | No | ISO currency code. |
 | `payment_terms` | `VARCHAR(2000)` | No | Two-stage milestone payment terms. |
-| `status` | `VARCHAR(24)` | No | `CONFIRMED`, `IN_PROGRESS`, `AWAITING_PAYMENT` (Payment Invoice issued after acceptance), `PAID`, `COMPLETED`, `SUPERSEDED`, `CANCELLED`. |
+| `status` | `VARCHAR(24)` | No | `CONFIRMED`, `IN_PROGRESS`, `AWAITING_PAYMENT` (Payment Invoice issued after acceptance), `PAID`, `COMPLETED`, `DISPUTED` (a complaint pauses acceptance/payment — workflow state only), `SUPERSEDED`, `CANCELLED`. |
 | `approved_by_user_id` | `UUID` | No | Client actor. |
 | `approved_at` | `TIMESTAMPTZ` | No | Approval time. |
 
@@ -866,7 +866,7 @@ These values are persisted as strings and must use the same names in Java, API c
 | Maintenance ticket status | `SUBMITTED`, `ASSESSMENT_PENDING`, `ASSESSED`, `QUOTATION_PENDING`, `AWAITING_CLIENT_APPROVAL`, `ORDER_CONFIRMED`, `EXECUTION_PENDING`, `IN_PROGRESS`, `CHANGE_PENDING`, `INTERNAL_REVIEW`, `RELEASED`, `REWORK_REQUESTED`, `REINSPECTION_REQUESTED`, `CLOSED`, `CANCELLED` |
 | Maintenance assignment type | `ASSESSMENT`, `EXECUTION`, `REWORK` |
 | Work-log status | `IN_PROGRESS`, `PAUSED_FOR_CHANGE`, `SUBMITTED`, `VERIFIED` |
-| Maintenance order status | `CONFIRMED`, `IN_PROGRESS`, `AWAITING_PAYMENT`, `PAID`, `COMPLETED`, `SUPERSEDED`, `CANCELLED` |
+| Maintenance order status | `CONFIRMED`, `IN_PROGRESS`, `AWAITING_PAYMENT`, `PAID`, `COMPLETED`, `DISPUTED`, `SUPERSEDED`, `CANCELLED` |
 | Change-request status | `SUBMITTED`, `QUOTED`, `APPROVED`, `REJECTED`, `IMPLEMENTED` |
 | Invoice status | `DRAFT`, `ISSUED`, `PAID`, `OVERDUE`, `VOID` |
 | Mission plan status | `DRAFT`, `SUBMITTED`, `REVISION_REQUIRED`, `APPROVED`, `CANCELLED`, `SUPERSEDED` |
@@ -939,7 +939,7 @@ The database model supports, but does not replace, application authorization. Re
 
 ## 12. Implementation status
 
-As of 2026-09-28, Flyway migrations `V1` through `V11` implement the **v1 physical schema**: 37 application tables plus the Spring Modulith `event_publication` registry. The additional target tables `platform_configurations`, `drone_mission_plans`, and `mission_shot_items`, plus the commercial/technical snapshot columns in this plan, are documentation-only target design and are **not** implemented by those migrations or current JPA entities. The table inventory above includes these target additions, not only the deployed v1 schema. The physical-schema phases are:
+As of 2026-10-06, Flyway migrations `V1` through `V11` implement the **v1 physical schema**: 37 application tables plus the Spring Modulith `event_publication` registry, and migrations `V12` through `V21` carry the schema to the **current direct-transfer target**. The inventory in §2 — 44 application tables plus `event_publication` — is now the deployed physical schema, asserted by `CutListMigrationOnPopulatedDatabaseTest.finalSchemaIsFortyFourApplicationTablesPlusEventPublication`. What is not yet true is the runtime: the `V12`+ tables have no JPA entities or endpoints (provider-organization tables are DDL-only — matrix `GAP-R-04`, `GAP-D-01`), and the snapshot/settlement columns await their service code. The physical-schema phases are:
 
 | Migration | Physical scope |
 | --- | --- |
@@ -951,8 +951,19 @@ As of 2026-09-28, Flyway migrations `V1` through `V11` implement the **v1 physic
 | `V9` | Supporting notification delivery records. |
 | `V10` | Client actor and revision-reason audit columns on WF3 `report_versions`. |
 | `V11` | WF1 schedule proposals and Admin category frequency policy; widens the `assets.status` check for `PENDING_REVIEW` and `REJECTED`. |
+| `V12` | Provider organizations, per-capability records, vetting decisions and capability evidence; `users.provider_id` with zone exclusivity. |
+| `V13` | Canonical six-role vocabulary on `user_roles` (`ADMIN`→`PLATFORM_ADMIN` data migration; fail-closed `SERVICE_MANAGER` pre-check; session invalidation). |
+| `V14` | `provider_id` on inspection quotations and service orders (RESTRICT FKs, read indexes). |
+| `V15` | `platform_configurations` policy store (key allow-list, one `PUBLISHED` row per key) and `locked_*` policy-snapshot columns on orders. |
+| `V16` | Direct-transfer settlement: extended order status sets (`READY_FOR_FLIGHT`, `AWAITING_ACCEPTANCE`, `DISPUTED`, `AWAITING_PAYMENT`, `PAID`), `client_review_ends_at` / `payment_invoice_issued_at` / `paid_at`, order-level bank pair, `invoice_type` with the one-commission-invoice constraints. |
+| `V17` | `drone_mission_plans` and `mission_shot_items` with airspace-check vocabulary and clearance-gated approval. |
+| `V18` | Maintenance warranty columns and clock, ticket auto-close sweep index, structural before/after evidence pairing. |
+| `V19` | Drops the dead `peer_reviews` table (guarded pre-check; refuses while rows exist). |
+| `V20` | `dispute_tickets` with folded `evidence` JSONB (no `dispute_evidence` table). |
+| `V21` | Admits `DISPUTED` in `ck_maintenance_orders_status` so a complaint can pause a maintenance order too. |
 
-Physical tables do not by themselves mean that a workflow is runtime-complete. Every application table in `V1`-`V11`
+Physical tables do not by themselves mean that a workflow is runtime-complete. The `V12`–`V21` target tables do **not**
+yet have entities — they are schema-only until their feature slice lands. Every application table in `V1`-`V11`
 now has a feature-owned JPA entity and repository: identity tables belong to `users`; WF1 tables to `assets`; WF2
 tables to `inspectionrequests`; WF3 tables to `inspections`; WF4 tables to `maintenance`; and notifications to
 `notifications`. The Spring Modulith `event_publication` registry remains framework-owned and has no business entity.
