@@ -112,7 +112,7 @@ The matrix maps screens to the six canonical roles across the three actor zones.
 
 #### 3.1.5 Entity Relationship Diagram
 
-The diagram describes the **target** multi-provider model. The Supporting Flow holds onboarding/asset master data; five Main Flows hold the transactional lifecycle. Commercial policy, mission-plan and settlement entities shown for those target workflows are proposals, not implemented schema or migrations.
+The diagram describes the **target** multi-provider model. The Supporting Flow holds onboarding/asset master data; five Main Flows hold the transactional lifecycle. Commercial policy and settlement entities shown for those target workflows are proposals, not implemented schema or migrations. Mission-plan tables are implemented (`V17`) and their endpoints landed under backend PR #54 (branch `feat/supporting-code-no-mainflows`, merged `18272e8`); that slice is recorded, not a claim of Client/Inspector UI.
 
 ![SmartDroneInspection entity relationship diagram](assets/erd.png)
 
@@ -135,8 +135,8 @@ The diagram describes the **target** multi-provider model. The Supporting Flow h
 | 12 | Inspection Service Order | Electronic order record binding parties to approved quotation and expressly accepted terms when legal formation requirements are met; payment status alone does not establish validity. |
 | 12a | Direct Settlement Record (target) | Proposed record of Payment Invoice, Provider receipt confirmation, order-locked uniform commission, `DISPUTED` state and refunds; not a Platform bank account and not an existing Flyway table. |
 | 12b | Platform Configuration Version (target) | Append-only version/effective-date record for commercial policies published by `PLATFORM_OPERATOR`; not an implemented table. |
-| 12c | Drone Mission Plan (target) | Versioned SOW-linked mission planning record with equipment, GSD/overlap, AGL, airspace status, permits and approval; not an implemented table. |
-| 12d | Mission Shot Item (target) | Ordered structure component, required camera/gimbal instruction and shot-specific target attached to a mission plan; an optional waypoint reference may be included where the chosen capture method uses one. Not an implemented table. |
+| 12c | Drone Mission Plan (target) | Versioned SOW-linked mission planning record with equipment, GSD/overlap, AGL, airspace status, permits and approval; table exists (`V17`), runtime endpoints landed under backend PR #54 (branch `feat/supporting-code-no-mainflows`, merged `18272e8`) — record only, no Client/Inspector UI yet. |
+| 12d | Mission Shot Item (target) | Ordered structure component, required camera/gimbal instruction and shot-specific target attached to a mission plan; an optional waypoint reference may be included where the chosen capture method uses one. Table exists (`V17`) and is served by the same PR #54 runtime; a separate capture-method UI remains target scope. |
 | 13 | Inspection Assignment | Flight mission assignment issued by Provider Manager to a certified Inspector. |
 | 14 | Inspection | Active inspection mission execution record bound to an accepted order. |
 | 15 | Checklist Response | Recorded inspection answers to checklist items. |
