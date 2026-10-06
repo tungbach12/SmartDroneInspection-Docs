@@ -1,5 +1,7 @@
 # Documents-Led MF1–MF5 Refactor Implementation Plan
 
+> **⚠️ SUPERSEDED (06 Oct 2026).** The business contract was revised after this plan was written: settlement is now **direct bank transfer with no platform custody** (`project-reference/business-flows.md` v3.3). Advance funding, payment-partner ports/settlement tasks (notably Task 4.2), dispute holds and warranty retention are **void**. Scope also narrowed: **MF2 and MF5 application code is out of scope** — database schema only, and no frontend/mobile code for MF2/MF5. Execution continues on branches `refactor/simplified-flow-db` (migrations) and `refactor/simplified-flow-docs` (documents); the `refactor/mf1-mf5-*` worktree branches are abandoned. This document is retained as historical context only — do not execute its remaining tasks without re-planning against the current contract.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Refactor the backend, frontend, mobile client, database schema, and project documentation from the implemented v1 WF1–WF4 baseline into the documents-defined six-role, multi-provider MF1–MF5 target without inventing a separate maintenance-manager role or claiming unimplemented integrations are complete.

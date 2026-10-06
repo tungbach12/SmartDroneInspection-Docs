@@ -1,7 +1,9 @@
 # Documents-Led MF1–MF5 Refactor Design
 
+> **⚠️ SUPERSEDED (06 Oct 2026).** The business contract was revised after this plan was written: settlement is now **direct bank transfer with no platform custody** (`project-reference/business-flows.md` v3.3). Advance funding, payment-partner ports/settlement tasks (notably Task 4.2), dispute holds and warranty retention are **void**. Scope also narrowed: **MF2 and MF5 application code is out of scope** — database schema only, and no frontend/mobile code for MF2/MF5. Execution continues on branches `refactor/simplified-flow-db` (migrations) and `refactor/simplified-flow-docs` (documents); the `refactor/mf1-mf5-*` worktree branches are abandoned. This document is retained as historical context only — do not execute its remaining tasks without re-planning against the current contract.
+
 **Date:** 2026-10-04  
-**Status:** Draft for review  
+**Status:** **Superseded 06 Oct 2026** — see banner below  
 **Scope:** Backend, frontend, mobile, database, and documentation repositories
 
 ## 1. Purpose and source of truth
