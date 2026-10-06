@@ -27,7 +27,7 @@ It is not an executable Flyway migration and does not claim that every table bel
 
 ## 2. Right-sized schema
 
-The target contains **45 application tables** plus the Spring Modulith `event_publication` infrastructure table. The target report-version model stores the Inspector author's verification/edit confirmation and Provider Manager completeness/release metadata.
+The target contains **44 application tables** plus the Spring Modulith `event_publication` infrastructure table. The target report-version model stores the Inspector author's verification/edit confirmation and Provider Manager completeness/release metadata.
 
 | Capability | Tables | Count |
 | --- | --- | ---: |
@@ -37,12 +37,12 @@ The target contains **45 application tables** plus the Spring Modulith `event_pu
 | MF1 request, quotation & direct settlement | `inspection_requests`, `inspection_request_attachments`, `inspection_quotations`, `inspection_service_orders`, `inspection_assignments` | 5 |
 | MF2 drone mission planning | `drone_mission_plans`, `mission_shot_items` | 2 |
 | MF3 inspection and report delivery | `inspections`, `checklist_responses`, `evidence`, `ai_finding_candidates`, `verified_findings`, `inspection_reports`, `report_versions` | 7 |
-| MF4 dispute arbitration | `dispute_tickets`, `dispute_evidence` | 2 |
+| MF4 complaint handling | `dispute_tickets` (evidence embedded as JSONB) | 1 |
 | MF5 maintenance and billing | `maintenance_tickets`, `maintenance_ticket_findings`, `maintenance_assessments`, `maintenance_quotations`, `maintenance_orders`, `maintenance_assignments`, `maintenance_work_logs`, `maintenance_change_requests`, `invoices` | 9 |
 | Platform governance and supporting workflow | `platform_configurations`, `notifications` | 2 |
 | Framework infrastructure | `event_publication` | 1 |
 
-The design deliberately does not create separate lookup tables for roles, statuses, priorities, severities, or actor zones. These are stable Java enums persisted as constrained strings. It also does not create dashboard, search-index, notification-template, or file-blob tables. Platform-operated AI (YOLO inference and LLM narrative drafting) is delivered as centralized platform capability with metadata and candidate findings persisted directly in the core tables.
+The legacy v1 `peer_reviews` table is **removed** by the V12+ migration set: peer review exists in no flow of the current contract (MF3 uses Inspector author-verify plus Provider Manager completeness/release instead), so both the table and its dead code path are dropped. The design also deliberately does not create separate lookup tables for roles, statuses, priorities, severities, or actor zones. These are stable Java enums persisted as constrained strings. It also does not create dashboard, search-index, notification-template, or file-blob tables. Platform-operated AI (YOLO inference and LLM narrative drafting) is delivered as centralized platform capability with metadata and candidate findings persisted directly in the core tables.
 
 ## 3. Code-first and migration policy
 
@@ -672,7 +672,7 @@ Columns: `id`, unique `inspection_id`, `author_user_id`, `status`, `current_vers
 
 Constraints: unique `(report_id, version_number)`; an accepted version is append-only and cannot be updated.
 
-### 6.5 MF4 dispute arbitration
+### 6.5 MF4 complaint handling
 
 #### `dispute_tickets`
 
@@ -700,22 +700,9 @@ Target internal complaint records coordinated by `PLATFORM_OPERATOR` under publi
 | `created_at` | `TIMESTAMPTZ` | No | Filing timestamp (pauses acceptance and the payment sequence — workflow state only). |
 | `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
 
+| `evidence` | `JSONB` | Yes | Complaint attachments as an array of `{evidence_type, object_key, checksum_sha256, uploaded_by_user_id, description, created_at}` — folded here instead of a separate table (minimal-schema decision); SHA-256 still guards integrity per file. |
+
 Indexes: unique `dispute_number`; index `order_id`; index `status`.
-
-#### `dispute_evidence`
-
-Binds forensic digital evidence to a dispute ticket.
-
-| Column | Type | Null | Constraint or purpose |
-| --- | --- | --- | --- |
-| `id` | `UUID` | No | Primary key. |
-| `dispute_ticket_id` | `UUID` | No | FK to `dispute_tickets`. |
-| `uploaded_by_user_id` | `UUID` | No | Submitting party. |
-| `evidence_type` | `VARCHAR(32)` | No | `FLIGHT_LOG`, `MINIO_IMAGE`, `CONTRACT_DOCUMENT`, or `DAMAGE_REPORT`. |
-| `minio_object_key` | `VARCHAR(1000)` | No | MinIO storage key. |
-| `checksum_sha256` | `CHAR(64)` | No | SHA-256 data integrity checksum. |
-| `description` | `VARCHAR(1000)` | Yes | Context note. |
-| `created_at` | `TIMESTAMPTZ` | No | Creation timestamp. |
 
 ### 6.6 MF5 maintenance, billing & warranty
 
@@ -830,7 +817,7 @@ Columns: `id`, unique `invoice_number`, `invoice_type`, `organization_id` (billi
 
 Constraints: every invoice references exactly one order row (inspection or maintenance, depending on type); a `COMMISSION` invoice additionally references the provider organization it was computed from. Commission is a Provider-side expense and is never added to the Client's bill. Invoice issuance content and timing follow Decree 123/2020/NĐ-CP as amended by Decree 70/2025/NĐ-CP.
 
-### 6.6 Supporting workflow
+### 6.7 Supporting workflow
 
 #### `notifications`
 
@@ -857,7 +844,7 @@ Indexes: `(recipient_user_id, status, created_at DESC)` and `(status, created_at
 
 This table is owned by Spring Modulith, not by a JPA business entity. Its schema follows the framework's PostgreSQL event-publication registry and supports reliable event delivery between modules.
 
-### 6.7 Stable value sets
+### 6.8 Stable value sets
 
 These values are persisted as strings and must use the same names in Java, API contracts, tests, and demo data.
 
