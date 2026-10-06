@@ -3,7 +3,7 @@ title: "MF1–MF5 Canonical Contract Matrix"
 document_type: contract-matrix
 purpose: "Single canonical role, actor-zone, flow, API, and data matrix. Records the documented target, the as-implemented current state, and every gap with the task number that owns closing it."
 version: "1.0"
-updated: 2026-10-05
+updated: 2026-10-06
 ---
 
 # MF1–MF5 Canonical Contract Matrix (v1.0)
@@ -18,7 +18,8 @@ no later task has to rediscover a documented-vs-implemented difference.
 1. The six canonical roles and the capability-vetting model below (settled decisions,
    recorded in §2). These are not re-litigated by any task.
 2. Report 3 (`reports/report-3-software-requirement-specification/`) and
-   `project-reference/business-flows.md` define the **target**.
+   `project-reference/business-flows.md` (v3.3 — direct-transfer settlement, no platform
+   custody of funds) define the **target**.
 3. `project-reference/database-design.md` defines the **target schema**.
 4. The Java/React/Flutter source defines the **as-implemented state**.
 
@@ -95,7 +96,7 @@ and no seventh role may be introduced by any task.
 | # | Role | Actor zone | Canonical responsibility |
 | --- | --- | --- | --- |
 | 1 | `PLATFORM_ADMIN` | `PLATFORM_GOVERNANCE` | Technical configuration, security policy, checklist templates, technical audit. Cannot publish commercial policy or vet a Provider. |
-| 2 | `PLATFORM_OPERATOR` | `PLATFORM_GOVERNANCE` | Provider vetting, commercial-policy publication, payment-partner coordination, internal complaint handling. Not a legal arbitrator, not a deposit custodian. |
+| 2 | `PLATFORM_OPERATOR` | `PLATFORM_GOVERNANCE` | Provider vetting, commercial-policy publication, payment-status tracking, commission & commission-VAT invoicing, internal complaint handling. Not a legal arbitrator, not a deposit custodian. |
 | 3 | `CLIENT` | `CUSTOMER_ORGANIZATION` | Customer-organization assets, requests, orders, report decisions, complaints, maintenance tickets. |
 | 4 | `PROVIDER_MANAGER` | `SERVICE_PROVIDER` | The **single** Provider Organization representative. Quotations, mission-plan approval, permits, workforce assignment, QA completeness/release, maintenance quotations and orders. |
 | 5 | `INSPECTOR` | `SERVICE_PROVIDER` | Assigned manual flight, evidence, AI-candidate verification, and verification/editing of the draft they authored. |
@@ -218,7 +219,7 @@ Mandatory flow → module mapping (fixed):
 | `MF1` | `inspectionrequests` |
 | `MF2` | `inspections` |
 | `MF3` | `inspections` |
-| `MF4` | `inspections` + `infrastructure` (partner ports) + `notifications` |
+| `MF4` | `inspections` + `infrastructure` (settlement/invoice ports) + `notifications` |
 | `MF5` | `maintenance` |
 
 ### 3.1 Supporting Flow (SF)
@@ -232,7 +233,7 @@ Mandatory flow → module mapping (fixed):
 | SF-05 Due cycle → one MF1 request package | `assets` publishes `InspectionScheduleDue`; `inspectionrequests` consumes and creates the request | Publisher exists (`InspectionScheduleDuePublisher`, `assets/events/InspectionScheduleDue`). **No listener exists; `inspectionrequests` has zero services.** | `partial` | `GAP-F-03` |
 | SF-05 schedule proposal review by business reviewer | Target reviewer is `PLATFORM_OPERATOR` | `ScheduleProposalController:47` hardcodes `SERVICE_MANAGER` or `ADMIN`. | `partial` | `GAP-R-08` |
 
-### 3.2 MF1 — Survey request, quotation sourcing, conditional funding
+### 3.2 MF1 — Survey request, quotation sourcing, electronic contract
 
 | Step | Target | Implemented state | Status | Gap |
 | --- | --- | --- | --- | --- |
@@ -240,8 +241,8 @@ Mandatory flow → module mapping (fixed):
 | MF1-02 Optional Operator RFQ broadcast | Notification + provider matching | Not present. | `target-only` | `GAP-F-26` (orphan) |
 | MF1-03 Versioned Provider quotation | Capability-gated, excludes Platform AI/data/storage charges | Entity + immutability constraints exist. No service, no API, no capability gate, no charge-exclusion rule. | `partial` | `GAP-F-05` |
 | MF1-04 Client revision/accept | Versioned revisions | Version columns exist; no service. | `partial` | `GAP-A-02` |
-| MF1-05 Order policy snapshot | `locked_commission_rate`, `locked_review_period_days`, `locked_advance_funding_rate`, `locked_cancellation_policy`, `locked_terms_snapshot` | `inspection_service_orders` has `scope_snapshot`, `deliverables`, `payment_terms` only. **None of the `locked_*` columns exist.** | `partial` | `GAP-F-06`, `GAP-D-06` |
-| MF1-06 Signature and conditional funding | Authorized partner product; no Platform custody | No escrow code of any kind in `src/main/java`; `escrow_transactions` has no DDL. | `target-only` | `GAP-F-07`, `GAP-D-10` |
+| MF1-05 Order policy snapshot | `locked_commission_rate`, `locked_review_period_days`, `locked_cancellation_policy`, `locked_terms_snapshot` | `inspection_service_orders` has `scope_snapshot`, `deliverables`, `payment_terms` only. **None of the `locked_*` columns exist.** | `partial` | `GAP-F-06`, `GAP-D-06` |
+| MF1-06 Signature, contract effectiveness | Both parties sign electronically; the contract takes effect immediately and payment happens later by direct bank transfer — no funding step, no Platform custody | No contract-signature flow exists in `src/main/java`; no funding or escrow code exists because the target no longer contains either. | `target-only` | `GAP-F-07`, `GAP-D-10` (both obsolete) |
 | MF1 cancellation / weather force majeure (MF1 §2) | Order-snapshotted cancellation terms; BR-13, BR-14 | No cancellation terms, no policy source. | `target-only` | `GAP-F-06`, `GAP-D-08` |
 
 ### 3.3 MF2 — Drone mission planning and airspace clearance
@@ -277,25 +278,25 @@ Mandatory flow → module mapping (fixed):
 | MF4-01 Client reviews released report | Own-organization scope | `GET /reports`, `GET /reports/{id}`, evidence content endpoint. | `implemented` | — |
 | MF4-02a Client accepts | Immutable accepted version | `POST /reports/{id}/versions/{v}/client-decision` (`hasRole('CLIENT')`); `V10` added `client_decision_by_user_id`/`client_decision_reason` with a `REVISION_REQUESTED` reason CHECK. | `implemented` | — |
 | MF4-02b Deemed acceptance on snapshotted `T_rev` | Only when terms expressly provide it | Absent. No review-period snapshot, no timer. | `target-only` | `GAP-F-16`, `GAP-D-06` |
-| MF4-03 Settlement `C = r × B`, single commission | Partner-coordinated; Platform not custodian | No commission concept anywhere in `src/main/java`. `escrow_transactions` has no DDL. `invoices` has no commission/platform-fee split. | `target-only` | `GAP-F-18`, `GAP-D-10`, `GAP-D-14` |
+| MF4-03 Settlement `C = r × B`, single commission | Direct transfer CLIENT → PROVIDER bank account; the Platform issues its commission invoice separately and is never a custodian | No commission concept anywhere in `src/main/java`. `invoices` has no commission/platform-fee split. | `target-only` | `GAP-F-18`, `GAP-D-14` |
 | MF4-04 Clarification request → corrected report | Distinct clarification state | Only `REVISION_REQUESTED` exists; there is no clarification state distinct from revision. | `partial` | `GAP-A-08` |
 | MF4-05 Complaint filing, order-scoped | Client or Provider | `dispute_tickets` and `dispute_evidence` have no DDL, entity, or service. | `target-only` | `GAP-F-17`, `GAP-D-11` |
-| MF4-06 Complaint state + conditional partner hold | Only where product and terms support | Absent. | `target-only` | `GAP-F-18` |
+| MF4-06 Complaint state `DISPUTED` (workflow only) | A complaint pauses acceptance and payment as a workflow state; no funds are ever held by the Platform | Absent. | `target-only` | `GAP-F-18` |
 | MF4-07/08 Operator internal outcome under Platform Terms | Not a legal arbitration | Absent. No Operator role exists to hold this duty. | `target-only` | `GAP-F-17`, `GAP-R-07` |
 
-### 3.6 MF5 — Maintenance, before/after evidence, retention
+### 3.6 MF5 — Maintenance, before/after evidence, warranty
 
 | Step | Target | Implemented state | Status | Gap |
 | --- | --- | --- | --- | --- |
 | MF5 module runtime | Services and API | **The `maintenance` module has 10 entities and 10 repositories and zero services and zero controllers.** Nothing is reachable over HTTP. | `target-only` | `GAP-F-19`, `GAP-A-04` |
 | MF5-01 Ticket from verified finding in an accepted report | BR-31 | `maintenance_tickets.accepted_report_version_id` NOT NULL FK + `maintenance_ticket_findings` junction exist. **No service enforces "at least one finding", and no CHECK requires a finding row.** | `partial` | `GAP-F-22` |
 | MF5-02 Maintenance capability gate before quotation | BR-05 capability gate | No capability model exists. | `target-only` | `GAP-F-21`, `GAP-R-05` |
-| MF5-03 Maintenance order policy snapshot | Commission, funding, retention, warranty snapshots | `maintenance_orders` has `scope_snapshot`, `approved_amount`, `payment_terms`. **No `locked_*`, `retention_*`, `locked_warranty_days`, or `warranty_end_date`.** | `partial` | `GAP-F-23`, `GAP-D-07` |
+| MF5-03 Maintenance order policy snapshot | Commission and warranty snapshots | `maintenance_orders` has `scope_snapshot`, `approved_amount`, `payment_terms`. **No `locked_commission_rate`, `locked_warranty_days`, or `warranty_end_date`.** | `partial` | `GAP-F-23`, `GAP-D-07` |
 | MF5-04 Assigned Engineer executes; **mandatory paired before/after evidence** | BR-35: completion strictly requires a verified pair | `evidence.evidence_kind` includes `BEFORE_MAINTENANCE` / `AFTER_MAINTENANCE`, but **no constraint requires a pair**, and no maintenance upload endpoint exists. | `partial` | `GAP-F-20`, `GAP-D-17` |
 | MF5-05 Change order pauses extra work | Single `PENDING_APPROVAL` change at a time | Tables exist; no service, no single-pending constraint. | `target-only` | `GAP-F-25` |
 | MF5-06 Client accepts / rework / re-inspection | Three distinct decisions | `resolution_decision` CHECK allows `ACCEPT_RESOLUTION, REQUEST_REWORK, REQUEST_REINSPECTION`; no service. | `partial` | `GAP-A-04` |
-| MF5-07 Milestone settlement, single commission, warranty start | Partner-coordinated | Absent. | `target-only` | `GAP-F-18`, `GAP-F-23` |
-| MF5-08 Warranty retention release, no second commission | Operator coordinates only when adopted | Absent. | `target-only` | `GAP-F-23` |
+| MF5-07 Settlement by direct transfer, single commission, warranty start | SYSTEM issues the Payment Invoice; CLIENT transfers 100% to PROVIDER; Platform invoices its commission separately | Absent. | `target-only` | `GAP-F-18`, `GAP-F-23` |
+| MF5-08 Warranty countdown, free-rework claim, auto-close ticket | Warranty duration is snapshotted at signing; no amount is retained by anyone | Absent. | `target-only` | `GAP-F-23` |
 | BR-37 Re-inspection creates a linked request | Linked ad hoc request returning to MF1/MF2 | **`inspection_requests.linked_maintenance_ticket_id` exists in `V6` as a bare `UUID` with no foreign key, and nothing writes it.** | `target-only` | `GAP-F-24`, `GAP-D-16` |
 
 ### 3.7 Cross-cutting: notification and dashboard
@@ -432,7 +433,7 @@ rule. Recorded as conformant.
 | `GAP-F-04` | MF1 request creation and RFQ sourcing have no runtime. | **2.1** |
 | `GAP-F-05` | MF1 quotation has no capability gate and no Platform-AI/data/storage charge exclusion. | **2.1** (gate), **2.2** (charges) |
 | `GAP-F-06` | MF1 order policy snapshot absent; no cancellation terms and no `T_rev` review period. | **2.2** |
-| `GAP-F-07` | MF1 conditional funding absent; no escrow or partner integration of any kind. | **4.2** |
+| `GAP-F-07` | **Removed from target by direct-transfer contract change (`business-flows.md` v3.3)** — the target has no funding or escrow step, so there is nothing to build. Row retained so the id stays reserved. | **4.2** (close as obsolete) |
 | `GAP-F-08` | MF2 mission plan, shot items, GSD, overlap, AGL, gimbal all absent. | **2.3** |
 | `GAP-F-09` | MF2 clearance/permit state absent and `READY_FOR_FLIGHT` does not exist as a status. | **2.3** |
 | `GAP-F-10` | MF2 pilot-credential, drone-registration, and conflict-of-interest checks absent. | **2.3** |
@@ -443,12 +444,12 @@ rule. Recorded as conformant.
 | `GAP-F-15` | Report release is not gated on author verification or Manager completeness (BR-24 unenforced). | **3.2** |
 | `GAP-F-16` | MF4 deemed-acceptance timer absent. | **4.2** |
 | `GAP-F-17` | MF4 complaint filing, evidence, and Operator internal outcome absent. | **4.1** |
-| `GAP-F-18` | MF4/MF5 settlement, commission `C = r × B`, hold, and retention release absent. | **4.2**, **5.3** |
+| `GAP-F-18` | MF4/MF5 settlement workflow absent (Payment Invoice → direct Client transfer → `PAID` confirmation → Platform commission invoice, `C = r × B` invoiced once per order). | **4.2**, **5.3** |
 | `GAP-F-19` | The entire MF5 runtime is absent: 10 entities, 10 repositories, 0 services, 0 controllers. | **5.1**, **5.2** |
 | `GAP-F-20` | Mandatory before/after evidence pairing is not enforced by any constraint. | **5.2** |
 | `GAP-F-21` | MF5 has no maintenance-capability gate. | **5.1** |
 | `GAP-F-22` | BR-31 ("at least one verified defect from an accepted report") is not enforced: the junction table exists but no service or CHECK requires a finding. | **5.1** |
-| `GAP-F-23` | MF5 retention and warranty snapshot, warranty clock, and release absent. | **5.2**, **5.3** |
+| `GAP-F-23` | MF5 warranty snapshot (`locked_warranty_days`, `warranty_end_date`), warranty countdown clock, and automatic ticket closure absent. | **5.2**, **5.3** |
 | `GAP-F-24` | BR-37 re-inspection linkage is a bare column with no foreign key and no writer. | **5.3** |
 | `GAP-F-25` | MF5 Q3 single-pending-change-request rule absent. | **5.2** |
 | `GAP-F-26` | Notification delivery runtime absent although MF1 Q5, MF4 Q4, and FE-08 all require it. | **ORPHAN** |
@@ -481,15 +482,15 @@ rule. Recorded as conformant.
 | ID | Gap | Owner |
 | --- | --- | --- |
 | `GAP-D-01` | `provider_organizations` is documented in §6.1 with a full column list and is counted as implemented in §12, but **has no `CREATE TABLE` in any migration and no JPA entity**. §12's "37 application tables" only closes by wrongly including it. | **1.3** (create), **7.1** (correct the doc) |
-| `GAP-D-02` | Every documented `provider_id` column is fictional. `grep -rn provider_id` over all migrations returns nothing, yet `users`, `inspection_quotations`, `inspection_service_orders`, `maintenance_orders`, `drone_mission_plans`, `escrow_transactions`, and `dispute_tickets` are all documented with one. Provider scoping is unrepresentable. | **1.3**, **2.1**, **2.2**, **5.1** |
+| `GAP-D-02` | Every documented `provider_id` column is fictional. `grep -rn provider_id` over all migrations returns nothing, yet `users`, `inspection_quotations`, `inspection_service_orders`, `maintenance_orders`, `drone_mission_plans`, and `dispute_tickets` are all documented with one. Provider scoping is unrepresentable. | **1.3**, **2.1**, **2.2**, **5.1** |
 | `GAP-D-03` | `security_audit_events` has no `organization_id`, `entity_type`, `entity_id`, or `details`. Only `actor_user_id`/`subject_user_id` exist. BR-38 (audit every material transition) is unrepresentable because workflow events cannot reference an entity. | **1.4** (first consumer), **7.1** (document) |
 | `GAP-D-04` | `report_versions` has no author-verification or completeness columns. `V7` supplies `created_by_user_id`, `submitted_at`, `technically_approved_at`, `released_at`, `accepted_at`; `V10` adds only the two Client-decision columns. | **3.2** |
 | `GAP-D-05` | `ck_report_versions_status` allows `DRAFT, AWAITING_PEER_REVIEW, CHANGES_REQUESTED, TECHNICALLY_APPROVED, RELEASED, REVISION_REQUESTED, ACCEPTED`. The target requires `AUTHOR_VERIFIED`, `MANAGER_RELEASED`, `CLIENT_ACCEPTED`, `CLIENT_CLARIFICATION`, `COMPLAINT`. | **3.2** |
-| `GAP-D-06` | `inspection_service_orders` lacks `locked_commission_rate`, `locked_review_period_days`, `locked_advance_funding_rate`, `locked_cancellation_policy`, `locked_terms_snapshot`. | **2.2** |
-| `GAP-D-07` | `maintenance_orders` lacks `locked_*`, `retention_rate`, `retention_base`, `locked_warranty_days`, `warranty_end_date`. | **5.2**, **5.3** |
+| `GAP-D-06` | `inspection_service_orders` lacks `locked_commission_rate`, `locked_review_period_days`, `locked_cancellation_policy`, `locked_terms_snapshot`. | **2.2** |
+| `GAP-D-07` | `maintenance_orders` lacks `locked_commission_rate`, `locked_terms_snapshot`, `locked_warranty_days`, `warranty_end_date`. | **5.2**, **5.3** |
 | `GAP-D-08` | `platform_configurations` has no DDL, so no published commercial policy can exist and `WF2-006` has no source. | **2.2** |
 | `GAP-D-09` | `drone_mission_plans` and `mission_shot_items` have no DDL. | **2.3** |
-| `GAP-D-10` | `escrow_transactions` has no DDL. | **4.2** |
+| `GAP-D-10` | **Removed from target by direct-transfer contract change (`business-flows.md` v3.3)** — the target contains no `escrow_transactions` table to create. Row retained so the id stays reserved. | **4.2** (close as obsolete) |
 | `GAP-D-11` | `dispute_tickets` and `dispute_evidence` have no DDL. | **4.1** |
 | `GAP-D-12` | No capability table, no `(provider_id, capability)` unique key, no status CHECK. BR-41 is unrepresentable. | **1.3** |
 | `GAP-D-13` | **CLOSED by Task 1.3** (V14): `provider_organizations.status` and `provider_capabilities.status` are two columns with two CHECK vocabularies, so a per-capability rejection and `ADDITIONAL_INFO_REQUIRED` are both expressible. **Extended by the Task 1.4 fix round**: the two axes are now also independently *reachable* — standing via its own endpoint and audit event (§2.6), capability status via its own. `SUSPENDED`/`BANNED` remain unreachable from any endpoint; no task owns that lifecycle yet. | — (closed); suspension lifecycle unowned |
@@ -515,6 +516,11 @@ rule. Recorded as conformant.
 | Data | 22 | 21 | 1 (same as `GAP-F-26`) |
 | **Total recorded** | **77** | **74** | **3** |
 
+`GAP-F-07` and `GAP-D-10` are **obsolete by contract change**: `business-flows.md` v3.3
+removed funding/escrow from the target entirely, so their owning task closes them as
+"no longer applicable". Their rows stay so the ids remain reserved and the counts above
+stay stable.
+
 ---
 
 ## 7. Negative test obligations
@@ -534,10 +540,10 @@ cases stay `Pending` until executed.
 | N-7 | **Unassigned workforce access** | An Inspector or Maintenance Engineer with no assignment cannot read or mutate the target inspection, checklist, evidence, report, work log, or ticket. Assignment scope is enforced before the record is loaded, not after. | 3.1, 5.2, 6.4 | `InspectionWorkflowTest`, mobile widget tests; new Report 5 case in 7.2 |
 | N-8 | **Author-verification release gate** | A report cannot be released without the authoring Inspector's verification confirmation **and** a Provider Manager completeness check. A non-author Inspector cannot verify another author's draft. | 3.2 | `ReportAuthorVerificationTest`; new Report 5 case in 7.2 |
 | N-9 | **Before/after completion gate** | Maintenance completion submission without a paired `BEFORE_MAINTENANCE` + `AFTER_MAINTENANCE` set on the same work log is rejected. | 5.2 | `MaintenanceEvidenceApiIntegrationTest`; new Report 5 case in 7.2 |
-| N-10 | **Unsupported partner integration** | With no configured partner, or with a partner that does not support the requested operation, funding, settlement, hold, and retention-release paths are blocked. The order, report, and maintenance state is preserved unchanged. No claim of Platform custody anywhere. | 2.2, 4.2, 5.3 | `PaymentPartnerBoundaryTest`, `ComplaintHoldBoundaryTest`, `SettlementPolicyTest`; `WF3-008` (Pending) |
-| N-11 | **Commission applied once** | Commission applies once to eligible VAT-exclusive value; a refund reverses it proportionally; a retention release earns no second commission. | 4.2, 5.3 | `SettlementPolicyTest`; `WF3-007`, `WF4-004`, `WF4-005` (Pending) |
+| N-10 | **No payment integration** | No payment integration exists anywhere: settlement is a direct bank transfer between Client and Provider, so no partner or product support is required for any flow, and no Platform-side custody of funds is possible. The order, report, and maintenance state is preserved unchanged. | 2.2, 4.2, 5.3 | `PaymentPartnerBoundaryTest`, `ComplaintHoldBoundaryTest`, `SettlementPolicyTest`; `WF3-008` (Pending) |
+| N-11 | **Commission applied once** | Commission applies once to eligible VAT-exclusive value; a refund reverses it proportionally; no second commission is ever charged on the same order. | 4.2, 5.3 | `SettlementPolicyTest`; `WF3-007`, `WF4-004`, `WF4-005` (Pending) |
 | N-12 | **Accepted-report immutability** | An accepted report version cannot be updated; a correction creates a linked version. | 3.2, 4.1 | `InspectionReportApiIntegrationTest` |
-| N-13 | **Complaint blocks deemed acceptance and release** | A timely complaint blocks deemed acceptance. An unresolved supported warranty complaint blocks eligible retention release. Concurrent accept and complaint serialize to one transition. | 4.1, 5.3 | `ComplaintWorkflowTest`, `MaintenanceWarrantyRetentionTest` |
+| N-13 | **Complaint pauses acceptance and payment** | A timely complaint blocks deemed acceptance and moves the order to workflow state `DISPUTED`; an unresolved warranty claim blocks automatic ticket closure. Concurrent accept and complaint serialize to one transition. | 4.1, 5.3 | `ComplaintWorkflowTest`, `MaintenanceWarrantyRetentionTest` |
 | N-14 | **Evidence duplicate and integrity** | A duplicate SHA-256 within one inspection or one maintenance work log is rejected without creating a junk row. Missing GPS is recorded, not rejected. An object-storage path alone grants no access. | 3.1, 5.2 | `EvidenceServiceTest`, `EvidenceApiIntegrationTest`; `WF3-002` (Passed) |
 | N-15 | **AI failure fallback** | YOLO or LLM unavailability never discards evidence and never blocks manual finding entry. Rejected or unverified candidates never reach Client-visible statistics or reports. | 3.1 | `InspectionWorkflowTest`; `WF3-003` (Passed) |
 | N-16 | **Onboarding grants no downstream authority** | Provider onboarding must not create an accepted order, grant inspection or maintenance eligibility, or grant mission clearance. | 1.4 | `ProviderOnboardingApiIntegrationTest.onboardingGrantsNoCapabilityEligibilityThroughTheGate_N16` (asserted through `ProviderEligibilityFacade`, not only through the record) |
@@ -549,18 +555,19 @@ cases stay `Pending` until executed.
 ## 8. Unique root causes
 
 The 77 recorded gaps reduce to these root causes. Fixing a root cause closes every gap
-listed against it.
+listed against it. The two rows obsolete by the direct-transfer contract change
+(`GAP-F-07`, `GAP-D-10`) are excluded here.
 
 | Root cause | Gaps closed |
 | --- | --- |
 | R-A. Legacy five-role identity with no provider linkage and the wrong zone names | `GAP-R-01`, `GAP-R-02`, `GAP-R-03`, `GAP-R-14`, `GAP-A-12`, and the role-rename part of `GAP-R-08`, `GAP-A-07`, `GAP-A-13` |
 | R-B. No Provider Organization aggregate or capability model | `GAP-R-04`, `GAP-R-05`, `GAP-R-06`, `GAP-D-01`, `GAP-D-02`, `GAP-D-12`, `GAP-D-13`, `GAP-F-01`, `GAP-A-01` |
 | R-C. `inspectionrequests` is persistence-only | `GAP-F-03`, `GAP-F-04`, `GAP-A-02` |
-| R-D. No commercial-policy or snapshot layer | `GAP-F-06`, `GAP-F-07`, `GAP-D-06`, `GAP-D-08` |
+| R-D. No commercial-policy or snapshot layer | `GAP-F-06`, `GAP-D-06`, `GAP-D-08` |
 | R-E. MF2 mission planning absent | `GAP-F-08`, `GAP-F-09`, `GAP-F-10`, `GAP-A-03`, `GAP-D-09` |
 | R-F. MF3 execution not mission- or telemetry-linked | `GAP-F-11`, `GAP-F-12`, `GAP-F-13`, `GAP-D-15` |
 | R-G. Report workflow is peer review, not author verification | `GAP-F-14`, `GAP-F-15`, `GAP-D-04`, `GAP-D-05`, `GAP-A-05` |
-| R-H. No complaint, settlement, or partner layer | `GAP-F-16`, `GAP-F-17`, `GAP-F-18`, `GAP-D-10`, `GAP-D-11`, `GAP-D-14` |
+| R-H. No complaint or direct-settlement layer | `GAP-F-16`, `GAP-F-17`, `GAP-F-18`, `GAP-D-11`, `GAP-D-14` |
 | R-I. `maintenance` is persistence-only | `GAP-F-19`, `GAP-F-20`, `GAP-F-21`, `GAP-F-22`, `GAP-F-23`, `GAP-F-24`, `GAP-F-25`, `GAP-A-04`, `GAP-D-07`, `GAP-D-16`, `GAP-D-17` |
 | R-J. Clients still model the v1 role/portal world | `GAP-R-09`, `GAP-R-10`, `GAP-R-11`, `GAP-R-12`, `GAP-R-13`, `GAP-A-06`, `GAP-A-10`, `GAP-A-11` |
 | R-K. Documentation has no enforced consistency check | `GAP-R-07`, `GAP-A-09`, `GAP-D-03`, `GAP-D-18`, `GAP-D-19`, `GAP-D-20`, `GAP-D-21`, `GAP-D-22` |
@@ -601,7 +608,7 @@ dropped, and each needs a decision before the phase that depends on it.
    not an interpretation of BR-41.
 6. **Target-only integrations fail closed.** No adapter means the operation is blocked
    and the order/report state is preserved. A deterministic test fixture is acceptable
-   evidence of contract behavior; it is never evidence that a real partner integration
+   evidence of contract behavior; it is never evidence that a real external integration
    exists.
 7. **Report 5 statuses stay truthful.** New cases are `Pending` until the exact command
    runs. Existing v1 `WFx` IDs and outcomes never change, and `WF1-005`–`WF1-010` are
