@@ -17,7 +17,7 @@ It is not an executable Flyway migration and does not claim that every table bel
   - `CUSTOMER_ORGANIZATION`: `CLIENT`.
   - `SERVICE_PROVIDER`: `PROVIDER_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`.
 - Support Multi-Provider multi-tenancy, isolating provider business assets, bids, assignments, and flight data.
-- Model the electronic contract, platform escrow cash-flow lifecycle, and internal dispute arbitration records.
+- Model the electronic contract, the direct-transfer settlement lifecycle (payment invoice, Provider receipt confirmation, Platform commission invoicing), and internal complaint records. The Platform never holds funds, so no escrow or ledger table exists.
 - Preserve organization, ownership, assignment, and separation-of-duties scope in relational keys.
 - Cover MF1–MF5 without adding speculative subsystems.
 - Preserve required quotation, order, report, assignment, approval, dispute, and resolution history.
@@ -27,22 +27,22 @@ It is not an executable Flyway migration and does not claim that every table bel
 
 ## 2. Right-sized schema
 
-The target contains **43 application tables** plus the Spring Modulith `event_publication` infrastructure table. The target report-version model stores the Inspector author's verification/edit confirmation and Provider Manager completeness/release metadata.
+The target contains **44 application tables** plus the Spring Modulith `event_publication` infrastructure table. The target report-version model stores the Inspector author's verification/edit confirmation and Provider Manager completeness/release metadata.
 
 | Capability | Tables | Count |
 | --- | --- | ---: |
-| Identity, multi-provider and access | `organizations`, `provider_organizations`, `users`, `user_roles`, `auth_sessions`, `refresh_tokens` | 6 |
+| Identity, multi-provider and access | `organizations`, `provider_organizations`, `provider_capabilities`, `provider_capability_evidence`, `provider_vetting_decisions`, `users`, `user_roles`, `auth_sessions`, `refresh_tokens` | 9 |
 | Audit | `security_audit_events` | 1 |
 | Asset catalog and planning | `asset_categories`, `category_frequency_suggestions`, `checklist_templates`, `checklist_items`, `assets`, `asset_documents`, `inspection_schedules`, `schedule_proposals` | 8 |
-| MF1 request, quotation and conditional funding | `inspection_requests`, `inspection_request_attachments`, `inspection_quotations`, `inspection_service_orders`, `inspection_assignments`, `escrow_transactions` | 6 |
+| MF1 request, quotation & direct settlement | `inspection_requests`, `inspection_request_attachments`, `inspection_quotations`, `inspection_service_orders`, `inspection_assignments` | 5 |
 | MF2 drone mission planning | `drone_mission_plans`, `mission_shot_items` | 2 |
 | MF3 inspection and report delivery | `inspections`, `checklist_responses`, `evidence`, `ai_finding_candidates`, `verified_findings`, `inspection_reports`, `report_versions` | 7 |
-| MF4 dispute arbitration | `dispute_tickets`, `dispute_evidence` | 2 |
+| MF4 complaint handling | `dispute_tickets` (evidence embedded as JSONB) | 1 |
 | MF5 maintenance and billing | `maintenance_tickets`, `maintenance_ticket_findings`, `maintenance_assessments`, `maintenance_quotations`, `maintenance_orders`, `maintenance_assignments`, `maintenance_work_logs`, `maintenance_change_requests`, `invoices` | 9 |
 | Platform governance and supporting workflow | `platform_configurations`, `notifications` | 2 |
 | Framework infrastructure | `event_publication` | 1 |
 
-The design deliberately does not create separate lookup tables for roles, statuses, priorities, severities, or actor zones. These are stable Java enums persisted as constrained strings. It also does not create dashboard, search-index, notification-template, or file-blob tables. Platform-operated AI (YOLO inference and LLM narrative drafting) is delivered as centralized platform capability with metadata and candidate findings persisted directly in the core tables.
+The legacy v1 `peer_reviews` table is **removed** by the V12+ migration set: peer review exists in no flow of the current contract (MF3 uses Inspector author-verify plus Provider Manager completeness/release instead), so both the table and its dead code path are dropped. The design also deliberately does not create separate lookup tables for roles, statuses, priorities, severities, or actor zones. These are stable Java enums persisted as constrained strings. It also does not create dashboard, search-index, notification-template, or file-blob tables. Platform-operated AI (YOLO inference and LLM narrative drafting) is delivered as centralized platform capability with metadata and candidate findings persisted directly in the core tables.
 
 ## 3. Code-first and migration policy
 
@@ -185,7 +185,11 @@ Indexes: unique `code`; index `active` when organization administration requires
 | `created_at` | `TIMESTAMPTZ` | No | Creation time. |
 | `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
 
-Indexes: unique `tax_code`; index `status`.
+Indexes: unique `tax_code`; index `status`. Bank account details live on each order (order-level Payment Invoice), not on the organization row.
+
+#### `provider_capabilities`, `provider_capability_evidence`, `provider_vetting_decisions`
+
+Capability is organization data, never a role. Each provider organization has at most one row per declared capability (`provider_capabilities`: `provider_id`, `capability_type` in `INSPECTION`/`MAINTENANCE` — there is no `BOTH` value, "both" means two rows — unique `(provider_id, capability_type)`), carrying the current `status` in exactly `PENDING`, `ADDITIONAL_INFO_REQUIRED`, `VERIFIED`, `REJECTED`. Inspection evidence (drone registrations, pilot licences, insurance) is never substitutable for maintenance evidence (repair scope, qualified personnel, credentials): `provider_capability_evidence` stores one row per submitted document with its `evidence_kind`, object key and validity window. `provider_vetting_decisions` is the append-only decision history — each row records which capability, which outcome, which `PLATFORM_OPERATOR`, when, and the stated reason. A decision on one capability never changes the other (BR-41: no cascade in schema), and organization standing lives separately in `provider_organizations.status` with its own standing decision record.
 
 #### `users`
 
@@ -255,7 +259,7 @@ One immutable row represents one published version of a Platform commercial poli
 | Column | Type | Null | Constraint or purpose |
 | --- | --- | --- | --- |
 | `id` | `UUID` | No | Primary key. |
-| `policy_key` | `VARCHAR(96)` | No | Stable key such as `STANDARD_COMMISSION`, `ADVANCE_FUNDING`, `CLIENT_REVIEW_PERIOD`, `CANCELLATION`, `WARRANTY_RETENTION`, or `WARRANTY_DURATION`. |
+| `policy_key` | `VARCHAR(96)` | No | Stable key such as `STANDARD_COMMISSION`, `CLIENT_REVIEW_PERIOD`, `CANCELLATION`, or `WARRANTY_DURATION`. No funding or retention policy key exists — the Platform holds no funds. |
 | `version` | `INTEGER` | No | Positive, monotonically increasing version for a policy key. |
 | `policy_value` | `JSONB` | No | Validated policy data; schema depends on `policy_key`, with no implicit numeric defaults. |
 | `status` | `VARCHAR(24)` | No | `DRAFT`, `PUBLISHED`, `SUPERSEDED`, or `RETIRED`. |
@@ -442,7 +446,7 @@ Each row is one immutable commercial version prepared by the bidding or selected
 | `pricing_details` | `JSONB` | No | Immutable line-item snapshot (flight fee, pilot labor, logistics). Excludes AI/storage fees (absorbed by Platform). |
 | `scope_snapshot` | `JSONB` | No | Agreed scope, required GSD, and deliverables snapshot. |
 | `estimated_duration_hours` | `NUMERIC(10,2)` | Yes | Positive estimate. |
-| `payment_terms` | `VARCHAR(2000)` | No | Escrow deposit and milestone terms. |
+| `payment_terms` | `VARCHAR(2000)` | No | Payment milestones and direct-transfer terms (the Provider bank account is shown on the Payment Invoice). |
 | `status` | `VARCHAR(32)` | No | Draft, sent, revision requested, approved, rejected, or superseded. |
 | `sent_at` | `TIMESTAMPTZ` | Yes | Customer-visible time. |
 | `decided_by_user_id` | `UUID` | Yes | Client decision actor. |
@@ -471,58 +475,37 @@ Each row is a target tripartite order under *Luật Giao dịch điện tử 202
 | `scope_snapshot` | `JSONB` | No | SOW, resolution requirements, asset coordinates. |
 | `shot_list_snapshot` | `JSONB` | No | Mandatory camera angles, elevation, GSD specs. |
 | `deliverables` | `JSONB` | No | Expected deliverable files and reports. |
-| `payment_terms` | `VARCHAR(2000)` | No | Human-readable funding and settlement terms agreed for this order. |
+| `payment_terms` | `VARCHAR(2000)` | No | Human-readable payment milestones and direct-transfer terms agreed for this order. |
 | `locked_commission_rate` | `NUMERIC(7,5)` | No | Uniform Platform commission rate accepted for this order; copied from its policy version, not read live during settlement. |
 | `locked_review_period_days` | `INTEGER` | No | Client review period in business days, copied from the accepted policy; calendar/holiday interpretation is stated in the order terms. |
 | `locked_cancellation_policy` | `JSONB` | No | Accepted cancellation conditions, windows, and eligible-cost rules as an immutable order snapshot; no global numeric default. |
-| `locked_advance_funding_rate` | `NUMERIC(7,5)` | No | Funding proportion required before execution under the accepted policy and partner product; constrained to the supported range and snapshotted. |
 | `commission_policy_version` | `VARCHAR(64)` | No | Published one-rate commission policy version used to calculate the fee. |
-| `funding_policy_version` | `VARCHAR(64)` | No | Published funding policy version used by the partner instruction. |
 | `review_policy_version` | `VARCHAR(64)` | No | Published client-review policy version used by the order timer. |
 | `cancellation_policy_version` | `VARCHAR(64)` | No | Published cancellation policy version used by this order. |
 | `locked_terms_snapshot` | `JSONB` | No | Immutable snapshot of the accepted business terms, values, display labels, and policy version identifiers used to construct the electronic order. |
-| `status` | `VARCHAR(32)` | No | `AWAITING_ESCROW`, `LEGALLY_BINDING`, `IN_PROGRESS`, `COMPLETED`, `DISPUTED`, `CANCELLED`. |
+| `status` | `VARCHAR(32)` | No | `CONFIRMED` (signed & in force), `ASSIGNMENT_PENDING`, `READY_FOR_INSPECTION`, `READY_FOR_FLIGHT`, `IN_PROGRESS`, `AWAITING_ACCEPTANCE` (report released, review window running), `COMPLETED` (accepted), `AWAITING_PAYMENT` (Payment Invoice issued), `PAID` (Provider confirmed the direct transfer), `DISPUTED` (complaint pauses acceptance/payment), `CANCELLED`. |
 | `started_at` | `TIMESTAMPTZ` | Yes | Execution start time. |
-| `completed_at` | `TIMESTAMPTZ` | Yes | Final acceptance / auto-settlement time. |
+| `completed_at` | `TIMESTAMPTZ` | Yes | Final acceptance / auto-acceptance time. |
+| `payment_invoice_issued_at` | `TIMESTAMPTZ` | Yes | Time the SYSTEM issued the Payment Invoice after acceptance. |
+| `paid_at` | `TIMESTAMPTZ` | Yes | Time the Provider confirmed receipt of the Client's direct bank transfer (status `PAID`). |
+| `client_review_ends_at` | `TIMESTAMPTZ` | Yes | Instant the contractual review window expires (MF4-04b auto-acceptance sweep target). |
+| `provider_bank_account_number` | `VARCHAR(34)` | Yes | Provider account number shown on this order's Payment Invoice; snapshotted per order. |
+| `provider_bank_name` | `VARCHAR(200)` | Yes | Provider bank name shown on this order's Payment Invoice. |
 | `created_at` | `TIMESTAMPTZ` | No | Creation time. |
 | `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
 | `row_version` | `BIGINT` | No | Optimistic locking. |
 
-#### `escrow_transactions` (target transaction/settlement records; not a deployed deposit-taking account)
+#### Settlement & payment records (deliberately no ledger table)
 
-The proposed record reconciles conditional funding and settlement supplied by an authorized bank/payment partner; *Nghị định 52/2024/NĐ-CP* alone does not license the Platform to hold deposits. `HELD_IN_ESCROW` is an internal workflow label, not proof of statutory Civil Code ký quỹ. No Flyway table or partner integration is claimed to exist yet.
+The direct-transfer model means **no escrow, ledger, or payment-partner table exists**: the Client transfers 100% of the fee to the Provider's own bank account outside the platform, and the platform never holds, routes, or freezes money (Decree 52/2024/NĐ-CP; providing payment-intermediary services would require an SBV licence the Platform does not seek). What the platform records is:
 
-| Column | Type | Null | Constraint or purpose |
-| --- | --- | --- | --- |
-| `id` | `UUID` | No | Primary key. |
-| `order_id` | `UUID` | No | Reference to the inspection or maintenance order, validated with `order_type`; cross-table FK enforcement needs a concrete schema design. |
-| `order_type` | `VARCHAR(32)` | No | `INSPECTION` or `MAINTENANCE`. |
-| `client_organization_id` | `UUID` | No | Customer scope. |
-| `provider_organization_id` | `UUID` | No | Provider scope. |
-| `customer_funded_amount` | `NUMERIC(14,2)` | No | Actual partner-confirmed amount including any applicable Provider VAT; must satisfy the order-snapshotted funding proportion and agreed terms. |
-| `advance_funding_rate` | `NUMERIC(7,5)` | Yes | Funding rate copied from the parent order snapshot; null when the order does not require advance funding. |
-| `eligible_fee_base` | `NUMERIC(14,2)` | No | `B`: Provider VAT-exclusive service consideration after Provider-funded discount and valid service-price refund. |
-| `commission_policy_version` | `VARCHAR(64)` | No | Published one-rate policy accepted and locked on order. |
-| `commission_rate` | `NUMERIC(7,5)` | No | Rate copied from the order snapshot; must equal the uniform Platform-set rate, never a provider-specific negotiated rate. |
-| `commission_amount` | `NUMERIC(14,2)` | No | `C = r × B`, calculated once on eligible settled value; reverses proportionately on refunds. |
-| `provider_vat_amount` | `NUMERIC(14,2)` | Yes | Provider service VAT where applicable; not a Platform fee. |
-| `platform_commission_vat_amount` | `NUMERIC(14,2)` | Yes | VAT on Platform commission where applicable; separate invoice and tax classification. |
-| `provider_payout_amount` | `NUMERIC(14,2)` | No | Partner-confirmed Provider net payout after commission and any agreed retention. |
-| `retained_amount` | `NUMERIC(14,2)` | No | Held warranty amount; zero when the order did not adopt retention. Release does not earn a second commission. |
-| `disputed_amount` | `NUMERIC(14,2)` | No | Amount temporarily held under partner product and accepted contract terms. |
-| `status` | `VARCHAR(32)` | No | `PAYMENT_PENDING`, `HELD_IN_ESCROW`, `FROZEN_DISPUTED`, `DISBURSED`, `REFUNDED`, `PARTIALLY_REFUNDED`. `FROZEN_DISPUTED` records workflow/partner status; it does not imply Platform custody. |
-| `payment_partner_id` | `VARCHAR(96)` | No | Stable identifier for the authorized bank/payment partner configuration. |
-| `partner_transaction_ref` | `VARCHAR(128)` | Yes | Partner-confirmed transaction reference, scoped to the partner. |
-| `partner_instruction_id` | `VARCHAR(128)` | No | Idempotency key for a funding/release/refund instruction; unique with `payment_partner_id`. |
-| `partner_event_id` | `VARCHAR(128)` | Yes | Partner-issued callback/event identifier; unique with `payment_partner_id` when non-null to reject duplicate delivery. |
-| `deposited_at` | `TIMESTAMPTZ` | Yes | Partner-confirmed funding time. |
-| `released_at` | `TIMESTAMPTZ` | Yes | Partner-confirmed payout/refund time. |
-| `authorized_by_user_id` | `UUID` | Yes | Platform Operator instruction actor, or null for a controlled system instruction. |
-| `created_at` | `TIMESTAMPTZ` | No | Creation time. |
-| `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
-| `row_version` | `BIGINT` | No | Optimistic locking. |
+| Where | What is recorded |
+| --- | --- |
+| `inspection_service_orders.status` | The `AWAITING_PAYMENT` → `PAID` transition driven by the Provider's "Confirm receipt" action, plus `paid_at` / confirming user. |
+| `invoices` | The Payment Invoice issued after acceptance, and the Platform's commission (+ commission VAT) invoice issued to the Provider (§6.6). |
+| `inspection_service_orders` / `maintenance_orders` bank pair | `provider_bank_account_number` + `provider_bank_name` snapshotted on the order — the Payment Invoice is an order-level document, so the account shown is the one current for that contract. Account numbers only, never tokens or secrets. |
 
-One order may produce multiple deposit/refund/retention events; do not impose unique `order_id` on transaction rows. Add unique constraints on `(payment_partner_id, partner_instruction_id)` and, where non-null, `(payment_partner_id, partner_event_id)`; callback retries then resolve to the same ledger event. Partner account/product support and order-level arithmetic reconcile all confirmed events.
+A complaint (MF4-03) flips the order to `DISPUTED`, which pauses acceptance and therefore the payment sequence. This is a workflow state only — there are no platform-held funds to freeze.
 
 #### `drone_mission_plans` (target mission-planning aggregate)
 
@@ -688,7 +671,7 @@ Columns: `id`, unique `inspection_id`, `author_user_id`, `status`, `current_vers
 
 Constraints: unique `(report_id, version_number)`; an accepted version is append-only and cannot be updated.
 
-### 6.5 MF4 dispute arbitration
+### 6.5 MF4 complaint handling
 
 #### `dispute_tickets`
 
@@ -713,27 +696,14 @@ Target internal complaint records coordinated by `PLATFORM_OPERATOR` under publi
 | `resolved_at` | `TIMESTAMPTZ` | Yes | Timestamp of recorded internal Platform Terms outcome; external remedies remain available. |
 | `resolution_notes` | `VARCHAR(4000)` | Yes | Recorded rationale and terms-based outcome; not a court/arbitration award. |
 | `penalty_amount` | `NUMERIC(14,2)` | Yes | Optional contractually/lawfully grounded amount; not automatically imposed by an Operator. |
-| `created_at` | `TIMESTAMPTZ` | No | Filing timestamp (triggers immediate escrow freeze). |
+| `created_at` | `TIMESTAMPTZ` | No | Filing timestamp (pauses acceptance and the payment sequence — workflow state only). |
 | `updated_at` | `TIMESTAMPTZ` | No | Last update time. |
+
+| `evidence` | `JSONB` | Yes | Complaint attachments as an array of `{evidence_type, object_key, checksum_sha256, uploaded_by_user_id, description, created_at}` — folded here instead of a separate table (minimal-schema decision); SHA-256 still guards integrity per file. |
 
 Indexes: unique `dispute_number`; index `order_id`; index `status`.
 
-#### `dispute_evidence`
-
-Binds forensic digital evidence to a dispute ticket.
-
-| Column | Type | Null | Constraint or purpose |
-| --- | --- | --- | --- |
-| `id` | `UUID` | No | Primary key. |
-| `dispute_ticket_id` | `UUID` | No | FK to `dispute_tickets`. |
-| `uploaded_by_user_id` | `UUID` | No | Submitting party. |
-| `evidence_type` | `VARCHAR(32)` | No | `FLIGHT_LOG`, `MINIO_IMAGE`, `CONTRACT_DOCUMENT`, or `DAMAGE_REPORT`. |
-| `minio_object_key` | `VARCHAR(1000)` | No | MinIO storage key. |
-| `checksum_sha256` | `CHAR(64)` | No | SHA-256 data integrity checksum. |
-| `description` | `VARCHAR(1000)` | Yes | Context note. |
-| `created_at` | `TIMESTAMPTZ` | No | Creation timestamp. |
-
-### 6.6 MF5 maintenance and warranty retention
+### 6.6 MF5 maintenance, billing & warranty
 
 #### `maintenance_tickets`
 
@@ -790,21 +760,15 @@ Each row is an immutable approved order version so approved changes never overwr
 | `locked_commission_rate` | `NUMERIC(7,5)` | No | Uniform Platform commission rate accepted for this maintenance order; copied from policy version. |
 | `commission_policy_version` | `VARCHAR(64)` | No | Published uniform commission policy version captured at order confirmation. |
 | `locked_terms_snapshot` | `JSONB` | No | Immutable snapshot of accepted maintenance order terms and applicable policy-version identifiers. |
-| `funding_policy_version` | `VARCHAR(64)` | Yes | Accepted funding policy version when advance funding is adopted. |
-| `locked_funding_rate` | `NUMERIC(7,5)` | Yes | Accepted funding proportion; null when no advance-funding policy applies. |
-| `locked_retention_rate` | `NUMERIC(7,5)` | Yes | Contract-snapshotted retention proportion only when the parties adopt the retention policy; otherwise null. |
-| `retention_policy_version` | `VARCHAR(64)` | Yes | Published retention policy version, null when retention is not adopted. |
-| `retention_amount` | `NUMERIC(14,2)` | Yes | Monetary retention amount derived from the approved order amount and locked rate; null when retention is not adopted. |
-| `retention_status` | `VARCHAR(32)` | No | `NOT_APPLICABLE`, `HELD`, `RELEASED`, or `FORFEITED`; `NOT_APPLICABLE` when retention is not adopted. |
-| `locked_warranty_days` | `INTEGER` | Yes | Contract-snapshotted warranty duration when warranty/retention terms are adopted; no fixed default. |
+| `locked_warranty_days` | `INTEGER` | Yes | Contract-snapshotted warranty duration (a free-rework time obligation only — no money is ever retained). |
 | `warranty_end_date` | `TIMESTAMPTZ` | Yes | Warranty end instant calculated from completion and the locked warranty duration. |
 | `currency` | `CHAR(3)` | No | ISO currency code. |
 | `payment_terms` | `VARCHAR(2000)` | No | Two-stage milestone payment terms. |
-| `status` | `VARCHAR(24)` | No | `CONFIRMED`, `IN_PROGRESS`, `COMPLETED`, `SUPERSEDED`, or `CANCELLED`. |
+| `status` | `VARCHAR(24)` | No | `CONFIRMED`, `IN_PROGRESS`, `AWAITING_PAYMENT` (Payment Invoice issued after acceptance), `PAID`, `COMPLETED`, `SUPERSEDED`, `CANCELLED`. |
 | `approved_by_user_id` | `UUID` | No | Client actor. |
 | `approved_at` | `TIMESTAMPTZ` | No | Approval time. |
 
-Constraints: unique `(order_series_id, version_number)` and unique `(order_number, version_number)`. `locked_commission_rate` and `commission_policy_version` are required on every approved order; retention fields are all null/`NOT_APPLICABLE` when not adopted, and are populated together with `retention_policy_version` when adopted. `locked_funding_rate` and `funding_policy_version` are populated only if advance funding applies.
+Constraints: unique `(order_series_id, version_number)` and unique `(order_number, version_number)`. `locked_commission_rate` and `commission_policy_version` are required on every approved order; `locked_warranty_days` and `warranty_end_date` are populated together once the order is accepted. No funding or retention columns exist — the Platform holds no funds.
 
 #### `maintenance_assignments`
 
@@ -840,11 +804,19 @@ The approved changed order links back through `maintenance_orders.change_request
 
 #### `invoices`
 
-Columns: `id`, unique `invoice_number`, `organization_id`, `maintenance_order_id`, `maintenance_ticket_id`, `currency`, `subtotal`, `tax_amount`, `total_amount`, `status`, `issued_at`, `due_at`, optional `paid_at`, and immutable timestamps.
+One row is one electronic invoice. Three types exist under the direct-transfer model (an `invoice_type` CHECK):
 
-The current physical schema invoices completed maintenance work only. The approved B2B workflow also defines an inspection invoice after Client acceptance of the inspection report, but that milestone remains a follow-up billing slice; do not introduce a polymorphic invoice association until its owning workflow and migration are implemented together.
+| `invoice_type` | Issued by | Billed to | Trigger |
+| --- | --- | --- | --- |
+| `MAINTENANCE_SERVICE` | Provider (recorded) | Client organization | Accepted maintenance work (existing v1 behaviour). |
+| `INSPECTION_SERVICE` | Provider (recorded) | Client organization | Accepted inspection report (MF4-05). |
+| `COMMISSION` | Platform | Provider organization | Platform commission $C = r \times B$ plus commission VAT, invoiced after the order reaches `PAID` (MF4-05.4 / MF5-07.4). |
 
-### 6.6 Supporting workflow
+Columns: `id`, unique `invoice_number`, `invoice_type`, `organization_id` (billing customer organization for service invoices), optional `provider_organization_id` (billed party for commission invoices), optional `inspection_service_order_id`, optional `maintenance_order_id`, optional `maintenance_ticket_id`, `currency`, `subtotal`, `tax_amount`, `total_amount`, `status`, `issued_at`, `due_at`, optional `paid_at`, and immutable timestamps.
+
+Constraints: every invoice references exactly one order row (inspection or maintenance, depending on type); a `COMMISSION` invoice additionally references the provider organization it was computed from. Commission is a Provider-side expense and is never added to the Client's bill. Invoice issuance content and timing follow Decree 123/2020/NĐ-CP as amended by Decree 70/2025/NĐ-CP.
+
+### 6.7 Supporting workflow
 
 #### `notifications`
 
@@ -871,7 +843,7 @@ Indexes: `(recipient_user_id, status, created_at DESC)` and `(status, created_at
 
 This table is owned by Spring Modulith, not by a JPA business entity. Its schema follows the framework's PostgreSQL event-publication registry and supports reliable event delivery between modules.
 
-### 6.7 Stable value sets
+### 6.8 Stable value sets
 
 These values are persisted as strings and must use the same names in Java, API contracts, tests, and demo data.
 
@@ -885,7 +857,7 @@ These values are persisted as strings and must use the same names in Java, API c
 | Schedule status | `ACTIVE`, `PAUSED`, `DISABLED` |
 | Request status | `DRAFT`, `SUBMITTED`, `UNDER_REVIEW`, `REVISION_REQUIRED`, `QUOTED`, `AWAITING_CLIENT_APPROVAL`, `ORDER_CONFIRMED`, `ASSIGNMENT_PENDING`, `READY_FOR_INSPECTION`, `MANUAL_REVIEW`, `CANCELLED` |
 | Quotation status | `DRAFT`, `SENT`, `REVISION_REQUESTED`, `APPROVED`, `REJECTED`, `SUPERSEDED` |
-| Inspection order status | `CONFIRMED`, `ASSIGNMENT_PENDING`, `READY_FOR_INSPECTION`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED` |
+| Inspection order status | `CONFIRMED`, `ASSIGNMENT_PENDING`, `READY_FOR_INSPECTION`, `READY_FOR_FLIGHT`, `IN_PROGRESS`, `AWAITING_ACCEPTANCE`, `COMPLETED`, `AWAITING_PAYMENT`, `PAID`, `DISPUTED`, `CANCELLED` |
 | Assignment status | `PENDING`, `ACCEPTED`, `REJECTED`, `CANCELLED`, `COMPLETED` |
 | Inspection status | `READY_FOR_INSPECTION`, `IN_PROGRESS`, `AWAITING_AI_REVIEW`, `AWAITING_REPORT`, `COMPLETED`, `CANCELLED` |
 | Target report-version status | `DRAFT`, `AUTHOR_VERIFIED`, `COMPLETENESS_RETURNED`, `RELEASED`, `REVISION_REQUESTED`, `ACCEPTED` |
@@ -894,6 +866,7 @@ These values are persisted as strings and must use the same names in Java, API c
 | Maintenance ticket status | `SUBMITTED`, `ASSESSMENT_PENDING`, `ASSESSED`, `QUOTATION_PENDING`, `AWAITING_CLIENT_APPROVAL`, `ORDER_CONFIRMED`, `EXECUTION_PENDING`, `IN_PROGRESS`, `CHANGE_PENDING`, `INTERNAL_REVIEW`, `RELEASED`, `REWORK_REQUESTED`, `REINSPECTION_REQUESTED`, `CLOSED`, `CANCELLED` |
 | Maintenance assignment type | `ASSESSMENT`, `EXECUTION`, `REWORK` |
 | Work-log status | `IN_PROGRESS`, `PAUSED_FOR_CHANGE`, `SUBMITTED`, `VERIFIED` |
+| Maintenance order status | `CONFIRMED`, `IN_PROGRESS`, `AWAITING_PAYMENT`, `PAID`, `COMPLETED`, `SUPERSEDED`, `CANCELLED` |
 | Change-request status | `SUBMITTED`, `QUOTED`, `APPROVED`, `REJECTED`, `IMPLEMENTED` |
 | Invoice status | `DRAFT`, `ISSUED`, `PAID`, `OVERDUE`, `VOID` |
 | Mission plan status | `DRAFT`, `SUBMITTED`, `REVISION_REQUIRED`, `APPROVED`, `CANCELLED`, `SUPERSEDED` |

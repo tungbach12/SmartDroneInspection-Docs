@@ -88,8 +88,9 @@ FE-08 currently has no assigned case and remains an explicit coverage gap.
 Target-only cases (`WF2-005`–`WF2-007` on Feature 1, and `WF3-005`–`WF4-005` on Feature 2)
 remain `Pending` across all rounds. `WF2-007` covers MF2 Drone Mission Planning,
 mission-specific GSD/overlap/shot items and applicable clearance; the other target
-rows cover versioned policy snapshots, payment-partner limits, internal complaints,
-and warranty/retention without fixing global numerical defaults.
+rows cover versioned policy snapshots, direct-settlement limits (commission,
+review window), internal complaints, and warranty without fixing global numerical
+defaults.
 
 ## Visual and status rules
 

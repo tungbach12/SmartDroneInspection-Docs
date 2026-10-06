@@ -15,7 +15,7 @@ source: "report3-software-requirement-specification.docx"
 - **PostgreSQL:** PostgreSQL is the source of truth for transactional state, authorization data, audit metadata, and workflow history.
 - **MinIO:** S3-compatible object storage stores evidence and generated files; access is mediated by backend authorization rather than public object paths.
 - **YOLO and LLM services (Platform-provided):** Platform hosts computer-vision YOLO inference and LLM narrative drafting; responses contain model version, labels, bounding boxes, or draft narrative. Providers and Clients consume these services through Platform interfaces without separate hosting or infrastructure fees.
-- **Payment & Escrow Partner (target):** When conditional funding is integrated, communication occurs with licensed bank/payment intermediary APIs for transaction status confirmation and conditional release instructions; the platform does not independently operate deposit-taking accounts or act as a payment gateway.
+- **Payment model (target):** No payment integration exists. Settlement is an ordinary bank transfer from Client directly to Provider; the platform issues electronic invoices only (Payment Invoice to the Client, commission invoice to the Provider) and never operates deposit-taking accounts or acts as a payment gateway.
 - **Airspace Reference (target):** National restricted airspace and no-fly zone overlays reference public databases (`cambay.mod.gov.vn` per QĐ 18/2020/QĐ-TTg).
 
 ### 4.2 Quality Attributes
@@ -57,4 +57,4 @@ source: "report3-software-requirement-specification.docx"
 - Passwords, raw tokens, credentials, private keys, protected evidence content, and unnecessary personal data are excluded from logs and JWT claims.
 - Backend business capabilities remain separated by Spring Modulith boundaries, and schema changes use sequential forward Flyway migrations.
 - Web and mobile clients consume the same versioned API while using the token-delivery profile appropriate to each client.
-- Material security, commercial order, escrow transaction, and dispute events include event type, outcome, timestamp, and trace identifier without exposing secrets.
+- Material security, commercial order, settlement (payment invoice, `PAID` confirmation, commission invoice), and dispute events include event type, outcome, timestamp, and trace identifier without exposing secrets.

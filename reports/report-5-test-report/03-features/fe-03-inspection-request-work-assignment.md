@@ -2,7 +2,7 @@
 
 ## Implemented v1 baseline and proposed MF2 target
 
-The existing WF2 case descriptions below describe the five-role, post-service-billing implementation baseline: periodic request handoff, Service Manager review, versioned quotation/order intent and assignment. They **do not** prove multi-provider quotation, funding, payment-partner integration, provider commission, or the proposed six-role authorization. MF2 target cases are listed separately below and remain `Pending` until executed against that implementation.
+The existing WF2 case descriptions below describe the five-role, post-service-billing implementation baseline: periodic request handoff, Service Manager review, versioned quotation/order intent and assignment. They **do not** prove multi-provider quotation, the direct-settlement workflow (Payment Invoice, receipt confirmation, `PAID`) or provider commission invoicing, or the proposed six-role authorization. MF2 target cases are listed separately below and remain `Pending` until executed against that implementation.
 
 ## Current acceptance cases
 
@@ -30,7 +30,7 @@ The 2026-09-28 WF1 revision adds the due-cycle event, document-upload rules, and
 
 ## Coverage boundary
 
-WF1-004 and WF1-017 verify the existing producer-side schedule event; WF2-001 remains Pending for the consumer-side automated periodic request with inherited defaults. None of these cases verifies Provider bidding or conditional funding.
+WF1-004 and WF1-017 verify the existing producer-side schedule event; WF2-001 remains Pending for the consumer-side automated periodic request with inherited defaults. None of these cases verifies Provider bidding or the direct-settlement workflow.
 
 ## Proposed MF2 target cases (not executed)
 

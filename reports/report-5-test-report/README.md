@@ -4,7 +4,7 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Implementation boundary (2026-10-03):** Executed WF1–WF4 cases below document the existing five-role v1 application, not the proposed six-role/multi-provider MF1–MF5 redesign. Provider onboarding, the uniform Provider-paid commission, authorized payment-partner conditional settlement, internal disputes, and warranty retention are target requirements only. Preserve original Passed evidence for what those tests actually exercised; do not reuse a historical Passed case to claim target behavior works. New target cases must be `Pending` with no execution date/tester until run. The original workbook and preview output remain unchanged.
+**Implementation boundary (updated 2026-10-06):** Executed WF1–WF4 cases below document the existing five-role v1 application, not the proposed six-role/multi-provider MF1–MF5 redesign. Provider onboarding, the uniform Provider-paid commission, the direct-settlement workflow (Payment Invoice, receipt confirmation, `PAID`), internal complaint handling, and snapshotted warranty terms are target requirements only. Preserve original Passed evidence for what those tests actually exercised; do not reuse a historical Passed case to claim target behavior works. New target cases must be `Pending` with no execution date/tester until run. The original workbook and preview output remain unchanged.
 
 ## Naming layers and mapping
 
@@ -76,8 +76,8 @@ and WFx IDs retain stable case identity:
 The nine cases WF2-005–WF4-005 are target acceptance criteria only and remain
 `Pending` until the associated implementation and verification evidence exist.
 They cover Provider RFQ/policy, mission-specific GSD/overlap/clearance, Platform
-AI narrative consumption, snapshotted review and settlement policies, authorized
-complaint holds, and maintenance retention/change/warranty boundaries. Their
+AI narrative consumption, snapshotted review and settlement policies, complaint
+workflow pauses, and maintenance change/warranty boundaries. Their
 existence does not claim runtime delivery.
 
 The FE-01 W3 auth/migration smoke gate is tracked by Jira `SCRUM-58/T001` under

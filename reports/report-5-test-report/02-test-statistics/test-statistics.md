@@ -65,8 +65,8 @@ Feature 1 sheet to 17. The nine target cases added on 2026-10-03 (`WF2-005`–`W
 on Feature 1, and `WF3-005`–`WF4-005` on Feature 2) expand the total test case index
 to 33. They define target MF1–MF5 coverage for Provider RFQ isolation, uniform
 commission/policy snapshots, MF2 mission-specific GSD/overlap/permit checks,
-Platform AI consumption, review/settlement, partner-supported complaint holds,
-and maintenance retention/change/warranty. All nine remain `Pending` in every
+Platform AI consumption, review/settlement, complaint workflow pauses,
+and maintenance change/warranty. All nine remain `Pending` in every
 round because no target runtime implementation/evidence was executed; planned
 features must never be represented as passed.
 
