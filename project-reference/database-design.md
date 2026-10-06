@@ -939,7 +939,7 @@ The database model supports, but does not replace, application authorization. Re
 
 ## 12. Implementation status
 
-As of 2026-10-06, Flyway migrations `V1` through `V11` implement the **v1 physical schema**: 37 application tables plus the Spring Modulith `event_publication` registry, and migrations `V12` through `V21` carry the schema to the **current direct-transfer target**. The inventory in §2 — 44 application tables plus `event_publication` — is now the deployed physical schema, asserted by `CutListMigrationOnPopulatedDatabaseTest.finalSchemaIsFortyFourApplicationTablesPlusEventPublication`. What is not yet true is the runtime: the `V12`+ tables have no JPA entities or endpoints (provider-organization tables are DDL-only — matrix `GAP-R-04`, `GAP-D-01`), and the snapshot/settlement columns await their service code. The physical-schema phases are:
+As of 2026-10-06, Flyway migrations `V1` through `V11` implement the **v1 physical schema**: 37 application tables plus the Spring Modulith `event_publication` registry, and migrations `V12` through `V22` carry the schema to the **current direct-transfer target**. The inventory in §2 — 44 application tables plus `event_publication` — is now the deployed physical schema, asserted by `CutListMigrationOnPopulatedDatabaseTest.finalSchemaIsFortyFourApplicationTablesPlusEventPublication`. What is not yet true is the runtime: the `V12`+ tables have no JPA entities or endpoints (provider-organization tables are DDL-only — matrix `GAP-R-04`, `GAP-D-01`), and the snapshot/settlement columns await their service code. The physical-schema phases are:
 
 | Migration | Physical scope |
 | --- | --- |
@@ -961,9 +961,9 @@ As of 2026-10-06, Flyway migrations `V1` through `V11` implement the **v1 physic
 | `V19` | Drops the dead `peer_reviews` table (guarded pre-check; refuses while rows exist). |
 | `V20` | `dispute_tickets` with folded `evidence` JSONB (no `dispute_evidence` table). |
 | `V21` | Admits `DISPUTED` in `ck_maintenance_orders_status` so a complaint can pause a maintenance order too. |
+| `V22` | Adds author-verification and completeness-provenance columns to `report_versions` (`author_verified_by_user_id`, `author_verified_at`, `author_verification_snapshot`, `completeness_checked_by_user_id`, `completeness_checked_at`, `completeness_return_reason`), with backfill from `technically_approved_at`/`created_by_user_id`; no status rename or CHECK edits. |
 
-Physical tables do not by themselves mean that a workflow is runtime-complete. The `V12`–`V21` target tables do **not**
-yet have entities — they are schema-only until their feature slice lands. Every application table in `V1`-`V11`
+Physical tables do not by themselves mean that a workflow is runtime-complete. The `V12`–`V22` target tables are mostly schema-only, with one exception: since backend PR #54 (branch `feat/supporting-code-no-mainflows`, merged `18272e8`), `drone_mission_plans` and `mission_shot_items` now have feature-owned JPA entities, a repository, a service and HTTP endpoints (`DroneMissionPlanController`, `DroneMissionPlanService`), so that slice is no longer schema-only. The provider-organization tables, `dispute_tickets`, `platform_configurations`, maintenance warranty columns and settlement snapshots remain schema-only until their feature slices land. Every application table in `V1`-`V11`
 now has a feature-owned JPA entity and repository: identity tables belong to `users`; WF1 tables to `assets`; WF2
 tables to `inspectionrequests`; WF3 tables to `inspections`; WF4 tables to `maintenance`; and notifications to
 `notifications`. The Spring Modulith `event_publication` registry remains framework-owned and has no business entity.

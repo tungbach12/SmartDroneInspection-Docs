@@ -10,8 +10,8 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | Historical WF1–WF4 evidence plus 2026-10-03 target SF/MF1–MF5 case design; no new target runtime execution |
-| Last updated | 2026-10-03 |
+| Test round | Historical WF1–WF4 evidence plus 2026-10-03 target SF/MF1–MF5 case design; no new target runtime execution in Report 5. Backend MF2 mission-plan integration tests were added under PR #54 (`364a23e`, `MissionPlanApiIntegrationTest`, `DroneMissionPlanTest`, `MissionShotItemCoordinateConstraintTest`), but no executed Report 5 run is recorded, so MF2 cases remain `Pending`. |
+| Last updated | 2026-10-06 |
 
 ## Module summary
 
