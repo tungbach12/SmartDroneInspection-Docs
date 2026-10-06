@@ -43,7 +43,7 @@ The five canonical transactional Main Flows are:
 | BR-02 | A Client can access only assets, requests, orders, reports, tickets, and financial records owned by the Client's organization. |
 | BR-03 | A Provider Manager, Inspector, or Maintenance Engineer belongs to exactly one Service Provider organization and cannot access competitors' bids, orders, or flight data. |
 | BR-04 | An Inspector or Maintenance Engineer can access only work assigned to that user within their owning Provider organization. |
-| BR-05 | Service Providers must be vetted and verified (`VERIFIED`) by `PLATFORM_OPERATOR` before submitting quotations or receiving flight assignments. |
+| BR-05 | A Service Provider must hold `VERIFIED` status for the capability required by the work before submitting a quotation or receiving an assignment: inspection capability for inspection quotations and flight assignments; maintenance capability for maintenance quotations/orders and repair assignments. Verification of the other capability does not satisfy this gate. |
 | BR-06 | The Supporting Flow (SF), outside MF1–MF5, handles customer/provider organization setup, provider eligibility review, asset master data and recurring schedules before transactional work begins. |
 | BR-07 | Before a drone mission can be approved, mission-specific GSD, equipment, overlap, AGL and shot-item targets MUST be defined in the accepted SOW/Mission Plan. Waypoints/route coordinates are optional when the chosen capture method uses them; a manual-flight plan is valid if it meets the approved SOW and safety/permit requirements. No global numeric target is implied. |
 | BR-08 | Mission planning MUST record airspace lookup/verification status against authoritative applicable sources, including public restricted-airspace information (`cambay.mod.gov.vn` per QĐ 18/2020/QĐ-TTg); a public map lookup is not a flight permit or clearance. |
@@ -79,3 +79,4 @@ The five canonical transactional Main Flows are:
 | BR-38 | Status transitions that affect assignment, approval, release, acceptance, dispute arbitration, or closure are audited. |
 | BR-39 | File possession or an object-storage path alone does not grant access to evidence. |
 | BR-40 | Password, role, status, and session-revocation changes invalidate affected active sessions. |
+| BR-41 | `PLATFORM_OPERATOR` MUST maintain a separate vetting decision for every service capability declared by a Provider Organization. A decision to verify, request additional information for, or reject one capability applies only to that capability and MUST NOT implicitly change or verify another declared capability. |
