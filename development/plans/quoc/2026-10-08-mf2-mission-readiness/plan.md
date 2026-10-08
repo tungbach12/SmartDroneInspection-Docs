@@ -60,14 +60,16 @@ Module `inspectionrequests` đã bị V26 xóa hoàn toàn. Module `inspections`
 
 ## 4. Kế hoạch 20 commit
 
+> **Đã thực hiện (3/20)** — xem bảng trạng thái ở §6.
+
 ### Nhóm A — Nền tảng dùng chung (commit 1–4)
 
 | # | Commit | Nội dung |
 | --- | --- | --- |
-| 1 | `feat(workforce): map V25 workforce_credentials schema` | Entity `WorkforceCredential` + enum loại/chứng chỉ |
-| 2 | `feat(assets): map V25 drones, flight permits and asset pairs` | Entity `Drone`, `DroneDocument`, `FlightPermit`, `AssetPairAssignment` |
-| 3 | `feat(inspections): restore Inspection entity on V25/V26 schema` | Entity `Inspection` (bảng còn, entity đã mất) |
-| 4 | `feat(shared): add typed error codes for MF2 readiness gates` | Mã lỗi ổn định dùng chung |
+| 1 | `feat(inspections): add V27 inspector assignment response columns` | Migration `V27`: `assignment_response` + `responded_at` |
+| 2 | `feat(assets): map the V25 drones table with a Drone entity` | Entity `Drone` + enum `DroneServiceability` |
+| 3 | `feat(assets): map the V25 flight_permits table with a FlightPermit entity` | Entity `FlightPermit` + enum `FlightPermitStatus` |
+| 4 | `feat(assets): map the V25 asset_pair_assignments table` | Entity `AssetPairAssignment` — nơi lưu phân công Inspector + drone |
 
 ### Nhóm B — MF2-01/02 Phân công & phản hồi (commit 5–7)
 
@@ -199,3 +201,28 @@ quyết định riêng của MF2-07 với reviewer độc lập và snapshot ri�
 **Điều chỉnh danh sách commit**: commit 1 chuyển từ `feat(workforce)` sang
 `feat(inspections): add V27 assignment response columns`, phần còn lại giữ nguyên thứ tự
 (lùi 1 số).
+
+---
+
+## 5.5 Ranh giới MF1/MF2 và quyết định phối hợp nhánh
+
+Đối chiếu SRS 3.4 cho thấy `Drone` (MF1-06), `FlightPermit` (MF1-07) và `AssetPairAssignment`
+(MF1-09) là **dữ liệu MF1**, không phải MF2. Trong 12 bước MF2, drone và giấy phép chỉ
+được **đọc** (MF2-01 review assigned Drone, MF2-04 link issued permit, MF2-09 identify Drone);
+không bước nào của MF2 tạo hay cập nhật chúng. Ba bảng MF2 thực sự tạo là
+`inspection_preparations`, `inspection_readiness_decisions` và `field_sessions`.
+
+Ranh giới Modulith đã cho phép đúng chiều này: `inspections` được khai báo
+`allowedDependencies` gồm `assets::domain`, `assets::enums`, `assets::repository`, nên MF2 đọc
+được entity MF1 một chiều mà không tạo phụ thuộc vòng.
+
+**Quyết định (2026-10-08)**: giữ entity `Drone` và `FlightPermit` trong nhánh
+`feat/quoc-MF2` thay vì tách sang nhánh MF1. Ba lý do: (1) MF2 không thể compile nếu thiếu
+hai entity này vì các service đọc chúng; (2) nhóm MF1 chưa bắt đầu code nên chưa có gì để
+trùng lặp; (3) giữ một nơi duy nhất tránh hai nhánh cùng định nghĩa một entity.
+
+**Hệ quả cần bàn giao cho nhóm MF1**: khi họ triển khai MF1-06 → MF1-10, họ **không** tạo lại
+`Drone` hay `FlightPermit`; hai entity sẽ đến từ PR của nhánh này. Việc của họ là service,
+repository và API để `ORG_ADMIN` đăng ký drone, duy trì giấy phép và chọn cặp
+Inspector–Drone khi tạo asset. Nếu nhóm MF1 cần sửa schema của `drones` hoặc
+`flight_permits`, migration mới phải là forward-only, không sửa `V25`.
