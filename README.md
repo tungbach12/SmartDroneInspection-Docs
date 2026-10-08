@@ -21,17 +21,18 @@ Repository-specific setup commands are documented in the `README.md` files of `b
 | Repository | Stack | Scope |
 | --- | --- | --- |
 | `backend/` | Java 21, Spring Boot, Spring Modulith, PostgreSQL, MinIO | Modular monolith API, persistence, business logic, evidence storage, and AI integration |
-| `frontend/` | React 19, TypeScript, Vite, Material UI | Browser portal for platform, client, and service operations |
+| `frontend/` | React 19, TypeScript, Vite, Material UI | Browser portal for platform, organization, and field operations |
 | `mobile/` | Flutter, Dart, Riverpod, GoRouter, Dio | Field workflows for inspectors and maintenance engineers |
 | `docs/` | Markdown, Hugo | Project reports, architecture, API, and operational documentation |
 
 ## Current roles
 
-- **Admin** - manages organizations, users, roles, categories, checklists, and platform configuration.
-- **Client** - manages customer-organization assets, requests, approvals, released reports, and maintenance decisions.
-- **Service Manager** - manages service requests, quotations, assignments, and result release.
-- **Inspector** - works only on assigned inspections and reports.
-- **Maintenance Engineer** - works only on assigned maintenance assessments and execution.
+The Enterprise SaaS target has four roles (Report 3, 7 October 2026 revision):
+
+- **`ADMIN`** - platform tenant/subscription administration, technical/security settings, and authorized support/audit.
+- **`ORG_ADMIN`** - organization users, credentials, drone fleet, permits, assets, inspection setup, readiness/report review, repair team and budget assignment, and independent acceptance.
+- **`INSPECTOR`** - assigned inspection preparation, field-session records, evidence upload, evidence-quality decisions, and inspection report author verification.
+- **`MAINTENANCE_ENGINEER`** - assigned repair tasks, work logs, actuals, evidence, and maintenance report author verification.
 
 The platform uses deny-by-default authorization. Resource ownership, organization scope, assignment scope, and separation-of-duties are enforced in application services in addition to role checks.
 

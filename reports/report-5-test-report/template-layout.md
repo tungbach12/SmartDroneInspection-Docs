@@ -71,11 +71,13 @@ from those files only when exporting. Each case retains its FE and WF codes.
 | FE-07 maintenance/defect resolution | `Feature 2` | WF4-001–WF4-003 |
 | FE-08 dashboard/analytics/notifications | Coverage gap; no current workbook case | None assigned |
 
-The sheet names are template labels, not SRS feature identifiers. Historical
-WF1–WF4 IDs remain unchanged. The additional Pending target cases cover SF
-prerequisites and the transactional SF/MF1–MF5 architecture (including drone
-mission planning in MF2), while retaining the same workbook mapping. The current
-mapping is:
+The sheet names are template labels, not SRS feature identifiers. The earlier
+WF1–WF4 cases and any recorded outcomes are historical v1 evidence, not current
+reset-branch verification. The additional nine Pending target cases specify
+Enterprise SaaS MF1–MF4 criteria; they are not evidence that workflow behavior
+is implemented. Keep every target round `Pending` until its own executable
+evidence is recorded. The fixed workbook sheets combine groups, while FE codes
+identify SRS capabilities and WFx IDs retain stable case identity:
 
 | Workbook sheet | Included SRS features | Included WF IDs |
 | --- | --- | --- |
@@ -85,12 +87,12 @@ mapping is:
 There are exactly eight FE-specific Markdown source files. The two fixed
 workbook sheets are presentation groupings, not source files or SRS features.
 FE-08 currently has no assigned case and remains an explicit coverage gap.
-Target-only cases (`WF2-005`–`WF2-007` on Feature 1, and `WF3-005`–`WF4-005` on Feature 2)
-remain `Pending` across all rounds. `WF2-007` covers MF2 Drone Mission Planning,
-mission-specific GSD/overlap/shot items and applicable clearance; the other target
-rows cover versioned policy snapshots, direct-settlement limits (commission,
-review window), internal complaints, and warranty without fixing global numerical
-defaults.
+The nine target-only cases (`WF2-005`–`WF2-007` on Feature 1, and `WF3-005`–`WF4-005`
+on Feature 2) remain `Pending` across all rounds. They define workspace entitlement,
+MF1 asset/pair setup, MF2 readiness, MF3 human review/publication, and MF4 team/cost/
+acceptance criteria; they do not claim those workflows currently run. The backend reset
+adds an identity migration and additive schema bridge but leaves the cutover incomplete,
+and does not implement MF1–MF4 workflow behavior.
 
 ## Visual and status rules
 

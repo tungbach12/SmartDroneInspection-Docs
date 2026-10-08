@@ -2,11 +2,11 @@
 
 ## Scope baseline
 
-The Flutter and Web applications support assignment acceptance, inspection sessions, evidence upload/retry and metadata. Storage on MinIO and server-side validation are Platform-provided infrastructure capabilities consumed by the Inspector. Evidence records the inspection, asset, Inspector, capture time and source; GPS, timestamp, and SHA-256 integrity checksums are retained. Manual drone piloting stays outside the platform and flight permits are secured per applicable aviation regulations.
+**Historical v1 scope record:** The earlier Flutter/Web and backend baseline supported assignment acceptance, inspection sessions, evidence upload/retry and metadata. The Enterprise SaaS reset removed the inspection workflow API/services; current schema/entity records alone do not provide these runtime behaviors. Preserve the v1 scope and evidence below as historical only. Manual drone piloting remains outside the platform target.
 
-## Current acceptance cases
+## Historical v1 acceptance cases (retired from the Enterprise SaaS target)
 
-WF3-001 and WF3-002 map to FE-04. Evidence storage and MinIO belong to this feature, not to the FE-01 identity foundation gate.
+WF3-001 and WF3-002 map to FE-04 in the earlier v1 baseline. Preserve their recorded statuses and detailed notes as historical evidence of that baseline; the cases do not verify the current reset branch, where the inspection workflow controllers/services were removed. Evidence-storage records or schema do not establish a current evidence-upload workflow.
 
 | Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -15,4 +15,4 @@ WF3-001 and WF3-002 map to FE-04. Evidence storage and MinIO belong to this feat
 
 ## Coverage boundary
 
-The current WF3-002 case records source metadata and storage traceability. It does not separately identify an assertion for optional GPS or external mission references.
+Historical-case note: WF3-002's v1 evidence covered source metadata and storage traceability; it did not separately assert optional GPS or external mission references. This is an observation about the historical case, not current API availability.

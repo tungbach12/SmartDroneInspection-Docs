@@ -1,12 +1,20 @@
 ---
 title: "SmartDroneInspection - Business Flow Summary (MF1–MF5)"
 document_type: business-flow-summary
-purpose: "Concise English summary of the 6 canonical roles and the 5 core main flows (MF1–MF5), aligned with business-flows.md v3.4 (direct-transfer settlement, no platform custody; MF2 = flight phase, MF3 = processing phase)."
+purpose: "Legacy six-role marketplace summary (MF1–MF5), retained for historical baseline reference only. The current target is the Enterprise SaaS four-role model in database-design.md and the backend reset plan; see project-reference/mf1-mf5-contract-matrix.md."
 version: "2.1"
-updated: 2026-10-06
+updated: 2026-10-07
 ---
 
 # SmartDroneInspection — Business Flow Summary (MF1–MF5)
+
+> **Historical baseline record.** This document describes the retired six-role
+> marketplace model. The current Enterprise SaaS target uses the four roles
+> `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER` and the
+> `PLATFORM` / `CUSTOMER_ORGANIZATION` actor zones defined in
+> [database-design.md](database-design.md) and the backend reset plan
+> (`backend/.hermes/plans/2026-10-07_enterprise-saas-backend-and-full-db.md`).
+> Keep this file only for baseline/history; do not cite it as the target.
 
 This document is the concise, plain-language view of how the SmartDroneInspection marketplace works: it connects **infrastructure owners (Client)** with **drone inspection / maintenance providers (Provider)**, supported by platform-hosted AI. Settlement is a **direct bank transfer from Client to Provider** after acceptance; the platform never holds money — it only computes and invoices its commission.
 

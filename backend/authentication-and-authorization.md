@@ -14,19 +14,17 @@ This document describes the deliberately small authentication surface for the cu
 
 Users are stored in PostgreSQL and authenticate with email and password. Email is normalized for lookup; passwords are never trimmed or stored in plain text.
 
-Current roles:
+Current roles (Enterprise SaaS target, 4 roles):
 
-- `ADMIN` - platform-wide administration.
-- `CLIENT` - customer-organization workflows.
-- `SERVICE_MANAGER` - service request and result operations.
-- `INSPECTOR` - assigned inspections and reports.
-- `MAINTENANCE_ENGINEER` - assigned maintenance work.
+- `ADMIN` - platform tenant/subscription administration and global support.
+- `ORG_ADMIN` - customer-organization administration, review, and acceptance.
+- `INSPECTOR` - assigned inspections, field sessions, evidence, and assigned inspection report verification.
+- `MAINTENANCE_ENGINEER` - assigned maintenance work and assigned maintenance report verification.
 
 Users also have an actor zone:
 
 - `PLATFORM`
 - `CUSTOMER_ORGANIZATION`
-- `SERVICE_WORKFORCE`
 
 Role checks are not sufficient by themselves. Services enforce organization scope, assignment scope, and separation of duties.
 
@@ -37,7 +35,7 @@ Browser endpoints are under `/api/v1/auth/**`:
 | Endpoint | Purpose |
 | --- | --- |
 | `GET /csrf` | Obtain the CSRF token used by browser requests. |
-| `POST /register` | Create an active Client account and its new organization. |
+| `POST /register` | Create an active ORG_ADMIN account and its new organization. |
 | `POST /login` | Authenticate with email and password. |
 | `POST /password/setup` | Complete an administrator-issued first-password setup. |
 | `POST /refresh` | Rotate the browser refresh token. |
@@ -55,11 +53,11 @@ the returned `token` using the returned `headerName`. Fetching the token again
 after authentication or logout is required because Spring Security clears the
 previous CSRF cookie during those transitions.
 
-## Client organization onboarding
+## Organization onboarding
 
-The first Client representative may self-register a new organization through `POST /register`. The request contains the representative's name and credentials together with the organization name and unique organization code. The backend creates the organization and the first user in one transaction, activates both immediately, and assigns only the `CLIENT` role in the `CUSTOMER_ORGANIZATION` actor zone. There is no email-verification or administrator-approval gate in v1.
+The first organization representative (an `ORG_ADMIN`) may self-register a new organization through `POST /register`. The request contains the representative's name and credentials together with the organization name and unique organization code. The backend creates the organization and the first user in one transaction, activates both immediately, and assigns only the `ORG_ADMIN` role in the `CUSTOMER_ORGANIZATION` actor zone. There is no email-verification or administrator-approval gate in v1.
 
-Registration cannot create or select `ADMIN`, `SERVICE_MANAGER`, `INSPECTOR`, or `MAINTENANCE_ENGINEER`. Email and organization-code uniqueness, password policy, request rate limits, organization isolation, and an append-only `CLIENT_REGISTRATION` audit event are enforced by the backend. The registration response contains the created organization and user profile but no access or refresh token; the Client signs in through the normal login flow.
+Registration cannot create or select `ADMIN`, `INSPECTOR`, or `MAINTENANCE_ENGINEER`. Email and organization-code uniqueness, password policy, request rate limits, organization isolation, and an append-only `ORGANIZATION_REGISTRATION` audit event are enforced by the backend. The registration response contains the created organization and user profile but no access or refresh token; the representative signs in through the normal login flow.
 
 The browser and mobile request body is:
 
@@ -73,7 +71,7 @@ The browser and mobile request body is:
 
 Successful registration returns `201 Created` with the organization identifier/code and the new user profile. It does not issue tokens, set a refresh cookie, or expose the password.
 
-The `data` payload is `{ organizationId, organizationName, organizationCode, user }`; `user` contains the new user's identifier, normalized email, name, role list (`CLIENT`), actor zone, and organization identifier. The complete success body is `{ success: true, message: "Success", data: { ... } }`.
+The `data` payload is `{ organizationId, organizationName, organizationCode, user }`; `user` contains the new user's identifier, normalized email, name, role list (`ORG_ADMIN`), actor zone, and organization identifier. The complete success body is `{ success: true, message: "Success", data: { ... } }`.
 
 ## Platform user administration
 Platform user management is under `/api/v1/platform/users/**` and requires `ADMIN`:
@@ -86,7 +84,7 @@ Platform user management is under `/api/v1/platform/users/**` and requires `ADMI
 
 Mobile endpoints mirror the auth contract under `/api/v1/mobile/auth/**`. Mobile clients receive access and refresh tokens in JSON and store them with platform secure storage. Browser `Origin` requests are rejected on these endpoints.
 
-`POST /api/v1/mobile/auth/register` uses the same Client onboarding contract and rejects browser-origin requests.
+Mobile exposes `/login`, `/password/setup`, `/refresh` and `/logout` only. Organization onboarding is a browser-first flow: the mobile app has no registration endpoint and an `ORG_ADMIN` registers on the web client before signing in on mobile.
 
 ## Tokens and sessions
 
@@ -104,7 +102,7 @@ Mobile endpoints mirror the auth contract under `/api/v1/mobile/auth/**`. Mobile
 
 ## Intentionally out of scope for v1
 
-The current product does not need TOTP enrollment, recovery codes, Redis-backed challenge orchestration, email password recovery, or a separate identity provider. Controlled Client self-registration is in scope; self-registration of platform or service-workforce roles is not. These other capabilities can be added behind the same service boundary if risk or product scope changes.
+The current product does not need TOTP enrollment, recovery codes, Redis-backed challenge orchestration, email password recovery, or a separate identity provider. Controlled organization self-registration is in scope; self-registration of platform or workforce roles is not. These other capabilities can be added behind the same service boundary if risk or product scope changes.
 
 ## Production configuration
 

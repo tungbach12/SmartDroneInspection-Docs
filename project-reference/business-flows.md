@@ -1,14 +1,16 @@
 ---
-title: "SmartDroneInspection Multi-Provider Business Flows"
-document_type: business-flow-reference
-purpose: "Authoritative specification of the Supporting Flow (SF) and the five core Main Flows (MF1–MF5) for the multi-provider drone inspection & maintenance platform, including exception branches and non-linear feedback loops."
-version: "3.4"
-updated: 2026-10-06
+title: "Historical Multi-Provider Business Flows"
+document_type: historical-business-flow-reference
+purpose: "Historical, non-authoritative record of the superseded six-role marketplace and SF/MF1–MF5 proposal; pending teammate replacement with a current four-role Enterprise SaaS flow reference."
+version: "3.4 (historical)"
+updated: 2026-10-07
 ---
 
-# SmartDroneInspection Multi-Provider Business Flows (v3.4)
+# Historical Multi-Provider Business Flows (v3.4)
 
-> This document is the authoritative specification of the Supporting Flow (SF) and the **five core transactional Main Flows (MF1–MF5)** of the SmartDroneInspection platform. The design is built on an **intermediary marketplace (Intermediary Platform)** model with deep **Drone Mission Planning & Telemetry** capabilities, electronic contracts under Vietnamese law, **direct bank-transfer settlement (no platform custody of funds)**, **dynamic `PLATFORM_OPERATOR` configuration**, internal complaint mediation, non-linear feedback loops, field incident handling, and the Capstone error-prevention guide (`error-prevention.md`).
+> **Historical, non-authoritative reference — pending teammate replacement.** This document records the superseded six-role Provider/Client marketplace and SF/MF1–MF5 proposal. Do not use its role, workflow, API, settlement, or runtime descriptions as current requirements or implementation status. The current product target is the four-role Enterprise SaaS model in [Report 3](../reports/report-3-software-requirement-specification/) and [database design](database-design.md). The backend reset does **not** implement MF1–MF4 workflow behavior; schema or persistence records are not workflow completion. The replacement business-flow reference remains a teammate task.
+>
+> The historical content below was previously presented as authoritative specification of the marketplace model; that authority is retired. It preserves the earlier intermediary Marketplace roles, business flows, direct-transfer settlement design and legal/source notes as historical reference only. Its descriptions are not current requirements or implemented runtime behavior.
 >
 > **v3.4 change from v3.3:** field flight execution has moved from MF3-01 to the new **MF2-07**, splitting the flows cleanly by phase: **MF2 = the flight phase** (plan → airspace/permit → safety sign-off → execute → logged field session) and **MF3 = the processing phase** (ingest → integrity → quality gate → AI → human verification → draft → author sign-off → QA release). MF3 steps renumber accordingly (old MF3-02…09 → new MF3-01…08). Weather postponement and in-flight incidents now loop inside MF2, because the clearance is date-bound.
 
@@ -118,7 +120,7 @@ No marketplace parameter is hard-coded. `PLATFORM_OPERATOR` publishes versioned 
 
 ## IV. End-to-End Dynamic Workflow (non-linear loops)
 
-The platform runs a full lifecycle with feedback and exception handling:
+The historical marketplace design below described a full lifecycle with feedback and exception handling; this is not the current Enterprise SaaS workflow implementation.
 
 ```
                       ┌──────────────────────────────────────────┐

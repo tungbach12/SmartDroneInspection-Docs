@@ -1,32 +1,32 @@
 ---
 title: "MF1–MF5 Canonical Contract Matrix"
 document_type: contract-matrix
-purpose: "Single canonical role, actor-zone, flow, API, and data matrix. Records the documented target, the as-implemented current state, and every gap with the task number that owns closing it."
-version: "1.0"
-updated: 2026-10-06
+purpose: "Historical six-role marketplace contract and source-reading snapshot, retained for migration history; not the current implementation inventory or workflow execution plan."
+version: "1.0 (historical snapshot)"
+updated: 2026-10-07
 ---
 
-# MF1–MF5 Canonical Contract Matrix (v1.0)
+# MF1–MF5 Contract Matrix (historical implementation snapshot)
+
+> **Status and authority update — 7 October 2026.** The role/flow implementation inventory below was read against backend `main` through 6 October 2026 and is now a historical snapshot, not the current implementation. The backend is on `feat/enterprise-saas-reset`: workflow controllers/services and their associated tests for inspection execution/reporting and provider request/marketplace behavior have been removed; the surviving inspection domain/repository records and V24/V25 database schema are not runtime workflow behavior. Asset catalog/scheduling runtime remains, with its current authorization caveats documented in `backend/flows/assets-and-scheduling.md`. V24 aligns identity vocabulary, V25 adds the target schema and V26 completed the runtime cutover on 8 October 2026; the inventory and gap statuses below remain a 6 October historical snapshot. Do not use the frozen `implemented` / `partial` / `target-only` statuses or gap closure claims below as current status. MF1–MF4 workflow behavior remains outside the backend reset scope; see Report 3 and the database design for target requirements.
+>
+> This file preserves its 6 October source-reading and gap register as history. Reconcile or replace the matrix against the merged/current implementation before using it to plan new work; retain still-open tasks until separately verified rather than treating old gap labels as closed.
 
 ## 0. How to read this document
 
-This matrix is the contract that Phase 1 through Phase 7 build against. It exists so
-no later task has to rediscover a documented-vs-implemented difference.
+The rows below preserve the contract and implementation/gap register recorded for the earlier six-role marketplace baseline. They are historical evidence, not a current execution blueprint. The current Enterprise SaaS target is defined by Report 3 and `database-design.md`; target workflow behavior is not delivered by schema-only records.
 
-**Authority order.** Where two sources disagree, this ranking applies:
+**Authority order for target requirements.** Where target sources disagree, use this ranking:
 
-1. The six canonical roles and the capability-vetting model below (settled decisions,
-   recorded in §2). These are not re-litigated by any task.
-2. Report 3 (`reports/report-3-software-requirement-specification/`) and
-   `project-reference/business-flows.md` (v3.4 — flight phase = MF2 / processing phase = MF3; direct-transfer settlement, no platform
-   custody of funds) define the **target**.
-3. `project-reference/database-design.md` defines the **target schema**.
-4. The Java/React/Flutter source defines the **as-implemented state**.
+1. Report 3 defines current Enterprise SaaS product requirements.
+2. `project-reference/database-design.md` defines the target logical schema, not the deployed schema.
+3. The backend repository's reset plan (`backend/.hermes/plans/2026-10-07_enterprise-saas-backend-and-full-db.md`) defines intended reset scope; verify its current completion state against backend source and migrations.
+4. The Java/React/Flutter source defines the as-implemented state on the branch/revision actually checked. The historical implementation inventory in this matrix is not current state.
 
-**The target is never described as implemented.** Every target row is paired with an
-implementation row and a status.
+In the historical snapshot, target rows were paired with an implementation
+reading and a status. These recorded statuses must not be read as current.
 
-**Status vocabulary** — only these four values are used:
+**Status vocabulary in the historical snapshot** — these four values were used at the earlier backend baseline; they do not describe the current reset branch:
 
 | Status | Meaning |
 | --- | --- |
@@ -64,7 +64,7 @@ documentation:
 does **not** contain the uncommitted Report 3 edits living in
 `/home/ubuntu/SmartDroneInspection/docs` on branch `docs/provider-capability-vetting`
 (`365f156`). Those edits were read as reference only and are reflected in §2.3–§2.5 of
-this matrix, per the settled decision. The four Report 3 files are the only files that
+this matrix, as the legacy baseline record. The four Report 3 files are the only files that
 differ between the two checkouts; `business-flows.md` and `database-design.md` are
 byte-identical, which is why the conflicts in `GAP-R-06`, `GAP-F-01`, and `GAP-D-13`
 exist at all.
@@ -87,7 +87,7 @@ pointer inside the row it changed.
 | C-3 | Report 3 §2.1 defines `PLATFORM_ADMIN`; `database-design.md` §6.1 defines actor zones `PLATFORM_GOVERNANCE` / `CUSTOMER_ORGANIZATION` / `SERVICE_PROVIDER`; the implementation enum defines `PLATFORM` / `CUSTOMER_ORGANIZATION` / `SERVICE_WORKFORCE`. | The documented target zone names win. Two of three zone names change. `GAP-R-02`. |
 | C-4 | Report 3 `business-flows.md` SF-03 grants a single organization-wide `VERIFIED` and blocks an unapproved Provider from "all quotation rights", which contradicts the capability-scoped BR-05 gate. | The capability-scoped gate wins. `business-flows.md` SF-03 must be rewritten in Task 7.1. `GAP-R-06`, `GAP-F-01`. |
 | C-5 | `database-design.md` §12 asserts `V1`–`V11` implement "37 application tables", but the inventory closure requires counting `provider_organizations` as implemented and omitting `peer_reviews`, which has DDL. | Actual DDL was enumerated directly: 38 `CREATE TABLE` statements = 37 application tables + `event_publication`. The doc's *count* is right; its *inventory membership* is wrong. `GAP-D-01`, `GAP-D-18`. |
-| C-6 | Report 3 uncommitted edits require four per-capability vetting outcomes but never name them as an enum. | The four-value vocabulary is fixed in §2.4 of this matrix, sourced from `business-flows.md` SF-03 and the design spec §2.3, and is now binding for all tasks. `GAP-R-06`. |
+| C-6 | Report 3 uncommitted edits require four per-capability vetting outcomes but never name them as an enum. | The four-value vocabulary is fixed in §2.4 of this matrix, sourced from `business-flows.md` SF-03 and the design spec §2.3, recorded as the legacy baseline vocabulary; it is **not** a target contract for the four-role Enterprise SaaS model. `GAP-R-06`. |
 | C-8 | 2026-10-06 MF2/MF3 runtime follow-on. C-7 left the MF2 mission-planning rows (MF2-01…MF2-06, `GAP-F-08/-09/-10`, `GAP-A-03`) and `GAP-D-04` marked open because their runtime was absent on `main`. | Backend PR #54 (branch `feat/supporting-code-no-mainflows`, `364a23e` + `1de6a7a`) lands that runtime: `DroneMissionPlanController`/`DroneMissionPlanService`/`DroneMissionPlan`/`MissionShotItem`, `InspectionOrderStatus.READY_FOR_FLIGHT` transition in `approve` (`:212,:224`), and `V22`'s six author/completeness provenance columns on `report_versions`. **Closed:** `GAP-F-08`, `GAP-F-09`, `GAP-A-03`, `GAP-D-04`. **Updated in place:** MF2-01/-02/-03 → `implemented`; MF2-04/-05 stay `partial` (no authority lookup, no conflict-of-interest check); `GAP-F-10` (dossier fields now persisted; validation absent); `GAP-F-16` (review-clock stamping now written at release `:247-258`; deemed-acceptance sweep still absent); `GAP-D-02` note (`providerId` now exists on `User`/`UserAccess` additively); MF3-04/`GAP-F-12` (GSD storable/editable; mm derivation still absent); MF2-07/`GAP-F-11` unchanged (no `mission_plan_id` on inspections). Rows otherwise unchanged. |
 | C-7 | 2026-10-06 reconciliation. This matrix's §0.1 baseline recorded backend `main` = `04a254f`, but `main` then merged PR #51 (squash `d3a9f5d` = `85e4f5b` + `a9ed17d`) and PR #52 (`dc143ca`). Rows in §3.1/§4.2/§5/§6 had also been read from `refactor/mf1-mf5-backend` @ `451a2af` and `refactor/wf1-contract` @ `1a5c88e`, neither of which is an ancestor of `main` (both `merge-base --is-ancestor` checks re-run on 2026-10-06 and false). | Baseline moved to `dc143ca`. Re-verified against `main`: `V12`–`V20` exist (`provider_organizations`, `provider_capabilities`, `provider_capability_evidence`, `provider_vetting_decisions`, `platform_configurations`, `drone_mission_plans`, `mission_shot_items`, `dispute_tickets`; `peer_reviews` dropped by `V19`; `locked_*` policy snapshots; direct-transfer status sets; warranty clock); the canonical six roles are live in `V13`, `Roles.java`, `UserRole.java` and every `@PreAuthorize` string; peer-review code is deleted; `POST …/submit-review` is the Inspector author-verify step and `POST …/release` is `PROVIDER_MANAGER` + completeness. **Closed:** `GAP-R-01`, `GAP-R-03`, `GAP-R-06`, `GAP-F-14`, `GAP-F-15`, `GAP-F-20`, `GAP-A-05`, `GAP-A-13`, `GAP-D-02`, `GAP-D-06`, `GAP-D-07`, `GAP-D-08`, `GAP-D-09`, `GAP-D-11`, `GAP-D-12`, `GAP-D-14`, `GAP-D-18`. **Re-opened:** `GAP-A-01` (the four provider-organization endpoints are not on `main` — `grep -rn provider-organizations src/` returns nothing) and the runtime half of `GAP-F-01` (SF-02/SF-03 have no Java on `main`; its text half is now closed — `business-flows.md:229`). **Stayed open with fresh evidence:** `GAP-R-04`, `GAP-R-05`, `GAP-R-07`, `GAP-R-08`, `GAP-R-15`, `GAP-D-01`, `GAP-D-04`, `GAP-D-05`, `GAP-D-13` (standing endpoint not on `main`), `GAP-D-17`, and the runtime/data halves of `GAP-F-02`, `GAP-F-06`, `GAP-F-08`, `GAP-F-09`, `GAP-F-10`, `GAP-F-12`, `GAP-F-16`, `GAP-F-17`, `GAP-F-18`, `GAP-F-21`, `GAP-F-23`. **Deliberately unchanged:** the frozen `V16` header keeps its stale `(MF3-09)` comment by design (PR #52 renumbered source comments only); frontend and mobile rows keep their own baselines; Report 5, `business-flows.md`, `database-design.md` and all `GAP-*` ids are untouched. **Observed, not edited:** `V20`'s header claims `DISPUTED` is admitted by `maintenance_orders.status`, but `V16:308-311` does not include it (backend was read-only for this task) — **resolved the same day** by backend PR #53 (merge `7b40ef4`): `V21` widens `ck_maintenance_orders_status` with `DISPUTED`, head assertions moved 20→21, suite 208/0/0; `database-design.md` §6.5/§6.6/§8/§12 updated in the accompanying docs pass. |
 
@@ -95,48 +95,61 @@ pointer inside the row it changed.
 
 ## 1. Canonical vocabulary
 
-### 1.1 Six canonical roles and three actor zones
+### 1.1 Four canonical roles and two actor zones
 
-These six rows are the complete role set. There is **no** `MAINTENANCE_PROVIDER_MANAGER`
-and no seventh role may be introduced by any task.
+These four rows are the complete target role set (backend reset plan §1.2). The legacy
+six-role vocabulary (`PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`,
+`PROVIDER_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`) survives only as
+as-implemented evidence and is not target. There is no `MAINTENANCE_PROVIDER_MANAGER`
+and no fifth role may be introduced by any task.
 
 | # | Role | Actor zone | Canonical responsibility |
 | --- | --- | --- | --- |
-| 1 | `PLATFORM_ADMIN` | `PLATFORM_GOVERNANCE` | Technical configuration, security policy, checklist templates, technical audit. Cannot publish commercial policy or vet a Provider. |
-| 2 | `PLATFORM_OPERATOR` | `PLATFORM_GOVERNANCE` | Provider vetting, commercial-policy publication, payment-status tracking, commission & commission-VAT invoicing, internal complaint handling. Not a legal arbitrator, not a deposit custodian. |
-| 3 | `CLIENT` | `CUSTOMER_ORGANIZATION` | Customer-organization assets, requests, orders, report decisions, complaints, maintenance tickets. |
-| 4 | `PROVIDER_MANAGER` | `SERVICE_PROVIDER` | The **single** Provider Organization representative. Quotations, mission-plan approval, permits, workforce assignment, QA completeness/release, maintenance quotations and orders. |
-| 5 | `INSPECTOR` | `SERVICE_PROVIDER` | Assigned manual flight, evidence, AI-candidate verification, and verification/editing of the draft they authored. |
-| 6 | `MAINTENANCE_ENGINEER` | `SERVICE_PROVIDER` | Assigned technical assessment, repair execution, work logs, mandatory before/after evidence. |
+| 1 | `ADMIN` | `PLATFORM` | Platform owner, organization activation and global support. |
+| 2 | `ORG_ADMIN` | `CUSTOMER_ORGANIZATION` | Customer organization administrator. |
+| 3 | `INSPECTOR` | `CUSTOMER_ORGANIZATION` | Field inspector: assigned manual flight, evidence, AI-candidate verification, and verification/editing of the draft they authored. |
+| 4 | `MAINTENANCE_ENGINEER` | `CUSTOMER_ORGANIZATION` | Maintenance engineer: assigned technical assessment, repair execution, work logs, mandatory before/after evidence. |
 
-Zone invariants (Report 3 BR-01, `database-design.md` §6.1):
+Zone invariants (backend reset plan §1.2, `database-design.md` §6.1):
 
-- `PLATFORM_GOVERNANCE` users have **neither** `organization_id` **nor** `provider_id`.
-- `CUSTOMER_ORGANIZATION` users require `organization_id` and a null `provider_id`.
-- `SERVICE_PROVIDER` users require `provider_id` and a null `organization_id`.
+- `PLATFORM` users are platform-level only; they belong to no customer organization.
+- `CUSTOMER_ORGANIZATION` users require `organization_id` and are scoped to exactly one organization.
 - Zone membership is exclusive. A user in one zone cannot hold a role from another zone.
 
 ### 1.2 Actor-zone → module ownership
 
 | Actor zone | Owning backend module | Client surface |
 | --- | --- | --- |
-| `PLATFORM_GOVERNANCE` | `users` | Platform governance workspace |
-| `CUSTOMER_ORGANIZATION` | `assets` (WF1/SF), `inspectionrequests` (MF1), `inspections` (MF3/MF4 reports), `maintenance` (MF5) | Customer workspace |
-| `SERVICE_PROVIDER` | `inspectionrequests` (MF1 quotes/assignments), `inspections` (MF2/MF3), `maintenance` (MF5) | Provider workspace + mobile assigned-work screens |
+| `PLATFORM` | `users` (organization activation, global support) | Platform admin workspace |
+| `CUSTOMER_ORGANIZATION` | `users`, `subscriptions`, `workforce`, `assets`, `inspections` (MF1–MF4), `maintenance` (MF5), `notifications`, `dashboard` | Organization workspace + mobile assigned-work screens |
+
+The legacy three-zone ownership (`PLATFORM_GOVERNANCE` / `CUSTOMER_ORGANIZATION` /
+`SERVICE_PROVIDER`, including the `inspectionrequests` Provider quotation marketplace)
+is retained in §5/§6 rows strictly as as-implemented history.
 
 ---
 
-## 2. Provider capability model (settled decision)
+## 2. Legacy Provider capability model (as-implemented baseline — not target)
+
+**Status of this section: historical record, not target.** The Provider-capability and
+organization-vetting model below belongs to the superseded six-role marketplace baseline.
+The current target (backend reset plan §1.2, `database-design.md`) is the four-role
+Enterprise SaaS model in §1: roles `ADMIN`, `ORG_ADMIN`, `INSPECTOR`,
+`MAINTENANCE_ENGINEER` across zones `PLATFORM` and `CUSTOMER_ORGANIZATION`, with **no
+Provider/Client/marketplace surface and no `PLATFORM_OPERATOR` as a target role.** The
+row-level gap IDs below (`GAP-R-05`, `GAP-R-06`, `GAP-R-07`, `GAP-D-12`, `GAP-D-13`,
+`GAP-F-01`, `GAP-F-05`, `GAP-F-21`) are retained unchanged as the migration register for
+retiring this baseline; they are not a target capability-vetting contract.
 
 ### 2.1 Capability is organization data, not a role
 
-Inspection capability and maintenance capability are **records on a Provider
-Organization**, not user roles. Selecting "both" in any UI creates **two capability
+Inspection capability and maintenance capability were **records on a Provider
+Organization**, not user roles. Selecting "both" in any UI created **two capability
 records**. There is no `BOTH` enum value.
 
-### 2.2 Who declares and who vets
+### 2.2 Who declared and who vetted (legacy)
 
-| Action | Role | Never |
+| Action | Legacy role | Never |
 | --- | --- | --- |
 | Declare capability set, submit shared legal identity once | `PROVIDER_MANAGER` | — |
 | Submit capability-specific evidence | `PROVIDER_MANAGER` | Provider may not self-approve (`GAP-R-07`) |
@@ -153,7 +166,7 @@ Inspection evidence is never substituted for maintenance evidence, or vice versa
 Mission-specific flight permits and airspace clearance are verified separately in MF2
 and are **not** part of capability vetting.
 
-### 2.4 Vetting status vocabulary (binding)
+### 2.4 Vetting status vocabulary (legacy record)
 
 Exactly four values, per capability:
 
@@ -186,7 +199,7 @@ no cascade path in code, in the UI, or in a database constraint.
 **No capability decision exists for an undeclared capability.** A decision against a
 capability the Provider did not declare is rejected.
 
-### 2.6 Organization standing is its own operator decision (settled, Task 1.4 fix round 1)
+### 2.6 Organization standing under the legacy model
 
 Matrix §2.4 separates organization standing from capability eligibility, and `GAP-D-13`
 exists because a single `status` column conflated them. That separation fixes more than
@@ -200,10 +213,9 @@ capability-decision response) were read from `refactor/mf1-mf5-backend@451a2af`,
 **not** on `main` (§0.1). On `dc143ca` only the schema half exists —
 `provider_organizations.standing_decision_reason` (`V12:63`) guarded by
 `ck_provider_org_standing_reason` (`V12:90`) — while no provider-organization controller,
-service, entity or facade exists (`GAP-A-01` re-opened, `GAP-R-04`). The rule itself stays
-settled.
-
-Settled rule:
+service, entity or facade exists (`GAP-A-01` re-opened, `GAP-R-04`). The separation was
+a settled rule **of the legacy model**; under the four-role target there is no Provider
+standing axis to decide.
 
 | Rule | Detail |
 | --- | --- |
@@ -246,8 +258,8 @@ Mandatory flow → module mapping (fixed):
 | SF-02 Provider onboarding, capability declaration, evidence submission | `POST /api/v1/provider-organizations` | **No runtime on `main`.** The schema half landed in `V12`: `provider_organizations` (`V12:50`), `provider_capabilities` (`V12:105`), `provider_capability_evidence` (`V12:176`), `provider_vetting_decisions` (`V12:148`), `users.provider_id` (`V12:208`). `src/main/java` contains no provider-organization class at all (`find src/main/java -iname "*Provider*"` → empty) and `grep -rn provider-organizations src/` → empty, so `POST /api/v1/provider-organizations` has no controller. The onboarding code this row previously cited lives only on the unmerged branch `refactor/mf1-mf5-backend@451a2af` (§0.1). | `target-only` (runtime) | `GAP-R-04`, `GAP-A-01` |
 | SF-03 Operator vetting, per capability | `GET /api/v1/provider-organizations/{providerId}/capabilities`, `POST /api/v1/provider-organizations/{providerId}/capabilities/{capability}/decisions`, `POST /api/v1/provider-organizations/{providerId}/standing/decisions` | **No runtime on `main`**: no `ProviderVettingController`, no `ProviderOrganizationController`, no capability-decision or standing endpoint (`grep -rn provider-organizations src/` → empty). The vocabulary half is in `V12`: four-outcome `ck_provider_capabilities_status` (`V12:126-127`), append-only decision history (`V12:148-161`), organization standing kept on its own axis (`provider_organizations.status` `V12:74-75`, `standing_decision_reason` `V12:63`, `ck_provider_org_standing_reason` `V12:90`). The endpoint code cited previously exists only on unmerged `451a2af` (§0.1); see §2.6. | `target-only` (runtime) | `GAP-R-04`, `GAP-R-05`, `GAP-A-01` |
 | SF-04 Asset profile + airspace pre-check | Asset CRUD present; airspace pre-check warning | Asset CRUD implemented. Asset-level pre-check still absent: no `ALTER TABLE assets` in `V12`–`V20` and no airspace symbol in `src/main/java`, so no `AIRSPACE_CHECK_PENDING` / `RESTRICTED_AIRSPACE` state exists for an asset. **What changed:** mission-level airspace determination now exists (`V17:57`, `ck_drone_mission_plans_airspace` `V17:83-86` — `NOT_CHECKED`, `CLEARANCE_REQUIRED`, `MANUAL_REVIEW`, `CLEARED`, `BLOCKED`) — plan-scoped and a different vocabulary, so it does not satisfy this asset pre-check. | `partial` | `GAP-F-02`, `GAP-D-15` |
-| SF-05 Due cycle → one MF1 request package | `assets` publishes `InspectionScheduleDue`; `inspectionrequests` consumes and creates the request | Publisher exists (`InspectionScheduleDuePublisher`, `assets/events/InspectionScheduleDue`). **No listener exists; `inspectionrequests` has zero services.** | `partial` | `GAP-F-03` |
-| SF-05 schedule proposal review by business reviewer | Target reviewer is `PLATFORM_OPERATOR` | Role strings were renamed in `d3a9f5d` but the reviewer is still not the target: `ScheduleProposalController:47` hardcodes `PROVIDER_MANAGER` or `PLATFORM_ADMIN` in-method and `:54` is `hasRole('PROVIDER_MANAGER')` (list at `:37` = `hasAnyRole('CLIENT','PROVIDER_MANAGER','PLATFORM_ADMIN')`). `PLATFORM_OPERATOR` is granted by no endpoint in `src/main/java`. | `partial` | `GAP-R-08` |
+| SF-05 Due cycle → one MF1 request package | `assets` publishes `InspectionScheduleDue`; the owning inspection module consumes and creates the request | Publisher exists (`InspectionScheduleDuePublisher`, `assets/events/InspectionScheduleDue`). **No listener exists; the consumer has zero services.** | `partial` | `GAP-F-03` |
+| SF-05 schedule proposal review by business reviewer | Target reviewer is `ORG_ADMIN` | The reviewer is still not the target: `ScheduleProposalController` hardcodes legacy roles in-method and the asset review queue grants a non-target role. | `partial` | `GAP-R-08` |
 
 ### 3.2 MF1 — Survey request, quotation sourcing, electronic contract
 
@@ -626,7 +638,7 @@ dropped, and each needs a decision before the phase that depends on it.
    quoted in earlier revisions of this rule (`refactor/wf1-contract`'s `V12`, the fix
    round's `V15`) belonged to branches that are **not** on `main` (§0.1) and must not be
    reused as citations.
-4. **Never introduce `MAINTENANCE_PROVIDER_MANAGER`** or any seventh role. If a
+4. **Never introduce `MAINTENANCE_PROVIDER_MANAGER`** or any fifth role beyond the four canonical target roles. If a
    requirement appears to need one, the requirement is wrong, not the role list.
 5. **A capability decision never cascades.** If a code path, constraint, or UI action
    would let one capability's decision change another, that is a defect in the new code,
@@ -643,18 +655,8 @@ dropped, and each needs a decision before the phase that depends on it.
 
 ## 11. Source references
 
-- [Report 3 — Overall Description](../reports/report-3-software-requirement-specification/01-overall-description.md)
-- [Report 3 — User Requirements](../reports/report-3-software-requirement-specification/02-user-requirements.md)
-- [Report 3 — Functional Requirements](../reports/report-3-software-requirement-specification/03-functional-requirements.md)
-- [Report 3 — Non-Functional Requirements](../reports/report-3-software-requirement-specification/04-non-functional-requirements.md)
-- [Report 3 — Other Requirements](../reports/report-3-software-requirement-specification/05-requirement-appendix.md)
-- [Business Flows — SF and MF1–MF5](business-flows.md)
-- [Database Design](database-design.md)
-- [Report 5 — Test Cases](../reports/report-5-test-report/01-test-cases/test-case-list.md)
-- [Report 5 — Test Statistics](../reports/report-5-test-report/02-test-statistics/test-statistics.md)
-- [Backend Architecture](../backend/architecture.md)
-- [Authentication and Access Control](../backend/authentication-and-authorization.md)
-- [AI Agent Rules](../development/ai-agent-rules.md)
-- Implementation plan: `docs/superpowers/plans/2026-10-04-documents-led-mf1-mf5-refactor.md`
-  (note the path-prefix defect recorded as `GAP-D-22`)
-- Design spec: `docs/superpowers/specs/2026-10-04-documents-led-mf1-mf5-refactor-design.md`
+- Backend reset plan: `backend/.hermes/plans/2026-10-07_enterprise-saas-backend-and-full-db.md`
+
+Report 3, `business-flows.md`, `database-design.md`, Report 5, and the legacy
+backend architecture documents are retained in §0–§10 rows only as historical
+as-implemented citations of the legacy six-role baseline, not as target sources.

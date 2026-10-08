@@ -4,9 +4,9 @@
 
 Clients create and manage their organizationâ€™s assets, documents, inspection history and recurring schedules. Admins maintain categories and checklist templates. WF1 generates periodic requests with an Asset + Schedule + Due Cycle idempotency key.
 
-## Current acceptance cases
+## Historical v1 acceptance cases (retired from the Enterprise SaaS target)
 
-Workbook function groups are retained in the case index. These four cases map to FE-02 and WF1.
+The cases below and their recorded results describe the earlier five-role v1 WF1 implementation. Preserve their IDs, outcomes, rounds, dates, testers, and evidence as historical test records; they do not establish current Enterprise SaaS MF1 behavior or prove the reset branch. New target acceptance is recorded only in the nine Pending target rows.
 
 | Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

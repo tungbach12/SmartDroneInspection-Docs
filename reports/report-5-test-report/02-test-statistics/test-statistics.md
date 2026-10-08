@@ -10,20 +10,26 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | Historical WF1–WF4 evidence plus 2026-10-03 target SF/MF1–MF5 case design; no new target runtime execution in Report 5. Backend MF2 mission-plan integration tests were added under PR #54 (`364a23e`, `MissionPlanApiIntegrationTest`, `DroneMissionPlanTest`, `MissionShotItemCoordinateConstraintTest`), but no executed Report 5 run is recorded, so MF2 cases remain `Pending`. |
-| Last updated | 2026-10-06 |
+| Test round | Historical WF1–WF4 evidence plus 2026-10-07 Enterprise SaaS target case design; no new target runtime execution in Report 5. Backend MF2 mission-plan integration tests were added under PR #54 (`364a23e`, `MissionPlanApiIntegrationTest`, `DroneMissionPlanTest`, `MissionShotItemCoordinateConstraintTest`), but no executed Report 5 run is recorded, so target cases remain `Pending`. |
+| Last updated | 2026-10-08 |
 
 ## Module summary
 
 | No | Module code | Passed | Failed | Pending | N/A | Number of test cases |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 1 | Feature 1 sheet (FE-02/WF1 + FE-03/WF2 + target MF2; FE-01 gate separate) | 9 | 0 | 11 | 0 | 20 |
-| 2 | Feature 2 sheet (FE-04–FE-07; WF3 + WF4 + target MF3–MF5) | 4 | 0 | 9 | 0 | 13 |
+| 1 | Feature 1 sheet (FE-02/WF1 + FE-03/WF2 + target MF1–MF2; FE-01 gate separate) | 9 | 0 | 11 | 0 | 20 |
+| 2 | Feature 2 sheet (FE-04–FE-07; WF3 + WF4 + target MF3–MF4) | 4 | 0 | 9 | 0 | 13 |
 | **Subtotal** |  | **13** | **0** | **20** | **0** | **33** |
 
 ## Supporting FE-01 verification (not workbook cases)
 
 Supporting gates are excluded from the functional workbook totals. On
+2026-10-08 the Enterprise SaaS reset was executed and recorded: backend
+`./mvnw clean verify` passed 88 tests (exit 0) covering organization
+registration into `audit_events`, fail-closed V24 role migration, the exact
+41-table target schema and Modulith boundaries; frontend passed 128 tests plus
+build; mobile passed 16 tests with format/analyze clean. These gates change no
+workbook case status. On
 2026-09-24, 19 role-to-screen policy tests and 26 browser-auth frontend tests
 passed; the full frontend suite passed 52/52, including three shared API
 envelope checks and the WF3 inspection/report page tests. Backend API-envelope
@@ -40,35 +46,40 @@ run). On 2026-09-28, the backend admin user creation persistence gate passed:
 assignment, and the `USER_CREATED` audit row in one transaction
 (`AdminUserApiIntegrationTest`, part of the 167/167 `mvnw verify` run).
 See `03-features/fe-01-identity-access-governance.md` for the detailed
-procedure and scope. Target provider-vetting and operator-isolation checks
-(`FE01-T01` and `FE01-T02`) are recorded as pending supporting gates. They
-remain outside the fixed workbook count, as specified in the Report 5 mapping.
+procedure and scope. Target organization/entitlement and role
+separation-of-duties checks (`FE01-T01` and `FE01-T02`) are recorded as pending
+supporting gates. They remain outside the fixed workbook count, as specified in
+the Report 5 mapping.
 
 These are workbook-sheet totals, not FE totals. The eight detailed sources are
 organized by FE; FE-08 has no assigned functional case in this baseline and is
-not included in the denominator. The `WF1-011`–`WF1-019` cases cover the
-schedule-proposal revision of WF1, while `WF2-005`–`WF2-007` (Feature 1) and
-`WF3-005`–`WF4-005` (Feature 2) represent newly defined target acceptance cases
-for SF/MF1–MF5, all tracked truthfully as `Pending`. `WF2-007` specifically
-exercises the MF2 Drone Mission Plan, SOW-based GSD/overlap requirements and
-applicable permit/airspace gates.
+not included in the denominator. The WF1–WF4 results are historical/retired v1
+evidence; their recorded `Passed` statuses remain evidence only for the earlier
+five-role behavior tested, not for the current reset branch. The `WF1-011`–
+`WF1-019` cases record the schedule-proposal revision of v1 WF1. The nine target
+acceptance cases (`WF2-005`–`WF2-007` and `WF3-005`–`WF4-005`) describe Enterprise
+SaaS MF1–MF4 criteria and remain `Pending` in every round. The V24/V25 reset is
+not workflow execution; MF1–MF4 behavior is outside its scope. `WF2-007` defines
+the MF2 readiness/mission-preparation gate and applicable permit/airspace checks;
+it is not evidence that the gate currently runs.
 
 ## Coverage summary
 
 The summary counts each unique workbook case once using its latest completed
 result across recorded rounds. The WF3-002 Round 2 recheck and the WF3-004
 Round 2 narrative config/provenance recheck are not additional cases, so the
-baseline Feature 2 sheet still contributes 7 baseline cases. Both WF3-004 rounds
-completed as `Passed`, so the Feature 2 `Passed` count is unchanged at 4.
-The nine WF1 cases added on 2026-09-28 (`WF1-011`-`WF1-019`) raise the baseline
-Feature 1 sheet to 17. The nine target cases added on 2026-10-03 (`WF2-005`–`WF2-007`
-on Feature 1, and `WF3-005`–`WF4-005` on Feature 2) expand the total test case index
-to 33. They define target MF1–MF5 coverage for Provider RFQ isolation, uniform
-commission/policy snapshots, MF2 mission-specific GSD/overlap/permit checks,
-Platform AI consumption, review/settlement, complaint workflow pauses,
-and maintenance change/warranty. All nine remain `Pending` in every
-round because no target runtime implementation/evidence was executed; planned
-features must never be represented as passed.
+baseline Feature 2 sheet still contributes 7 historical v1 cases. Both WF3-004
+rounds completed as `Passed`, so the historical v1 Feature 2 `Passed` count is 4.
+The nine WF1 cases added on 2026-09-28 (`WF1-011`–`WF1-019`) raise the historical
+Feature 1 sheet to 17. The nine target cases added on 2026-10-03 (`WF2-005`–
+`WF2-007` on Feature 1, and `WF3-005`–`WF4-005` on Feature 2) expand the total
+index to 33. They define Enterprise SaaS target coverage for workspace
+entitlement, MF1 asset/pair setup, MF2 readiness, MF3 human
+verification/immutable publication, and MF4 team/cost/acceptance gates. All nine
+remain `Pending` in every round, including after the 2026-10-08 reset execution:
+that round verified identity, registration, audit and target schema only, and
+delivered no MF1-MF4 workflow behavior. Schema presence is not workflow evidence. Preserve historical Passed results as v1 evidence only, and never
+represent a target feature as passed without recorded execution.
 
 Use the same definitions as the workbook:
 

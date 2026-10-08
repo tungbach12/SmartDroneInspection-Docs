@@ -28,15 +28,11 @@ The FE-01 role-aware portal/navigation policy check, browser authentication
 flow checks, and cross-cutting API response-envelope contract checks are
 recorded separately in `03-features/fe-01-identity-access-governance.md`. These supporting checks
 verify v1 SRS access and API contracts; they are not additional WFx functional
-cases or workbook rows. Proposed FE01-T01/FE01-T02 provider/Operator checks remain
-Pending support gates, also excluded from workbook totals.
+cases or workbook rows. Proposed FE01-T01/FE01-T02 organization/entitlement and
+role-separation checks remain Pending support gates, also excluded from workbook
+totals.
 
-Rows 1–24 retain their original v1 WFx identities, descriptions and historical outcomes;
-rows 25–33 define additional **target-only** MF1–MF5 acceptance criteria. Every new
-row is Pending in its detailed FE source until executable evidence exists. Target
-coverage includes drone mission planning and airspace verification, order-snapshotted
-commercial policies, and direct-settlement workflow constraints. Do not interpret a v1
-Passed result as proof of the new six-role/payment/dispute design.
+Rows 1–24 retain their original v1 WFx identities, descriptions and recorded outcomes. They are a historical/retired test baseline for the earlier five-role application; their `Passed` outcomes remain valid evidence only for the v1 behavior actually exercised, not for the Enterprise SaaS target or reset branch. Rows 25–33 define nine **target-only** MF1–MF4 acceptance criteria. Every target row remains `Pending` in every round until executable evidence exists. Target coverage includes workspace/subscription entitlement, MF1 asset + Inspector/Drone pair, MF2 readiness gate, MF3 human verification and immutable report publication, and MF4 team/cost/acceptance gates. The reset does not implement those MF1–MF4 workflow behaviors.
 
 FE-08 Dashboard, Analytics and Notifications has no assigned WFx case in this
 baseline. Treat it as an uncovered feature, not an implicitly passed or
@@ -72,12 +68,12 @@ therefore not reused to close the gap.
 | 22 | `[WF1-017]` FE-03 — WF1 schedule proposals and due cycle | Feature 1 | The due-cycle publisher emits one event per cycle and a replay stays silent. | An `ACTIVE` schedule has `next_due_at` in the past. |
 | 23 | `[WF1-018]` FE-03 — WF1 schedule proposals and due cycle | Feature 1 | Asset document upload enforces file type, size, asset state, and organization scope. | Active asset exists; png/jpeg/webp/pdf and oversize fixtures are available. |
 | 24 | `[WF1-019]` FE-03 — WF1 schedule proposals and due cycle | Feature 1 | Negative scope sweep across every WF1 endpoint. | Two organizations and the five v1 role fixtures exist. |
-| 25 | `[WF2-005]` FE-03 — MF1 Provider RFQ isolation (target) | Feature 1 | Only verified eligible Providers may quote an RFQ; rival bids and cross-Provider data access are denied. | Two verified Providers, one unverified Provider and a Client RFQ exist. |
-| 26 | `[WF2-006]` FE-03 — MF1 uniform commission snapshot (target) | Feature 1 | One Platform-published Provider-paid rate applies to every Provider, is accepted before order confirmation, and is snapshotted; Provider quotes exclude Platform AI/data/storage costs. | Published versioned policy and two Providers exist. |
-| 27 | `[WF2-007]` FE-03 — MF2 Drone Mission Planning & Clearance (target) | Feature 1 | Mission-specific GSD, overlap, equipment, AGL and shot items must satisfy the SOW; manual piloting is supported and waypoint routes are optional; required airspace/permits are verified. | Accepted service order/SOW, mission equipment data, Provider workforce, airspace/permit fixtures exist. |
-| 28 | `[WF3-005]` FE-06 — MF3 Platform narrative (target) | Feature 2 | Platform-provided LLM draft remains human-reviewed and unavailable for arbitrary Provider model configuration. | Assigned report draft and Platform LLM adapter fixture exist. |
-| 29 | `[WF3-006]` FE-06 — MF4 order-snapshotted review policy (target) | Feature 2 | Deemed acceptance follows the accepted, order-snapshotted review policy and is blocked by timely clarification/complaint; later policy changes do not reprice the order. | Released report and expressly accepted review-policy version exist. |
-| 30 | `[WF3-007]` FE-06 — MF4 uniform commission settlement (target) | Feature 2 | Commission uses the order-locked uniform rate once on eligible VAT-exclusive service value and reverses proportionately on price refund. | Two orders, the published commission policy version and the Payment Invoice / receipt-confirmation flow exist. |
-| 31 | `[WF3-008]` FE-06 — MF4 complaint workflow pause (target) | Feature 2 | An internal complaint pauses acceptance and payment confirmation as the `DISPUTED` workflow state with no money held by the Platform; Operator is not a legal arbitrator and external remedies remain available. | Client, Provider, Operator and an accepted order exist. |
-| 32 | `[WF4-004]` FE-07 — MF5 Provider scope and commission/warranty snapshot (target) | Feature 2 | Only the winning Provider may work; commission and warranty terms are snapshotted on every maintenance order, P2 does not reprice it, and commission is invoiced once after `PAID`. | Accepted report, two Providers, maintenance order and published commission/warranty policy versions exist. |
-| 33 | `[WF4-005]` FE-07 — MF5 change order and warranty claim (target) | Feature 2 | Unauthorized extra work is blocked pending change-order approval; an unresolved warranty claim inside the snapshotted window blocks ticket auto-close and requires free rework; actual service-price refunds reverse proportional commission. | Maintenance order, accepted warranty policy and before/after evidence exist. |
+| 25 | `[WF2-005]` FE-03 — Enterprise SaaS workspace/tenant gate (target) | Feature 1 | MF1 setup requires an active enterprise subscription; only the owning ORG_ADMIN provisions workforce and Drones. | Two organizations exist; inactive subscription and target role fixtures exist. |
+| 26 | `[WF2-006]` FE-03 — MF1 asset with assigned Inspector + Drone (target) | Feature 1 | ORG_ADMIN creates an asset with exactly one responsible Inspector and one identified Drone; the inspection inherits the pair snapshot. | Active organization with workforce, Drone and asset category fixtures exist. |
+| 27 | `[WF2-007]` FE-03 — MF2 readiness gate (target) | Feature 1 | Inspector submits shot-list/permit basis; a qualified ORG_ADMIN approves `READY_FOR_FLIGHT`; Start rechecks readiness. | Assigned inspection, permit/credential fixtures and qualified reviewer exist. |
+| 28 | `[WF3-005]` FE-06 — MF3 human verification gates (target) | Feature 2 | AI Vision candidates and the LLM inspection draft are verified by the author Inspector and approved by a qualified ORG_ADMIN before publication. | Confirmed evidence set, AI Vision/LLM fixtures and qualified reviewer exist. |
+| 29 | `[WF3-006]` FE-06 — MF3 immutable approved report (target) | Feature 2 | The approved inspection report version is immutable, source-traceable and hands only repair-required findings to MF4. | Published MF3 review artifacts exist. |
+| 30 | `[WF3-007]` FE-06 — MF4 team/cost control gates (target) | Feature 2 | Team lead/report-author designations, versioned estimate baseline, approved changes and attributable actuals are enforced. | Published MF3 findings requiring repair and workforce fixtures exist. |
+| 31 | `[WF3-008]` FE-06 — MF4 author-verified completion report (target) | Feature 2 | LLM completion draft requires report-author verification; independent ORG_ADMIN acceptance and cost reconciliation gate closure. | Completed MF4 work logs, evidence and approved estimate exist. |
+| 32 | `[WF4-004]` FE-07 — MF4 work-order triage (target) | Feature 2 | ORG_ADMIN creates a traceable MF4 work order from published MF3 findings with one lead, one report author and an independent accepting reviewer. | Published MF3 report with repair-required findings and workforce fixtures exist. |
+| 33 | `[WF4-005]` FE-07 — MF4 estimate/change/actual reconciliation (target) | Feature 2 | Baseline `E0`, approved change deltas and actuals reconcile with variance; unauthorized extra work and unresolved cost gaps block closure. | Approved MF4 work order, workforce assignments and cost-line fixtures exist. |
