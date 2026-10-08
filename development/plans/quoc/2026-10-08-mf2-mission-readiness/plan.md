@@ -116,8 +116,56 @@ Docs sẽ có commit riêng khi cập nhật Report 5 — có thể thay thế m
 
 ---
 
-## 5. Rủi ro cần xác nhận trước khi code
+## 5. Kết quả kiểm tra schema V25/V26 (đã xác minh)
 
-1. **`inspections` entity đã mất** nhưng bảng còn — cần xác nhận `inspections` có còn cột `service_order_id`/`assignment_id` hay V26 đã đổi.
-2. **`assignment` không có bảng riêng** — MF2-01 cần một nơi lưu phân công Inspector. Có thể dùng `asset_pair_assignments` (V25) hoặc cần migration mới.
-3. **Danh sách 20 commit là dự kiến** — khi code sẽ có thể điều chỉnh, chỉ cần giữ tổng số bằng 20 là đạt yêu cầu.
+### 5.1 Điểm 1 — Entity `Inspection` phải dựng lại hoàn toàn, không sửa
+
+Bảng `inspections` **còn**, nhưng V26 đã thay toàn bộ hình dạng cột:
+
+| Cột bị `DROP` ở V26 | Cột thay thế do V25 thêm vào |
+| --- | --- |
+| `service_order_id`, `accepted_assignment_id` | `asset_pair_assignment_id`, `drone_id`, `inspector_id` |
+| `author_user_id` | `inspector_id` (FK composite kiểm tra cùng tổ chức) |
+| `checklist_template_id` | `checklist_template_id`/`checklist_version` chuyển sang `field_sessions` |
+| `started_at`, `completed_at` | `planned_start_at`, `planned_end_at`; trạng thái thật nằm ở `field_sessions` |
+
+Cột **vẫn giữ**: `id`, `asset_id`, `status`, `created_at`, `updated_at`, `row_version`, `organization_id`, `schedule_id`, `due_cycle_key`, `objective`, `scope`, `component_scope`, `acceptance_criteria`, `planned_start_at`, `planned_end_at`.
+
+`ck_inspections_status` được V26 định nghĩa lại thành đúng 11 giá trị mục tiêu:
+`DRAFT`, `ASSIGNED`, `PREPARING`, `READY_FOR_FLIGHT`, `IN_PROGRESS`, `FIELD_COMPLETED`, `REPORT_DRAFT`, `REPORT_PUBLISHED`, `REPAIR_PENDING`, `COMPLETED`, `CANCELLED`.
+
+**Kết luận**: entity `Inspection` phải viết mới theo đúng 18 cột này — không phải khôi phục bản cũ.
+
+### 5.2 Điểm 2 — Dùng `asset_pair_assignments`, **không cần migration mới**
+
+Bảng đã có sẵn và đúng nghĩa MF2-01:
+
+```
+asset_pair_assignments
+  id, organization_id, asset_id
+  inspector_user_id   ← MF2-01/02: người được phân công
+  drone_id            ← MF2-03/04: drone được gán
+  valid_from / valid_until
+  status ∈ (DRAFT, ACTIVE, SUPERSEDED, SUSPENDED)
+  reason, assigned_by_user_id, assigned_at
+```
+
+`inspections.asset_pair_assignment_id` trỏ tới đây, và V26 đã gắn FK composite
+`fk_inspections_pair_tenant (asset_pair_assignment_id, organization_id, asset_id)` để chặn
+trường hợp ghép cặp chéo tổ chức.
+
+**Phản hồi nhận/từ chối của Inspector** chưa có cột riêng. Hai lựa chọn:
+
+| Cách | Ảnh hưởng |
+| --- | --- |
+| Dùng `reason` + `status` của `asset_pair_assignments` | Không cần migration, nhưng gộp "lý do từ chối" với "lý do gán" |
+| Thêm cột `assignment_response` + `responded_at` vào `asset_pair_assignments` | Rõ ràng hơn, cần migration `V27` |
+
+**Đề xuất**: dùng `status = SUSPENDED` + `reason` để Inspector từ chối, giữ nguyên cam kết
+"không thêm migration". Nếu bạn muốn phân biệt rõ hai loại lý do thì tôi tạo `V27`.
+
+### 5.3 Điểm 3 — Cam kết 20 commit
+
+Danh sách ở §4 là dự kiến. Cam kết: **tổng đúng 20 commit** trên 4 repo (Backend 17,
+Frontend 2, Mobile 1), mỗi commit build/test độc lập được. Nếu cần thêm/bớt, tôi sẽ
+bù lại để tổng vẫn là 20.
