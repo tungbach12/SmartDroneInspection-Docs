@@ -1,394 +1,268 @@
 ---
-title: "Historical Multi-Provider Business Flows"
-document_type: historical-business-flow-reference
-purpose: "Historical, non-authoritative record of the superseded six-role marketplace and SF/MF1–MF5 proposal; pending teammate replacement with a current four-role Enterprise SaaS flow reference."
-version: "3.4 (historical)"
-updated: 2026-10-07
+title: "Business Flows (Enterprise SaaS, four roles)"
+document_type: business-flow-reference
+purpose: "Current four-role Enterprise SaaS business flows MF1-MF4 with actor-labelled steps. Authoritative for business requirements together with Report 3; the database design remains the storage contract."
+version: "4.0"
+updated: 2026-10-08
 ---
 
-# Historical Multi-Provider Business Flows (v3.4)
+# SmartDroneInspection Business Flows — Enterprise SaaS
 
-> **Historical, non-authoritative reference — pending teammate replacement.** This document records the superseded six-role Provider/Client marketplace and SF/MF1–MF5 proposal. Do not use its role, workflow, API, settlement, or runtime descriptions as current requirements or implementation status. The current product target is the four-role Enterprise SaaS model in [Report 3](../reports/report-3-software-requirement-specification/) and [database design](database-design.md). The backend reset does **not** implement MF1–MF4 workflow behavior; schema or persistence records are not workflow completion. The replacement business-flow reference remains a teammate task.
->
-> The historical content below was previously presented as authoritative specification of the marketplace model; that authority is retired. It preserves the earlier intermediary Marketplace roles, business flows, direct-transfer settlement design and legal/source notes as historical reference only. Its descriptions are not current requirements or implemented runtime behavior.
->
-> **v3.4 change from v3.3:** field flight execution has moved from MF3-01 to the new **MF2-07**, splitting the flows cleanly by phase: **MF2 = the flight phase** (plan → airspace/permit → safety sign-off → execute → logged field session) and **MF3 = the processing phase** (ingest → integrity → quality gate → AI → human verification → draft → author sign-off → QA release). MF3 steps renumber accordingly (old MF3-02…09 → new MF3-01…08). Weather postponement and in-flight incidents now loop inside MF2, because the clearance is date-bound.
+This document describes the current product target: a multi-tenant SaaS workspace rented by
+infrastructure-owning companies. Four human roles, four connected Main Flows, no marketplace.
 
-> **v3.3 change from v3.2:** advance funding / partner escrow has been removed entirely. The platform is **never a custodian or intermediary of money**. The client pays the provider directly by bank transfer after acceptance; the platform only computes and invoices its commission.
+> **Requirements, not implementation.** These flows state required behaviour. They do not claim the
+> steps are implemented. On 8 October 2026 the backend delivered identity, organization
+> registration, the 41-table target schema and the runtime cutover on VPS2; MF1-MF4 workflow
+> execution remains team work. See [database-design.md](database-design.md) §11 for what currently
+> exists, and [Report 3](../reports/report-3-software-requirement-specification/03-functional-requirements.md)
+> for the binding requirements text.
 
----
+> **Replaces** the six-role marketplace reference, now retained as
+> [business-flows-marketplace-v3.4.md](business-flows-marketplace-v3.4.md) for history only. Its
+> Provider/Client roles, RFQ, quotation, commission and direct-transfer settlement descriptions are
+> retired and must not be cited as current requirements.
 
-## I. Vietnamese Legal Basis
+## I. Ownership and roles
 
-> **Legal scope:** This is a target design for an academic project. The instruments below are the reference framework for drone surveys, electronic contracts, non-cash payment, and building maintenance in Vietnam. The platform has not been licensed, has not integrated any bank, and does not claim compliance certification.
+| Zone | Role | Responsibility |
+| --- | --- | --- |
+| Platform | `ADMIN` | Manages enterprise workspaces, subscription activation/renewal, technical and security settings, and authorized audited support access. Makes no customer technical conclusion, repair-budget decision, or internal acceptance. |
+| Customer organization | `ORG_ADMIN` | Manages workforce, credentials, Drone fleet, assets with their assigned pair, inspections, readiness review, report approval, maintenance team/budget, and independent acceptance. Qualifications are personal: admin rights do not confer professional authority. |
+| Customer workforce | `INSPECTOR` | Accepts assigned inspections, prepares the shot-list and compliance inputs, records field sessions, uploads evidence, decides its completeness/quality, and authors the inspection report draft. |
+| Customer workforce | `MAINTENANCE_ENGINEER` | Works within assigned repair teams and tasks, supplies assessments and estimates, records work/evidence/actuals, and when designated acts as team lead or report author. |
 
-1. **Law on Civil Air Defence 2024 (Law 49/2024/QH15, effective 01/07/2025) & Decree 288/2025/NĐ-CP (effective 05/11/2025) on the management of unmanned aircraft:**
-   - Mandatory framework for checking: UAV registration/identification records; operator conditions (age, license class A/B per weight and flight mode); and flight permits/approvals when the flight falls into a permit-required case under current regulations. Authority names, permit types, and procedures are **not hard-coded** in the workflow until confirmed for each flight class; the system checks dossier completeness and validity only and **never issues flight permits on behalf of the state**.
-   - *Note:* a draft amendment to Decree 288/2025 has been reported in 2026 — unverified at the time of writing; confirm with legal counsel before submission.
-2. **Prime Minister Decision 18/2020/QĐ-TTg & the National No-Fly Portal (`cambay.mod.gov.vn`, publicly republished by the Ministry of National Defence from 15/06/2025):**
-   - Digital airspace lookup for prohibited/restricted areas. It is a **pre-flight early warning layer** only; it is never a permit.
-3. **Non-cash payment — Decree 52/2024/NĐ-CP (effective 01/07/2024):**
-   - All settlement is ordinary **bank transfer from CLIENT directly to PROVIDER_MANAGER's bank account**. The platform is **not** a payment intermediary, not a deposit-taker, and not a credit organisation; it never holds, pools, or temporarily owns customer money. No escrow account, no advance funding, no platform-side hold exists anywhere in this design (Civil Code 2015 Article 330 ký quỹ is deliberately **not** relied upon).
-4. **Law on Electronic Transactions 2023 (Law 20/2023/QH15, effective 01/07/2024):**
-   - Legal basis for the bilateral electronic service contract (Inspection Service Order / Maintenance Work Order), electronic signatures, and data messages. Technical evidence storage (MinIO, SHA-256 checksums, 3D GPS coordinates, timestamps) guarantees data integrity and traceability, not automatic legal admissibility.
-5. **Invoices and taxation — Law on VAT 48/2024/QH15 (effective 01/07/2025), Decree 123/2020/NĐ-CP as amended by Decree 70/2025/NĐ-CP (effective 01/06/2025), Circular 78/2021/TT-BTC:**
-   - Clear division of invoice duties: `PROVIDER_MANAGER` (service supplier) issues its VAT service invoice to `CLIENT` for the inspection/maintenance fee; the **Platform** issues its own electronic invoice for the platform commission plus VAT on commission to `PROVIDER_MANAGER`. Commission is a provider-side expense, never a surcharge to the client.
-6. **Law on E-Commerce 2025 (Law 122/2025/QH15, effective 01/07/2026) + Decree 248/2026/NĐ-CP; Law on Consumer Protection 2023 (Law 19/2023/QH15) + Decree 55/2024/NĐ-CP:**
-   - Public platform terms, transparent provider capability information, an internal complaint mechanism with audit logs. Internal outcomes **never replace** the parties' right to sue in court or commercial arbitration (VIAC).
-7. **Law on Personal Data Protection 91/2025/QH15 (effective 01/01/2026) + Decree 356/2025/NĐ-CP:**
-   - Consent and purpose limitation for personal data (contact persons, GPS/capture metadata, field imagery). Secrets, raw tokens, and credentials are never stored.
+`SYSTEM`, AI Vision and LLM are automated actors, not account roles.
 
----
+**Team lead** and **report author** are per-work-order responsibilities held by
+`MAINTENANCE_ENGINEER` accounts, not additional roles. Neither designation permits self-approval of
+a budget or independent acceptance of the team's own work.
 
-## II. Roles & Actor Zones (6 Canonical Roles)
+Actor zones: `PLATFORM` (ADMIN only) and `CUSTOMER_ORGANIZATION` (the three customer roles, each
+scoped to exactly one organization). Every non-`ADMIN` user belongs to exactly one organization.
 
-The system is organised into **three independent actor zones**, enforcing separation of duties:
+## II. Scope boundary — what the platform does not do
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│               ZONE 1: PLATFORM GOVERNANCE (Platform owner)            │
-│                                                                        │
-│   🛠️ PLATFORM_ADMIN                  👔 PLATFORM_OPERATOR              │
-│   (Technical & infrastructure admin)  (Business operations, policies,  │
-│   • System config, checklists          & internal complaint mediation) │
-│   • Permissions, security            • Vets Provider legal capability  │
-│   • AI YOLO thresholds, MinIO caps   • Sets marketplace parameters     │
-│   • Audit logs, data integrity       • Tracks payment progress         │
-│                                      • Issues commission/VAT invoices  │
-│                                      • Independent technical arbiter   │
-└───────────────────┬──────────────────────────────────┬─────────────────┘
-                    │                                  │
-                    ▼                                  ▼
-      ┌───────────────────────────┐      ┌───────────────────────────┐
-      │ ZONE 2: CUSTOMER          │      │ ZONE 3: SERVICE PROVIDER  │
-      │ 🏢 CLIENT (Asset owner)   │      │ 🏢 PROVIDER_MANAGER       │
-      │                           │      │ 🚁 INSPECTOR (Pilot)      │
-      │                           │      │ 🔧 MAINTENANCE_ENGINEER   │
-      └───────────────────────────┘      └───────────────────────────┘
-```
+- No external Provider sourcing, RFQ, quotation, commission, or Client-Provider settlement. Repair
+  costs are an internal cost register, not a payment system.
+- No Drone flight control. A Start action records an operator decision; it never arms, pilots, or
+  configures an aircraft. Waypoints, GSD and overlap are recorded intent, not flight parameters
+  the platform enforces.
+- No government permit issuance or registry verification. The platform records permit files,
+  issuer references and validity, and requires a recorded human review. An airspace lookup is a
+  planning warning, never a clearance.
+- No autonomous approval. Every publication, acceptance and closure has a named human actor.
+- No certified digital signature from an application checkbox. A signature reference is recorded
+  only when a real signing service supplies one.
 
-| Zone | Role | Canonical responsibility |
-| :--- | :--- | :--- |
-| **1. Platform Governance** | `PLATFORM_ADMIN` | Technical administration: user accounts, permissions, security, technical parameters (AI YOLO thresholds, MinIO storage), audit logs, data integrity. No commercial policy, no dispute decisions. |
-| | `PLATFORM_OPERATOR` | Business operations: vets Provider legal capability (business licence, insurance, UAV registration, pilot certificates); configures marketplace parameters (acceptance review SLA, commission rate); tracks payment progress; issues the platform's commission & commission-VAT invoices; acts as **independent technical arbiter** for internal complaints (mediation only, never a legal tribunal). |
-| **2. Customer** | `CLIENT` | Infrastructure owner: creates inspection requests, approves quotations, signs electronic contracts, **transfers payment directly to the provider** after acceptance, reviews & accepts reports, files complaints, creates maintenance tickets. |
-| **3. Service Provider** | `PROVIDER_MANAGER` | The provider company's single representative: receives RFQs, submits quotations, prepares mission plans and attaches flight permits, assigns staff, approves report release, **confirms receipt of client payment**, pays platform commission & tax. |
-| | `INSPECTOR` | Certified drone pilot / field technician: builds the structural shot list, performs live safety reconnaissance, flies the mission, checks image quality, verifies AI findings, finalises and signs the report draft as author. |
-| | `MAINTENANCE_ENGINEER` | Repair technician: surveys defects on site, prepares technical method statements and material estimates, executes repairs, captures mandatory before/after evidence pairs for acceptance. |
+## III. Flow map
 
----
-
-## III. Contract Model & Direct-Transfer Settlement
-
-### 1. Electronic contract (Platform Terms + Bilateral Service Order)
-
-* **Platform Terms of Service**: binds CLIENT and PROVIDER when joining. Empowers `PLATFORM_OPERATOR` to publish commercial policies and mediate internal complaints; grants no adjudicatory power.
-* **Service Order / Maintenance Order**: an electronic contract between CLIENT and PROVIDER for one engagement under the Law on Electronic Transactions 2023. Contains: scope of work (SOW), technical mission parameters (target GSD, shot list, overlap), committed schedule (SLA), provider price, review period, commission rate, cancellation policy, and warranty terms — all **snapshotted immutably at signing**.
-
-### 2. Direct-Transfer Settlement Lifecycle (no platform custody)
-
-The platform orchestrates **state and documents only**; money never touches the platform:
-
-1. **Contract effective on signature (MF1-06).** Both parties sign electronically; the contract is legally effective immediately. There is **no advance funding** before execution.
-2. **Payment Invoice (MF4-05.1 / MF5-07.1).** After acceptance, the SYSTEM generates an electronic Payment Invoice showing the contract amount and PROVIDER_MANAGER's bank account details.
-3. **Direct transfer (MF4-05.2).** CLIENT transfers **100% of the fee directly to PROVIDER_MANAGER's bank account** by bank transfer.
-4. **Receipt confirmation (MF4-05.3).** PROVIDER_MANAGER verifies the bank credit and clicks **"Confirm receipt"** → the system sets the order to **`PAID`**. The provider then sends its VAT service invoice to the client per tax law.
-5. **Commission settlement (MF4-05.4).** The system computes the platform commission $C = r \times B$ (rate $r$ snapshotted from the order; $B$ = VAT-exclusive service value) plus VAT on the commission. `PLATFORM_OPERATOR` issues the platform's service invoice to PROVIDER_MANAGER, who pays the commission to the platform separately. The commission is never added to the client's bill.
-6. **Complaint pause (MF4-03).** While an internal complaint is open, acceptance and payment confirmation are paused in the platform's state machine. No funds are frozen by the platform because it holds none; any remedy (free reshoot, refund between the parties) follows the contract terms and the parties' own transfers.
-
-### 3. Dynamic `PLATFORM_OPERATOR` configuration & Contract Snapshot
-
-No marketplace parameter is hard-coded. `PLATFORM_OPERATOR` publishes versioned policies:
-
-| Parameter | Symbol | Authority | Scope & effect |
-| :--- | :---: | :---: | :--- |
-| **Platform commission rate** | $r$ (`commission_rate`) | `PLATFORM_OPERATOR` | Applied to providers; computed on the VAT-exclusive service value: $C = r \times B$. |
-| **Acceptance review period** | $T_{rev}$ (`review_period_days`) | `PLATFORM_OPERATOR` | Client's review window; snapshotted per order (example value: 7 working days). Basis for contractual auto-acceptance (MF4-04b). |
-| **Standard warranty duration** | $T_{war}$ (`warranty_days`) | `PLATFORM_OPERATOR` | Warranty clock after maintenance acceptance; snapshotted per maintenance order. |
-| **Cancellation policy** | `cancellation_policy` | `PLATFORM_OPERATOR` | Refundable/chargeable conditions by timing and reason; snapshotted per order. |
-
-* **Contract Snapshot pattern:** at signing, every parameter value is copied into the order row. Later policy changes apply **prospectively only** and never rewrite active contracts.
-* **Removed in v3.3:** advance funding rate $D$, warranty retention $H$, and any partner-escrow state (`FUNDED_IN_PARTNER_ESCROW`, `FROZEN_DISPUTED`) no longer exist.
-
-### 4. Platform-provided data, AI YOLO and LLM infrastructure
-
-* MinIO object storage, the **YOLO** vision pipeline and the **LLM** drafting assistant are shared platform infrastructure, funded from the platform's commission $C$.
-* **Providers must not itemise AI or storage fees** in quotations — quotes cover flight crew, technical labour, logistics, and the provider's VAT only.
-* **Human-in-the-loop:** AI only proposes defect candidates and draft text. Official inspection results must always be verified, measured, edited, and signed by `INSPECTOR` (author) and released by `PROVIDER_MANAGER`.
-
----
-
-## IV. End-to-End Dynamic Workflow (non-linear loops)
-
-The historical marketplace design below described a full lifecycle with feedback and exception handling; this is not the current Enterprise SaaS workflow implementation.
-
-```
-                      ┌──────────────────────────────────────────┐
-                      │    SF: ASSET & PROVIDER ONBOARDING       │
-                      └────────────────────┬─────────────────────┘
-                                           │
-                                           ▼
-                      ┌──────────────────────────────────────────┐
-                      │    MF1: RFQ & E-CONTRACT (no funding)    │
-                      └────────────────────┬─────────────────────┘
-                                           │
-                                           ▼
-                      ┌──────────────────────────────────────────┐
-                      │    MF2: FLIGHT PLANNING & CLEARANCE      │
-                      └─────────┬──────────────────────┬─────────┘
-                                │                      │
-                        [Permit/Plan OK]        [Weather/Safety Abort]
-                                │                      │
-                                ▼                      ▼
-                      ┌───────────────────┐    [Reschedule / Re-plan]
-                      │ MF3: FIELD FLIGHT │
-                      └─────────┬─────────┘
-                                │
-                                ▼
-                      ┌──────────────────────────────────────────┐
-                      │     EVIDENCE QUALITY & COVERAGE GATE     │
-                      └─────────┬──────────────────────┬─────────┘
-                                │                      │
-                          [Data Valid]          [Blur / Missing / No GPS]
-                                │                      │
-                                │                      ▼
-                                │              [Re-flight / Same-day fix]
-                                │                      │
-                                ├──────────────────────┘
-                                ▼
-                      ┌──────────────────────────────────────────┐
-                      │ AI ESTIMATION & INSPECTOR VERIFICATION   │
-                      └────────────────────┬─────────────────────┘
-                                           │
-                                           ▼
-                      ┌──────────────────────────────────────────┐
-                      │     LLM DRAFT & QA REPORT RELEASE        │
-                      └────────────────────┬─────────────────────┘
-                                           │
-                                           ▼
-                      ┌──────────────────────────────────────────┐
-                      │         MF4: CLIENT ACCEPTANCE           │
-                      └─────────┬──────────────┬───────────────┬─┘
-                                │              │               │
-                            [Accept]      [Clarify]        [Dispute]
-                                │              │               │
-                                ▼              ▼               ▼
-                     [Payment Invoice &  [Revise Report] [Internal arbitration
-                      DIRECT TRANSFER]                     & expert review]
-                                │              │               │
-                                │              └───────────────┘
-                                ▼
-                      ┌──────────────────────────────────────────┐
-                      │     MF5: MAINTENANCE WORK ORDER          │
-                      └────────────────────┬─────────────────────┘
-                                           │
-                                           ▼
-                      ┌──────────────────────────────────────────┐
-                      │    TECHNICAL ASSESSMENT & QUOTATION      │
-                      └────────────────────┬─────────────────────┘
-                                           │
-                                           ▼
-                      ┌──────────────────────────────────────────┐
-                      │       REPAIR & BEFORE/AFTER EVIDENCE     │
-                      └─────────┬──────────────────────┬─────────┘
-                                │                      │
-                          [Work Complete]        [Hidden Defect Found]
-                                │                      │
-                                │                      ▼
-                                │             [Change Order Approval]
-                                │                      │
-                                ├──────────────────────┘
-                                ▼
-                      ┌──────────────────────────────────────────┐
-                      │        MAINTENANCE ACCEPTANCE            │
-                      └─────────┬──────────────────────┬─────────┘
-                                │                      │
-                            [Passed]                [Failed]
-                                │                      │
-                                ▼                      ▼
-                     [Payment & Warranty Clock] [Rework Loop]
-                                │
-                                ▼
-                     [Warranty expiry → Auto-close Ticket]
+```mermaid
+flowchart TD
+  S["Support: ORG_ADMIN registers the organization,<br/>ADMIN activates the subscription"] --> A
+  A["MF1 / ORG_ADMIN<br/>workforce, Drones, compliance, asset + pair, inspection"] --> B
+  B["MF2 / INSPECTOR<br/>accept, shot-list, safety inputs"] --> C
+  C["MF2 / ORG_ADMIN<br/>compliance links, readiness approval"] --> D
+  D["MF2 / INSPECTOR<br/>pre-flight checklist, session start/end"] --> E
+  E["MF3 / INSPECTOR<br/>upload, decide evidence completeness/quality"] --> V
+  E -.->|"More capture needed:<br/>same inspection, readiness rechecked"| B
+  V["MF3 / SYSTEM + AI Vision<br/>defect candidates with model provenance"] --> N
+  N["MF3 / SYSTEM + LLM<br/>labelled report draft"] --> R
+  R["MF3 / INSPECTOR<br/>verify, edit, submit"] --> F
+  F["MF3 / ORG_ADMIN<br/>review findings and report, approve"] --> G
+  G{"Confirmed defects<br/>requiring repair?"}
+  G -->|"No"| Z["SYSTEM: record outcome and asset history"]
+  G -->|"Yes"| T
+  T["MF4 / ORG_ADMIN<br/>work order, team, lead, report author"] --> P
+  P["MF4 / Team lead<br/>tasks, method, estimate, resources"] --> Q
+  Q["MF4 / ORG_ADMIN<br/>approve scope and budget"] --> W
+  W["MF4 / Members<br/>work logs, before/after evidence, actuals"] --> H
+  H["MF4 / SYSTEM + LLM<br/>completion report draft"] --> I
+  I["MF4 / Report author<br/>verify, edit, submit"] --> J
+  J["MF4 / ORG_ADMIN<br/>independent acceptance"] --> K
+  K["MF4 / ORG_ADMIN<br/>cost reconciliation, then closure"] --> Z
+  Z -.->|"Next cycle or re-inspection:<br/>new inspection, existing asset"| A
 ```
 
----
+Only platform interactions and recorded decisions are steps. Real-world work — flying the Drone,
+adjusting the camera, repairing the structure, measuring, isolating the area — happens outside the
+application; users record what was done.
 
-## V. Detailed Flows (Supporting Flow & 5 Core Main Flows)
+## IV. Main Flows
 
----
+### MF1 — Organization resources, asset assignment and inspection setup
 
-### Supporting Flow (SF) — Master Data, Provider Vetting & Airspace Pre-check
+**Trigger:** an activated organization workspace. **Output:** managed resources plus one identified,
+assigned inspection ready for MF2.
 
-> **Nature:** the prerequisite data-governance flow (onboarding) that establishes a safe, lawful operating environment for all transactions.
+| Step | Actor | Action | Output and gate |
+| --- | --- | --- | --- |
+| MF1-01 | `ORG_ADMIN` | Open own workspace; maintain company identity, operational contacts and named authorized reviewers. | Named responsibility. No cross-tenant management. |
+| MF1-02 | `SYSTEM` | Authenticate and check role, organization and subscription entitlement. | Disallowed operations denied; expiry/renewal guidance shown without deleting existing history. |
+| MF1-03 | `ORG_ADMIN` | Provision `INSPECTOR` and `MAINTENANCE_ENGINEER` accounts; enable, update or suspend them. | Active workforce records. Suspension removes future assignment eligibility. |
+| MF1-04 | `ORG_ADMIN` | Record applicable skills and credentials: qualification, training, issuer/reference, dates and evidence. Health or insurance documents only where lawfully required. | Reviewable credential history. Not every occupation requires the same licence. |
+| MF1-05 | `SYSTEM` | Validate document type/subject and dates; calculate expiry warnings and record review status. | Missing, expired and suspended status visible. Machine validation is not government verification. |
+| MF1-06 | `ORG_ADMIN` | Register each company Drone by unique identifier/serial, model, payload where applicable, serviceability and maintenance/registration documents. | Identified Drone usable as an assignment reference. Unavailable devices are not eligible for release. |
+| MF1-07 | `ORG_ADMIN` | Maintain flight-permit and other compliance files: issuer/reference, geographic/time scope and conditions. | Application, issued permission, expiry, rejection and revocation stay distinct. The platform does not apply to an authority. |
+| MF1-08 | `ORG_ADMIN` | Enter asset code/category, components, location, scope context, site access, contact, source documents and known limitations. | Own-organization asset profile. An informational airspace warning does not authorize flight. |
+| MF1-09 | `ORG_ADMIN` | In the same asset-creation workflow, select exactly one responsible Inspector and one identified Drone from own resources. | Default Inspector + Drone pair attached to the asset. |
+| MF1-10 | `SYSTEM` | Validate asset-code uniqueness, same organization, active users and a valid Drone reference; save asset and pair together and audit. | No partially created asset missing its pair. The pair is an operational default, not a flight permit or exclusive Drone reservation. |
+| MF1-11 | `ORG_ADMIN` | Create an inspection for this asset: objective, component scope, acceptance criteria, requested dates, and cadence where needed. | New inspection ID reusing the existing asset. No procurement or RFQ step. |
+| MF1-12 | `SYSTEM` | Inherit the current asset pair into the inspection, snapshot scope/defaults, and test known Inspector/Drone schedule conflicts. | Draft/assigned inspection distinct from the mutable asset default. A due-cycle retry cannot duplicate it. |
+| MF1-13 | `ORG_ADMIN` | Confirm pair, dates and scope. For reassignment, record the reason and whether it affects this inspection only or future asset defaults. | Versioned assignment. Unresolved conflicts, disabled users and unavailable Drones block dispatch. |
+| MF1-14 | `SYSTEM` | Dispatch the assigned inspection to the Inspector; attach source-document references and notify. | Hand-off to MF2: inspection ID, asset, scope, dates, Inspector, Drone and applicable document references. |
 
-**Main actors**: `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `System`.
+**Exceptions:** missing resources keep setup incomplete — the user selects or adds appropriate
+resources rather than the SYSTEM inventing them. Updated default assignments never rewrite past
+inspection snapshots. A known expiry at the planned time is flagged; the complete mission-specific
+permit decision is made in MF2. Cadence changes affect future due work, not published history.
 
-#### 1. Sequence steps
+### MF2 — Mission preparation, assignment response and readiness
 
-* **SF-01 (Client self-registration)**: the customer company registers an organisation account, provides its tax code and legal representative, and activates the `CLIENT` account.
-* **SF-02 (Provider onboarding & vetting submission)**: PROVIDER_MANAGER registers the company dossier: business licence; UAV fleet with registration certificates issued under Law 49/2024 & Decree 288/2025; pilot roster with valid operator licences; valid third-party liability insurance certificates.
-* **SF-03 (Operator vetting approval)**: `PLATFORM_OPERATOR` reviews the legal validity of the dossier. If compliant → `VERIFIED`; if incomplete/expired → `ADDITIONAL_INFO_REQUIRED` or `REJECTED`. Unvetted providers are blocked from all quotation activity. Inspection and maintenance capabilities are vetted **independently** (approving one never approves the other).
-* **SF-04 (Asset profiling & airspace pre-check)**: the client records asset coordinates, access boundaries, structure height, and as-built drawings. The system queries national no-fly data (`cambay.mod.gov.vn` per Decision 18/2020/QĐ-TTg) and shows a reference warning when the asset sits inside or adjacent to a restricted zone.
-* **SF-05 (Periodic schedule cadence)**: the platform generates schedule proposals from configured maintenance cycles; the client confirms an official schedule which then drives automatic request generation when due.
+**Trigger:** an assigned inspection. **Output:** an audited readiness decision plus one or more
+ended field-session records under the same inspection.
 
-#### 2. SF exception handling
+| Step | Actor | Action | Output and gate |
+| --- | --- | --- | --- |
+| MF2-01 | `INSPECTOR` | Open the assignment; review asset, scope, dates, assigned Drone and relevant documents. Accept or reject with a reason. | Rejection returns to `ORG_ADMIN` in MF1. No self-selection of an unassigned Drone. |
+| MF2-02 | `SYSTEM` | Check assignment and organization, record the response and notify `ORG_ADMIN`. | Only the assigned Inspector responds. Accepting is not itself readiness. |
+| MF2-03 | `INSPECTOR` | Prepare the component shot-list, required evidence types and checklist; identify access limitations, proposed field-session times and known hazards on the app. | Reviewable preparation version. Hardware configuration is out of scope. |
+| MF2-04 | `ORG_ADMIN` | Link the actual applicable issued permit/permission and credential/Drone records; document airspace-source checks, scope and time coverage, and conditions. | Missing authorization cannot be waived internally. A genuine exemption requires a recorded legal basis and supporting review. |
+| MF2-05 | `SYSTEM` | Validate required links, document dates/status, pair, plan version and known conflicts against the planned session time. | Blockers listed. Ambiguous authority or geographic conditions require human verification, not inferred clearance. |
+| MF2-06 | `INSPECTOR` | Read the restrictions and preparation checklist; record safety acknowledgments and submit the preparation. | Attributable Inspector submission. An acknowledgment is not a statutory licence or guaranteed digital signature. |
+| MF2-07 | `ORG_ADMIN` | As the named qualified reviewer, inspect the preparation and compliance basis. Approve or return with reasons. | `READY_FOR_FLIGHT` only when all applicable mandatory conditions pass. Reviewer identity and source-document versions recorded. |
+| MF2-08 | `SYSTEM` | Snapshot the approved plan, pair and documents; notify the Inspector. | A material plan, pair, permit or schedule change invalidates readiness and requires review again. |
+| MF2-09 | `INSPECTOR` | On site, identify the assigned Drone, complete the current pre-flight checklist, then request Start or record a postponement/interruption reason. | No software control of the Drone. Weather and site safety can cause postponement even after approval. |
+| MF2-10 | `SYSTEM` | Immediately recheck entitlement, assignment, readiness version and required validity; on success record `IN_PROGRESS`, Inspector, Drone and session start time. | Stale, expired or revoked readiness is rejected. Start does not arm the aircraft or establish hardware flight time. |
+| MF2-11 | `INSPECTOR` | On the app, record checklist results, observations/incidents, then End, pause/abort or postpone. | Actual collected coverage, limitations and timestamps. Government incident reporting remains the responsible person's duty. |
+| MF2-12 | `SYSTEM` | Save the session outcome/end; mark that session `FIELD_COMPLETED` only when ended, preserving previous sessions. | Hand-off to MF3: session references, checklist/shot-list, pair and compliance snapshot. Not overall inspection completion or report approval. |
 
-* **Forged or expired provider dossier**: Operator rejects, blocks marketplace participation, writes an audit log.
-* **Asset inside an absolutely prohibited zone (military, critical areas)**: system raises `NO_FLY_ZONE_ALERT` and advises the client to prepare a special flight-permit application before publishing the RFQ.
+**Additional capture:** the Inspector may request another session for the same inspection from MF3.
+Return to preparation/readiness before Start, especially when time, scope or permits changed. Do not
+jump from missing evidence to an unconditional Start.
 
----
+### MF3 — Evidence, AI candidates, inspection report and publication
 
-### MF1 — Inspection Request, Smart RFQ & Electronic Contract
+**Trigger:** an ended MF2 session with available evidence. **Sequence:** AI Vision detection → LLM
+draft → human author verification → qualified human review → publication.
 
-**Goal**: receive the inspection need, connect to capable providers, lock the quotation, and sign an electronic contract with clear schedule and payment milestones.
+| Step | Actor | Action | Output and gate |
+| --- | --- | --- | --- |
+| MF3-01 | `INSPECTOR` | Upload original evidence to the correct inspection and session; add component/capture context where metadata is missing. | Attributable files. No automatic quality acceptance. |
+| MF3-02 | `SYSTEM` | Validate technical intake, compute the hash, store source references and display upload/processing errors. | Valid stored files. Corrupt, wrong-type, oversize and duplicate failures identify the corrective action. |
+| MF3-03 | `INSPECTOR` | Compare evidence with the shot-list and directly decide completeness and quality. Re-upload a file or request another MF2 session. | Inspector's documented adequate/insufficient decision. The SYSTEM does not decide image usefulness. |
+| MF3-04 | `SYSTEM` | Snapshot the evidence set after Inspector confirmation; preserve missing-metadata and coverage flags. | Source set eligible for processing. Later changes make dependent drafts and review confirmations stale. |
+| MF3-05 | `SYSTEM` / AI Vision | Run compatible detection on eligible images; store suggested defects with model provenance. | Non-official candidates. The manual path stays available on failure or incompatibility. |
+| MF3-06 | `INSPECTOR` | Add source-backed field observations, annotations and any manual findings or notes needed for drafting. | Candidate/observation packet. Measurements require a documented method and unit, not pixel guesswork. |
+| MF3-07 | `SYSTEM` / LLM | After detection, generate a labelled `DRAFT` from authorized asset/scope/session/checklist/evidence references plus candidate and observation data. | Source-linked narrative. Candidate statements are labelled unverified; missing facts stay unknown. |
+| MF3-08 | `INSPECTOR` — report author | Read and edit the entire draft; verify identifiers, equipment, coverage, findings, uncertainty and recommendations against sources; submit the reviewed version. | Human author confirmation and submitted version. Unsupported causes and measurements removed. |
+| MF3-09 | `ORG_ADMIN` — qualified reviewer | Review source evidence; accept, modify or reject candidates; confirm manual findings; review text and limitations. Return with reasons or approve. | Final finding decisions and report sign-off. No self-review by the author and no default acceptance on a timer. |
+| MF3-10 | `SYSTEM` | Apply reviewer-approved structured finding changes and totals to the draft; return to MF3-08/MF3-09 if the narrative must be regenerated or edited. | Text and findings agree. Any material change invalidates the prior sign-off. |
+| MF3-11 | `SYSTEM` | Publish the approved report version and PDF with author, reviewer, date, source index and approval record; apply qualified digital-signature integration only if one is supplied. | Immutable official version. A logged application approval alone is not a certified digital signature. |
+| MF3-12 | `ORG_ADMIN` | Mark required corrective items with priorities and deadlines, or record that no corrective work is required within the observed scope. | Approved repair list only. No empty work order for a no-repair outcome. |
+| MF3-13 | `SYSTEM` | Update inspection and asset history; hand approved corrective items to MF4 with report-version and finding references. | Pending corrective work stays visible. If none is required, close the outcome with limitations preserved. |
 
-**Main actors**: `CLIENT`, `PLATFORM_OPERATOR`, `PROVIDER_MANAGER`, `System`.
+**Report scope:** MF3 produces a point-in-time asset inspection record. It is not a flight permit,
+not proof the asset is structurally safe, and not a repair-completion certificate. AI suggestions
+never become official findings without a human decision, and an LLM draft never becomes a
+published report without the author and reviewer gates above.
 
-#### 1. Main sequence
+### MF4 — Repair team, cost control, completion reporting and acceptance
 
-| Step | Role / Lane | Activity | Output |
-| :--- | :--- | :--- | :--- |
-| **MF1-01** | CLIENT | Create the inspection request: state objectives (concrete crack detection, steel corrosion), site location and desired deadline. Choose **(A) direct appointment** of a known partner or **(B) open RFQ**. | Inspection request (RFQ) |
-| **MF1-02** | System | **Smart eligibility filter**: automatically shortlist providers by (1) operating region; (2) drone/sensor fit for the objective; (3) valid pilot licences; (4) `VERIFIED` dossier status; (5) calendar availability — and send RFQ invitations only to those. | Eligible provider list |
-| **MF1-03** | PROVIDER_MANAGER | Remote reconnaissance from maps/drawings, then submit the **Quotation**: (1) flight crew cost; (2) technical labour; (3) mobilisation/logistics; (4) provider VAT. **Platform AI/MinIO costs are never itemised.** | Service quotation |
-| **MF1-04** | CLIENT | Compare competing quotations; request revisions if needed, then approve the best offer. | Approved quotation |
-| **MF1-05** | System | Generate the **electronic Service Order**: run the **contract snapshot** — commission rate $r$, review period $T_{rev}$, cancellation policy, warranty terms as applicable — all fixed at signing. | Contract ready to sign |
-| **MF1-06** | CLIENT & PROVIDER_MANAGER | Both parties sign electronically. **The contract takes effect immediately. Payment will be made by direct bank transfer after acceptance** — there is no advance funding step. Mission planning begins. | Contract in force |
+**Trigger:** published MF3 findings requiring repair. MF4 manages the organization's internal repair
+team, approved scope, estimates, changes, actuals and closeout.
 
-#### 2. MF1 exceptions & weather risk
+| Step | Actor | Action | Output and gate |
+| --- | --- | --- | --- |
+| MF4-01 | `SYSTEM` | Propose or create a draft work order for selected repair-required findings; link asset, inspection, published report version and source evidence; check duplicates. | Traceable draft. No second active work item for the same scope without a stated reason. |
+| MF4-02 | `ORG_ADMIN` | Triage priority, corrective scope, due date, access/safety constraints and acceptance criteria; identify urgent controls in the record. | Explicit work-order scope. No automatic claim that controls were physically applied. |
+| MF4-03 | `ORG_ADMIN` | Select qualified own-organization members; designate exactly one lead, one report author and one independent qualified accepting `ORG_ADMIN`. | Attributable team assignment. Not a new role and not an external Provider. |
+| MF4-04 | `SYSTEM` | Validate active membership, applicable skills and credential dates, organizational scope and reviewer independence; notify assigned people. | No release when a required assignment, credential or reviewer is missing. |
+| MF4-05 | Team lead — `MAINTENANCE_ENGINEER` | Accept or return the planning assignment; record remote or site assessment; divide approved defect scope into tasks with proposed assignees, method and verification needs. | Technical task plan. Unexpected evidence stays linked to the source finding without rewriting MF3. |
+| MF4-06 | Team lead — `MAINTENANCE_ENGINEER` | Prepare an estimate version: labour hours and rates, material quantities and unit prices, equipment/tools, applicable services and supporting quotes; propose dates and permitted contingencies. | Itemized estimate and assumptions. The Engineer supplies rates and data, not the LLM. |
+| MF4-07 | `SYSTEM` | Validate decimal, currency and quantity inputs; calculate estimate totals; show resources, documents and missing cost lines. | Reviewable baseline candidate. Unpriced work is never silently recorded as zero. |
+| MF4-08 | `ORG_ADMIN` | Review technical method, safety/access preparation, acceptance criteria and estimate. Approve scope/budget/version or return with reasons. | Frozen initial approved baseline. The lead or report author cannot approve their own estimate. |
+| MF4-09 | Team lead and assigned members — `MAINTENANCE_ENGINEER` | Confirm task acceptance, dates, resources and applicable work-permit or isolation evidence on the app. | Ready task roster. Resources awaiting availability stay blocked, not falsely in progress. |
+| MF4-10 | `SYSTEM` | Recheck approved scope/budget, team and applicable prerequisites before recording execution start. | `IN_PROGRESS` for recorded authorized work. No machine actuation or physical safety guarantee. |
+| MF4-11 | Assigned members — `MAINTENANCE_ENGINEER` | Enter task progress, hours, materials actually consumed, equipment/service usage, before/during/after evidence and measured or test results. | Attributable task-level actuals and evidence. No self-acceptance of a finished repair. |
+| MF4-12 | Team lead and members — `MAINTENANCE_ENGINEER` | For unexpected scope, cost or time, stop the affected additional work on the app and submit a change request with reason, evidence and delta estimate. | Versioned pending change. Unaffected approved tasks continue only where safe and independent. |
+| MF4-13 | `ORG_ADMIN`, then `SYSTEM` | Approve, reject or return the change. The SYSTEM preserves the initial baseline and calculates the revised authorized amount and dates from approved changes only. | Changed scope is released only after approval. Rejected changes never enlarge the budget. |
+| MF4-14 | Team lead — `MAINTENANCE_ENGINEER` | Consolidate member completion, actual quantities and hours, as-left condition, paired evidence, tests and unresolved issues; mark the physical work reported complete. | `WORK_COMPLETED` is a team declaration, not `ACCEPTED` or `CLOSED`. |
+| MF4-15 | Report author — `MAINTENANCE_ENGINEER` | Check the team's source records, receipt/cost links and evidence; request draft generation when the completion packet is ready. | Named author and a versioned source packet. Missing mandatory evidence blocks evidence-free submission. |
+| MF4-16 | `SYSTEM` / LLM | Generate a labelled completion-report draft from approved scope, baseline, changes, verified work logs, actuals and evidence. | Draft narrative plus SYSTEM-calculated cost tables. It cannot state "accepted" before the independent decision. |
+| MF4-17 | Report author — `MAINTENANCE_ENGINEER` | Read and edit the entire draft; verify facts, tests, costs, variance and residual issues; confirm and submit. | Author-verified `SUBMITTED_FOR_ACCEPTANCE`. The team never independently accepts itself. |
+| MF4-18 | Independent qualified `ORG_ADMIN` | Compare completion against scope and acceptance criteria, source proof and tests. Accept, Return for Rework, or Request Re-inspection, with reasons. | Technical acceptance record. Rework returns to the relevant tasks; necessary re-inspection creates a linked MF1 inspection. |
+| MF4-19 | `ORG_ADMIN` — authorized cost reviewer | Reconcile actuals and receipts against the approved baseline and changes; record variance explanations and the financial review disposition. | Separate cost reconciliation. Unresolved missing, duplicate or unapproved costs block final closure, not historical recording. |
+| MF4-20 | `SYSTEM` | Once tasks, author review, technical acceptance, cost review and pending changes are resolved, publish the completion report with the acceptance record and close the work order. | `CLOSED`. Repair disposition and asset history update without altering the original MF3 findings or report. |
+| MF4-21 | `ORG_ADMIN`, then `SYSTEM` | Record follow-up or warranty conditions where applicable; check whether all required corrective work for the inspection has closed. | Unresolved corrective scope stays visible. Do not mark the lifecycle complete while required work is open. |
 
-* **No provider bids before RFQ close**: system suggests widening the geography or adjusting budget/schedule.
-* **Force majeure weather (storm, wind beyond safe limits)**: both parties record a postponement minutes in the system; rescheduling carries no cancellation penalty and no SLA breach.
-* **Client cancels before mobilisation**: apply the cancellation snapshot — deduct reasonable, evidenced preparation costs for the provider; the remainder is simply never transferred (no platform refund machinery, because the platform never held funds).
+## V. Cost and change control
 
----
+```text
+approved_budget B = initial_approved_baseline + sum(approved_change_deltas)
+actual_total   A = sum(reconciled actual cost lines)
+variance       V = A - B
+variance_percent = 100 * V / B   when B > 0, otherwise not applicable
+```
 
-### MF2 — Mission Planning, Flight Compliance & Field Execution 🚀 [DRONE-CENTRED FLOW]
+The SYSTEM calculates totals with decimal arithmetic. A missing price is unknown, not zero.
+Contingency is not an incurred expense. A cost line is never silently changed from estimate to
+actual.
 
-> **Technical focus**: separate photogrammetric capability from flight-safety authority; enforce the flight dossier under current law. The system checks records; it never grants permission. **This flow covers the whole flight phase** and ends with the logged field session handed over to MF3 (processing phase).
+## VI. Status vocabularies
 
-**Main actors**: `INSPECTOR` (Pilot-in-Command), `PROVIDER_MANAGER`, `System`.
+```text
+inspections:
+DRAFT -> ASSIGNED -> PREPARING -> READY_FOR_FLIGHT -> IN_PROGRESS
+      -> FIELD_COMPLETED -> REPORT_DRAFT -> REPORT_PUBLISHED
+      -> REPAIR_PENDING -> COMPLETED
 
-#### 1. Main sequence
+maintenance_work_orders:
+DRAFT -> AWAITING_APPROVAL -> APPROVED -> READY -> IN_PROGRESS
+      -> WORK_COMPLETED -> SUBMITTED_FOR_ACCEPTANCE -> ACCEPTED
+      -> COST_RECONCILED -> CLOSED
+IN_PROGRESS -> REWORK_REQUIRED -> IN_PROGRESS
+SUBMITTED_FOR_ACCEPTANCE -> REINSPECTION_REQUIRED -> linked inspection
+```
 
-| Step | Role / Lane | Activity | Output |
-| :--- | :--- | :--- | :--- |
-| **MF2-01** | INSPECTOR | **Photogrammetric calculation & recommended capture distance**: from the minimum crack width to detect (e.g. cracks ≥ 1.0 mm need GSD ≤ 0.5 mm/px), the pilot enters camera/sensor parameters (focal length, sensor size, resolution); the system recommends **capture distance and camera settings** — data-quality guidance only, never a safety-altitude determination. | Recommended GSD & capture distance |
-| **MF2-02** | INSPECTOR | **Image overlap configuration**: forward overlap ≥ 75%, side overlap ≥ 60%, adapted to surface geometry so no blind spots remain and 3D defect modelling is possible. | Survey-grade overlap settings |
-| **MF2-03** | INSPECTOR | **Structural shot list & gimbal pitch**: enumerate components to photograph, camera angles (0°, −45°, −90°). Define waypoints if flying a programmed route, otherwise a detailed manual shot list. Live field reconnaissance of obstacles (trees, power lines, wind) is performed on site. | Complete shot list (+ waypoints if used) |
-| **MF2-04** | System | **Airspace check & regulatory alert**: intersect flight coordinates with the configured no-fly/restricted dataset (`cambay.mod.gov.vn` reference). Result is a **planning warning only** — not a permit and not a substitute for authority confirmation. | Reference airspace report |
-| **MF2-05** | PROVIDER_MANAGER | **Flight-legal dossier**: attach the flight permit/approval issued by the competent military authority when the flight is permit-required under current regulations; verify UAV registration identity and pilot licence conditions. The provider owns the legality of the flight; the system only checks completeness and validity of provided records. | Complete flight-legal dossier |
-| **MF2-06** | INSPECTOR & PROVIDER_MANAGER | **Pilot-in-command safety sign-off**: the pilot inspects live obstacles, structure clearance and weather, and **signs the flight-safety commitment**; PROVIDER_MANAGER approves and releases the mission. The order transitions to **`READY_FOR_FLIGHT`**. | Approved mission plan (`READY_FOR_FLIGHT`) |
-| **MF2-07** | INSPECTOR | **Field execution of the approved shot list**: open the mobile/web app on site, start the survey session (`IN_PROGRESS`), run the pre-flight check, and manually fly the approved shot list. (Severe weather → abort safely, log the reason, return to MF2-05 for a new-date clearance, then schedule the make-up flight.) | Logged field session (handed over to MF3) |
+`WORK_COMPLETED` is a team declaration; `CLOSED` requires independent acceptance and reconciled
+costs. These are target states, not a claim that the backend enums already carry them.
 
-#### 2. MF2 exceptions
+## VII. Cross-cutting rules
 
-* **Cannot obtain the flight permit**: the plan is rejected; PROVIDER_MANAGER notifies the CLIENT to extend the permit timeline or cancel under the legal force-majeure clause.
-* **Camera cannot meet the required GSD**: approval is blocked; the pilot must change lens/sensor or (when safely possible) reduce capture distance.
-* **In-flight incident (signal loss, battery drop, motor failure)**: the pilot executes fail-safe return-to-home / emergency landing, files an **incident log** (cause, equipment state, site condition), notifies PROVIDER_MANAGER and CLIENT, and reschedules after safety checks.
-* **Sudden weather deterioration**: immediate abort; captured data is preserved; because the clearance is date-bound, the make-up flight returns to **MF2-05** for a new-date clearance before MF2-07 runs again.
+1. **One tenant owns every business record.** Organization scope is checked in services and scoped
+   repository queries, never by filtering in memory.
+2. **Role is not authority.** A role check alone admits nothing without matching organization,
+   ownership, assignment or separation-of-duties scope.
+3. **Snapshot history is immutable.** Approved report versions, estimate baselines and audit events
+   are never edited; corrections create a linked version.
+4. **AI output is separate from human decisions.** Candidates are not findings; drafts are not
+   approved reports; the LLM never calculates authoritative financial totals.
+5. **Completion is not acceptance.** Physical work being reported done requires an independent
+   qualified reviewer before closure.
+6. **Evidence bytes stay in MinIO.** PostgreSQL stores object identity, checksum, metadata,
+   ownership and workflow links only.
+7. **Notifications never grant access.** They point to the next accountable user; the backend
+   still performs the scope check.
 
----
+## VIII. Implementation status
 
-### MF3 — Evidence Ingestion, Quality Gate, AI Analysis & QA Release
+| Area | Status on 8 October 2026 |
+| --- | --- |
+| Roles, organization registration, audit | Delivered and verified on VPS2 |
+| Target schema (41 tables) and runtime cutover | Delivered and verified on VPS2 |
+| Asset catalog, categories, checklists | Runtime present; MF1 pair/inspection workflow not implemented |
+| MF1-MF4 workflow execution | Not implemented. Team-owned work. |
 
-**Goal**: ingest the logged field session handed over by MF2-07, enforce evidence quality, verify AI-assisted defect candidates with a human in the loop, compile the LLM draft, and release the official QA report.
+Report 5 records the nine target acceptance cases (`WF2-005`-`WF2-007`, `WF3-005`-`WF4-005`) as
+`Pending`. They stay `Pending` until matching execution evidence exists; a table or schema row is
+not workflow evidence.
 
-**Main actors**: `INSPECTOR` (report author & verifier), `PROVIDER_MANAGER`, Platform MinIO, Platform AI services, `System`.
+## IX. Source reference
 
-#### 1. Main sequence
-
-| Step | Role / Lane | Activity | Output |
-| :--- | :--- | :--- | :--- |
-| **MF3-01** | INSPECTOR | Upload all high-resolution photos/videos of the logged field session to platform MinIO via chunked upload. | Raw field imagery |
-| **MF3-02** | System | **Telemetry extraction & integrity**: parse GPS 3D coordinates, relative AGL altitude, gimbal angle, timestamp; compute a **SHA-256** checksum per file to protect evidence integrity. | Integrity-protected evidence |
-| **MF3-03** | System & INSPECTOR | **Evidence quality & coverage gate**: automatic checks for blur, GPS validity, and shot-list coverage. Blurry/underexposed/missing-angle images raise an alert so the pilot performs a **same-day re-flight** (re-enters at MF2-07) before leaving site. | Quality-passed evidence set |
-| **MF3-04** | System (YOLO) | Platform YOLO pipeline scans valid images, detects defects (concrete cracks, rebar corrosion, spalling) and **estimates physical dimensions (mm)** from the defect region, GSD, and image geometry. Estimates support the expert; they are not final measurements until verified. Output: **defect candidates** with bounding boxes. | Candidate defects with GSD estimates |
-| **MF3-05** | INSPECTOR (human-in-the-loop) | Review every image and candidate: **Confirm, Modify, or Reject**; add **manual findings** for anything the AI missed, using survey-grade measurement for exact dimensions. Complete the inspection checklist. | Professionally verified defect list |
-| **MF3-06** | System (LLM) | The assistant compiles structured checklist/telemetry/evidence/verified-defect data into a **technical report draft**, marking AI-assisted content and model version. | Report draft |
-| **MF3-07** | INSPECTOR (author) | **Self-verify, edit, take professional responsibility**: review each conclusion against the imagery, fix terminology and omissions, then electronically sign the finished draft before submitting to PROVIDER_MANAGER. Mandatory — an AI draft is never published directly. | Author-verified report |
-| **MF3-08** | PROVIDER_MANAGER | Check administrative completeness and SOW conformity; if complete, **sign and release the official QA report** to the client. The system starts the acceptance countdown $T_{rev}$ snapshotted in the contract. | Released report & $T_{rev}$ started |
-
-#### 2. MF3 processing exceptions
-
-* **Evidence quality gate fails**: flagged images trigger a same-day re-flight alert; the pilot re-enters at **MF2-07** (new-date clearance if the date changed) before ingestion continues.
-* **YOLO/LLM service outage**: automatic **manual fallback** — the inspector boxes defects and drafts on the standard template so the delivery schedule holds.
-
----
-
-### MF4 — Report Acceptance, Direct Settlement & Internal Complaint Handling
-
-**Goal**: the client reviews the report, signs acceptance (or the contract auto-accepts), pays the provider **directly by bank transfer**, and the platform settles its commission through its own invoice; complaints are mediated internally with the platform as independent technical arbiter.
-
-**Main actors**: `CLIENT`, `PROVIDER_MANAGER`, `PLATFORM_OPERATOR`, `System`.
-
-#### 1. Main sequence
-
-| Step | Role / Lane | Activity & money-flow transparency | Output |
-| :--- | :--- | :--- | :--- |
-| **MF4-01** | CLIENT | Review the official report on web/mobile (high-res defect photos, 3D positions, crack measurements, risk grades). The contractual review window $T_{rev}$ counts down. | Report under review |
-| **MF4-02** | CLIENT & PROVIDER_MANAGER | **Clarification loop (if anything is unclear)**: the client raises a clarification request; PROVIDER_MANAGER/INSPECTOR respond with a supplementary or corrected report. Clients never edit professional conclusions directly. | Clarified / revised report |
-| **MF4-03** | CLIENT, PROVIDER_MANAGER & PLATFORM_OPERATOR | **Complaint branch (material defect in the deliverable)**: either party clicks **"Open complaint"** → the system **pauses acceptance and payment confirmation**. `PLATFORM_OPERATOR` works with both sides (collects the client's account, requires the provider's response) and compares raw imagery and flight data on the platform to reach an objective finding — free re-flight, or rejection of the complaint. The platform acts as **independent technical arbiter**; its outcome is internal, never a court or VIAC ruling. | Unified complaint conclusion |
-| **MF4-04a** | CLIENT | **Manual acceptance**: satisfied (or after clarification) → click **"Accept & sign minutes"**. | Acceptance minutes signed by both parties |
-| **MF4-04b** | System | **Contractual auto-acceptance**: when the review period (example: 7 days) expires with no response and no open complaint → the system records acceptance per the contract terms snapshotted in MF1-05. | Auto-acceptance minutes |
-| **MF4-05** | SYSTEM, CLIENT, PROVIDER_MANAGER & PLATFORM_OPERATOR | **Settlement & commission invoicing (direct transfer):** **(1)** SYSTEM generates the electronic Payment Invoice with the contract amount and PROVIDER_MANAGER's bank account. **(2)** CLIENT transfers **100% of the inspection fee directly to PROVIDER_MANAGER's bank account**. **(3)** PROVIDER_MANAGER verifies the credit and clicks **"Confirm receipt"** → status **`PAID`**; the provider sends its VAT service invoice to the client per tax law. **(4)** the system computes platform commission + commission VAT; `PLATFORM_OPERATOR` issues the platform's service invoice to PROVIDER_MANAGER, who pays the commission to the platform separately. | `PAID` status & platform commission invoice (with VAT) |
-
-#### 2. MF4 exceptions
-
-* **A party rejects the internal mediation outcome**: the platform's outcome is an internal mechanism under the Platform Terms only. Both parties retain the right to sue in the competent court or to commercial arbitration (VIAC).
-
----
-
-### MF5 — Defect Rectification, Maintenance Orders & Warranty Closure
-
-**Goal**: turn verified defects from the MF4 report into repair orders, control cost changes via change orders, verify before/after evidence, settle **directly**, and track the warranty to automatic closure.
-
-**Main actors**: `CLIENT`, `PROVIDER_MANAGER` (maintenance-capable provider), `MAINTENANCE_ENGINEER`, `PLATFORM_OPERATOR`, `System`.
-
-#### 1. Main sequence
-
-| Step | Role / Lane | Activity & money-flow transparency | Output |
-| :--- | :--- | :--- | :--- |
-| **MF5-01** | CLIENT | Create a **maintenance ticket** by selecting dangerous defects directly from the MF4 report, and choose one of three dispatch modes: **(a) priority to the inspection provider** (the same company that flew the survey, if it holds verified maintenance capability); **(b) direct appointment** of a known maintenance partner; **(c) open RFQ** to capable maintenance providers. | Maintenance ticket (+ defect dossier from MF4) |
-| **MF5-02** | PROVIDER_MANAGER | **Technical method statement & quotation**: from the drone defect dossier (sharp imagery, 3D positions, mm measurements) plus on-site survey, define the repair method (epoxy injection, polymer mortar, corrosion treatment), full cost estimate, and **warranty commitment (e.g. 6 or 12 months)**. | Technical plan & lump-sum quotation |
-| **MF5-03** | CLIENT & PROVIDER_MANAGER | **Sign the electronic repair contract**: fix the lump-sum price, completion schedule, acceptance criteria, and the free-warranty clause. Contract effective on signature; payment later by direct transfer. | Repair contract in force |
-| **MF5-04** | MAINTENANCE_ENGINEER | Execute the repair on site. **Mandatory capture of before/after evidence pairs at the same camera angle**, uploaded with the materials log. | Before/after evidence pair |
-| **MF5-05** | MAINTENANCE_ENGINEER & PROVIDER_MANAGER | **Change-order flow**: hidden damage beyond the estimate → stop the affected work, photograph, and submit a **change order** for client approval of the additional cost before continuing. | Approved change order |
-| **MF5-06** | CLIENT & PROVIDER_MANAGER | **Completion acceptance**: client compares the before/after pair on the app. Not achieved → **rework loop** (provider fixes free of charge within committed scope); achieved → both parties sign the completion acceptance minutes. | Signed completion minutes |
-| **MF5-07** | SYSTEM, CLIENT, PROVIDER_MANAGER & PLATFORM_OPERATOR | **Settlement & commission (direct transfer):** **(1)** SYSTEM generates the electronic Payment Invoice for the accepted works value with PROVIDER_MANAGER's bank details. **(2)** CLIENT transfers **100% directly to PROVIDER_MANAGER's bank account**. **(3)** PROVIDER_MANAGER confirms receipt → status **`PAID`**. **(4)** the platform issues its commission + commission-VAT invoice to PROVIDER_MANAGER for separate payment. | `PAID` status & platform commission invoice |
-| **MF5-08** | CLIENT & PROVIDER_MANAGER | **Warranty activation & ticket closure**: the system starts the warranty countdown snapshotted in the order. Defect recurrence within warranty → the client opens a warranty claim and the provider **must send an engineer to fix it free of charge** per contract. Warranty expires with a stable structure → the system **auto-closes the ticket**, completing 100% of the lifecycle. | Closed maintenance ticket (100% lifecycle) |
-
-#### 2. Maintenance branches: rework / re-inspection
-
-* **Before/After acceptance failure (rework loop)**: if the after-photo shows voids, wrong material colour, or an untreated crack → the client rejects acceptance with images. Provider-fault rework within committed scope is free; out-of-scope causes require a change request first.
-* **Post-repair drone re-inspection**: for high or hazardous structures the client may open a new inspection request (or the contractual re-inspection mechanism) to photograph the repair quality from the air.
-
----
-
-## VI. RACI Matrix (v3.4)
-
-| Process / core business | `PLATFORM_ADMIN` | `PLATFORM_OPERATOR` | `CLIENT` | `PROVIDER_MANAGER` | `INSPECTOR` | `MAINTENANCE_ENGINEER` |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **SF: Provider vetting & UAV registration (Decree 288)** | I | **A / R** | I | **R** | C | - |
-| **SF: Asset profiling & no-fly alerts** | I | C | **A / R** | - | - | - |
-| **Policy: dynamic marketplace parameters** | I | **A / R** | I | I | - | - |
-| **MF1: Smart eligibility filter & RFQ** | - | C | **A** | **R** | - | - |
-| **MF1: E-contract signing (no funding step)** | I | C | **A / R** | **R** | - | - |
-| **MF2: Mission planning (GSD, overlap, shot list)** | - | - | I | **A** | **R** | - |
-| **MF2: Flight-legal dossier & safety sign-off** | I | C | I | **A / R** | **R (Pilot)** | - |
-| **MF2: Field execution, incident handling & re-flight** | - | - | I | I | **A / R** | - |
-| **MF3: YOLO detection & measurement verification** | - | - | - | I | **A / R** | - |
-| **MF3: LLM draft self-review & QA release signature** | - | - | I | **A (Release)** | **R (Author)** | - |
-| **MF4: Acceptance & payment invoice / direct transfer** | I | C | **A / R** | **R (Confirm receipt)** | - | - |
-| **MF4: Complaint mediation & independent technical arbitration** | I | **A / R** | C | C | C | - |
-| **MF5: Technical plan & maintenance quotation** | - | - | **A** | **R** | - | C |
-| **MF5: Before/after execution & change order** | - | - | **A** | I | - | **R** |
-| **MF5: Completion acceptance, warranty clock & auto-close** | I | C | **A** | I | - | I |
-| **Commission & commission-VAT invoicing** | I | **A / R** | I | **R (Payer)** | - | - |
-
-*Legend*:
-* **R (Responsible)**: performs the work.
-* **A (Accountable)**: final approval and ownership of the outcome.
-* **C (Consulted)**: provides technical cross-check input.
-* **I (Informed)**: receives the outcome.
+- [Report 3 Functional Requirements](../reports/report-3-software-requirement-specification/03-functional-requirements.md) — binding requirements text and step definitions
+- [Database design](database-design.md) — 41-table storage contract and authorization invariants
+- [Backend architecture](../backend/architecture.md) — module map and runtime status
+- [Authentication and access control](../backend/authentication-and-authorization.md) — identity and registration contract
+- [Report 5 test report](../reports/report-5-test-report/) — test cases and recorded results
+- Historical marketplace reference: [business-flows-marketplace-v3.4.md](business-flows-marketplace-v3.4.md)
