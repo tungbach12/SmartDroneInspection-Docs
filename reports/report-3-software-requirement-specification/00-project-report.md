@@ -9,7 +9,9 @@ source: "report3-software-requirement-specification.docx"
 
 ## 1. Status Report
 
-As of 22 September 2026, SmartDroneInspection has an aligned requirements baseline for the four business workflows: asset registration and periodic scheduling (WF1), inspection request review and assignment (WF2), inspection execution and report release (WF3), and maintenance resolution and re-inspection (WF4). The baseline covers the five current roles: Admin, Client, Service Manager, Inspector, and Maintenance Engineer.
+**As of 7 October 2026**, Report 3 specifies the requested Enterprise SaaS target with four human roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`) and four connected Main Flows (MF1–MF4). MF1 manages workforce/Drone/compliance records, creates assets with an Inspector + Drone pair and creates inspections; MF2 prepares/releases and records field sessions; MF3 records Inspector evidence-quality decisions, AI Vision candidates, LLM report drafting and qualified human publication; MF4 manages a repair team, designated lead/report author, approved estimates/changes, actuals, LLM completion report, independent acceptance and cost reconciliation.
+
+This **Report 3 target revision** supersedes the prior multi-provider requirements within this report. Earlier baselines remain in the record of changes and Git history. It defined requirements, not implementation or executed test results. In a separate backend repository, the Enterprise SaaS reset began on 7 October 2026. V24 aligns identity vocabulary, V25 adds the target schema, and V26 completed the runtime cutover to the exact 41-table target inventory on 8 October 2026 (verified by `./mvnw clean verify`, 88 tests, exit 0). MF1–MF4 workflow behavior remains outside reset scope. Selected companion documentation was reconciled on 7 October while preserving Report 5 test evidence; other references and client repositories may remain on earlier contracts. No runtime verification or completed-feature claim is made.
 
 | Area | Status | Evidence and next step |
 | --- | --- | --- |

@@ -136,17 +136,22 @@ Unlike fragmented manual communications and generic software lacking complete se
 
 ## 6. Project Scope & Limitations
 
-The project scope covers four main business workflows.
+The approved redesign scope separates one-time setup from the **five core transactional Main Flows** for a multi-provider infrastructure inspection platform. Organization registration, Provider vetting, asset master-data management, and recurring schedule setup are a **Supporting Flow (SF)**: prerequisites for work, not Main Flows.
 
-WF1 Asset Registration & Periodic Inspection Schedule Processing.
+- **SF — Organization, Provider & Asset Setup**: Client organization registration; legal/provider qualification review by `PLATFORM_OPERATOR`; asset documents, coordinates and periodic schedule setup. SF does not count among MF1–MF5.
+- **MF1 — Survey Request, Quotation Sourcing & Electronic Contract**: Client creates an inspection request and sources providers directly or by RFQ; Providers submit versioned direct-service quotes; the parties sign an electronic service order that takes effect on e-signature. There is no funding step: payment is a direct bank transfer made after acceptance, and the Platform never holds money.
+- **MF2 — Drone Mission Planning & Airspace Clearance**: Provider workforce prepares mission-specific GSD and overlap targets, camera/sensor assumptions, AGL and structural shot items, plus airspace/permit checks. Waypoint coordinates are optional for waypoint-assisted capture; manual piloting under the approved shot plan is supported. Targets are agreed in the SOW/Mission Plan for the structure and equipment, and the platform does not pilot or autonomously route the drone.
+- **MF3 — Drone Survey, Telemetry, AI Verification & QA Report**: Inspector captures approved mission evidence, verifies candidates, and checks/edits the report draft they authored; Provider Manager checks deliverable completeness and releases the report.
+- **MF4 (target)**: Client reviews the report within the order-snapshotted policy period; after acceptance the System issues a Payment Invoice, the Client transfers 100% directly to the Provider's bank account, the Provider confirms receipt to reach `PAID`, and the Platform invoices its uniform commission to the Provider. A complaint pauses acceptance and payment as workflow state `DISPUTED`. `PLATFORM_OPERATOR` handles internal complaints under published terms; no legally final arbitration power is claimed.
+- **MF5**: Verified drone findings can create separately quoted and approved maintenance work. Client and Provider agree the warranty terms; commission and warranty duration are configured and snapshotted per order, with before/after evidence, change control, direct transfer on acceptance and the warranty countdown to automatic ticket closure.
 
-WF2 Inspection Request Review & Service Assignment.
+`PLATFORM_OPERATOR` owns commercial policy publication, including the single uniform rate for all Providers, review period, cancellation policy and warranty duration. Each order stores the policy versions and terms accepted at confirmation; later policy edits apply prospectively, not retroactively. `PLATFORM_ADMIN` owns technical configuration such as infrastructure and AI operational settings, not commercial decisions. These are target requirements, not deployed capabilities.
 
-WF3 Inspection Execution, AI-assisted Finding Verification & Report Approval; and
+The platform supports six canonical roles across three actor zones: `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`. `PLATFORM_ADMIN` manages technical configuration and security; `PLATFORM_OPERATOR` vets Providers, supports customer/provider operations, tracks payment status and issues commission invoices, and resolves disputes under published Platform Terms. Provider organizations are independent businesses whose staff and data are isolated from other Providers.
 
-WF4 Maintenance, Defect Resolution, and Re-inspection. The platform supports five human roles: Admin, Client, Service Manager, Inspector, and Maintenance Engineer. AI services are supporting system integrations; drone flight control is outside the platform.
+In the proposed target, Clients manage infrastructure assets, request quotations, select verified Providers, approve electronic Service Orders, transfer the agreed service amount directly to the Provider's bank account after acceptance, review deliverables and file complaints. Providers quote their direct field-flight, engineering, and logistics services; they do not add separate YOLO/LLM/data/storage charges to Client quotations. Platform sets and publishes **one standard, non-negotiable commission rate for all Providers**; each Provider accepts the terms before taking new orders, and the rate/version is locked per order. Platform funds its own AI/data/storage operating costs from its commission revenue and other resources. No numerical commission is selected yet.
 
-Within the scope, a Client represents one customer organization and can self-register that organization, manage its assets, request or schedule inspections, approve quotations and reports, and create maintenance tickets. Service Managers review requests, prepare quotations and orders, assign field staff, verify deliverables, and release customer-visible results. Inspectors and Maintenance Engineers work only on their assigned inspections or maintenance tasks.
+The proposed product must be assessed against *Luật Phòng không nhân dân 2024 (Luật số 49/2024/QH15, as amended)*, *Nghị định 198/2025/NĐ-CP*, *Nghị định 288/2025/NĐ-CP*, and published restricted-airspace information at `cambay.mod.gov.vn`. Electronic contracts and data messages follow *Luật Giao dịch điện tử 2023*; GPS and hashes support traceability but do not automatically create conclusive legal evidence. For an October 2026 launch, assess *Luật Thương mại điện tử 2025 (Luật số 122/2025/QH15)* and *Nghị định 248/2026/NĐ-CP*, plus conditionally applicable consumer protection requirements based on the transaction's purpose. Payment is an ordinary bank transfer between the parties (Decree 52/2024/NĐ-CP); the Platform is not a payment intermediary and operates no deposit account. None of the new commercial or regulatory integrations is claimed as implemented.
 
 The project may include assembling and configuring a prototype drone using commercially available components for demonstration and system integration. The drone is manually operated using its designated controller and is used to capture inspection evidence for upload to SmartDroneInspection.
 
@@ -160,21 +165,21 @@ FE-01: Identity & Access Governance. Client self-registration creates one active
 
 FE-02: Asset Registry & Inspection Schedule. Clients create and manage their organization’s assets, documents, inspection history and recurring schedules. Admins maintain categories and checklist templates. WF1 generates periodic requests with an Asset + Schedule + Due Cycle idempotency key.
 
-FE-03: Inspection Request & Work Assignment. WF2 unifies PERIODIC and AD_HOC requests. Client request details and Service Manager review lead to a versioned quotation and service-order confirmation. The Client approves post-service payment terms before assignment; no upfront payment or online payment gateway is required.
+FE-03 (target): Inspection Sourcing, Quotation, Service Order & Assignment. MF2 proposes direct Provider selection or open RFQ, versioned Provider quotations for direct service costs, and an electronic Service Order with one published Platform-set commission rate locked for all Providers. There is no advance funding: after acceptance the Client pays the Provider directly by bank transfer, and the Platform holds no customer funds itself. Platform AI/data/storage costs remain Platform operating costs, not Provider quotation lines.
 
 FE-04: Inspection Execution & Evidence Management. The Flutter application supports assignment acceptance, inspection sessions, evidence upload/retry and metadata. Evidence records the inspection, asset, Inspector, capture time and source; GPS or external mission references are retained when available. Manual drone piloting stays outside the platform.
 
 FE-05: YOLO-assisted Defect Detection & Verification. Server-side inference generates candidates with defect label, confidence, bounding box and model version. Inspector Confirm, Modify, Reject and Manual Add actions determine official findings. Unverified candidates are excluded from official defect statistics.
 
-FE-06: Inspection Report & Approval. WF3 combines checklist results, evidence and verified findings into a versioned report. Inspector submission is followed by peer review by another Inspector and Service Manager release. Accepted versions are immutable; corrections create a new version and preserve approval history. Client acceptance is the inspection billing milestone.
+FE-06: Inspection Report, Acceptance & Internal Dispute Resolution. MF3/MF4 combine verified findings into versioned reports and Platform-hosted LLM narrative assistance; the report-author Inspector verifies/edits the AI draft and `PROVIDER_MANAGER` checks completeness and releases it. The Client accepts, requests clarification, or files a complaint; a released report is eligible for settlement under its agreed review period. `PLATFORM_OPERATOR` handles disputes internally under published Platform Terms; this does not displace court or commercial-arbitration rights.
 
-FE-07: Maintenance & Defect Resolution. WF4 links approved defects to separately confirmed maintenance orders and tickets. The platform supports Engineer assignment after the maintenance order and post-service payment terms are approved. The Engineer uploads before/after evidence and marks the work resolved; the Service Manager requests rework or releases the result, and the Client closes it or requests a new re-inspection through WF2. Client acceptance is the maintenance billing milestone.
+FE-07: Maintenance, Warranty & Resolution. MF5 links accepted verified defects to a separately contracted maintenance order settled by direct bank transfer — no escrow and no payment provider are involved. A Maintenance Engineer assesses technical scope and submits before/after evidence. On Client completion acceptance the Client transfers the agreed amount directly to the Provider, and the warranty countdown starts with nothing retained; rework, re-inspection, and warranty dispute remain distinct outcomes.
 
 FE-08: Dashboard, Analytics & Notifications. Scoped views summarize due and overdue inspections, request and report status, workload, verified defects, maintenance, asset history and service/payment summaries. Notifications support assignments, reviews and deadlines without requiring live telemetry.
 
 ![Report 1 figure](assets/image15.png)
 
-Figure 1. The four service workflows and the re-inspection return to WF2.
+Figure 1. Legacy WF1–WF4 service workflow diagram retained from the earlier baseline; it does not depict the approved MF1–MF5 multi-provider target and must be regenerated before final submission.
 
 ### 6.2 Limitations & Exclusions
 
@@ -184,9 +189,9 @@ LI-1: The platform does not provide autonomous drone flight control, flight-path
 
 LI-2: AI is limited to generating candidate findings. An Inspector must review and verify each candidate before it can become an official finding. The system does not automatically publish AI-generated findings.
 
-LI-3: A Client representative may self-register a new organization and create the first Client account. The organization and account are activated immediately after successful registration. Self-registration cannot create or assign Admin, Service Manager, Inspector, or Maintenance Engineer roles. Anonymous access to system data is not supported.
+LI-3: A Client representative may self-register a new customer organization and its first Client account. Provider organization onboarding requires separate Platform Operator review. Self-registration cannot grant `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `PROVIDER_MANAGER`, `INSPECTOR`, or `MAINTENANCE_ENGINEER` roles. Anonymous access to protected system data is not supported.
 
-LI-4: Access is strictly scoped. A Client can access only data belonging to the Client’s organization. An Inspector and Maintenance Engineer can access only assignments explicitly allocated to them. A Service Manager can access only the service operations required by assigned requests and orders.
+LI-4: Access is scoped by customer organization, provider organization, and accepted assignment. A Client cannot view another customer's records; a Provider cannot view a competitor's quotation, workforce, or evidence; an Inspector or Maintenance Engineer can access only authorized assigned work. Platform Admin and Operator have separate technical and business authority.
 
 LI-5: An inspection report version accepted by the Client is immutable. Any subsequent correction or change must create a new version and preserve the previously accepted version.
 

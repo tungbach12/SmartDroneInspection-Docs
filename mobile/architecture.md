@@ -41,7 +41,7 @@ Current features include `assets`, `auth`, `inspections`, `tasks`, and `profile`
 
 ## Role boundaries
 
-The mobile client is designed for `INSPECTOR` and `MAINTENANCE_ENGINEER` workflows. Client organization registration and customer approvals are web-first experiences, although the mobile API exposes the same controlled registration contract for clients that need it. Route visibility can improve the user experience, but the backend remains responsible for assignment scope, organization scope, and all final authorization decisions.
+The mobile client is designed for `INSPECTOR` and `MAINTENANCE_ENGINEER` workflows. Organization registration and customer approvals are web-first experiences, although the mobile API exposes the same controlled registration contract for clients that need it. Route visibility can improve the user experience, but the backend remains responsible for assignment scope, organization scope, and all final authorization decisions.
 
 ## Inspection capture
 

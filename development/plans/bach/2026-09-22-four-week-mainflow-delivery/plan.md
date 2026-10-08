@@ -15,6 +15,10 @@ result decision, and post-service invoice status. Each flow has one owner and an
 testable output. Downstream owners start from test fixtures, then replace them with the real handoff
 as predecessor flows become ready.
 
+> **Target Architecture Redesign (2026-10-03):** The target platform expands to a Multi-Provider marketplace with six canonical roles (`PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`). Organization/provider onboarding, vetting, asset master data and schedules form Supporting Flow (SF); five transactional Main Flows (MF1–MF5) cover request/quotation/conditional funding, drone mission planning and clearance, survey/evidence/AI/QA, order review/partner settlement/internal complaint, and maintenance with agreed retention/warranty.
+>
+> MF2 mission values are structure/equipment-specific and agreed in the SOW/Mission Plan. `PLATFORM_OPERATOR` publishes versioned commercial policy, including one uniform Provider commission and any funding, review, cancellation, retention or warranty terms; orders snapshot accepted values and updates are prospective. `PLATFORM_ADMIN` controls technical settings. Platform provides and pays for AI/data/MinIO/LLM services. Payment-partner-dependent flows and internal complaint handling are target scope only; the Operator is not a legal arbitrator or funds custodian. This scope requires separate sprint re-estimation and new acceptance tests; the schedule and effort below remain the earlier v1 baseline.
+
 This is a **time-boxed main-flow release**, not full parity with every optional SRS screen and
 operational exception. The four-week target assumes four full-time members, a working PostgreSQL
 and MinIO environment, and no redesign of the existing authentication or physical schema.
@@ -91,7 +95,7 @@ If the four members are not full-time, re-estimate dates before Jira sprint comm
 | Gate | Target | Producer → consumer | Contract and test |
 | --- | --- | --- | --- |
 | G1 | End W1 | Shared auth/catalog → all flows | Five roles and seed fixture login; V1–V9 migration and MinIO smoke test. |
-| G2 | End W2 | WF1 → WF2 | One periodic request per asset/schedule/due cycle; Client can complete it. |
+| G2 | End W2 | WF1 → WF2 | One periodic request per asset/schedule/due cycle; the request enters Service Manager review. |
 | G3 | End W2 | WF2 → WF3 | Confirmed order plus accepted Inspector assignment creates ready inspection. |
 | G4 | End W3 | WF3 → WF4 | Released and Client-accepted immutable report exposes verified findings for ticket creation. |
 | G5 | W4 | WF4 → WF2 | Re-inspection decision creates a linked ad hoc request; no module dependency cycle. |

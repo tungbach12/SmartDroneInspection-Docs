@@ -39,13 +39,13 @@ Table of Contents
 
 ### 1.1 Scope & Estimation
 
-SmartDroneInspection is a B2B infrastructure inspection service platform. The baseline covers Client self-registration of a customer organization, asset and inspection-zone management, schedules, service requests and orders, direct evidence upload to MinIO, human-verified YOLO findings, Inspector-reviewed LLM report drafting, approval and maintenance follow-up. Inspection and maintenance use separate post-service billing milestones with a shared invoice status lifecycle; the first release records external or manual payment confirmation and does not integrate a payment gateway. Direct upload is the core path. Autonomous flight control, complete 3D reconstruction, real payment settlement and full enterprise CMMS are outside the baseline. The eight bold parent rows map one-to-one to FE-01 through FE-08; each parent is a software feature roll-up and each numbered child is an estimable software function. Parent rows are not assigned as separate Jira work; the child functions are. The 135 man-days include analysis, design, implementation, testing and documentation for those functions.
+SmartDroneInspection's **implemented v1 baseline** is an inspection-and-maintenance service platform with five existing roles and separate post-service billing records; it does not have deployed multi-provider onboarding, the target direct-transfer settlement workflow (Payment Invoice, Provider receipt confirmation, commission invoicing), drone mission-planning workflow, or formal dispute management. The **approved target redesign** separates organization/provider/asset setup into a Supporting Flow (SF), then defines five transactional Main Flows. The drone-centric MF2 covers mission-specific GSD/overlap, shot planning and airspace clearance; commercial policy uses one uniform Platform-set commission accepted by every Provider. `PLATFORM_OPERATOR` configures and publishes commercial policies; `PLATFORM_ADMIN` remains responsible for technical settings. Policy versions and accepted values are snapshotted to each order so later policy changes apply prospectively. Settlement in the target is a direct bank transfer from Client to Provider with the Platform invoicing its commission separately; no payment-partner integration is planned or required. Platform supplies YOLO, data processing, MinIO, and LLM narrative assistance for Provider/Client use and bears those operating costs; Provider quotations do not separately charge Clients for that infrastructure. These are target-scope changes, **not work already delivered**. The existing WBS and 135 man-days below describe the earlier baseline and must be re-estimated before anyone claims the redesign is deliverable within it. Drone flight control, unlicensed deposit custody and legal arbitration by the Platform remain out of scope.
 
 | # | WBS Item | Complexity | Est. Effort<br>(man-days) |
 | --- | --- | --- | --- |
 | 1 | FE-01 Identity & Access Governance |  | 16 |
 | 1.1 | Client organization self-registration, JWT authentication, account and profile management | Medium | 5 |
-| 1.2 | Role- and scope-based authorization for five roles | Complex | 6 |
+| 1.2 | Role- and scope-based authorization for five implemented v1 roles (six-role target requires re-estimation) | Complex | 6 |
 | 1.3 | Organization and assignment scope enforcement with audit logs | Complex | 5 |
 | 2 | FE-02 Asset Registry & Inspection Schedule |  | 16 |
 | 2.1 | Asset documents and inspection history management | Medium | 6 |
@@ -68,7 +68,7 @@ SmartDroneInspection is a B2B infrastructure inspection service platform. The ba
 | 5.4 | Include only Inspector-verified defects in official reports and statistics. | Simple | 3 |
 | 6 | FE-06 Inspection Report & Approval |  | 16 |
 | 6.1 | LLM-assisted versioned report compilation from verified data | Complex | 5 |
-| 6.2 | Inspector peer review and Service Manager release workflow | Complex | 6 |
+| 6.2 | Inspector AI-draft verification/edit and Provider Manager completeness/release workflow | Complex | 6 |
 | 6.3 | Approved-version immutability and correction history | Complex | 5 |
 | 7 | FE-07 Maintenance & Defect Resolution |  | 17 |
 | 7.1 | Approved-defect linkage to maintenance orders and tickets | Medium | 4 |
@@ -88,7 +88,7 @@ Quality: 100% of Must requirements are linked to test evidence; all critical wor
 
 | # | Testing Stage | Test Coverage | No. of Defects | % of Defect | Notes |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Reviewing | 100% baseline documents |  |  | Peer review, traceability and feedback closure. |
+| 1 | Reviewing | 100% baseline documents |  |  | Cross-review, traceability and feedback closure. |
 | 2 | Unit Test | >=80% branch coverage in core rule modules |  |  | Permissions, pricing, configuration and state transitions. |
 | 3 | Integration Test | 100% critical API contracts |  |  | PostgreSQL, MinIO, AI, and manual invoice/payment-status recording. |
 | 4 | System Test | 100% critical end-to-end scenarios |  |  | No Critical/High defect; mainflows, failures and organization isolation. |
@@ -106,7 +106,7 @@ The team reviews the following risks weekly and before each review gate.
 | --- | --- | --- | --- | --- |
 | 1 | Scope exceeds four-person capacity. | High | High | Freeze the baseline, re-estimate weekly and defer optional work. |
 | 2 | Dataset or YOLO results do not support the selected defect classes. | Medium | High | Validate data rights and labels early, limit classes and keep Inspector verification mandatory. |
-| 3 | LLM draft contains omissions or unsupported statements. | High | Medium | Restrict input to authorized findings; Inspector reviews and edits every draft. |
+| 3 | LLM draft contains omissions or unsupported statements. | High | Medium | Restrict input to authorized findings; the report-author Inspector checks each AI-generated statement against evidence, verified findings, checklist and SOW, edits it, and records confirmation before Provider Manager completeness/release. |
 | 4 | Third-party services or APIs may be unavailable, rate-limited, or change their interfaces. | High | Medium | Isolate each external integration behind an adapter, add timeout and retry handling, provide local or fallback alternatives where possible, and prepare clearly labelled mocks for demonstration. |
 | 5 | Interrupted upload loses or duplicates evidence. | High | Medium | Implement a recoverable upload queue with checksum verification and idempotent retry handling to prevent data loss or duplication during connection interruptions. |
 | 6 | Customer data is exposed across organizations. | High | Medium | Enforce server-side scope and test two-organization access denial. |
@@ -114,10 +114,18 @@ The team reviews the following risks weekly and before each review gate.
 | 8 | Member absence or prototype/site access delays the demonstration. | Medium | Medium | Maintain backup owners, setup notes and approved prerecorded evidence. |
 | 9 | Business parameters or AI thresholds are hardcoded or cannot be explained. | High | Medium | Store versioned policy values in database configuration, and record experiment rationale and metrics. |
 | 10 | PMP, SRS, Jira, code or review feedback becomes inconsistent. | High | Medium | Run a weekly consistency audit and maintain a Feedback Tracker with owner, deadline, evidence and status. |
+| 11 | Multi-provider target leaks Provider bids, workforce data or evidence across organizations. | High | Medium | Require tenant-scoped authorization and negative tests before launch; do not treat UI visibility as a security boundary. |
+| 12 | A design drifts toward Platform-held funds, which would require a payment-intermediary licence the Platform does not seek. | High | High | Keep custody out of scope: settlement stays a direct Client-to-Provider bank transfer with Platform invoices only; reject any design or change that routes money through the Platform. |
+| 13 | Uniform Provider commission `r` cannot cover Platform-funded YOLO/LLM/MinIO, payment, support or refund cost. | High | Medium | Publish one standard rate only after cost-based modeling; lock the policy version per new order and reverse commission on refunded service value. |
+| 14 | Target dispute/autosettlement terms are treated as statutory or deployed without express assent. | High | High | Treat time windows and remedies as configurable proposed contract terms; snapshot accepted values and preserve court/commercial-arbitration rights. |
+| 15 | Drone registration, pilot credentials and permits are judged under superseded or incomplete provisions. | High | Medium | Recheck Law 49/2024 as amended plus Decrees 198/2025 and 288/2025 and actual mission conditions before launch. |
+| 16 | Mission-specific GSD, overlap, shot-list or camera assumptions are incomplete or unsuitable for the structure/equipment, leading to unusable evidence or unsafe plans. | High | Medium | Require Provider-qualified planning, SOW agreement, equipment-specific calculation, independent review and applicable permit/airspace verification before mission release; validate waypoint fields only when a waypoint-assisted route is selected, and allow manual piloting against the approved shot plan. |
+| 17 | Commercial policy changes alter an already accepted order or produce inconsistent commission settlement. | High | Medium | Version policies, require authorized Operator publication and audit, show terms before acceptance, snapshot values/version references into each order, and settle only from that snapshot. |
+| 18 | Settlement depends on the parties' own bank transfers, which are outside platform control (late, partial or unconfirmed payment). | High | Medium | Mitigate with the Payment Invoice → Provider receipt confirmation workflow, `PAID` status derived from Provider confirmation, separate commission invoicing and a complete audit trail; the Platform holds no funds. |
 
 ## 2. Management Approach
 
-The team uses iterative, risk-driven delivery with a prioritized Jira backlog, weekly planning, peer review and demonstrations at the university review gates. Trần Hoàng Trung Hiếu coordinates planning and reporting. Each WBS leaf has one primary owner, acceptance criteria and a due week in Jira; the Responsibility Matrix and Deliverables table provide the PMP baseline.
+The team uses iterative, risk-driven delivery with a prioritized Jira backlog, weekly planning, code/document cross-review at project quality gates, and demonstrations at the university review gates. This project-governance practice is separate from the product's MF3 report workflow. Trần Hoàng Trung Hiếu coordinates planning and reporting. Each WBS leaf has one primary owner, acceptance criteria and a due week in Jira; the Responsibility Matrix and Deliverables table provide the PMP baseline.
 
 ### 2.1 Project Process
 
@@ -139,7 +147,7 @@ Quality is managed through prevention, review and layered testing. Requirements,
 
 - Integration Testing: verify web/mobile APIs, PostgreSQL, MinIO, AI services and manual invoice/payment-status recording. No online payment callback is in scope for the first release.
 
-- System Testing: execute the four workflows, all roles, AI failure paths, report approval, maintenance and access isolation.
+- System Testing: for the v1 baseline, execute its four existing WF1–WF4 workflows, five current roles, AI failure paths, report approval, maintenance and access isolation. MF1–MF5 and six proposed roles require new acceptance tests before they can be described as delivered.
 
 ### 2.3 Training Plan
 
@@ -198,7 +206,7 @@ D~Do; R~Review; S~Support; I~Informed; <blank>- Omitted
 | 5.3 Inspector verification actions (W11) | D | S | R | S | R |
 | 5.4 Verified-only findings and statistics (W11) | S | R | D | S | R |
 | 6.1 LLM-assisted versioned report compilation (W11) | D | S | R | S | R |
-| 6.2 Submission, review and approval workflow (W11) | D | S | R | S | R |
+| 6.2 Inspector AI-draft verification and Provider Manager completeness/release (W11) | D | S | R | S | R |
 | 6.3 Approved-version immutability and history (W11) | R | S | S | D | R |
 | 7.1 Defect linkage to maintenance orders/tickets (W11) | R | S | S | D | I |
 | 7.2 Engineer assignment after approved post-service terms (W11) | R | S | S | D | R |

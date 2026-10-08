@@ -11,6 +11,10 @@
 > suggested frequency, the Manager reviews the proposals, and the Client selects exactly one to
 > create the active schedule. See [the WF1 schedule-proposal spec](../hieu/2026-09-25-wf1-schedule-proposal-flow/spec.md).
 
+> **Amended 2026-10-03: Drone-centric Multi-Provider target.** The target architecture separates organization/provider registration, vetting, asset master data and schedule setup into Supporting Flow (SF), outside five transactional Main Flows. MF1 covers request/RFQ, quotation, electronic order and partner-dependent conditional funding; MF2 covers structure/equipment-specific Drone Mission Planning (SOW-agreed GSD, overlap, AGL/waypoints, shot items and applicable airspace/permit verification); MF3 covers drone evidence, Platform AI assistance, Inspector verification and QA; MF4 covers order-policy review/settlement and internal complaint handling; MF5 covers maintenance and contractually agreed retention/warranty.
+>
+> The six target roles remain `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`. `PLATFORM_OPERATOR` publishes versioned commercial policy (one uniform commission rate for all Providers and any accepted funding/review/cancellation/retention/warranty terms); `PLATFORM_ADMIN` owns technical settings. Each confirmed order snapshots its accepted policy version/values and later updates are prospective. No numeric business/mission defaults are implied. Platform AI/data/MinIO/LLM costs are Platform operating costs. Partner-dependent funding and internal complaints remain proposed target scope, not deployed features or legal arbitration. See `project-reference/business-flows.md` and `development/plans/2026-10-03-drone-centric-mainflows-dynamic-config-plan.md`.
+
 
 ## User Scenarios & Testing
 
@@ -35,9 +39,10 @@ completing WF2.
 
 ### User Story 2 - Convert a request into accepted field work (Priority: P1)
 
-A Client submits an ad hoc or periodic request. A Service Manager reviews it, prepares a versioned
-quotation and order, and assigns an Inspector after Client approval. The Inspector accepts or
-rejects; a rejection returns the work for reassignment.
+The system generates a periodic request from an active schedule, or a linked ad hoc request is
+created for re-inspection. A Service Manager reviews it, prepares a versioned quotation and order,
+and assigns an Inspector after Client approval. The Inspector accepts or rejects; a rejection
+returns the work for reassignment.
 
 **Independent Test**: Start with a seeded authorized asset or a WF1 periodic request and finish
 with a confirmed order and accepted assignment. No inspection execution is required to verify WF2.

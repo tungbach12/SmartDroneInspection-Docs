@@ -4,6 +4,8 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
+**Implementation boundary (updated 2026-10-07):** The earlier WF1–WF4 cases are historical/retired v1 five-role baseline tests, not the current 2026-10-07 Enterprise SaaS target (four human roles — `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER` — and four connected Main Flows MF1–MF4). Their recorded `Passed` results remain valid evidence only for the v1 behavior actually exercised; do not reuse them as proof of target behavior or the current reset branch. Backend V24/V25/V26 completed the identity, target-schema and runtime-cutover work on 8 October 2026, and that execution is recorded in the FE-01 Round 2 sections. MF1–MF4 workflow implementation remains out of reset scope. All nine target acceptance cases remain `Pending`, with no execution date/tester until actually run. The original workbook and preview output remain unchanged.
+
 ## Naming layers and mapping
 
 `Feature 1` and `Feature 2` are fixed workbook sheet names from the supplied
@@ -43,23 +45,25 @@ number look like an SRS feature code.
 | `01-test-cases/` | `Test Cases` | The index of all cases and their preconditions. |
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary. |
 | `03-features/fe-01-identity-access-governance.md` | Support evidence | FE-01 gates; not part of the 15 WFx workbook cases. |
-| `03-features/fe-02-asset-registry-inspection-schedule.md` | `Feature 1` sheet | WF1-001–WF1-004. |
-| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 1` sheet | WF2-001–WF2-004. |
-| `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 2` sheet | WF3-001–WF3-002. |
-| `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 2` sheet | WF3-003. |
-| `03-features/fe-06-inspection-report-approval.md` | `Feature 2` sheet | WF3-004. |
-| `03-features/fe-07-maintenance-defect-resolution.md` | `Feature 2` sheet | WF4-001–WF4-003. |
+| `03-features/fe-02-asset-registry-inspection-schedule.md` | `Feature 1` sheet | v1 SF prerequisite cases WF1-001–WF1-004, WF1-011–WF1-016. |
+| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 1` sheet | v1 WF1/WF2 cases and target MF1/MF2 cases WF2-005–WF2-007. |
+| `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 2` sheet | v1 MF3/WF3-001–WF3-002. |
+| `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 2` sheet | v1 MF3/WF3-003. |
+| `03-features/fe-06-inspection-report-approval.md` | `Feature 2` sheet | v1 MF3/WF3-004 and target MF3/MF4 cases WF3-005–WF3-008. |
+| `03-features/fe-07-maintenance-defect-resolution.md` | `Feature 2` sheet | v1 WF4/WF4-001–WF4-003 and target MF4 cases WF4-004–WF4-005. |
 | `03-features/fe-08-dashboard-analytics-notifications.md` | Coverage gap | No WFx case in the current baseline; do not infer execution. |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
 | `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
 
-## Current test scope
+## Current and target test scope
 
-The working cases cover the four main business flows without testing drone
-flight control. The fixed workbook sheets combine these groups, while FE codes
-identify SRS capabilities and WF codes retain business-flow traceability:
+Historical cases cover the v1 WF1–WF4 baseline and do not test autonomous drone
+flight. Target-only cases extend traceability to the Enterprise SaaS target with
+four human roles and four connected Main Flows (MF1–MF4). The fixed workbook
+sheets combine groups, while FE codes identify SRS capabilities and WFx IDs
+retain stable case identity:
 
-1. FE-01 — identity/access foundation, including the W3 auth/migration smoke gate and shared API contract supporting checks. These supporting gates are documented separately and are not additional functional workbook cases.
+1. FE-01 — identity/access foundation, including the W3 auth/migration smoke gate and shared API contract supporting checks. These supporting gates are documented separately and are not additional functional workbook cases. Target FE-01 organization/entitlement and separation-of-duties checks remain Pending support gates outside the workbook count.
 2. FE-02 — asset and inspection scheduling (WF1; `WF1-001`–`WF1-004`).
 3. FE-03 — client request, quotation/order, and service assignment (WF2; `WF2-001`–`WF2-004`).
 4. FE-04 — inspection execution and evidence (WF3; `WF3-001`–`WF3-002`).
@@ -67,16 +71,27 @@ identify SRS capabilities and WF codes retain business-flow traceability:
 6. FE-06 — inspection report and approval (WF3; `WF3-004`).
 7. FE-07 — maintenance ticket, assessment/execution, rework, and billing status (WF4; `WF4-001`–`WF4-003`).
 8. FE-08 — dashboard, analytics, and notifications. No test case is assigned
-   in the current 15-case baseline; this is an explicit coverage gap.
+   in the baseline or added target cases; this remains an explicit coverage gap.
+
+The nine cases WF2-005–WF4-005 are target acceptance criteria only and remain
+`Pending` until the associated implementation and verification evidence exist.
+They cover workspace/subscription entitlement, MF1 asset + Inspector/Drone pair setup,
+MF2 mission preparation/readiness, MF3 human verification and immutable report
+publication, and MF4 team/cost/acceptance boundaries. Their existence does not claim
+runtime delivery.
 
 The FE-01 W3 auth/migration smoke gate is tracked by Jira `SCRUM-58/T001` under
-`SCRUM-108`; it is a delivery gate and is not counted as one of the 15
-functional Report 5 cases. MinIO/evidence storage is tracked separately under
-FE-04/WF3 task `T025/SCRUM-85`. CI uses S3Mock for S3 API integration coverage;
-that mock does not replace runtime verification against MinIO.
+`SCRUM-108`; it is a delivery gate and is not counted in the functional Report 5
+case index. The workbook now maps 24 v1 WF1–WF4 cases plus nine target-only
+Pending cases, for 33 total: 13 Passed, 20 Pending, and zero Failed at the recorded
+baseline. MinIO/evidence storage is tracked separately under FE-04/WF3 task
+`T025/SCRUM-85`. CI uses S3Mock for S3 API integration coverage; that mock does not
+replace runtime verification against MinIO.
 
-Current role codes are `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and
-`MAINTENANCE_ENGINEER`. A role check never replaces organization ownership,
+Implemented v1 role codes are `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and
+`MAINTENANCE_ENGINEER`. The current target role codes are `ADMIN`, `ORG_ADMIN`,
+`INSPECTOR`, and `MAINTENANCE_ENGINEER`; those target roles are not yet runtime-verified.
+A role check never replaces organization ownership,
 assignment, or separation-of-duties checks.
 
 ## Editing workflow

@@ -71,17 +71,28 @@ from those files only when exporting. Each case retains its FE and WF codes.
 | FE-07 maintenance/defect resolution | `Feature 2` | WF4-001–WF4-003 |
 | FE-08 dashboard/analytics/notifications | Coverage gap; no current workbook case | None assigned |
 
-The sheet names are template labels, not SRS feature identifiers. The current
-mapping is:
+The sheet names are template labels, not SRS feature identifiers. The earlier
+WF1–WF4 cases and any recorded outcomes are historical v1 evidence, not current
+reset-branch verification. The additional nine Pending target cases specify
+Enterprise SaaS MF1–MF4 criteria; they are not evidence that workflow behavior
+is implemented. Keep every target round `Pending` until its own executable
+evidence is recorded. The fixed workbook sheets combine groups, while FE codes
+identify SRS capabilities and WFx IDs retain stable case identity:
 
 | Workbook sheet | Included SRS features | Included WF IDs |
 | --- | --- | --- |
-| `Feature 1` | FE-02 and FE-03; FE-01 gate tracked separately | WF1-001–004 and WF2-001–004 |
-| `Feature 2` | FE-04, FE-05, FE-06, and FE-07 | WF3-001–004 and WF4-001–003 |
+| `Feature 1` | FE-02 and FE-03; FE-01 gate tracked separately | WF1-001–004, WF1-011–019, and WF2-001–007 |
+| `Feature 2` | FE-04, FE-05, FE-06, and FE-07 | WF3-001–008 and WF4-001–005 |
 
 There are exactly eight FE-specific Markdown source files. The two fixed
 workbook sheets are presentation groupings, not source files or SRS features.
 FE-08 currently has no assigned case and remains an explicit coverage gap.
+The nine target-only cases (`WF2-005`–`WF2-007` on Feature 1, and `WF3-005`–`WF4-005`
+on Feature 2) remain `Pending` across all rounds. They define workspace entitlement,
+MF1 asset/pair setup, MF2 readiness, MF3 human review/publication, and MF4 team/cost/
+acceptance criteria; they do not claim those workflows currently run. The backend reset
+adds an identity migration and additive schema bridge but leaves the cutover incomplete,
+and does not implement MF1–MF4 workflow behavior.
 
 ## Visual and status rules
 
