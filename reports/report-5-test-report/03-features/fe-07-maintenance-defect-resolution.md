@@ -1,12 +1,12 @@
 # FE-07: Maintenance and Defect Resolution
 
-## Implemented v1 baseline and proposed MF5 target
+## Implemented v1 baseline and Enterprise SaaS target
 
-The existing WF4 cases below describe the five-role maintenance/order/billing baseline and remain Pending where unexecuted. They do not prove the direct-settlement workflow (Payment Invoice, receipt confirmation, `PAID`), uniform Provider commission invoicing, snapshotted warranty terms or the proposed Provider-specific workforce scope. The MF5 redesign is represented by new Pending target cases, not by silently changing existing results.
+**Historical v1 scope record:** The earlier WF4 cases described the five-role maintenance/order/billing baseline, with statuses recorded at the time of execution. Preserve those results as historical evidence only; they do not prove Enterprise SaaS MF4 behavior on the reset branch. Target MF4 requires internal repair team, designated lead/report author, approved estimate/change/actual control, author-verified LLM completion report, independent ORG_ADMIN acceptance and cost reconciliation; these are represented by separate Pending target cases.
 
-## Current acceptance cases
+## Historical v1 acceptance cases (retired from the Enterprise SaaS target)
 
-WF4-001 through WF4-003 map to FE-07.
+WF4-001 through WF4-003 map to FE-07 in the earlier five-role baseline. Preserve every recorded status and note as historical evidence; those cases do not establish current reset-branch MF4 runtime behavior. The target MF4 criteria are the separate Pending cases below.
 
 | Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -16,11 +16,11 @@ WF4-001 through WF4-003 map to FE-07.
 
 ## Coverage boundary
 
-The current case procedures cover ticket creation, assigned work, Client decision, rework/reinspection state, and billing status. They do not explicitly list before/after evidence assertions, Service Manager release, or Client close/handoff as separate checks.
+Historical v1 case procedures covered ticket creation, assigned work, Client decision, rework/reinspection state, and billing status. They do not separately assert before/after evidence, Service Manager release, or Client close/handoff; these historical cases do not verify current MF4 target behavior.
 
-## Proposed MF5 target cases (not executed)
+## Enterprise SaaS target cases for MF4 (not executed)
 
 | Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| WF4-004 | Maintenance Provider is scoped and order-snapshotted commission/warranty terms are preserved. | Create a ticket from accepted findings; invite two maintenance Providers; publish commission policy and warranty P1; approve two orders that snapshot commission and warranty P1; publish P2; submit before/after evidence and reach completion acceptance for each order under its own snapshot. Attempt access by the losing Provider. | Only winning Provider/assigned engineer can work; both orders retain the original commission policy after P2; each order keeps its snapshotted warranty duration and no amount is retained by anyone; tax records remain separate. | Accepted report, two Providers, qualified engineer and versioned commission/warranty policy fixtures exist. | Pending |  |  | Pending |  |  | Pending |  |  | Target MF5; no implementation evidence. |
-| WF4-005 | Rework, change order and warranty claim preserve scope and snapshotted commission. | Submit a scope increase before approval; attempt extra work; approve the change order; reject defective completion and request rework; file a warranty claim inside the snapshotted warranty window; verify the claim blocks automatic ticket closure; confirm the changed amount settles by direct transfer with commission invoiced once. | Extra work waits for change-order approval; defective included work can be returned for rework; a warranty claim inside the snapshotted window blocks automatic ticket closure and the Provider reworks free of charge; no amount is retained by anyone; actual service-price refunds reverse proportional commission only. | Approved maintenance order, before/after evidence and snapshotted warranty/commission policy versions exist. | Pending |  |  | Pending |  |  | Pending |  |  | Target only; no change-order or warranty workflow executed. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| WF4-004 | ORG_ADMIN triages a published MF3 report into an MF4 work order: scope, acceptance criteria, team, lead, report author and independent accepting reviewer. | Publish an MF3 report with confirmed repair-required findings; ORG_ADMIN creates/triages the work order and names one lead, one report author and an independent accepting ORG_ADMIN; attempt creation with a duplicate active scope or with the accepting reviewer inside the executing team. | The work order links the published report version and finding IDs; exactly one lead and one report author are designated; the accepting reviewer is qualified, independent and not the author; duplicate active scope requires an explicit reason; a no-repair outcome creates no empty work order. | Published MF3 report with repair-required findings and workforce fixtures exist. | Pending |  |  | Pending |  |  | Pending |  |  | Target MF4; no implementation evidence. |
+| WF4-005 | Estimate baseline, approved change orders, actuals and before/after evidence reconcile before completion acceptance. | Team lead prepares an itemized estimate; ORG_ADMIN approves the scope/budget baseline; a scope increase is submitted as a change order and approved/rejected; members record actuals, work logs and paired before/after evidence; a missing or duplicate actual blocks final reconciliation. | The initial baseline `E0` is immutable; revised authorized amount `B = E0 + sum(approved changes)`; actuals `A` reconcile with variance `V = A − B`; unauthorized extra work is blocked; unresolved missing/duplicate/unapproved costs block closure. | Approved MF4 work order, workforce assignments and cost-line fixtures exist. | Pending |  |  | Pending |  |  | Pending |  |  | Target MF4; no change-order or warranty workflow executed. |

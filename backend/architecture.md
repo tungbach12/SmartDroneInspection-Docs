@@ -7,7 +7,9 @@ aliases:
 
 # Backend Architecture
 
-The backend is a Java 21 Spring Boot modular monolith. Spring Modulith verifies the boundaries between direct feature packages so each team-owned capability stays focused.
+> **Current worktree status — 7 October 2026, `feat/enterprise-saas-reset`:** This page combines target architecture guidance with an older runtime inventory. It is not a claim that the Enterprise SaaS target is implemented. The backend reset removed provider request/marketplace runtime code and the inspection workflow controllers/services; surviving inspection JPA records and repositories plus V24/V25 migration schema are persistence/schema only. Asset/catalog/scheduling runtime and authentication remain, but the full MF1–MF4 workflow behavior is out of reset scope and not implemented. V24 aligns identity vocabulary, V25 adds the target schema, and V26 completes the runtime cutover to the exact 41-table target inventory (verified by `./mvnw clean verify`, 88 tests, exit 0, on 8 October 2026). Read the runtime-status table and verify against the current source before treating target modules or behaviors as shipped.
+
+The target backend architecture is a Java 21 Spring Boot modular monolith. Spring Modulith verifies the boundaries between direct feature packages so each team-owned capability stays focused.
 
 ## Capability modules
 
@@ -17,33 +19,31 @@ workflow number or a group of tables.
 
 ```text
 com.smartdroneinspection/
-|-- users/                 # Implemented: identity and administration
-|-- assets/                # Implemented: WF1
-|-- inspectionrequests/    # Implemented: WF2
-|-- inspections/           # WF3 persistence: execution, evidence, reports
-|-- maintenance/           # WF4 persistence: assessment, execution, billing
-|-- notifications/         # Persistence for in-app/email delivery
-|-- dashboard/             # Scaffolded read-only query capability
-|-- shared/                # Implemented: minimal cross-cutting contracts
-`-- infrastructure/        # Scaffolded outbound-adapter boundary
+|-- users/                 # Implemented: identity, organizations, users, roles, sessions
+|-- subscriptions/         # Enterprise subscription plan/period/status/entitlement
+|-- workforce/             # Inspector/engineer credentials, qualifications, compliance documents
+|-- assets/                # Asset catalog, asset documents, drones, pair assignments, checklist templates
+|-- inspections/           # Inspection setup snapshots, readiness/session records, evidence, findings, reports
+|-- maintenance/           # Work orders, teams, tasks, cost lines, change orders, work logs, reports, acceptance
+|-- notifications/         # In-app/email notification records and event-facing contracts
+|-- dashboard/             # Read-only aggregation; no ownership of business tables
+|-- shared/                # Cross-cutting contracts: ApiResponse, ProblemDetail, security context, audit base
+`-- infrastructure/        # Outbound adapters for feature-owned ports
 ```
 
 | Module | Capability | Runtime status |
 | --- | --- | --- |
-| `users` | Identity, authentication, organization, audit, and user administration | Entities, repositories, and auth runtime implemented |
-| `assets` | Asset catalog, checklists, and schedules (WF1) | Entities and repositories implemented |
-| `inspectionrequests` | Requests, quotations, orders, and assignments (WF2) | Entities and repositories implemented |
-| `inspections` | Execution, evidence, findings, reports, and peer review (WF3) | Entities, repositories, scoped use cases, API, MinIO/YOLO adapters, and unit/integration tests implemented; see [WF3 runtime/API flow](../backend/flows/inspections-and-reports/) |
-| `maintenance` | Assessment, execution, changes, and resolution (WF4) | Feature entities and repositories implemented; use cases/API pending |
-| `notifications` | In-app and email notification delivery | Notification entity and repository implemented; delivery runtime pending |
-| `dashboard` | Read-only composition of capability data | Scaffolded root; runtime slice not implemented |
-| `infrastructure` | Outbound adapters for feature-owned ports | Scaffolded root; runtime slice not implemented |
+| `users` | Identity, authentication, organization, audit, and user administration | Auth/organization runtime and persistence remain; target organization-registration/auth contracts are still being reset. |
+| `subscriptions` | Enterprise subscription management | Package root only; the `subscriptions` table is schema, not subscription runtime. |
+| `workforce` | Credentials, qualifications, and compliance documents | Package root only; the `workforce_credentials` table is schema, not workforce runtime. |
+| `assets` | Asset catalog, asset documents, categories/checklists, and schedules | Asset/catalog/scheduling entities, repositories, controllers, and services remain; the reset branch is reconciling authorization and does not complete all MF1 target behavior. |
+| `inspections` | Inspection setup, readiness, field records, evidence, findings, and reports | Workflow controllers/services and inspection workflow tests were removed in the reset; residual entities/repositories and V24/V25 schema are storage only, not an inspection workflow runtime. |
+| `maintenance` | Target work orders, teams, costs, work logs, reports, and acceptance | Legacy maintenance persistence artifacts remain; the MF4 target workflow implementation is not present. |
+| `notifications` | Notification records and delivery | Existing notification persistence may remain; target delivery behavior is not established by the reset. |
+| `dashboard` | Read-only composition of capability data | Package metadata only; no runtime slice. |
+| `infrastructure` | Outbound adapters for feature-owned ports | Legacy MinIO/AI adapters may remain; they do not make removed workflow use cases available. |
 
-`dashboard` currently contains only package metadata. The WF3 runtime slice now
-covers assigned execution/checklists, evidence, optional AI-assisted findings,
-versioned reports, peer review, release, and Client decision. WF4 and notification
-services remain incremental work. Each feature owns its domain models; do not create a global
-`com.smartdroneinspection.domain` entity package.
+`dashboard` currently contains only package metadata. Before the reset, the `inspections` runtime slice included assigned execution/checklists, evidence, optional AI-assisted findings, versioned reports, release, and organization decision; its workflow controllers and services have since been removed. The older inspection workflow details in [the runtime flow guide](../backend/flows/inspections-and-reports/) are historical, not currently callable endpoints. Current MF1–MF4 runtime behavior remains to be implemented in separate workflow slices. Each feature owns its domain models; do not create a global `com.smartdroneinspection.domain` entity package.
 
 ## Module visibility and responsibilities
 
@@ -70,25 +70,25 @@ Shared code is limited to cross-cutting concerns such as error handling, securit
 
 ```text
 users -------------------------------> shared::api, shared::auth, shared::config, shared::exception
-assets ------------------------------> shared
-inspectionrequests ------------------> assets, shared
-inspections -------------------------> inspectionrequests, assets, shared::api, shared
-maintenance -------------------------> inspections, inspectionrequests, shared
+subscriptions -----------------------> users, shared
+workforce ---------------------------> users, shared
+assets ------------------------------> shared, users
+inspections -------------------------> assets, shared::api, shared
+maintenance -------------------------> inspections, shared
 notifications -----------------------> feature::events
 dashboard ---------------------------> feature root read APIs
 infrastructure ----------------------> feature::spi, shared
 ```
 
 Business modules never import `infrastructure`; adapters implement ports owned by
-the feature. WF1 and WF2 must not form a cycle. When periodic request generation
-is implemented, `assets` publishes `assets::events InspectionScheduleDue`,
-`inspectionrequests` listens and creates the request, and `inspectionrequests`
-may synchronously call an `assets` root facade for immediate validation. Add that
-event and facade with the periodic-request use case, not as speculative plumbing.
+the feature. When periodic request generation is implemented, `assets` publishes
+`assets::events InspectionScheduleDue` and the consumer in the owning module listens and
+creates the request. Add that event and facade with the periodic-request use case,
+not as speculative plumbing.
 
 ## Persistence and integrations
 
-PostgreSQL is the source of truth. Flyway owns schema migrations, and MinIO stores inspection evidence and images. Every application table has its JPA entity and repository in the owning feature (`users`, `assets`, `inspectionrequests`, `inspections`, `maintenance`, or `notifications`), except the Spring Modulith `event_publication` registry. Cross-feature references use scalar IDs at the persistence boundary instead of coupling modules through each other's entities. The `infrastructure/` area contains outbound adapters for feature-owned ports. Reports, findings, and AI candidates belong inside WF3; maintenance tickets belong inside `maintenance`; a YOLO client belongs under `infrastructure/ai` when implemented.
+PostgreSQL is the target persistence source of truth. Flyway owns schema migrations. On the reset branch V26 has completed the runtime schema cutover to the exact target inventory; do not infer that every table has a current entity, repository, API or workflow consumer. The target architecture assigns tables to owning features, except framework infrastructure such as Spring Modulith `event_publication`; the live ownership map must be reconciled against current entities and migrations before claiming full parity. Cross-feature references should use scalar IDs at the persistence boundary instead of coupling modules through each other's entities. The `infrastructure/` area may contain outbound adapters for feature-owned ports. Reports, findings, and AI candidates are target responsibilities of `inspections`; maintenance work orders are target responsibilities of `maintenance`; these workflow features are not implemented by schema presence.
 
 Inspection evidence is uploaded through the web or mobile application. The optional YOLO adapter is environment-configured and disabled by default. The current architecture has no dependency on a separate drone-operation platform.
 

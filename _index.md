@@ -17,11 +17,10 @@ SmartDroneInspection is an infrastructure inspection management platform for the
 
 ## Roles
 
-- Admin
-- Client
-- Service Manager
-- Inspector
-- Maintenance Engineer
+- `ADMIN`
+- `ORG_ADMIN`
+- `INSPECTOR`
+- `MAINTENANCE_ENGINEER`
 
 ## Documentation map
 

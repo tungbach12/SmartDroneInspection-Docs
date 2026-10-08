@@ -1,5 +1,16 @@
 # Drone-Centric 5 Main Flows & Operator Dynamic Configuration Plan
 
+> **SUPERSEDED — 7 October 2026.** This plan belongs to the six-role Provider/Client marketplace target and its MF1–MF5 workflows, superseded by the four-role Enterprise SaaS target in Report 3. Its role, payment/commission/retention, marketplace flow, and implementation checklist are historical and are not current tasks. The old `business-flows.md` is itself historical pending teammate replacement. Backend V24/V25 begin identity/schema alignment only; V25 is additive, legacy tables remain, and cutover is incomplete. MF1–MF4 workflow logic remains outside that reset. Preserve this plan as history; re-plan any still-needed work against current Report 3 and backend status before execution.
+
+> **For historical context only:** The content below records the earlier proposed multi-provider workflow. Do not follow its operational task sequence without an updated approved plan.
+
+
+**Observed target status updated 7 October 2026:** The Enterprise SaaS backend branch already contains V24 identity alignment and V25 additive target schema. This is not a completed 41-table migration: V25 adds 22 target tables plus alterations, leaves legacy tables in place, and the current backend reset removes inspection workflow controllers/services and associated tests. Keep remaining schema/runtime cutover, identity/auth reconciliation, assets authorization and MF1–MF4 workflow slices as outstanding separately planned work; schema presence alone does not close any workflow task.
+
+---
+
+**Goal (historical):** Refactor the entire `SmartDroneInspection-docs` documentation suite to:
+
 > **Goal:** Refactor the entire `SmartDroneInspection-docs` documentation suite to:
 > 1. Downgrade Onboarding, Vetting & Asset CRUD to a **Supporting Flow (SF)**, focusing the Main Flows purely on the core drone inspection transactional lifecycle.
 > 2. Create a dedicated **Drone-Centric Main Flow (MF2)** emphasizing **Drone Mission Planning & Airspace Clearance** (mission-specific GSD and overlap targets, Shot List, `cambay.mod.gov.vn` airspace check, flight permits per *Luật Phòng không nhân dân 2024* & *Nghị định 288/2025/NĐ-CP*); technical targets come from the agreed SOW/Mission Plan, not hardcoded global defaults.

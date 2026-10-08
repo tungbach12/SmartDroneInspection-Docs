@@ -2,11 +2,11 @@
 
 ## Scope baseline
 
-Server-side YOLO inference is a centralized Platform-provided capability operated within the Platform's operational budget. Service Providers and Clients consume inference through Platform interfaces; Providers do not self-host or charge clients separately for AI detection. Inference generates candidate detections with defect label, confidence, bounding box and model version. Inspector Confirm, Modify, Reject and Manual Add actions determine official findings. Unverified or rejected candidates are excluded from official defect statistics and customer reports. In case of AI unavailability, manual defect recording remains fully functional.
+**Historical v1 scope record:** The earlier backend baseline included a YOLO adapter contract and candidate-review behavior. The reset removed the inspection workflow services; adapter/config or entity presence alone does not establish a current AI workflow. The current target uses AI Vision candidates plus LLM drafting with human review. Preserve the v1 notes below as historical evidence; they are not current runtime guarantees.
 
-## Current acceptance case
+## Historical v1 acceptance case (retired from the Enterprise SaaS target)
 
-WF3-003 maps to FE-05.
+WF3-003 maps to FE-05 in the earlier v1 baseline. Preserve the recorded outcome and detailed notes as historical test evidence, not as proof that the AI/inference workflow remains available in the reset branch; its inspection workflow services were removed. The target AI Vision/LLM acceptance checks remain Pending in FE-06.
 
 | Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

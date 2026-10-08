@@ -10,7 +10,7 @@ aliases:
 ## Decision
 
 The web client is one React single-page application organized as a feature-first
-modular monolith. It serves the Admin, Client, and operations workspaces from
+modular monolith. It serves the Admin, Organization, and field workspaces from
 one deployment and origin. Role-based routes and navigation provide separate
 entry experiences without duplicating the frontend or replacing backend
 authorization.
@@ -57,8 +57,8 @@ provide distinct entry pages and layouts:
 | Entry route | Roles | Visible sections |
 | --- | --- | --- |
 | `/admin/*` | `ADMIN` | Dashboard, assets, inspections, reports, maintenance |
-| `/client/*` | `CLIENT` | Dashboard, assets, inspections, reports, maintenance |
-| `/operations/*` | `SERVICE_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER` | Dashboard for all three; inspections/reports for Service Manager and Inspector; maintenance for Service Manager and Maintenance Engineer |
+| `/org/*` | `ORG_ADMIN` | Dashboard, assets, inspections, reports, maintenance |
+| `/field/*` | `INSPECTOR`, `MAINTENANCE_ENGINEER` | Dashboard for both; inspections/reports for Inspector; maintenance for Maintenance Engineer |
 
 The central `app/permissions/accessPolicy.ts` is the frontend navigation and
 route-guard policy. It follows the screen-access matrix in Report 3, section
@@ -98,10 +98,10 @@ verification/manual-finding actions. The API computes evidence checksums and
 is the authorization boundary; the browser never receives a direct MinIO URL.
 
 `/reports` uses the same versioned report API for Inspector authors/reviewers,
-Service Managers, and Clients. It presents only actions permitted by the
+ORG_ADMIN, and organization members. It presents only actions permitted by the
 current role, while the backend scopes report lists and mutations to author,
-reviewer, organization, workflow state, and separation-of-duties rules. Client
-evidence content is streamed through the authenticated report endpoint.
+reviewer, organization, workflow state, and separation-of-duties rules. Evidence
+content is streamed through the authenticated report endpoint.
 
 ## Browser authentication flow
 
@@ -115,9 +115,9 @@ evidence content is streamed through the authenticated report endpoint.
 - Successful sign-in opens the only permitted workspace, or `/portals` when the
   user spans workspaces. Return paths are validated as internal and role-
   permitted before navigation.
-- `/register` is only for first-Client organization onboarding. It calls the
-  existing `/auth/register` contract, which creates the organization and Client
-  profile but does not sign the user in. Platform and service-workforce roles
+- `/register` is only for first organization onboarding. It calls the
+  existing `/auth/register` contract, which creates the organization and
+  ORG_ADMIN profile but does not sign the user in. Platform and field roles
   cannot be self-selected or self-registered.
 - Administrator-issued temporary credentials enter the required first-password
   setup step before creating a browser session. Authenticated users can change
@@ -131,7 +131,7 @@ evidence content is streamed through the authenticated report endpoint.
   single-flight refresh, and uses the browser Web Locks API when available to
   serialize refresh rotation across tabs. It clears memory state if refresh is
   rejected.
-- The login and Client registration surfaces use the light color scheme with
+- The login and organization registration surfaces use the light color scheme with
   ocean-blue/teal accents. The global application theme remains switchable.
 - Email password recovery and MFA are not offered by the current backend/SRS;
   the page directs account-recovery requests to an administrator instead of
@@ -154,10 +154,10 @@ proxy to return `index.html` for valid nested frontend paths. Keep the API under
 its existing versioned contract. Do not treat a route guard, hidden menu item,
 URL prefix, or separate port as a security boundary.
 
-Canonical roles are `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and
-`MAINTENANCE_ENGINEER`. The first Client representative may register the
-organization and its first Client account through the backend contract; the
-web client cannot self-assign platform or service-workforce roles.
+Canonical roles are `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and
+`MAINTENANCE_ENGINEER`. The first organization representative may register the
+organization and its first ORG_ADMIN account through the backend contract; the
+web client cannot self-assign platform or field roles.
 
 ## UI and verification conventions
 

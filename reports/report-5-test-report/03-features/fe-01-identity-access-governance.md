@@ -1,8 +1,8 @@
 # FE-01: Identity and Access Governance
 
-## Implemented v1 baseline and proposed MF1 target
+## Implemented v1 baseline and Enterprise SaaS target
 
-The recorded authentication, organization-scope and audit checks below concern the existing `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER` roles. They do not verify proposed `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `PROVIDER_MANAGER`, Provider organizations, or the new cross-Provider isolation rules. Proposed MF1 target cases are Pending below; no existing Passed result is reused as evidence for those roles.
+The recorded authentication, organization-scope and audit checks below concern the existing `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER` roles. They do not verify the 2026-10-07 Enterprise SaaS target roles `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`, or the new tenant/subscription entitlement rules. Proposed target checks are Pending below; no existing Passed result is reused as evidence for those roles.
 
 ## Supporting verification
 
@@ -67,9 +67,28 @@ These FE-01 target cases are supporting checks outside the fixed WFx workbook ro
 
 | Target check | Procedure | Expected result | Preconditions | Status | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| FE01-T01 Provider vetting and isolation | Submit one Provider with complete eligibility records and one with missing credentials; review both as Operator; attempt Provider self-approval and cross-Provider member access. | Only Platform Operator can approve complete records; unverified Provider cannot bid; Provider members cannot read competitors' data. | Two Provider organizations, Operator and Admin target-role fixtures. | Pending | No new runtime test executed. |
-| FE01-T02 Admin/Operator duty separation | Attempt Operator vetting/dispute decision as Platform Admin; attempt security-policy mutation as Operator. | Platform Admin has technical administration only; Operator has business review only; attempts outside scope are denied and audited. | Six target roles exist and are assigned under three zones. | Pending | No new runtime test executed. |
+| FE01-T01 Organization and subscription entitlement gate | Register an enterprise organization; attempt MF1 setup before ADMIN activates the subscription; activate with ADMIN; then attempt cross-tenant workspace access. | MF1 setup is blocked until entitlement is active; ADMIN activates the workspace; a user from another organization cannot read or mutate the workspace. | Two organizations and an inactive subscription fixture exist. | Pending | No new runtime test executed. |
+| FE01-T02 Role separation of duties | Attempt ORG_ADMIN setup actions as `INSPECTOR`/`MAINTENANCE_ENGINEER`; attempt Inspector/Engineer evidence-quality actions as `ORG_ADMIN` or `ADMIN`; attempt independent maintenance acceptance by the report author or repair team. | Only ORG_ADMIN manages organization resources/workforce/teams; Inspectors and Engineers act only on assigned work; ADMIN has no default customer technical or acceptance authority; author/executing-team self-acceptance is denied. | Target four-role fixtures and one assigned inspection/work-order exist. | Pending | No new runtime test executed. |
+
+### Enterprise SaaS identity, registration and target-schema reset (executed 8 October 2026)
+
+- Preconditions: Backend branch `feat/enterprise-saas-reset` with forward migrations `V24__enterprise_saas_role_and_schema_alignment.sql`, `V25__enterprise_saas_target_schema.sql` and `V26__enterprise_saas_runtime_cutover.sql`; PostgreSQL 17 provided through Testcontainers.
+- Procedure: Run `./mvnw clean verify` in SmartDroneInspection-Backend; execute `OrganizationRegistrationApiIntegrationTest`, `V24PopulatedMigrationTest`, `V25TargetSchemaFoundationTest`, `FullDatabaseSchemaMigrationTest`, `RuntimePersistenceInventoryTest`, `RolePolicyTest` and `ModulithArchitectureTest` as part of that gate.
+- Expected result: `POST /api/v1/auth/register` returns 201 and persists the organization, its first `ORG_ADMIN` in the `CUSTOMER_ORGANIZATION` zone, and one `ORGANIZATION_REGISTRATION`/`SUCCESS` row in `audit_events` in a single transaction; V24 fails closed on unmappable provider/workforce identities, duplicate target-role collapse and invalid tenant scope; the migrated runtime schema is exactly the 41 target application tables plus `event_publication` and `flyway_schema_history`.
+- Round 2: Passed on 2026-10-08; tester: Hermes (automated).
+- Evidence: Full backend gate `./mvnw clean verify` — 88 tests, 0 failures, 0 errors, JaCoCo coverage gate and Spring Modulith boundary verification passed. `AuditEvents`-targeted assertions live in `OrganizationRegistrationApiIntegrationTest`; the exact inventory is asserted by `FullDatabaseSchemaMigrationTest#flywayCreatesExactlyTheFortyOneTargetTablesAndFrameworkRegistry` and `RuntimePersistenceInventoryTest#applicationTableInventoryContainsOnlyTheFortyOneTargetTables`.
+- Change note: This supersedes the earlier `security_audit_events`/`CLIENT_REGISTRATION` wording above. That table was a v1 artifact and is dropped by V26; the target audit home is `audit_events` with action `ORGANIZATION_REGISTRATION`. The earlier Round 1 results remain recorded as historical v1 evidence for the version actually tested.
+- Scope note: This gate covers identity, registration, audit and target schema only. It is **not** evidence that MF1–MF4 workflow behavior exists.
+
+### Frontend and mobile role-contract gates (executed 8 October 2026)
+
+- Preconditions: Frontend and mobile clients aligned to the four canonical roles `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`.
+- Procedure: Run `npm run lint && npm test && npm run build` in SmartDroneInspection-Frontend; run `dart format --output=none --set-exit-if-changed .`, `flutter analyze` and `flutter test` in SmartDroneInspection-Mobile (Flutter 3.47.6 / Dart 3.13.5).
+- Expected result: Provider/marketplace UI and API client code is removed; registration posts the organization-onboarding contract; unknown or retired role codes are rejected rather than coerced; mobile stores tokens only in secure storage.
+- Round 2: Passed on 2026-10-08; tester: Hermes (automated).
+- Evidence: Frontend 25 test files / 128 tests passed and production build succeeded (5 `react(only-export-components)` fast-refresh lint warnings, no errors). Mobile: format clean (0 changed), `flutter analyze` reported one pre-existing `info` lint in `lib/core/router/app_router.dart` that is not part of this change, and 16/16 tests passed.
+- Scope note: Frontend tests use a mocked transport; mobile tests use fakes. Neither is a live browser/device end-to-end run.
 
 ## Coverage boundary
 
-The recorded gates verify authentication/migration setup, v1 role-to-screen policy, browser-auth contracts, Client-registration persistence and audit, and the shared API envelope. They do not establish the proposed six-role/provider governance or a live browser end-to-end registration/login run. Those target requirements remain unverified.
+The recorded gates verify authentication/migration setup, v1 role-to-screen policy, browser-auth contracts, v1 Client-registration persistence and audit, the shared API envelope, and — from Round 2 — Enterprise SaaS organization registration against `audit_events`, the fail-closed V24 role migration, the exact 41-table target schema, and client role-contract alignment for the four canonical roles. They do **not** establish subscription entitlement governance (`FE01-T01`), role separation of duties (`FE01-T02`), any MF1-MF4 workflow behavior, or a live browser end-to-end registration/login run. Those remain unverified.

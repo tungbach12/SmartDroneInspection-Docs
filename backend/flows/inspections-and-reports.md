@@ -3,12 +3,11 @@ title: "WF3 Inspection and Report Runtime Flow"
 weight: 40
 ---
 
-# WF3 Inspection and Report Runtime Flow
+# Historical WF3 Inspection and Report Runtime Flow
 
-WF3 is implemented inside the `inspections` Spring Modulith module. The API is
-versioned under `/api/v1`; web and mobile clients call the same inspection
-endpoints. The authenticated backend principal and scoped resource lookups—not
-client-supplied user, organization, owner, or assignment IDs—decide access.
+> **Status as of 7 October 2026, `feat/enterprise-saas-reset`: historical and non-authoritative.** The detailed endpoint, service and verification descriptions below refer to the earlier v1 inspection runtime and are retained only as a record of the prior implementation/test baseline. The reset removed the inspection workflow controllers and services and their workflow tests; remaining inspection entities/repositories and V24/V25 migration structures provide persistence/schema only, not runtime workflow behavior. Do not treat any endpoint below as currently available. The current Enterprise SaaS target uses four roles and MF1–MF4, but this reset does not implement those workflow behaviors; see Report 3 and the database design. Historical Report 5 results remain evidence of the version that was actually tested, not of this reset branch.
+
+The removed v1 WF3 behavior was previously implemented inside the `inspections` Spring Modulith module. The endpoint and service details below are a historical snapshot, not a current API contract. In that earlier runtime, the authenticated backend principal and scoped resource lookups—not client-supplied user, organization, owner, or assignment IDs—decided access.
 
 ## Inspection, checklist, and evidence (FE-04)
 
@@ -62,21 +61,21 @@ finding path.
 
 | Operation | Endpoint | Required actor/scope |
 | --- | --- | --- |
-| List/read reports | `GET /api/v1/reports`, `GET /api/v1/reports/{reportId}` | Inspector author/reviewer, Service Manager, or owning Client organization; results are filtered per actor. |
+| List/read reports | `GET /api/v1/reports`, `GET /api/v1/reports/{reportId}` | Inspector author/reviewer, ORG_ADMIN, or organization member; results are filtered per actor. |
 | Create/read inspection draft | `POST` / `GET /api/v1/inspections/{inspectionId}/report` | Assigned Inspector; draft snapshot requires all required checklist responses and at least one available evidence item. |
-| Create linked revision | `POST /api/v1/reports/{reportId}/versions` | Report author after a review or Client revision request. |
-| Assign reviewer | `PUT /api/v1/reports/{reportId}/versions/{versionId}/reviewer` | Service Manager; reviewer is an active, distinct Inspector. |
+| Create linked revision | `POST /api/v1/reports/{reportId}/versions` | Report author after a review or ORG_ADMIN revision request. |
+| Assign reviewer | `PUT /api/v1/reports/{reportId}/versions/{versionId}/reviewer` | ORG_ADMIN; reviewer is an active, distinct Inspector. |
 | Submit/review | `POST .../submit-review`, `POST .../review` | Author submits; only the assigned, distinct Inspector reviews. |
-| Release | `POST /api/v1/reports/{reportId}/versions/{versionId}/release` | Service Manager, after technical approval and completeness checks. |
-| Client decision | `POST /api/v1/reports/{reportId}/versions/{versionId}/client-decision` | Client belonging to the report's organization, on the current released version. |
-| Stream released evidence | `GET /api/v1/reports/{reportId}/versions/{versionId}/evidence/{evidenceId}/content` | Owning Client; evidence must be present in that visible version snapshot. |
+| Release | `POST /api/v1/reports/{reportId}/versions/{versionId}/release` | ORG_ADMIN, after technical approval and completeness checks. |
+| Organization decision | `POST /api/v1/reports/{reportId}/versions/{versionId}/org-admin-decision` | ORG_ADMIN belonging to the report's organization, on the current released version. |
+| Stream released evidence | `GET /api/v1/reports/{reportId}/versions/{versionId}/evidence/{evidenceId}/content` | Owning organization; evidence must be present in that visible version snapshot. |
 
-Client responses exclude internal peer-review comments and unreleased content.
-Accepting a released version records the Client actor, makes the version
+Organization responses exclude internal review comments and unreleased content.
+Accepting a released version records the ORG_ADMIN actor, makes the version
 immutable, and publishes one `ReportAcceptedEvent`; an idempotent repeated
 acceptance does not publish a second handoff. A revision request requires a
 reason, stores both decision actor and reason on `report_versions`, and leaves
-the released version in the Client-visible history. Migration
+the released version in the organization-visible history. Migration
 `V10__inspection_report_client_decision_audit.sql` adds that audit data without
 rewriting the notification migration `V9`.
 
@@ -86,8 +85,4 @@ the handoff and records the separate post-service milestone.
 
 ## Verification records
 
-The service and API tests cover assignment scope, evidence validation and
-idempotency, AI provenance/review states, report separation of duties, Client
-scope/decisions, and the event handoff. Report 5 maps these outcomes to
-`WF3-001`–`WF3-004` on the fixed `Feature 2` sheet; a service-unit pass alone
-does not mark an unexecuted API/storage integration case as passed.
+**Historical verification record (pre-reset only):** The former service and API tests covered assignment scope, evidence validation and idempotency, AI provenance/review states, report separation of duties, organization scope/decisions, and the event handoff. Report 5 records the outcomes for `WF3-001`–`WF3-004` on the fixed `Feature 2` sheet. Those recorded results are preserved as evidence of the earlier v1 baseline; they do not assert that the corresponding workflow tests or runtime remain in this reset branch.

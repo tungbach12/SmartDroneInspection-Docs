@@ -2,7 +2,7 @@
 
 ## Scope baseline
 
-Role-filtered views summarize due and overdue inspections, RFQ/request and report status, workload, verified defects, maintenance, asset history, payment status (Payment Invoice issued / `PAID` / commission invoice), and billing summaries across the six canonical roles: `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`. Notifications support assignments, reviews, settlement events, disputes, and deadlines without requiring live telemetry. Strict multi-tenant isolation prevents cross-organization data leakage.
+Role-filtered views summarize due and overdue inspections, request and report status, workload, verified defects, maintenance, asset history, and subscription/billing status (invoice issued / confirmed paid / expiry) across the four canonical roles: `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`. Notifications support assignments, readiness changes, report returns, budget/change decisions, rework and closure without requiring live telemetry. Strict multi-tenant isolation prevents cross-organization data leakage.
 
 ## Current test coverage
 

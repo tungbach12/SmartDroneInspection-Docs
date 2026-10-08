@@ -4,7 +4,7 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Implementation boundary (updated 2026-10-06):** Executed WF1–WF4 cases below document the existing five-role v1 application, not the proposed six-role/multi-provider MF1–MF5 redesign. Provider onboarding, the uniform Provider-paid commission, the direct-settlement workflow (Payment Invoice, receipt confirmation, `PAID`), internal complaint handling, and snapshotted warranty terms are target requirements only. Preserve original Passed evidence for what those tests actually exercised; do not reuse a historical Passed case to claim target behavior works. New target cases must be `Pending` with no execution date/tester until run. The original workbook and preview output remain unchanged.
+**Implementation boundary (updated 2026-10-07):** The earlier WF1–WF4 cases are historical/retired v1 five-role baseline tests, not the current 2026-10-07 Enterprise SaaS target (four human roles — `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER` — and four connected Main Flows MF1–MF4). Their recorded `Passed` results remain valid evidence only for the v1 behavior actually exercised; do not reuse them as proof of target behavior or the current reset branch. Backend V24/V25/V26 completed the identity, target-schema and runtime-cutover work on 8 October 2026, and that execution is recorded in the FE-01 Round 2 sections. MF1–MF4 workflow implementation remains out of reset scope. All nine target acceptance cases remain `Pending`, with no execution date/tester until actually run. The original workbook and preview output remain unchanged.
 
 ## Naming layers and mapping
 
@@ -50,7 +50,7 @@ number look like an SRS feature code.
 | `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 2` sheet | v1 MF3/WF3-001–WF3-002. |
 | `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 2` sheet | v1 MF3/WF3-003. |
 | `03-features/fe-06-inspection-report-approval.md` | `Feature 2` sheet | v1 MF3/WF3-004 and target MF3/MF4 cases WF3-005–WF3-008. |
-| `03-features/fe-07-maintenance-defect-resolution.md` | `Feature 2` sheet | v1 MF5/WF4-001–WF4-003 and target MF5 cases WF4-004–WF4-005. |
+| `03-features/fe-07-maintenance-defect-resolution.md` | `Feature 2` sheet | v1 WF4/WF4-001–WF4-003 and target MF4 cases WF4-004–WF4-005. |
 | `03-features/fe-08-dashboard-analytics-notifications.md` | Coverage gap | No WFx case in the current baseline; do not infer execution. |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
 | `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
@@ -58,12 +58,12 @@ number look like an SRS feature code.
 ## Current and target test scope
 
 Historical cases cover the v1 WF1–WF4 baseline and do not test autonomous drone
-flight. Target-only cases extend traceability to a Supporting Flow (SF) and five
-transactional MF1–MF5 Main Flows, including Drone Mission Planning (MF2). The
-fixed workbook sheets combine groups, while FE codes identify SRS capabilities
-and WFx IDs retain stable case identity:
+flight. Target-only cases extend traceability to the Enterprise SaaS target with
+four human roles and four connected Main Flows (MF1–MF4). The fixed workbook
+sheets combine groups, while FE codes identify SRS capabilities and WFx IDs
+retain stable case identity:
 
-1. FE-01 — identity/access foundation, including the W3 auth/migration smoke gate and shared API contract supporting checks. These supporting gates are documented separately and are not additional functional workbook cases. Target FE-01 provider vetting/Operator separation checks remain Pending support gates outside the workbook count.
+1. FE-01 — identity/access foundation, including the W3 auth/migration smoke gate and shared API contract supporting checks. These supporting gates are documented separately and are not additional functional workbook cases. Target FE-01 organization/entitlement and separation-of-duties checks remain Pending support gates outside the workbook count.
 2. FE-02 — asset and inspection scheduling (WF1; `WF1-001`–`WF1-004`).
 3. FE-03 — client request, quotation/order, and service assignment (WF2; `WF2-001`–`WF2-004`).
 4. FE-04 — inspection execution and evidence (WF3; `WF3-001`–`WF3-002`).
@@ -75,10 +75,10 @@ and WFx IDs retain stable case identity:
 
 The nine cases WF2-005–WF4-005 are target acceptance criteria only and remain
 `Pending` until the associated implementation and verification evidence exist.
-They cover Provider RFQ/policy, mission-specific GSD/overlap/clearance, Platform
-AI narrative consumption, snapshotted review and settlement policies, complaint
-workflow pauses, and maintenance change/warranty boundaries. Their
-existence does not claim runtime delivery.
+They cover workspace/subscription entitlement, MF1 asset + Inspector/Drone pair setup,
+MF2 mission preparation/readiness, MF3 human verification and immutable report
+publication, and MF4 team/cost/acceptance boundaries. Their existence does not claim
+runtime delivery.
 
 The FE-01 W3 auth/migration smoke gate is tracked by Jira `SCRUM-58/T001` under
 `SCRUM-108`; it is a delivery gate and is not counted in the functional Report 5
@@ -89,9 +89,9 @@ baseline. MinIO/evidence storage is tracked separately under FE-04/WF3 task
 replace runtime verification against MinIO.
 
 Implemented v1 role codes are `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and
-`MAINTENANCE_ENGINEER`. The target design proposes `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`,
-`CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`; those are not
-implemented roles. A role check never replaces customer/provider ownership,
+`MAINTENANCE_ENGINEER`. The current target role codes are `ADMIN`, `ORG_ADMIN`,
+`INSPECTOR`, and `MAINTENANCE_ENGINEER`; those target roles are not yet runtime-verified.
+A role check never replaces organization ownership,
 assignment, or separation-of-duties checks.
 
 ## Editing workflow
