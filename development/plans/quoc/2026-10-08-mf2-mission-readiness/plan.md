@@ -169,3 +169,33 @@ trường hợp ghép cặp chéo tổ chức.
 Danh sách ở §4 là dự kiến. Cam kết: **tổng đúng 20 commit** trên 4 repo (Backend 17,
 Frontend 2, Mobile 1), mỗi commit build/test độc lập được. Nếu cần thêm/bớt, tôi sẽ
 bù lại để tổng vẫn là 20.
+
+### 5.4 Quyết định đã chốt — migration `V27`
+
+Owner chọn **Cách 2: thêm migration `V27`**, không tái dùng `reason`.
+
+Lý do chọn: MF2-01 là một quyết định nghiệp vụ có chủ thể, không phải một đổi trạng thái
+của cặp tài sản–drone. Gộp vào `reason` sẽ khiến một cột mang hai nghĩa khác nhau (lý do
+ORG_ADMIN gán cặp, và lý do Inspector từ chối), đồng thời không lưu được thời điểm phản
+hồi — tức không phân biệt được "trả lời muộn" với "chưa trả lời". SRS 3.1.4 yêu cầu mọi
+chuyển tiếp đáng kể phải truy vết được, nên hai cột riêng là phương án đúng.
+
+`V27__assignment_response.sql` thêm:
+
+| Cột | Kiểu | Ý nghĩa |
+| --- | --- | --- |
+| `assignment_response` | `VARCHAR(24)` | `ACCEPTED` / `REJECTED` / `NULL` khi chưa trả lời |
+| `responded_at` | `TIMESTAMPTZ` | Thời điểm Inspector trả lời |
+
+Kèm hai CHECK:
+- `ck_asset_pair_assignments_response` — response và responded_at cùng có hoặc cùng không.
+- `ck_asset_pair_assignments_response_vocabulary` — chỉ nhận `ACCEPTED` / `REJECTED`.
+
+Migration có pre-check `DO $$` đúng convention V15/V16/V18, dùng `ADD COLUMN IF NOT EXISTS`
+nên idempotent. Migration không ghi response — `InspectionAssignmentService` sở hữu
+chuyển tiếp đó. `assignment_response = 'ACCEPTED'` **không** phải `READY_FOR_FLIGHT`; đó là
+quyết định riêng của MF2-07 với reviewer độc lập và snapshot riêng.
+
+**Điều chỉnh danh sách commit**: commit 1 chuyển từ `feat(workforce)` sang
+`feat(inspections): add V27 assignment response columns`, phần còn lại giữ nguyên thứ tự
+(lùi 1 số).
