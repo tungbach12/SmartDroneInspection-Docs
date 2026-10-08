@@ -1,9 +1,9 @@
 ---
 title: "SmartDroneInspection - Business Flow Summary (MF1–MF5)"
-document_type: business-flow-summary
-purpose: "Legacy six-role marketplace summary (MF1–MF5), retained for historical baseline reference only. The current target is the Enterprise SaaS four-role model in database-design.md and the backend reset plan; see project-reference/mf1-mf5-contract-matrix.md."
-version: "2.1"
-updated: 2026-10-07
+document_type: business-flow-summary-historical
+purpose: "Legacy six-role marketplace summary (MF1–MF5), retained for historical baseline reference only. Superseded by business-flows.md (four-role Enterprise SaaS, MF1-MF4); see project-reference/mf1-mf5-contract-matrix.md."
+version: "2.1 (historical)"
+updated: 2026-10-08
 ---
 
 # SmartDroneInspection — Business Flow Summary (MF1–MF5)
