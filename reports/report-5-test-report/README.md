@@ -46,7 +46,7 @@ number look like an SRS feature code.
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary. |
 | `03-features/fe-01-identity-access-governance.md` | Support evidence | FE-01 gates; not part of the 15 WFx workbook cases. |
 | `03-features/fe-02-asset-registry-inspection-schedule.md` | `Feature 1` sheet | v1 SF prerequisite cases WF1-001–WF1-004, WF1-011–WF1-016. |
-| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 1` sheet | v1 WF1/WF2 cases and target MF1/MF2 cases WF2-005–WF2-007. |
+| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 1` sheet | v1 WF1/WF2 cases and target MF1/MF2 cases WF2-005–WF2-009. |
 | `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 2` sheet | v1 MF3/WF3-001–WF3-002. |
 | `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 2` sheet | v1 MF3/WF3-003. |
 | `03-features/fe-06-inspection-report-approval.md` | `Feature 2` sheet | v1 MF3/WF3-004 and target MF3/MF4 cases WF3-005–WF3-008. |
@@ -73,18 +73,20 @@ retain stable case identity:
 8. FE-08 — dashboard, analytics, and notifications. No test case is assigned
    in the baseline or added target cases; this remains an explicit coverage gap.
 
-The nine cases WF2-005–WF4-005 are target acceptance criteria only and remain
-`Pending` until the associated implementation and verification evidence exist.
-They cover workspace/subscription entitlement, MF1 asset + Inspector/Drone pair setup,
-MF2 mission preparation/readiness, MF3 human verification and immutable report
-publication, and MF4 team/cost/acceptance boundaries. Their existence does not claim
-runtime delivery.
+Eleven cases WF2-005–WF4-005 define target acceptance criteria. `WF2-008` and
+`WF2-009` passed Round 1 with PostgreSQL/Testcontainers evidence on 2026-10-09;
+their Rounds 2–3 remain `Pending`. Other unexecuted target rounds remain
+`Pending`. The cases cover workspace/subscription entitlement, MF1 asset +
+Inspector/Drone pair setup, MF2 readiness preparation/approval/return, MF3 human
+verification and immutable report publication, and MF4 team/cost/acceptance
+boundaries.
 
 The FE-01 W3 auth/migration smoke gate is tracked by Jira `SCRUM-58/T001` under
 `SCRUM-108`; it is a delivery gate and is not counted in the functional Report 5
-case index. The workbook now maps 24 v1 WF1–WF4 cases plus nine target-only
-Pending cases, for 33 total: 13 Passed, 20 Pending, and zero Failed at the recorded
-baseline. MinIO/evidence storage is tracked separately under FE-04/WF3 task
+case index. The workbook maps 24 historical v1 WF1–WF4 cases plus eleven
+Enterprise SaaS target cases, for 35 total: 17 Passed, 18 Pending, and zero
+Failed. Of the target cases, WF2-008/WF2-009 passed Round 1 on 2026-10-09; the
+other nine remain Pending. MinIO/evidence storage is tracked separately under FE-04/WF3 task
 `T025/SCRUM-85`. CI uses S3Mock for S3 API integration coverage; that mock does not
 replace runtime verification against MinIO.
 

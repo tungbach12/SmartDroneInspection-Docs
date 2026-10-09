@@ -81,18 +81,17 @@ identify SRS capabilities and WFx IDs retain stable case identity:
 
 | Workbook sheet | Included SRS features | Included WF IDs |
 | --- | --- | --- |
-| `Feature 1` | FE-02 and FE-03; FE-01 gate tracked separately | WF1-001–004, WF1-011–019, and WF2-001–007 |
+| `Feature 1` | FE-02 and FE-03; FE-01 gate tracked separately | WF1-001–004, WF1-011–019, and WF2-001–009 |
 | `Feature 2` | FE-04, FE-05, FE-06, and FE-07 | WF3-001–008 and WF4-001–005 |
 
 There are exactly eight FE-specific Markdown source files. The two fixed
 workbook sheets are presentation groupings, not source files or SRS features.
 FE-08 currently has no assigned case and remains an explicit coverage gap.
-The nine target-only cases (`WF2-005`–`WF2-007` on Feature 1, and `WF3-005`–`WF4-005`
-on Feature 2) remain `Pending` across all rounds. They define workspace entitlement,
-MF1 asset/pair setup, MF2 readiness, MF3 human review/publication, and MF4 team/cost/
-acceptance criteria; they do not claim those workflows currently run. The backend reset
-adds an identity migration and additive schema bridge but leaves the cutover incomplete,
-and does not implement MF1–MF4 workflow behavior.
+The eleven target-only cases (`WF2-005`–`WF2-009` on Feature 1, and `WF3-005`–`WF4-005`
+on Feature 2) define Enterprise SaaS acceptance. `WF2-008` and `WF2-009` passed
+Round 1 on 2026-10-09 with automated PostgreSQL/Testcontainers evidence; Rounds
+2–3 remain `Pending`. Other unexecuted target rounds remain `Pending`. These
+cases do not claim end-to-end workflow delivery.
 
 ## Visual and status rules
 

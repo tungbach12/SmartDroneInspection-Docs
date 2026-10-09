@@ -10,16 +10,16 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | Historical WF1–WF4 evidence plus 2026-10-07 Enterprise SaaS target case design; no new target runtime execution in Report 5. Backend MF2 mission-plan integration tests were added under PR #54 (`364a23e`, `MissionPlanApiIntegrationTest`, `DroneMissionPlanTest`, `MissionShotItemCoordinateConstraintTest`), but no executed Report 5 run is recorded, so target cases remain `Pending`. |
-| Last updated | 2026-10-08 |
+| Test round | Historical WF1–WF4 evidence plus Enterprise SaaS target cases. `WF2-008` and `WF2-009` have Round 1 automated PostgreSQL evidence recorded; their Rounds 2–3 and other unexecuted target rounds remain `Pending`. |
+| Last updated | 2026-10-09 |
 
 ## Module summary
 
 | No | Module code | Passed | Failed | Pending | N/A | Number of test cases |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 1 | Feature 1 sheet (FE-02/WF1 + FE-03/WF2 + target MF1–MF2; FE-01 gate separate) | 9 | 0 | 11 | 0 | 20 |
+| 1 | Feature 1 sheet (FE-02/WF1 + FE-03/WF2 + target MF1–MF2; FE-01 gate separate) | 13 | 0 | 9 | 0 | 22 |
 | 2 | Feature 2 sheet (FE-04–FE-07; WF3 + WF4 + target MF3–MF4) | 4 | 0 | 9 | 0 | 13 |
-| **Subtotal** |  | **13** | **0** | **20** | **0** | **33** |
+| **Subtotal** |  | **17** | **0** | **18** | **0** | **35** |
 
 ## Supporting FE-01 verification (not workbook cases)
 
@@ -56,12 +56,14 @@ organized by FE; FE-08 has no assigned functional case in this baseline and is
 not included in the denominator. The WF1–WF4 results are historical/retired v1
 evidence; their recorded `Passed` statuses remain evidence only for the earlier
 five-role behavior tested, not for the current reset branch. The `WF1-011`–
-`WF1-019` cases record the schedule-proposal revision of v1 WF1. The nine target
-acceptance cases (`WF2-005`–`WF2-007` and `WF3-005`–`WF4-005`) describe Enterprise
-SaaS MF1–MF4 criteria and remain `Pending` in every round. The V24/V25 reset is
-not workflow execution; MF1–MF4 behavior is outside its scope. `WF2-007` defines
-the MF2 readiness/mission-preparation gate and applicable permit/airspace checks;
-it is not evidence that the gate currently runs.
+`WF1-019` cases record the schedule-proposal revision of v1 WF1. Eleven target
+acceptance cases (`WF2-005`–`WF2-009` and `WF3-005`–`WF4-005`) describe Enterprise
+SaaS MF1–MF4 criteria. `WF2-008` and `WF2-009` passed Round 1 on 2026-10-09
+using automated PostgreSQL/Testcontainers integration tests; their Rounds 2–3
+remain `Pending`. The other unexecuted target cases remain `Pending` in every
+round. `WF2-007` remains the broad MF2 gate; `WF2-008` and `WF2-009` detail
+independent approval and return-observation semantics. V24/V25 reset verification
+is not workflow execution.
 
 ## Coverage summary
 
@@ -72,13 +74,15 @@ baseline Feature 2 sheet still contributes 7 historical v1 cases. Both WF3-004
 rounds completed as `Passed`, so the historical v1 Feature 2 `Passed` count is 4.
 The nine WF1 cases added on 2026-09-28 (`WF1-011`–`WF1-019`) raise the historical
 Feature 1 sheet to 17. The nine target cases added on 2026-10-03 (`WF2-005`–
-`WF2-007` on Feature 1, and `WF3-005`–`WF4-005` on Feature 2) expand the total
-index to 33. They define Enterprise SaaS target coverage for workspace
-entitlement, MF1 asset/pair setup, MF2 readiness, MF3 human
-verification/immutable publication, and MF4 team/cost/acceptance gates. All nine
-remain `Pending` in every round, including after the 2026-10-08 reset execution:
-that round verified identity, registration, audit and target schema only, and
-delivered no MF1-MF4 workflow behavior. Schema presence is not workflow evidence. Preserve historical Passed results as v1 evidence only, and never
+`WF2-007` on Feature 1, and `WF3-005`–`WF4-005` on Feature 2) expanded the index
+to 33 at that historical revision. Two detailed MF2-07 cases (`WF2-008`–`WF2-009`) added on 2026-10-09 bring
+the total to 35. They cover independent approval gates and return observed-source
+auditing. The nine MF1–MF4 target cases previously recorded remain `Pending`. WF2-008
+and WF2-009 are `Passed` in Round 1 from the 2026-10-09 PostgreSQL/Testcontainers
+integration run recorded in FE-03; their Rounds 2–3 remain `Pending`. The full Backend
+`./mvnw clean verify` passed 220 tests with JaCoCo coverage and Modulith checks
+met. Current formal totals are 17 Passed, 18 Pending, 0 Failed and 0 N/A across
+35 cases. Preserve historical v1 Passed results as v1 evidence only, and never
 represent a target feature as passed without recorded execution.
 
 Use the same definitions as the workbook:
@@ -89,8 +93,8 @@ Use the same definitions as the workbook:
 
 | Measure | Value at baseline | Formula/source |
 | --- | ---: | --- |
-| Test coverage | 13 / 33 = 39.4% | Count non-`Pending` statuses in Feature 1 and Feature 2. |
-| Successful coverage | 13 / 33 = 39.4% | Count `Passed` statuses in Feature 1 and Feature 2. |
+| Test coverage | 17 / 35 = 48.6% | Count non-`Pending` statuses in Feature 1 and Feature 2. |
+| Successful coverage | 17 / 35 = 48.6% | Count `Passed` statuses in Feature 1 and Feature 2. |
 
 The two module rows are workbook-sheet totals, not SRS feature totals. This is
 why the Feature 2 sheet legitimately contains `WF4-001`–`WF4-003`: those cases

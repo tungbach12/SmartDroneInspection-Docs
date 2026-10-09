@@ -8,9 +8,9 @@ when transferring values into the workbook.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Creator | *Enter team/member name* |
-| Issue Date | 2026-10-08 |
+| Issue Date | 2026-10-09 |
 | Document Code | *Enter document code* |
-| Version | 2.7 (business-flow reference replaced with the current four-role flows; no target MF1-MF4 workflow case passed) |
+| Version | 2.8 (added and executed Round 1 MF2-07 approval and return cases; other target cases remain Pending) |
 
 ## Record of change
 
@@ -46,3 +46,4 @@ revision; do not remove old entries.
 | 2026-10-07 | 2.5 | Documentation status and evidence preservation | M | Clarified that prior WF1–WF4 results are historical v1 evidence, not current reset-branch verification; stated that MF1–MF4 target workflow cases remain unexecuted and all nine target cases remain `Pending`. Preserved all case IDs, per-round statuses, dates, testers, historical test notes, counts (33: 13 Passed, 20 Pending, 0 Failed, 0 N/A) and the workbook template. Added no test execution or new evidence. | `README.md`; `01-test-cases/test-case-list.md`; `02-test-statistics/test-statistics.md`; Report 5 feature sources; backend reset status 2026-10-07; `00-cover/cover.md` |
 | 2026-10-08 | 2.7 | Current business-flow reference restored | M | Recorded that `project-reference/business-flows.md` v4.0 (four-role Enterprise SaaS, MF1-MF4) replaces the historical marketplace flow document and that `_index.md` links to it. Document-only: no case ID, status, round, date, tester, statistic or historical evidence changed, and no test execution is claimed. All nine target cases remain `Pending`. | `project-reference/business-flows.md`; `project-reference/_index.md`; Report 3 SRS |
 | 2026-10-08 | 2.6 | Enterprise SaaS reset execution recorded | M | Recorded the executed V24/V25/V26 reset verification: backend `./mvnw clean verify` passed 88 tests (organization registration writing `ORGANIZATION_REGISTRATION` to `audit_events`, fail-closed role migration, exact 41-table target inventory, Modulith boundaries); frontend 128 tests plus build; mobile 16 tests with format/analyze clean. Added Round 2 FE-01 sections for these gates. **No workbook case status changed**: all nine target MF1-MF4 cases remain `Pending`, and all historical v1 results, IDs, dates and testers are preserved. Corrected current-state documentation that described the cutover as incomplete or referenced the dropped `security_audit_events` table and a non-existent mobile registration endpoint. | `mvnw clean verify`; `npm run lint && npm test && npm run build`; `flutter test`; `V26__enterprise_saas_runtime_cutover.sql`; `project-reference/database-design.md`; `backend/architecture.md`; `backend/authentication-and-authorization.md` |
+| 2026-10-09 | 2.8 | MF2-07 approval and return test traceability | M | Added `WF2-008`/`WF2-009` on Feature 1 and recorded Round 1 Passed from PostgreSQL integration tests. Backend `./mvnw clean verify` passed 220 tests with JaCoCo and Modulith checks met. Total is 35 cases: 17 Passed, 18 Pending, 0 Failed, 0 N/A; Rounds 2–3 remain Pending for WF2-008/WF2-009. | Report 3 SRS 3.4; `project-reference/business-flows.md`; FE-03; case index/statistics; Backend `./mvnw clean verify` |
