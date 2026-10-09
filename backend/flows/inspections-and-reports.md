@@ -1,88 +1,150 @@
 ---
-title: "WF3 Inspection and Report Runtime Flow"
+title: "MF3 Inspection, Evidence and Report Runtime Flow"
 weight: 40
 ---
 
-# Historical WF3 Inspection and Report Runtime Flow
+# MF3 Inspection, Evidence and Report Runtime Flow
 
-> **Status as of 7 October 2026, `feat/enterprise-saas-reset`: historical and non-authoritative.** The detailed endpoint, service and verification descriptions below refer to the earlier v1 inspection runtime and are retained only as a record of the prior implementation/test baseline. The reset removed the inspection workflow controllers and services and their workflow tests; remaining inspection entities/repositories and V24/V25 migration structures provide persistence/schema only, not runtime workflow behavior. Do not treat any endpoint below as currently available. The current Enterprise SaaS target uses four roles and MF1–MF4, but this reset does not implement those workflow behaviors; see Report 3 and the database design. Historical Report 5 results remain evidence of the version that was actually tested, not of this reset branch.
+This describes the implemented Report 3 MF3 workflow inside the `inspections`
+Spring Modulith module. Roles are the four Enterprise SaaS roles: `ADMIN`,
+`ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`. The assigned Inspector is
+the human report author; AI is advisory only.
 
-The removed v1 WF3 behavior was previously implemented inside the `inspections` Spring Modulith module. The endpoint and service details below are a historical snapshot, not a current API contract. In that earlier runtime, the authenticated backend principal and scoped resource lookups—not client-supplied user, organization, owner, or assignment IDs—decided access.
+Access is decided by the authenticated principal and scoped lookups, never by
+client-supplied user, organization, owner, or assignment identifiers. Write
+operations require the *assigned* Inspector; read and review operations also
+allow a same-organization `ORG_ADMIN`.
 
-## Inspection, checklist, and evidence (FE-04)
+## Evidence intake (FE-04, MF3-01/02)
 
-The Inspector must have an active accepted assignment for each inspection
-operation. The inspection controller additionally requires the `INSPECTOR`
-role. A checklist read returns published items, validation configuration, and
-the current saved response/notes; response writes remain scoped to that
-inspection and checklist item.
-
-| Operation | Endpoint | Behavior |
+| Operation | Endpoint | Actor |
 | --- | --- | --- |
-| List accepted assignments | `GET /api/v1/inspections/assignments?status=ACCEPTED` | Returns the signed-in Inspector's accepted assignments. |
-| Start/resume | `POST /api/v1/inspections/start` | Idempotently starts or returns the inspection for the accepted assignment. |
-| Read checklist | `GET /api/v1/inspections/{inspectionId}/checklist` | Returns published checklist items and saved responses for the assigned Inspector. |
-| Save response | `PUT /api/v1/inspections/{inspectionId}/checklist-responses/{checklistItemId}` | Validates item membership and response shape; actor is derived from the token. |
-| Upload evidence | `POST /api/v1/inspections/{inspectionId}/evidence` | Multipart `file` plus source and optional capture/GPS/reference metadata. |
-| List evidence | `GET /api/v1/inspections/{inspectionId}/evidence` | Returns available metadata only; it does not expose MinIO object keys or URLs. |
-| Stream evidence | `GET /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/content` | Rechecks evidence-to-inspection and assignment scope before streaming. |
+| Upload evidence | `POST /api/v1/inspections/{inspectionId}/evidence` | assigned Inspector, same-org ORG_ADMIN |
+| List evidence | `GET /api/v1/inspections/{inspectionId}/evidence` | assigned Inspector, same-org ORG_ADMIN |
+| Stream evidence | `GET /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/content` | assigned Inspector, same-org ORG_ADMIN |
 
-Allowed evidence source values are `SD_CARD`, `WEB_UPLOAD`, `MOBILE_UPLOAD`,
-and `IMPORTED`. The backend validates supported content and configured size,
-computes SHA-256, and treats a repeated inspection/checksum upload
-idempotently. Missing GPS is allowed; latitude and longitude must be supplied
-together. A MinIO deployment enables storage with `MINIO_ENABLED=true` and
-environment-supplied endpoint, bucket, access key, and secret key. The feature
-does not return direct object-store URLs.
+Multipart fields are `file` (required), `source`
+(`SD_CARD`|`WEB_UPLOAD`|`MOBILE_UPLOAD`|`IMPORTED`, default `WEB_UPLOAD`),
+`captureTime`, `latitude`, `longitude`, `externalReference`.
 
-## AI candidates and verified findings (FE-05)
+Accepted content types are `image/png`, `image/jpeg`, `image/webp`,
+`image/tiff`, `video/mp4`, `application/pdf`. The service caps a file at 50 MB;
+`EVIDENCE_MAX_FILE_SIZE` (default `1MB`) and `EVIDENCE_MAX_REQUEST_SIZE`
+(default `10MB`) cap the container request, so the effective limit is the
+smaller of the two.
 
-AI is optional. `YOLO_INFERENCE_ENABLED` defaults to `false`; when enabled, the
-adapter posts raw eligible image bytes with their media type to the configured
+Latitude and longitude must be supplied together. The server computes SHA-256
+and treats a repeated inspection/checksum upload idempotently, returning the
+existing evidence rather than a duplicate. Evidence responses expose metadata
+only — never object-store keys or URLs. `MINIO_ENABLED=true` plus the endpoint,
+bucket, access key and secret key enable real storage; without an
+`EvidenceObjectStore` bean the upload fails with `EVIDENCE_STORAGE_UNAVAILABLE`.
+
+## Evidence quality decision (FE-04, MF3-03/04)
+
+| Operation | Endpoint | Actor |
+| --- | --- | --- |
+| Record decision | `POST /api/v1/inspections/{inspectionId}/evidence-quality-decisions` | assigned Inspector |
+| Decision history | `GET /api/v1/inspections/{inspectionId}/evidence-quality-decisions` | assigned Inspector, same-org ORG_ADMIN |
+
+`decision` is `PENDING`|`ACCEPTED`|`REUPLOAD_REQUIRED`|
+`ADDITIONAL_SESSION_REQUIRED`|`LIMITED`. `PENDING` is rejected at runtime with
+`EVIDENCE_QUALITY_INVALID`. `LIMITED`, `REUPLOAD_REQUIRED` and
+`ADDITIONAL_SESSION_REQUIRED` each require a non-blank `limitationReason`.
+
+The decision requires the inspection to be `FIELD_COMPLETED` or `REPORT_DRAFT`.
+Only an accepted decision makes the evidence set eligible for advisory
+detection and report drafting.
+
+`shotListComparison` is stored in a `jsonb` column while the Inspector writes
+prose, so the service stores the text as a single `summary` entry and returns it
+unchanged. The same applies to a finding's `measurement`.
+
+## AI candidates and verified findings (FE-05, MF3-05/06/09)
+
+| Operation | Endpoint | Actor |
+| --- | --- | --- |
+| List candidates | `GET /api/v1/inspections/{inspectionId}/finding-candidates` | assigned Inspector, same-org ORG_ADMIN |
+| Analyze evidence | `POST /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/analyze` | assigned Inspector |
+| Review candidate | `POST /api/v1/inspections/{inspectionId}/finding-candidates/{candidateId}/review` | assigned Inspector |
+| List findings | `GET /api/v1/inspections/{inspectionId}/findings` | assigned Inspector, same-org ORG_ADMIN |
+| Add manual finding | `POST /api/v1/inspections/{inspectionId}/findings` | assigned Inspector |
+| Record finding decision | `POST /api/v1/inspections/{inspectionId}/findings/{findingId}/decision` | same-org ORG_ADMIN |
+
+AI is optional. Both `YOLO_INFERENCE_ENABLED` and `COMPATIBLE_VISION_ENABLED`
+default to `false`; configure at most one provider. When YOLO is selected, the
+adapter posts raw eligible image bytes with their media type to
 `YOLO_INFERENCE_BASE_URL` plus `YOLO_INFERENCE_PREDICT_PATH` (default
-`/predict`). Connect/read timeouts are configurable. The adapter expects a JSON
-array with `modelName`, `modelVersion`, `predictedLabel`, `confidence`, and
-`boundingBox` per detection. This is the adapter contract; it does not assert
-that a separately hosted model has been deployed or live-verified.
+`/predict`). The YOLO endpoint returns detections in its documented array
+contract. When the OpenAI-compatible vision provider is selected, it sends the
+image as a MIME-aware base64 data URI to `<COMPATIBLE_VISION_BASE_URL>/v1/chat/completions`,
+sets `stream:false`, and asks for a JSON `detections` object. Configure
+`COMPATIBLE_VISION_MODEL`, `COMPATIBLE_VISION_API_KEY`, and
+`COMPATIBLE_VISION_TIMEOUT`; the key is supplied from the local environment and
+must not be committed. The adapter validates the label, confidence in `[0,1]`,
+and normalized `xMin`, `yMin`, `xMax`, `yMax` coordinates in `[0,1]` with
+positive box dimensions. Candidates retain the configured model alias and the
+provider-reported model version. These adapters provide advisory suggestions
+only; they do not make an AI result an official finding.
 
-| Operation | Endpoint | Behavior |
+Analysis is refused until the Inspector accepts the evidence. An inference
+failure returns `503 AI_INFERENCE_UNAVAILABLE` and the manual finding path
+stays available. Only a `CONFIRMED` or `MODIFIED` decision makes a finding
+official; pending and rejected candidates never enter report snapshots. A
+rejected candidate returns `204 No Content`.
+
+## Report authoring, review and publication (FE-06, MF3-07 to MF3-13)
+
+| Operation | Endpoint | Actor |
 | --- | --- | --- |
-| List candidates | `GET /api/v1/inspections/{inspectionId}/finding-candidates` | Lists advisory candidates for the assigned Inspector. |
-| Analyze evidence | `POST /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/analyze` | Persists validated model output as non-official candidates. |
-| Review candidate | `POST /api/v1/inspections/{inspectionId}/finding-candidates/{candidateId}/review` | Inspector confirms, modifies, or rejects the candidate; rejection requires a reason. |
-| Add manual finding | `POST /api/v1/inspections/{inspectionId}/findings` | Creates an official manual finding for eligible inspection evidence. |
+| Generate AI draft | `POST /api/v1/inspections/{inspectionId}/report/draft` | assigned Inspector |
+| Author manual draft | `POST /api/v1/inspections/{inspectionId}/report/draft/manual` | assigned Inspector |
+| List versions | `GET /api/v1/inspections/{inspectionId}/report/versions` | assigned Inspector, same-org ORG_ADMIN |
+| Read version | `GET /api/v1/inspections/{inspectionId}/report/versions/{versionId}` | assigned Inspector, same-org ORG_ADMIN |
+| Verify as author | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/verify` | assigned Inspector |
+| Submit for review | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/submit` | assigned Inspector |
+| Review | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/review` | qualified same-org ORG_ADMIN |
+| Publish | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/publish` | qualified same-org ORG_ADMIN |
 
-Only confirmed/modified AI candidates and manual findings create official
-verified findings. Rejected or pending candidates do not enter report
-snapshots. An AI failure does not remove stored evidence or block the manual
-finding path.
+Version status moves `DRAFT` → `AUTHOR_VERIFIED` → `SUBMITTED` → (`RETURNED` |
+`APPROVED`) → `PUBLISHED` → `SUPERSEDED`.
 
-## Versioned reports and Client decision (FE-06)
+**Manual authoring is required, not optional.** Report 3 states that failed LLM
+generation permits the author to complete a structured manual draft with the
+same review gates. `POST /report/draft` therefore reports
+`503 REPORT_DRAFT_UNAVAILABLE` when no `ReportDraftPort` is configured, and the
+author uses `POST /report/draft/manual` with `narrative` (required) and an
+optional `omissionDisclosure` recording which analysis was omitted. The manual
+version records `llmModel` as `manual-authoring`, so a reader can tell that the
+narrative is the author's own.
 
-| Operation | Endpoint | Required actor/scope |
-| --- | --- | --- |
-| List/read reports | `GET /api/v1/reports`, `GET /api/v1/reports/{reportId}` | Inspector author/reviewer, ORG_ADMIN, or organization member; results are filtered per actor. |
-| Create/read inspection draft | `POST` / `GET /api/v1/inspections/{inspectionId}/report` | Assigned Inspector; draft snapshot requires all required checklist responses and at least one available evidence item. |
-| Create linked revision | `POST /api/v1/reports/{reportId}/versions` | Report author after a review or ORG_ADMIN revision request. |
-| Assign reviewer | `PUT /api/v1/reports/{reportId}/versions/{versionId}/reviewer` | ORG_ADMIN; reviewer is an active, distinct Inspector. |
-| Submit/review | `POST .../submit-review`, `POST .../review` | Author submits; only the assigned, distinct Inspector reviews. |
-| Release | `POST /api/v1/reports/{reportId}/versions/{versionId}/release` | ORG_ADMIN, after technical approval and completeness checks. |
-| Organization decision | `POST /api/v1/reports/{reportId}/versions/{versionId}/org-admin-decision` | ORG_ADMIN belonging to the report's organization, on the current released version. |
-| Stream released evidence | `GET /api/v1/reports/{reportId}/versions/{versionId}/evidence/{evidenceId}/content` | Owning organization; evidence must be present in that visible version snapshot. |
+Drafting moves the inspection from `FIELD_COMPLETED` to `REPORT_DRAFT`.
+Publication requires that state and then moves the inspection to
+`REPORT_PUBLISHED`, and finally to `REPAIR_PENDING` or `COMPLETED`.
 
-Organization responses exclude internal review comments and unreleased content.
-Accepting a released version records the ORG_ADMIN actor, makes the version
-immutable, and publishes one `ReportAcceptedEvent`; an idempotent repeated
-acceptance does not publish a second handoff. A revision request requires a
-reason, stores both decision actor and reason on `report_versions`, and leaves
-the released version in the organization-visible history. Migration
-`V10__inspection_report_client_decision_audit.sql` adds that audit data without
-rewriting the notification migration `V9`.
+Separation of duties is enforced twice. Only the assigned Inspector may author
+or verify, and only a same-organization `ORG_ADMIN` who is not the author may
+review or publish; the author is refused with `REPORT_SCOPE_DENIED` or
+`REPORT_REVIEWER_INVALID`. A return requires a non-blank `reason` and returns the
+version to the author, who must verify and submit again before it can be
+approved.
 
-The acceptance event is the boundary to WF4/billing. This WF3 slice does not
-persist invoices or implement payment processing; the billing owner consumes
-the handoff and records the separate post-service milestone.
+Listing versions for an inspection that has no report returns an empty list
+rather than a missing-resource failure, because "no report yet" is the normal
+state before an author drafts one.
+
+Publication emits `ReportPublishedEvent` carrying the confirmed repair-required
+finding IDs. An empty list means no corrective work was required within the
+observed scope and the inspection completes; it never creates an empty work
+order.
 
 ## Verification records
 
-**Historical verification record (pre-reset only):** The former service and API tests covered assignment scope, evidence validation and idempotency, AI provenance/review states, report separation of duties, organization scope/decisions, and the event handoff. Report 5 records the outcomes for `WF3-001`–`WF3-004` on the fixed `Feature 2` sheet. Those recorded results are preserved as evidence of the earlier v1 baseline; they do not assert that the corresponding workflow tests or runtime remain in this reset branch.
+`InspectionReportVersionTest` and `AiFindingCandidateTest` cover the version
+state machine and candidate review states.
+`InspectionEvidenceApiIntegrationTest` and
+`InspectionReportApiIntegrationTest` exercise MF3-01 through MF3-13 over the
+real HTTP surface, including the manual authoring path, the return/resubmit
+cycle, self-review refusal, and the full draft-to-publish sequence. Report 5
+records the outcomes for `WF3-001`–`WF3-004` on the fixed `Feature 2` sheet and
+for the target MF3 rows.

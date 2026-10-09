@@ -7,7 +7,7 @@ aliases:
 
 # Backend Architecture
 
-> **Current worktree status — 7 October 2026, `feat/enterprise-saas-reset`:** This page combines target architecture guidance with an older runtime inventory. It is not a claim that the Enterprise SaaS target is implemented. The backend reset removed provider request/marketplace runtime code and the inspection workflow controllers/services; surviving inspection JPA records and repositories plus V24/V25 migration schema are persistence/schema only. Asset/catalog/scheduling runtime and authentication remain, but the full MF1–MF4 workflow behavior is out of reset scope and not implemented. V24 aligns identity vocabulary, V25 adds the target schema, and V26 completes the runtime cutover to the exact 41-table target inventory (verified by `./mvnw clean verify`, 88 tests, exit 0, on 8 October 2026). Read the runtime-status table and verify against the current source before treating target modules or behaviors as shipped.
+> **Current worktree status — 8 October 2026:** This page combines target architecture guidance with the runtime inventory. The `inspections` module now implements the Report 3 MF3 workflow end to end: evidence intake, the Inspector's evidence-quality decision, advisory AI candidates with manual fallback, versioned report authoring, independent qualified review, and immutable publication. Migration `V27__mf3_report_workflow.sql` replaces the retired report-status vocabulary and drops the removed `peer_reviews` table. The remaining MF1, MF2 and MF4 workflow behavior is still schema-only. Read the runtime-status table and verify against the current source before treating target modules or behaviors as shipped.
 
 The target backend architecture is a Java 21 Spring Boot modular monolith. Spring Modulith verifies the boundaries between direct feature packages so each team-owned capability stays focused.
 
@@ -23,7 +23,7 @@ com.smartdroneinspection/
 |-- subscriptions/         # Enterprise subscription plan/period/status/entitlement
 |-- workforce/             # Inspector/engineer credentials, qualifications, compliance documents
 |-- assets/                # Asset catalog, asset documents, drones, pair assignments, checklist templates
-|-- inspections/           # Inspection setup snapshots, readiness/session records, evidence, findings, reports
+|-- inspections/           # Implemented (MF3): evidence, quality decisions, findings, versioned reports
 |-- maintenance/           # Work orders, teams, tasks, cost lines, change orders, work logs, reports, acceptance
 |-- notifications/         # In-app/email notification records and event-facing contracts
 |-- dashboard/             # Read-only aggregation; no ownership of business tables
@@ -37,13 +37,13 @@ com.smartdroneinspection/
 | `subscriptions` | Enterprise subscription management | Package root only; the `subscriptions` table is schema, not subscription runtime. |
 | `workforce` | Credentials, qualifications, and compliance documents | Package root only; the `workforce_credentials` table is schema, not workforce runtime. |
 | `assets` | Asset catalog, asset documents, categories/checklists, and schedules | Asset/catalog/scheduling entities, repositories, controllers, and services remain; the reset branch is reconciling authorization and does not complete all MF1 target behavior. |
-| `inspections` | Inspection setup, readiness, field records, evidence, findings, and reports | Workflow controllers/services and inspection workflow tests were removed in the reset; residual entities/repositories and V24/V25 schema are storage only, not an inspection workflow runtime. |
+| `inspections` | Evidence intake, evidence-quality decision, AI candidates and findings, versioned reports | Implemented for MF3. Controllers, services, repositories, and workflow tests cover MF3-01 through MF3-13. MF2 assignment/checklist creation is not implemented, so there is no HTTP endpoint that creates an inspection. |
 | `maintenance` | Target work orders, teams, costs, work logs, reports, and acceptance | Legacy maintenance persistence artifacts remain; the MF4 target workflow implementation is not present. |
 | `notifications` | Notification records and delivery | Existing notification persistence may remain; target delivery behavior is not established by the reset. |
 | `dashboard` | Read-only composition of capability data | Package metadata only; no runtime slice. |
-| `infrastructure` | Outbound adapters for feature-owned ports | Legacy MinIO/AI adapters may remain; they do not make removed workflow use cases available. |
+| `infrastructure` | Outbound adapters for feature-owned ports | MinIO storage, YOLO or OpenAI-compatible vision inference (mutually exclusive, optional providers), and the independently configurable LLM report-draft adapter are available; MF3 retains manual finding and report-authoring paths. |
 
-`dashboard` currently contains only package metadata. Before the reset, the `inspections` runtime slice included assigned execution/checklists, evidence, optional AI-assisted findings, versioned reports, release, and organization decision; its workflow controllers and services have since been removed. The older inspection workflow details in [the runtime flow guide](../backend/flows/inspections-and-reports/) are historical, not currently callable endpoints. Current MF1–MF4 runtime behavior remains to be implemented in separate workflow slices. Each feature owns its domain models; do not create a global `com.smartdroneinspection.domain` entity package.
+The `inspections` runtime slice covers MF3: scoped evidence upload with server-side checksum and idempotency, the Inspector's substantive evidence-quality decision that gates analysis and drafting, advisory AI candidates kept separate from human-verified findings, manual finding entry that survives an AI outage, and a versioned report whose authoring, independent ORG_ADMIN review, return, approval, and immutable publication each enforce their own gate. See [the MF3 runtime flow guide](../backend/flows/inspections-and-reports/) for the endpoint contract. Each feature owns its domain models; do not create a global `com.smartdroneinspection.domain` entity package.
 
 ## Module visibility and responsibilities
 
@@ -88,9 +88,9 @@ not as speculative plumbing.
 
 ## Persistence and integrations
 
-PostgreSQL is the target persistence source of truth. Flyway owns schema migrations. On the reset branch V26 has completed the runtime schema cutover to the exact target inventory; do not infer that every table has a current entity, repository, API or workflow consumer. The target architecture assigns tables to owning features, except framework infrastructure such as Spring Modulith `event_publication`; the live ownership map must be reconciled against current entities and migrations before claiming full parity. Cross-feature references should use scalar IDs at the persistence boundary instead of coupling modules through each other's entities. The `infrastructure/` area may contain outbound adapters for feature-owned ports. Reports, findings, and AI candidates are target responsibilities of `inspections`; maintenance work orders are target responsibilities of `maintenance`; these workflow features are not implemented by schema presence.
+PostgreSQL is the target persistence source of truth. Flyway owns schema migrations. On the reset branch V26 has completed the runtime schema cutover to the exact target inventory; do not infer that every table has a current entity, repository, API or workflow consumer. The target architecture assigns tables to owning features, except framework infrastructure such as Spring Modulith `event_publication`; the live ownership map must be reconciled against current entities and migrations before claiming full parity. Cross-feature references should use scalar IDs at the persistence boundary instead of coupling modules through each other's entities. The `infrastructure/` area may contain outbound adapters for feature-owned ports. Reports, findings, and AI candidates are responsibilities of `inspections`, which implements the MF3 slice of them; maintenance work orders are target responsibilities of `maintenance` and are not implemented by schema presence.
 
-Inspection evidence is uploaded through the web or mobile application. The optional YOLO adapter is environment-configured and disabled by default. The current architecture has no dependency on a separate drone-operation platform.
+Inspection evidence is uploaded through the web or mobile application. Image inference is optional and disabled by default; enable either the YOLO adapter or the OpenAI-compatible multimodal vision adapter, never both. Report drafting remains independently configurable, and manual findings/report authoring remain available. The current architecture has no dependency on a separate drone-operation platform.
 
 ## Error handling and verification
 
