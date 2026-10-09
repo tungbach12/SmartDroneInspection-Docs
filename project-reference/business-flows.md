@@ -11,11 +11,13 @@ updated: 2026-10-08
 This document describes the current product target: a multi-tenant SaaS workspace rented by
 infrastructure-owning companies. Four human roles, four connected Main Flows, no marketplace.
 
-> **Requirements, not implementation.** These flows state required behaviour. They do not claim the
-> steps are implemented. On 8 October 2026 the backend delivered identity, organization
-> registration, the 41-table target schema and the runtime cutover on VPS2; MF1-MF4 workflow
-> execution remains team work. See [database-design.md](database-design.md) §11 for what currently
-> exists, and [Report 3](../reports/report-3-software-requirement-specification/03-functional-requirements.md)
+> **Requirements, not implementation.** These flows state required behaviour. On 8 October 2026 the
+> backend delivered identity, organization registration, the 41-table target schema and the runtime
+> cutover on VPS2, and then the MF3 workflow slice: evidence intake, the Inspector's evidence-quality
+> decision, advisory AI candidates with a manual fallback, and versioned report authoring, independent
+> ORG_ADMIN review, and immutable publication. MF1, MF2, and MF4 execution remains team work. See
+> [database-design.md](database-design.md) §11 for what currently exists, and
+> [Report 3](../reports/report-3-software-requirement-specification/03-functional-requirements.md)
 > for the binding requirements text.
 
 > **Replaces** the six-role marketplace reference, now retained as
@@ -228,6 +230,12 @@ SUBMITTED_FOR_ACCEPTANCE -> REINSPECTION_REQUIRED -> linked inspection
 `WORK_COMPLETED` is a team declaration; `CLOSED` requires independent acceptance and reconciled
 costs. These are target states, not a claim that the backend enums already carry them.
 
+The MF3 inspection and report chain is the exception: those states are now
+implemented. `FIELD_COMPLETED -> REPORT_DRAFT -> REPORT_PUBLISHED ->
+REPAIR_PENDING | COMPLETED` is enforced by `Inspection`, and `DRAFT ->
+AUTHOR_VERIFIED -> SUBMITTED -> RETURNED | APPROVED -> PUBLISHED ->
+SUPERSEDED` by `InspectionReportVersion`.
+
 ## VII. Cross-cutting rules
 
 1. **One tenant owns every business record.** Organization scope is checked in services and scoped
@@ -252,7 +260,8 @@ costs. These are target states, not a claim that the backend enums already carry
 | Roles, organization registration, audit | Delivered and verified on VPS2 |
 | Target schema (41 tables) and runtime cutover | Delivered and verified on VPS2 |
 | Asset catalog, categories, checklists | Runtime present; MF1 pair/inspection workflow not implemented |
-| MF1-MF4 workflow execution | Not implemented. Team-owned work. |
+| MF3 evidence, quality decision, findings, versioned report and publication | Implemented and verified on 8 October 2026 |
+| MF1, MF2, MF4 workflow execution | Not implemented. Team-owned work. |
 
 Report 5 records the nine target acceptance cases (`WF2-005`-`WF2-007`, `WF3-005`-`WF4-005`) as
 `Pending`. They stay `Pending` until matching execution evidence exists; a table or schema row is

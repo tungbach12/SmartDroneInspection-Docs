@@ -1,43 +1,28 @@
-﻿# FE-03: Inspection Request and Work Assignment
+# FE-03: Inspection Request and Work Assignment
 
-## Historical v1 acceptance cases and Enterprise SaaS target
+## Scope baseline
 
-The existing WF1/WF2 cases below describe the earlier five-role implementation baseline: periodic request handoff, Service Manager review, quotation/order intent and assignment. These cases and their recorded results are historical evidence, not current reset-branch verification and do not prove the 2026-10-07 Enterprise SaaS target. Target acceptance cases below describe four-role MF1/MF2 scope and remain `Pending` in every round until actually executed.
+Inspection requests are raised against an organization's assets, reviewed and
+confirmed into a service order, and an Inspector is assigned to carry out the
+work. This is MF1/MF2 upstream of MF3.
 
-## Historical v1 acceptance cases (retired from the Enterprise SaaS target)
+## Current test coverage
 
-These four recorded cases map to FE-03 and WF2 in the earlier baseline. Preserve their IDs, statuses, dates, testers and notes as evidence of that v1 behavior; they do not establish current target or reset-branch runtime. WF2-001 and WF2-002 were in workbook Function B; WF2-003 and WF2-004 were in Function C.
+No workbook test case is mapped to FE-03 in this report.
 
-| Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| WF2-001 | System generates and routes a periodic request for Service Manager review. | A recurring inspection schedule reaches its due cycle; the system generates the PERIODIC request with scope, priority, access constraints, and contact inherited from the asset profile, dispatches the Client notification, and routes the request to the Service Manager. | PERIODIC request is created once for the due cycle with inherited asset defaults; the Client notification is recorded; the request is available to the Service Manager for review. | Active asset with inspection defaults and active schedule reached due cycle. | Pending |  |  | Pending |  |  | Pending |  |  | Pending |  |  |  |
-| WF2-002 | Service Manager prepares and sends a quotation. | Sign in as Service Manager; open the request; add price, scope, and validity; save a version; send it. | A versioned quotation is stored and visible to the correct client; prior versions remain traceable. | Request is actionable; manager is active. | Pending |  |  | Pending |  |  | Pending |  |  |  |
-| WF2-003 | Client approves a quotation and confirms the service order. | Sign in as Client; review the latest quotation; approve it; open the order and billing status. | The approved quotation becomes the confirmed order; the first service billing milestone is recorded. | Quotation is in an approvable state; client owns the request. | Pending |  |  | Pending |  |  | Pending |  |  |  |
-| WF2-004 | Service Manager assigns an Inspector with assignment scope. | Sign in as Service Manager; assign an active Inspector; open the task as the Inspector; attempt an unrelated task. | Assigned Inspector can access only the assigned task; unassigned or conflicting access is denied. | Confirmed order exists; candidate Inspector is active. | Pending |  |  | Pending |  |  | Pending |  |  |  |
+The former `WF1-017`–`WF1-019` and `WF2-001`–`WF2-007` cases were removed on
+2026-10-09. The `WF1`/`WF2` rows described the retired five-role baseline
+(periodic request generation, Service Manager review, Client quotation and
+order approval); the `WF2-005`–`WF2-007` rows described a target design that has
+never been implemented. Neither is evidence for the current system.
 
+**MF1 and MF2 are not implemented in the current backend**, so there is no
+runtime to test and no executed evidence to record. This is an explicit coverage
+gap, not a claim that the requirements were dropped: MF1 and MF2 remain
+required by Report 3 and are awaiting implementation.
 
+This gap also constrains FE-04: there is no `/assignments`, `/start`, or
+`/checklist` endpoint, so MF3 has no verified entry path other than the scoped
+inspection list recorded as `WF3-009`.
 
-
-## WF1 schedule-proposal revision (2026-09-28)
-
-The 2026-09-28 WF1 revision adds the due-cycle event, document-upload rules, and the negative scope sweep. These three cases map to FE-03 and WF1 on the `Feature 1` workbook sheet. `WF1-017` is a **producer-side** verification: it asserts event identity, payload, and per-cycle idempotency with an in-process listener standing in for the WF2 consumer. The consumer half (one `PERIODIC` request per replayed event) is pending T021.
-
-| Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| WF1-017 | The due-cycle publisher emits one event per cycle. | Force `next_due_at` into the past; run the publisher twice; inspect the published events. | Exactly one `InspectionScheduleDue` event carries the correct organization, asset, checklist template, and due cycle; a replayed run publishes nothing. | An `ACTIVE` schedule has `next_due_at` in the past. | Passed | 2026-09-28 | Hiếu | Passed | 2026-09-28 | Hiếu | Passed | 2026-09-28 | Hiếu | Automated evidence: `PeriodicRequestHandoffTest.publishesExactlyOneEventPerDueScheduleCycleAndReplayIsSilent`; `AssetWorkflowIntegrationTest.fullWf1FlowFromAssetCreationToDueEvent`. |
-| WF1-018 | Asset document upload is validated and scoped. | Upload a png/jpeg/webp/pdf within 10 MB to an active asset; upload an unsupported type, an oversize file, and a document to a pending asset; list and stream as another organization. | Only supported types within the size limit reach storage; unsupported types and oversize files are rejected; a pending asset rejects upload; another organization cannot list or stream the document. | An active asset exists; type and size fixtures are available. | Passed | 2026-09-28 | Hiếu | Passed | 2026-09-28 | Hiếu | Passed | 2026-09-28 | Hiếu | Automated evidence: `AssetDocumentApiIntegrationTest.activeAssetDocumentUploadsAndListsForOwnOrgOnly`; `unsupportedTypeOversizeAndPendingAssetsAreRejected`; `returnsAssetOnlyForItsOrganization`. |
-| WF1-019 | Negative scope sweep across every WF1 endpoint. | Exercise each WF1 endpoint across two organizations and the five roles, including unauthenticated access. | Role and organization scope are enforced on every endpoint; a Service Manager cannot create assets or manage the catalog; a Client cannot review assets; unauthenticated access returns a Problem Details 401. | Two organizations and the five role fixtures exist. | Passed | 2026-09-28 | Hiếu | Passed | 2026-09-28 | Hiếu | Passed | 2026-09-28 | Hiếu | Automated evidence: `AssetWorkflowIntegrationTest.negativeScopeSweepAcrossEveryWf1Endpoint`; `managerReviewQueueIsPlatformScopedAndClosedToOtherRoles`. |
-
-## Coverage boundary
-
-WF1-004 and WF1-017 verify the existing producer-side schedule event; WF2-001 remains Pending for the consumer-side automated periodic request with inherited defaults. None of these cases verifies the Enterprise SaaS MF1 inspection-setup or MF2 readiness target.
-
-## Target Enterprise SaaS cases (not executed)
-
-The fixed workbook `Feature 1` sheet remains the output grouping. These are additional FE-03 cases, all Pending in every round. They verify the Enterprise SaaS target with four human roles and no external Provider sourcing, RFQ, commission or marketplace step.
-
-| Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| WF2-005 | ORG_ADMIN provisions an enterprise workspace and provisions Inspector/Engineer workforce with tenant isolation. | Register an enterprise organization; ADMIN activates subscription entitlement; ORG_ADMIN provisions Inspector and Maintenance Engineer accounts with credentials; attempt cross-tenant access or provisioning by an unentitled actor. | Only entitled ADMIN activates the workspace; only ORG_ADMIN of the owning organization provisions its workforce; cross-tenant and out-of-role operations are denied and audited. | Two organizations exist; target roles `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER` fixtures exist. | Pending |  |  | Pending |  |  | Pending |  |  | Target MF1/FE-01; no runtime evidence. |
-| WF2-006 | ORG_ADMIN creates an asset with exactly one responsible Inspector and one identified Drone; the inspection inherits a snapshotted pair. | Create Drone and workforce records; create an asset with code/category/location; assign one Inspector and one Drone in the same workflow; create an inspection and inspect the pair snapshot; attempt creation with a missing/foreign pair. | Asset and pair are saved atomically; the inspection inherits the pair snapshot with scope/dates; missing, inactive or cross-organization pair members block creation; no partial asset is persisted. | Active organization with Drone and workforce fixtures exist. | Pending |  |  | Pending |  |  | Pending |  |  | Target MF1; no runtime evidence. |
-| WF2-007 | MF2 mission preparation and readiness gate: Inspector submits shot-list/permit basis; qualified ORG_ADMIN approves `READY_FOR_FLIGHT`. | Accept an assigned inspection; prepare component shot-list, evidence types and checklist; link applicable permit/credential records; submit preparation; review as the qualified ORG_ADMIN; attempt Start with missing authorization or stale readiness. | Only the assigned Inspector can respond/prepare; `READY_FOR_FLIGHT` is recorded only when mandatory conditions pass with reviewer identity and document versions; Start rechecks entitlement/readiness and rejects stale or revoked approval; no Drone actuation is claimed. | Assigned inspection, permit/credential fixtures and qualified reviewer exist. | Pending |  |  | Pending |  |  | Pending |  |  | Target MF2; no runtime implementation or flight integration evidence. |
+The removed case IDs stay reserved and are never reused.

@@ -45,13 +45,16 @@ The mobile client is designed for `INSPECTOR` and `MAINTENANCE_ENGINEER` workflo
 
 ## Inspection capture
 
-An accepted Inspector assignment opens a detail flow that reads the scoped
-checklist and existing evidence from the versioned inspection API. Checklist
-responses are saved against the inspection and item IDs. Camera capture uses
+An Inspector opens a detail flow for an assigned inspection that reads the
+scoped evidence and the evidence-quality decision history. Camera capture uses
 `image_picker`; uploads send multipart image bytes with source `MOBILE_UPLOAD`
 and capture time. A failed upload keeps the selected image available for retry.
 The backend validates content, computes the checksum, enforces assignment scope,
 and streams stored evidence; the mobile client does not access MinIO directly.
 On iOS, the camera usage message is configured in `Info.plist`.
+
+Report authoring, review, and publication stay web-only. They are governance
+decisions with a separation-of-duties requirement, not field capture, so the
+mobile client does not duplicate them.
 
 Run `flutter test` for tests and `dart run build_runner build --delete-conflicting-outputs` after changing generated Freezed or JSON-serializable models.

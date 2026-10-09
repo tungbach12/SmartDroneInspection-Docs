@@ -1,0 +1,37 @@
+﻿Week,ID,Task Name,Assignee,Category,Due Date,Status,Priority,Progress %,Notes
+Week 1,21,Project Overview & Team Registry,Tran Hoang Trung Hieu,Project Reports & Planning,2026-09-11,Completed,,100%,
+Week 1,24,Business Opportunity & Product Vision,Tran Hoang Trung Hieu,Project Reports & Planning,2026-09-11,Completed,,100%,
+Week 1,27,"Scope, WBS, Estimation & Objectives",Tran Hoang Trung Hieu,Project Reports & Planning,2026-09-11,Completed,,100%,
+Week 1,22,Product Background & Business Context,Phung Trung Quoc,Project Reports & Planning,2026-09-11,Completed,,100%,
+Week 1,29,"Delivery Process, Quality & Training",Phung Trung Quoc,Project Reports & Planning,2026-09-11,Completed,,100%,
+Week 1,31,"Communications, Configuration & Tooling",Phung Trung Quoc,Project Reports & Planning,2026-09-11,Completed,,100%,
+Week 1,25,"Scope, Workflows & Limitations",Tran Tung Bach,Project Reports & Planning,2026-09-11,Completed,,100%,Jira due-date field is 11 Sep; issue description gives 13 Sep.
+Week 1,30,"Deliverables, Milestones & Responsibility Matrix",Tran Tung Bach,Project Reports & Planning,2026-09-11,Completed,,100%,Jira due-date field is 11 Sep; issue description gives 13 Sep.
+Week 1,32,Final Review & Template QA,Tran Tung Bach,Project Reports & Planning,2026-09-11,Completed,,100%,Jira due-date field is 11 Sep; issue description gives 13 Sep.
+Week 1,33,Cross-Report Consistency & Submission Package,Tran Tung Bach,Project Reports & Planning,2026-09-11,Completed,,100%,
+Week 1,23,Existing Solutions Benchmark,Truong Thai Nhu,Project Reports & Planning,2026-09-11,Completed,,100%,
+Week 1,26,Final Review & Template QA,Truong Thai Nhu,Project Reports & Planning,2026-09-11,Completed,,100%,
+Week 1,28,Risk Register & Response Plan,Truong Thai Nhu,Project Reports & Planning,2026-09-11,Completed,,100%,
+Week 2,35,WF1: Asset Registration & Periodic Inspection Scheduling,Tran Hoang Trung Hieu,Presentation & Workflow Design,2026-09-20,Completed,,100%,
+Week 2,39,"Prepare Slides 1 & 5: Project Title, Team & End-to-End Lifecycle (deprecated historical draft)",Tran Hoang Trung Hieu,Presentation & Workflow Design,2026-09-19,Completed,,100%,Historical task marked deprecated; included because it is assigned work.
+Week 2,36,"WF2: Inspection Request Review, Service Order & Inspector Assignment",Phung Trung Quoc,Presentation & Workflow Design,2026-09-20,Completed,,100%,
+Week 2,40,Prepare Slides 4 & 9: System Actors & Technology Stack (deprecated historical draft),Phung Trung Quoc,Presentation & Workflow Design,2026-09-19,Completed,,100%,Historical task marked deprecated; included because it is assigned work.
+Week 2,48,Prepare Presentation Slides: Current State & Proposed Solution,Phung Trung Quoc,Presentation & Workflow Design,2026-09-20,Completed,,100%,
+Week 3,51,"Finalize WF2: Inspection Request Review, Quotation & Inspector Assignment",Phung Trung Quoc,Presentation & Workflow Design,2026-09-20,Completed,,100%,
+Week 2,37,"WF3: Inspection Execution, AI Verification & Report Delivery",Tran Tung Bach,Presentation & Workflow Design,2026-09-20,Completed,,100%,
+Week 2,41,Prepare Slides 6 & 7: WF1–WF2 and WF3 AI Verification (deprecated historical draft),Tran Tung Bach,Presentation & Workflow Design,2026-09-19,Completed,,100%,Historical task marked deprecated; included because it is assigned work.
+Week 2,47,Prepare Presentation Slides: Project Context & Challenges,Tran Tung Bach,Presentation & Workflow Design,2026-09-20,Completed,,100%,
+Week 3,52,"Finalize WF3: Field Inspection, AI Verification & Report Delivery",Tran Tung Bach,Presentation & Workflow Design,2026-09-20,Completed,,100%,
+Week 2,38,"WF4: Maintenance Assessment, Work Execution & Defect Resolution",Truong Thai Nhu,Presentation & Workflow Design,2026-09-20,Completed,,100%,
+Week 2,42,"Prepare Slides 2 & 3: Context, Problem & Solution (deprecated historical draft)",Truong Thai Nhu,Presentation & Workflow Design,2026-09-19,Completed,,100%,Historical task marked deprecated; included because it is assigned work.
+Week 2,49,Prepare Presentation Slides: System Actors & Responsibilities,Truong Thai Nhu,Presentation & Workflow Design,2026-09-20,Completed,,100%,
+Week 3,44,Design and Initialize WF1 Database Schema: Assets & Periodic Scheduling,Tran Hoang Trung Hieu,Database Design,2026-09-30,Completed,,100%,Database/schema baseline for the assigned workflow.
+Week 3,45,"Design and Initialize WF2 Database Schema: Requests, Service Orders & Assignments",Phung Trung Quoc,Database Design,2026-09-30,Completed,,100%,Database/schema baseline for the assigned workflow.
+Week 3,43,"Design and Initialize WF3 Database Schema: Inspections, AI Defects & Reports",Tran Tung Bach,Database Design,2026-09-28,Completed,,100%,Database/schema baseline for the assigned workflow.
+Week 3,46,"Design and Initialize WF4 Database Schema: Maintenance Tickets, Execution & Resolution",Truong Thai Nhu,Database Design,2026-10-02,Completed,,100%,Database/schema baseline for the assigned workflow.
+Week 4,REWORK-WF1,Rework WF1 — Asset Registration & Periodic Inspection Scheduling,Tran Hoang Trung Hieu,Week 4 — Workflow Rework,,,,,"Week 4 workflow-rework assignment requested for the teacher-facing task list. Confirm actual status, scope, and deadline."
+Week 4,REWORK-WF2,"Rework WF2 — Inspection Requests, Service Orders & Inspector Assignment",Phung Trung Quoc,Week 4 — Workflow Rework,,,,,"Week 4 workflow-rework assignment requested for the teacher-facing task list. Confirm actual status, scope, and deadline."
+Week 4,REWORK-WF3,"Rework WF3 — Field Inspection, AI-Assisted Verification & Reporting",Tran Tung Bach,Week 4 — Workflow Rework,,,,,"Week 4 workflow-rework assignment requested for the teacher-facing task list. Confirm actual status, scope, and deadline."
+Week 4,REWORK-WF4,"Rework WF4 — Maintenance Assessment, Work Execution & Defect Resolution",Truong Thai Nhu,Week 4 — Workflow Rework,,,,,"Week 4 workflow-rework assignment requested for the teacher-facing task list. Confirm actual status, scope, and deadline."
+Week 5,SESSION-WF3,Implement the WF3 inspection workflow,Tran Tung Bach,Week 5 — Personal Session Work,,In Progress,,,Personal Week 5 session work: implemented and exercised the WF3 happy path in the browser.
+Week 5,SESSION-LANDING,Design and implement the SmartDroneInspection landing page,Tran Tung Bach,Week 5 — Personal Session Work,,In Progress,,,Personal Week 5 session work: built/refined a drone-forward B2B infrastructure-inspection landing page.

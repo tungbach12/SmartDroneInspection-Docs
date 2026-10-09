@@ -200,6 +200,17 @@ FE-04 implements the session-record obligations of MF2 and evidence steps MF3-01
 - Technical checks can flag problems, but cannot mark substantive evidence accepted on the Inspector's behalf. Disclosed limitations must not turn an unobserved area into a finding of no defect.
 - Hashes/timestamps support integrity/provenance; they do not prevent every modification or automatically establish legal admissibility.
 
+#### 3.5.1 Inspection and Report Collections
+
+A user reaches MF3 work through a **scoped list**, not by entering a record identifier by hand. Identifier entry alone is not an acceptable discovery path: it is unauditable, gives no indication of scope, and pushes organization and assignment filtering onto the user.
+
+- Provide a paged inspection collection for the authenticated caller. Scope is resolved from the caller's role and never from a client-supplied organization, owner or assignment value: an Inspector sees only inspections assigned to them, an ORG_ADMIN sees every inspection in their own organization, and a platform `ADMIN` may read across organizations.
+- Platform cross-tenant read is a **separate, read-only administrative capability**. It does not confer organization authority, does not extend to authoring, review or publication, and must not be granted implicitly by holding the role.
+- Report records are reached **through their inspection**, so the report review queue is a filtered view of the same collection rather than an independent resource. Each row states its report status and version so the inspection and report screens cannot disagree.
+- Listing is server-paged with a bounded page size, a stable ordering, and a unique tie-breaker, so no row can appear on two pages and no caller can retrieve an unbounded set.
+- A caller with no scope for the resource is refused; an out-of-scope record is not disclosed by appearing in a list.
+
+
 ### 3.6 FE-05 AI Vision Candidates and Human Finding Decisions
 
 FE-05 supports MF3 detection and review. Inference starts only on the evidence set the assigned Inspector has confirmed suitable. Model availability and asset/modality compatibility must be checked.

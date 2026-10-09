@@ -11,3 +11,4 @@ Each report has one self-contained folder containing its maintained Markdown, of
 - [Report 2 - Project Management Plan](report-2-project-management-plan/)
 - [Report 3 - Software Requirement Specification](report-3-software-requirement-specification/)
 - [Report 5 - Test Report](report-5-test-report/)
+- [Weekly Project Reports](weekly-project-reports/)

@@ -89,19 +89,29 @@ resource.
   RFC 9457 error bodies, `204 No Content`, and binary evidence downloads remain
   unchanged.
 
-## WF3 inspection and report screens
+## MF3 inspection and report screens
 
-`/inspections` loads only accepted assignments visible to the authenticated
-Inspector. It starts or resumes an inspection, reads the published checklist
-and saved responses, uploads evidence as `WEB_UPLOAD`, and exposes candidate
-verification/manual-finding actions. The API computes evidence checksums and
-is the authorization boundary; the browser never receives a direct MinIO URL.
+`/inspections` loads a server-paged, backend-scoped inspection collection; users
+select a row instead of entering an identifier by hand. An assigned Inspector
+may open the evidence workspace, upload `WEB_UPLOAD` evidence, and record the
+substantive evidence-quality decision. The same collection is visible to
+same-organization ORG_ADMINs and platform ADMINs as read-only inspection rows;
+the Inspector-only mutation workspace stays hidden from those roles. Maintenance
+Engineers are directed to Maintenance rather than shown an inspection list.
+Analysis and draft generation stay disabled until the evidence set is accepted,
+because the backend refuses both. The API computes evidence checksums and is the
+authorization boundary; the browser never receives a direct MinIO URL.
 
-`/reports` uses the same versioned report API for Inspector authors/reviewers,
-ORG_ADMIN, and organization members. It presents only actions permitted by the
-current role, while the backend scopes report lists and mutations to author,
-reviewer, organization, workflow state, and separation-of-duties rules. Evidence
-content is streamed through the authenticated report endpoint.
+`/reports` uses the same inspection list filtered to rows that carry a report,
+with report status/version shown inline. Selecting a row loads that inspection's
+report versions. The page presents only the actions permitted by the current
+capability and by whether the signed-in user is the version's author: the
+Inspector verifies and submits, while a qualified ORG_ADMIN who is not the
+author returns, approves, and publishes. A return requires a stated reason.
+Platform ADMIN may read cross-tenant rows but does not receive author, reviewer,
+or publication actions. The backend scopes every list and mutation by
+assignment, organization, platform read-only authority, workflow state, and
+separation-of-duties rules.
 
 ## Browser authentication flow
 
@@ -168,3 +178,15 @@ Feature-neutral components such as `DataTable`, `LoadingButton`, `StatusChip`,
 Run `npm test` for the role-to-workspace access-policy tests, `npm run lint` for
 Oxlint checks, and `npm run build` for strict TypeScript validation and the
 production Vite build.
+
+### Shared workspace shell and color schemes
+
+The Admin, Client, and Operations portals use one Lytic-inspired workspace frame:
+a persistent role-filtered side rail, compact page header, account menu, and theme
+control. Dashboard composition is shared, while navigation and summary content
+remain role-specific. The light scheme is the first-visit default; an explicit
+user choice toggles the stored browser scheme. Dark mode uses a near-black
+sidebar and panels (`#030712`), a slate canvas (`#111827`), and blue accents
+(`#3758F9`), following the Lytic reference. Do not infer that role-specific
+metrics exist: show aggregate values only from APIs available to that role, and
+keep unavailable summaries clearly unavailable rather than inventing data.

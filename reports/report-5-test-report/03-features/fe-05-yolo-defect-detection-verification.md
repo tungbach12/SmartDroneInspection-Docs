@@ -1,13 +1,20 @@
-# FE-05: YOLO-assisted Defect Detection and Verification
+# FE-05: Defect Detection and Human Verification
 
 ## Scope baseline
 
-**Historical v1 scope record:** The earlier backend baseline included a YOLO adapter contract and candidate-review behavior. The reset removed the inspection workflow services; adapter/config or entity presence alone does not establish a current AI workflow. The current target uses AI Vision candidates plus LLM drafting with human review. Preserve the v1 notes below as historical evidence; they are not current runtime guarantees.
+The `inspections` module implements the MF3 finding slice of FE-05: advisory AI
+candidates that stay separate from human-verified findings, a manual finding
+path that remains available when inference is refused or fails, and the
+qualified reviewer's decision on a finding. Report 3 requires that manual entry
+survives an AI outage, so the manual path is not conditional on AI
+availability.
 
-## Historical v1 acceptance case (retired from the Enterprise SaaS target)
+Detection is served by an optional OpenAI-compatible vision adapter behind the
+inspections-owned `AiInferencePort`, with a mutually exclusive YOLO alternative.
+Credentials are environment-only.
 
-WF3-003 maps to FE-05 in the earlier v1 baseline. Preserve the recorded outcome and detailed notes as historical test evidence, not as proof that the AI/inference workflow remains available in the reset branch; its inspection workflow services were removed. The target AI Vision/LLM acceptance checks remain Pending in FE-06.
+## Current case
 
 | Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| WF3-003 | Inspector verifies AI candidates or records a manual finding. | Send eligible evidence to the deterministic inference stub; verify candidate provenance; confirm, modify, and reject candidates; create a manual finding; exercise inference failure and inspect official report findings. | Candidate decisions are scoped and auditable; only verified/manual findings become official; pending/rejected candidates stay non-official; an inference failure leaves evidence and manual entry usable. | Eligible evidence exists; deterministic inference stub and authorized Inspector are available. | Passed | 2026-09-24 | Codex (automated) | Pending |  |  | Pending |  |  | AiFindingServiceTest and AiFindingApiIntegrationTest passed with state/scope coverage; YoloInferenceClientTest and configuration tests passed using a local HTTP stub. No deployed/live YOLO model was connected; this result verifies the configured adapter contract and deterministic workflow. |
+| WF3-003 | Inspector verifies AI candidates or records a manual finding. | Request analysis before the Inspector accepts the evidence set; analyze a representative accepted image; verify its returned candidate provenance, confidence, normalized box, and pending status; attempt analysis as a different Inspector; record a manual finding with prose measurement; record the reviewer's decision on the finding. | Analysis is refused until the Inspector accepts the evidence; valid model detections are persisted only as `PENDING`; out-of-scope Inspectors are refused; a manual finding is available without analysis; a finding is official only after a `CONFIRMED` or `MODIFIED` decision. | An assigned `FIELD_COMPLETED` inspection, accepted image evidence, PostgreSQL, and an authorized Inspector and ORG_ADMIN in the same organization. | Passed | 2026-10-08 | Claude Code (automated) | Pending |  |  | Pending |  |  | Verified with `InspectionReportApiIntegrationTest.analysisIsRefusedUntilTheInspectorAcceptsTheEvidence`, `analysisRequiresAssignmentAndAcceptedEvidenceAndPersistsOnlyPendingCandidates`, `manualFindingIsAvailableWithoutAnyAnalysis`, `aFindingMeasurementIsStorableAsProse`, and `anotherInspectorCannotAddAFinding`; plus `AiFindingCandidateTest` (4 candidate-review cases). These ran again on 2026-10-09 within the full backend suite of 156 passing tests. A live compatible-vision call against a Wikimedia Commons CC0 iron-bridge corrosion photograph returned three `PENDING` candidates with provider provenance and normalized boxes; the seeded 1x1 placeholder PNGs correctly returned none. No API key, prompt, or image bytes were recorded. |
