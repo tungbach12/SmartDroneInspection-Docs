@@ -8,7 +8,7 @@ weight: 25
 
 > **Scope:** This document is the database-design companion to the Report 3 SRS revision dated **7 October 2026**. It specifies the Enterprise SaaS target with four human roles and four connected Main Flows; the 41-table count below is a target logical inventory, not a completed database inventory.
 >
-> **Implementation status — 7 October 2026:** Backend V24 aligns identity vocabulary and performs a fail-closed role/zone migration; V25 is an additive bridge that creates the target tables. `V26__enterprise_saas_runtime_cutover.sql` completes the runtime cutover: it drops every non-target marketplace, old-client and MF5 table, tightens composite tenant foreign keys, and enforces the target status vocabularies. The resulting runtime schema is exactly the 41 application tables plus `event_publication` and `flyway_schema_history`. Schema cutover is complete; MF1-MF4 workflow implementation remains out of scope. A table's presence is not evidence that its use case or MF1–MF4 workflow is implemented. See the current backend plan and migration files for executable details.
+> **Implementation status — 8 October 2026:** Backend V24 aligns identity vocabulary and performs a fail-closed role/zone migration; V25 is an additive bridge that creates the target tables. `V26__enterprise_saas_runtime_cutover.sql` completes the runtime cutover: it drops every non-target marketplace, old-client and MF5 table, tightens composite tenant foreign keys, and enforces the target status vocabularies. `V27__mf3_report_workflow.sql` then drops the removed `peer_reviews` table and replaces the retired report-status vocabulary with the MF3 one. Schema cutover is complete. The MF3 workflow is implemented over the inspection tables below; MF1, MF2, and MF4 workflow implementation remains out of scope. A table's presence is not evidence that its use case or MF1–MF4 workflow is implemented. See the current backend plan and migration files for executable details.
 >
 > **Change boundary:** This design supersedes the former Provider/Client marketplace and MF1–MF5 target schema proposal. The current companion status/report references were also reconciled on 7 October 2026; Report 3 remains the source of business requirements. Backend migrations and code are owned by the backend repository and must not be inferred from this design alone.
 
@@ -457,7 +457,7 @@ Applied migration files remain forward-only history. The backend reset has begun
 1. Reconcile this logical target inventory against the current live schema and Java entities; do not assume all 41 target tables exist or that all legacy tables have been retired.
 2. Track V24 (role/zone alignment), V25 (additive target schema) and V26 (runtime cutover) as three separate forward migrations; V26 is the destructive step and is authorized as an explicit start-fresh reset.
 4. Pre-check populated data before unique indexes, checks and status constraints; backfill parent records before adding non-null foreign keys.
-5. Implement entity/repository ownership, authorization policies, and the workflow layers in separately scoped slices. Schema rows alone do not implement MF1–MF4 behavior.
+5. Implement entity/repository ownership, authorization policies, and the workflow layers in separately scoped slices. Schema rows alone do not implement MF1–MF4 behavior; MF3 has been implemented as one such slice, and MF1/MF2/MF4 remain to be built.
 6. Test empty and populated databases, including duplicate/expired credentials, cross-tenant access, stale readiness, self-acceptance and cost variance.
 7. Run schema validation and repository verification before claiming implementation; preserve actual execution results in Report 5 without extrapolating beyond tested behavior.
 
@@ -465,7 +465,7 @@ Applied migration files remain forward-only history. The backend reset has begun
 
 - This file is a **target database design aligned with Report 3**, not a full implementation report.
 - V24 aligns identity/role vocabulary, V25 adds the target schema, and V26 completes the runtime cutover to the 41-table target inventory. Verified by `./mvnw clean verify` on 8 October 2026 (88 tests, exit 0), including empty-database migration, populated V1-V23 fail-closed migration tests, and an exact-table-inventory assertion.
-- Current backend runtime has removed provider request/marketplace code and inspection workflow controllers/services. Remaining inspection records/repositories or target tables are persistence only; the reset does not deliver MF1–MF4 workflow behavior.
+- Current backend runtime has removed provider request/marketplace code. The `inspections` module implements the MF3 slice — evidence, evidence-quality decisions, findings, and versioned reports through publication — over the tables described here. MF1, MF2, and MF4 tables remain persistence only; their workflow behavior is not implemented.
 - Asset/catalog/scheduling and auth runtime remain in the reset branch, but they are partial capabilities and must be checked against current source and the corresponding backend guides.
 - Do not read the 41-table target count as the current physical schema. A table's existence does not establish API, use-case, workflow, or test completion.
 
@@ -475,6 +475,7 @@ Applied migration files remain forward-only history. The backend reset has begun
 - V24 identity alignment: `backend/src/main/resources/db/migration/V24__enterprise_saas_role_and_schema_alignment.sql`
 - V25 additive target-schema bridge: `backend/src/main/resources/db/migration/V25__enterprise_saas_target_schema.sql`
 - V26 runtime cutover: `backend/src/main/resources/db/migration/V26__enterprise_saas_runtime_cutover.sql`
+- V27 MF3 report workflow: `backend/src/main/resources/db/migration/V27__mf3_report_workflow.sql` — drops the removed `peer_reviews` table and replaces the retired report-status vocabulary
 
 - [Report 3 Software Requirement Specification](../reports/report-3-software-requirement-specification/)
 - [Authentication and Access Control](../backend/authentication-and-authorization.md)

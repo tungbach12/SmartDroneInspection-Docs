@@ -10,7 +10,7 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | Historical WF1–WF4 evidence plus 2026-10-07 Enterprise SaaS target case design; no new target runtime execution in Report 5. Backend MF2 mission-plan integration tests were added under PR #54 (`364a23e`, `MissionPlanApiIntegrationTest`, `DroneMissionPlanTest`, `MissionShotItemCoordinateConstraintTest`), but no executed Report 5 run is recorded, so target cases remain `Pending`. |
+| Test round | Historical WF1–WF4 evidence, the 2026-10-07 Enterprise SaaS target case design, and the 2026-10-08 MF3 implementation. MF3 is the first target workflow slice with executed runtime evidence: `WF3-002`, `WF3-003`, `WF3-005`, and `WF3-006` are `Passed`. MF1, MF2, and MF4 target cases remain `Pending` because those workflows are not implemented. |
 | Last updated | 2026-10-08 |
 
 ## Module summary
@@ -18,8 +18,8 @@ round.
 | No | Module code | Passed | Failed | Pending | N/A | Number of test cases |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
 | 1 | Feature 1 sheet (FE-02/WF1 + FE-03/WF2 + target MF1–MF2; FE-01 gate separate) | 9 | 0 | 11 | 0 | 20 |
-| 2 | Feature 2 sheet (FE-04–FE-07; WF3 + WF4 + target MF3–MF4) | 4 | 0 | 9 | 0 | 13 |
-| **Subtotal** |  | **13** | **0** | **20** | **0** | **33** |
+| 2 | Feature 2 sheet (FE-04–FE-07; WF3 + WF4 + target MF3–MF4) | 6 | 0 | 7 | 0 | 13 |
+| **Subtotal** |  | **15** | **0** | **18** | **0** | **33** |
 
 ## Supporting FE-01 verification (not workbook cases)
 
@@ -75,11 +75,15 @@ Feature 1 sheet to 17. The nine target cases added on 2026-10-03 (`WF2-005`–
 `WF2-007` on Feature 1, and `WF3-005`–`WF4-005` on Feature 2) expand the total
 index to 33. They define Enterprise SaaS target coverage for workspace
 entitlement, MF1 asset/pair setup, MF2 readiness, MF3 human
-verification/immutable publication, and MF4 team/cost/acceptance gates. All nine
-remain `Pending` in every round, including after the 2026-10-08 reset execution:
-that round verified identity, registration, audit and target schema only, and
-delivered no MF1-MF4 workflow behavior. Schema presence is not workflow evidence. Preserve historical Passed results as v1 evidence only, and never
-represent a target feature as passed without recorded execution.
+verification/immutable publication, and MF4 team/cost/acceptance gates.
+
+MF3 became the first target slice with executed runtime evidence on 2026-10-08:
+`WF3-005` and `WF3-006` are `Passed`, and `WF3-002`/`WF3-003` were re-verified
+against the implemented endpoints. The live compatible-vision provider also returned three valid `PENDING` candidate detections for a representative bridge-corrosion image, and the end-to-end candidate gate/persistence test passed with a deterministic fake provider. These add verification evidence only; the case statuses and totals remain unchanged. The remaining seven target cases stay
+`Pending` because MF1, MF2, and MF4 workflow behavior is still unimplemented.
+Schema presence alone is never workflow evidence for those; preserve historical
+Passed results as v1 evidence only, and never represent an unimplemented target
+feature as passed.
 
 Use the same definitions as the workbook:
 
@@ -89,8 +93,8 @@ Use the same definitions as the workbook:
 
 | Measure | Value at baseline | Formula/source |
 | --- | ---: | --- |
-| Test coverage | 13 / 33 = 39.4% | Count non-`Pending` statuses in Feature 1 and Feature 2. |
-| Successful coverage | 13 / 33 = 39.4% | Count `Passed` statuses in Feature 1 and Feature 2. |
+| Test coverage | 15 / 33 = 45.5% | Count non-`Pending` statuses in Feature 1 and Feature 2. |
+| Successful coverage | 15 / 33 = 45.5% | Count `Passed` statuses in Feature 1 and Feature 2. |
 
 The two module rows are workbook-sheet totals, not SRS feature totals. This is
 why the Feature 2 sheet legitimately contains `WF4-001`–`WF4-003`: those cases
