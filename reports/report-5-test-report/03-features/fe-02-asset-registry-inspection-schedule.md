@@ -1,29 +1,25 @@
-﻿# FE-02: Asset Registry and Inspection Schedule
+# FE-02: Asset Registry and Inspection Schedule
 
 ## Scope baseline
 
-Clients create and manage their organizationâ€™s assets, documents, inspection history and recurring schedules. Admins maintain categories and checklist templates. WF1 generates periodic requests with an Asset + Schedule + Due Cycle idempotency key.
+An organization registers and maintains its assets, asset documents and
+recurring inspection schedules; categories and checklist templates are
+maintained centrally. The current roles are `ADMIN`, `ORG_ADMIN`, `INSPECTOR`
+and `MAINTENANCE_ENGINEER`.
 
-## Historical v1 acceptance cases (retired from the Enterprise SaaS target)
+## Current test coverage
 
-The cases below and their recorded results describe the earlier five-role v1 WF1 implementation. Preserve their IDs, outcomes, rounds, dates, testers, and evidence as historical test records; they do not establish current Enterprise SaaS MF1 behavior or prove the reset branch. New target acceptance is recorded only in the nine Pending target rows.
+No workbook test case is mapped to FE-02 in this report.
 
-| Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| WF1-001 | Admin publishes an inspection category and checklist. | Sign in as Admin; create or update the category and checklist; activate it; read it from planning. | Only a valid active category/checklist is available for planning and its version is retained. | Admin is active; checklist validation passes. | Pending |  |  | Pending |  |  | Pending |  |  |  |
-| WF1-002 | Client creates an asset for its own organization. | Sign in as Client; submit asset identity and location; save; open the asset list. | Asset is created once, linked to the client organization, and visible to that organization. | Client is active and has organization scope. | Pending |  |  | Pending |  |  | Pending |  |  |  |
-| WF1-003 | Client cannot access another organization's asset. | Sign in as a client from organization A; request an asset owned by organization B; try read and update operations. | The API denies both operations without exposing asset details. | Organizations A and B and their assets exist. | Pending |  |  | Pending |  |  | Pending |  |  |  |
-| WF1-004 | Periodic schedule creates one due inspection request. | Create an active schedule; advance to its due cycle; run the scheduler twice; inspect requests. | Exactly one request is created for the asset and cycle; a retry does not duplicate it. | Active asset, schedule, checklist, and scheduler are available. | Pending |  |  | Pending |  |  | Pending |  |  |  |
+The former `WF1-001`–`WF1-019` cases were removed on 2026-10-09 because they
+described the retired five-role WF1 baseline (Service Manager review, Client
+asset registration, schedule proposals). That is not the current system, so
+their recorded results are not evidence for it.
 
-## WF1 schedule-proposal revision (2026-09-28)
+The current backend does implement an asset catalog with organization scoping
+and a paged list, but **no executed test case is recorded here for it**, so it
+is not reported as tested. This is an explicit, truthful coverage gap: FE-02
+verification is outstanding and must be executed and recorded before the
+feature can be reported as verified.
 
-The platform proposes schedule options for the Service Manager review and the Client selects one. These six cases map to FE-02 and WF1 on the `Feature 1` workbook sheet.
-
-| Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| WF1-011 | Client registers an asset. | Sign in as Client; submit code, name, category, and location; read the created asset. | The asset is created once in `PENDING_REVIEW`, linked to the client organization, and readable only by that organization. | Client is active with organization scope; an active category exists. | Passed | 2026-09-28 | Hi?u | Passed | 2026-09-28 | Hi?u | Passed | 2026-09-28 | Hi?u | Automated evidence: `AssetApiIntegrationTest.clientCreatesAssetInPendingReviewState`; `AssetWorkflowIntegrationTest.fullWf1FlowFromAssetCreationToDueEvent`. |
-| WF1-012 | Service Manager approves a pending asset. | Sign in as Service Manager; approve the asset; read the generated proposals. | The asset becomes `ACTIVE` and one `GENERATED` proposal exists per suggested frequency of its category. | Asset is `PENDING_REVIEW`; its category has suggested frequencies and an active checklist template. | Passed | 2026-09-28 | Hi?u | Passed | 2026-09-28 | Hi?u | Passed | 2026-09-28 | Hi?u | Automated evidence: `AssetReviewApiIntegrationTest.managerApprovalActivatesAssetAndGeneratesOneProposalPerSuggestion`. |
-| WF1-013 | Service Manager rejects a pending asset. | Sign in as Service Manager; reject the asset; list its proposals. | The asset becomes `REJECTED` and no proposals are created. | Asset is `PENDING_REVIEW`. | Passed | 2026-09-28 | Hi?u | Passed | 2026-09-28 | Hi?u | Passed | 2026-09-28 | Hi?u | Automated evidence: `AssetReviewApiIntegrationTest.approvalRequiresSuggestedFrequenciesAndRejectionLeavesNoProposals`. |
-| WF1-014 | Service Manager reviews schedule proposals. | Sign in as Service Manager; approve one proposal; reject another; approve one with an adjusted interval. | Approved proposals become `MANAGER_APPROVED` with the adjusted frequency retained; rejected proposals become `MANAGER_REJECTED`; only the Service Manager may review. | Asset is `ACTIVE`; its proposals are `GENERATED`. | Passed | 2026-09-28 | Hi?u | Passed | 2026-09-28 | Hi?u | Passed | 2026-09-28 | Hi?u | Automated evidence: `ScheduleProposalApiIntegrationTest.managerReviewsProposalAndClientOnlySeesApprovedOwnOrg`; `AssetReviewApiIntegrationTest.onlyServiceManagerCanReview`. |
-| WF1-015 | Client selects one approved proposal. | Sign in as Client; read the approved options; select one; read the asset schedules. | Exactly one `ACTIVE` schedule exists for the asset; the selected proposal is `CLIENT_SELECTED` and its approved siblings are `SUPERSEDED`. | At least one `MANAGER_APPROVED` proposal on an owned asset that has no active schedule. | Passed | 2026-09-28 | Hi?u | Passed | 2026-09-28 | Hi?u | Passed | 2026-09-28 | Hi?u | Automated evidence: `ScheduleProposalApiIntegrationTest.selectingCreatesOneScheduleSupersedesSiblingsAndIsNotRepeatable`; `AssetWorkflowIntegrationTest.fullWf1FlowFromAssetCreationToDueEvent`. |
-| WF1-016 | Selection cannot be repeated or cross organizations. | Select the same proposal twice; select a foreign-organization proposal; operate on a foreign-organization schedule. | The second selection conflicts; foreign-organization proposal and schedule access returns not found without exposing details. | An active schedule already exists; a foreign-organization proposal exists. | Passed | 2026-09-28 | Hi?u | Passed | 2026-09-28 | Hi?u | Passed | 2026-09-28 | Hi?u | Automated evidence: `ScheduleProposalApiIntegrationTest.crossOrgSelectionAndNonManagerReviewAreDenied`; `InspectionScheduleServiceTest.crossOrgScheduleOperationsAreDenied`. |
+The removed `WF1-*` case IDs stay reserved and are never reused.

@@ -91,20 +91,27 @@ resource.
 
 ## MF3 inspection and report screens
 
-`/inspections` is scoped to the authenticated Inspector. It reads the evidence
-set for the selected inspection, uploads evidence as `WEB_UPLOAD`, and records
-the Inspector's substantive evidence-quality decision. Analysis and draft
-generation stay disabled until the evidence set is accepted, because the backend
-refuses both. The API computes evidence checksums and is the authorization
-boundary; the browser never receives a direct MinIO URL.
+`/inspections` loads a server-paged, backend-scoped inspection collection; users
+select a row instead of entering an identifier by hand. An assigned Inspector
+may open the evidence workspace, upload `WEB_UPLOAD` evidence, and record the
+substantive evidence-quality decision. The same collection is visible to
+same-organization ORG_ADMINs and platform ADMINs as read-only inspection rows;
+the Inspector-only mutation workspace stays hidden from those roles. Maintenance
+Engineers are directed to Maintenance rather than shown an inspection list.
+Analysis and draft generation stay disabled until the evidence set is accepted,
+because the backend refuses both. The API computes evidence checksums and is the
+authorization boundary; the browser never receives a direct MinIO URL.
 
-`/reports` takes an inspection identifier and lists that inspection's report
-versions. It presents only the actions permitted by the current capability and
-by whether the signed-in user is the version's author: the Inspector verifies
-and submits, while a qualified ORG_ADMIN who is not the author returns,
-approves, and publishes. A return requires a stated reason. The backend scopes
-every report list and mutation to author, reviewer, organization, workflow state,
-and separation-of-duties rules.
+`/reports` uses the same inspection list filtered to rows that carry a report,
+with report status/version shown inline. Selecting a row loads that inspection's
+report versions. The page presents only the actions permitted by the current
+capability and by whether the signed-in user is the version's author: the
+Inspector verifies and submits, while a qualified ORG_ADMIN who is not the
+author returns, approves, and publishes. A return requires a stated reason.
+Platform ADMIN may read cross-tenant rows but does not receive author, reviewer,
+or publication actions. The backend scopes every list and mutation by
+assignment, organization, platform read-only authority, workflow state, and
+separation-of-duties rules.
 
 ## Browser authentication flow
 

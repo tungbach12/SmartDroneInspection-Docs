@@ -63,36 +63,30 @@ from those files only when exporting. Each case retains its FE and WF codes.
 | FE source | Workbook destination | Stable case IDs |
 | --- | --- | --- |
 | FE-01 identity/access governance | Supporting evidence, outside case sheets | No WFx IDs |
-| FE-02 asset registry/inspection schedule | `Feature 1` | WF1-001–WF1-004 |
-| FE-03 inspection request/work assignment | `Feature 1` | WF2-001–WF2-004 |
-| FE-04 inspection execution/evidence | `Feature 2` | WF3-001–WF3-002 |
+| FE-02 asset registry/inspection schedule | Coverage gap; no current case | None assigned |
+| FE-03 inspection request/work assignment | Coverage gap; MF1/MF2 unimplemented | None assigned |
+| FE-04 inspection evidence / collections | `Feature 2` | WF3-002, WF3-009 |
 | FE-05 defect detection/verification | `Feature 2` | WF3-003 |
-| FE-06 inspection report/approval | `Feature 2` | WF3-004 |
-| FE-07 maintenance/defect resolution | `Feature 2` | WF4-001–WF4-003 |
-| FE-08 dashboard/analytics/notifications | Coverage gap; no current workbook case | None assigned |
+| FE-06 inspection report/approval | `Feature 2` | WF3-005, WF3-006 |
+| FE-07 maintenance/defect resolution | Coverage gap; MF4 unimplemented | None assigned |
+| FE-08 dashboard/analytics/notifications | Coverage gap; no assigned case | None assigned |
 
-The sheet names are template labels, not SRS feature identifiers. The earlier
-WF1–WF4 cases and any recorded outcomes are historical v1 evidence, not current
-reset-branch verification. The additional nine Pending target cases specify
-Enterprise SaaS MF1–MF4 criteria; they are not evidence that workflow behavior
-is implemented. Keep every target round `Pending` until its own executable
-evidence is recorded. The fixed workbook sheets combine groups, while FE codes
-identify SRS capabilities and WFx IDs retain stable case identity:
+The sheet names are template labels, not SRS feature identifiers. After the
+2026-10-09 reset to the implemented MF3 slice, all five cases sit on
+`Feature 2`; `Feature 1` is empty because MF1 and MF2 have no implementation.
+FE codes identify SRS capabilities and WFx IDs retain stable case identity:
 
 | Workbook sheet | Included SRS features | Included WF IDs |
 | --- | --- | --- |
-| `Feature 1` | FE-02 and FE-03; FE-01 gate tracked separately | WF1-001–004, WF1-011–019, and WF2-001–007 |
-| `Feature 2` | FE-04, FE-05, FE-06, and FE-07 | WF3-001–008 and WF4-001–005 |
+| `Feature 1` | None currently; MF1/MF2 unimplemented | None |
+| `Feature 2` | FE-04, FE-05, FE-06 | WF3-002, WF3-003, WF3-005, WF3-006, WF3-009 |
 
 There are exactly eight FE-specific Markdown source files. The two fixed
 workbook sheets are presentation groupings, not source files or SRS features.
-FE-08 currently has no assigned case and remains an explicit coverage gap.
-The nine target-only cases (`WF2-005`–`WF2-007` on Feature 1, and `WF3-005`–`WF4-005`
-on Feature 2) remain `Pending` across all rounds. They define workspace entitlement,
-MF1 asset/pair setup, MF2 readiness, MF3 human review/publication, and MF4 team/cost/
-acceptance criteria; they do not claim those workflows currently run. The backend reset
-adds an identity migration and additive schema bridge but leaves the cutover incomplete,
-and does not implement MF1–MF4 workflow behavior.
+Removed case IDs (`WF1-*`, `WF2-*`, `WF3-001`, `WF3-004`, `WF3-007`,
+`WF3-008`, `WF4-*`) stay reserved and are never reused; new cases continue from
+`WF3-010`. FE-02, FE-03, FE-07 and FE-08 are explicit coverage gaps, and no
+case may be recorded for a workflow that has no implementation.
 
 ## Visual and status rules
 
