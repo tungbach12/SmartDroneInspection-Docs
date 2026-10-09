@@ -10,98 +10,95 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | Historical WF1–WF4 evidence, the 2026-10-07 Enterprise SaaS target case design, and the 2026-10-08 MF3 implementation. MF3 is the first target workflow slice with executed runtime evidence: `WF3-002`, `WF3-003`, `WF3-005`, and `WF3-006` are `Passed`. MF1, MF2, and MF4 target cases remain `Pending` because those workflows are not implemented. |
-| Last updated | 2026-10-08 |
+| Test round | **2026-10-09 reset to the implemented MF3 slice.** All cases below are evidenced by executed backend and web tests. MF1, MF2 and MF4 are unimplemented and therefore have no case; this is recorded as a coverage gap, not as a passing or passing-by-default result. |
+| Last updated | 2026-10-09 |
 
 ## Module summary
 
 | No | Module code | Passed | Failed | Pending | N/A | Number of test cases |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 1 | Feature 1 sheet (FE-02/WF1 + FE-03/WF2 + target MF1–MF2; FE-01 gate separate) | 9 | 0 | 11 | 0 | 20 |
-| 2 | Feature 2 sheet (FE-04–FE-07; WF3 + WF4 + target MF3–MF4) | 6 | 0 | 7 | 0 | 13 |
-| **Subtotal** |  | **15** | **0** | **18** | **0** | **33** |
+| 1 | Feature 1 sheet (no cases: MF1/MF2 unimplemented) | 0 | 0 | 0 | 0 | 0 |
+| 2 | Feature 2 sheet (FE-04/FE-05/FE-06; MF3) | 5 | 0 | 0 | 0 | 5 |
+| **Subtotal** |  | **5** | **0** | **0** | **0** | **5** |
+
+## Reset scope
+
+The previous statistics mixed a retired five-role WF1–WF4 baseline with
+unimplemented Enterprise SaaS MF1–MF4 target cases, giving 33 cases with 13
+`Passed` — a total that did not describe any single system. On 2026-10-09 that
+content was removed and the report was reset to the MF3 slice only.
+
+| Change | Before | After |
+| --- | ---: | ---: |
+| Cases | 33 | 5 |
+| Passed | 13 | 5 |
+| Failed | 0 | 0 |
+| Pending | 20 | 0 |
+| N/A | 0 | 0 |
+
+The 28 removed cases (`WF1-001`–`WF1-019`, `WF2-001`–`WF2-007`, `WF3-001`,
+`WF3-004`, `WF3-007`, `WF3-008`, `WF4-001`–`WF4-005`) described behavior that
+no longer exists or has never been implemented. Their IDs stay reserved.
+
+The drop from 13 `Passed` to 5 is the honest consequence of that removal. It is
+not a regression, and it is **not** evidence that anything stopped working.
+
+## Verification recorded this round
+
+| Check | Command | Result |
+| --- | --- | --- |
+| Backend full suite + coverage gate + Modulith boundaries | `./mvnw -o verify` | **Passed.** 162 tests, 0 failures, 0 errors; Spotless clean; Spring Modulith boundary test passed. |
+| New collection scope and paging | `./mvnw -o -Dtest=InspectionListApiIntegrationTest test` | 11/11 passed. |
+| Draft-service configuration guards | `./mvnw -o -Dtest=ReportDraftConfigurationTest test` | 6/6 passed. |
+| Frontend lint | `npm run lint` | No errors; 4 pre-existing fast-refresh warnings in unrelated files. |
+| Frontend build | `npm run build` | Built successfully. |
+| Frontend suite | `npm test -- --run` | 161/161 passed across 31 files. |
+
+**The JaCoCo 80% gate now passes: 80.47% line and 80.34% instruction coverage.**
+The gate was failing before this work — 74.66% line coverage on the original
+baseline, 78% after `InspectionListApiIntegrationTest` was added. It was closed
+with real tests over uncovered production code, not by excluding anything:
+`ReportDraftConfigurationTest` covers the startup validation that refuses to
+create a draft client unless endpoint, API key, model name and a positive
+timeout are all present. Without that guard a partially configured drafting
+service would fail at the first manual report, after an Inspector has already
+gathered evidence.
 
 ## Supporting FE-01 verification (not workbook cases)
 
-Supporting gates are excluded from the functional workbook totals. On
-2026-10-08 the Enterprise SaaS reset was executed and recorded: backend
-`./mvnw clean verify` passed 88 tests (exit 0) covering organization
-registration into `audit_events`, fail-closed V24 role migration, the exact
-41-table target schema and Modulith boundaries; frontend passed 128 tests plus
-build; mobile passed 16 tests with format/analyze clean. These gates change no
-workbook case status. On
-2026-09-24, 19 role-to-screen policy tests and 26 browser-auth frontend tests
-passed; the full frontend suite passed 52/52, including three shared API
-envelope checks and the WF3 inspection/report page tests. Backend API-envelope
-and Problem Details checks passed as part of `mvnw verify`; mobile envelope
-checks passed as part of `flutter test`, and `flutter analyze` reported no
-issues. Browser-auth checks use a mocked HTTP transport; this delivery did not
-execute a live browser-to-auth-API end-to-end test. On 2026-09-28, the backend
-client self-registration persistence gate passed: `POST /api/v1/auth/register`
-returns 201 and persists organization, user, `CLIENT` role, and the
-`CLIENT_REGISTRATION` audit row in one transaction
-(`ClientRegistrationApiIntegrationTest`, part of the 165/165 `mvnw verify`
-run). On 2026-09-28, the backend admin user creation persistence gate passed:
-`POST /api/v1/platform/users` returns 201 and persists the user, role
-assignment, and the `USER_CREATED` audit row in one transaction
-(`AdminUserApiIntegrationTest`, part of the 167/167 `mvnw verify` run).
-See `03-features/fe-01-identity-access-governance.md` for the detailed
-procedure and scope. Target organization/entitlement and role
-separation-of-duties checks (`FE01-T01` and `FE01-T02`) are recorded as pending
-supporting gates. They remain outside the fixed workbook count, as specified in
-the Report 5 mapping.
-
-These are workbook-sheet totals, not FE totals. The eight detailed sources are
-organized by FE; FE-08 has no assigned functional case in this baseline and is
-not included in the denominator. The WF1–WF4 results are historical/retired v1
-evidence; their recorded `Passed` statuses remain evidence only for the earlier
-five-role behavior tested, not for the current reset branch. The `WF1-011`–
-`WF1-019` cases record the schedule-proposal revision of v1 WF1. The nine target
-acceptance cases (`WF2-005`–`WF2-007` and `WF3-005`–`WF4-005`) describe Enterprise
-SaaS MF1–MF4 criteria and remain `Pending` in every round. The V24/V25 reset is
-not workflow execution; MF1–MF4 behavior is outside its scope. `WF2-007` defines
-the MF2 readiness/mission-preparation gate and applicable permit/airspace checks;
-it is not evidence that the gate currently runs.
+Supporting gates are excluded from the functional workbook totals. FE-01
+auth-flow and role-policy evidence is recorded in
+`03-features/fe-01-identity-access-governance.md`. Those gates change no
+workbook case status.
 
 ## Coverage summary
 
-The summary counts each unique workbook case once using its latest completed
-result across recorded rounds. The WF3-002 Round 2 recheck and the WF3-004
-Round 2 narrative config/provenance recheck are not additional cases, so the
-baseline Feature 2 sheet still contributes 7 historical v1 cases. Both WF3-004
-rounds completed as `Passed`, so the historical v1 Feature 2 `Passed` count is 4.
-The nine WF1 cases added on 2026-09-28 (`WF1-011`–`WF1-019`) raise the historical
-Feature 1 sheet to 17. The nine target cases added on 2026-10-03 (`WF2-005`–
-`WF2-007` on Feature 1, and `WF3-005`–`WF4-005` on Feature 2) expand the total
-index to 33. They define Enterprise SaaS target coverage for workspace
-entitlement, MF1 asset/pair setup, MF2 readiness, MF3 human
-verification/immutable publication, and MF4 team/cost/acceptance gates.
-
-MF3 became the first target slice with executed runtime evidence on 2026-10-08:
-`WF3-005` and `WF3-006` are `Passed`, and `WF3-002`/`WF3-003` were re-verified
-against the implemented endpoints. The live compatible-vision provider also returned three valid `PENDING` candidate detections for a representative bridge-corrosion image, and the end-to-end candidate gate/persistence test passed with a deterministic fake provider. These add verification evidence only; the case statuses and totals remain unchanged. The remaining seven target cases stay
-`Pending` because MF1, MF2, and MF4 workflow behavior is still unimplemented.
-Schema presence alone is never workflow evidence for those; preserve historical
-Passed results as v1 evidence only, and never represent an unimplemented target
-feature as passed.
-
-Use the same definitions as the workbook:
+Every case below has an executed automated test behind it, so coverage equals
+success rate this round.
 
 - **Test coverage** = cases with a recorded status (`Passed`, `Failed`, or
-  `N/A`) ÷ total cases.
-- **Successful coverage** = `Passed` cases ÷ total cases.
+  `N/A`) ÷ total cases = 5 / 5 = 100%.
+- **Successful coverage** = `Passed` cases ÷ total cases = 5 / 5 = 100%.
 
-| Measure | Value at baseline | Formula/source |
-| --- | ---: | --- |
-| Test coverage | 15 / 33 = 45.5% | Count non-`Pending` statuses in Feature 1 and Feature 2. |
-| Successful coverage | 15 / 33 = 45.5% | Count `Passed` statuses in Feature 1 and Feature 2. |
+These percentages describe only the MF3 slice. They must not be read as product
+coverage: MF1, MF2, MF4, FE-02, FE-03, FE-07 and FE-08 are untested, and the
+denominator is the implemented scope, not the SRS.
 
-The two module rows are workbook-sheet totals, not SRS feature totals. This is
-why the Feature 2 sheet legitimately contains `WF4-001`–`WF4-003`: those cases
-map to FE-07 and WF4, even though they share the fixed Feature 2 sheet with
-the WF3/FE-04–FE-06 cases. The `WF1-011`–`WF1-019` cases cover the
-schedule-proposal revision of WF1 and live on the same Feature 1 sheet as the
-earlier WF1/FE-02 and WF2/FE-03 cases.
+The two module rows are workbook-sheet totals, not SRS feature totals.
+
+## Outstanding gaps
+
+| Area | Status |
+| --- | --- |
+| MF1 asset/schedule setup | Unimplemented; no case. |
+| MF2 request/assignment/readiness | Unimplemented; no case. |
+| MF4 maintenance/cost/acceptance | Unimplemented; no case. |
+| MF2 assignment/checklist entry | No endpoint; MF3 reachable only via the scoped list (`WF3-009`). |
+| FE-02 asset catalog | Implemented but no executed case recorded here. |
+| FE-08 dashboard/analytics/notifications | No assigned case. |
+| Mobile client | No verification recorded this round. |
+| Live external LLM drafting provider | Not exercised; manual structured draft is the tested path. |
+| JaCoCo 80% gate | Passing at 80.47% lines / 80.34% instructions. |
 
 ## Update rules
 
@@ -110,3 +107,4 @@ earlier WF1/FE-02 and WF2/FE-03 cases.
 3. Update the two module rows and subtotal row above.
 4. Recalculate coverage; never mark a pending case as passed just to improve
    the percentage.
+5. Never record a case for a workflow that has no implementation.

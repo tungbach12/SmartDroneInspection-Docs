@@ -15,6 +15,48 @@ client-supplied user, organization, owner, or assignment identifiers. Write
 operations require the *assigned* Inspector; read and review operations also
 allow a same-organization `ORG_ADMIN`.
 
+## Inspection and report collections (FE-04, FE-06)
+
+| Operation | Endpoint | Actor |
+| --- | --- | --- |
+| List inspections | `GET /api/v1/inspections` | assigned Inspector, same-org ORG_ADMIN, platform ADMIN |
+| List inspections with a report | `GET /api/v1/inspections/with-reports` | assigned Inspector, same-org ORG_ADMIN, platform ADMIN |
+
+These routes live in `InspectionListController`, separate from
+`InspectionController`, because every route in the latter is nested under
+`/{inspectionId}` and a collection route would otherwise be ambiguous.
+
+Both endpoints are **server-paged**: `page` starts at 1, `pageSize` defaults to
+20 and is clamped to 100, and the response is
+`{items, page, pageSize, totalCount, totalPages}`. An out-of-range page size is
+clamped rather than rejected, matching the asset list contract. Rows are sorted
+by `createdAt` then `id`; the `id` tie-breaker is required, because a
+non-unique sort key lets the same row appear on two pages.
+
+Scope is resolved from the caller and never from a query parameter:
+
+| Caller | Sees |
+| --- | --- |
+| `INSPECTOR` | only inspections assigned to them |
+| `ORG_ADMIN` | every inspection in their own organization |
+| `ADMIN` (platform) | every organization, read-only |
+| `MAINTENANCE_ENGINEER` | nothing; the request is refused |
+
+Each row carries `reportId`, `reportStatus` and `reportVersionNo` for the
+inspection's latest report, or `null` when it has none. A report belongs to an
+inspection, so `/with-reports` is a filtered view of the same collection rather
+than a second resource, and both screens read one source rather than
+disagreeing about a report's state.
+
+**Platform scope.** Cross-tenant read is an explicitly separate administrative
+capability, so `ADMIN` holds no write path on this resource and the platform
+plane is checked before organization scope (a platform user has no organization
+by rule). Cross-tenant reads are recorded in the application log rather than
+`audit_events`: an authorized administrative read is not a privileged write,
+and durable audit rows are reserved for authentication, authorization changes,
+writes and exports. Denied or unexpected cross-tenant attempts remain the
+condition that must be monitored.
+
 ## Evidence intake (FE-04, MF3-01/02)
 
 | Operation | Endpoint | Actor |
@@ -145,6 +187,9 @@ state machine and candidate review states.
 `InspectionEvidenceApiIntegrationTest` and
 `InspectionReportApiIntegrationTest` exercise MF3-01 through MF3-13 over the
 real HTTP surface, including the manual authoring path, the return/resubmit
-cycle, self-review refusal, and the full draft-to-publish sequence. Report 5
-records the outcomes for `WF3-001`–`WF3-004` on the fixed `Feature 2` sheet and
-for the target MF3 rows.
+cycle, self-review refusal, and the full draft-to-publish sequence.
+`InspectionListApiIntegrationTest` covers the collections: assignment scope for
+an Inspector, organization scope for an ORG_ADMIN, cross-tenant read for a
+platform `ADMIN`, refusal for `MAINTENANCE_ENGINEER`, the report-only filter,
+the inline report summary, and paging bounds. Report 5 records the outcomes for
+`WF3-001`–`WF3-004` on the fixed `Feature 2` sheet and for the target MF3 rows.
