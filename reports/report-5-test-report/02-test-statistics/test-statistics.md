@@ -47,19 +47,22 @@ not a regression, and it is **not** evidence that anything stopped working.
 
 | Check | Command | Result |
 | --- | --- | --- |
-| Backend full suite + coverage gate + Modulith boundaries | `./mvnw -o verify` | **Coverage gate failed** at 78% lines/instructions against the required 80%; 156 tests passed, 0 failures, 0 errors. |
+| Backend full suite + coverage gate + Modulith boundaries | `./mvnw -o verify` | **Passed.** 162 tests, 0 failures, 0 errors; Spotless clean; Spring Modulith boundary test passed. |
 | New collection scope and paging | `./mvnw -o -Dtest=InspectionListApiIntegrationTest test` | 11/11 passed. |
+| Draft-service configuration guards | `./mvnw -o -Dtest=ReportDraftConfigurationTest test` | 6/6 passed. |
 | Frontend lint | `npm run lint` | No errors; 4 pre-existing fast-refresh warnings in unrelated files. |
 | Frontend build | `npm run build` | Built successfully. |
-| Frontend suite | `npm test -- --run` | 159/159 passed across 31 files. |
+| Frontend suite | `npm test -- --run` | 161/161 passed across 31 files. |
 
-**The JaCoCo gate failure is pre-existing and not caused by this work.** Before
-these changes the same gate failed at 74.66% line coverage. The new code is
-covered by `InspectionListApiIntegrationTest`, which raised the figure to 78%,
-but the repository still does not meet its own 80% requirement. This must be
-closed with real tests over the least-covered existing classes
-(`AuthService`, `BrowserAuthController`, `FindingService`, `BootstrapAdministrator`,
-`AuthRateLimitFilter`), not by excluding code.
+**The JaCoCo 80% gate now passes: 80.47% line and 80.34% instruction coverage.**
+The gate was failing before this work — 74.66% line coverage on the original
+baseline, 78% after `InspectionListApiIntegrationTest` was added. It was closed
+with real tests over uncovered production code, not by excluding anything:
+`ReportDraftConfigurationTest` covers the startup validation that refuses to
+create a draft client unless endpoint, API key, model name and a positive
+timeout are all present. Without that guard a partially configured drafting
+service would fail at the first manual report, after an Inspector has already
+gathered evidence.
 
 ## Supporting FE-01 verification (not workbook cases)
 
@@ -95,7 +98,7 @@ The two module rows are workbook-sheet totals, not SRS feature totals.
 | FE-08 dashboard/analytics/notifications | No assigned case. |
 | Mobile client | No verification recorded this round. |
 | Live external LLM drafting provider | Not exercised; manual structured draft is the tested path. |
-| JaCoCo 80% gate | Failing at 78%; pre-existing. |
+| JaCoCo 80% gate | Passing at 80.47% lines / 80.34% instructions. |
 
 ## Update rules
 
