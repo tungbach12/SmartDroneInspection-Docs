@@ -51,6 +51,26 @@ outside the fixed WFx workbook rows so the workbook totals are unchanged.
 
 ### Still unverified for FE-02
 
-MF1-07 permit and compliance records, MF1-08–10 asset creation with the required
-Inspector/Drone pair, and inspection scheduling are not implemented in this slice
-and have no executed case.
+MF1-08–10 asset creation with the required Inspector/Drone pair, and inspection
+scheduling, are not implemented in this slice and have no executed case.
+
+## MF1-07 permit and compliance records (executed 10 October 2026)
+
+Also supporting evidence, outside the fixed WFx workbook rows.
+
+- Preconditions: Backend branch `integrate/mf1-resources` at `8365f99`; PostgreSQL 17 through Testcontainers; `V25` table `flight_permits`; an active ORG_ADMIN, a same-organization asset and a same-organization evidence record, plus a second organization for isolation checks.
+- Procedure: Run `./mvnw -Dtest=ComplianceApiIntegrationTest,CompliancePersistenceTest test`; record a permit with asset, area, geographic scope and conditions; list and review it; submit each of the six permitted statuses and one outside that set; submit an inverted validity window, a blank permit type and a non-JSON geographic scope; and reference a foreign organization's asset and evidence.
+- Expected result: Organization scope comes from the authenticated actor and a request-supplied organization is ignored; every status in the recorded vocabulary persists and anything outside it is rejected; an inverted window or malformed JSON is a 400 rather than a server fault; review records reviewer, timestamp and reason together; entitlement gates create and review but not list; a foreign asset, foreign evidence and another tenant's permit all return one identical 404; and no field or status claims government, registry or authority verification.
+- Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
+- Evidence: `ComplianceApiIntegrationTest` 31/31 and `CompliancePersistenceTest` 6/6, inside `./mvnw verify` on `8365f99`: 291 tests, 0 failures, 0 errors, `All coverage checks have been met.`, BUILD SUCCESS.
+- Non-verification evidence: two tests assert this directly — `noPermitFieldClaimsExternalOrGovernmentVerification` rejects the response body if it contains `verified`, `authorityConfirmed`, `authorityVerified`, `governmentVerified`, `registryChecked`, `legallyCleared`, `clearedToFly` or `authentic`; `theReviewApiMakesNoExternalVerificationClaimInItsSurface` additionally requires the schema's status vocabulary itself to contain no `verified`, `confirmed`, `cleared` or `approved`. This is the Report 3 MF1-07 rule that the platform does not apply to an authority automatically.
+- Scope note: `NOT_APPLICABLE` and `ACTIVE` are the organization's own recorded account. No registry, authority or government service is contacted anywhere in this codebase, so nothing here constitutes external verification.
+
+### First-run environment note
+
+The first `./mvnw verify` on this commit failed with 190 errors. Every error had the same
+environmental cause — `Could not find a valid Docker environment`, so Testcontainers could
+not start PostgreSQL and the application context failed to load. There were zero assertion
+failures. Docker Desktop had been shut down between working sessions. After restarting it,
+the same commit verified green at 291 tests. This is recorded because a failed run that is
+later superseded must still be visible rather than quietly replaced.

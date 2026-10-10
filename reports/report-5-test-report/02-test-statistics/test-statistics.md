@@ -53,10 +53,16 @@ not a regression, and it is **not** evidence that anything stopped working.
 | Frontend lint | `npm run lint` | No errors; 4 pre-existing fast-refresh warnings in unrelated files. |
 | Frontend build | `npm run build` | Built successfully. |
 | Frontend suite | `npm test -- --run` | 161/161 passed across 31 files. |
-| MF1 resource-setup slice (Round 3, 2026-10-10) | `./mvnw verify` on `integrate/mf1-resources` at `dcd6516` | **Passed.** 254 tests, 0 failures, 0 errors; `All coverage checks have been met.`; BUILD SUCCESS. Covers entitlement, workforce provisioning, credential records, Drone inventory and Drone documents together with every pre-existing suite. |
+| MF1 resource-setup slice (Round 3, 2026-10-10) | `./mvnw verify` on `integrate/mf1-resources` at `8365f99` | **Passed.** 291 tests, 0 failures, 0 errors; `All coverage checks have been met.`; BUILD SUCCESS. Covers entitlement, workforce provisioning, credential records, Drone inventory, Drone documents and permit/compliance records together with every pre-existing suite. |
 
-The Round 3 backend run is the first that covers both MF1 slices together. The
-per-slice runs reported during implementation do not substitute for it.
+An earlier run on the pre-permit commit `dcd6516` passed 254 tests. The
+permit slice adds 37 more. The first run on `8365f99` failed with 190 errors
+purely because Docker Desktop had been stopped, so Testcontainers could not
+start; all 190 shared that single environmental cause and there were zero
+assertion failures. The commit verified green after Docker was restarted.
+
+The Round 3 backend run is the first that covers the whole MF1 slice. Per-slice
+runs reported during implementation do not substitute for it.
 
 ### Round 3 MF1 slice detail (2026-10-10)
 
@@ -71,6 +77,8 @@ per-slice runs reported during implementation do not substitute for it.
 | Drone inventory | `DroneApiIntegrationTest` | 12/12 |
 | Drone persistence | `DronePersistenceTest` | 10/10 |
 | Drone documents | `DroneDocumentApiIntegrationTest` | 7/7 |
+| Permit/compliance API | `ComplianceApiIntegrationTest` | 31/31 |
+| Permit persistence | `CompliancePersistenceTest` | 6/6 |
 | Modulith boundaries | `ModulithArchitectureTest` | 3/3 |
 
 **These MF1 results are supporting verification outside the workbook totals**, per

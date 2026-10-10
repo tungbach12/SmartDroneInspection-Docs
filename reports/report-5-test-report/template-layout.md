@@ -63,7 +63,7 @@ from those files only when exporting. Each case retains its FE and WF codes.
 | FE source | Workbook destination | Stable case IDs |
 | --- | --- | --- |
 | FE-01 identity/access governance | Supporting evidence, outside case sheets | No WFx IDs |
-| FE-02 asset registry/inspection schedule | MF1-06 Drone inventory/documents: supporting evidence, outside case sheets. Asset registry and schedule remain a gap. | None assigned |
+| FE-02 asset registry/inspection schedule | MF1-06 Drone inventory/documents and MF1-07 permit records: supporting evidence, outside case sheets. Asset registry and schedule remain a gap. | None assigned |
 | FE-03 inspection request/work assignment | Coverage gap; MF1-08–MF1-14 and MF2 unimplemented | None assigned |
 | FE-04 inspection evidence / collections | `Feature 2` | WF3-002, WF3-009 |
 | FE-05 defect detection/verification | `Feature 2` | WF3-003 |

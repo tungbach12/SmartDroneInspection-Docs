@@ -54,7 +54,7 @@ empty because MF1/MF2 are unimplemented.
 | `01-test-cases/` | `Test Cases` | The index of all cases and their preconditions. |
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary. |
 | `03-features/fe-01-identity-access-governance.md` | Support evidence | FE-01 gates; not a workbook case. |
-| `03-features/fe-02-asset-registry-inspection-schedule.md` | Support evidence | FE-02/MF1-06 Drone inventory and documents; not a workbook case. |
+| `03-features/fe-02-asset-registry-inspection-schedule.md` | Support evidence | FE-02/MF1-06 Drone inventory/documents and MF1-07 permit records; not a workbook case. |
 | `03-features/fe-03-inspection-request-work-assignment.md` | Coverage gap | No current case; MF1-08–MF1-14 and MF2 unimplemented. |
 | `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 2` sheet | `WF3-002`, `WF3-009`. |
 | `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 2` sheet | `WF3-003`. |
@@ -70,8 +70,8 @@ All five current cases belong to MF3:
 
 1. FE-01 — identity/access supporting gates. Recorded separately in the FE-01
    file; not a workbook case.
-2. FE-02 — Drone inventory and documents (MF1-06). Supporting evidence only;
-   asset registry and scheduling remain a coverage gap.
+2. FE-02 — Drone inventory/documents (MF1-06) and permit records (MF1-07).
+   Supporting evidence only; asset registry and scheduling remain a gap.
 3. FE-03 — inspection request and assignment. No case; MF1-08–MF1-14 and MF2
    unimplemented.
 4. FE-04 — inspection evidence and the Inspector's quality decision
