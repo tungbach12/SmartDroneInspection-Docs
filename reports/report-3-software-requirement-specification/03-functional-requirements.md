@@ -192,8 +192,8 @@ MF2 receives the assignment created in MF1; it does not source a Provider or cal
 **Implementation status (2026-10-10).** MF2-03 to MF2-07 have an HTTP contract and automated evidence: preparation draft/submission, permit-reference linking, the compliance gate, and readiness approval/return on
 `POST /api/v1/inspections/{id}/readiness/{prepId}/approval` and `/return`. Reviewer identity and organization come from the authenticated principal and are never read from the request body. The source ids an approval must
 name are readable at `GET /api/v1/workforce/credentials/me` and `GET /api/v1/inspections/{id}/readiness/sources`; both are same-organization `ORG_ADMIN` and return credential and document metadata rather than document content. MF2-01/02 assignment
-response is implemented. The Inspector's web entry point is `/inspections`, where an unanswered
-assignment inbox shows the paired asset, Drone and validity window; accept records that the Inspector
+response is implemented. The Inspector's entry points are the web `/inspections` screen and the mobile assignments inbox, where an unanswered
+pairing shows the asset, Drone and validity window; accept records that the Inspector
 took the work and is not flight clearance, while decline requires an Inspector-written reason. MF2-09 to MF2-11 field-session start, postponement, abort and per-inspection listing are implemented with an HTTP contract on
 `/api/v1/inspections/{id}/field-sessions`, restricted to the assigned `INSPECTOR`, and the mobile client opens them on `/inspection/{id}/session`. Still no workbook case. MF2-03 to MF2-06 preparation has a web
 UI on `/inspections`, where the Inspector edits the current preparation version and submits it and an organization reader may link permits and read the compliance gate.

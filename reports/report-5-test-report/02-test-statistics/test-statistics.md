@@ -52,9 +52,9 @@ reserved and are never reused.
 | Frontend lint | `npm run lint` | No errors; 4 pre-existing fast-refresh warnings in unrelated files. |
 | Frontend build | `npm run build` | Built successfully. |
 | Frontend suite | `npm test -- --maxWorkers=2` | 190/190 passed across 35 files. |
-| Mobile format | `dart format --output=none --set-exit-if-changed .` | 64 files unchanged. |
+| Mobile format | `dart format --output=none --set-exit-if-changed .` | 62 files unchanged. |
 | Mobile analyze | `flutter analyze` | No issues. |
-| Mobile tests | `flutter test` | 29/29 passed. |
+| Mobile tests | `flutter test` | 40/40 passed. |
 
 **The JaCoCo 80% gate now passes: 80.47% line and 80.34% instruction coverage.**
 The gate was failing before this work — 74.66% line coverage on the original
@@ -98,7 +98,7 @@ The two module rows are workbook-sheet totals, not SRS feature totals.
 | MF2 material-change invalidation (MF2-08) | Partly implemented. A session start refuses anything but the newest `APPROVED` decision, so an appended `INVALIDATED` or `RETURNED` decision wins over an older approval. **No service writes `INVALIDATED` yet**, because nothing can currently change a readiness source after approval. The schema already permits it. |
 | MF2 field session start/postpone/abort (MF2-09/10/11) | Implemented with an HTTP contract (`InspectionFieldSessionServiceTest` 18, `InspectionFieldSessionApiIntegrationTest` 9) and a web UI. **Mobile now has it too**, on its own route `/inspection/{id}/session` (`field_session_repository_test` 6, `field_session_page_test` 7). Still **no workbook case**. |
 | MF2 session end and MF3 hand-off (MF2-12) | Not implemented. |
-| MF2 preparation and assignment response (MF2-01/02/03/06) | Implemented and covered by `InspectionPreparationApiIntegrationTest` and `InspectionAssignmentApiIntegrationTest`, but not yet given workbook cases of their own. MF2-03 to MF2-06 have web UI (`InspectionPreparationPanel`, 8 tests). MF2-01/02 assignment response now has a web entry point at `/inspections` (`AssignmentInboxPanel`, 8 tests). **Mobile still has no screen for either.** |
+| MF2 preparation and assignment response (MF2-01/02/03/06) | Implemented and covered by `InspectionPreparationApiIntegrationTest` and `InspectionAssignmentApiIntegrationTest`, but not yet given workbook cases of their own. MF2-03 to MF2-06 have web UI (`InspectionPreparationPanel`, 8 tests) and no mobile screen. MF2-01/02 has an entry point on both clients: web `/inspections` (`AssignmentInboxPanel`, 8 tests) and the mobile assignments inbox (`assignment_inbox_repository_test` 5, `assignment_inbox_page_test` 7). |
 | MF4 maintenance/cost/acceptance | Unimplemented; no case. |
 | MF2 assignment/checklist entry | No endpoint; MF3 reachable only via the scoped list (`WF3-009`). |
 | FE-02 asset catalog | Implemented but no executed case recorded here. |
