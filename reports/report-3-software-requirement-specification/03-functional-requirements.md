@@ -189,6 +189,12 @@ MF2 receives the assignment created in MF1; it does not source a Provider or cal
 
 **Additional capture:** Inspector may request another session for the same inspection from MF3. Return to preparation/readiness checks before Start, particularly if the time, scope or permits changed. Do not jump directly from missing evidence to an unconditional Start.
 
+**Implementation status (2026-10-10).** MF2-03 to MF2-07 have an HTTP contract and automated evidence: preparation draft/submission, permit-reference linking, the compliance gate, and readiness approval/return on
+`POST /api/v1/inspections/{id}/readiness/{prepId}/approval` and `/return`. Reviewer identity and organization come from the authenticated principal and are never read from the request body. MF2-01/02 assignment
+response is implemented. **Not implemented:** the MF2-08 runtime invalidation check and MF2-09 to MF2-12 field-session recording. MF2-08 currently fails closed through structure rather than an explicit flag — the
+accepted-pair requirement leaves an approved pairing unanswerable, a `READY` preparation refuses new permit references, and permits, credentials and Drone documents have no production writer yet. Enforcement
+belongs to the MF2-10 session-start recheck, which does not exist at present. See `backend/flows/inspections-and-reports.md`.
+
 ### 3.5 FE-04 Field Records, Evidence and Inspector Quality Decision
 
 FE-04 implements the session-record obligations of MF2 and evidence steps MF3-01–MF3-04. Inspector, not the upload validator or LLM, decides substantive evidence adequacy.

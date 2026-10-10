@@ -180,6 +180,65 @@ finding IDs. An empty list means no corrective work was required within the
 observed scope and the inspection completes; it never creates an empty work
 order.
 
+## MF2 preparation and readiness (FE-03, MF2-03 to MF2-07)
+
+These routes live in the same `inspections` module but a separate controller
+from MF3, because the two actors are different: an `INSPECTOR` prepares and
+submits, an `ORG_ADMIN` decides.
+
+| Operation | Endpoint | Actor |
+| --- | --- | --- |
+| List preparation versions | `GET /api/v1/inspections/{id}/preparation` | assigned Inspector |
+| Get one preparation version | `GET /api/v1/inspections/{id}/preparation/{prepId}` | assigned Inspector |
+| Record shot-list, evidence types, access limits, hazards | `PUT /api/v1/inspections/{id}/preparation` | assigned Inspector |
+| Submit the preparation | `POST /api/v1/inspections/{id}/preparation/{prepId}/submission` | assigned Inspector |
+| Link issued permit references | `POST /api/v1/inspections/{id}/preparation/compliance/permits` | same-org ORG_ADMIN |
+| Evaluate the compliance gate | `GET /api/v1/inspections/{id}/preparation/compliance` | same-org ORG_ADMIN |
+| Approve readiness | `POST /api/v1/inspections/{id}/readiness/{prepId}/approval` | same-org ORG_ADMIN |
+| Return the preparation | `POST /api/v1/inspections/{id}/readiness/{prepId}/return` | same-org ORG_ADMIN |
+
+The readiness body carries **no reviewer identity and no organization**. The
+reviewer is taken from the authenticated principal, and organization, subject
+ownership, credential scope and pair scope are re-derived server-side. A body
+that carried `reviewedByUserId` would let a caller record a decision in someone
+else's name, and a body that carried an organization id would let a caller
+review another tenant's inspection.
+
+Approval is refused unless every gate passes: reviewer independence from the
+assigned Inspector, an `ACTIVE` internally verified credential with source
+evidence covering planned start, matching valid accepted pair, serviceable
+Drone, reviewed Drone documents with verification attribution, a complete
+applicability attestation with a traceable basis, and no machine-detectable
+permit blocker. An empty credential or document selection is allowed but must be
+explained, so "nothing applies" is a recorded judgement rather than an omission.
+
+A compliance blocker arrives as `200` carrying the blocker list, not as an
+error status: MF2-07 needs every blocker at once, and an empty list still means
+a named human has to decide.
+
+**Cross-tenant refusal is `404` with an `*_NOT_FOUND` code, not `403`.** A `403`
+would confirm that an inspection with that id exists, so the readiness routes
+follow the same rule as the report-review routes.
+
+### What is not implemented yet
+
+MF2-08 says a material plan, pair, permit or schedule change invalidates
+readiness. Today that fails closed through structure rather than through an
+explicit invalidation flag:
+
+- the accepted-pair requirement means an Inspector cannot decline a pairing that
+  has already been approved, because `AssetPairAssignment.respond()` only acts
+  on an unanswered pairing and MF2-07 requires `ACCEPTED`;
+- a `READY` preparation refuses new permit references, and a `READY_FOR_FLIGHT`
+  inspection refuses further preparation and submission;
+- permits, credentials and Drone documents currently have no production writer,
+  so nothing can change them after a decision.
+
+Runtime enforcement belongs to the field-session start check (MF2-10), which is
+where "reject stale, expired or revoked readiness" becomes a decision this
+system can actually make. Adding an invalidation column before a session exists
+would be a flag nothing reads.
+
 ## Verification records
 
 `InspectionReportVersionTest` and `AiFindingCandidateTest` cover the version
@@ -193,3 +252,16 @@ an Inspector, organization scope for an ORG_ADMIN, cross-tenant read for a
 platform `ADMIN`, refusal for `MAINTENANCE_ENGINEER`, the report-only filter,
 the inline report summary, and paging bounds. Report 5 records the outcomes for
 `WF3-001`–`WF3-004` on the fixed `Feature 2` sheet and for the target MF3 rows.
+
+For MF2, `InspectionReadinessServiceTest` and `ReadinessSnapshotFactoryTest`
+cover the MF2-07 decision rules, the deterministic source snapshot and its
+hash, and every refusal path against PostgreSQL.
+`InspectionPreparationApiIntegrationTest` covers the MF2-03 to MF2-06 endpoints
+over HTTP, including the role separation between the two actors and the
+compliance blocker list arriving as `200`.
+`InspectionReadinessApiIntegrationTest` covers the two readiness endpoints:
+approval and return by a qualified reviewer, a blank return reason, an empty
+applicability attestation, an Inspector refused at the filter chain, an
+unauthenticated caller, and a cross-tenant reviewer receiving
+`404 INSPECTION_NOT_FOUND`. Report 5 records `WF2-008` and `WF2-009` on the
+fixed `Feature 1` sheet.

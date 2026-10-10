@@ -94,8 +94,10 @@ The two module rows are workbook-sheet totals, not SRS feature totals.
 | Area | Status |
 | --- | --- |
 | MF1 asset/schedule setup | Unimplemented; no case. |
-| MF2 readiness approval/return (MF2-07) | Implemented and verified; `WF2-008`, `WF2-009` `Passed` Round 1. |
-| MF2 assignment response, preparation, field session (MF2-01/02/06/08–10) | Preparation and assignment-response services exist without an MF2-07-level HTTP contract or recorded case; the readiness API itself is not yet implemented. |
+| MF2 readiness approval/return (MF2-07) | Implemented and verified; `WF2-008`, `WF2-009` `Passed` Round 1. The HTTP endpoints were added on 2026-10-10 and are covered by `InspectionReadinessApiIntegrationTest`. |
+| MF2 material-change invalidation (MF2-08) | Not implemented. It currently fails closed through structure rather than a flag; enforcement belongs to the MF2-10 session-start recheck. |
+| MF2 field session start/postpone (MF2-09/10) and session records (MF2-11/12) | Not implemented; no endpoint exists. |
+| MF2 preparation and assignment response (MF2-01/02/03/06) | Implemented and covered by `InspectionPreparationApiIntegrationTest` and `InspectionAssignmentApiIntegrationTest`, but not yet given workbook cases of their own. |
 | MF4 maintenance/cost/acceptance | Unimplemented; no case. |
 | MF2 assignment/checklist entry | No endpoint; MF3 reachable only via the scoped list (`WF3-009`). |
 | FE-02 asset catalog | Implemented but no executed case recorded here. |
