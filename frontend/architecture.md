@@ -113,6 +113,21 @@ means a named reviewer has to decide, so the empty state says exactly that inste
 of reading as clearance. It lives in its own `ComplianceGateSection` so the
 preparation panel stays readable.
 
+For a same-organization ORG_ADMIN the same screen adds `ReadinessReviewPanel`. The
+reviewer picks their own credential, the assigned Inspector's credentials and the
+assigned Drone's documents from records the server reads for them — the approval
+endpoint names those ids, and asking a person to type a UUID is a form nobody
+completes. The panel collects what Report 3 requires a reviewer to attest: a
+complete applicability attestation with a traceable basis, a reason per category
+left empty, and a human-verification basis when the gate reports one.
+
+The panel decides nothing. Approval stays disabled while a machine-detectable
+blocker stands, which is a usability guard rather than an authorization one: the
+server refuses the same approval either way, so a client that ignored the button
+would gain nothing. An Inspector never sees the panel and never fetches the sources,
+because they are the subject of the review rather than its reviewer; the role check
+runs before any query rather than after render.
+
 Both the status chip and the failure alerts come from `shared/ui`, not from local
 markup. `StatusChip` carries the MF2 preparation vocabulary — submitted is a
 warning because the work is waiting on a reviewer, returned is an error because
