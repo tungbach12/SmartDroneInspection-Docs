@@ -95,8 +95,9 @@ The two module rows are workbook-sheet totals, not SRS feature totals.
 | --- | --- |
 | MF1 asset/schedule setup | Unimplemented; no case. |
 | MF2 readiness approval/return (MF2-07) | Implemented and verified; `WF2-008`, `WF2-009` `Passed` Round 1. The HTTP endpoints were added on 2026-10-10 and are covered by `InspectionReadinessApiIntegrationTest`. |
-| MF2 material-change invalidation (MF2-08) | Not implemented. It currently fails closed through structure rather than a flag; enforcement belongs to the MF2-10 session-start recheck. |
-| MF2 field session start/postpone (MF2-09/10) and session records (MF2-11/12) | Not implemented; no endpoint exists. |
+| MF2 material-change invalidation (MF2-08) | Partly implemented. A session start refuses anything but the newest `APPROVED` decision, so an appended `INVALIDATED` or `RETURNED` decision wins over an older approval. **No service writes `INVALIDATED` yet**, because nothing can currently change a readiness source after approval. The schema already permits it. |
+| MF2 field session start/postpone/abort (MF2-09/10/11) | Implemented as a service with automated evidence (`InspectionFieldSessionServiceTest`, 16 tests). **No HTTP contract and no workbook case yet.** |
+| MF2 session end and MF3 hand-off (MF2-12) | Not implemented. |
 | MF2 preparation and assignment response (MF2-01/02/03/06) | Implemented and covered by `InspectionPreparationApiIntegrationTest` and `InspectionAssignmentApiIntegrationTest`, but not yet given workbook cases of their own. |
 | MF4 maintenance/cost/acceptance | Unimplemented; no case. |
 | MF2 assignment/checklist entry | No endpoint; MF3 reachable only via the scoped list (`WF3-009`). |

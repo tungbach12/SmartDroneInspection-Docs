@@ -191,9 +191,11 @@ MF2 receives the assignment created in MF1; it does not source a Provider or cal
 
 **Implementation status (2026-10-10).** MF2-03 to MF2-07 have an HTTP contract and automated evidence: preparation draft/submission, permit-reference linking, the compliance gate, and readiness approval/return on
 `POST /api/v1/inspections/{id}/readiness/{prepId}/approval` and `/return`. Reviewer identity and organization come from the authenticated principal and are never read from the request body. MF2-01/02 assignment
-response is implemented. **Not implemented:** the MF2-08 runtime invalidation check and MF2-09 to MF2-12 field-session recording. MF2-08 currently fails closed through structure rather than an explicit flag — the
-accepted-pair requirement leaves an approved pairing unanswerable, a `READY` preparation refuses new permit references, and permits, credentials and Drone documents have no production writer yet. Enforcement
-belongs to the MF2-10 session-start recheck, which does not exist at present. See `backend/flows/inspections-and-reports.md`.
+response is implemented. MF2-09 to MF2-11 field-session start, postponement and abort are implemented as a service with automated evidence but have no HTTP contract and no workbook case.
+
+**Partly implemented:** MF2-08. The **reading** side exists — a session start refuses anything but the inspection's newest `APPROVED` decision, so an `INVALIDATED` or `RETURNED` decision appended later wins over an older approval, and the session records the decision it started against. The **writing** side does not: no service yet appends an `INVALIDATED` decision when a source changes. The schema was designed for it — `ck_inspection_readiness_decision` already allows `INVALIDATED` and the table is append-only — so no migration is needed when a producer appears.
+
+**Not implemented:** MF2-12 session end and the `FIELD_COMPLETED` hand-off to MF3. There is no producer that can currently change a readiness source after a decision: the accepted-pair requirement leaves an approved pairing unanswerable, a `READY` preparation refuses new permit references, and permits, credentials and Drone documents have no production writer. See `backend/flows/inspections-and-reports.md`.
 
 ### 3.5 FE-04 Field Records, Evidence and Inspector Quality Decision
 
