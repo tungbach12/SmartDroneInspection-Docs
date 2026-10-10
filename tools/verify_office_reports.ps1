@@ -95,9 +95,9 @@ try {
                         throw ('Expected eight Report 5 feature sheets; found ' + $featureSheets.Count)
                     }
                     $statistics = $workbook.Worksheets.Item('Test Statistics')
-                    # Feature N maps to SRS feature FE-0N; current MF3 cases
-                    # belong to FE-04, now Feature 4.
-                    $feature = $workbook.Worksheets.Item('Feature 4')
+                    # Feature N maps to SRS feature FE-0N; MF2 readiness cases
+                    # are on Feature 3 and the MF3 cases are on Features 4–6.
+                    $feature = $workbook.Worksheets.Item('Feature 3')
                     $result['totalCases'] = $statistics.Range('H19').Value2
                     $result['passed'] = $statistics.Range('D19').Value2
                     $result['coverage'] = $statistics.Range('E21').Value2
@@ -105,15 +105,15 @@ try {
                     $result['round1Passed'] = $statistics.Range('D19').Value2
                     $result['round2Pending'] = 0
                     $result['round3Pending'] = 0
-                    foreach ($sheetName in @('Feature 4', 'Feature 5', 'Feature 6')) {
+                    foreach ($sheetName in @('Feature 3', 'Feature 4', 'Feature 5', 'Feature 6')) {
                         $featureRound = $workbook.Worksheets.Item($sheetName)
                         $result['round2Pending'] += $featureRound.Range('D7').Value2
                         $result['round3Pending'] += $featureRound.Range('D8').Value2
                     }
                     $result['date'] = $feature.Range('G12').Text
                     $result['tester'] = $feature.Range('H12').Text
-                    if ($result.totalCases -ne 5 -or $result.passed -ne 5 -or
-                        $result.round2Pending -ne 5 -or $result.round3Pending -ne 5 -or
+                    if ($result.totalCases -ne 7 -or $result.passed -ne 7 -or
+                        $result.round2Pending -ne 7 -or $result.round3Pending -ne 7 -or
                         $result.coverage -ne 100 -or $result.successfulCoverage -ne 100) {
                         throw 'Report 5 calculated values do not match its source evidence.'
                     }

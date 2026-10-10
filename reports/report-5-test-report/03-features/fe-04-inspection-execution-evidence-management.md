@@ -47,7 +47,9 @@ over the case rows below; do not type values into the Markdown for them.
 covers discovery and scoping of the same records, and the inline report summary
 that keeps the inspections and reports screens consistent.
 
-Neither case covers the MF2 half of FE-04 (session start/end, postponement,
-interruption), which has no runtime. Report 3 §3.7.2 and §3.7.3 (required
-report content and LLM safeguards) belong to FE-06 and are likewise not asserted
-by these cases; see `fe-06-…md`.
+Neither case covers the MF2 session-record obligations assigned to FE-04 by
+Report 3. Session start, postponement and abort have backend runtime and tests,
+but Report 5 has no case for them; session end and the `FIELD_COMPLETED` handoff
+remain unimplemented. Report 3 §3.7.2 and §3.7.3 (required report content and
+LLM safeguards) belong to FE-06 and are likewise not asserted by these cases;
+see `fe-06-…md`.

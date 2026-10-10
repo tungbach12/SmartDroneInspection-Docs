@@ -26,7 +26,7 @@ Users also have an actor zone:
 - `PLATFORM`
 - `CUSTOMER_ORGANIZATION`
 
-Role checks are not sufficient by themselves. Services enforce organization scope, assignment scope, and separation of duties.
+Role checks are not sufficient by themselves. Services enforce organization scope, assignment scope, and separation of duties. For MF2, assignment response and field-session operations are restricted to the assigned active Inspector; preparation/source access and readiness decisions additionally enforce organization ownership, current workflow state, and independent reviewer rules. Internal credential/document verification and evidence-attribution checks do not verify an external issuer registry or determine statutory applicability.
 
 ## Browser flow
 
@@ -83,6 +83,8 @@ Platform user management is under `/api/v1/platform/users/**` and requires `ADMI
 ## Mobile flow
 
 Mobile endpoints mirror the auth contract under `/api/v1/mobile/auth/**`. Mobile clients receive access and refresh tokens in JSON and store them with platform secure storage. Browser `Origin` requests are rejected on these endpoints.
+
+MF2 inspection APIs are separate from authentication: the backend derives the active Inspector and organization from the authenticated principal. A caller cannot choose an arbitrary Inspector/organization in assignment response, preparation, or field-session requests. Readiness approval/return and readiness-source listing require an `ORG_ADMIN` scoped to the inspection's organization, and approval enforces reviewer/author separation of duties. See [inspection runtime flow](flows/inspections-and-reports/) for route-level details and current partial/unimplemented boundaries.
 
 Mobile exposes `/login`, `/password/setup`, `/refresh` and `/logout` only. Organization onboarding is a browser-first flow: the mobile app has no registration endpoint and an `ORG_ADMIN` registers on the web client before signing in on mobile.
 

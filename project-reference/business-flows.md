@@ -2,8 +2,8 @@
 title: "Business Flows (Enterprise SaaS, four roles)"
 document_type: business-flow-reference
 purpose: "Current four-role Enterprise SaaS business flows MF1-MF4 with actor-labelled steps. Authoritative for business requirements together with Report 3; the database design remains the storage contract."
-version: "4.0"
-updated: 2026-10-08
+version: "4.1"
+updated: 2026-10-10
 ---
 
 # SmartDroneInspection Business Flows — Enterprise SaaS
@@ -11,12 +11,13 @@ updated: 2026-10-08
 This document describes the current product target: a multi-tenant SaaS workspace rented by
 infrastructure-owning companies. Four human roles, four connected Main Flows, no marketplace.
 
-> **Requirements, not implementation.** These flows state required behaviour. On 8 October 2026 the
-> backend delivered identity, organization registration, the 41-table target schema and the runtime
-> cutover on VPS2, and then the MF3 workflow slice: evidence intake, the Inspector's evidence-quality
-> decision, advisory AI candidates with a manual fallback, and versioned report authoring, independent
-> ORG_ADMIN review, and immutable publication. MF1, MF2, and MF4 execution remains team work. See
-> [database-design.md](database-design.md) §11 for what currently exists, and
+> **Requirements, not implementation.** These flows state required behaviour. By 10 October 2026,
+> the backend had delivered identity, organization registration, the 41-table target schema/runtime
+> cutover, the MF3 workflow slice, and an MF2 slice covering assignment response, preparation/compliance,
+> readiness approval/return and field-session start/postpone/abort. MF2-08 source-change invalidation is
+> partial and MF2-12 session end/`FIELD_COMPLETED` is not implemented; MF1 and MF4 remain incomplete.
+> See the implementation-status table below and [database-design.md](database-design.md) §11 for
+> the verified runtime boundary, and
 > [Report 3](../reports/report-3-software-requirement-specification/03-functional-requirements.md)
 > for the binding requirements text.
 
@@ -259,11 +260,17 @@ SUPERSEDED` by `InspectionReportVersion`.
 | --- | --- |
 | Roles, organization registration, audit | Delivered and verified on VPS2 |
 | Target schema (41 tables) and runtime cutover | Delivered and verified on VPS2 |
-| Asset catalog, categories, checklists | Runtime present; MF1 pair/inspection workflow not implemented |
+| Asset catalog, categories, checklists | Catalog runtime present; complete MF1 pair/inspection workflow remains incomplete |
+| MF2-01/02 assignment response | Implemented in backend `84fcc16`, frontend `287d5a4`, mobile `91092e6`; backend API/integration coverage included in PR #64 CI |
+| MF2-03/06 preparation and compliance | Backend API/service and web preparation panel implemented; backend and frontend cases added |
+| MF2-07 readiness approval/return | Backend decision service, snapshot hash, source-list/read routes and web review panel implemented; `WF2-008`/`WF2-009` record the decision rules and evidence |
+| MF2-08 invalidation | Partial: start requires the newest decision to be `APPROVED`; `INVALIDATED` is a supported decision type, but no source-change workflow currently appends it |
+| MF2-09/11 field session | Backend start/postpone/abort APIs and mobile field-session screen implemented; backend/mobile tests added |
+| MF2-12 session end and `FIELD_COMPLETED` handoff | Not implemented |
 | MF3 evidence, quality decision, findings, versioned report and publication | Implemented and verified on 8 October 2026; scoped list added and verified on 9 October 2026 |
-| MF1, MF2, MF4 workflow execution | Not implemented in the current checked-in backend mainline. MF2 schema is present, but no assignment, preparation, readiness-decision or field-session workflow services/endpoints were found. |
+| MF4 workflow execution | Not implemented |
 
-Report 5 records five executed MF3 cases as `Passed`. The MF1, MF2 and MF4 target steps remain requirements, but have no executed workflow evidence in the current repositories. Do not treat a table/schema row or a documentation-only endpoint description as workflow evidence. The MF2-06/MF2-07 requirement refinements in this reference and Report 3 are normative; they do not assert implementation.
+The backend PR #64 workflow completed successfully: 334 tests, zero failures/errors/skips, JaCoCo and Modulith checks passed. Report 5 has seven executed workflow cases in the 8-feature output layout: two MF2-07 readiness cases on `Feature 3`/FE-03, plus five MF3 cases on `Feature 4`–`Feature 6`. Remaining MF1, MF2-08, MF2-12 and MF4 requirements stay visible as implementation/test gaps. Do not treat schema alone as workflow evidence; the statuses above refer to merged code and its recorded automated checks.
 
 ## IX. Source reference
 

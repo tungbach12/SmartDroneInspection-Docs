@@ -3,17 +3,87 @@ title: "MF3 Inspection, Evidence and Report Runtime Flow"
 weight: 40
 ---
 
-# MF3 Inspection, Evidence and Report Runtime Flow
+# MF2/MF3 Inspection, Preparation and Report Runtime Flow
 
-This describes the implemented Report 3 MF3 workflow inside the `inspections`
-Spring Modulith module. Roles are the four Enterprise SaaS roles: `ADMIN`,
-`ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`. The assigned Inspector is
-the human report author; AI is advisory only.
+This describes the implemented Report 3 MF2 slice and MF3 workflow inside the
+`inspections` Spring Modulith module. Roles are the four Enterprise SaaS roles:
+`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`. The assigned
+Inspector is the human report author; AI is advisory only. MF2-08 source-change
+invalidation is partial; MF2-12 session end and `FIELD_COMPLETED` handoff are
+not implemented.
 
 Access is decided by the authenticated principal and scoped lookups, never by
 client-supplied user, organization, owner, or assignment identifiers. Write
 operations require the *assigned* Inspector; read and review operations also
 allow a same-organization `ORG_ADMIN`.
+
+## Assignment inbox and assignment response (FE-03, MF2-01/02)
+
+Assignment response is separate from readiness approval. The Inspector may accept
+or reject only their own assigned inspection; a rejection requires a reason and
+returns the inspection to the organization workflow. Acceptance records the
+response but does not establish `READY_FOR_FLIGHT`.
+
+The API is rooted at `/api/v1/inspection-assignments`: `GET /mine` lists the
+caller's unanswered assignments, `GET /{assignmentId}` reads one scoped
+assignment, and `POST /{assignmentId}/response` records a response. All three
+require `INSPECTOR`; the service derives the actor/organization from the
+principal and checks that the pairing belongs to the assigned Inspector. The
+response contract is represented by `AssetPairAssignmentResponse` and the
+request by `RespondToAssignmentRequest`. A rejection needs a reason; acceptance
+records response only and does not make the inspection ready for flight.
+
+## Mission preparation and compliance (FE-03, MF2-03/06)
+
+Preparation is versioned under an assigned inspection at
+`/api/v1/inspections/{inspectionId}/preparation`. The assigned `INSPECTOR` can
+list the history (`GET`), read a preparation (`GET /{preparationId}`), update
+the shot-list (`PUT`), and submit the current version (`POST
+/{preparationId}/submission`). Submission is serialized with readiness review
+and is permitted only while the inspection is `PREPARING`.
+
+An `ORG_ADMIN` links applicable permit records with
+`POST /compliance/permits` and reads the compliance gate with
+`GET /compliance`. Source lookup is scoped to the organization; a permit link
+is not a waiver, and the compliance result reports blockers rather than
+granting readiness. External issuer/authority verification is not implied by
+internal record status.
+
+## Readiness approval and return (FE-03, MF2-07)
+
+An active `ORG_ADMIN` who is not the submitting Inspector may approve or return
+the current submitted preparation through
+`/api/v1/inspections/{inspectionId}/readiness/{preparationId}/approval` or
+`/return`. Approval requires a qualified reviewer with internally verified
+credential and evidence attribution, valid source records, applicability
+attestations, a timely accepted assignment pair, and no mandatory permit
+blocker. Approval stores a source snapshot/hash and changes the preparation and
+inspection readiness state. A return requires a reason and may be recorded
+despite readiness gaps; its snapshot preserves observed and unresolved source
+IDs and explicitly does not claim exhaustive observation.
+
+The supporting routes `GET /api/v1/workforce/credentials/me` and
+`GET /api/v1/inspections/{inspectionId}/readiness/sources` require `ORG_ADMIN`
+and resolve records within the caller's organization. These internal record
+checks are not external registry verification. `WF2-008` and `WF2-009` are the
+Report 5 cases for approval/return rules; they do not cover all MF2 behavior.
+
+## Field sessions (FE-03, MF2-09/11; partial handoff)
+
+An assigned active `INSPECTOR` may list their sessions, start a session, record
+postponement, or abort an open session. Start requires an inspection in
+`READY_FOR_FLIGHT`, a non-blank pre-flight checklist note, no other open session,
+and the newest readiness decision to be `APPROVED`. Start records a software
+session and moves the inspection to `IN_PROGRESS`; it never actuates or pilots
+the Drone. Postponement reopens the inspection to `READY_FOR_FLIGHT`; abort
+records the abort but leaves the inspection `IN_PROGRESS`.
+
+The `INVALIDATED` readiness decision type exists, and start checks the newest
+decision so an appended invalidation would prevent reuse of an older approval.
+However, no source-change workflow currently appends `INVALIDATED`; that part of
+MF2-08 is partial. There is no session-end route to close an aborted/started
+session or transition the inspection to `FIELD_COMPLETED`; MF2-12 remains
+unimplemented.
 
 ## Inspection and report collections (FE-04, FE-06)
 
@@ -191,5 +261,11 @@ cycle, self-review refusal, and the full draft-to-publish sequence.
 `InspectionListApiIntegrationTest` covers the collections: assignment scope for
 an Inspector, organization scope for an ORG_ADMIN, cross-tenant read for a
 platform `ADMIN`, refusal for `MAINTENANCE_ENGINEER`, the report-only filter,
-the inline report summary, and paging bounds. Report 5 records the outcomes for
-`WF3-001`–`WF3-004` on the fixed `Feature 2` sheet and for the target MF3 rows.
+the inline report summary, and paging bounds. MF2 service and API coverage
+includes `InspectionReadinessServiceTest`, `ReadinessSnapshotFactoryTest`,
+`InspectionReadinessApiIntegrationTest`, `InspectionPreparationApiIntegrationTest`,
+and the field-session service/API tests. The complete backend PR #64 CI run
+passed 334 tests with no failures/errors/skips, and the JaCoCo/Modulith checks
+passed. Report 5 records `WF2-008`/`WF2-009` for MF2-07 on `Feature 3`, and the
+MF3 cases on `Feature 4`–`Feature 6`; session end and source-change invalidation
+remain uncovered as noted above.

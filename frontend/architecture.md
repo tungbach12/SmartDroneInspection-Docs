@@ -89,10 +89,27 @@ resource.
   RFC 9457 error bodies, `204 No Content`, and binary evidence downloads remain
   unchanged.
 
+## MF2 assignment, preparation, readiness and field-session screens
+
+The Inspections workspace places the assignment inbox before the inspection
+list. For an assigned Inspector, assignment responses are available in the
+inbox; the selected inspection can open its MF2 preparation panel. An
+`ORG_ADMIN` can inspect the compliance gate and use the readiness review panel
+to approve or return a submitted preparation. These client controls follow the
+backend contract; organization ownership, Inspector assignment, reviewer
+independence and current workflow state are enforced server-side. Acceptance of
+an assignment is not readiness approval.
+
+The web workspace retains the existing MF3 inspection workflow after adding
+MF2: evidence intake and retry, evidence-quality decisions, finding/AI-candidate
+review and report draft authoring remain available in the selected inspection.
+Do not replace these MF3 actions with the MF2 preparation panels.
+
 ## MF3 inspection and report screens
 
-`/inspections` loads a server-paged, backend-scoped inspection collection; users
-select a row instead of entering an identifier by hand. An assigned Inspector
+`/inspections` loads the assignment inbox and a server-paged, backend-scoped
+inspection collection; users select a row instead of entering an identifier by
+hand. An assigned Inspector
 may open the evidence workspace, upload `WEB_UPLOAD` evidence, and record the
 substantive evidence-quality decision. The same collection is visible to
 same-organization ORG_ADMINs and platform ADMINs as read-only inspection rows;

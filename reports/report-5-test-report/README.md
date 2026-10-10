@@ -4,21 +4,20 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope (updated 2026-10-10):** This report covers the **implemented MF3 slice
-only** — inspection evidence, defect findings, and reporting — for the four
-current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`). The
-previous content mixed a retired five-role WF1–WF4 baseline with unimplemented
-MF1–MF2/MF4 target cases; those 28 cases were removed because they described
-behavior that no longer exists or has never been built. Every remaining case has
-an executed automated test behind it.
+**Scope (updated 2026-10-10):** This report records seven executed cases for the
+four current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`):
+two MF2-07 readiness decision cases and five MF3 cases. The earlier content
+mixed a retired five-role WF1–WF4 baseline with unimplemented MF1–MF4 target
+cases; obsolete and unsupported cases were removed during the 2026-10-09 reset.
+The two MF2 cases were restored after the merged backend/frontend/mobile PRs
+were integrated locally: backend `84fcc16`, frontend `287d5a4`, mobile `91092e6`.
 
-MF1, MF2, MF4, FE-02, FE-03, FE-07, and FE-08 are **untested**, and that is
-recorded as a coverage gap rather than filled with a pending or invented case.
-The current backend includes MF2 storage schema, but no corresponding workflow
-services/endpoints or readiness tests are present on backend `main` at
-`d385a7d`. The two `WF2-008`/`WF2-009` cases described in the merged docs change
-are therefore not counted or marked passed. The original workbook template
-remains unchanged; generated copies contain eight feature sheets as requested.
+This does not claim complete MF2 coverage. MF2-08 source-change invalidation is
+partial (session start checks the newest decision and requires APPROVED, but no
+source-change flow appends INVALIDATED); MF2-12 session end and
+`FIELD_COMPLETED` handoff remain unimplemented. MF1, MF4 and FE-08 remain gaps.
+The original workbook template remains unchanged; generated copies contain eight
+feature sheets as requested.
 
 ## Naming layers and mapping
 
@@ -26,9 +25,10 @@ The supplied template has two feature sheets (`Feature 1`, `Feature 2`). Generat
 workbooks extend it to eight feature sheets (`Feature 1`–`Feature 8`), one per
 Report 3 feature. The original template remains unchanged. Sheet `Feature N`
 contains SRS feature `FE-0N`; these are separate naming layers, not synonyms.
-Feature 1 (supporting FE-01), Feature 2 (FE-02), Feature 3 (FE-03), Feature 7
-(FE-07) and Feature 8 (FE-08) have no cases in the current implemented MF3
-slice, but remain present so the workbook mirrors all eight SRS features.
+Feature 1 (supporting FE-01), Feature 2 (FE-02), Feature 7 (FE-07) and
+Feature 8 (FE-08) have no cases. Feature 3 (FE-03) contains `WF2-008` and
+`WF2-009`; Features 4–6 contain the five MF3 cases. All eight sheets remain so
+the workbook mirrors the eight SRS features.
 
 | Layer | Meaning | Example |
 | --- | --- | --- |
@@ -37,9 +37,10 @@ slice, but remain present so the workbook mirrors all eight SRS features.
 | WF test ID | Business-flow traceability ID | `WF3-005` |
 
 Do not rename the files or IDs to make the sheet number look like an SRS
-feature code. In the generated workbook, cases sit on `Feature 4`, `Feature 5`, and
-`Feature 6`, matching FE-04, FE-05, and FE-06. The other five feature sheets
-remain present with zero cases, preserving the one-sheet-per-SRS-feature mapping.
+feature code. In the generated workbook, `WF2-008`/`WF2-009` sit on `Feature 3` (FE-03),
+and MF3 cases sit on `Feature 4`, `Feature 5`, and `Feature 6` (FE-04–FE-06).
+The remaining four sheets have zero cases, preserving the one-sheet-per-SRS-
+feature mapping.
 
 ## Source of truth and template rule
 
@@ -73,7 +74,7 @@ remain present with zero cases, preserving the one-sheet-per-SRS-feature mapping
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary. |
 | `03-features/fe-01-identity-access-governance.md` | Support evidence | FE-01 gates; not a workbook case. |
 | `03-features/fe-02-asset-registry-inspection-schedule.md` | Coverage gap | No current case; MF1 catalog workflow unimplemented. |
-| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 3` sheet | No current case; MF2 workflow endpoints and readiness tests are absent from current backend `main`. |
+| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 3` sheet | `WF2-008`, `WF2-009` (MF2-07 readiness approval/return); other MF2 steps remain gaps or partial. |
 | `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 4` sheet | `WF3-002`, `WF3-009`. |
 | `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 5` sheet | `WF3-003`. |
 | `03-features/fe-06-inspection-report-approval.md` | `Feature 6` sheet | `WF3-005`, `WF3-006`. |
@@ -101,12 +102,13 @@ reviewer's bookmark for no reporting benefit.
 
 ## Current test scope
 
-All five current cases belong to MF3:
+All verification statuses below describe the current source after the MF2 PR integration; the dated change history records superseded earlier states.
 
 1. FE-01 — identity/access supporting gates. Recorded separately in the FE-01
    file; not a workbook case.
 2. FE-02 — asset registry and schedule. No case (see coverage gap).
-3. FE-03 — mission preparation, assignment response and readiness. No case; MF2 requirements remain, but workflow implementation and executed test evidence are absent from the current baseline.
+3. FE-03 — MF2-07 readiness approval/return (`WF2-008`, `WF2-009`); other MF2
+   implementation and case-coverage gaps remain documented.
 4. FE-04 — inspection evidence and the Inspector's quality decision
    (`WF3-002`), and the scoped inspection/report collections (`WF3-009`).
 5. FE-05 — advisory detection and human finding verification (`WF3-003`).
@@ -115,10 +117,10 @@ All five current cases belong to MF3:
 8. FE-08 — dashboard, analytics, and notifications. No assigned case; explicit
    coverage gap.
 
-Totals: **5 cases, 5 `Passed`, 0 `Failed`, 0 `Pending`.** Coverage of 100% is
-coverage of the implemented slice only, not of the SRS. Removed case IDs stay
-reserved and are never reused; new cases continue from `WF3-010` after
-`WF3-009`.
+Totals: **7 cases, 7 `Passed`, 0 `Failed`, 0 `Pending`.** Coverage of 100% is
+only of these seven recorded cases, not the SRS or the complete MF2 workflow.
+Removed case IDs stay reserved and are never reused; new cases continue from
+`WF3-010` after `WF3-009`.
 
 MinIO/evidence storage is tracked under FE-04. CI uses S3Mock for S3 API
 integration coverage; that mock does not replace runtime verification against
