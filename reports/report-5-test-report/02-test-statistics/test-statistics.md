@@ -10,49 +10,51 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | **2026-10-09 reset to the implemented MF3 slice.** All cases below are evidenced by executed backend and web tests. MF1, MF2 and MF4 are unimplemented and therefore have no case; this is recorded as a coverage gap, not as a passing or passing-by-default result. |
-| Last updated | 2026-10-09 |
+| Test round | **2026-10-10: the implemented MF3 slice plus the re-integrated MF2-07 readiness cases.** Every case below is evidenced by executed backend and web tests. MF1, MF4, and MF2 outside MF2-07 remain unimplemented and therefore have no case; that is recorded as a coverage gap, not as a passing or passing-by-default result. |
+| Last updated | 2026-10-10 |
 
 ## Module summary
 
 | No | Module code | Passed | Failed | Pending | N/A | Number of test cases |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 1 | Feature 1 sheet (no cases: MF1/MF2 unimplemented) | 0 | 0 | 0 | 0 | 0 |
+| 1 | Feature 1 sheet (FE-03/MF2-07 readiness) | 2 | 0 | 0 | 0 | 2 |
 | 2 | Feature 2 sheet (FE-04/FE-05/FE-06; MF3) | 5 | 0 | 0 | 0 | 5 |
-| **Subtotal** |  | **5** | **0** | **0** | **0** | **5** |
+| **Subtotal** |  | **7** | **0** | **0** | **0** | **7** |
 
-## Reset scope
+## Reset and re-integration scope
 
-The previous statistics mixed a retired five-role WF1–WF4 baseline with
-unimplemented Enterprise SaaS MF1–MF4 target cases, giving 33 cases with 13
-`Passed` — a total that did not describe any single system. On 2026-10-09 that
-content was removed and the report was reset to the MF3 slice only.
+On 2026-10-09 the statistics were reset to the implemented MF3 slice alone
+(5 cases, 5 `Passed`), because the previous totals mixed a retired five-role
+WF1–WF4 baseline with unimplemented Enterprise SaaS MF1–MF4 target cases.
 
-| Change | Before | After |
+On 2026-10-10 the MF2-07 readiness decision service was re-integrated onto the
+current `origin/main` (`d385a7d`) and re-verified there, which restored
+`WF2-008` and `WF2-009` as `Passed` on the `Feature 1` sheet.
+
+| Change | 2026-10-09 reset | 2026-10-10 re-integration |
 | --- | ---: | ---: |
-| Cases | 33 | 5 |
-| Passed | 13 | 5 |
+| Cases | 5 | 7 |
+| Passed | 5 | 7 |
 | Failed | 0 | 0 |
-| Pending | 20 | 0 |
+| Pending | 0 | 0 |
 | N/A | 0 | 0 |
 
-The 28 removed cases (`WF1-001`–`WF1-019`, `WF2-001`–`WF2-007`, `WF3-001`,
-`WF3-004`, `WF3-007`, `WF3-008`, `WF4-001`–`WF4-005`) described behavior that
-no longer exists or has never been implemented. Their IDs stay reserved.
-
-The drop from 13 `Passed` to 5 is the honest consequence of that removal. It is
-not a regression, and it is **not** evidence that anything stopped working.
+The 28 cases removed by the reset (`WF1-001`–`WF1-019`, `WF2-001`–`WF2-007`,
+`WF3-001`, `WF3-004`, `WF3-007`, `WF3-008`, `WF4-001`–`WF4-005`) described
+behavior that no longer exists or has never been implemented. Their IDs stay
+reserved and are never reused.
 
 ## Verification recorded this round
 
 | Check | Command | Result |
 | --- | --- | --- |
-| Backend full suite + coverage gate + Modulith boundaries | `./mvnw -o verify` | **Passed.** 162 tests, 0 failures, 0 errors; Spotless clean; Spring Modulith boundary test passed. |
-| New collection scope and paging | `./mvnw -o -Dtest=InspectionListApiIntegrationTest test` | 11/11 passed. |
-| Draft-service configuration guards | `./mvnw -o -Dtest=ReportDraftConfigurationTest test` | 6/6 passed. |
+| Backend full suite + coverage gate + Modulith boundaries | `./mvnw.cmd clean verify` | **Passed.** 293 tests, 0 failures, 0 errors, 0 skipped; Spotless clean; Spring Modulith boundary test passed (3/3); JaCoCo gate met. |
 | Frontend lint | `npm run lint` | No errors; 4 pre-existing fast-refresh warnings in unrelated files. |
 | Frontend build | `npm run build` | Built successfully. |
-| Frontend suite | `npm test -- --run` | 161/161 passed across 31 files. |
+| Frontend suite | `npm test -- --maxWorkers=2` | 164/164 passed across 32 files. |
+| Mobile format | `dart format --output=none --set-exit-if-changed .` | 56 files unchanged. |
+| Mobile analyze | `flutter analyze` | No issues. |
+| Mobile tests | `flutter test` | 16/16 passed. |
 
 **The JaCoCo 80% gate now passes: 80.47% line and 80.34% instruction coverage.**
 The gate was failing before this work — 74.66% line coverage on the original
@@ -77,12 +79,13 @@ Every case below has an executed automated test behind it, so coverage equals
 success rate this round.
 
 - **Test coverage** = cases with a recorded status (`Passed`, `Failed`, or
-  `N/A`) ÷ total cases = 5 / 5 = 100%.
-- **Successful coverage** = `Passed` cases ÷ total cases = 5 / 5 = 100%.
+  `N/A`) ÷ total cases = 7 / 7 = 100%.
+- **Successful coverage** = `Passed` cases ÷ total cases = 7 / 7 = 100%.
 
-These percentages describe only the MF3 slice. They must not be read as product
-coverage: MF1, MF2, MF4, FE-02, FE-03, FE-07 and FE-08 are untested, and the
-denominator is the implemented scope, not the SRS.
+These percentages describe only the implemented MF3 slice plus MF2-07 readiness.
+They must not be read as product coverage: MF1, MF4, MF2 outside MF2-07, FE-02,
+FE-07 and FE-08 are untested, and the denominator is the implemented scope, not
+the SRS.
 
 The two module rows are workbook-sheet totals, not SRS feature totals.
 
@@ -91,7 +94,8 @@ The two module rows are workbook-sheet totals, not SRS feature totals.
 | Area | Status |
 | --- | --- |
 | MF1 asset/schedule setup | Unimplemented; no case. |
-| MF2 request/assignment/readiness | Unimplemented; no case. |
+| MF2 readiness approval/return (MF2-07) | Implemented and verified; `WF2-008`, `WF2-009` `Passed` Round 1. |
+| MF2 assignment response, preparation, field session (MF2-01/02/06/08–10) | Preparation and assignment-response services exist without an MF2-07-level HTTP contract or recorded case; the readiness API itself is not yet implemented. |
 | MF4 maintenance/cost/acceptance | Unimplemented; no case. |
 | MF2 assignment/checklist entry | No endpoint; MF3 reachable only via the scoped list (`WF3-009`). |
 | FE-02 asset catalog | Implemented but no executed case recorded here. |
