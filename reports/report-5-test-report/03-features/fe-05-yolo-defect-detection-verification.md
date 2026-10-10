@@ -1,4 +1,9 @@
-# FE-05: Defect Detection and Human Verification
+# FE-05: AI Vision Candidates and Human Finding Decisions
+
+Report 3 §3.6 titles this feature "AI Vision Candidates and Human Finding
+Decisions". The filename retains the earlier "YOLO / defect detection
+verification" wording; the filename is stable, the scope is Report 3's. Report 3
+names no specific detection vendor or model family.
 
 ## Scope baseline
 
@@ -11,7 +16,18 @@ availability.
 
 Detection is served by an optional OpenAI-compatible vision adapter behind the
 inspections-owned `AiInferencePort`, with a mutually exclusive YOLO alternative.
-Credentials are environment-only.
+Credentials are environment-only. Both adapters are implementation choices
+behind the requirement, not part of it.
+
+## Feature sheet summary
+
+Values for the `Feature 5` summary block (`A2:E8` in the workbook). The
+exporter maps this file to the matching SRS feature sheet.
+
+| Cell | Label | Value |
+| --- | --- | --- |
+| `B2` | Feature | AI Vision Candidates and Human Finding Decisions |
+| `B3` | Test requirement | Verifies human review of advisory AI candidates and manual findings; unconfirmed detections do not enter official findings. |
 
 ## Current case
 

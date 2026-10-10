@@ -28,14 +28,14 @@ There are two ownership layers and **four human roles**:
 
 | Flow | Primary responsibility | Output used by the next flow |
 | --- | --- | --- |
-| MF1 — Resources, Assets, Assignment and Inspection Setup | ORG_ADMIN manages Inspectors/Engineers, credentials, identified Drones and applicable compliance files; creates an asset **with one Inspector and one specific Drone assigned**; creates an inspection inheriting that pair. | Inspection ID, asset/scope/dates, pair snapshot and document references for MF2. |
-| MF2 — Preparation, Compliance and Field-Session Records | Inspector accepts/prepares; qualified ORG_ADMIN reviews compliance/readiness; Inspector completes current pre-flight checklist and records Start/End/postponement on app. | Ended session(s), checklist/shot-list, assigned pair and approval basis for MF3. |
-| MF3 — Evidence, AI Vision, LLM Inspection Report and Review | Inspector decides evidence quality; SYSTEM detects candidates and produces a draft; Inspector authors/verifies; qualified ORG_ADMIN confirms findings and approves publication. | Immutable inspection report version and confirmed repair-required findings for MF4; a no-repair outcome closes without an empty work order. |
-| MF4 — Team Repairs, Costs, LLM Completion Report and Acceptance | ORG_ADMIN assigns team/lead/report author; Engineers plan and document work; scope/budget/changes require approval; LLM drafts; report author verifies; independent qualified ORG_ADMIN accepts and reconciles costs. | Published repair completion/acceptance record, reconciled cost and updated asset history; required open work stays visible. |
+| MF1 — Resources, Assets, Assignment and Inspection Setup | Organization Admin manages Inspectors/Engineers, credentials, identified Drones and applicable compliance files; creates an asset **with one Inspector and one specific Drone assigned**; creates an inspection inheriting that pair. | Inspection ID, asset/scope/dates, pair snapshot and document references for MF2. |
+| MF2 — Preparation, Compliance and Field-Session Records | Inspector accepts/prepares; qualified Organization Admin reviews compliance/readiness; Inspector completes current pre-flight checklist and records Start/End/postponement on app. | Ended session(s), checklist/shot-list, assigned pair and approval basis for MF3. |
+| MF3 — Evidence, AI Vision, LLM Inspection Report and Review | Inspector decides evidence quality; SYSTEM detects candidates and produces a draft; Inspector authors/verifies; qualified Organization Admin confirms findings and approves publication. | Immutable inspection report version and confirmed repair-required findings for MF4; a no-repair outcome closes without an empty work order. |
+| MF4 — Team Repairs, Costs, LLM Completion Report and Acceptance | Organization Admin assigns team/lead/report author; Engineers plan and document work; scope/budget/changes require approval; LLM drafts; report author verifies; independent qualified Organization Admin accepts and reconciles costs. | Published repair completion/acceptance record, reconciled cost and updated asset history; required open work stays visible. |
 
 Registration/authentication and subscription activation are **supporting gates**, not a fifth MF. Assets remain master records; later inspections reuse the asset and create a new inspection ID in MF1. The pair assigned at asset creation is a default, not an exclusive lifetime reservation of a Drone. Inspection-specific changes preserve past snapshots. MF4 never overwrites the original MF3 report.
 
-**Boundaries:** Flying by RC, adjusting equipment and doing physical repairs are outside software steps. The application stores preparations/observations/results; it does not pilot, arm, isolate or prove hardware safety. Flight/compliance logs are separate from the asset-condition inspection report. Informational public restricted-airspace data is not permission. Applicable issued permits, legal exemptions, credentials and operating conditions must be reviewed for the mission; missing mandatory authorization cannot be waived by ORG_ADMIN. Research/application limits are explained in [Functional Requirements §3.10](../03-functional-requirements/#310-research-basis-and-applicability).
+**Boundaries:** Flying by RC, adjusting equipment and doing physical repairs are outside software steps. The application stores preparations/observations/results; it does not pilot, arm, isolate or prove hardware safety. Flight/compliance logs are separate from the asset-condition inspection report. Informational public restricted-airspace data is not permission. Applicable issued permits, legal exemptions, credentials and operating conditions must be reviewed for the mission; missing mandatory authorization cannot be waived by Organization Admin. Research/application limits are explained in [Functional Requirements §3.10](../03-functional-requirements/#310-research-basis-and-applicability).
 
 SHA-256, timestamps and version histories support technical integrity/traceability, not automatically conclusive legal proof. Logged application approval is not automatically a legally qualified digital signature. LLM produces a labelled source-grounded draft only; missing data remains unknown, numerical totals come from structured calculations, and humans remain accountable for official conclusions and acceptance.
 
@@ -49,8 +49,8 @@ Existing `BR-01`–`BR-41` identifiers are retained with revised definitions for
 
 | ID | Rule Definition |
 | --- | --- |
-| BR-01 | Only ADMIN is platform-owned; ORG_ADMIN, INSPECTOR and MAINTENANCE_ENGINEER are customer-workspace roles. Platform administration and customer operational identities are separate. |
-| BR-02 | ORG_ADMIN can manage only its own organization's assets, resources, inspections, reports, work orders and cost records. |
+| BR-01 | Only Platform Admin is platform-owned; Organization Admin, Inspector and Maintenance Engineer are customer-workspace roles. Platform administration and customer operational identities are separate. |
+| BR-02 | Organization Admin can manage only its own organization's assets, resources, inspections, reports, work orders and cost records. |
 | BR-03 | Customer workforce identities belong to the relevant organization; a team or role cannot bridge tenant boundaries. |
 | BR-04 | Inspectors/Engineers can act only on assigned inspections, work orders or tasks; lead/report-author designation further scopes actions. |
 | BR-05 | Active users and applicable qualifications/documents are required for operational release. Each credential is checked for the relevant activity; unrelated qualifications do not satisfy it. |
@@ -63,21 +63,21 @@ Existing `BR-01`–`BR-41` identifiers are retained with revised definitions for
 | BR-12 | Report versions, estimate baselines, scope changes and approval decisions preserve prior versions; published reports cannot be silently changed. |
 | BR-13 | Subscription renewal/cancellation/expiry follows explicitly disclosed terms; expiry never automatically marks open business work complete. |
 | BR-14 | Inspector records postponement/abort when weather/site conditions are unsafe; a prior readiness decision does not force operational Start. |
-| BR-15 | Assigned Inspector must accept the assignment before readiness release; rejection requires a reason and returns to ORG_ADMIN. |
+| BR-15 | Assigned Inspector must accept the assignment before readiness release; rejection requires a reason and returns to Organization Admin. |
 | BR-16 | Manual flight and physical repair remain real-world responsibilities of qualified customer personnel; software Start/End is recordkeeping, not device control. |
 | BR-17 | Evidence retains server-computed SHA-256, source links and available metadata; missing metadata is disclosed, and hashes do not confer legal admissibility by themselves. |
 | BR-18 | Duplicate evidence in the same inspection/work-log scope is rejected and retry cannot create duplicate intake records. |
 | BR-19 | Missing GPS/telemetry is recorded, not invented and not an automatic quality failure for otherwise suitable visual evidence. |
-| BR-20 | AI detections remain candidates until human review; the qualified ORG_ADMIN's final finding decisions govern the published report. |
+| BR-20 | AI detections remain candidates until human review; the qualified Organization Admin's final finding decisions govern the published report. |
 | BR-21 | Rejected/unverified candidates never enter official defect statistics or approved corrective-work scope. |
 | BR-22 | Inspector can add source-backed manual observations/findings; AI unavailability does not discard evidence or prevent manual reporting. |
 | BR-23 | Inspector is responsible for evidence-quality decisions and author verification/editing of every required inspection-report section before submission. |
-| BR-24 | A qualified ORG_ADMIN distinct from the inspection author reviews findings/text/limits and approves publication; missing qualifications/approval block release. |
+| BR-24 | A qualified Organization Admin distinct from the inspection author reviews findings/text/limits and approves publication; missing qualifications/approval block release. |
 | BR-25 | Draft/unverified content is restricted to assigned authors and authorized reviewers and clearly separated from approved results. |
 | BR-26 | Published report versions are immutable; corrections create linked revisions and invalidate affected prior review confirmations. |
 | BR-27 | No silence-based or timer-based technical acceptance is presumed. Publication and maintenance acceptance require attributable human decisions. |
 | BR-28 | An incomplete report returns to its named author with reasons and preserved versions; no marketplace complaint/payment-hold flow exists. |
-| BR-29 | ADMIN governs/supports SaaS, not customer technical approval, repair-budget approval or legal arbitration. |
+| BR-29 | Platform Admin governs/supports SaaS, not customer technical approval, repair-budget approval or legal arbitration. |
 | BR-30 | App acknowledgments/approvals are auditable records, not automatically government permits, qualified signatures, safety certificates or court determinations. |
 | BR-31 | Corrective work references at least one confirmed repair-required finding from a published own-organization inspection report version. |
 | BR-32 | Assigned qualified Engineer/lead supplies technical scope, tasks and itemized estimate; LLM does not invent labor rates, quantities or repair prices. |
@@ -92,12 +92,12 @@ Existing `BR-01`–`BR-41` identifiers are retained with revised definitions for
 | BR-41 | Workforce/compliance catalog management is in MF1; mission-specific approval is in MF2; permit applicability is assessed against authoritative current law and recorded evidence. |
 | BR-42 | Asset creation includes exactly one responsible Inspector and one identified Drone in the same workflow; dispatch requires an inspection snapshot of that pair and resolved conflicts. |
 | BR-43 | Only the assigned Inspector decides substantive evidence completeness/quality before AI; technical upload validation does not substitute for that decision. |
-| BR-44 | MF3 order is evidence quality → AI Vision → LLM draft → Inspector verification → qualified ORG_ADMIN findings/report review → publication. AI/LLM cannot bypass it. |
+| BR-44 | MF3 order is evidence quality → AI Vision → LLM draft → Inspector verification → qualified Organization Admin findings/report review → publication. AI/LLM cannot bypass it. |
 | BR-45 | Each MF4 work order has an approved Engineer team, exactly one lead and one accountable report author; lead and author may be the same person but neither accepts their own team's work. |
-| BR-46 | Every task has a responsible approved team member; lead allocates only within approved membership, and ORG_ADMIN records lead/author replacement and handover. |
+| BR-46 | Every task has a responsible approved team member; lead allocates only within approved membership, and Organization Admin records lead/author replacement and handover. |
 | BR-47 | SYSTEM computes authorized budget and actual/variance totals with decimals and consistent currency/tax basis; missing cost is not zero, and contingency is not an incurred expense. |
 | BR-48 | LLM drafts both report types solely from permitted sources and preserves uncertainty/provenance; it cannot invent measurements, causes, completion, financial evidence or approval. |
-| BR-49 | MF4 report author verifies and submits the completion draft; a qualified ORG_ADMIN outside the executing team performs independent technical acceptance. |
+| BR-49 | MF4 report author verifies and submits the completion draft; a qualified Organization Admin outside the executing team performs independent technical acceptance. |
 | BR-50 | Team-declared work completion, technical acceptance, financial reconciliation and closure are distinct. CLOSED requires all required tasks, evidence, decisions and pending changes resolved. |
 | BR-51 | MF3 records point-in-time observed condition; MF4 records executed work, actuals and acceptance. Original published findings/report remain unchanged by repair. |
 | BR-52 | Readiness is rechecked at field-session Start and after material changes; expired/revoked mandatory authorization cannot be bypassed by internal exception approval. |

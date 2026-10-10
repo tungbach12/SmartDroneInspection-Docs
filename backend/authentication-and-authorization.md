@@ -26,7 +26,7 @@ Users also have an actor zone:
 - `PLATFORM`
 - `CUSTOMER_ORGANIZATION`
 
-Role checks are not sufficient by themselves. Services enforce organization scope, assignment scope, and separation of duties.
+Role checks are not sufficient by themselves. Services enforce organization scope, assignment scope, and separation of duties. For MF2, assignment response and field-session operations are restricted to the assigned active Inspector; preparation/source access and readiness decisions additionally enforce organization ownership, current workflow state, and independent reviewer rules. Internal credential/document verification and evidence-attribution checks do not verify an external issuer registry or determine statutory applicability.
 
 ## Browser flow
 
@@ -80,24 +80,11 @@ Platform user management is under `/api/v1/platform/users/**` and requires `ADMI
 - `PUT /api/v1/platform/users/{userId}/roles` changes roles and revokes the user's sessions.
 - `PATCH /api/v1/platform/users/{userId}/status` activates, suspends, or disables an account.
 
-## Workforce credential visibility
-
-MF2-07 readiness approval requires the reviewer to name their own credential, the assigned Inspector's credentials and the assigned Drone's documents. Those identifiers cannot be invented by a client, so two read routes expose them. Both require `ORG_ADMIN` in the caller's own organization.
-
-- `GET /api/v1/workforce/credentials/me` returns **the caller's own** credentials. There is no id, user or organization parameter, so a caller cannot ask about anyone else's record.
-- `GET /api/v1/inspections/{id}/readiness/sources` returns the credentials of the inspection's assigned Inspector and the documents of its assigned Drone, reached through that inspection.
-
-These routes return metadata, not documents. A credential travels as type, issuer, reference, issue and expiry dates, status, and whether the stored record says it was verified and when. A Drone document travels the same way. No file content, no download link and no `evidenceId` download path is exposed here; MF2-07's decision is based on the reference and the validity window, and the reviewer confirms the paperwork itself.
-
-The scope rule is the reason this is an ORG_ADMIN capability rather than a public or Inspector one: reviewing an Inspector's qualification is an employer's management act. It is deliberately narrow in two ways. It is a **same-organization** read only, so one tenant's workforce records cannot be reached through another tenant's inspection. And `drone_documents` carries no organization column of its own, so the Drone's owner is joined in: filtering on the Drone alone would let a caller enumerate another organization's documents by guessing a Drone id.
-
-A cross-tenant caller receives `404 INSPECTION_NOT_FOUND` rather than an empty list, because an empty list would confirm that an inspection with that id exists. An Inspector receives `403`: they are the subject of the record being reviewed, not the reviewer of it.
-
-This is an internal-record check. A stored record saying a credential was verified is not issuer-registry verification, and `READY_FOR_FLIGHT` is not external flight authority.
-
 ## Mobile flow
 
 Mobile endpoints mirror the auth contract under `/api/v1/mobile/auth/**`. Mobile clients receive access and refresh tokens in JSON and store them with platform secure storage. Browser `Origin` requests are rejected on these endpoints.
+
+MF2 inspection APIs are separate from authentication: the backend derives the active Inspector and organization from the authenticated principal. A caller cannot choose an arbitrary Inspector/organization in assignment response, preparation, or field-session requests. Readiness approval/return and readiness-source listing require an `ORG_ADMIN` scoped to the inspection's organization, and approval enforces reviewer/author separation of duties. See [inspection runtime flow](flows/inspections-and-reports/) for route-level details and current partial/unimplemented boundaries.
 
 Mobile exposes `/login`, `/password/setup`, `/refresh` and `/logout` only. Organization onboarding is a browser-first flow: the mobile app has no registration endpoint and an `ORG_ADMIN` registers on the web client before signing in on mobile.
 
