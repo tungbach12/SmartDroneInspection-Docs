@@ -52,9 +52,9 @@ reserved and are never reused.
 | Frontend lint | `npm run lint` | No errors; 4 pre-existing fast-refresh warnings in unrelated files. |
 | Frontend build | `npm run build` | Built successfully. |
 | Frontend suite | `npm test -- --maxWorkers=2` | 182/182 passed across 34 files. |
-| Mobile format | `dart format --output=none --set-exit-if-changed .` | 56 files unchanged. |
+| Mobile format | `dart format --output=none --set-exit-if-changed .` | 64 files unchanged. |
 | Mobile analyze | `flutter analyze` | No issues. |
-| Mobile tests | `flutter test` | 16/16 passed. |
+| Mobile tests | `flutter test` | 29/29 passed. |
 
 **The JaCoCo 80% gate now passes: 80.47% line and 80.34% instruction coverage.**
 The gate was failing before this work — 74.66% line coverage on the original
@@ -96,7 +96,7 @@ The two module rows are workbook-sheet totals, not SRS feature totals.
 | MF1 asset/schedule setup | Unimplemented; no case. |
 | MF2 readiness approval/return (MF2-07) | Implemented and verified; `WF2-008`, `WF2-009` `Passed` Round 1. HTTP endpoints covered by `InspectionReadinessApiIntegrationTest`; the source ids an approval names are readable at `GET /api/v1/workforce/credentials/me` and `GET /api/v1/inspections/{id}/readiness/sources` (same-org ORG_ADMIN, metadata only). **The review screen now exists** (`ReadinessReviewPanel`, 8 tests), so a reviewer can approve or return through the web client without typing identifiers. |
 | MF2 material-change invalidation (MF2-08) | Partly implemented. A session start refuses anything but the newest `APPROVED` decision, so an appended `INVALIDATED` or `RETURNED` decision wins over an older approval. **No service writes `INVALIDATED` yet**, because nothing can currently change a readiness source after approval. The schema already permits it. |
-| MF2 field session start/postpone/abort (MF2-09/10/11) | Implemented with an HTTP contract and automated evidence (`InspectionFieldSessionServiceTest` 18, `InspectionFieldSessionApiIntegrationTest` 9). **No workbook case yet.** |
+| MF2 field session start/postpone/abort (MF2-09/10/11) | Implemented with an HTTP contract (`InspectionFieldSessionServiceTest` 18, `InspectionFieldSessionApiIntegrationTest` 9) and a web UI. **Mobile now has it too**, on its own route `/inspection/{id}/session` (`field_session_repository_test` 6, `field_session_page_test` 7). Still **no workbook case**. |
 | MF2 session end and MF3 hand-off (MF2-12) | Not implemented. |
 | MF2 preparation and assignment response (MF2-01/02/03/06) | Implemented and covered by `InspectionPreparationApiIntegrationTest` and `InspectionAssignmentApiIntegrationTest`, but not yet given workbook cases of their own. MF2-03 to MF2-06 now have web UI (`InspectionPreparationPanel`, 8 tests). MF2-01/02 assignment response is backend-only with no web screen. |
 | MF4 maintenance/cost/acceptance | Unimplemented; no case. |

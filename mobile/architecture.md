@@ -57,4 +57,32 @@ Report authoring, review, and publication stay web-only. They are governance
 decisions with a separation-of-duties requirement, not field capture, so the
 mobile client does not duplicate them.
 
+## Field session (MF2-09 to MF2-11)
+
+The field session has its own route, `/inspection/{id}/session`, rather than
+living inside the inspection detail screen. MF2-09 has the Inspector on site
+identifying the assigned Drone and completing the pre-flight checklist before
+asking to start, postponing or aborting. That is a different act from reading the
+checklist and evidence that screen exists to show, and folding the two together
+made the captured record harder to reach.
+
+The screen records only what the Inspector writes. The pre-flight note is typed
+rather than ticked, because a checkbox a client can set without reading anything
+would attest to nothing. An abort asks for confirmation before it fires: a
+mistaken tap on a phone in the field ends a session that cannot resume, so the
+extra tap is cheaper than the mistake. A postponement needs no confirmation,
+because it hands the inspection back for another attempt.
+
+The session stores the readiness decision it started against, which is what makes
+a later audit able to answer which approval the field work relied on. Nothing on
+this screen arms a Drone. Starting records that the software agreed the paperwork
+and the pre-flight checklist were in order, and the session start time is not
+hardware flight time.
+
+`InspectionRepository` also still carries `listAssignments`, `start` and
+`checklist` from an earlier baseline. Those endpoints do not exist in the current
+backend, nothing calls them from the UI, and they are left in place rather than
+removed, because deleting another baseline's surface is not this change's
+business.
+
 Run `flutter test` for tests and `dart run build_runner build --delete-conflicting-outputs` after changing generated Freezed or JSON-serializable models.
