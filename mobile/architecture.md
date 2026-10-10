@@ -57,4 +57,49 @@ Report authoring, review, and publication stay web-only. They are governance
 decisions with a separation-of-duties requirement, not field capture, so the
 mobile client does not duplicate them.
 
+## Assignment inbox (MF2-01/02)
+
+The home inspections screen is the entry point to MF2: an Inspector sees the
+pairings the organization administrator opened for them, and accepts or declines
+with a reason. Without this inbox there is no way to begin MF2 from the device the
+Inspector carries into the field, because preparation, readiness and the field
+session all sit downstream of a pairing the Inspector took.
+
+The inbox shows the asset, the assigned Drone and its validity window so the answer
+can be given without opening three other screens. Accepting records that the
+Inspector took the job; it is not flight clearance. MF2-07 decides separately,
+with a named independent reviewer, whether the mission may fly. A decline stays
+disabled until the Inspector writes a reason, because the server refuses without
+one and only the Inspector knows whether they lack a qualification, a date or a
+willingness.
+
+The repository calls `/inspection-assignments/mine` and
+`/inspection-assignments/{id}/response`. The earlier `listAcceptedAssignments`
+and `start` used `/inspections/assignments` and `/inspections/start`, which this
+backend does not have; they and the models used only by those calls are removed.
+The inspection checklist remains on the current backend contract and is not
+reached by this inbox.
+
+## Field session (MF2-09 to MF2-11)
+
+The field session has its own route, `/inspection/{id}/session`, rather than
+living inside the inspection detail screen. MF2-09 has the Inspector on site
+identifying the assigned Drone and completing the pre-flight checklist before
+asking to start, postponing or aborting. That is a different act from reading the
+checklist and evidence that screen exists to show, and folding the two together
+made the captured record harder to reach.
+
+The screen records only what the Inspector writes. The pre-flight note is typed
+rather than ticked, because a checkbox a client can set without reading anything
+would attest to nothing. An abort asks for confirmation before it fires: a
+mistaken tap on a phone in the field ends a session that cannot resume, so the
+extra tap is cheaper than the mistake. A postponement needs no confirmation,
+because it hands the inspection back for another attempt.
+
+The session stores the readiness decision it started against, which is what makes
+a later audit able to answer which approval the field work relied on. Nothing on
+this screen arms a Drone. Starting records that the software agreed the paperwork
+and the pre-flight checklist were in order, and the session start time is not
+hardware flight time.
+
 Run `flutter test` for tests and `dart run build_runner build --delete-conflicting-outputs` after changing generated Freezed or JSON-serializable models.

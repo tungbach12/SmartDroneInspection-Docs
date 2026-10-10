@@ -64,29 +64,31 @@ from those files only when exporting. Each case retains its FE and WF codes.
 | --- | --- | --- |
 | FE-01 identity/access governance | Supporting evidence, outside case sheets | No WFx IDs |
 | FE-02 asset registry/inspection schedule | Coverage gap; no current case | None assigned |
-| FE-03 inspection request/work assignment | Coverage gap; MF1/MF2 unimplemented | None assigned |
+| FE-03 inspection request/work assignment | `Feature 1` | WF2-008, WF2-009 |
 | FE-04 inspection evidence / collections | `Feature 2` | WF3-002, WF3-009 |
 | FE-05 defect detection/verification | `Feature 2` | WF3-003 |
 | FE-06 inspection report/approval | `Feature 2` | WF3-005, WF3-006 |
 | FE-07 maintenance/defect resolution | Coverage gap; MF4 unimplemented | None assigned |
 | FE-08 dashboard/analytics/notifications | Coverage gap; no assigned case | None assigned |
 
-The sheet names are template labels, not SRS feature identifiers. After the
-2026-10-09 reset to the implemented MF3 slice, all five cases sit on
-`Feature 2`; `Feature 1` is empty because MF1 and MF2 have no implementation.
+The sheet names are template labels, not SRS feature identifiers. The MF2-07
+readiness cases sit on `Feature 1` and the MF3 cases on `Feature 2`.
 FE codes identify SRS capabilities and WFx IDs retain stable case identity:
 
 | Workbook sheet | Included SRS features | Included WF IDs |
 | --- | --- | --- |
-| `Feature 1` | None currently; MF1/MF2 unimplemented | None |
+| `Feature 1` | FE-03 | WF2-008, WF2-009 |
 | `Feature 2` | FE-04, FE-05, FE-06 | WF3-002, WF3-003, WF3-005, WF3-006, WF3-009 |
 
 There are exactly eight FE-specific Markdown source files. The two fixed
 workbook sheets are presentation groupings, not source files or SRS features.
-Removed case IDs (`WF1-*`, `WF2-*`, `WF3-001`, `WF3-004`, `WF3-007`,
+Removed case IDs (`WF1-*`, `WF2-001`–`WF2-007`, `WF3-001`, `WF3-004`, `WF3-007`,
 `WF3-008`, `WF4-*`) stay reserved and are never reused; new cases continue from
-`WF3-010`. FE-02, FE-03, FE-07 and FE-08 are explicit coverage gaps, and no
-case may be recorded for a workflow that has no implementation.
+`WF3-010`. FE-02, FE-07 and FE-08 are explicit coverage gaps, and no case may be
+recorded for a workflow that has no implementation. `WF2-008` and `WF2-009`
+passed Round 1 on 2026-10-09 and were re-verified on the integrated mainline on
+2026-10-10; their Rounds 2–3 remain `Pending`. These cases do not claim
+end-to-end workflow delivery.
 
 ## Visual and status rules
 

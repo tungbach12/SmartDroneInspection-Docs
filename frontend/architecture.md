@@ -89,18 +89,80 @@ resource.
   RFC 9457 error bodies, `204 No Content`, and binary evidence downloads remain
   unchanged.
 
-## MF3 inspection and report screens
+## MF2 preparation and MF3 inspection and report screens
 
-`/inspections` loads a server-paged, backend-scoped inspection collection; users
-select a row instead of entering an identifier by hand. An assigned Inspector
-may open the evidence workspace, upload `WEB_UPLOAD` evidence, and record the
-substantive evidence-quality decision. The same collection is visible to
-same-organization ORG_ADMINs and platform ADMINs as read-only inspection rows;
-the Inspector-only mutation workspace stays hidden from those roles. Maintenance
-Engineers are directed to Maintenance rather than shown an inspection list.
-Analysis and draft generation stay disabled until the evidence set is accepted,
-because the backend refuses both. The API computes evidence checksums and is the
-authorization boundary; the browser never receives a direct MinIO URL.
+`/inspections` opens with the MF2-01/02 assignment inbox for an Inspector, because that is the
+entry point to MF2: preparation, readiness and the field session all sit downstream of a pairing
+the Inspector took. The panel shows the asset, the Drone serial and the validity window so the
+answer can be given without opening three other records, and a decline stays disabled until a
+reason is written, since the backend refuses without one and only the Inspector knows whether they
+lack a qualification, a date or a willingness.
+
+Accepting is not flight clearance, and the panel says so. MF2-02 records that the Inspector took
+the job; MF2-07 decides separately whether the mission may fly.
+
+`/inspections` then loads a server-paged, backend-scoped inspection collection; users
+select a row instead of entering an identifier by hand. The selected inspection
+opens the MF2 mission-preparation panel above the MF3 evidence workspace, because
+preparation is what comes first: the Inspector records the component shot-list,
+evidence types, access constraints and hazards, submits it with a safety
+acknowledgment, and an organization reviewer then decides whether the mission may
+fly.
+
+The panel edits the **current** preparation version rather than starting a blank
+form, since MF2-07 reviews one specific version. The editor is keyed on that
+version, so its fields always belong to the version on screen rather than being
+re-seeded after every fetch. Submission is offered only for a submitted version,
+and the fields are disabled once the version is `READY`: a readiness decision is
+about a particular compliance basis, so editing after it would leave the decision
+pointing at content nobody reviewed.
+
+The compliance gate renders blockers as a list carrying their server codes rather
+than as an error. MF2-07 needs every blocker at once, and an empty list still
+means a named reviewer has to decide, so the empty state says exactly that instead
+of reading as clearance. It lives in its own `ComplianceGateSection` so the
+preparation panel stays readable.
+
+For a same-organization ORG_ADMIN the same screen adds `ReadinessReviewPanel`. The
+reviewer picks their own credential, the assigned Inspector's credentials and the
+assigned Drone's documents from records the server reads for them — the approval
+endpoint names those ids, and asking a person to type a UUID is a form nobody
+completes. The panel collects what Report 3 requires a reviewer to attest: a
+complete applicability attestation with a traceable basis, a reason per category
+left empty, and a human-verification basis when the gate reports one.
+
+The panel decides nothing. Approval stays disabled while a machine-detectable
+blocker stands, which is a usability guard rather than an authorization one: the
+server refuses the same approval either way, so a client that ignored the button
+would gain nothing. An Inspector never sees the panel and never fetches the sources,
+because they are the subject of the review rather than its reviewer; the role check
+runs before any query rather than after render.
+
+Both the status chip and the failure alerts come from `shared/ui`, not from local
+markup. `StatusChip` carries the MF2 preparation vocabulary — submitted is a
+warning because the work is waiting on a reviewer, returned is an error because
+it needs rework, ready is a success because it is the only one with a decision
+behind it. A 409 renders through `RefusalNotice`, which carries no client-invented
+heading: one conflict may mean "not editable", "not allowed in this state" or
+"inspection is not preparing", and naming the wrong one contradicts the server's
+own wording shown beside it. A feature panel that renders its own chip colour or
+its own error text drifts from the rest of the product.
+
+The MF2-01/02 assignment endpoints and the checklist endpoints do not exist in the
+current backend. The API client still carries those functions from an earlier
+baseline and nothing calls them; they are not a working path and are not presented
+in the UI.
+
+An assigned Inspector may open the evidence workspace, upload `WEB_UPLOAD`
+evidence, and record the substantive evidence-quality decision. The same collection
+is visible to same-organization ORG_ADMINs and platform ADMINs as read-only
+inspection rows; the Inspector-only mutation workspace stays hidden from those
+roles, while an organization reader keeps the permit-linking form and the
+compliance gate. Maintenance Engineers are directed to Maintenance rather than shown
+an inspection list. Analysis and draft generation stay disabled until the evidence
+set is accepted, because the backend refuses both. The API computes evidence
+checksums and is the authorization boundary; the browser never receives a direct
+MinIO URL.
 
 `/reports` uses the same inspection list filtered to rows that carry a report,
 with report status/version shown inline. Selecting a row loads that inspection's
