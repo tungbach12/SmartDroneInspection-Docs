@@ -67,8 +67,35 @@ These FE-01 target cases are supporting checks outside the fixed WFx workbook ro
 
 | Target check | Procedure | Expected result | Preconditions | Status | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| FE01-T01 Organization and subscription entitlement gate | Register an enterprise organization; attempt MF1 setup before ADMIN activates the subscription; activate with ADMIN; then attempt cross-tenant workspace access. | MF1 setup is blocked until entitlement is active; ADMIN activates the workspace; a user from another organization cannot read or mutate the workspace. | Two organizations and an inactive subscription fixture exist. | Pending | No new runtime test executed. |
-| FE01-T02 Role separation of duties | Attempt ORG_ADMIN setup actions as `INSPECTOR`/`MAINTENANCE_ENGINEER`; attempt Inspector/Engineer evidence-quality actions as `ORG_ADMIN` or `ADMIN`; attempt independent maintenance acceptance by the report author or repair team. | Only ORG_ADMIN manages organization resources/workforce/teams; Inspectors and Engineers act only on assigned work; ADMIN has no default customer technical or acceptance authority; author/executing-team self-acceptance is denied. | Target four-role fixtures and one assigned inspection/work-order exist. | Pending | No new runtime test executed. |
+| FE01-T01 Organization and subscription entitlement gate | Register an enterprise organization; attempt MF1 setup before ADMIN activates the subscription; activate with ADMIN; then attempt cross-tenant workspace access. | MF1 setup is blocked until entitlement is active; ADMIN activates the workspace; a user from another organization cannot read or mutate the workspace. | Two organizations and an inactive subscription fixture exist. | Passed 2026-10-10 for the entitlement and tenant-isolation checks | `SubscriptionEntitlementServiceTest` — 4/4; cross-tenant isolation via `WorkforceApiIntegrationTest`. Subscription activation itself is the Supporting Flow and is not implemented. |
+| FE01-T02 Role separation of duties | Attempt ORG_ADMIN setup actions as `INSPECTOR`/`MAINTENANCE_ENGINEER`; attempt Inspector/Engineer evidence-quality actions as `ORG_ADMIN` or `ADMIN`; attempt independent maintenance acceptance by the report author or repair team. | Only ORG_ADMIN manages organization resources/workforce/teams; Inspectors and Engineers act only on assigned work; ADMIN has no default customer technical or acceptance authority; author/executing-team self-acceptance is denied. | Target four-role fixtures and one assigned inspection/work-order exist. | Partial — workforce side Passed 2026-10-10; maintenance self-acceptance still Pending | `WorkforceApiIntegrationTest` 20/20 and `WorkforceServiceTest` 13/13, including regression tests proving the public users facade cannot grant `ORG_ADMIN`/`ADMIN` or mutate a peer ORG_ADMIN. MF4 independent maintenance acceptance is unimplemented. |
+
+### Enterprise SaaS entitlement and workforce governance (executed 10 October 2026)
+
+These execute the previously Pending `FE01-T01`/`FE01-T02` checks for the MF1
+resource-setup slice. They are supporting gates outside the fixed WFx workbook
+rows, matching the existing FE-01 foundation-gate convention, so they do not
+alter workbook statistics.
+
+#### Subscription entitlement gate
+
+- Preconditions: Backend branch `integrate/mf1-resources`; PostgreSQL 17 through Testcontainers; Flyway `V25__enterprise_saas_target_schema.sql` creating `subscriptions`.
+- Procedure: Run `./mvnw -Dtest=SubscriptionEntitlementServiceTest test`; call `SubscriptionEntitlement.requireActive(organizationId, at)` for an in-window ACTIVE subscription, for a subscription whose exclusive `endsAt` has passed, and for expired, suspended and missing subscriptions.
+- Expected result: `requireActive` returns normally only for an ACTIVE subscription whose window covers the instant; every other case raises a `FORBIDDEN` `SUBSCRIPTION_INACTIVE` ProblemDetail. A null `startsAt`/`endsAt` is treated as unbounded, and one organization's entitlement never satisfies another's.
+- Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
+- Evidence: `SubscriptionEntitlementServiceTest` — 4/4. Part of the merged `./mvnw verify` run: 254 tests, 0 failures, 0 errors, `All coverage checks have been met.`, BUILD SUCCESS.
+- Scope note: This verifies the entitlement decision itself. It does not verify subscription activation or renewal, which is the Supporting Flow and is not implemented.
+
+#### ORG_ADMIN workforce provisioning and role-safe lifecycle
+
+- Preconditions: Same merged baseline; an active `ORG_ADMIN` in a `CUSTOMER_ORGANIZATION` zone, plus a second organization fixture for isolation checks.
+- Procedure: Run `./mvnw -Dtest=WorkforceApiIntegrationTest,WorkforceServiceTest test`; exercise `POST/GET/PATCH/PUT /api/v1/workforce/users` as ORG_ADMIN, then call the public `UserAccess` facade directly to attempt granting `ORG_ADMIN` or `ADMIN`, and to mutate a peer ORG_ADMIN's status and roles.
+- Expected result: Provisioning returns 201 with a one-time temporary password; organization scope comes from the authenticated actor and a request-supplied organization is ignored; only `INSPECTOR` and `MAINTENANCE_ENGINEER` are accepted; reads stay available while writes require entitlement; a rejected operation writes no user, role, audit, session or refresh-token row and leaves a peer ORG_ADMIN unchanged.
+- Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
+- Evidence: `WorkforceApiIntegrationTest` 20/20 and `WorkforceServiceTest` 13/13, inside the 254-test merged run above.
+- Defect note: An earlier implementation of this gate was rejected in review because `UserAccessService` relied on `RolePolicy`, which permits `ORG_ADMIN` for customer users. A direct facade call could therefore grant a privileged role or alter a peer ORG_ADMIN. Five direct-facade regression tests were written first and observed failing 5/5, then the workforce role allowlist and target-membership check were added and those five passed.
+- Known gap: the peer-admin rejection tests assert the target's auth session is not revoked but do **not** assert the associated refresh token remains unrevoked. The role guard itself is covered.
+- Scope note: This covers provisioning and lifecycle only. Credential records are recorded separately below.
 
 ### Enterprise SaaS identity, registration and target-schema reset (executed 8 October 2026)
 
@@ -89,6 +116,18 @@ These FE-01 target cases are supporting checks outside the fixed WFx workbook ro
 - Evidence: Frontend 25 test files / 128 tests passed and production build succeeded (5 `react(only-export-components)` fast-refresh lint warnings, no errors). Mobile: format clean (0 changed), `flutter analyze` reported one pre-existing `info` lint in `lib/core/router/app_router.dart` that is not part of this change, and 16/16 tests passed.
 - Scope note: Frontend tests use a mocked transport; mobile tests use fakes. Neither is a live browser/device end-to-end run.
 
+#### MF1-04/05 workforce credential records and internal review
+
+- Preconditions: Same merged baseline at `dcd6516`; `V25` table `workforce_credentials`; an active ORG_ADMIN, a same-organization workforce subject, and a same-organization evidence record.
+- Procedure: Run `./mvnw -Dtest=WorkforceCredentialApiIntegrationTest,WorkforceCredentialPersistenceTest,EvidenceOwnershipServiceTest test`; exercise `POST /api/v1/workforce/credentials`, the list endpoint, and `PUT /{id}/review`; submit a foreign subject, a foreign `evidenceId`, an expiry that precedes its issue date, a blank `credentialType`, and a blank rejection reason.
+- Expected result: Credential creation succeeds only for a same-organization subject and same-organization evidence; a foreign subject and foreign evidence both return 404 with an identical problem body so the endpoint cannot be used to probe another tenant's identifiers; an inverted date range returns 400; a review records reviewer, timestamp and reason together; expiry status is derived at read time; the credential record survives its subject being suspended; and no field or status claims government or authority verification.
+- Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
+- Evidence: `WorkforceCredentialApiIntegrationTest` 15/15, `WorkforceCredentialPersistenceTest` 5/5, `EvidenceOwnershipServiceTest` 3/3, inside the 254-test merged run above.
+- Module-boundary note: verifying `evidence_id` tenant ownership required a path from `workforce` to `inspections`. A single-method facade `com.smartdroneinspection.inspections.EvidenceOwnership` was added at the `inspections` module root, and `workforce` was granted a module-root dependency on `inspections` — not `inspections::repository`, so Spring Modulith still forbids importing the evidence repositories or entities. The boundary was checked with a temporary probe that imported `EvidenceRepository` and correctly failed verification; the probe was removed before commit.
+- Known gap: the `EXPIRING_SOON` horizon is a hardcoded 30-day constant chosen during implementation. No requirement document specifies the window, so it is recorded here as an unratified implementation default rather than a specified rule.
+
 ## Coverage boundary
 
-The recorded gates verify authentication/migration setup, v1 role-to-screen policy, browser-auth contracts, v1 Client-registration persistence and audit, the shared API envelope, and — from Round 2 — Enterprise SaaS organization registration against `audit_events`, the fail-closed V24 role migration, the exact 41-table target schema, and client role-contract alignment for the four canonical roles. They do **not** establish subscription entitlement governance (`FE01-T01`), role separation of duties (`FE01-T02`), any MF1-MF4 workflow behavior, or a live browser end-to-end registration/login run. Those remain unverified.
+The recorded gates verify authentication/migration setup, v1 role-to-screen policy, browser-auth contracts, v1 Client-registration persistence and audit, the shared API envelope, and — from Round 2 — Enterprise SaaS organization registration against `audit_events`, the fail-closed V24 role migration, the exact 41-table target schema, and client role-contract alignment for the four canonical roles. From Round 3 they additionally verify the subscription entitlement decision, ORG_ADMIN workforce provisioning with role-safe facade boundaries, and MF1-04/05 credential records with attributable internal review.
+
+They still do **not** establish subscription activation or renewal (Supporting Flow), MF1-01 workspace/company-identity maintenance, MF1-06/07 Drone and permit records, MF1-08–14 asset pairing and inspection dispatch, MF2, MF4 workflow behavior, or a live browser end-to-end registration/login run. Those remain unverified.

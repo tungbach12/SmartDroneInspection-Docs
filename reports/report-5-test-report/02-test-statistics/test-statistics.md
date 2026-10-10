@@ -10,14 +10,14 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | **2026-10-09 reset to the implemented MF3 slice.** All cases below are evidenced by executed backend and web tests. MF1, MF2 and MF4 are unimplemented and therefore have no case; this is recorded as a coverage gap, not as a passing or passing-by-default result. |
-| Last updated | 2026-10-09 |
+| Test round | **2026-10-09 reset to the implemented MF3 slice; 2026-10-10 Round 3 added MF1-02–MF1-07 as executed supporting verification.** All workbook cases below are evidenced by executed backend and web tests. MF1-01, MF1-08–MF1-14, MF2 and MF4 remain unimplemented and therefore have no case; this is recorded as a coverage gap, not as a passing or passing-by-default result. |
+| Last updated | 2026-10-10 |
 
 ## Module summary
 
 | No | Module code | Passed | Failed | Pending | N/A | Number of test cases |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 1 | Feature 1 sheet (no cases: MF1/MF2 unimplemented) | 0 | 0 | 0 | 0 | 0 |
+| 1 | Feature 1 sheet (no workbook cases; MF1-02–MF1-07 evidence recorded as supporting verification outside the workbook) | 0 | 0 | 0 | 0 | 0 |
 | 2 | Feature 2 sheet (FE-04/FE-05/FE-06; MF3) | 5 | 0 | 0 | 0 | 5 |
 | **Subtotal** |  | **5** | **0** | **0** | **0** | **5** |
 
@@ -53,6 +53,29 @@ not a regression, and it is **not** evidence that anything stopped working.
 | Frontend lint | `npm run lint` | No errors; 4 pre-existing fast-refresh warnings in unrelated files. |
 | Frontend build | `npm run build` | Built successfully. |
 | Frontend suite | `npm test -- --run` | 161/161 passed across 31 files. |
+| MF1 resource-setup slice (Round 3, 2026-10-10) | `./mvnw verify` on `integrate/mf1-resources` at `dcd6516` | **Passed.** 254 tests, 0 failures, 0 errors; `All coverage checks have been met.`; BUILD SUCCESS. Covers entitlement, workforce provisioning, credential records, Drone inventory and Drone documents together with every pre-existing suite. |
+
+The Round 3 backend run is the first that covers both MF1 slices together. The
+per-slice runs reported during implementation do not substitute for it.
+
+### Round 3 MF1 slice detail (2026-10-10)
+
+| Area | Suite | Result |
+| --- | --- | --- |
+| Subscription entitlement | `SubscriptionEntitlementServiceTest` | 4/4 |
+| Workforce provisioning | `WorkforceApiIntegrationTest` | 20/20 |
+| Workforce service | `WorkforceServiceTest` | 13/13 |
+| Credential records | `WorkforceCredentialApiIntegrationTest` | 15/15 |
+| Credential persistence | `WorkforceCredentialPersistenceTest` | 5/5 |
+| Evidence ownership facade | `EvidenceOwnershipServiceTest` | 3/3 |
+| Drone inventory | `DroneApiIntegrationTest` | 12/12 |
+| Drone persistence | `DronePersistenceTest` | 10/10 |
+| Drone documents | `DroneDocumentApiIntegrationTest` | 7/7 |
+| Modulith boundaries | `ModulithArchitectureTest` | 3/3 |
+
+**These MF1 results are supporting verification outside the workbook totals**, per
+the FE-01 foundation-gate convention. They do not change the 5-case workbook
+subtotal above, and they do not raise MF1-01, MF1-08–MF1-14, MF2 or MF4 coverage.
 
 **The JaCoCo 80% gate now passes: 80.47% line and 80.34% instruction coverage.**
 The gate was failing before this work — 74.66% line coverage on the original

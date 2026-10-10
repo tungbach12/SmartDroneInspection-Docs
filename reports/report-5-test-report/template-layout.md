@@ -63,8 +63,8 @@ from those files only when exporting. Each case retains its FE and WF codes.
 | FE source | Workbook destination | Stable case IDs |
 | --- | --- | --- |
 | FE-01 identity/access governance | Supporting evidence, outside case sheets | No WFx IDs |
-| FE-02 asset registry/inspection schedule | Coverage gap; no current case | None assigned |
-| FE-03 inspection request/work assignment | Coverage gap; MF1/MF2 unimplemented | None assigned |
+| FE-02 asset registry/inspection schedule | MF1-06 Drone inventory/documents: supporting evidence, outside case sheets. Asset registry and schedule remain a gap. | None assigned |
+| FE-03 inspection request/work assignment | Coverage gap; MF1-08–MF1-14 and MF2 unimplemented | None assigned |
 | FE-04 inspection evidence / collections | `Feature 2` | WF3-002, WF3-009 |
 | FE-05 defect detection/verification | `Feature 2` | WF3-003 |
 | FE-06 inspection report/approval | `Feature 2` | WF3-005, WF3-006 |
@@ -78,7 +78,7 @@ FE codes identify SRS capabilities and WFx IDs retain stable case identity:
 
 | Workbook sheet | Included SRS features | Included WF IDs |
 | --- | --- | --- |
-| `Feature 1` | None currently; MF1/MF2 unimplemented | None |
+| `Feature 1` | None; MF1-02–MF1-07 evidence is recorded outside the workbook per the FE-01 foundation-gate convention | None |
 | `Feature 2` | FE-04, FE-05, FE-06 | WF3-002, WF3-003, WF3-005, WF3-006, WF3-009 |
 
 There are exactly eight FE-specific Markdown source files. The two fixed

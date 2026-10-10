@@ -80,6 +80,42 @@ Platform user management is under `/api/v1/platform/users/**` and requires `ADMI
 - `PUT /api/v1/platform/users/{userId}/roles` changes roles and revokes the user's sessions.
 - `PATCH /api/v1/platform/users/{userId}/status` activates, suspends, or disables an account.
 
+## Tenant resource administration (MF1)
+
+MF1 organization resources are managed by `ORG_ADMIN` only, under tenant-scoped
+endpoints. `ADMIN` has no default customer-side authority over them.
+
+- `/api/v1/workforce/users/**` — provision, list, and change status or roles for
+  `INSPECTOR` and `MAINTENANCE_ENGINEER` accounts.
+- `/api/v1/workforce/credentials/**` — record and internally review the documents an
+  organization holds about its own workforce members.
+- `/api/v1/drones/**` — tenant Drone inventory, serviceability, and Drone documents.
+
+Authorization rules that hold across these endpoints:
+
+- **Organization scope always comes from the authenticated actor**, never from the request
+  body. A request-supplied organization is ignored.
+- **Only `INSPECTOR` and `MAINTENANCE_ENGINEER` are grantable** through the workforce API.
+  The public users facade independently enforces this allowlist, so a direct facade call
+  cannot promote a user to `ORG_ADMIN`/`ADMIN` or alter a peer `ORG_ADMIN`. This was a
+  review finding: relying on the general role policy alone permitted it.
+- **Foreign-tenant references are indistinguishable from missing ones.** A foreign subject,
+  Drone, or evidence reference returns 404 with the same problem body as a genuinely absent
+  record, so an endpoint cannot be used to discover another tenant's identifiers.
+- **Subscription entitlement gates writes, not reads.** New or changed MF1 records require an
+  active subscription; an expired tenant keeps read and history access rather than losing it.
+- **Credential and permit review is an internal human decision.** It records reviewer,
+  timestamp and reason for the organization's own audit trail. It is never a government,
+  registry, or authority verification, and no field or status claims one.
+
+### Module boundaries
+
+Cross-module access uses narrow module-root facades rather than repositories or entities.
+`SubscriptionEntitlement.requireActive(UUID, Instant)` and
+`inspections.EvidenceOwnership.existsInOrganization(UUID, UUID)` exist for this reason:
+`workforce` and `assets` depend on those module roots, not on `inspections::repository`,
+so Spring Modulith still forbids importing another module's persistence types.
+
 ## Mobile flow
 
 Mobile endpoints mirror the auth contract under `/api/v1/mobile/auth/**`. Mobile clients receive access and refresh tokens in JSON and store them with platform secure storage. Browser `Origin` requests are rejected on these endpoints.

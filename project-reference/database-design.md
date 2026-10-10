@@ -465,7 +465,9 @@ Applied migration files remain forward-only history. The backend reset has begun
 
 - This file is a **target database design aligned with Report 3**, not a full implementation report.
 - V24 aligns identity/role vocabulary, V25 adds the target schema, and V26 completes the runtime cutover to the 41-table target inventory. Verified by `./mvnw clean verify` on 8 October 2026 (88 tests, exit 0), including empty-database migration, populated V1-V23 fail-closed migration tests, and an exact-table-inventory assertion.
-- Current backend runtime has removed provider request/marketplace code. The `inspections` module implements the MF3 slice — evidence, evidence-quality decisions, findings, and versioned reports through publication — over the tables described here. MF1, MF2, and MF4 tables remain persistence only; their workflow behavior is not implemented.
+- Current backend runtime has removed provider request/marketplace code. The `inspections` module implements the MF3 slice — evidence, evidence-quality decisions, findings, and versioned reports through publication — over the tables described here.
+- **MF1-02–MF1-06 became implemented on 10 October 2026** on backend branch `integrate/mf1-resources` (`dcd6516`): `subscriptions` is mapped and drives the entitlement gate; `workforce_credentials` is mapped with attributable internal review; `drones` and `drone_documents` are mapped with tenant-scoped CRUD. No migration was added — V25 already defined these tables completely. Verified by `./mvnw verify` (254 tests, 0 failures, 0 errors, JaCoCo gate met).
+- Still unimplemented: **MF1-01** (workspace and company identity), **MF1-07** (permit records), **MF1-08–MF1-14** (asset pairing, inspection setup, conflict, reassignment, dispatch), **MF2**, and **MF4**. Those tables remain persistence only.
 - Asset/catalog/scheduling and auth runtime remain in the reset branch, but they are partial capabilities and must be checked against current source and the corresponding backend guides.
 - Do not read the 41-table target count as the current physical schema. A table's existence does not establish API, use-case, workflow, or test completion.
 

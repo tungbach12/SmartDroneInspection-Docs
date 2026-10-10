@@ -41,9 +41,20 @@ The removed IDs stay reserved and are never reused. New cases continue from
 `WF3-009`.
 
 **This reset does not claim MF1, MF2 or MF4 are tested, and does not claim they
-are out of scope.** They are simply unimplemented, so they have no executed
-evidence to record. The `Feature 1` sheet is consequently empty; that is an
-accurate gap, not a formatting error.
+are out of scope.** At the time of the reset they were unimplemented, so they had
+no executed evidence to record. The `Feature 1` sheet was consequently empty;
+that was an accurate gap, not a formatting error.
+
+**Update 2026-10-10 (Round 3):** MF1-02–MF1-07 became implemented and executed.
+The MF1 evidence is recorded as supporting verification in
+`03-features/fe-01-identity-access-governance.md` (entitlement, workforce
+provisioning, credential records) and
+`03-features/fe-02-asset-registry-inspection-schedule.md` (Drone inventory and
+Drone documents). Consistent with the existing FE-01 foundation-gate convention,
+these are supporting gates outside the fixed WFx workbook rows, so **the `Feature 1`
+sheet is still empty and workbook statistics are unchanged.** What changed is that
+MF1-02–MF1-07 now have executed automated evidence, while MF1-01, MF1-08–MF1-14,
+MF2 and MF4 remain genuinely unimplemented.
 
 The FE-01 supporting verification is intentionally outside the workbook case
 index and functional-case statistics; its auth-flow and role-policy evidence is
@@ -67,8 +78,12 @@ the business-flow test case.
 
 These are stated as gaps rather than filled with fabricated cases or statuses.
 
-- **MF1 and MF2** (asset/schedule setup, readiness) are unimplemented, so they
-  have no case.
+- **MF1-01** (workspace, company identity, operational contacts, authorized
+  reviewers) is unimplemented; MF1-02–MF1-07 now have executed evidence recorded
+  as supporting verification in the FE-01 and FE-02 feature sources.
+- **MF1-08–MF1-14** (asset creation with Inspector/Drone pair, inspection setup,
+  conflict/reassignment, dispatch) are unimplemented, so they have no case.
+- **MF2** is unimplemented, so it has no case.
 - **MF4** (maintenance, triage, cost reconciliation) is unimplemented, so it has
   no case.
 - **FE-08** dashboard, analytics and notifications has no assigned case.
