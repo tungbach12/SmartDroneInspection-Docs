@@ -94,7 +94,7 @@ The two module rows are workbook-sheet totals, not SRS feature totals.
 | Area | Status |
 | --- | --- |
 | MF1 asset/schedule setup | Unimplemented; no case. |
-| MF2 readiness approval/return (MF2-07) | Implemented and verified; `WF2-008`, `WF2-009` `Passed` Round 1. The HTTP endpoints were added on 2026-10-10 and are covered by `InspectionReadinessApiIntegrationTest`. |
+| MF2 readiness approval/return (MF2-07) | Implemented and verified; `WF2-008`, `WF2-009` `Passed` Round 1. The HTTP endpoints were added on 2026-10-10 and are covered by `InspectionReadinessApiIntegrationTest`. The source ids an approval names became readable at `GET /api/v1/workforce/credentials/me` and `GET /api/v1/inspections/{id}/readiness/sources` (same-org ORG_ADMIN, metadata only). **The review screen itself still has no UI**, so a reviewer cannot yet approve or return through the web client. |
 | MF2 material-change invalidation (MF2-08) | Partly implemented. A session start refuses anything but the newest `APPROVED` decision, so an appended `INVALIDATED` or `RETURNED` decision wins over an older approval. **No service writes `INVALIDATED` yet**, because nothing can currently change a readiness source after approval. The schema already permits it. |
 | MF2 field session start/postpone/abort (MF2-09/10/11) | Implemented with an HTTP contract and automated evidence (`InspectionFieldSessionServiceTest` 18, `InspectionFieldSessionApiIntegrationTest` 9). **No workbook case yet.** |
 | MF2 session end and MF3 hand-off (MF2-12) | Not implemented. |

@@ -190,7 +190,8 @@ MF2 receives the assignment created in MF1; it does not source a Provider or cal
 **Additional capture:** Inspector may request another session for the same inspection from MF3. Return to preparation/readiness checks before Start, particularly if the time, scope or permits changed. Do not jump directly from missing evidence to an unconditional Start.
 
 **Implementation status (2026-10-10).** MF2-03 to MF2-07 have an HTTP contract and automated evidence: preparation draft/submission, permit-reference linking, the compliance gate, and readiness approval/return on
-`POST /api/v1/inspections/{id}/readiness/{prepId}/approval` and `/return`. Reviewer identity and organization come from the authenticated principal and are never read from the request body. MF2-01/02 assignment
+`POST /api/v1/inspections/{id}/readiness/{prepId}/approval` and `/return`. Reviewer identity and organization come from the authenticated principal and are never read from the request body. The source ids an approval must
+name are readable at `GET /api/v1/workforce/credentials/me` and `GET /api/v1/inspections/{id}/readiness/sources`; both are same-organization `ORG_ADMIN` and return credential and document metadata rather than document content. MF2-01/02 assignment
 response is implemented. MF2-09 to MF2-11 field-session start, postponement, abort and per-inspection listing are implemented with an HTTP contract on
 `/api/v1/inspections/{id}/field-sessions`, restricted to the assigned `INSPECTOR`, but have no web UI and no workbook case. MF2-03 to MF2-06 preparation now has a web
 UI on `/inspections`, where the Inspector edits the current preparation version and submits it and an organization reader may link permits and read the compliance gate.

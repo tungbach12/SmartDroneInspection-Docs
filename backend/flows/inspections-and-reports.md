@@ -196,6 +196,8 @@ submits, an `ORG_ADMIN` decides.
 | Evaluate the compliance gate | `GET /api/v1/inspections/{id}/preparation/compliance` | same-org ORG_ADMIN |
 | Approve readiness | `POST /api/v1/inspections/{id}/readiness/{prepId}/approval` | same-org ORG_ADMIN |
 | Return the preparation | `POST /api/v1/inspections/{id}/readiness/{prepId}/return` | same-org ORG_ADMIN |
+| Reviewer's own credentials | `GET /api/v1/workforce/credentials/me` | same-org ORG_ADMIN |
+| Review sources for an inspection | `GET /api/v1/inspections/{id}/readiness/sources` | same-org ORG_ADMIN |
 
 The readiness body carries **no reviewer identity and no organization**. The
 reviewer is taken from the authenticated principal, and organization, subject
@@ -203,6 +205,17 @@ ownership, credential scope and pair scope are re-derived server-side. A body
 that carried `reviewedByUserId` would let a caller record a decision in someone
 else's name, and a body that carried an organization id would let a caller
 review another tenant's inspection.
+
+**Where the reviewer's credential and the source ids come from.** The approval
+body names `reviewerCredentialId`, `inspectorCredentialIds` and `droneDocumentIds`.
+A client cannot invent any of them, so two read routes supply them:
+`GET /api/v1/workforce/credentials/me` returns the caller's own credentials, and
+`GET /api/v1/inspections/{id}/readiness/sources` returns the assigned Inspector's
+credentials and the assigned Drone's documents. Without them the only way to approve
+over HTTP would be to type UUIDs, which is not a workflow anyone completes. Both are
+`ORG_ADMIN`, same-organization, and return metadata rather than document content;
+`backend/authentication-and-authorization.md` records the scope rule and why it is
+that narrow.
 
 Approval is refused unless every gate passes: reviewer independence from the
 assigned Inspector, an `ACTIVE` internally verified credential with source
