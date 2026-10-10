@@ -63,3 +63,14 @@ recorded before the feature can be reported as verified.
 | MF1-02 | A lapsed subscription denies the operation without deleting existing history. |
 
 The removed `WF1-*` case IDs stay reserved and are never reused.
+
+## Feature sheet summary
+
+Values for the `Feature 2` summary block (`A2:E8` in the workbook).
+The template reads these back by formula, so an export needs them
+recorded here.
+
+| Cell | Label | Value |
+| --- | --- | --- |
+| `B2` | Feature | Asset, Drone, Workforce and Compliance Catalog — MF1 |
+| `B3` | Test requirement | Would verify asset registration with its assigned Inspector and Drone pair, compliance documents and due-cycle inspection generation. MF1 is unimplemented, so no case is recorded. |

@@ -7,17 +7,24 @@ explicitly approves a new template version.
 
 ## Sheet order and used areas
 
-| Order | Sheet name | Used area observed in the template | Editable source |
-| ---: | --- | --- | --- |
-| 1 | `Cover` | `A2:F17` | `00-cover/cover.md`, `00-cover/record-of-changes.md` |
-| 2 | `Test Cases` | `B1:F21` | `01-test-cases/test-case-list.md` |
-| 3 | `Test Statistics` | `A1:H18` | `02-test-statistics/test-statistics.md` |
-| 4 | `Feature 1` | `A2:R19` | No current case; MF1/MF2 unimplemented |
-| 5 | `Feature 2` | `A2:R18` | FE-04, FE-05 and FE-06 sources |
+The supplied workbook has five sheets and two feature sheets. At the user's
+request, generated workbooks extend that source template with six cloned feature
+sheets so Report 5 has one feature sheet for each Report 3 feature. The original
+file in `template/` is unchanged. `Feature N` maps to `FE-0N` (Report 3 §§3.2–3.9).
 
-Do not rename sheets or introduce a third feature sheet. If the project later
-needs more feature groups, extend the existing feature tables or obtain an
-approved Report 5 template revision first.
+| Order | Sheet name | Used area in the supplied template / generated output | Editable source |
+| ---: | --- | --- | --- |
+| 1 | `Cover` | `A2:F17` / content-driven through row 47 | `00-cover/cover.md`, `00-cover/record-of-changes.md` |
+| 2 | `Test Cases` | `B1:F21` / content-driven | `01-test-cases/test-case-list.md` |
+| 3 | `Test Statistics` | `A1:H18` / `A1:H22` with eight module rows | `02-test-statistics/test-statistics.md` |
+| 4–11 | `Feature 1`–`Feature 8` | `A2:R19` / content-driven; one sheet per FE | Matching `03-features/fe-01` through `fe-08` source |
+
+The generator clones the official feature-sheet layout, including its widths,
+styles, print settings and metadata block. It adds no rows or columns to the
+execution table; it adds worksheets because the SRS has eight product features.
+Feature 1/2/3/7/8 have zero cases in the current implemented slice. Features 4/5/6
+contain the five executed cases. Adding or reordering an SRS FE requires updating
+the case routing and summary row in the same change.
 
 ## `Cover`
 
@@ -59,21 +66,18 @@ Note the double space in the template's own last header — `H10` reads
 so they stay internally consistent; the spacing difference is cosmetic and does
 not affect an export, because the workbook keeps its own header cell.
 
-Each module row is **not** free text. Every cell in `C11:H12` is a formula
-pointing at a feature sheet's own summary block:
+In the supplied template, module rows 11–12 contain formulas that point to
+`Feature 1` and `Feature 2`. Generated workbooks extend the same mapping pattern
+to rows 11–18, pointing row N+10 at sheet `Feature N`:
 
-- `C11` = `='Feature 1'!B2` — the `Feature` name
-- `D11:G11` = `='Feature 1'!B6:E6` — that sheet's Round 1 Passed/Failed/Pending/N/A
-- `H11` = `='Feature 1'!B4` — `Number of TCs`, `=COUNTA(A12:A1000)`
-- Row 12 repeats the same against `Feature 2`.
+- Column `C` references the sheet's `B2` Feature name.
+- Columns `D:G` reference `B6:E6`, the Round 1 status counts.
+- Column `H` references `B4`, the number of test cases.
 
-So `Module code` reports whatever sits in each sheet's `Feature` cell (`B2`) —
-**not** the sheet name. The feature name and the sheet name are two different
-values, and the template reads the former. Writing `Feature 2` into `Module
-code` would contradict the `Feature sheet summary` block in `fe-04-…md`, which
-names the module rather than the sheet.
-
-`Sub total` (row 14) sums rows 9–13, and coverage is computed from it:
+So `Module code` reports the SRS feature name in the sheet's `Feature` cell
+(`B2`), not the workbook sheet name. The generated workbook has eight module
+rows. `Sub total` moves to row 19 and sums the eight feature rows; coverage is
+computed from it at rows 21–22:
 
 - `Test coverage` = `(Passed + Failed) * 100 / (Number of TCs - N/A)`
 - `Test successful coverage` = `Passed * 100 / (Number of TCs - N/A)`
@@ -81,9 +85,10 @@ names the module rather than the sheet.
 With five cases, all `Passed` and no `N/A`, both evaluate to 100%. Keep the
 workbook formulas; change only the underlying per-round statuses.
 
-## `Feature 1` and `Feature 2`
+## Feature sheets (supplied template and generated workbook)
 
-Both feature sheets use the same test execution columns:
+The supplied template's `Feature 1` and `Feature 2`, and the six cloned sheets
+in generated outputs, use the same test execution columns:
 
 `Test Case ID` · `Test Case Description` · `Test Case Procedure` ·
 `Expected Results` · `Pre-conditions` · `Round 1` · `Test date` · `Tester` ·
@@ -112,15 +117,15 @@ from those files only when exporting. Each case retains its FE and WF codes.
 
 ### Per-sheet summary block (`A2:E8`)
 
-Both feature sheets repeat this block above the case table, fully bordered
-(`B2:E2`, `B3:E3` and `B4:E4` are merged), and `Test Statistics` reads its values
-back out by formula:
+Every generated feature sheet repeats this block above the case table, fully
+bordered (`B2:E2`, `B3:E3` and `B4:E4` are merged), and `Test Statistics` reads
+its values back out by formula:
 
 | Cell | Label | Formula |
 | --- | --- | --- |
 | `A2`/`B2` | `Feature` | Feature name, e.g. `MF3 inspection evidence, findings and reporting` |
 | `A3`/`B3` | `Test requirement` | One-line description of what this sheet tests |
-| `A4`/`B4` | `Number of TCs` | `=COUNTA(A12:A1000)` (Feature 1) / `=COUNTA(A12:A998)` (Feature 2) |
+| `A4`/`B4` | `Number of TCs` | Supplied template: `=COUNTA(A12:A1000)` / `=COUNTA(A12:A998)`. Generated copies count only stable WFx case IDs in `A11:A1000`, excluding FE function bars. |
 | `A5:E5` | `Testing Round` | Column headers `Passed`, `Failed`, `Pending`, `N/A` |
 | `A6`/`B6:E6` | `Round 1` | `=COUNTIF($F10:$F998, B5)` etc. |
 | `A7`/`B7:E7` | `Round 2` | Same range, Round 2 |
@@ -128,41 +133,52 @@ back out by formula:
 
 `Number of TCs` and the per-round counts are workbook formulas over the case
 rows, so they need no Markdown source. `Feature` name and `Test requirement`
-are typed values with no formula behind them, and the Markdown has no
-equivalent block — the `Feature sheet summary` table in `fe-04-…md` is that
-source. Populate `B2`/`B3` on `Feature 1` too, even though it currently has no
-cases, because `Test Statistics!C11` reads `Feature 1!B2` regardless.
+are typed values with no formula behind them, and the Markdown equivalent is
+the `Feature sheet summary` table in each matching `fe-0N-…md` file. Populate
+`B2`/`B3` on every sheet, including those with zero cases, because the
+`Test Statistics` module rows read every `Feature N!B2` regardless.
 
 | FE source | Workbook destination | Stable case IDs |
 | --- | --- | --- |
 | FE-01 identity/access governance (§3.2) | Supporting evidence, outside case sheets | No WFx IDs |
 | FE-02 asset/drone/workforce/compliance catalog (§3.3) | Coverage gap; MF1 unimplemented | None assigned |
-| FE-03 mission preparation and readiness (§3.4) | Coverage gap; MF2 unimplemented | None assigned |
-| FE-04 field records and evidence (§3.5) | `Feature 2` | WF3-002, WF3-009 |
-| FE-05 AI vision candidates (§3.6) | `Feature 2` | WF3-003 |
-| FE-06 report drafting/review/publication (§3.7) | `Feature 2` | WF3-005, WF3-006 |
+| FE-03 mission preparation and readiness (§3.4) | `Feature 3` | None assigned; MF2 workflow implementation/test evidence absent |
+| FE-04 field records and evidence (§3.5) | `Feature 4` | WF3-002, WF3-009 |
+| FE-05 AI vision candidates (§3.6) | `Feature 5` | WF3-003 |
+| FE-06 report drafting/review/publication (§3.7) | `Feature 6` | WF3-005, WF3-006 |
 | FE-07 team maintenance and cost control (§3.8) | Coverage gap; MF4 unimplemented | None assigned |
 | FE-08 dashboard/analytics/notifications (§3.9) | Coverage gap; no assigned case | None assigned |
 
 The FE-xx codes are Report 3's own, one per section 3.2–3.9. Report 5 does not
 invent them. See `README.md` for the full code-to-section table.
 
-The sheet names are template labels, not SRS feature identifiers. After the
-2026-10-09 reset to the implemented MF3 slice, all five cases sit on
-`Feature 2`; `Feature 1` is empty because MF1 and MF2 have no implementation.
+The sheet names are generated presentation labels; the exported mapping is
+explicit: sheet `Feature N` corresponds to SRS `FE-0N`. After the 2026-10-09
+reset to the implemented MF3 slice, all five cases are on `Feature 4`,
+`Feature 5`, and `Feature 6`. `Feature 3` is reserved for FE-03, but has no
+cases because MF2 workflow services and executed tests are absent from the
+current backend baseline. The other sheets stay present with zero cases.
 FE codes identify SRS capabilities and WFx IDs retain stable case identity:
 
-| Workbook sheet | Included SRS features | Included WF IDs |
+| Workbook sheet | Included SRS feature | Included WF IDs |
 | --- | --- | --- |
-| `Feature 1` | None currently; MF1/MF2 unimplemented | None |
-| `Feature 2` | FE-04, FE-05, FE-06 | WF3-002, WF3-003, WF3-005, WF3-006, WF3-009 |
+| `Feature 1` | FE-01 — supporting evidence only; no case | None |
+| `Feature 2` | FE-02 — MF1 unimplemented | None |
+| `Feature 3` | FE-03 — MF2 requirements retained; workflow implementation/test evidence absent | None |
+| `Feature 4` | FE-04 — field records and evidence | WF3-002, WF3-009 |
+| `Feature 5` | FE-05 — AI vision candidates | WF3-003 |
+| `Feature 6` | FE-06 — report drafting/review/publication | WF3-005, WF3-006 |
+| `Feature 7` | FE-07 — MF4 unimplemented | None |
+| `Feature 8` | FE-08 — no assigned case | None |
 
-There are exactly eight FE-specific Markdown source files. The two fixed
-workbook sheets are presentation groupings, not source files or SRS features.
-Removed case IDs (`WF1-*`, `WF2-*`, `WF3-001`, `WF3-004`, `WF3-007`,
-`WF3-008`, `WF4-*`) stay reserved and are never reused; new cases continue from
-`WF3-010`. FE-02, FE-03, FE-07 and FE-08 are explicit coverage gaps, and no
-case may be recorded for a workflow that has no implementation.
+There are exactly eight FE-specific Markdown source files. The supplied
+workbook has two feature sheets; generated workbooks have eight output sheets,
+one for each source file. Neither sheet names nor source filenames replace the
+stable SRS feature codes. Removed case IDs (`WF1-*`, `WF2-*`, `WF3-001`,
+`WF3-004`, `WF3-007`, `WF3-008`, `WF4-*`) stay reserved and are never reused;
+new cases continue from `WF3-010`. FE-02, FE-03, FE-07 and FE-08 are explicit
+coverage gaps, and no case may be recorded for a workflow that has no
+implementation.
 
 ## Visual and status rules
 
@@ -228,3 +244,23 @@ or replaced so `Number of TCs` counts only real cases.
 The `Test Statistics` sheet also carries a cosmetic double space in header
 `H10` (`Number of  test cases`), reproduced verbatim above. Leave the
 workbook cell as-is; only the Markdown spelling is normalised.
+
+## Generated copies
+
+The independent exporter [export_report5.py](../../tools/export_report5.py)
+uses this original workbook as a read-only format source. It clones the
+original case/function/history row styles, preserving sheet names, column
+order, widths, legend, comments, printer settings and theme/style parts.
+
+In output copies only, case totals use `COUNTIF` over stable WFx IDs so
+function bars are not counted as cases; Round 2/3 use the `I`/`L` status
+columns, and zero-case coverage is guarded. The template calculation chain
+contains references to metadata formulas replaced by source values; it is
+removed with its relationship/content-type entry so Excel can rebuild that
+non-format index. No original template is modified.
+
+Source round fields are exported positionally, keeping all repeated date and
+tester columns. Long cells may reach Excel's 409-point row-height limit;
+these are reported as warnings, not declared visually verified. See
+[export tooling](../../tools/README.md) for independent commands and Office
+verification.

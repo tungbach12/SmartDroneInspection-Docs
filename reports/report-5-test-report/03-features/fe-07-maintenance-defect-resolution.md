@@ -53,3 +53,14 @@ acceptance.
 
 This is an explicit coverage gap. The removed `WF4-*` IDs stay reserved and are
 never reused.
+
+## Feature sheet summary
+
+Values for the `Feature 7` summary block (`A2:E8` in the workbook).
+The template reads these back by formula, so an export needs them
+recorded here.
+
+| Cell | Label | Value |
+| --- | --- | --- |
+| `B2` | Feature | Team Maintenance, Cost Control and Completion Reporting — MF4 |
+| `B3` | Test requirement | Would verify repair team assignment, cost reconciliation and completion acceptance. MF4 is unimplemented, so no case is recorded. |

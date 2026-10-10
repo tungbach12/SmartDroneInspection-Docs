@@ -23,7 +23,7 @@ outside the platform target.
 
 ## Feature sheet summary
 
-Values for the `Feature 2` summary block (`A2:E8` in the workbook). The
+Values for the `Feature 4` summary block (`A2:E8` in the workbook). The
 template reads these back by formula, so an export needs them recorded here.
 
 | Cell | Label | Value |

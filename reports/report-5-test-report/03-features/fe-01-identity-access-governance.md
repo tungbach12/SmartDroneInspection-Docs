@@ -110,3 +110,14 @@ or entitlement meaning:
 | Logout, password/role/status change and revocation invalidate affected sessions | Unverified. |
 | MF1–MF4 workflow behavior | Out of reset scope per §3.1. |
 | Live browser end-to-end registration/login | Not run. |
+
+## Feature sheet summary
+
+Values for the `Feature 1` summary block (`A2:E8` in the workbook).
+The template reads these back by formula, so an export needs them
+recorded here.
+
+| Cell | Label | Value |
+| --- | --- | --- |
+| `B2` | Feature | Identity, Enterprise Subscription and Workforce Governance |
+| `B3` | Test requirement | Verifies workspace entitlement, organization and assignment scope for the four-role target. Supporting checks only; no WFx functional case is assigned. |

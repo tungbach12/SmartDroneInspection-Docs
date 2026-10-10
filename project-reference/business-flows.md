@@ -131,8 +131,8 @@ ended field-session records under the same inspection.
 | MF2-03 | `INSPECTOR` | Prepare the component shot-list, required evidence types and checklist; identify access limitations, proposed field-session times and known hazards on the app. | Reviewable preparation version. Hardware configuration is out of scope. |
 | MF2-04 | `ORG_ADMIN` | Link the actual applicable issued permit/permission and credential/Drone records; document airspace-source checks, scope and time coverage, and conditions. | Missing authorization cannot be waived internally. A genuine exemption requires a recorded legal basis and supporting review. |
 | MF2-05 | `SYSTEM` | Validate required links, document dates/status, pair, plan version and known conflicts against the planned session time. | Blockers listed. Ambiguous authority or geographic conditions require human verification, not inferred clearance. |
-| MF2-06 | `INSPECTOR` | Read the restrictions and preparation checklist; record safety acknowledgments and submit the preparation. | Attributable Inspector submission. An acknowledgment is not a statutory licence or guaranteed digital signature. |
-| MF2-07 | `ORG_ADMIN` | As the named qualified reviewer, inspect the preparation and compliance basis. Approve or return with reasons. | `READY_FOR_FLIGHT` only when all applicable mandatory conditions pass. Reviewer identity and source-document versions recorded. |
+| MF2-06 | `INSPECTOR` | Read the restrictions and preparation checklist; record safety acknowledgments and submit the preparation. | Submission is allowed only while the assigned inspection is `PREPARING` and is serialized with readiness review using inspection-first locking; otherwise it is refused without modifying the preparation. An acknowledgment is not a statutory licence or guaranteed digital signature. |
+| MF2-07 | `ORG_ADMIN` | A separate active organization reviewer presents an ACTIVE internally verified credential with source-evidence attribution, inspects the current submitted preparation, and attests applicability using a traceable basis before approving or returning with reasons. | Approval requires correct organization/subject ownership and verification/review attribution for selected credentials and Drone documents, explicit validity bounds covering planned time, an accepted pair response strictly before planned start, and no machine-detectable permit blocker. Empty selected credential/document categories require category-specific reasons plus the applicability basis. Return requires a reason and reviewer credential valid at decision time but may proceed despite readiness evidence gaps; its snapshot records reviewer-observed/unresolved IDs with `observedSourceSetComplete=false`. These internal record checks do not verify an issuer registry or make a statutory determination. |
 | MF2-08 | `SYSTEM` | Snapshot the approved plan, pair and documents; notify the Inspector. | A material plan, pair, permit or schedule change invalidates readiness and requires review again. |
 | MF2-09 | `INSPECTOR` | On site, identify the assigned Drone, complete the current pre-flight checklist, then request Start or record a postponement/interruption reason. | No software control of the Drone. Weather and site safety can cause postponement even after approval. |
 | MF2-10 | `SYSTEM` | Immediately recheck entitlement, assignment, readiness version and required validity; on success record `IN_PROGRESS`, Inspector, Drone and session start time. | Stale, expired or revoked readiness is rejected. Start does not arm the aircraft or establish hardware flight time. |
@@ -255,17 +255,15 @@ SUPERSEDED` by `InspectionReportVersion`.
 
 ## VIII. Implementation status
 
-| Area | Status on 8 October 2026 |
+| Area | Status on 10 October 2026 |
 | --- | --- |
 | Roles, organization registration, audit | Delivered and verified on VPS2 |
 | Target schema (41 tables) and runtime cutover | Delivered and verified on VPS2 |
 | Asset catalog, categories, checklists | Runtime present; MF1 pair/inspection workflow not implemented |
-| MF3 evidence, quality decision, findings, versioned report and publication | Implemented and verified on 8 October 2026 |
-| MF1, MF2, MF4 workflow execution | Not implemented. Team-owned work. |
+| MF3 evidence, quality decision, findings, versioned report and publication | Implemented and verified on 8 October 2026; scoped list added and verified on 9 October 2026 |
+| MF1, MF2, MF4 workflow execution | Not implemented in the current checked-in backend mainline. MF2 schema is present, but no assignment, preparation, readiness-decision or field-session workflow services/endpoints were found. |
 
-Report 5 records the nine target acceptance cases (`WF2-005`-`WF2-007`, `WF3-005`-`WF4-005`) as
-`Pending`. They stay `Pending` until matching execution evidence exists; a table or schema row is
-not workflow evidence.
+Report 5 records five executed MF3 cases as `Passed`. The MF1, MF2 and MF4 target steps remain requirements, but have no executed workflow evidence in the current repositories. Do not treat a table/schema row or a documentation-only endpoint description as workflow evidence. The MF2-06/MF2-07 requirement refinements in this reference and Report 3 are normative; they do not assert implementation.
 
 ## IX. Source reference
 

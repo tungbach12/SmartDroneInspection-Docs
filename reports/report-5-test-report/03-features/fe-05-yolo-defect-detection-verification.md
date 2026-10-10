@@ -21,8 +21,13 @@ behind the requirement, not part of it.
 
 ## Feature sheet summary
 
-Shared `Feature 2` block; see `fe-04-…md` for the canonical values. FE-05
-contributes only case rows to it.
+Values for the `Feature 5` summary block (`A2:E8` in the workbook). The
+exporter maps this file to the matching SRS feature sheet.
+
+| Cell | Label | Value |
+| --- | --- | --- |
+| `B2` | Feature | AI Vision Candidates and Human Finding Decisions |
+| `B3` | Test requirement | Verifies human review of advisory AI candidates and manual findings; unconfirmed detections do not enter official findings. |
 
 ## Current case
 

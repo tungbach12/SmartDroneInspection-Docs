@@ -4,7 +4,7 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope (reset 2026-10-09):** This report covers the **implemented MF3 slice
+**Scope (updated 2026-10-10):** This report covers the **implemented MF3 slice
 only** — inspection evidence, defect findings, and reporting — for the four
 current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`). The
 previous content mixed a retired five-role WF1–WF4 baseline with unimplemented
@@ -14,22 +14,32 @@ an executed automated test behind it.
 
 MF1, MF2, MF4, FE-02, FE-03, FE-07, and FE-08 are **untested**, and that is
 recorded as a coverage gap rather than filled with a pending or invented case.
-The original workbook and preview output remain unchanged.
+The current backend includes MF2 storage schema, but no corresponding workflow
+services/endpoints or readiness tests are present on backend `main` at
+`d385a7d`. The two `WF2-008`/`WF2-009` cases described in the merged docs change
+are therefore not counted or marked passed. The original workbook template
+remains unchanged; generated copies contain eight feature sheets as requested.
 
 ## Naming layers and mapping
 
-`Feature 1` and `Feature 2` are fixed workbook sheet names from the supplied
-template. They are not the SRS feature codes `FE-01` and `FE-02`.
+The supplied template has two feature sheets (`Feature 1`, `Feature 2`). Generated
+workbooks extend it to eight feature sheets (`Feature 1`–`Feature 8`), one per
+Report 3 feature. The original template remains unchanged. Sheet `Feature N`
+contains SRS feature `FE-0N`; these are separate naming layers, not synonyms.
+Feature 1 (supporting FE-01), Feature 2 (FE-02), Feature 3 (FE-03), Feature 7
+(FE-07) and Feature 8 (FE-08) have no cases in the current implemented MF3
+slice, but remain present so the workbook mirrors all eight SRS features.
 
 | Layer | Meaning | Example |
 | --- | --- | --- |
-| Workbook sheet | Fixed Report 5 grouping | `Feature 2` |
+| Workbook sheet | Generated Report 5 grouping; one sheet per FE | `Feature 6` |
 | SRS feature | Product capability from Report 3 | `FE-06 — Inspection Report and Approval` |
 | WF test ID | Business-flow traceability ID | `WF3-005` |
 
 Do not rename the files or IDs to make the sheet number look like an SRS
-feature code. After the reset, all cases sit on `Feature 2`, and `Feature 1` is
-empty because MF1/MF2 are unimplemented.
+feature code. In the generated workbook, cases sit on `Feature 4`, `Feature 5`, and
+`Feature 6`, matching FE-04, FE-05, and FE-06. The other five feature sheets
+remain present with zero cases, preserving the one-sheet-per-SRS-feature mapping.
 
 ## Source of truth and template rule
 
@@ -38,9 +48,10 @@ empty because MF1/MF2 are unimplemented.
 - Exactly eight FE-specific Markdown files in `03-features/` are the editable
   feature sources. There are no aggregate `feature-1.md` or `feature-2.md`
   sources. Keep test case IDs stable when a case is reworded or re-tested.
-- When the report is ready for submission, copy the Markdown values into the
-  workbook while preserving the template's sheet names, order, column order,
-  status vocabulary, and table layout. Read
+- When the report is ready for submission, use the exporter to produce a copy
+  of the official template with eight generated feature sheets. The supplied
+  template remains unchanged; generated copies preserve its cell layout,
+  status vocabulary, and formatting. Read
   [template-layout.md](template-layout.md) first: it carries the exact cell
   addresses, the per-sheet summary block that the Markdown has no equivalent
   for, and the template defects that will otherwise corrupt an export.
@@ -62,12 +73,14 @@ empty because MF1/MF2 are unimplemented.
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary. |
 | `03-features/fe-01-identity-access-governance.md` | Support evidence | FE-01 gates; not a workbook case. |
 | `03-features/fe-02-asset-registry-inspection-schedule.md` | Coverage gap | No current case; MF1 catalog workflow unimplemented. |
-| `03-features/fe-03-inspection-request-work-assignment.md` | Coverage gap | No current case; MF2 mission preparation unimplemented. |
-| `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 2` sheet | `WF3-002`, `WF3-009`. |
-| `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 2` sheet | `WF3-003`. |
-| `03-features/fe-06-inspection-report-approval.md` | `Feature 2` sheet | `WF3-005`, `WF3-006`. |
+| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 3` sheet | No current case; MF2 workflow endpoints and readiness tests are absent from current backend `main`. |
+| `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 4` sheet | `WF3-002`, `WF3-009`. |
+| `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 5` sheet | `WF3-003`. |
+| `03-features/fe-06-inspection-report-approval.md` | `Feature 6` sheet | `WF3-005`, `WF3-006`. |
 | `03-features/fe-07-maintenance-defect-resolution.md` | Coverage gap | No current case; MF4 unimplemented. |
 | `03-features/fe-08-dashboard-analytics-notifications.md` | Coverage gap | No assigned case; do not infer execution. |
+| `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
+| `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
 
 The FE-xx codes and their Report 3 sections are:
 
@@ -85,8 +98,6 @@ The FE-xx codes and their Report 3 sections are:
 Each FE file's H1 now carries the Report 3 title. The filenames keep their
 original wording and are left alone: renaming them would break every link and
 reviewer's bookmark for no reporting benefit.
-| `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
-| `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
 
 ## Current test scope
 
@@ -95,7 +106,7 @@ All five current cases belong to MF3:
 1. FE-01 — identity/access supporting gates. Recorded separately in the FE-01
    file; not a workbook case.
 2. FE-02 — asset registry and schedule. No case (see coverage gap).
-3. FE-03 — inspection request and assignment. No case; MF1/MF2 unimplemented.
+3. FE-03 — mission preparation, assignment response and readiness. No case; MF2 requirements remain, but workflow implementation and executed test evidence are absent from the current baseline.
 4. FE-04 — inspection evidence and the Inspector's quality decision
    (`WF3-002`), and the scoped inspection/report collections (`WF3-009`).
 5. FE-05 — advisory detection and human finding verification (`WF3-003`).
@@ -138,9 +149,32 @@ Each feature sheet carries a summary block at `A2:E8` (`Feature`,
 `Pending`/`N/A` counts), and `Test Statistics` reads its values back out by
 formula. `Number of TCs` and the round counts are formulas and need no Markdown
 source; the `Feature` name and `Test requirement` line are typed values, and
-the `Feature sheet summary` table in `fe-04-…md` is their recorded source.
-Populate `Feature 1` too — `Test Statistics!C11` reads it even though that
-sheet has no cases.
+the `Feature sheet summary` table in each `fe-0N-…md` file is the recorded
+source for its matching sheet. Populate all eight summary blocks, including the
+five sheets with no current cases, because the statistics formulas read every
+sheet's `B2` value.
+
+## Generate and verify a workbook copy
+
+Report 5 has its own exporter; it does not depend on Report 1–3 export logic.
+Run from the docs repository root:
+
+```powershell
+python -I tools/export_report5.py
+python -I -m unittest discover -s tools/tests -p test_report5.py -v
+```
+
+Use `python -I tools/export_all.py` for all source-backed reports and weekly
+reports. Outputs and their verification manifests go into a fresh
+`reports/generated/<run>/` folder. Original templates are never overwritten.
+See [export tools](../../tools/README.md) for the independent commands and
+Office verification procedure.
+
+The generated copy preserves sheet order, columns and source round evidence.
+It keeps FE function bars and repairs only the output's count/round formulas:
+case totals count WFx IDs, not function-bar text, and Round 2/3 count their own
+status columns. The stale calculation chain is removed from output copies so
+Excel can rebuild it. No product case status changes during export.
 
 ## Execution status convention
 

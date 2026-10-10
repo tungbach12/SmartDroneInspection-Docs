@@ -44,3 +44,14 @@ This file records the FE-08 scope without inventing a test-case ID or claiming
 execution. Dashboard, analytics and notification acceptance cases remain to be
 assigned and recorded before FE-08 can be reported as tested. This is an
 explicit, truthful coverage gap.
+
+## Feature sheet summary
+
+Values for the `Feature 8` summary block (`A2:E8` in the workbook).
+The template reads these back by formula, so an export needs them
+recorded here.
+
+| Cell | Label | Value |
+| --- | --- | --- |
+| `B2` | Feature | Dashboard, Analytics and Notifications |
+| `B3` | Test requirement | Would verify role-scoped dashboards, approved-finding analytics and notification delivery. No case is assigned; FE-08 is an explicit coverage gap. |

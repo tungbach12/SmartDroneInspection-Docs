@@ -38,55 +38,19 @@ so that text was removed rather than kept as historical context.
 
 ## Feature sheet summary
 
-Values for the `Feature 1` summary block (`A2:E8` in the workbook). Even though
-this sheet carries no cases, `Test Statistics!C11` still reads `Feature 1!B2`,
-so it must not be left as the template's `<Feature Name1>` placeholder.
+Values for the `Feature 3` summary block (`A2:E8` in the workbook).
+The template reads these back by formula, so an export needs them
+recorded here.
 
 | Cell | Label | Value |
 | --- | --- | --- |
-| `B2` | Feature | MF1/MF2 (not implemented) |
-| `B3` | Test requirement | Catalog creation, assignment response and readiness approval — no runtime, no case. |
+| `B2` | Feature | Mission Preparation, Assignment Response and Readiness — MF2 |
+| `B3` | Test requirement | MF2 assignment, preparation, readiness and field-session requirements; no workflow endpoints or executed test cases are present in the current backend baseline. |
 
 ## Current test coverage
 
-No workbook test case is mapped to FE-03 in this report. **All twelve MF2 steps
-are unverified.**
+No workbook test case is currently mapped to FE-03. **All twelve MF2 steps are unverified.**
 
-The former `WF1-017`–`WF1-019` and `WF2-001`–`WF2-007` cases were removed on
-2026-10-09. The `WF1`/`WF2` rows described the retired five-role baseline
-(periodic request generation, Service Manager review, Client quotation and
-order approval); the `WF2-005`–`WF2-007` rows described a target design that has
-never been implemented. Neither is evidence for the current system.
+The current backend contains MF2 storage schema, including `inspection_preparations` and `inspection_readiness_decisions`, but the migration documents those tables as storage-only; schema presence is not workflow implementation or test evidence. The readiness, assignment-response, preparation and field-session services and API tests referenced by the merged docs change are not present in backend `main` at `d385a7d`. Therefore `WF2-008` and `WF2-009` are not restored as passed cases, and their IDs remain reserved rather than reused.
 
-**MF1 and MF2 have no workflow runtime in the current backend.** An
-`InspectionOrder` planning class was delivered on 6 October 2026 under a
-supporting-code branch and is recorded in Report 3's change log; Report 3 §3.1
-subsequently superseded that as reset scope, so it is not counted as MF2
-implementation here. There is therefore no workflow runtime to test and no
-executed evidence to record. This is an explicit coverage gap, not a claim that
-the requirements were dropped: MF1 and MF2 remain required by Report 3 and are
-awaiting implementation.
-
-### Steps that would be covered first
-
-If MF2 is implemented, these steps carry the highest verification value because
-each encodes a gate that protects an authorization or safety decision rather
-than a screen transition:
-
-| Step | Gate to verify |
-| --- | --- |
-| MF2-02 | Only the assigned Inspector may respond to an assignment. |
-| MF2-04 | A missing permit cannot be waived by an internal approval. |
-| MF2-07 | `READY_FOR_FLIGHT` requires the qualified ORG_ADMIN, and only when all mandatory conditions pass. |
-| MF2-10 | Stale, expired or revoked readiness is rejected at Start. |
-| MF2-12 | `FIELD_COMPLETED` is per session; earlier sessions are preserved. |
-
-### Effect on FE-04
-
-Report 3 §3.5 assigns FE-04 the MF2 session-record obligations (MF2-09–MF2-12)
-alongside MF3-01–MF3-04, so those four steps are owned by FE-04 rather than here.
-There is no `/assignments`, `/start`, or `/checklist` endpoint, so that half is
-unverified too, and MF3 has no verified entry path other than the scoped
-inspection list recorded as `WF3-009`.
-
-The removed case IDs stay reserved and are never reused.
+The existing MF2 requirements remain valid in Report 3; this status describes implementation and test evidence only. MF1 and MF2 have no workflow runtime in the current backend baseline, so they remain coverage gaps, not dropped requirements.
