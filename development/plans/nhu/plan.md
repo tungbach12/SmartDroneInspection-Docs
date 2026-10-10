@@ -13,24 +13,26 @@ references as the source of truth, not the old Client/Manager/provider ticket
 contract in this plan.
 
 - Backend work is on `feat/maintenance-mf4-work-order`, pushed to origin.
-- `e687088`, `fb83725`, `eb6a515`, and `3692216` establish the MF4 domain,
-  persistence mappings, scoped repositories and workforce credential read.
-- Current uncommitted work completes the REST API and service layer: repair
-  candidates, work orders, team, tasks, estimates/approval, work logs, change
-  orders, completion reports, independent acceptance, cost reconciliation and
-  close. MF4 re-inspection decisions are recorded but do not dispatch MF1.
-- Test evidence: 15 MF4 API integration tests and 93+ domain tests cover scope,
-  credentials, approval/rework, change control, report gates, independent
-  acceptance, cost math/currency and closeout. Backend `./mvnw.cmd verify`
-  passes 279 tests; Spotless, Modulith boundary checks and JaCoCo 80% gate pass.
-- Credential decision: **no record permits assignment; a recorded credential
-  that is not ACTIVE or is expired blocks it.** This is an interim deviation
-  from Report 3's mandatory-presence rule and must be documented there; there is
-  no skills model yet.
-- Still outstanding: MF4-04 skill matching/credential issuance and verification;
-  linked MF1 re-inspection dispatch; notification delivery; web/mobile screens;
-  production S3/minio evidence attachments and report rendering; and end-to-end
-  MF4 cases in Report 5. Do not claim these complete from the API surface alone.
+- Commits `e687088`, `fb83725`, `eb6a515`, `3692216` and `24a1128` are on the
+  pushed branch; the MF4 backend REST/workflow slice is committed.
+- Implemented: repair candidates, work orders, internal team/tasks, priced
+  estimate approval/rework, work-log submission/lead verification, change
+  decisions, completion reports, independent acceptance/rework, actual-cost
+  reconciliation, and closeout. Re-inspection is recorded but does not dispatch
+  MF1.
+- Final backend verification: `./mvnw.cmd spotless:apply verify` passes 279
+  tests; Spotless, Modulith boundary checks and JaCoCo 80% gate pass.
+- Report 5 records `WF3-010`–`WF3-012` under FE-07, and the integrated report
+  has 10 selected cases across MF2-07, MF3 and the MF4 backend slice. These
+  cases are not full MF4 acceptance.
+- Credential rule currently allows no record but rejects a recorded credential
+  that is non-ACTIVE or expired. This deviates from Report 3's required-presence
+  gate; applicable skills are not modelled.
+- Still outstanding: required-credential issuance/verification and skill
+  matching; notifications; linked MF1 re-inspection dispatch; before/during/after
+  evidence object workflow and rendered completion-report artifact; maintenance
+  web/mobile clients; and remaining MF4 target gates. Do not claim full MF4
+  acceptance from the backend API surface alone.
 
 ## Outcome
 

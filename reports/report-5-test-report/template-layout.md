@@ -64,31 +64,31 @@ from those files only when exporting. Each case retains its FE and WF codes.
 | --- | --- | --- |
 | FE-01 identity/access governance | Supporting evidence, outside case sheets | No WFx IDs |
 | FE-02 asset registry/inspection schedule | Coverage gap; no current case | None assigned |
-| FE-03 inspection request/work assignment | Coverage gap; MF1/MF2 unimplemented | None assigned |
+| FE-03 inspection request/work assignment | `Feature 1` | WF2-008, WF2-009 |
 | FE-04 inspection evidence / collections | `Feature 2` | WF3-002, WF3-009 |
 | FE-05 defect detection/verification | `Feature 2` | WF3-003 |
 | FE-06 inspection report/approval | `Feature 2` | WF3-005, WF3-006 |
-| FE-07 maintenance/defect resolution | `Feature 2`; partial backend API cases | WF3-010, WF3-011, WF3-012 |
+| FE-07 maintenance/defect resolution | `Feature 2`; partial backend API evidence | WF3-010, WF3-011, WF3-012 |
 | FE-08 dashboard/analytics/notifications | Coverage gap; no assigned case | None assigned |
 
-The sheet names are template labels, not SRS feature identifiers. After the
-2026-10-09 reset and 2026-10-10 FE-07 case addition, all eight selected cases sit
-on `Feature 2`; `Feature 1` remains empty because MF1 and MF2 have no executed
-cases.
+The sheet names are template labels, not SRS feature identifiers. The MF2-07
+readiness cases sit on `Feature 1`; the MF3 and selected MF4 backend cases sit
+on `Feature 2`.
 FE codes identify SRS capabilities and WFx IDs retain stable case identity:
 
 | Workbook sheet | Included SRS features | Included WF IDs |
 | --- | --- | --- |
-| `Feature 1` | None currently; MF1/MF2 unimplemented | None |
+| `Feature 1` | FE-03 | WF2-008, WF2-009 |
 | `Feature 2` | FE-04, FE-05, FE-06, FE-07 | WF3-002, WF3-003, WF3-005, WF3-006, WF3-009, WF3-010, WF3-011, WF3-012 |
 
 There are exactly eight FE-specific Markdown source files. The two fixed
 workbook sheets are presentation groupings, not source files or SRS features.
-Removed case IDs (`WF1-*`, `WF2-*`, `WF3-001`, `WF3-004`, `WF3-007`,
-`WF3-008`, `WF4-*`) stay reserved and are never reused; the added cases use
-`WF3-010`–`WF3-012`. FE-02, FE-03 and FE-08 remain coverage gaps. FE-07 records
-only the selected backend API behaviors verified by those cases; the remaining
-MF4 target requirements listed in its feature source are not claimed complete.
+Removed case IDs (`WF1-*`, `WF2-001`–`WF2-007`, `WF3-001`, `WF3-004`, `WF3-007`,
+`WF3-008`, `WF4-*`) stay reserved and are never reused. `WF2-008`/`WF2-009`
+passed Round 1 on 2026-10-09 and were re-verified on the integrated mainline;
+`WF3-010`–`WF3-012` are selected MF4 backend cases added on 2026-10-10. All
+Round 2/3 cells remain `Pending`. The MF4 cases do not claim full end-to-end
+workflow delivery; remaining limits are documented in FE-07.
 
 ## Visual and status rules
 
