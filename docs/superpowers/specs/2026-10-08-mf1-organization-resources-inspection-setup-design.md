@@ -65,9 +65,9 @@ Schema existence is not workflow implementation. No current MF1 API or test may 
 
 ### 4.1 Organization context and entitlement (MF1-01–02)
 
-- ORG_ADMIN can view/update the permitted organization workspace profile fields and maintain named authorized reviewers inside their own tenant.
+- MF1-01 is limited to opening the authenticated organization workspace and resolving its organization identity. Organization profile/contact maintenance and reviewer roster administration remain Supporting Flow or a separate account-governance feature; MF1-01 does not add those APIs.
 - All MF1 mutations resolve the actor from the authenticated principal and organization membership from the users module; tenant IDs in request bodies are rejected/ignored, never used to select scope.
-- Every new MF1 resource/inspection creation or dispatch checks organization status and current subscription entitlement through a subscriptions-owned boundary. Expired/suspended entitlement blocks new work but does not delete or hide historical records. Exact rules use subscription state/status and effective dates already defined by current docs; no hard-coded trial, grace period, fee or renewal behavior is introduced.
+- New MF1 resource/inspection mutations check current subscription entitlement through a read-only subscriptions-owned boundary; dispatch rechecks that same entitlement. Expired/suspended entitlement blocks the operation but does not delete historical records. The shared boundary accepts organization ID and evaluation time; it returns normally only when an ACTIVE subscription covers that time, otherwise throws a stable `SUBSCRIPTION_INACTIVE` business error. It does not expose the subscriptions repository/entity to consuming modules. Exact rules use subscription status and effective dates already defined by current docs; no hard-coded trial, grace period, fee or renewal behavior is introduced.
 - ADMIN subscription activation remains Supporting Flow. MF1 does not create or activate subscriptions.
 
 ### 4.2 Workforce and credentials (MF1-03–05)
@@ -95,7 +95,7 @@ Schema existence is not workflow implementation. No current MF1 API or test may 
 
 - ORG_ADMIN creates an inspection against an existing same-organization asset with objective, component scope, acceptance criteria, planned dates and optional cadence.
 - The system inherits the asset's current active pair, creates an immutable/versioned inspection assignment snapshot containing the pair and relevant defaults/source-document references, and keeps it distinct from later changes to the asset default.
-- If cadence is absent, only a manually initiated inspection is created; the system must not invent a schedule. If cadence is present, a scheduler/explicit due processor creates one inspection per `(schedule_id, due_cycle_key)` using the database unique identity and idempotent retry behavior.
+- If cadence is absent, ORG_ADMIN creates an inspection directly; the system must not invent a schedule. If cadence is present, MF1 uses an existing organization-owned `inspection_schedules` record with an explicit `schedule_id` and `due_cycle_key`; a scheduler/explicit due processor creates at most one inspection per `(schedule_id, due_cycle_key)` using the database unique identity and idempotent retry behavior. MF1 does not create schedule proposals or define a new cadence-authoring flow.
 - Inspection status starts at `DRAFT` or `ASSIGNED` according to the explicit ORG_ADMIN confirmation step; no state implies MF2 readiness or field execution.
 
 ### 4.6 Conflict check, reassignment and dispatch (MF1-13–14)
@@ -108,7 +108,7 @@ Schema existence is not workflow implementation. No current MF1 API or test may 
 ## 5. Module and transaction boundaries
 
 - `users`: identity, organization and role checks; expose the minimum users-owned facade to verify active user/role/tenant. No cross-module controller or repository imports.
-- `subscriptions`: read-only entitlement facade for MF1; subscription creation/activation stays Supporting Flow.
+- `subscriptions`: owns subscription persistence and exposes the read-only entitlement facade consumed by `users`, `workforce`, `assets`, and `inspections`; subscription creation/activation stays Supporting Flow. Consumers depend on the facade only, never subscriptions entities/repositories.
 - `workforce`: credentials and their review/evidence references.
 - `assets`: asset catalog, Drone inventory/documents, permit/compliance records, asset-pair assignment history. Drone/pair owner remains `assets` per the reset approval.
 - `inspections`: schedule, inspection aggregate, immutable assignment/scope snapshots, due-cycle identity, conflict check and dispatch use cases.

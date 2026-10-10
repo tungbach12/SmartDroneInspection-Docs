@@ -1,5 +1,7 @@
 # MF1 Asset and Pair Setup Implementation Plan
 
+> **SUPERSEDED 2026-10-08:** The full MF1 scope is now coordinated by `2026-10-08-mf1-01-07-resources.md`, `2026-10-08-mf1-08-10-asset-pair.md`, and `2026-10-08-mf1-11-14-inspection-dispatch.md`. Do not execute this earlier standalone draft.
+
 > **SUPERSEDED 2026-10-08:** Use the three coordinated plans `2026-10-08-mf1-01-07-resources.md`, `2026-10-08-mf1-08-10-asset-pair.md`, and `2026-10-08-mf1-11-14-inspection-dispatch.md` for the complete MF1 scope. This earlier single-slice draft is retained only as history; do not execute it separately.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
