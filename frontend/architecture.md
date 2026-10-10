@@ -89,18 +89,44 @@ resource.
   RFC 9457 error bodies, `204 No Content`, and binary evidence downloads remain
   unchanged.
 
-## MF3 inspection and report screens
+## MF2 preparation and MF3 inspection and report screens
 
 `/inspections` loads a server-paged, backend-scoped inspection collection; users
-select a row instead of entering an identifier by hand. An assigned Inspector
-may open the evidence workspace, upload `WEB_UPLOAD` evidence, and record the
-substantive evidence-quality decision. The same collection is visible to
-same-organization ORG_ADMINs and platform ADMINs as read-only inspection rows;
-the Inspector-only mutation workspace stays hidden from those roles. Maintenance
-Engineers are directed to Maintenance rather than shown an inspection list.
-Analysis and draft generation stay disabled until the evidence set is accepted,
-because the backend refuses both. The API computes evidence checksums and is the
-authorization boundary; the browser never receives a direct MinIO URL.
+select a row instead of entering an identifier by hand. The selected inspection
+opens the MF2 mission-preparation panel above the MF3 evidence workspace, because
+preparation is what comes first: the Inspector records the component shot-list,
+evidence types, access constraints and hazards, submits it with a safety
+acknowledgment, and an organization reviewer then decides whether the mission may
+fly.
+
+The panel edits the **current** preparation version rather than starting a blank
+form, since MF2-07 reviews one specific version. The editor is keyed on that
+version, so its fields always belong to the version on screen rather than being
+re-seeded after every fetch. Submission is offered only for a submitted version,
+and the fields are disabled once the version is `READY`: a readiness decision is
+about a particular compliance basis, so editing after it would leave the decision
+pointing at content nobody reviewed.
+
+The compliance gate renders blockers as a list carrying their server codes rather
+than as an error. MF2-07 needs every blocker at once, and an empty list still
+means a named reviewer has to decide, so the empty state says exactly that instead
+of reading as clearance.
+
+The MF2-01/02 assignment endpoints and the checklist endpoints do not exist in the
+current backend. The API client still carries those functions from an earlier
+baseline and nothing calls them; they are not a working path and are not presented
+in the UI.
+
+An assigned Inspector may open the evidence workspace, upload `WEB_UPLOAD`
+evidence, and record the substantive evidence-quality decision. The same collection
+is visible to same-organization ORG_ADMINs and platform ADMINs as read-only
+inspection rows; the Inspector-only mutation workspace stays hidden from those
+roles, while an organization reader keeps the permit-linking form and the
+compliance gate. Maintenance Engineers are directed to Maintenance rather than shown
+an inspection list. Analysis and draft generation stay disabled until the evidence
+set is accepted, because the backend refuses both. The API computes evidence
+checksums and is the authorization boundary; the browser never receives a direct
+MinIO URL.
 
 `/reports` uses the same inspection list filtered to rows that carry a report,
 with report status/version shown inline. Selecting a row loads that inspection's

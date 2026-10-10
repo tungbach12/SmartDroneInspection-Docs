@@ -51,7 +51,7 @@ reserved and are never reused.
 | Backend full suite + coverage gate + Modulith boundaries | `./mvnw.cmd clean verify` | **Passed.** 293 tests, 0 failures, 0 errors, 0 skipped; Spotless clean; Spring Modulith boundary test passed (3/3); JaCoCo gate met. |
 | Frontend lint | `npm run lint` | No errors; 4 pre-existing fast-refresh warnings in unrelated files. |
 | Frontend build | `npm run build` | Built successfully. |
-| Frontend suite | `npm test -- --maxWorkers=2` | 164/164 passed across 32 files. |
+| Frontend suite | `npm test -- --maxWorkers=2` | 172/172 passed across 33 files. |
 | Mobile format | `dart format --output=none --set-exit-if-changed .` | 56 files unchanged. |
 | Mobile analyze | `flutter analyze` | No issues. |
 | Mobile tests | `flutter test` | 16/16 passed. |
@@ -98,7 +98,7 @@ The two module rows are workbook-sheet totals, not SRS feature totals.
 | MF2 material-change invalidation (MF2-08) | Partly implemented. A session start refuses anything but the newest `APPROVED` decision, so an appended `INVALIDATED` or `RETURNED` decision wins over an older approval. **No service writes `INVALIDATED` yet**, because nothing can currently change a readiness source after approval. The schema already permits it. |
 | MF2 field session start/postpone/abort (MF2-09/10/11) | Implemented with an HTTP contract and automated evidence (`InspectionFieldSessionServiceTest` 18, `InspectionFieldSessionApiIntegrationTest` 9). **No workbook case yet.** |
 | MF2 session end and MF3 hand-off (MF2-12) | Not implemented. |
-| MF2 preparation and assignment response (MF2-01/02/03/06) | Implemented and covered by `InspectionPreparationApiIntegrationTest` and `InspectionAssignmentApiIntegrationTest`, but not yet given workbook cases of their own. |
+| MF2 preparation and assignment response (MF2-01/02/03/06) | Implemented and covered by `InspectionPreparationApiIntegrationTest` and `InspectionAssignmentApiIntegrationTest`, but not yet given workbook cases of their own. MF2-03 to MF2-06 now have web UI (`InspectionPreparationPanel`, 8 tests). MF2-01/02 assignment response is backend-only with no web screen. |
 | MF4 maintenance/cost/acceptance | Unimplemented; no case. |
 | MF2 assignment/checklist entry | No endpoint; MF3 reachable only via the scoped list (`WF3-009`). |
 | FE-02 asset catalog | Implemented but no executed case recorded here. |
