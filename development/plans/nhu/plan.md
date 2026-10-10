@@ -5,6 +5,33 @@
 **Jira Epic**: `SCRUM-57`
 **Capacity**: 20 planned days + 0 reserve days
 
+## Current status — 10 Oct 2026
+
+The original WF4 tasks below describe the retired five-role baseline. The current
+backend target is Enterprise SaaS MF4; use the current Report 3 and business-flow
+references as the source of truth, not the old Client/Manager/provider ticket
+contract in this plan.
+
+- Backend work is on `feat/maintenance-mf4-work-order`, pushed to origin.
+- `e687088`, `fb83725`, `eb6a515`, and `3692216` establish the MF4 domain,
+  persistence mappings, scoped repositories and workforce credential read.
+- Current uncommitted work completes the REST API and service layer: repair
+  candidates, work orders, team, tasks, estimates/approval, work logs, change
+  orders, completion reports, independent acceptance, cost reconciliation and
+  close. MF4 re-inspection decisions are recorded but do not dispatch MF1.
+- Test evidence: 15 MF4 API integration tests and 93+ domain tests cover scope,
+  credentials, approval/rework, change control, report gates, independent
+  acceptance, cost math/currency and closeout. Backend `./mvnw.cmd verify`
+  passes 279 tests; Spotless, Modulith boundary checks and JaCoCo 80% gate pass.
+- Credential decision: **no record permits assignment; a recorded credential
+  that is not ACTIVE or is expired blocks it.** This is an interim deviation
+  from Report 3's mandatory-presence rule and must be documented there; there is
+  no skills model yet.
+- Still outstanding: MF4-04 skill matching/credential issuance and verification;
+  linked MF1 re-inspection dispatch; notification delivery; web/mobile screens;
+  production S3/minio evidence attachments and report rendering; and end-to-end
+  MF4 cases in Report 5. Do not claim these complete from the API surface alone.
+
 ## Outcome
 
 Accepted findings become assessed, approved, executed, released, and resolved maintenance work.

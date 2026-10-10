@@ -4,17 +4,18 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope (reset 2026-10-09):** This report covers the **implemented MF3 slice
-only** — inspection evidence, defect findings, and reporting — for the four
-current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`). The
-previous content mixed a retired five-role WF1–WF4 baseline with unimplemented
-MF1–MF2/MF4 target cases; those 28 cases were removed because they described
-behavior that no longer exists or has never been built. Every remaining case has
-an executed automated test behind it.
+**Scope (updated 2026-10-10):** This report records the executed backend MF3
+slice and a selected MF4 backend API slice for the four current roles (`ADMIN`,
+`ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`). The 2026-10-09 reset removed
+28 obsolete/unimplemented cases; their IDs stay reserved. Three FE-07 cases
+(`WF3-010`–`WF3-012`) were added only for behavior exercised by automated
+Testcontainers/MockMvc tests. Every indexed case has an executed Round 1 test.
 
-MF1, MF2, MF4, FE-02, FE-03, FE-07, and FE-08 are **untested**, and that is
-recorded as a coverage gap rather than filled with a pending or invented case.
-The original workbook and preview output remain unchanged.
+This is **not full product or SRS coverage**. MF1/MF2 workflows, MF4 skill
+matching and credential administration, notification delivery, linked MF1
+re-inspection dispatch, evidence object upload/report rendering, and
+web/mobile maintenance clients remain unverified. The original workbook and
+preview output remain unchanged.
 
 ## Naming layers and mapping
 
@@ -28,8 +29,8 @@ template. They are not the SRS feature codes `FE-01` and `FE-02`.
 | WF test ID | Business-flow traceability ID | `WF3-005` |
 
 Do not rename the files or IDs to make the sheet number look like an SRS
-feature code. After the reset, all cases sit on `Feature 2`, and `Feature 1` is
-empty because MF1/MF2 are unimplemented.
+feature code. All eight selected cases sit on `Feature 2`; `Feature 1` is empty
+because MF1/MF2 have no executed cases.
 
 ## Source of truth and template rule
 
@@ -59,14 +60,14 @@ empty because MF1/MF2 are unimplemented.
 | `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 2` sheet | `WF3-002`, `WF3-009`. |
 | `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 2` sheet | `WF3-003`. |
 | `03-features/fe-06-inspection-report-approval.md` | `Feature 2` sheet | `WF3-005`, `WF3-006`. |
-| `03-features/fe-07-maintenance-defect-resolution.md` | Coverage gap | No current case; MF4 unimplemented. |
+| `03-features/fe-07-maintenance-defect-resolution.md` | `Feature 2` sheet | `WF3-010`–`WF3-012`; partial backend API evidence and explicit remaining gaps. |
 | `03-features/fe-08-dashboard-analytics-notifications.md` | Coverage gap | No assigned case; do not infer execution. |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
 | `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
 
 ## Current test scope
 
-All five current cases belong to MF3:
+The eight current workbook cases cover selected MF3 behavior plus a partial MF4 backend slice:
 
 1. FE-01 — identity/access supporting gates. Recorded separately in the FE-01
    file; not a workbook case.
@@ -76,14 +77,14 @@ All five current cases belong to MF3:
    (`WF3-002`), and the scoped inspection/report collections (`WF3-009`).
 5. FE-05 — advisory detection and human finding verification (`WF3-003`).
 6. FE-06 — report review, publication, and immutability (`WF3-005`, `WF3-006`).
-7. FE-07 — maintenance and defect resolution. No case; MF4 unimplemented.
+7. FE-07 — maintenance and defect resolution backend API cases (`WF3-010`–`WF3-012`); credentials/skills, notifications, re-inspection dispatch, evidence rendering and clients remain gaps.
 8. FE-08 — dashboard, analytics, and notifications. No assigned case; explicit
    coverage gap.
 
-Totals: **5 cases, 5 `Passed`, 0 `Failed`, 0 `Pending`.** Coverage of 100% is
-coverage of the implemented slice only, not of the SRS. Removed case IDs stay
-reserved and are never reused; new cases continue from `WF3-010` after
-`WF3-009`.
+Totals: **8 cases, 8 `Passed`, 0 `Failed`, 0 `Pending`.** Coverage of 100% is
+coverage of these selected backend scenarios only, not full product/SRS
+coverage. Removed case IDs stay reserved and are never reused; the added cases
+continue from `WF3-010` after `WF3-009`.
 
 MinIO/evidence storage is tracked under FE-04. CI uses S3Mock for S3 API
 integration coverage; that mock does not replace runtime verification against

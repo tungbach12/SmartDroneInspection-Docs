@@ -24,4 +24,4 @@ The retained [Report 3 DOCX](report3-software-requirement-specification.docx) an
 The record of changes is retained in `00-record-of-changes.md` as supporting
 history and is not a numbered section of the official Report 3 format.
 
-Report 3 defines the target requirements, not deployed behavior. Selected companion references were synchronized on 7 October 2026, while other project pages and client repositories may still retain earlier summaries. Backend V24/V25/V26 completed the identity/schema/runtime cutover; MF1–MF4 workflow behavior remains unimplemented in the reset. The Markdown section files above define the SRS revision; use current source for implementation status.
+Report 3 defines target requirements, not a claim that every requirement is deployed. Backend V24/V25/V26 completed the identity/schema/runtime cutover; MF3 is implemented, and a partial MF4 backend REST/workflow slice was added and verified on 10 October 2026. MF1/MF2 workflows and the explicit MF4 gaps recorded in §3.8 remain outstanding. The Markdown section files above define the SRS; see the implementation-status note in §3.8 and current source for deployment details.

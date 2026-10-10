@@ -255,17 +255,17 @@ SUPERSEDED` by `InspectionReportVersion`.
 
 ## VIII. Implementation status
 
-| Area | Status on 8 October 2026 |
+| Area | Status on 10 October 2026 |
 | --- | --- |
 | Roles, organization registration, audit | Delivered and verified on VPS2 |
 | Target schema (41 tables) and runtime cutover | Delivered and verified on VPS2 |
 | Asset catalog, categories, checklists | Runtime present; MF1 pair/inspection workflow not implemented |
 | MF3 evidence, quality decision, findings, versioned report and publication | Implemented and verified on 8 October 2026 |
-| MF1, MF2, MF4 workflow execution | Not implemented. Team-owned work. |
+| MF4 backend workflow slice | Partial implementation on `feat/maintenance-mf4-work-order`: repair candidates; work orders; internal team/tasks; estimate approval and change control; work logs; completion report; independent acceptance; cost reconciliation and closure. Backend `./mvnw.cmd verify` passed 279 tests, including Testcontainers/MockMvc and Modulith/JaCoCo gates on 10 October 2026. |
+| MF1, MF2 workflow execution | Not implemented. Team-owned work. |
+| MF4 target requirements still outstanding | Applicable-skill model and credential issuance/verification; required-credential-presence gate (current interim code allows no record but rejects invalid present credentials); notification delivery; dispatch of linked MF1 re-inspection; before/during/after evidence-object workflow and rendered completion-report artifact; web/mobile clients. |
 
-Report 5 records the nine target acceptance cases (`WF2-005`-`WF2-007`, `WF3-005`-`WF4-005`) as
-`Pending`. They stay `Pending` until matching execution evidence exists; a table or schema row is
-not workflow evidence.
+The code establishes only the backend behaviors exercised by automated tests; it does not establish full MF4 acceptance. Report 5 records three selected FE-07 backend cases (`WF3-010`–`WF3-012`) as `Passed` for executed Round 1 tests. All removed IDs, including `WF4-001`–`WF4-005` and `WF3-007`/`WF3-008`, remain reserved and are never reused. Table/schema presence alone is not workflow evidence.
 
 ## IX. Source reference
 
