@@ -123,7 +123,7 @@ deployment can change them without a rebuild:
 
 | Setting | Environment variable | Default | Meaning |
 | --- | --- | --- | --- |
-| `app.workforce.credential-expiring-soon-window` | `CREDENTIAL_EXPIRING_SOON_WINDOW` | `30d` | How far ahead a reviewed credential is shown as expiring soon. A display warning derived from the recorded expiry date — not a statutory renewal rule. |
+| `app.workforce.credential-expiring-soon-window` | `CREDENTIAL_EXPIRING_SOON_WINDOW` | `60d` | How far ahead a reviewed credential is shown as expiring soon. A display warning derived from the recorded expiry date — not a statutory renewal rule. Chosen for commercial drone inspection, where operator credentials and liability insurance are annual or longer; no requirement document specifies a window, so it is a product decision. |
 | `app.assets.drone-document-max-file-size` | `DRONE_DOCUMENT_MAX_FILE_SIZE` | `10MB` | Largest accepted Drone document upload. |
 | `app.assets.document-max-file-size` | `ASSET_DOCUMENT_MAX_FILE_SIZE` | `10MB` | Largest accepted asset document upload. |
 
@@ -133,6 +133,12 @@ paths — a wildcard would defeat the check.
 
 A related setting, `app.evidence.max-file-size`, exists in `application.yml` but is not bound to
 any properties class. It should not be assumed to control these limits.
+
+**Scope of the expiry warning.** `EXPIRING_SOON` exists only on `workforce_credentials`
+(MF1-04/05). `flight_permits` (MF1-07) has no such status, so flight-permit records carry no
+expiring-soon signal in this release. That matters when comparing durations: under
+Nghị định 288/2025/NĐ-CP a recreational permit lasts up to 10 days while a commercial one
+lasts 12 months, and only the second kind is relevant to this product.
 
 ## Mobile flow
 
