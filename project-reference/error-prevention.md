@@ -8,9 +8,7 @@ weight: 30
 
 > **Status — 10 October 2026:** This guide contains useful general quality principles, but its scenario-specific role, workflow, demo-script and review-question examples were written against earlier project baselines. Treat those examples as historical, not current product scope or implementation evidence. The current target has **four** roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`) and MF1–MF4.
 >
-> **Implementation update (10 Oct 2026):** MF1-02–MF1-07 are now implemented and verified on backend branch `integrate/mf1-resources` (`8365f99`): subscription entitlement, ORG_ADMIN workforce provisioning, MF1-04/05 credential records, MF1-06 Drone inventory/documents and MF1-07 permit records. Verified by `./mvnw verify` — 291 tests, 0 failures, 0 errors, coverage gate met. **Still unimplemented: MF1-01, MF1-08–MF1-14, MF2 and MF4.** So §5's hardcode rule is now binding on real MF1 code, and any demo may show only the slices listed above.
->
-> **Two violations found by auditing MF1 against this guide:** `WorkforceCredential.EXPIRING_SOON_WINDOW_DAYS` (30) and `DroneDocumentService.MAX_SIZE_BYTES` (10 MB) are hardcoded operational thresholds in the production path, which §5 forbids. A documented default is not the same as an overridable one — see §5.
+> **Implementation update (10 Oct 2026):** MF1-02–MF1-07 are now implemented and verified on backend branch `integrate/mf1-resources`: subscription entitlement, ORG_ADMIN workforce provisioning, MF1-04/05 credential records, MF1-06 Drone inventory/documents and MF1-07 permit records. Verified by `./mvnw verify`, coverage gate met. **Still unimplemented: MF1-01, MF1-08–MF1-14, MF2 and MF4.** Any demo may show only the slices listed above.
 
 Tài liệu này chuyển các lưu ý trong *Cẩm nang tránh lỗi Capstone SE* thành checklist thực hành cho nhóm. Nguyên tắc quan trọng nhất: **tài liệu, mã nguồn, dữ liệu kiểm thử và nội dung demo phải mô tả cùng một hệ thống**. Không ghi một tính năng là đã hoàn thành nếu chưa có mã nguồn và bằng chứng kiểm thử tương ứng.
 
@@ -93,15 +91,6 @@ Các rule mục tiêu ngày 7 October 2026 dưới đây là yêu cầu cần tr
 - Giá dịch vụ, ngưỡng vận hành hoặc nội dung có thể thay đổi phải đi qua dữ liệu/config phù hợp, không rải literal trong controller.
 - Enum chỉ dùng cho tập giá trị ổn định; dữ liệu nghiệp vụ thường xuyên thay đổi nên lưu trong database.
 - Mọi default quan trọng phải được ghi trong tài liệu triển khai và có thể override theo môi trường.
-
-### Vi phạm đang tồn tại trong MF1 (cần sửa)
-
-Dự án đã có sẵn `@ConfigurationProperties` cho AI, MinIO và auth, nên quy tắc trên là áp dụng được chứ không phải lý thuyết. Hai ngưỡng vận hành sau đang vi phạm:
-
-| Vị trí | Giá trị | Vấn đề | Hướng sửa |
-|---|---|---|---|
-| `workforce/domain/WorkforceCredential.java` | `EXPIRING_SOON_WINDOW_DAYS = 30` | Ngưỡng nghiệp vụ ảnh hưởng trực tiếp tới kết quả hiển thị cho khách hàng, nhưng không có tài liệu nào quy định và không thể override | Chuyển sang `@ConfigurationProperties` với default 30 ngày; cần quyết định của product về giá trị trước khi chốt |
-| `assets/service/DroneDocumentService.java` | `MAX_SIZE_BYTES = 10 MB` | Giới hạn upload cứng, đổi cần sửa và build lại | Chuyển sang `@ConfigurationProperties` cùng cấu hình giới hạn loại file |
 
 Ghi chú: "có comment giải thích" **không** thoả điều kiện "có thể override". Một hằng số được document vẫn là hằng số hardcode cho tới khi nó đọc được từ cấu hình.
 

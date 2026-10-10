@@ -116,6 +116,20 @@ Cross-module access uses narrow module-root facades rather than repositories or 
 `workforce` and `assets` depend on those module roots, not on `inspections::repository`,
 so Spring Modulith still forbids importing another module's persistence types.
 
+### Operational thresholds
+
+MF1 thresholds that affect what a customer sees are configuration, not constants, so a
+deployment can change them without a rebuild:
+
+| Setting | Environment variable | Default | Meaning |
+| --- | --- | --- | --- |
+| `app.workforce.credential-expiring-soon-window` | `CREDENTIAL_EXPIRING_SOON_WINDOW` | `30d` | How far ahead a reviewed credential is shown as expiring soon. A display warning derived from the recorded expiry date — not a statutory renewal rule. |
+| `app.assets.drone-document-max-file-size` | `DRONE_DOCUMENT_MAX_FILE_SIZE` | `10MB` | Largest accepted Drone document upload. |
+
+Both are bound by `@ConfigurationProperties` classes (`WorkforceProperties`, `AssetProperties`)
+in the modules that own them. The accepted Drone document content types remain a fixed set in
+`DroneDocumentService` — a wildcard would defeat the check.
+
 ## Mobile flow
 
 Mobile endpoints mirror the auth contract under `/api/v1/mobile/auth/**`. Mobile clients receive access and refresh tokens in JSON and store them with platform secure storage. Browser `Origin` requests are rejected on these endpoints.

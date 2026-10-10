@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-09 |
 | Document Code | *Enter document code* |
-| Version | 3.4 (Round 3 complete: MF1-02–MF1-07 implemented and verified — subscription entitlement, ORG_ADMIN workforce provisioning, MF1-04/05 credential records, MF1-06 Drone inventory and Drone documents, MF1-07 permit/compliance records. Recorded as supporting verification outside the workbook, so no case status or workbook total changed; the report still holds 5 cases, all `Passed`. MF1-01, MF1-08–MF1-14, MF2 and MF4 remain unimplemented gaps. Backend `./mvnw verify` on `integrate/mf1-resources` at `8365f99` passes 291 tests, 0 failures, with the JaCoCo gate met.) |
+| Version | 3.5 (Round 3 complete: MF1-02–MF1-07 implemented and verified — subscription entitlement, ORG_ADMIN workforce provisioning, MF1-04/05 credential records, MF1-06 Drone inventory and Drone documents, MF1-07 permit/compliance records. Operational thresholds that were hardcoded constants — the credential expiring-soon horizon and the Drone document upload cap — are now `@ConfigurationProperties`, verified by 10 new tests. Recorded as supporting verification outside the workbook, so no case status or workbook total changed; the report still holds 5 cases, all `Passed`. MF1-01, MF1-08–MF1-14, MF2 and MF4 remain unimplemented gaps. Backend `./mvnw verify` on `integrate/mf1-resources` passes 301 tests, 0 failures, with the JaCoCo gate met.) |
 
 ## Record of change
 

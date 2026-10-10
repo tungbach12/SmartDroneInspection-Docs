@@ -53,13 +53,15 @@ not a regression, and it is **not** evidence that anything stopped working.
 | Frontend lint | `npm run lint` | No errors; 4 pre-existing fast-refresh warnings in unrelated files. |
 | Frontend build | `npm run build` | Built successfully. |
 | Frontend suite | `npm test -- --run` | 161/161 passed across 31 files. |
-| MF1 resource-setup slice (Round 3, 2026-10-10) | `./mvnw verify` on `integrate/mf1-resources` at `8365f99` | **Passed.** 291 tests, 0 failures, 0 errors; `All coverage checks have been met.`; BUILD SUCCESS. Covers entitlement, workforce provisioning, credential records, Drone inventory, Drone documents and permit/compliance records together with every pre-existing suite. |
+| MF1 resource-setup slice (Round 3, 2026-10-10) | `./mvnw verify` on `integrate/mf1-resources` | **Passed.** 301 tests, 0 failures, 0 errors; `All coverage checks have been met.`; BUILD SUCCESS. Covers entitlement, workforce provisioning, credential records, Drone inventory, Drone documents and permit/compliance records together with every pre-existing suite, plus the configurable-threshold checks below. |
 
-An earlier run on the pre-permit commit `dcd6516` passed 254 tests. The
-permit slice adds 37 more. The first run on `8365f99` failed with 190 errors
-purely because Docker Desktop had been stopped, so Testcontainers could not
-start; all 190 shared that single environmental cause and there were zero
-assertion failures. The commit verified green after Docker was restarted.
+Progression of this branch's full-suite runs: 254 tests at `dcd6516` (before the
+permit slice), 291 at `8365f99` (after permits), 301 after moving the credential
+expiry window and the Drone document upload cap out of hardcoded constants into
+`@ConfigurationProperties`. One run on `8365f99` failed with 190 errors purely
+because Docker Desktop had been stopped, so Testcontainers could not start; all
+190 shared that single environmental cause and there were zero assertion failures.
+The commit verified green after Docker was restarted.
 
 The Round 3 backend run is the first that covers the whole MF1 slice. Per-slice
 runs reported during implementation do not substitute for it.
@@ -79,6 +81,8 @@ runs reported during implementation do not substitute for it.
 | Drone documents | `DroneDocumentApiIntegrationTest` | 7/7 |
 | Permit/compliance API | `ComplianceApiIntegrationTest` | 31/31 |
 | Permit persistence | `CompliancePersistenceTest` | 6/6 |
+| Credential expiry window is configurable | `WorkforceCredentialExpiryWindowTest` | 4/4 |
+| Drone document upload limits are configurable | `DroneDocumentLimitsTest` | 6/6 |
 | Modulith boundaries | `ModulithArchitectureTest` | 3/3 |
 
 **These MF1 results are supporting verification outside the workbook totals**, per

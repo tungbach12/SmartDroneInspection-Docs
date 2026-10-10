@@ -124,7 +124,7 @@ alter workbook statistics.
 - Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
 - Evidence: `WorkforceCredentialApiIntegrationTest` 15/15, `WorkforceCredentialPersistenceTest` 5/5, `EvidenceOwnershipServiceTest` 3/3, inside the 254-test merged run above.
 - Module-boundary note: verifying `evidence_id` tenant ownership required a path from `workforce` to `inspections`. A single-method facade `com.smartdroneinspection.inspections.EvidenceOwnership` was added at the `inspections` module root, and `workforce` was granted a module-root dependency on `inspections` — not `inspections::repository`, so Spring Modulith still forbids importing the evidence repositories or entities. The boundary was checked with a temporary probe that imported `EvidenceRepository` and correctly failed verification; the probe was removed before commit.
-- Known gap: the `EXPIRING_SOON` horizon is a hardcoded 30-day constant chosen during implementation. No requirement document specifies the window, so it is recorded here as an unratified implementation default rather than a specified rule.
+- Configuration note: the `EXPIRING_SOON` horizon is now bound to `app.workforce.credential-expiring-soon-window` (env `CREDENTIAL_EXPIRING_SOON_WINDOW`, default `30d`) via `WorkforceProperties`, so a deployment can change it without a rebuild. The default value itself is still an implementation choice — no requirement document specifies the window — and remains a product decision rather than a specified rule. Covered by `WorkforceCredentialExpiryWindowTest` (4 cases), which proves the configured window and not a literal decides the status.
 
 ## Coverage boundary
 
