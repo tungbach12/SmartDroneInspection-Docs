@@ -125,10 +125,14 @@ deployment can change them without a rebuild:
 | --- | --- | --- | --- |
 | `app.workforce.credential-expiring-soon-window` | `CREDENTIAL_EXPIRING_SOON_WINDOW` | `30d` | How far ahead a reviewed credential is shown as expiring soon. A display warning derived from the recorded expiry date — not a statutory renewal rule. |
 | `app.assets.drone-document-max-file-size` | `DRONE_DOCUMENT_MAX_FILE_SIZE` | `10MB` | Largest accepted Drone document upload. |
+| `app.assets.document-max-file-size` | `ASSET_DOCUMENT_MAX_FILE_SIZE` | `10MB` | Largest accepted asset document upload. |
 
-Both are bound by `@ConfigurationProperties` classes (`WorkforceProperties`, `AssetProperties`)
-in the modules that own them. The accepted Drone document content types remain a fixed set in
-`DroneDocumentService` — a wildcard would defeat the check.
+These are bound by `@ConfigurationProperties` classes (`WorkforceProperties`, `AssetProperties`)
+in the modules that own them. Accepted content types remain a fixed set on both document upload
+paths — a wildcard would defeat the check.
+
+A related setting, `app.evidence.max-file-size`, exists in `application.yml` but is not bound to
+any properties class. It should not be assumed to control these limits.
 
 ## Mobile flow
 
