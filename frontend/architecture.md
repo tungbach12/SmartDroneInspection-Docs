@@ -91,7 +91,17 @@ resource.
 
 ## MF2 preparation and MF3 inspection and report screens
 
-`/inspections` loads a server-paged, backend-scoped inspection collection; users
+`/inspections` opens with the MF2-01/02 assignment inbox for an Inspector, because that is the
+entry point to MF2: preparation, readiness and the field session all sit downstream of a pairing
+the Inspector took. The panel shows the asset, the Drone serial and the validity window so the
+answer can be given without opening three other records, and a decline stays disabled until a
+reason is written, since the backend refuses without one and only the Inspector knows whether they
+lack a qualification, a date or a willingness.
+
+Accepting is not flight clearance, and the panel says so. MF2-02 records that the Inspector took
+the job; MF2-07 decides separately whether the mission may fly.
+
+`/inspections` then loads a server-paged, backend-scoped inspection collection; users
 select a row instead of entering an identifier by hand. The selected inspection
 opens the MF2 mission-preparation panel above the MF3 evidence workspace, because
 preparation is what comes first: the Inspector records the component shot-list,
