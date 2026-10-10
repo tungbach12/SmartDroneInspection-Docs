@@ -110,7 +110,18 @@ pointing at content nobody reviewed.
 The compliance gate renders blockers as a list carrying their server codes rather
 than as an error. MF2-07 needs every blocker at once, and an empty list still
 means a named reviewer has to decide, so the empty state says exactly that instead
-of reading as clearance.
+of reading as clearance. It lives in its own `ComplianceGateSection` so the
+preparation panel stays readable.
+
+Both the status chip and the failure alerts come from `shared/ui`, not from local
+markup. `StatusChip` carries the MF2 preparation vocabulary — submitted is a
+warning because the work is waiting on a reviewer, returned is an error because
+it needs rework, ready is a success because it is the only one with a decision
+behind it. A 409 renders through `RefusalNotice`, which carries no client-invented
+heading: one conflict may mean "not editable", "not allowed in this state" or
+"inspection is not preparing", and naming the wrong one contradicts the server's
+own wording shown beside it. A feature panel that renders its own chip colour or
+its own error text drifts from the rest of the product.
 
 The MF2-01/02 assignment endpoints and the checklist endpoints do not exist in the
 current backend. The API client still carries those functions from an earlier

@@ -51,7 +51,7 @@ reserved and are never reused.
 | Backend full suite + coverage gate + Modulith boundaries | `./mvnw.cmd clean verify` | **Passed.** 293 tests, 0 failures, 0 errors, 0 skipped; Spotless clean; Spring Modulith boundary test passed (3/3); JaCoCo gate met. |
 | Frontend lint | `npm run lint` | No errors; 4 pre-existing fast-refresh warnings in unrelated files. |
 | Frontend build | `npm run build` | Built successfully. |
-| Frontend suite | `npm test -- --maxWorkers=2` | 172/172 passed across 33 files. |
+| Frontend suite | `npm test -- --maxWorkers=2` | 174/174 passed across 33 files. |
 | Mobile format | `dart format --output=none --set-exit-if-changed .` | 56 files unchanged. |
 | Mobile analyze | `flutter analyze` | No issues. |
 | Mobile tests | `flutter test` | 16/16 passed. |
