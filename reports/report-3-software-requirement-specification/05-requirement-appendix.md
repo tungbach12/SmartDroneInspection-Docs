@@ -32,10 +32,10 @@ Existing MSG01–MSG35 identifiers are retained as revised target message slots.
 | 17 | MSG17 | In line | Duplicate evidence | This evidence has already been uploaded in this scope. |
 | 18 | MSG18 | Toast | Upload saved | Evidence uploaded. Inspector quality review is still required. |
 | 19 | MSG19 | In line | AI unavailable | AI analysis is unavailable. Evidence is saved for manual review or later processing. |
-| 20 | MSG20 | Toast | Inspection author submission | Author-verified draft submitted to ORG_ADMIN for review. |
+| 20 | MSG20 | Toast | Inspection author submission | Author-verified draft submitted to Organization Admin for review. |
 | 21 | MSG21 | In line | Author review incomplete | Verify each required report section against source evidence and scope before submitting. |
 | 22 | MSG22 | Toast | Inspection report published | Approved inspection report version published successfully. |
-| 23 | MSG23 | Toast | Repair change submitted | Scope/cost/time change submitted to ORG_ADMIN for approval. Affected additional work is not yet authorized. |
+| 23 | MSG23 | Toast | Repair change submitted | Scope/cost/time change submitted to Organization Admin for approval. Affected additional work is not yet authorized. |
 | 24 | MSG24 | In line | Unapproved additional work | Additional work requires an approved change. Recording actual spending does not approve it. |
 | 25 | MSG25 | Toast | Work order closed | Accepted and cost-reconciled work order closed; source inspection history is preserved. |
 | 26 | MSG26 | In line | Required credential/compliance missing | Provide and review the documents applicable to this activity. Internal approval cannot waive required legal authorization. |
@@ -81,7 +81,7 @@ Existing MSG01–MSG35 identifiers are retained as revised target message slots.
 - No autonomous Drone flight, camera/SDK control, GSD/overlap/gimbal recommendation or automatically granted government clearance. Mission/field steps are platform preparation, checklists, recorded decisions and session logs.
 - AI candidates and LLM text are suggestions/drafts. No autonomous official reporting, technical acceptance, budget approval or defect closure; a human author and qualified independent reviewer remain accountable.
 - MF1 keeps asset creation with Inspector + Drone assignment and inspection creation; MF2 prepares/releases and records sessions; MF3 Inspector quality → AI Vision → LLM draft → author/reviewer gates; MF4 team, estimates/changes/actuals → LLM completion draft → author → independent acceptance/cost reconciliation → close.
-- Team lead and report author are scoped MAINTENANCE_ENGINEER responsibilities; no additional login role is created. The same Engineer can do both, but cannot accept their own work.
+- Team lead and report author are scoped Maintenance Engineer responsibilities; no additional login role is created. The same Engineer can do both, but cannot accept their own work.
 - PostgreSQL is transactional source of truth; MinIO stores evidence/reports; backend mediates access. Web tokens remain in memory/protected cookie flow; mobile tokens use secure storage.
 - No automatic ERP/procurement, payroll, payment gateway, government registry, certified digital signature, universal report accreditation or sector-specific safety certification is promised. Future integrations need explicit contracts and verification.
 - The 7 October 2026 SRS revision updated Report 3 Markdown sources and did not implement or test the target. Selected documentation companions were synchronized on 7 October without changing Report 5 results; other documents, the proposal, DOCX/PNG baseline artifacts, and client repositories may remain on earlier contracts. The retained DOCX and PNG artifacts are not regenerated and are non-normative for the new target.
