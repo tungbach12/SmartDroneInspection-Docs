@@ -1,4 +1,8 @@
-# FE-06: Inspection Report Review and Publication
+# FE-06: Inspection Report Drafting, Review and Publication — MF3
+
+Report 3 §3.7 titles this feature "Inspection Report Drafting, Review and
+Publication". The filename retains the earlier "inspection report / approval"
+wording; the filename is stable, the scope is Report 3's.
 
 ## Scope baseline
 
@@ -12,6 +16,24 @@ The model drafts; humans decide. A draft is only generated from authorized
 inspection sources, the author must verify what was generated, and a reviewer
 who is not the author approves. Nothing publishes on a timer, and a published
 version is immutable.
+
+## Unverified requirements inside this feature
+
+`WF3-005` and `WF3-006` exercise authorship, return, approval and immutability.
+They do **not** assert:
+
+- **Report 3 §3.7.2 "Required Inspection Report Content"** — the required
+  content sections of a released report.
+- **Report 3 §3.7.3 "LLM Safeguards"** — the drafting safeguards, including
+  numeric-table sourcing rules and handling of untrusted evidence metadata.
+
+These are open gaps within an otherwise-verified feature and are recorded here
+so a reader does not infer that a `Passed` FE-06 covers the whole of §3.7.
+
+## Feature sheet summary
+
+Shared `Feature 2` block; see `fe-04-…md` for the canonical values. FE-06
+contributes only case rows to it.
 
 ## Current cases
 

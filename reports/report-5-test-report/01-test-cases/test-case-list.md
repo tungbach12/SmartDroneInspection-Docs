@@ -37,8 +37,9 @@ Removed, because they describe behavior that no longer exists:
 Retained: `WF3-002`, `WF3-003`, `WF3-005`, `WF3-006`, which describe behavior
 that exists and has an executed test behind it.
 
-The removed IDs stay reserved and are never reused. New cases continue from
-`WF3-009`.
+The removed IDs stay reserved and are never reused. `WF3-009` was then assigned
+to the scoped collection case recorded below, so new cases continue from
+`WF3-010`.
 
 **This reset does not claim MF1, MF2 or MF4 are tested, and does not claim they
 are out of scope.** They are simply unimplemented, so they have no executed

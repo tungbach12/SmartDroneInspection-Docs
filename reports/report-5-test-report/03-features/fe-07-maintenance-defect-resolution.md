@@ -1,10 +1,40 @@
-# FE-07: Maintenance and Defect Resolution
+# FE-07: Team Maintenance, Cost Control and Completion Reporting — MF4
+
+Report 3 §3.8 titles this feature "Team Maintenance, Cost Control and
+Completion Reporting". The filename retains the earlier "maintenance / defect
+resolution" wording; the filename is stable, the scope is Report 3's.
 
 ## Scope baseline
 
-MF4 begins when a published MF3 report identifies repair-required findings.
-The intended flow includes internal team assignment, an estimate/change/actual
-cost record, and an independent ORG_ADMIN acceptance gate.
+MF4 receives **published MF3 findings requiring repair**. It manages the
+enterprise's internal repair team, approved scope, estimates, changes, actuals
+and closeout. It is not a provider marketplace or payment/commission flow;
+supplier quotes can be attached as cost evidence without creating a supplier
+user role, bidding portal, accounting ledger or procurement integration.
+
+### Team responsibilities (Report 3 §3.8.1)
+
+| Responsibility | Login role | Named by | What this person does |
+| --- | --- | --- | --- |
+| Work-order owner / budget approver | `ORG_ADMIN` | — | Selects corrective scope; names team, lead, report author and accepting reviewer; approves baseline and changes; records closure authorization. |
+| Repair team lead | `MAINTENANCE_ENGINEER` | ORG_ADMIN, exactly one per work order | Coordinates assessment, task allocation, method, estimate, resource readiness, consolidated completion and actuals. |
+| Team member / task assignee | `MAINTENANCE_ENGINEER` | ORG_ADMIN selects team; lead allocates tasks | Accepts tasks; records own work, consumption and time; uploads before/during/after proof. |
+| Accountable repair-report author | `MAINTENANCE_ENGINEER` | ORG_ADMIN, exactly one per work order | Collects the team's records, requests/verifies/edits the LLM completion report, submits it; remains the author even when the LLM drafted the text. |
+| Independent accepting reviewer | `ORG_ADMIN` | — | Not on the executing team and not the report author. Checks scope, evidence and residual issues; accepts or returns. Cost reconciliation is a **separate recorded decision**. |
+| Re-inspection verifier, if required | `INSPECTOR` | Assigned through a linked MF1 inspection | Records independent evidence; **cannot stand in for a repair engineer's work log**. |
+| Automated assistant | `SYSTEM` / LLM | Authorized workflow | Validates references, computes totals, drafts narrative, publishes only after approval. |
+
+Separation-of-duties rules that carry real risk:
+
+- Final acceptance **cannot** be performed by the repair-team lead/report author
+  or by the executing team.
+- Budget approval and technical acceptance are **distinct actions**, even when
+  the same qualified non-executing `ORG_ADMIN` performs both under company
+  policy.
+- If **no qualified independent reviewer exists, the work remains awaiting
+  review**. The platform does not create a professional qualification.
+- Replacing the lead or report author is done by `ORG_ADMIN` with a recorded
+  reason and handover; **old logs retain their authors**.
 
 ## Current test coverage
 

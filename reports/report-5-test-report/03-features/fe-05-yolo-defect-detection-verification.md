@@ -1,4 +1,9 @@
-# FE-05: Defect Detection and Human Verification
+# FE-05: AI Vision Candidates and Human Finding Decisions
+
+Report 3 §3.6 titles this feature "AI Vision Candidates and Human Finding
+Decisions". The filename retains the earlier "YOLO / defect detection
+verification" wording; the filename is stable, the scope is Report 3's. Report 3
+names no specific detection vendor or model family.
 
 ## Scope baseline
 
@@ -11,7 +16,13 @@ availability.
 
 Detection is served by an optional OpenAI-compatible vision adapter behind the
 inspections-owned `AiInferencePort`, with a mutually exclusive YOLO alternative.
-Credentials are environment-only.
+Credentials are environment-only. Both adapters are implementation choices
+behind the requirement, not part of it.
+
+## Feature sheet summary
+
+Shared `Feature 2` block; see `fe-04-…md` for the canonical values. FE-05
+contributes only case rows to it.
 
 ## Current case
 

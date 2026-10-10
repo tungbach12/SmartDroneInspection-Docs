@@ -1,16 +1,38 @@
-# FE-04: Inspection Execution and Evidence Management
+# FE-04: Field Records, Evidence and Inspector Quality Decision
+
+Report 3 §3.5 titles this feature "Field Records, Evidence and Inspector
+Quality Decision". The filename retains the earlier "inspection execution /
+evidence management" wording; the filename is stable, the scope is Report 3's.
 
 ## Scope baseline
 
-The `inspections` module implements the MF3 evidence slice of FE-04: scoped
-evidence upload with a server-computed checksum and idempotent retry, evidence
-listing and streaming, the assigned Inspector's substantive evidence-quality
-decision that gates AI analysis and report drafting, and the scoped inspection
-and report collections that make those records reachable.
+Report 3 §3.5 gives FE-04 two halves: the **session-record obligations of MF2**
+(MF2-09–MF2-12) and the **evidence steps of MF3** (MF3-01–MF3-04). Only the MF3
+half is implemented and verified.
 
-MF2 assignment acceptance and checklist execution are **not** implemented — there
-is no `/assignments`, `/start`, or `/checklist` endpoint — so this feature has no
-case for them. Manual drone piloting remains outside the platform target.
+The `inspections` module implements the MF3 half: scoped evidence upload with a
+server-computed checksum and idempotent retry, evidence listing and streaming,
+the assigned Inspector's substantive evidence-quality decision that gates AI
+analysis and report drafting, and the scoped inspection and report collections
+that make those records reachable.
+
+The MF2 half — field-session start/end, postponement and interruption records —
+is **not** implemented: there is no `/assignments`, `/start`, or `/checklist`
+endpoint, so this feature has no case for it. Manual drone piloting remains
+outside the platform target.
+
+## Feature sheet summary
+
+Values for the `Feature 2` summary block (`A2:E8` in the workbook). The
+template reads these back by formula, so an export needs them recorded here.
+
+| Cell | Label | Value |
+| --- | --- | --- |
+| `B2` | Feature | MF3 inspection evidence, findings and reporting |
+| `B3` | Test requirement | An authorized Inspector uploads evidence with server-computed traceability, records the evidence-quality decision, and reaches assigned MF3 work through a role-scoped list. |
+
+`B4` (`Number of TCs`) and `B5:E8` (per-round counts) are workbook formulas
+over the case rows below; do not type values into the Markdown for them.
 
 ## Current cases
 
@@ -23,5 +45,9 @@ case for them. Manual drone piloting remains outside the platform target.
 
 `WF3-002` covers evidence intake and the Inspector's quality decision. `WF3-009`
 covers discovery and scoping of the same records, and the inline report summary
-that keeps the inspections and reports screens consistent. Neither case covers
-MF2 assignment/checklist entry, which has no runtime.
+that keeps the inspections and reports screens consistent.
+
+Neither case covers the MF2 half of FE-04 (session start/end, postponement,
+interruption), which has no runtime. Report 3 §3.7.2 and §3.7.3 (required
+report content and LLM safeguards) belong to FE-06 and are likewise not asserted
+by these cases; see `fe-06-…md`.

@@ -1,12 +1,16 @@
-# FE-01: Identity and Access Governance
+# FE-01: Identity, Enterprise Subscription and Workforce Governance
+
+Report 3 §3.2 titles this feature "Identity, Enterprise Subscription and
+Workforce Governance". The filename retains the earlier "identity / access
+governance" wording; the filename is stable, the scope is Report 3's.
 
 ## Implemented v1 baseline and Enterprise SaaS target
 
-The recorded authentication, organization-scope and audit checks below concern the existing `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER` roles. They do not verify the 2026-10-07 Enterprise SaaS target roles `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`, or the new tenant/subscription entitlement rules. Proposed target checks are Pending below; no existing Passed result is reused as evidence for those roles.
+The recorded authentication, organization-scope and audit checks below concern the existing `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER` roles. They do not verify the 2026-10-07 Enterprise SaaS target roles `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`, or the new tenant/subscription entitlement and workforce-governance rules. Proposed target checks are Pending below; no existing Passed result is reused as evidence for those roles.
 
 ## Supporting verification
 
-The checks below support FE-01 but are not additional WFx functional cases and are excluded from the 15-case workbook totals.
+The checks below support FE-01 but are not additional WFx functional cases and are excluded from the workbook totals.
 
 ### W3 authentication and migration foundation gate
 
@@ -91,4 +95,18 @@ These FE-01 target cases are supporting checks outside the fixed WFx workbook ro
 
 ## Coverage boundary
 
-The recorded gates verify authentication/migration setup, v1 role-to-screen policy, browser-auth contracts, v1 Client-registration persistence and audit, the shared API envelope, and — from Round 2 — Enterprise SaaS organization registration against `audit_events`, the fail-closed V24 role migration, the exact 41-table target schema, and client role-contract alignment for the four canonical roles. They do **not** establish subscription entitlement governance (`FE01-T01`), role separation of duties (`FE01-T02`), any MF1-MF4 workflow behavior, or a live browser end-to-end registration/login run. Those remain unverified.
+The recorded gates verify authentication/migration setup, v1 role-to-screen policy, browser-auth contracts, v1 Client-registration persistence and audit, the shared API envelope, and — from Round 2 — Enterprise SaaS organization registration against `audit_events`, the fail-closed V24 role migration, the exact 41-table target schema, and client role-contract alignment for the four canonical roles.
+
+They do **not** establish the requirements in Report 3 §3.2 that carry authority
+or entitlement meaning:
+
+| Report 3 §3.2 requirement | Status here |
+| --- | --- |
+| Subscription activation is a separate entitlement decision (`FE01-T01`) | Unverified. |
+| A report reviewer must be **identified and qualified** for the scope; account administration rights alone confer no professional authority (`FE01-T02`) | Unverified. |
+| Inspectors and Engineers can act only on their assignments; team designations narrow permission further | Only partly evidenced — `WF3-009` verifies list scope, not act-on-assignment scope. |
+| ENTERPRISE offers only 1-, 6- and 12-month periods; no trial or unlimited-use promise is presumed | Unverified. |
+| Removing a user from a team or replacing a report author ends future authority **without erasing prior attribution** | Unverified. |
+| Logout, password/role/status change and revocation invalidate affected sessions | Unverified. |
+| MF1–MF4 workflow behavior | Out of reset scope per §3.1. |
+| Live browser end-to-end registration/login | Not run. |

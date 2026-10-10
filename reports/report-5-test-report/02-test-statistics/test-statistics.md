@@ -17,9 +17,32 @@ round.
 
 | No | Module code | Passed | Failed | Pending | N/A | Number of test cases |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 1 | Feature 1 sheet (no cases: MF1/MF2 unimplemented) | 0 | 0 | 0 | 0 | 0 |
-| 2 | Feature 2 sheet (FE-04/FE-05/FE-06; MF3) | 5 | 0 | 0 | 0 | 5 |
+| 1 | MF1/MF2 (not implemented) | 0 | 0 | 0 | 0 | 0 |
+| 2 | MF3 inspection evidence, findings and reporting | 5 | 0 | 0 | 0 | 5 |
 | **Subtotal** |  | **5** | **0** | **0** | **0** | **5** |
+
+`Module code` is not a free label. In the template `C11` and `C12` are formulas
+— `='Feature 1'!B2` and `='Feature 2'!B2` — so this column reports whatever sits
+in each sheet's `Feature` cell (`B2`). The values above therefore match the
+`Feature sheet summary` block recorded in `fe-04-…md`, not the sheet names. The
+remaining five columns are also formulas (`D11:G11` = `B6:E6` per-round counts,
+`H11` = `B4` = `COUNTA`), so nothing in this table is typed by hand at export.
+
+### Why the module split is uneven
+
+- **Module 1 is empty.** MF1 (catalog creation) and MF2 (mission preparation and
+  readiness) are unimplemented, so there is no case to record. The `Feature 1`
+  sheet stays empty, which is an accurate gap, not a formatting error.
+- **Module 2 holds all five cases**, covering FE-04 (evidence intake and the
+  scoped collections), FE-05 (advisory detection and human finding
+  verification) and FE-06 (report review, publication and immutability).
+
+### Test coverage
+
+The template computes both figures from the `Sub total` row and its own
+formulas, `(Passed + Failed) * 100 / (Number of TCs - N/A)` and
+`Passed * 100 / (Number of TCs - N/A)`. With 5 cases, all `Passed`, none `N/A`,
+both are 100%. Update the underlying round statuses, never the percentages.
 
 ## Reset scope
 
@@ -76,13 +99,20 @@ workbook case status.
 Every case below has an executed automated test behind it, so coverage equals
 success rate this round.
 
-- **Test coverage** = cases with a recorded status (`Passed`, `Failed`, or
-  `N/A`) ÷ total cases = 5 / 5 = 100%.
-- **Successful coverage** = `Passed` cases ÷ total cases = 5 / 5 = 100%.
+- **Test coverage** = `(Passed + Failed) × 100 ÷ (Number of TCs − N/A)` =
+  `(5 + 0) × 100 ÷ (5 − 0)` = 100%.
+- **Test successful coverage** = `Passed × 100 ÷ (Number of TCs − N/A)` =
+  `5 × 100 ÷ (5 − 0)` = 100%.
+
+Both match the template's own formulas, which exclude `N/A` cases from the
+denominator rather than counting them as unverified.
 
 These percentages describe only the MF3 slice. They must not be read as product
 coverage: MF1, MF2, MF4, FE-02, FE-03, FE-07 and FE-08 are untested, and the
-denominator is the implemented scope, not the SRS.
+denominator is the implemented scope, not the SRS. Report 3 defines eight
+features and roughly sixty business-flow steps; five cases over three of them
+is a small fraction of the SRS, and the 100% figure is a statement about the
+executed slice, not about the product.
 
 The two module rows are workbook-sheet totals, not SRS feature totals.
 
@@ -90,11 +120,14 @@ The two module rows are workbook-sheet totals, not SRS feature totals.
 
 | Area | Status |
 | --- | --- |
-| MF1 asset/schedule setup | Unimplemented; no case. |
-| MF2 request/assignment/readiness | Unimplemented; no case. |
-| MF4 maintenance/cost/acceptance | Unimplemented; no case. |
-| MF2 assignment/checklist entry | No endpoint; MF3 reachable only via the scoped list (`WF3-009`). |
-| FE-02 asset catalog | Implemented but no executed case recorded here. |
+| MF1 asset/drone/workforce/compliance catalog | Workflow unimplemented; no case. |
+| MF2 mission preparation/assignment/readiness | Workflow unimplemented; no case. |
+| MF4 maintenance/cost/completion reporting | Unimplemented; no case. |
+| FE-04 MF2 session records (Report 3 MF2-09–MF2-12) | No endpoint; assigned to FE-04 by Report 3 but unverified. MF3 entry is via the scoped list (`WF3-009`). |
+| FE-02 catalog CRUD | Implemented as a dependency of MF3, but no executed case is recorded for it. |
+| FE-06 required report content (Report 3 §3.7.2) | Not asserted by `WF3-005`/`WF3-006`. |
+| FE-06 LLM safeguards (Report 3 §3.7.3) | Not asserted by `WF3-005`/`WF3-006`. |
+| FE-01 subscription/workforce governance | Recorded `Pending`; existing evidence is against the retired role set. |
 | FE-08 dashboard/analytics/notifications | No assigned case. |
 | Mobile client | No verification recorded this round. |
 | Live external LLM drafting provider | Not exercised; manual structured draft is the tested path. |

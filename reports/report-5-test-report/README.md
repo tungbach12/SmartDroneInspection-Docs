@@ -40,11 +40,18 @@ empty because MF1/MF2 are unimplemented.
   sources. Keep test case IDs stable when a case is reworded or re-tested.
 - When the report is ready for submission, copy the Markdown values into the
   workbook while preserving the template's sheet names, order, column order,
-  status vocabulary, colours, and table layout.
+  status vocabulary, and table layout. Read
+  [template-layout.md](template-layout.md) first: it carries the exact cell
+  addresses, the per-sheet summary block that the Markdown has no equivalent
+  for, and the template defects that will otherwise corrupt an export.
 - The source template is intentionally not “corrected” here. Its existing
-  formula/name issues, including `#REF!` values in the project metadata area,
-  are recorded in [template-layout.md](template-layout.md) and should be
-  handled only with the report owner’s approval.
+  formula/name issues, including `#REF!` values in the project metadata area
+  and a stray count in `Feature 2!A18`, are recorded in
+  [template-layout.md](template-layout.md) and should be handled only with the
+  report owner’s approval.
+- The workbook's `Sheet Name` column placeholder reads `Feature1`/`Feature2`
+  without a space, but the real tabs are `Feature 1`/`Feature 2`. The Markdown
+  uses the tab names; do not copy the placeholder spelling into the cell.
 
 ## Folder map
 
@@ -54,13 +61,30 @@ empty because MF1/MF2 are unimplemented.
 | `01-test-cases/` | `Test Cases` | The index of all cases and their preconditions. |
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary. |
 | `03-features/fe-01-identity-access-governance.md` | Support evidence | FE-01 gates; not a workbook case. |
-| `03-features/fe-02-asset-registry-inspection-schedule.md` | Coverage gap | No current case; see the file. |
-| `03-features/fe-03-inspection-request-work-assignment.md` | Coverage gap | No current case; MF1/MF2 unimplemented. |
+| `03-features/fe-02-asset-registry-inspection-schedule.md` | Coverage gap | No current case; MF1 catalog workflow unimplemented. |
+| `03-features/fe-03-inspection-request-work-assignment.md` | Coverage gap | No current case; MF2 mission preparation unimplemented. |
 | `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 2` sheet | `WF3-002`, `WF3-009`. |
 | `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 2` sheet | `WF3-003`. |
 | `03-features/fe-06-inspection-report-approval.md` | `Feature 2` sheet | `WF3-005`, `WF3-006`. |
 | `03-features/fe-07-maintenance-defect-resolution.md` | Coverage gap | No current case; MF4 unimplemented. |
 | `03-features/fe-08-dashboard-analytics-notifications.md` | Coverage gap | No assigned case; do not infer execution. |
+
+The FE-xx codes and their Report 3 sections are:
+
+| FE | Report 3 § | Report 3 feature title |
+| --- | --- | --- |
+| FE-01 | 3.2 | Identity, Enterprise Subscription and Workforce Governance |
+| FE-02 | 3.3 | Asset, Drone, Workforce and Compliance Catalog — MF1 |
+| FE-03 | 3.4 | Mission Preparation, Assignment Response and Readiness — MF2 |
+| FE-04 | 3.5 | Field Records, Evidence and Inspector Quality Decision |
+| FE-05 | 3.6 | AI Vision Candidates and Human Finding Decisions |
+| FE-06 | 3.7 | Inspection Report Drafting, Review and Publication — MF3 |
+| FE-07 | 3.8 | Team Maintenance, Cost Control and Completion Reporting — MF4 |
+| FE-08 | 3.9 | Dashboard, Analytics and Notifications |
+
+Each FE file's H1 now carries the Report 3 title. The filenames keep their
+original wording and are left alone: renaming them would break every link and
+reviewer's bookmark for no reporting benefit.
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
 | `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
 
@@ -101,10 +125,22 @@ separation-of-duties checks.
 4. Record execution only in the matching Round 1, Round 2, or Round 3 cell.
    Use only `Passed`, `Failed`, `Pending`, or `N/A`.
 5. Update the corresponding module row and totals in
-   `02-test-statistics/test-statistics.md`. The workbook feature sheets are
-   output groupings only; each may contain cases from multiple FE sources.
+   `02-test-statistics/test-statistics.md`. `Module code` must match the
+   feature sheet's `Feature` name (`B2`), not the sheet name — in the workbook
+   that column is a formula reading `B2`, so the two must not drift apart.
 6. Before exporting, check that the number of cases, IDs, statuses, dates, and
    testers agree across all Markdown files and the workbook.
+
+### Feature-sheet summary block
+
+Each feature sheet carries a summary block at `A2:E8` (`Feature`,
+`Test requirement`, `Number of TCs`, and per-round `Passed`/`Failed`/
+`Pending`/`N/A` counts), and `Test Statistics` reads its values back out by
+formula. `Number of TCs` and the round counts are formulas and need no Markdown
+source; the `Feature` name and `Test requirement` line are typed values, and
+the `Feature sheet summary` table in `fe-04-…md` is their recorded source.
+Populate `Feature 1` too — `Test Statistics!C11` reads it even though that
+sheet has no cases.
 
 ## Execution status convention
 
