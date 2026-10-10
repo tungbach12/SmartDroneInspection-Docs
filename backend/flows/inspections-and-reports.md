@@ -245,7 +245,29 @@ would be state nothing sets.
 
 ## Field sessions (FE-03, MF2-09 to MF2-11)
 
-`InspectionFieldSessionService` opens, postpones and aborts a session. It has no HTTP contract yet.
+`InspectionFieldSessionController` exposes the field session. Only `INSPECTOR` reaches these routes.
+
+| Operation | Endpoint | Actor |
+| --- | --- | --- |
+| List this inspection's sessions | `GET /api/v1/inspections/{id}/field-sessions` | assigned Inspector |
+| Start a session | `POST /api/v1/inspections/{id}/field-sessions` | assigned Inspector |
+| Postpone the session | `POST /api/v1/inspections/{id}/field-sessions/{sessionId}/postponement` | assigned Inspector |
+| Abort the session | `POST /api/v1/inspections/{id}/field-sessions/{sessionId}/abort` | assigned Inspector |
+
+An `ORG_ADMIN` may approve readiness and read the compliance gate, but the field session is the
+Inspector's own record of work they performed, so the administrator cannot start or close one on their
+behalf. A *different* Inspector in the same organization receives `409 SESSION_SCOPE_DENIED`: the
+session exists and belongs to this tenant, so the refusal is about ownership, not visibility. `403` is
+reserved for the wrong role.
+
+The list is scoped to the caller rather than the organization, so an Inspector sees their own field
+work and not a colleague's. A caller from another organization receives `404 INSPECTION_NOT_FOUND`
+rather than an empty list, because an empty list would confirm the inspection exists.
+
+Postponement and abort take the inspection id as well as the session id and look the session up
+through both. A session id alone would let a caller close a session through a different inspection's
+URL, and the scope check would then look at the wrong record — the same mistake the preparation
+submission route guards against.
 
 **Start rechecks readiness rather than trusting it.** MF2-07's approval is a statement about a source
 basis at one instant. At start the service re-reads the newest decision for the inspection and refuses
@@ -256,9 +278,9 @@ must be its assigned Inspector.
 A session records the `readiness_decision_id` it started against. That is what makes a later audit
 answer "which approval did this flight rely on" rather than "some approval, at some point".
 
-The pre-flight note is required, because MF2-09 has the Inspector identify the assigned Drone and
-complete the current pre-flight checklist before asking to start. A note recorded without content
-would make the attestation unfalsifiable.
+The pre-flight note is required, and it is prose rather than a checkbox flag: a boolean a client sets
+automatically would attest to nothing. Over HTTP a blank note is a `400` from bean validation; the
+same condition called on the service directly is `409 PREFLIGHT_CHECKLIST_REQUIRED`.
 
 **A postponement returns the inspection to `READY_FOR_FLIGHT`.** Weather and site safety can stop a
 correctly approved session, and the approval was not consumed by trying, so the same inspection may
@@ -306,5 +328,9 @@ another Inspector and another organization refused, a blank pre-flight note, a
 duplicate start, postponement with its reason returning the inspection to
 `READY_FOR_FLIGHT`, a blank postponement reason, another Inspector unable to
 postpone, an abort recording its own reason and leaving the inspection in
-progress, a blank abort reason, and a restart after a postponement. It has no
-workbook case yet.
+progress, a blank abort reason, a restart after a postponement, the list returning
+only the caller's own sessions, and a session that belongs to another inspection
+being refused. `InspectionFieldSessionApiIntegrationTest` covers the same rules
+over HTTP, including the role split between an Inspector and an ORG_ADMIN.
+
+They have no workbook case yet.
