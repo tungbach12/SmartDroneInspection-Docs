@@ -8,9 +8,9 @@ when transferring values into the workbook.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Creator | *Enter team/member name* |
-| Issue Date | 2026-10-10 |
+| Issue Date | 2026-10-11 |
 | Document Code | *Enter document code* |
-| Version | 4.3 (Recorded the implemented MF4 backend API slice as FE-07 cases WF3-010, WF3-011 and WF3-012, all Passed Round 1 against backend 457 passing tests with the Modulith and JaCoCo gates. Total is now ten cases: two MF2-07, five MF3, three MF4. MF4 credential presence, skill matching, notifications, evidence objects, re-inspection dispatch and all web/mobile MF4 client behaviour remain uncovered. Report content follows current mainline; eight-sheet mapping and the original workbook template are unchanged.) |
+| Version | 4.7 (Merged the publication-deliverable correction with the implemented MF4 backend API slice. The baseline now contains eleven cases: ten Passed and one Pending. `WF3-006` remains Pending until the stored PDF artefact, checksum, readable download, repeat-publish refusal and non-overwrite behavior are executed. FE-07 adds `WF3-010`–`WF3-012`, all Passed Round 1 against the 457-test backend verification. MF4 credential presence, skill matching, notifications, evidence objects, re-inspection dispatch and web/mobile MF4 behavior remain uncovered. Eight-sheet mapping and the original workbook template are unchanged.) |
 
 ## Export-tool verification (not workbook cases)
 

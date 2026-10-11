@@ -328,7 +328,11 @@ Stores human findings: inspection, source candidate optional, component/location
 - structured summary/limitations/recommendations JSON plus rendered object key/checksum;
 - source evidence/finding snapshot hash and published time.
 
-The two junction tables preserve exactly which evidence and findings supported a version. An approved report cannot be edited in place; correction creates a linked version. LLM regeneration never silently overwrites author edits.
+The report body's structured JSON holds the authored section values described in Report 3 §3.7.2,
+so no additional table is required for them. `rendered_object_key` and `rendered_checksum_sha256` are
+populated when the version is published, not before: they identify the published PDF that is the
+version's deliverable, and the checksum is taken from the stored bytes. A draft or returned version
+legitimately leaves them null. The two junction tables preserve exactly which evidence and findings supported a version, and the Confirmed findings, Evidence register, Approval block and Appendices sections of the document are rendered from those records and the version's own authorship columns rather than copied into the body. An approved report cannot be edited in place; correction creates a linked version. LLM regeneration never silently overwrites author edits.
 
 ### 6.6 MF4 repair team, costs and acceptance
 
