@@ -10,7 +10,7 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | **2026-10-11 reconciliation: MF2 readiness decisions and preparation listing, the implemented MF3 slice, and the implemented MF4 backend API slice.** Eleven cases are recorded: three cover MF2, five cover MF3 (four Passed and one Pending), and `WF3-010`–`WF3-012` cover MF4 backend API behavior. MF2-08 source-change invalidation is partial; MF2-12 session end, MF4 credential presence, skills, notifications, evidence objects and re-inspection dispatch remain uncovered. |
+| Test round | **2026-10-11 reconciliation: MF2 readiness decisions and preparation listing, the implemented MF3 slice, and the implemented MF4 backend API slice.** Eleven cases are recorded and all Passed: three cover MF2, five cover MF3, and `WF3-010`–`WF3-012` cover MF4 backend API behavior. MF2-08 source-change invalidation is partial; MF2-12 session end, MF4 credential presence, skills, notifications, evidence objects and re-inspection dispatch remain uncovered. |
 | Last updated | 2026-10-11 |
 
 ## Module summary
@@ -22,10 +22,10 @@ round.
 | 3 | Mission Preparation, Assignment Response and Readiness — MF2 | 3 | 0 | 0 | 0 | 3 |
 | 4 | MF3 inspection evidence, findings and reporting | 2 | 0 | 0 | 0 | 2 |
 | 5 | AI Vision Candidates and Human Finding Decisions | 1 | 0 | 0 | 0 | 1 |
-| 6 | Inspection Report Drafting, Review and Publication — MF3 | 1 | 0 | 1 | 0 | 2 |
+| 6 | Inspection Report Drafting, Review and Publication — MF3 | 2 | 0 | 0 | 0 | 2 |
 | 7 | Team Maintenance, Cost Control and Completion Reporting — MF4 | 3 | 0 | 0 | 0 | 3 |
 | 8 | Dashboard, Analytics and Notifications | 0 | 0 | 0 | 0 | 0 |
-| **Subtotal** |  | **10** | **0** | **1** | **0** | **11** |
+| **Subtotal** |  | **11** | **0** | **0** | **0** | **11** |
 
 `Module code` is not a free label. Each row's `C` cell is a formula —
 `='Feature N'!B2` — so this column reports whatever sits in that sheet's
@@ -82,9 +82,9 @@ revisions are backend `84fcc16`, frontend `287d5a4`, and mobile `91092e6`.
 | Change | Before reset | After reset | Current |
 | --- | ---: | ---: | ---: |
 | Cases | 33 | 5 | 11 |
-| Passed | 13 | 5 | 10 |
+| Passed | 13 | 5 | 11 |
 | Failed | 0 | 0 | 0 |
-| Pending | 20 | 0 | 1 |
+| Pending | 20 | 0 | 0 |
 | N/A | 0 | 0 | 0 |
 
 The 28 removed cases (`WF1-001`–`WF1-019`, `WF2-001`–`WF2-007`, `WF3-001`,
@@ -156,15 +156,14 @@ workbook case status.
 
 ## Coverage summary
 
-Seven of the eight listed cases have executed automated-test evidence; `WF3-006` is
-`Pending` because its publication assertions do not yet cover the deliverable that
-MF3-11 requires. These metrics describe the recorded cases, not full feature or
-product coverage.
+Every listed case has executed automated-test evidence, including the deliverable
+assertions MF3-11 requires. These metrics describe the recorded cases, not full
+feature or product coverage.
 
 - **Test coverage** = `(Passed + Failed) × 100 ÷ (Number of TCs − N/A)` =
-  `(7 + 0) × 100 ÷ (8 − 0)` = 87.5%.
+  `(8 + 0) × 100 ÷ (8 − 0)` = 100%.
 - **Test successful coverage** = `Passed × 100 ÷ (Number of TCs − N/A)` =
-  `7 × 100 ÷ (8 − 0)` = 87.5%.
+  `8 × 100 ÷ (8 − 0)` = 100%.
 
 Both match the template's own formulas, which exclude `N/A` cases from the
 denominator rather than counting them as unverified. These percentages are not

@@ -239,7 +239,7 @@ MF3 provides a **point-in-time asset inspection report**, not a flight permit, p
 | MF3-04 | SYSTEM | Snapshot the evidence set after Inspector confirmation; preserve missing-metadata/coverage flags. | Source set eligible for processing; changes make dependent drafts/review confirmations stale. |
 | MF3-05 | SYSTEM / AI Vision | Run compatible detection on eligible images and store suggested defects/model provenance. | Non-official candidates; manual path remains available on failure or incompatibility. |
 | MF3-06 | Inspector | Add source-backed field observations, annotations and any manual findings or notes needed for drafting. | Candidate/observation packet; measurements require documented method/units, not pixel guesswork. |
-| MF3-07 | SYSTEM / LLM | After detection, generate a labelled `DRAFT` from authorized asset/scope/session/checklist/evidence references and candidate/observation data. | Source-linked narrative; candidate statements labelled unverified; missing facts retained as unknown. |
+| MF3-07 | SYSTEM / LLM | After detection, generate a labelled `DRAFT` from authorized asset/scope/session/checklist/evidence references and candidate/observation data, proposing a value for each authored report section. | Section-scoped, source-linked draft; candidate statements labelled unverified; a section the sources do not support is left not supplied rather than filled; drafting never writes to or alters the reviewed finding records. |
 | MF3-08 | Inspector — report author | Read/edit the entire draft; verify identifiers, equipment, coverage, findings, uncertainty and recommendations against sources; submit the reviewed version. | Human author confirmation and submitted version; unsupported causes/measurements removed. |
 | MF3-09 | Organization Admin — qualified reviewer | Review source evidence, accept/modify/reject candidates, confirm manual findings and review the text/limits. Return with reasons or approve. | Final finding decisions and report sign-off; no self-review by the author and no default acceptance on a timer. |
 | MF3-10 | SYSTEM | Apply reviewer-approved structured finding changes and totals to the draft; if narrative regeneration/edits are required, return to MF3-08 and MF3-09. | Text and findings agree; any material change invalidates prior sign-off. |
@@ -280,6 +280,7 @@ NIST's Generative AI Profile identifies confabulation risk and recommends review
 - Separate observed facts, AI candidates, human-confirmed findings, hypotheses and recommendations. Confidence is not certification or engineering risk by itself.
 - Numeric report tables come from validated structured data/calculations. LLM may explain differences but cannot approve budgets, make authoritative financial totals or invent financial evidence.
 - No autonomous publication, acceptance, defect closure or repair scheduling from generated text. Every official report has a named author and qualified approval/acceptance record.
+- Automated drafting proposes values for the authored §3.7.2 sections only. It does not write to the reviewed finding records and cannot alter a finding's decision, severity or repair-required flag; a drafted section is a proposal the author accepts, edits or rejects before the MF3-08 verification gate.
 
 ### 3.8 FE-07 Team Maintenance, Cost Control and Completion Reporting — MF4
 

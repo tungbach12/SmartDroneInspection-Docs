@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-11 |
 | Document Code | *Enter document code* |
-| Version | 4.7 (Merged the publication-deliverable correction with the implemented MF4 backend API slice. The baseline now contains eleven cases: ten Passed and one Pending. `WF3-006` remains Pending until the stored PDF artefact, checksum, readable download, repeat-publish refusal and non-overwrite behavior are executed. FE-07 adds `WF3-010`–`WF3-012`, all Passed Round 1 against the 457-test backend verification. MF4 credential presence, skill matching, notifications, evidence objects, re-inspection dispatch and web/mobile MF4 behavior remain uncovered. Eight-sheet mapping and the original workbook template are unchanged.) |
+| Version | 4.8 (Section authoring, the stored PDF deliverable and section-scoped drafting are implemented and verified, promoting `WF3-006` to Passed. FE-07 also records `WF3-010`–`WF3-012` for the implemented MF4 backend API slice, all Passed Round 1. The combined baseline now contains eleven cases, all Passed. MF4 credential presence, skill matching, notifications, evidence objects, re-inspection dispatch and web/mobile MF4 behavior remain uncovered. Eight-sheet mapping and the original workbook template are unchanged.) |
 
 ## Export-tool verification (not workbook cases)
 
