@@ -11,7 +11,7 @@ round.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Test round | **2026-10-10 reconciliation: MF2-07 readiness decisions plus the implemented MF3 slice.** Seven cases are recorded: `WF2-008`/`WF2-009` cover MF2-07; five cover MF3. MF2-08 source-change invalidation is partial and MF2-12 session end is unimplemented; neither is claimed as covered. |
-| Last updated | 2026-10-10 |
+| Last updated | 2026-10-11 |
 
 ## Module summary
 
@@ -19,13 +19,13 @@ round.
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
 | 1 | Identity, Enterprise Subscription and Workforce Governance | 0 | 0 | 0 | 0 | 0 |
 | 2 | Asset, Drone, Workforce and Compliance Catalog — MF1 | 0 | 0 | 0 | 0 | 0 |
-| 3 | Mission Preparation, Assignment Response and Readiness — MF2 | 2 | 0 | 0 | 0 | 2 |
+| 3 | Mission Preparation, Assignment Response and Readiness — MF2 | 3 | 0 | 0 | 0 | 3 |
 | 4 | MF3 inspection evidence, findings and reporting | 2 | 0 | 0 | 0 | 2 |
 | 5 | AI Vision Candidates and Human Finding Decisions | 1 | 0 | 0 | 0 | 1 |
-| 6 | Inspection Report Drafting, Review and Publication — MF3 | 2 | 0 | 0 | 0 | 2 |
+| 6 | Inspection Report Drafting, Review and Publication — MF3 | 1 | 0 | 1 | 0 | 2 |
 | 7 | Team Maintenance, Cost Control and Completion Reporting — MF4 | 0 | 0 | 0 | 0 | 0 |
 | 8 | Dashboard, Analytics and Notifications | 0 | 0 | 0 | 0 | 0 |
-| **Subtotal** |  | **7** | **0** | **0** | **0** | **7** |
+| **Subtotal** |  | **7** | **0** | **1** | **0** | **8** |
 
 `Module code` is not a free label. Each row's `C` cell is a formula —
 `='Feature N'!B2` — so this column reports whatever sits in that sheet's
@@ -76,10 +76,10 @@ revisions are backend `84fcc16`, frontend `287d5a4`, and mobile `91092e6`.
 
 | Change | Before reset | After reset | Current |
 | --- | ---: | ---: | ---: |
-| Cases | 33 | 5 | 7 |
+| Cases | 33 | 5 | 8 |
 | Passed | 13 | 5 | 7 |
 | Failed | 0 | 0 | 0 |
-| Pending | 20 | 0 | 0 |
+| Pending | 20 | 0 | 1 |
 | N/A | 0 | 0 | 0 |
 
 The 28 removed cases (`WF1-001`–`WF1-019`, `WF2-001`–`WF2-007`, `WF3-001`,
@@ -101,10 +101,12 @@ following fresh checks were run during this reconciliation:
 | --- | --- | --- |
 | Backend full suite + coverage gate + Modulith boundaries | PR #64 CI workflow: `Verify (Spotless + tests + JaCoCo + Modulith checks)` | **Passed.** 334 tests, 0 failures, 0 errors, 0 skipped; JaCoCo coverage checks and Spring Modulith checks passed. The CI job ran the Maven verify build; this record does not claim a local Maven command was executed successfully. |
 | Backend local full suite | `mvnw.cmd -o verify` | **Blocked by environment.** Testcontainers could not find a Docker environment; do not treat local test errors as product failures or passes. |
+| Backend local full suite (re-run, Docker available) | `./mvnw.cmd verify` | **Passed 2026-10-11.** 340 tests, 0 failures, 0 errors, 0 skipped; JaCoCo gate met ("All coverage checks have been met"); Spring Modulith boundary checks passed; BUILD SUCCESS. Run locally with Docker Desktop running so Testcontainers can start PostgreSQL. |
+| MF3 end-to-end API walkthrough against the running stack | `powershell -File .scratch/mf3-evidence-and-report/run-wf3-8080.ps1 -InspectionId <uuid>` | **Passed 2026-10-11.** 38 assertions, 0 failures, against `spring-boot:run` on port 8080 with live PostgreSQL and MinIO. Covers evidence intake, checksum dedupe, type/size/empty/corrupt rejection, quality decision, manual finding and reviewer decision, report draft → verify → submit → return → resubmit → approve → publish, separation of duties, cross-tenant isolation, and publication immutability. Not a substitute for the automated suite; it exercises the same HTTP surface against real infrastructure. |
 | Frontend lint | `npm run lint` | Passed with 4 `react(only-export-components)` warnings. |
 | Frontend build | `npm run build` | Passed. |
-| Frontend full suite | `npm test -- --run --maxWorkers=1` | Exit code 0. |
-| Frontend affected test files | `npm test -- --run src/features/inspections/pages/InspectionsPage.test.tsx src/features/reports/pages/ReportsPage.test.tsx --maxWorkers=1` | 17/17 passed on rerun after transient failures in an earlier parallel full-suite run. |
+| Frontend full suite | `npm test -- --run` | **Passed 2026-10-11.** 37 files, 204 tests, 0 failures, in 72s. The two cases that fail only under CPU contention no longer need a single-worker rerun. |
+| Frontend affected test files | `npm test -- --run src/features/inspections/pages/InspectionsPage.test.tsx src/features/reports/pages/ReportsPage.test.tsx` | 17/17 passed. |
 | Mobile formatting | `dart format --set-exit-if-changed .` | 62 files checked, no changes. |
 | Mobile analysis | `flutter analyze` | No issues found. |
 | Mobile suite | `flutter test` | 40 passed. |
@@ -149,13 +151,15 @@ workbook case status.
 
 ## Coverage summary
 
-Every listed case has executed automated-test evidence. These metrics describe
-the seven recorded cases, not full feature or product coverage.
+Seven of the eight listed cases have executed automated-test evidence; `WF3-006` is
+`Pending` because its publication assertions do not yet cover the deliverable that
+MF3-11 requires. These metrics describe the recorded cases, not full feature or
+product coverage.
 
 - **Test coverage** = `(Passed + Failed) × 100 ÷ (Number of TCs − N/A)` =
-  `(7 + 0) × 100 ÷ (7 − 0)` = 100%.
+  `(7 + 0) × 100 ÷ (8 − 0)` = 87.5%.
 - **Test successful coverage** = `Passed × 100 ÷ (Number of TCs − N/A)` =
-  `7 × 100 ÷ (7 − 0)` = 100%.
+  `7 × 100 ÷ (8 − 0)` = 87.5%.
 
 Both match the template's own formulas, which exclude `N/A` cases from the
 denominator rather than counting them as unverified. These percentages are not
