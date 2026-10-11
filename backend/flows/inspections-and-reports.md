@@ -3,17 +3,87 @@ title: "MF3 Inspection, Evidence and Report Runtime Flow"
 weight: 40
 ---
 
-# MF3 Inspection, Evidence and Report Runtime Flow
+# MF2/MF3 Inspection, Preparation and Report Runtime Flow
 
-This describes the implemented Report 3 MF3 workflow inside the `inspections`
-Spring Modulith module. Roles are the four Enterprise SaaS roles: `ADMIN`,
-`ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`. The assigned Inspector is
-the human report author; AI is advisory only.
+This describes the implemented Report 3 MF2 slice and MF3 workflow inside the
+`inspections` Spring Modulith module. Roles are the four Enterprise SaaS roles:
+`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`. The assigned
+Inspector is the human report author; AI is advisory only. MF2-08 source-change
+invalidation is partial; MF2-12 session end and `FIELD_COMPLETED` handoff are
+not implemented.
 
 Access is decided by the authenticated principal and scoped lookups, never by
 client-supplied user, organization, owner, or assignment identifiers. Write
 operations require the *assigned* Inspector; read and review operations also
 allow a same-organization `ORG_ADMIN`.
+
+## Assignment inbox and assignment response (FE-03, MF2-01/02)
+
+Assignment response is separate from readiness approval. The Inspector may accept
+or reject only their own assigned inspection; a rejection requires a reason and
+returns the inspection to the organization workflow. Acceptance records the
+response but does not establish `READY_FOR_FLIGHT`.
+
+The API is rooted at `/api/v1/inspection-assignments`: `GET /mine` lists the
+caller's unanswered assignments, `GET /{assignmentId}` reads one scoped
+assignment, and `POST /{assignmentId}/response` records a response. All three
+require `INSPECTOR`; the service derives the actor/organization from the
+principal and checks that the pairing belongs to the assigned Inspector. The
+response contract is represented by `AssetPairAssignmentResponse` and the
+request by `RespondToAssignmentRequest`. A rejection needs a reason; acceptance
+records response only and does not make the inspection ready for flight.
+
+## Mission preparation and compliance (FE-03, MF2-03/06)
+
+Preparation is versioned under an assigned inspection at
+`/api/v1/inspections/{inspectionId}/preparation`. The assigned `INSPECTOR` can
+list the history (`GET`), read a preparation (`GET /{preparationId}`), update
+the shot-list (`PUT`), and submit the current version (`POST
+/{preparationId}/submission`). Submission is serialized with readiness review
+and is permitted only while the inspection is `PREPARING`.
+
+An `ORG_ADMIN` links applicable permit records with
+`POST /compliance/permits` and reads the compliance gate with
+`GET /compliance`. Source lookup is scoped to the organization; a permit link
+is not a waiver, and the compliance result reports blockers rather than
+granting readiness. External issuer/authority verification is not implied by
+internal record status.
+
+## Readiness approval and return (FE-03, MF2-07)
+
+An active `ORG_ADMIN` who is not the submitting Inspector may approve or return
+the current submitted preparation through
+`/api/v1/inspections/{inspectionId}/readiness/{preparationId}/approval` or
+`/return`. Approval requires a qualified reviewer with internally verified
+credential and evidence attribution, valid source records, applicability
+attestations, a timely accepted assignment pair, and no mandatory permit
+blocker. Approval stores a source snapshot/hash and changes the preparation and
+inspection readiness state. A return requires a reason and may be recorded
+despite readiness gaps; its snapshot preserves observed and unresolved source
+IDs and explicitly does not claim exhaustive observation.
+
+The supporting routes `GET /api/v1/workforce/credentials/me` and
+`GET /api/v1/inspections/{inspectionId}/readiness/sources` require `ORG_ADMIN`
+and resolve records within the caller's organization. These internal record
+checks are not external registry verification. `WF2-008` and `WF2-009` are the
+Report 5 cases for approval/return rules; they do not cover all MF2 behavior.
+
+## Field sessions (FE-03, MF2-09/11; partial handoff)
+
+An assigned active `INSPECTOR` may list their sessions, start a session, record
+postponement, or abort an open session. Start requires an inspection in
+`READY_FOR_FLIGHT`, a non-blank pre-flight checklist note, no other open session,
+and the newest readiness decision to be `APPROVED`. Start records a software
+session and moves the inspection to `IN_PROGRESS`; it never actuates or pilots
+the Drone. Postponement reopens the inspection to `READY_FOR_FLIGHT`; abort
+records the abort but leaves the inspection `IN_PROGRESS`.
+
+The `INVALIDATED` readiness decision type exists, and start checks the newest
+decision so an appended invalidation would prevent reuse of an older approval.
+However, no source-change workflow currently appends `INVALIDATED`; that part of
+MF2-08 is partial. There is no session-end route to close an aborted/started
+session or transition the inspection to `FIELD_COMPLETED`; MF2-12 remains
+unimplemented.
 
 ## Inspection and report collections (FE-04, FE-06)
 
@@ -180,133 +250,6 @@ finding IDs. An empty list means no corrective work was required within the
 observed scope and the inspection completes; it never creates an empty work
 order.
 
-## MF2 preparation and readiness (FE-03, MF2-03 to MF2-07)
-
-These routes live in the same `inspections` module but a separate controller
-from MF3, because the two actors are different: an `INSPECTOR` prepares and
-submits, an `ORG_ADMIN` decides.
-
-| Operation | Endpoint | Actor |
-| --- | --- | --- |
-| List preparation versions | `GET /api/v1/inspections/{id}/preparation` | assigned Inspector |
-| Get one preparation version | `GET /api/v1/inspections/{id}/preparation/{prepId}` | assigned Inspector |
-| Record shot-list, evidence types, access limits, hazards | `PUT /api/v1/inspections/{id}/preparation` | assigned Inspector |
-| Submit the preparation | `POST /api/v1/inspections/{id}/preparation/{prepId}/submission` | assigned Inspector |
-| Link issued permit references | `POST /api/v1/inspections/{id}/preparation/compliance/permits` | same-org ORG_ADMIN |
-| Evaluate the compliance gate | `GET /api/v1/inspections/{id}/preparation/compliance` | same-org ORG_ADMIN |
-| Approve readiness | `POST /api/v1/inspections/{id}/readiness/{prepId}/approval` | same-org ORG_ADMIN |
-| Return the preparation | `POST /api/v1/inspections/{id}/readiness/{prepId}/return` | same-org ORG_ADMIN |
-| Reviewer's own credentials | `GET /api/v1/workforce/credentials/me` | same-org ORG_ADMIN |
-| Review sources for an inspection | `GET /api/v1/inspections/{id}/readiness/sources` | same-org ORG_ADMIN |
-
-The readiness body carries **no reviewer identity and no organization**. The
-reviewer is taken from the authenticated principal, and organization, subject
-ownership, credential scope and pair scope are re-derived server-side. A body
-that carried `reviewedByUserId` would let a caller record a decision in someone
-else's name, and a body that carried an organization id would let a caller
-review another tenant's inspection.
-
-**Where the reviewer's credential and the source ids come from.** The approval
-body names `reviewerCredentialId`, `inspectorCredentialIds` and `droneDocumentIds`.
-A client cannot invent any of them, so two read routes supply them:
-`GET /api/v1/workforce/credentials/me` returns the caller's own credentials, and
-`GET /api/v1/inspections/{id}/readiness/sources` returns the assigned Inspector's
-credentials and the assigned Drone's documents. Without them the only way to approve
-over HTTP would be to type UUIDs, which is not a workflow anyone completes. Both are
-`ORG_ADMIN`, same-organization, and return metadata rather than document content;
-`backend/authentication-and-authorization.md` records the scope rule and why it is
-that narrow.
-
-Approval is refused unless every gate passes: reviewer independence from the
-assigned Inspector, an `ACTIVE` internally verified credential with source
-evidence covering planned start, matching valid accepted pair, serviceable
-Drone, reviewed Drone documents with verification attribution, a complete
-applicability attestation with a traceable basis, and no machine-detectable
-permit blocker. An empty credential or document selection is allowed but must be
-explained, so "nothing applies" is a recorded judgement rather than an omission.
-
-A compliance blocker arrives as `200` carrying the blocker list, not as an
-error status: MF2-07 needs every blocker at once, and an empty list still means
-a named human has to decide.
-
-**Cross-tenant refusal is `404` with an `*_NOT_FOUND` code, not `403`.** A `403`
-would confirm that an inspection with that id exists, so the readiness routes
-follow the same rule as the report-review routes.
-
-### What is not implemented yet
-
-MF2-08 says a material plan, pair, permit or schedule change invalidates
-readiness. The invalidation itself is **not** performed by any service today: there is no producer
-that writes an `INVALIDATED` decision when a source changes. What exists is the reading side, and
-the start check refuses anything but a currently approved decision.
-
-The schema was already designed for this. `ck_inspection_readiness_decision` allows `INVALIDATED`
-and `database-design.md` describes the table as append-only, so MF2-08 records invalidation by
-appending a decision rather than editing the approval. That keeps the approval a reviewer actually
-signed, and makes the withdrawal an attributable act of its own.
-
-| Area | State |
-| --- | --- |
-| Reading an invalidated decision at session start | implemented; `InspectionFieldSessionService` |
-| Writing an `INVALIDATED` decision when a source changes | **not implemented** — no writer exists |
-
-The reason there is no writer is that nothing can currently change a readiness source after a
-decision. The accepted-pair requirement means an Inspector cannot decline a pairing that has already
-been approved, a `READY` preparation refuses new permit references, and permits, credentials and
-Drone documents have no production writer. Adding an invalidation column before a producer exists
-would be state nothing sets.
-
-## Field sessions (FE-03, MF2-09 to MF2-11)
-
-`InspectionFieldSessionController` exposes the field session. Only `INSPECTOR` reaches these routes.
-
-| Operation | Endpoint | Actor |
-| --- | --- | --- |
-| List this inspection's sessions | `GET /api/v1/inspections/{id}/field-sessions` | assigned Inspector |
-| Start a session | `POST /api/v1/inspections/{id}/field-sessions` | assigned Inspector |
-| Postpone the session | `POST /api/v1/inspections/{id}/field-sessions/{sessionId}/postponement` | assigned Inspector |
-| Abort the session | `POST /api/v1/inspections/{id}/field-sessions/{sessionId}/abort` | assigned Inspector |
-
-An `ORG_ADMIN` may approve readiness and read the compliance gate, but the field session is the
-Inspector's own record of work they performed, so the administrator cannot start or close one on their
-behalf. A *different* Inspector in the same organization receives `409 SESSION_SCOPE_DENIED`: the
-session exists and belongs to this tenant, so the refusal is about ownership, not visibility. `403` is
-reserved for the wrong role.
-
-The list is scoped to the caller rather than the organization, so an Inspector sees their own field
-work and not a colleague's. A caller from another organization receives `404 INSPECTION_NOT_FOUND`
-rather than an empty list, because an empty list would confirm the inspection exists.
-
-Postponement and abort take the inspection id as well as the session id and look the session up
-through both. A session id alone would let a caller close a session through a different inspection's
-URL, and the scope check would then look at the wrong record — the same mistake the preparation
-submission route guards against.
-
-**Start rechecks readiness rather than trusting it.** MF2-07's approval is a statement about a source
-basis at one instant. At start the service re-reads the newest decision for the inspection and refuses
-unless that decision is `APPROVED`, so an `INVALIDATED` or `RETURNED` decision that was appended
-later wins over an older approval. The inspection must still be `READY_FOR_FLIGHT` and the caller
-must be its assigned Inspector.
-
-A session records the `readiness_decision_id` it started against. That is what makes a later audit
-answer "which approval did this flight rely on" rather than "some approval, at some point".
-
-The pre-flight note is required, and it is prose rather than a checkbox flag: a boolean a client sets
-automatically would attest to nothing. Over HTTP a blank note is a `400` from bean validation; the
-same condition called on the service directly is `409 PREFLIGHT_CHECKLIST_REQUIRED`.
-
-**A postponement returns the inspection to `READY_FOR_FLIGHT`.** Weather and site safety can stop a
-correctly approved session, and the approval was not consumed by trying, so the same inspection may
-be started again once conditions allow. **An abort does not.** An abort leaves the inspection in
-progress, because an aborted session is not the same as one that never got going, and it carries an
-abort reason rather than a postponement reason.
-
-No Drone actuation happens here. Start records that the software agreed the paperwork and the
-checklist were in order; it does not arm the aircraft, and `started_at` is not hardware flight time.
-
-Lock ordering is inspection-first, the same order the preparation and readiness services use, so a
-start cannot interleave with a preparation submission or a readiness decision on the same inspection.
-
 ## Verification records
 
 `InspectionReportVersionTest` and `AiFindingCandidateTest` cover the version
@@ -318,32 +261,11 @@ cycle, self-review refusal, and the full draft-to-publish sequence.
 `InspectionListApiIntegrationTest` covers the collections: assignment scope for
 an Inspector, organization scope for an ORG_ADMIN, cross-tenant read for a
 platform `ADMIN`, refusal for `MAINTENANCE_ENGINEER`, the report-only filter,
-the inline report summary, and paging bounds. Report 5 records the outcomes for
-`WF3-001`–`WF3-004` on the fixed `Feature 2` sheet and for the target MF3 rows.
-
-For MF2, `InspectionReadinessServiceTest` and `ReadinessSnapshotFactoryTest`
-cover the MF2-07 decision rules, the deterministic source snapshot and its
-hash, and every refusal path against PostgreSQL.
-`InspectionPreparationApiIntegrationTest` covers the MF2-03 to MF2-06 endpoints
-over HTTP, including the role separation between the two actors and the
-compliance blocker list arriving as `200`.
-`InspectionReadinessApiIntegrationTest` covers the two readiness endpoints:
-approval and return by a qualified reviewer, a blank return reason, an empty
-applicability attestation, an Inspector refused at the filter chain, an
-unauthenticated caller, and a cross-tenant reviewer receiving
-`404 INSPECTION_NOT_FOUND`. Report 5 records `WF2-008` and `WF2-009` on the
-fixed `Feature 1` sheet.
-
-`InspectionFieldSessionServiceTest` covers MF2-09 to MF2-11: a start against the
-current approved decision, the decision id recorded on the session, refusal with
-no decision or an invalidated one, an inspection no longer ready for flight,
-another Inspector and another organization refused, a blank pre-flight note, a
-duplicate start, postponement with its reason returning the inspection to
-`READY_FOR_FLIGHT`, a blank postponement reason, another Inspector unable to
-postpone, an abort recording its own reason and leaving the inspection in
-progress, a blank abort reason, a restart after a postponement, the list returning
-only the caller's own sessions, and a session that belongs to another inspection
-being refused. `InspectionFieldSessionApiIntegrationTest` covers the same rules
-over HTTP, including the role split between an Inspector and an ORG_ADMIN.
-
-They have no workbook case yet.
+the inline report summary, and paging bounds. MF2 service and API coverage
+includes `InspectionReadinessServiceTest`, `ReadinessSnapshotFactoryTest`,
+`InspectionReadinessApiIntegrationTest`, `InspectionPreparationApiIntegrationTest`,
+and the field-session service/API tests. The complete backend PR #64 CI run
+passed 334 tests with no failures/errors/skips, and the JaCoCo/Modulith checks
+passed. Report 5 records `WF2-008`/`WF2-009` for MF2-07 on `Feature 3`, and the
+MF3 cases on `Feature 4`–`Feature 6`; session end and source-change invalidation
+remain uncovered as noted above.

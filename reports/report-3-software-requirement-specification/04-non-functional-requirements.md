@@ -11,7 +11,7 @@ These are target quality/interface requirements for the Enterprise SaaS revision
 
 ### 4.1 External Interfaces
 
-- **Web browser:** React web application communicates over HTTPS; supports current project-supported Chrome, Edge and Firefox versions. Platform ADMIN and organization/workforce views use the same authoritative authorization rules.
+- **Web browser:** React web application communicates over HTTPS; supports current project-supported Chrome, Edge and Firefox versions. Platform Platform Admin and organization/workforce views use the same authoritative authorization rules.
 - **Mobile:** Flutter uses the same versioned backend business contract, with secure mobile credential delivery/storage. Field Start/End is a recorded action, not a Drone SDK command; a connection must validate authoritative readiness before an operational Start is recorded. No offline approval bypass is assumed.
 - **REST API:** JSON endpoints remain versioned under `/api/v1`. Successful JSON bodies use `{ success, message, data }`, with authoritative HTTP status; `204` and binary streams are unwrapped. Errors use RFC 9457 Problem Details with stable code/trace ID. This SRS does not invent new endpoint names or assert the current APIs already implement the target.
 - **PostgreSQL / MinIO:** Database holds transactional state, tenancy, assignment, cost and review metadata; object storage holds source/derived documents. Evidence and reports are read through authorized backend access, not public object paths.
@@ -53,7 +53,7 @@ These are target quality/interface requirements for the Enterprise SaaS revision
 #### 4.2.4 Security, Privacy and Maintainability
 
 - All non-public actions deny by default unless both role and resource scope pass. Tenant boundaries cover workforce/health credentials, Drones, evidence, budget, work orders and draft/approved reports.
-- ADMIN has no default customer approval/acceptance authority. Exceptional support access requires authorized purpose, minimum privilege and audit attribution.
+- Platform Admin has no default customer approval/acceptance authority. Exceptional support access requires authorized purpose, minimum privilege and audit attribution.
 - Inspector evidence quality is an assigned-person decision. Engineer lead may allocate only to approved team members; report submission requires the designated author. Independent acceptance rejects the author and executing team, regardless of route visibility.
 - Budget approval, technical acceptance and cost reconciliation are distinct recorded actions. Human roles do not imply legal/professional qualifications; readiness/report release remains blocked where a required qualified reviewer is missing.
 - Sensitive personal/medical/credential evidence is limited to relevant lawful records and minimum viewers. Do not send unnecessary identity or health files to AI/LLM services.
