@@ -13,15 +13,22 @@ references as the source of truth, not the old Client/Manager/provider ticket
 contract in this plan.
 
 - Backend work is on `feat/maintenance-mf4-work-order`, pushed to origin.
-- Commits `e687088`, `fb83725`, `eb6a515`, `3692216` and `24a1128` are on the
-  pushed branch; the MF4 backend REST/workflow slice is committed.
+- Commits `e687088`, `fb83725`, `eb6a515`, `3692216`, `24a1128` and `e65386f`
+  are on the pushed branch; the MF4 backend REST/workflow slice is committed and
+  the MF2 mainline is merged in.
 - Implemented: repair candidates, work orders, internal team/tasks, priced
   estimate approval/rework, work-log submission/lead verification, change
   decisions, completion reports, independent acceptance/rework, actual-cost
   reconciliation, and closeout. Re-inspection is recorded but does not dispatch
   MF1.
-- Final backend verification: `./mvnw.cmd spotless:apply verify` passes 279
-  tests; Spotless, Modulith boundary checks and JaCoCo 80% gate pass.
+- Security audit applied: maintenance engineers read only work orders assigned
+  to their team (others return not-found), cross-tenant source validation runs
+  before duplicate disclosure, requested team members are persisted, the budget
+  approver is rejected inside the executing team, and a second team designation
+  cannot silently overwrite the first.
+- Final backend verification: `./mvnw.cmd spotless:apply verify` passes 457
+  tests; Spotless, Modulith boundary checks and JaCoCo 80% gate pass after the
+  MF2 mainline merge and assignment-scope security audit.
 - Report 5 records `WF3-010`–`WF3-012` under FE-07, and the integrated report
   has 10 selected cases across MF2-07, MF3 and the MF4 backend slice. These
   cases are not full MF4 acceptance.
