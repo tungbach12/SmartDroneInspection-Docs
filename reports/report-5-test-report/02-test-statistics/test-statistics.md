@@ -53,17 +53,17 @@ not a regression, and it is **not** evidence that anything stopped working.
 | Frontend lint | `npm run lint` | No errors; 4 pre-existing fast-refresh warnings in unrelated files. |
 | Frontend build | `npm run build` | Built successfully. |
 | Frontend suite | `npm test -- --run` | 161/161 passed across 31 files. |
-| MF1 resource-setup slice (Round 3, 2026-10-10) | `./mvnw verify` on `integrate/mf1-resources` | **Passed.** 307 tests, 0 failures, 0 errors; `All coverage checks have been met.`; BUILD SUCCESS. Covers entitlement, workforce provisioning, credential records, Drone inventory, Drone documents and permit/compliance records together with every pre-existing suite, plus the configurable-threshold checks below. |
+| MF1 resource-setup slice (Round 4, 2026-10-11) | `./mvnw verify` on `integrate/mf1-resources` after review fixes | **Passed.** 301 tests, 0 failures, 0 errors; `All coverage checks have been met.`; BUILD SUCCESS. Covers the full MF1 slice plus review regressions for cross-tenant email non-disclosure, Drone JSON validation, foreign-Drone document writes and test isolation. |
 
 Progression of this branch's full-suite runs: 254 tests at `dcd6516` (before the
 permit slice), 291 at `8365f99` (after permits), 301 after moving the credential
-expiry window and the Drone document upload cap into `@ConfigurationProperties`,
-306 after the same change for the asset document cap, and 307 after setting the
-expiry window to 60 days and pinning that default. One run on `8365f99` failed
-with 190 errors purely because Docker Desktop had been stopped, so
-Testcontainers could not start; all 190 shared that single environmental cause
-and there were zero assertion failures. The commit verified green after Docker
-was restarted.
+expiry window and document upload caps into `@ConfigurationProperties`, 307 after
+setting the expiry window to 60 days and pinning that default, and 301 after the
+review-fix pass removed six vacuous threshold tests while adding behavioral
+regressions. One run on `8365f99` failed with 190 errors purely because Docker
+Desktop had been stopped, so Testcontainers could not start; all 190 shared that
+single environmental cause and there were zero assertion failures. The commit
+verified green after Docker was restarted.
 
 The Round 3 backend run is the first that covers the whole MF1 slice. Per-slice
 runs reported during implementation do not substitute for it.
@@ -73,19 +73,17 @@ runs reported during implementation do not substitute for it.
 | Area | Suite | Result |
 | --- | --- | --- |
 | Subscription entitlement | `SubscriptionEntitlementServiceTest` | 4/4 |
-| Workforce provisioning | `WorkforceApiIntegrationTest` | 20/20 |
+| Workforce provisioning | `WorkforceApiIntegrationTest` | 22/22 |
 | Workforce service | `WorkforceServiceTest` | 13/13 |
 | Credential records | `WorkforceCredentialApiIntegrationTest` | 15/15 |
 | Credential persistence | `WorkforceCredentialPersistenceTest` | 5/5 |
 | Evidence ownership facade | `EvidenceOwnershipServiceTest` | 3/3 |
-| Drone inventory | `DroneApiIntegrationTest` | 12/12 |
+| Drone inventory | `DroneApiIntegrationTest` | 14/14 |
 | Drone persistence | `DronePersistenceTest` | 10/10 |
-| Drone documents | `DroneDocumentApiIntegrationTest` | 7/7 |
+| Drone documents | `DroneDocumentApiIntegrationTest` | 8/8 |
 | Permit/compliance API | `ComplianceApiIntegrationTest` | 31/31 |
 | Permit persistence | `CompliancePersistenceTest` | 6/6 |
 | Credential expiry window is configurable | `WorkforceCredentialExpiryWindowTest` | 5/5 |
-| Drone document upload limits are configurable | `DroneDocumentLimitsTest` | 6/6 |
-| Asset document upload limits are configurable | `AssetDocumentLimitsTest` | 5/5 |
 | Modulith boundaries | `ModulithArchitectureTest` | 3/3 |
 
 **These MF1 results are supporting verification outside the workbook totals**, per

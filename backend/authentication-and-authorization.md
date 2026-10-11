@@ -100,8 +100,13 @@ Authorization rules that hold across these endpoints:
   cannot promote a user to `ORG_ADMIN`/`ADMIN` or alter a peer `ORG_ADMIN`. This was a
   review finding: relying on the general role policy alone permitted it.
 - **Foreign-tenant references are indistinguishable from missing ones.** A foreign subject,
-  Drone, or evidence reference returns 404 with the same problem body as a genuinely absent
-  record, so an endpoint cannot be used to discover another tenant's identifiers.
+  Drone, evidence reference, or workforce email returns 404 with the same problem body as a
+  genuinely absent record, so an endpoint cannot be used to discover another tenant's identifiers.
+  A duplicate email inside the actor's own organization remains a useful 409 conflict; this is
+  not a cross-tenant existence signal.
+- **JSONB request fields are validated before persistence.** Drone `payloadMetadata` must be a
+  valid JSON document; malformed input returns `400 VALIDATION_FAILED` rather than exposing a
+  database/coercion failure as a 500.
 - **Subscription entitlement gates writes, not reads.** New or changed MF1 records require an
   active subscription; an expired tenant keeps read and history access rather than losing it.
 - **Credential and permit review is an internal human decision.** It records reviewer,

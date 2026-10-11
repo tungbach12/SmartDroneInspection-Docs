@@ -32,10 +32,11 @@ outside the fixed WFx workbook rows so the workbook totals are unchanged.
 ### Drone inventory
 
 - Preconditions: Backend branch `integrate/mf1-resources` at `dcd6516`; PostgreSQL 17 through Testcontainers; `V25` tables `drones` and `drone_documents`; an active ORG_ADMIN plus a second organization for isolation checks.
-- Procedure: Run `./mvnw -Dtest=DroneApiIntegrationTest,DronePersistenceTest test`; create, list, fetch and change serviceability for a same-organization Drone; submit a duplicate serial number; request a foreign-organization Drone; query the selection endpoint; and attempt an out-of-set `serviceability` value.
-- Expected result: Create returns 201 and organization scope comes from the authenticated actor, never the request; a duplicate serial returns 409; a foreign-organization Drone returns 404 with a problem body identical to a missing Drone's, so existence elsewhere is not disclosed; the selection endpoint returns only same-organization `ACTIVE` drones and asserts no permit, clearance or readiness claim; an unknown enum value returns 400, not 500.
-- Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
-- Evidence: `DroneApiIntegrationTest` 12/12 and `DronePersistenceTest` 10/10, inside the merged `./mvnw verify` run: 254 tests, 0 failures, 0 errors, `All coverage checks have been met.`, BUILD SUCCESS.
+- Procedure: Run `./mvnw -Dtest=DroneApiIntegrationTest,DronePersistenceTest test`; create, list, fetch and change serviceability for a same-organization Drone; submit a duplicate serial number; request a foreign-organization Drone; query the selection endpoint; submit malformed and valid `payloadMetadata`; and attempt an out-of-set `serviceability` value.
+- Expected result: Create returns 201 and organization scope comes from the authenticated actor, never the request; a duplicate serial returns 409; a foreign-organization Drone returns 404 with a problem body identical to a missing Drone's, so existence elsewhere is not disclosed; the selection endpoint returns only same-organization `ACTIVE` drones and asserts no permit, clearance or readiness claim; malformed JSON metadata returns 400 without persistence; structured JSON metadata returns 201; and an unknown enum value returns 400, not 500.
+- Round 4: Passed on 2026-10-11; tester: Claude Code (automated).
+- Evidence: `DroneApiIntegrationTest` 14/14 and `DronePersistenceTest` 10/10, inside the merged `./mvnw verify` run: 301 tests, 0 failures, 0 errors, `All coverage checks have been met.`, BUILD SUCCESS.
+- Defect note: Review found that malformed `payloadMetadata` reached the PostgreSQL `jsonb` column and surfaced as a 500. `DroneService` now validates it with the same JSON parser pattern used by compliance records before saving.
 - Entitlement note: writes require an active subscription; reads stay available without one, following the MF1-02 precedent.
 
 ### Drone documents
