@@ -122,10 +122,12 @@ only of these seven recorded cases, not the SRS or the complete MF2 workflow.
 Removed case IDs stay reserved and are never reused; new cases continue from
 `WF3-010` after `WF3-009`.
 
-MinIO/evidence storage is tracked under FE-04. CI uses S3Mock for S3 API
-integration coverage; that mock does not replace runtime verification against
-MinIO. A role check never replaces organization ownership, assignment, or
-separation-of-duties checks.
+MinIO/evidence storage is tracked under FE-04. Integration suites run against a
+real MinIO container through the same `MinioEvidenceObjectStore` adapter
+production uses, so bucket creation, streaming put, streamed get, and delete are
+exercised rather than assumed. `MinioEvidenceObjectStoreIntegrationTest`
+additionally covers the S3 API subset against S3Mock. A role check never replaces
+organization ownership, assignment, or separation-of-duties checks.
 
 ## Editing workflow
 
