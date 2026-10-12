@@ -84,13 +84,13 @@ class FeatureSheetTests(unittest.TestCase):
                             if re.fullmatch(r"WF\d-\d{3}", value or ""):
                                 ids.append(value)
                 counts[sheet] = ids
-            # Two MF2-07 cases belong to FE-03; five MF3 cases belong to FE-04–FE-06.
-            self.assertEqual(len(counts["Feature 3"]), 2)
-            self.assertCountEqual(counts["Feature 3"], ["WF2-008", "WF2-009"])
+            # Three MF2 cases belong to FE-03; five MF3 cases belong to FE-04–FE-06.
+            self.assertEqual(len(counts["Feature 3"]), 3)
+            self.assertCountEqual(counts["Feature 3"], ["WF2-008", "WF2-009", "WF2-010"])
             self.assertEqual(len(counts["Feature 4"]), 2)
             self.assertEqual(len(counts["Feature 5"]), 1)
             self.assertEqual(len(counts["Feature 6"]), 2)
-            self.assertEqual(sum(len(v) for v in counts.values()), 7)
+            self.assertEqual(sum(len(v) for v in counts.values()), 8)
 
     def test_statistics_lists_all_eight_modules_with_a_correct_subtotal(self):
         book, temp = generated_workbook()
@@ -100,8 +100,8 @@ class FeatureSheetTests(unittest.TestCase):
                 row = 10 + number
                 self.assertEqual(book.value(stats, f"C{row}"), book.value(sheet, "B2"))
                 self.assertEqual(book.value(stats, f"B{row}"), str(number))
-            self.assertEqual(book.value(stats, "H19"), "7")
-            self.assertEqual(book.value(stats, "D19"), "7")
+            self.assertEqual(book.value(stats, "H19"), "8")
+            self.assertEqual(book.value(stats, "D19"), "8")
             # Eight modules push Sub total to row 19 and coverage to rows 21/22.
             self.assertEqual(book.value(stats, "C19"), "Sub total")
             self.assertEqual(book.value(stats, "C21"), "Test coverage")
