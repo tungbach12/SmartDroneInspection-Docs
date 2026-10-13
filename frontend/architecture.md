@@ -107,9 +107,32 @@ Do not replace these MF3 actions with the MF2 preparation panels.
 
 ## MF3 inspection and report screens
 
+`inspections/:inspectionId` is a four-tab workspace layout (`evidence`,
+`findings`, `report`, `preparation`) with an index redirect to `evidence`. Each
+stage owns its own sub-page and local input state; the layout renders only the
+inspection header, the stage tabs, and an outlet. Report document editing stays
+on the separate `reports/:inspectionId` page.
+
+The `evidence` tab stages a multi-file queue and uploads it with one existing
+single-file mutation call per file in order; a failed file stays in the queue
+with its error without blocking the rest. Below it, the single shot-list
+comparison field plus "Accept evidence set" records the MF3-03 set-level
+decision, disabled until at least one evidence item exists and the comparison
+is non-empty. The `findings` tab runs advisory detection automatically once the
+set is accepted, shows each candidate with its defect photo resolved from the
+evidence content endpoint, gives each candidate its own severity/location inputs for
+Confirm/Modify, and surfaces the MF3-09 reviewer verdict on undecided
+findings. The `report` tab generates the MF3-07 draft (gated on an ACCEPTED
+decision, matching the backend 409), keeps the manual narrative/disclosure
+seed form, and carries the single "Open the report document" link, enabled
+only once a version exists. The `preparation` tab mounts the MF2 preparation
+and readiness panels unchanged.
+
 `/inspections` loads the assignment inbox and a server-paged, backend-scoped
 inspection collection; users select a row instead of entering an identifier by
-hand. An assigned Inspector
+hand. The `?view=reports` filter switches the same list, its totals, and its
+summary cards to the server-paged `/with-reports` collection, so the report
+queue is that filtered view and `/reports` redirects to it. An assigned Inspector
 may open the evidence workspace, upload `WEB_UPLOAD` evidence, and record the
 substantive evidence-quality decision. The same collection is visible to
 same-organization ORG_ADMINs and platform ADMINs as read-only inspection rows;
@@ -119,9 +142,7 @@ Analysis and draft generation stay disabled until the evidence set is accepted,
 because the backend refuses both. The API computes evidence checksums and is the
 authorization boundary; the browser never receives a direct MinIO URL.
 
-`/reports` uses the same inspection list filtered to rows that carry a report,
-with report status/version shown inline. Selecting a row loads that inspection's
-report versions. The page presents only the actions permitted by the current
+The report document page presents only the actions permitted by the current
 capability and by whether the signed-in user is the version's author: the
 Inspector verifies and submits, while a qualified ORG_ADMIN who is not the
 author returns, approves, and publishes. A return requires a stated reason.
