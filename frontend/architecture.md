@@ -10,7 +10,7 @@ aliases:
 ## Decision
 
 The web client is one React single-page application organized as a feature-first
-modular monolith. It serves the Admin, Organization, and field workspaces from
+modular monolith. It serves the Admin, Client, and Operations workspaces from
 one deployment and origin. Role-based routes and navigation provide separate
 entry experiences without duplicating the frontend or replacing backend
 authorization.
@@ -56,17 +56,23 @@ provide distinct entry pages and layouts:
 
 | Entry route | Roles | Visible sections |
 | --- | --- | --- |
-| `/admin/*` | `ADMIN` | Dashboard, assets, inspections, reports, maintenance |
-| `/org/*` | `ORG_ADMIN` | Dashboard, assets, inspections, reports, maintenance |
-| `/field/*` | `INSPECTOR`, `MAINTENANCE_ENGINEER` | Dashboard for both; inspections/reports for Inspector; maintenance for Maintenance Engineer |
+| `/admin/*` | `ADMIN` | Dashboard, assets, asset catalog, inspections, reports, maintenance |
+| `/client/*` | `ORG_ADMIN` | Dashboard, assets (Assets, Drones, Permits), inspections, reports, maintenance, workforce (Users, Credentials) |
+| `/operations/*` | `INSPECTOR`, `MAINTENANCE_ENGINEER` | Dashboard for both; inspections/reports for Inspector; maintenance for Maintenance Engineer |
 
 The central `app/permissions/accessPolicy.ts` is the frontend navigation and
 route-guard policy. It follows the screen-access matrix in Report 3, section
 3.1.3. The operations workspace does not show the Assets section. A user with
 roles in multiple workspaces selects one at `/portals`; the shell also offers a
-workspace switcher. Existing flat paths such as `/assets` redirect to an
-authorized workspace path or to the chooser when more than one workspace is
-valid.
+workspace switcher. Existing flat paths such as `/assets` redirect to the authorized workspace
+path or to the chooser when more than one workspace is valid.
+
+Within the Client workspace, Assets contains the existing infrastructure asset
+view plus the MF1 Drone inventory/documents and organization-recorded permit
+views. Workforce contains Users and Credentials. These sections are granted only
+to `ORG_ADMIN`; platform `ADMIN` retains platform screens and does not inherit
+customer resource-management authority. Operations does not expose these Client
+resource screens.
 
 These checks improve navigation and do not authorize API calls. The backend
 must still enforce role, organization, ownership, assignment, resource scope,
@@ -136,8 +142,7 @@ queue is that filtered view and `/reports` redirects to it. An assigned Inspecto
 may open the evidence workspace, upload `WEB_UPLOAD` evidence, and record the
 substantive evidence-quality decision. The same collection is visible to
 same-organization ORG_ADMINs and platform ADMINs as read-only inspection rows;
-the Inspector-only mutation workspace stays hidden from those roles. Maintenance
-Engineers are directed to Maintenance rather than shown an inspection list.
+the Inspector-only mutation workspace stays hidden from those roles. `MAINTENANCE_ENGINEER` users are directed to Maintenance rather than shown an inspection list.
 Analysis and draft generation stay disabled until the evidence set is accepted,
 because the backend refuses both. The API computes evidence checksums and is the
 authorization boundary; the browser never receives a direct MinIO URL.
