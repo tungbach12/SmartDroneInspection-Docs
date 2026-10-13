@@ -10,8 +10,8 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | **2026-10-09 reset to the implemented MF3 slice; 2026-10-10 Round 3 added MF1-02–MF1-07 as executed supporting verification.** All workbook cases below are evidenced by executed backend and web tests. MF1-01, MF1-08–MF1-14, MF2 and MF4 remain unimplemented and therefore have no case; this is recorded as a coverage gap, not as a passing or passing-by-default result. |
-| Last updated | 2026-10-10 |
+| Test round | **2026-10-09 reset to the implemented MF3 slice; 2026-10-10 backend Round 3 added MF1-02–MF1-07 supporting verification; 2026-10-13 Frontend supporting verification recorded.** The workbook remains five MF3 cases; all are passed with executed backend and web evidence. Supporting FE-01/FE-02 Frontend checks do not change workbook counts. MF1-01, MF1-08–MF1-14, MF2 and MF4 remain unimplemented coverage gaps. |
+| Last updated | 2026-10-13 |
 
 ## Module summary
 

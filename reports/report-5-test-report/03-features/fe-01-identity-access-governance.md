@@ -1,8 +1,8 @@
 # FE-01: Identity and Access Governance
 
-## Implemented v1 baseline and Enterprise SaaS target
+## Implemented four-role baseline
 
-The recorded authentication, organization-scope and audit checks below concern the existing `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER` roles. They do not verify the 2026-10-07 Enterprise SaaS target roles `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`, or the new tenant/subscription entitlement rules. Proposed target checks are Pending below; no existing Passed result is reused as evidence for those roles.
+This source records historical v1 checks separately from current Enterprise SaaS evidence. The current role model is `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`; historical `CLIENT`/`SERVICE_MANAGER` results below are explicitly labeled as v1 and are not reused as evidence for the current role model. Current tenant and entitlement checks are recorded in the executed MF1 sections below.
 
 ## Supporting verification
 
@@ -135,8 +135,19 @@ alter workbook statistics.
 - Configuration note: the `EXPIRING_SOON` horizon is bound to `app.workforce.credential-expiring-soon-window` (env `CREDENTIAL_EXPIRING_SOON_WINDOW`, default `60d`) via `WorkforceProperties`, so a deployment can change it without a rebuild. No requirement document specifies a window — MF1-05 asks only that expiry warnings be calculated — so 60 days is a product decision made for commercial drone inspection, where operator credentials and liability insurance are annual or longer. Covered by `WorkforceCredentialExpiryWindowTest` (5 cases), which proves the configured window and not a literal decides the status, and pins the default across `application.yml`, the properties class and the entity fallback so those three cannot drift apart silently.
 - Scope note: `EXPIRING_SOON` exists only on `workforce_credentials`. `flight_permits` (MF1-07) has no such status, so permit records carry no expiring-soon signal in this release.
 
+### Frontend MF1 resource-navigation and integration verification (executed 13 October 2026)
+
+This is supporting frontend evidence, outside the fixed WFx workbook rows, consistent with the FE-01 foundation-gate convention. Workbook statistics remain unchanged.
+
+- Preconditions: Frontend branch `feat/mf1-fe-drones`; four canonical roles; React Router guard and local test fixtures.
+- Procedure: Run `npx vitest run --pool=forks --maxWorkers=1 src/app/permissions/accessPolicy.test.ts src/app/router/router.test.ts src/features/auth/components/RequireAuth.resources.test.tsx src/features/assets/pages/AssetsPage.resources.test.tsx`; evaluate the access-policy matrix, direct `RequireAuth` outcomes for `/client/workforce` and `/client/assets`, and the resource-tab composition.
+- Expected result: ORG_ADMIN can enter the client Workforce and Assets guard; ADMIN, INSPECTOR and MAINTENANCE_ENGINEER are redirected to the forbidden surface on direct access; Drones and Permits tabs render only for ORG_ADMIN; existing Admin/Operations route entries remain matched.
+- Round 1: Passed on 2026-10-13; tester: Claude Code (automated).
+- Evidence: focused command passed 4 files / 44 tests, including direct guard behavior for both paths across all four roles.
+- Scope note: This is a component/guard test using the real RequireAuth component, not a browser-to-backend end-to-end authorization test. Backend authorization remains authoritative.
+
 ## Coverage boundary
 
-The recorded gates verify authentication/migration setup, v1 role-to-screen policy, browser-auth contracts, v1 Client-registration persistence and audit, the shared API envelope, and — from Round 2 — Enterprise SaaS organization registration against `audit_events`, the fail-closed V24 role migration, the exact 41-table target schema, and client role-contract alignment for the four canonical roles. From Round 3 they additionally verify the subscription entitlement decision, ORG_ADMIN workforce provisioning with role-safe facade boundaries, and MF1-04/05 credential records with attributable internal review.
+The recorded backend gates verify authentication/migration setup, browser-auth contracts, target organization registration/audit/schema, entitlement, role-safe workforce provisioning, credential records, Drone inventory/documents and permit/compliance records. Frontend supporting checks verify portal navigation, direct role guards, and client resource-tab composition; feature API/UI tests and full suite results are recorded in FE-02 below. Historical v1 `CLIENT`/`SERVICE_MANAGER` evidence remains explicitly separate from current four-role evidence.
 
-They still do **not** establish subscription activation or renewal (Supporting Flow), MF1-01 workspace/company-identity maintenance, MF1-06/07 Drone and permit records, MF1-08–14 asset pairing and inspection dispatch, MF2, MF4 workflow behavior, or a live browser end-to-end registration/login run. Those remain unverified.
+Still unverified or not implemented: subscription activation or renewal (Supporting Flow), MF1-01 workspace/company identity, MF1-08–14 asset pairing and inspection dispatch, MF2, MF4 workflow behavior, and a live browser-to-backend end-to-end run. Those remain coverage gaps.

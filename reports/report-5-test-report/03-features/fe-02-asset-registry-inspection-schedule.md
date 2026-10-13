@@ -16,11 +16,13 @@ described the retired five-role WF1 baseline (Service Manager review, Client
 asset registration, schedule proposals). That is not the current system, so
 their recorded results are not evidence for it.
 
-The current backend does implement an asset catalog with organization scoping
-and a paged list, but **no executed test case is recorded here for it**, so it
-is not reported as tested. This is an explicit, truthful coverage gap: FE-02
-verification is outstanding and must be executed and recorded before the
-feature can be reported as verified.
+The current backend implements an asset catalog with organization scoping and
+a paged list. The current Frontend feature also contains asset registration and
+asset-document flows; those existing asset flows have no executed FE-02 case
+recorded here and are not claimed as verified by the MF1 tests below. The MF1-06
+Drone and MF1-07 permit UI/API contracts do have executed supporting verification
+recorded below. The remaining FE-02 asset registry and inspection-schedule
+coverage gap remains explicit.
 
 The removed `WF1-*` case IDs stay reserved and are never reused.
 
@@ -54,6 +56,37 @@ outside the fixed WFx workbook rows so the workbook totals are unchanged.
 
 MF1-08–10 asset creation with the required Inspector/Drone pair, and inspection
 scheduling, are not implemented in this slice and have no executed case.
+
+## Frontend MF1 Drone and permit resource UI verification (executed 13 October 2026)
+
+This supporting frontend verification is recorded outside the fixed WFx workbook rows. It exercises the web contract and UI; it does not replace backend integration/persistence evidence above or change workbook totals.
+
+### Drone inventory and documents
+
+- Preconditions: Frontend branch `feat/mf1-fe-drones`; Backend Drone API contract available; Vitest/jsdom with synthetic API results.
+- Procedure: Run `npx vitest run --pool=forks --maxWorkers=1 src/features/assets/api/assetsApi.test.ts src/features/assets/hooks/useDrones.test.tsx src/features/assets/pages/DroneInventoryPanel.test.tsx`; cover list/create/detail/selection/serviceability/document URLs, JSON-string `payloadMetadata`, multipart field names, server-derived checksum, ORG_ADMIN controls, loading/empty/retry, 413/415 errors, expiry labels, and lack of flight-clearance wording.
+- Expected result: The web client sends no organization ID or checksum, sends the exact backend request fields, leaves upload binary out of TanStack mutation variables, enables detail fetches only while the drawer is open, clears selected file data after completion/close, and presents serviceability only as a maintenance state.
+- Round 1: Passed on 2026-10-13; tester: Claude Code (automated).
+- Evidence: focused command passed 3 files / 31 tests. Full Frontend regression suite `npm test -- --maxWorkers=1` passed 44 files / 297 tests after integrated role-guard coverage was added; the report-wide result is also summarized below.
+- Scope note: API transport is mocked for the focused tests; no live MinIO, browser-to-Spring upload, or manual UI run is claimed.
+
+### Flight permit records and internal review
+
+- Preconditions: Frontend branch `feat/mf1-fe-drones`; Backend `CreateFlightPermitRequest`, `ReviewFlightPermitRequest` and `FlightPermitResponse` contracts; synthetic permit fixtures.
+- Procedure: Run `npx vitest run --pool=forks --maxWorkers=1 src/features/assets/api/assetsApi.test.ts src/features/assets/hooks/useFlightPermits.test.tsx src/features/assets/pages/FlightPermitPanel.test.tsx src/features/assets/pages/AssetsPage.resources.test.tsx`; cover list/create/review endpoints, JSON-string fields, no tenant field, optional references, all six status values, date ordering and malformed-JSON feedback, internal review reason, non-verification wording, ORG_ADMIN-only tab/actions, and loading/empty/retry.
+- Expected result: The client follows backend DTOs; status is identified as the organization’s own record; no copy or state claims external verification or permission to fly; no asset/evidence picker is invented; failed validation does not submit; dialog cancel starts a fresh draft.
+- Round 1: Passed on 2026-10-13; tester: Claude Code (automated).
+- Evidence: focused command passed 4 files / 33 tests; after review, the create-cancel reset regression was added and passed in `FlightPermitPanel.test.tsx` (7/7). Final full Frontend suite passed 44 files / 297 tests.
+- Review: Independent React review confirmed backend DTO alignment and found one issue—create form draft persisted across cancel/success. The dialog is now remounted per open/close cycle; a regression test observes the fresh blank form on reopen.
+- Scope note: API transport is mocked; no live backend, authority/registry, or manual browser verification is claimed.
+
+### Integrated Frontend regression and verification
+
+- Preconditions: Frontend branch includes Tasks 1–5 and the four canonical roles.
+- Procedure: `npm test -- --maxWorkers=1`; `npm run build`; `npm run lint`; `git diff --check`.
+- Expected result: All automated tests pass, strict TypeScript/Vite production build succeeds, lint has no feature warnings, and diff whitespace check passes.
+- Round 1: Passed on 2026-10-13; tester: Claude Code (automated).
+- Evidence: 44 files / 297 tests passed; `npm run build` succeeded; `npm run lint` exited 0 with four existing Fast Refresh warnings in `src/main.tsx`, `src/shared/ui/Toast.tsx` and `src/app/router/router.tsx`; `git diff --check` passed. Manual browser run was not performed because the connected browser was `about:blank`.
 
 ## MF1-07 permit and compliance records (executed 10 October 2026)
 
