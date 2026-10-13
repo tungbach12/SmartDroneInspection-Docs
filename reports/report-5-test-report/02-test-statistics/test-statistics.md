@@ -10,8 +10,8 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | **2026-10-12: MF3 workflow reconciled with Report 3 on the client.** The decision flow moved onto the inspection's own route, MF3-03 now requires the shot-list comparison, and the MF3-06 candidate enum and the missing MF3-09 reviewer surface were fixed. **No case status changed** — every assertion previously executed still holds, so the eight cases remain `Passed`; the procedure, expected-result and note columns of `WF3-002` and `WF3-003` were extended. Previously: 2026-10-10 reconciliation, MF2-07 readiness decisions plus the implemented MF3 slice — `WF2-008`/`WF2-009` cover MF2-07 and five cover MF3; MF2-08 source-change invalidation is partial and MF2-12 session end is unimplemented, neither claimed as covered. |
-| Last updated | 2026-10-12 |
+| Test round | **2026-10-13: WF3 backend enforcement aligned and verification status corrected.** The substantive evidence-quality decision requires a non-blank shot-list comparison; report verification/submission rejects changed evidence snapshots; finding creators cannot decide their own findings. Existing eight WFx case statuses remain Passed from prior evidence; new Docker/Testcontainers regression assertions are Pending, not additional Passed results. The full backend rerun was blocked by missing Docker (491 tests discovered, 0 assertion failures, 263 environment errors). Previously: 2026-10-12 MF3 workspace split into stage tabs and reports list merged into the inspections queue; 2026-10-12 MF3 workflow on the inspection route with comparison/enum/reviewer fixes; earlier reconciliation and MF2/MF3 implementation. |
+| Last updated | 2026-10-13 |
 
 ## Module summary
 
@@ -100,29 +100,35 @@ following fresh checks were run during this reconciliation:
 | Check | Command | Result |
 | --- | --- | --- |
 | Backend full suite + coverage gate + Modulith boundaries | PR #64 CI workflow: `Verify (Spotless + tests + JaCoCo + Modulith checks)` | **Passed.** 334 tests, 0 failures, 0 errors, 0 skipped; JaCoCo coverage checks and Spring Modulith checks passed. The CI job ran the Maven verify build; this record does not claim a local Maven command was executed successfully. |
-| Backend local full suite | `mvnw.cmd -o verify` | **Blocked by environment.** Testcontainers could not find a Docker environment; do not treat local test errors as product failures or passes. |
-| Backend local full suite (re-run, Docker available) | `./mvnw.cmd verify` | **Passed 2026-10-12.** 364 tests, 0 failures, 0 errors, 0 skipped; JaCoCo gate met ("All coverage checks have been met"); Spring Modulith boundary checks passed; BUILD SUCCESS. Run locally with Docker Desktop running so Testcontainers can start PostgreSQL and MinIO; both containers are now started by shared test infrastructure, with MinIO bound as an `ApplicationContextInitializer` rather than through `@ServiceConnection`. |
+| Backend local full suite (re-run, Docker available) | `./mvnw.cmd verify` | **Passed 2026-10-12.** 364 tests, 0 failures, 0 errors, 0 skipped; JaCoCo gate met ("All coverage checks have been met"); Spring Modulith boundary checks passed; BUILD SUCCESS. This is prior successful evidence; the 2026-10-13 rerun below is separate. |
+| Backend affected WF3 integration assertions | PR #69 CI, run [38325774461](https://github.com/tungbach12/SmartDroneInspection-Backend/actions/runs/38325774461) — `./mvnw -B verify` | **Passed 2026-10-13.** Full `verify` completed with 491 tests, 0 failures, 0 errors, 0 skipped; Spotless clean, JaCoCo coverage checks met, and Spring Modulith checks passed. This run exercised the new comparison enforcement, finding-author no-self-review, and report snapshot stale-at-verify/submit integration assertions. |
+| Backend full suite rerun (local) | `mvn.cmd -o verify` | **Blocked by environment 2026-10-13.** 491 tests discovered; 0 assertion failures and 263 errors because Testcontainers could not find a Docker environment. This local attempt is superseded for code verification by the successful CI run above; retain it as an environment record, not a product failure or pass. |
 | MF3 end-to-end API walkthrough against the running stack | `powershell -File .scratch/mf3-evidence-and-report/run-wf3-8080.ps1 -InspectionId <uuid>` | **Passed 2026-10-11.** 38 assertions, 0 failures, against `spring-boot:run` on port 8080 with live PostgreSQL and MinIO. Covers evidence intake, checksum dedupe, type/size/empty/corrupt rejection, quality decision, manual finding and reviewer decision, report draft → verify → submit → return → resubmit → approve → publish, separation of duties, cross-tenant isolation, and publication immutability. Not a substitute for the automated suite; it exercises the same HTTP surface against real infrastructure. |
-| Frontend lint | `npm run lint` | Passed with 4 `react(only-export-components)` warnings. |
-| Frontend inspections feature suite | `npx vitest run src/features/inspections/` | **Passed 2026-10-12.** 5 files, 50 tests, 0 failures. Covers the reordered MF3 workspace (upload → quality decision → detection → findings → draft), the automatic MF3-05 trigger after an accepted decision, the inspection-detail upload control, and that an Inspector never issues the ORG_ADMIN-scoped compliance-gate read. |
-| MF3 live walkthrough with a real vision model | Browser walkthrough against the running stack (Vite 3000 → backend 8080 → 9router) | **Passed 2026-10-12.** Accepted an evidence set on inspection `2586669b…`; MF3-05 fired without a second click and returned three `PENDING` candidates (`corrosion` 0.97, `paint blistering` 0.95, `corrosion` 0.89) with provenance `capstone · gemini-3.8-flash-n`. Re-opening the workspace re-ran detection on the second image only and returned the existing candidates rather than duplicating them. No API key, prompt or image bytes were recorded. |
-| Frontend build | `npm run build` | Passed. |
-| Frontend full suite | `npm test -- --run` | **Passed 2026-10-11.** 37 files, 204 tests, 0 failures, in 72s. The two cases that fail only under CPU contention no longer need a single-worker rerun. |
-| Frontend affected test files | `npm test -- --run src/features/inspections/pages/InspectionsPage.test.tsx src/features/reports/pages/ReportsPage.test.tsx` | 17/17 passed. |
-| Mobile formatting | `dart format --set-exit-if-changed .` | 62 files checked, no changes. |
-| Mobile analysis | `flutter analyze` | No issues found. |
-| Mobile suite | `flutter test` | 40 passed. |
+| Frontend lint | `npm run lint` | Passed with 6 `react(only-export-components)` warnings (exit 0). |
+| Frontend full suite | `npm test -- --run` | **Passed 2026-10-13.** 42 files, 227 tests, 0 failures. |
+| Frontend typecheck | `npx tsc --noEmit` | Passed 2026-10-13. |
+| Frontend build | `npm run build` | Passed 2026-10-13. |
+| Frontend focused inspections/reports/app suites (historical) | `npx vitest run src/features/inspections src/features/reports src/app/permissions/accessPolicy.test.ts` | **Passed 2026-10-12.** 13 files, 98 tests, 0 failures. Superseded by the broader 2026-10-13 full suite row above; retained as historical evidence. |
+| MF3 live walkthrough with a real vision model (historical) | Browser walkthrough against the running stack (Vite 3000 → backend 8080 → 9router) | **Passed 2026-10-12.** Accepted an evidence set on inspection `2586669b…`; MF3-05 returned three `PENDING` candidates with provenance `capstone · gemini-3.8-flash-n`. Re-opening reran detection on the second image only and returned existing candidates without duplication. No API key, prompt, or image bytes recorded. |
+| Mobile formatting | `dart format --set-exit-if-changed .` | **Passed 2026-10-13.** 63 files checked, no changes. |
+| Mobile analysis | `flutter analyze` | **Passed 2026-10-13.** No issues found. |
+| Mobile full suite | `flutter test` | **Passed 2026-10-13.** 44 tests, including ACCEPTED-only eligibility and four evidence-quality request payloads. |
 
 The backend case-specific tests (`InspectionReadinessServiceTest`,
 `ReadinessSnapshotFactoryTest`, and `InspectionReadinessApiIntegrationTest`)
-were included in the successful 334-test PR #64 CI suite. No statement here
-claims the backend local suite passed.
+were included in the historical successful 334-test PR #64 CI suite. The
+historical 2026-10-12 local full run also passed 364 tests, but is not evidence
+for assertions added afterward. On 2026-10-13, the full local rerun discovered
+491 tests and reported 0 assertion failures but 263 Testcontainers errors
+because Docker was unavailable. Consequently the new WF3 backend regression
+assertions and focused integration suites remain Pending Docker-backed
+execution; do not treat environment errors as passes or product failures.
 The earlier MF3 work closed the JaCoCo gate after it had failed at 74.66% line
 coverage on the original baseline and 78% after `InspectionListApiIntegrationTest`.
 `ReportDraftConfigurationTest` covers startup validation requiring endpoint,
 API key, model name and positive timeout. The PR #64 CI confirmation records
-that the integrated backend coverage checks passed; local Docker-dependent
-Testcontainers execution was unavailable in this session.
+that the integrated backend coverage checks passed; it does not verify the
+new 2026-10-13 assertions.
 
 ## Supporting export-tool verification (not workbook cases)
 
