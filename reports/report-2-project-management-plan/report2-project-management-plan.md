@@ -5,7 +5,14 @@ report_number: 2
 source_docx: report2-project-management-plan.docx
 source_google_doc: "https://docs.google.com/document/d/1BTy_bPy7gZWQ4DpKzzTkUtTgripTy2iJRdyEgI0uxGk/edit"
 retrieved: 2026-09-21
+status: "historical-baseline — superseded by the four-role Enterprise SaaS target"
 ---
+
+> **Status — 10 October 2026: HISTORICAL BASELINE, SUPERSEDED.** This plan was written for the retired multi-provider marketplace target: six roles (`PLATFORM_OPERATOR`, `Provider`, `Client` and related) and flows WF1–WF4/MF1–MF5. **The current target has four roles** — `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER` — and flows MF1–MF4, per [Report 3](../report-3-software-requirement-specification/) and [business-flows.md](../../project-reference/business-flows.md) v4.0.
+>
+> The milestone table, role assignments, workload split and testing strategy below describe a baseline that no longer exists. They **must not** be presented as the current plan or as evidence of delivery. Two statements in particular are now false: the plan targets "four existing WF1–WF4 workflows, five current roles", and it treats MF1–MF5 as requiring new acceptance tests.
+>
+> **Before submission this plan must be regenerated** against the four-role target and reconciled with the implementation actually recorded in [Report 5](../report-5-test-report/). Current state: MF1-02–MF1-07 and MF3 are implemented and verified; MF1-01, MF1-08–MF1-14, MF2 and MF4 are not. [Report 1](../report-1-project-introduction/) shares this baseline.
 
 # report 2
 

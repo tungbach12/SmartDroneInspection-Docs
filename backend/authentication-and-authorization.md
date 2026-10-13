@@ -80,6 +80,71 @@ Platform user management is under `/api/v1/platform/users/**` and requires `ADMI
 - `PUT /api/v1/platform/users/{userId}/roles` changes roles and revokes the user's sessions.
 - `PATCH /api/v1/platform/users/{userId}/status` activates, suspends, or disables an account.
 
+## Tenant resource administration (MF1)
+
+MF1 organization resources are managed by `ORG_ADMIN` only, under tenant-scoped
+endpoints. `ADMIN` has no default customer-side authority over them.
+
+- `/api/v1/workforce/users/**` — provision, list, and change status or roles for
+  `INSPECTOR` and `MAINTENANCE_ENGINEER` accounts.
+- `/api/v1/workforce/credentials/**` — record and internally review the documents an
+  organization holds about its own workforce members.
+- `/api/v1/drones/**` — tenant Drone inventory, serviceability, and Drone documents.
+
+Authorization rules that hold across these endpoints:
+
+- **Organization scope always comes from the authenticated actor**, never from the request
+  body. A request-supplied organization is ignored.
+- **Only `INSPECTOR` and `MAINTENANCE_ENGINEER` are grantable** through the workforce API.
+  The public users facade independently enforces this allowlist, so a direct facade call
+  cannot promote a user to `ORG_ADMIN`/`ADMIN` or alter a peer `ORG_ADMIN`. This was a
+  review finding: relying on the general role policy alone permitted it.
+- **Foreign-tenant references are indistinguishable from missing ones.** A foreign subject,
+  Drone, evidence reference, or workforce email returns 404 with the same problem body as a
+  genuinely absent record, so an endpoint cannot be used to discover another tenant's identifiers.
+  A duplicate email inside the actor's own organization remains a useful 409 conflict; this is
+  not a cross-tenant existence signal.
+- **JSONB request fields are validated before persistence.** Drone `payloadMetadata` must be a
+  valid JSON document; malformed input returns `400 VALIDATION_FAILED` rather than exposing a
+  database/coercion failure as a 500.
+- **Subscription entitlement gates writes, not reads.** New or changed MF1 records require an
+  active subscription; an expired tenant keeps read and history access rather than losing it.
+- **Credential and permit review is an internal human decision.** It records reviewer,
+  timestamp and reason for the organization's own audit trail. It is never a government,
+  registry, or authority verification, and no field or status claims one.
+
+### Module boundaries
+
+Cross-module access uses narrow module-root facades rather than repositories or entities.
+`SubscriptionEntitlement.requireActive(UUID, Instant)` and
+`inspections.EvidenceOwnership.existsInOrganization(UUID, UUID)` exist for this reason:
+`workforce` and `assets` depend on those module roots, not on `inspections::repository`,
+so Spring Modulith still forbids importing another module's persistence types.
+
+### Operational thresholds
+
+MF1 thresholds that affect what a customer sees are configuration, not constants, so a
+deployment can change them without a rebuild:
+
+| Setting | Environment variable | Default | Meaning |
+| --- | --- | --- | --- |
+| `app.workforce.credential-expiring-soon-window` | `CREDENTIAL_EXPIRING_SOON_WINDOW` | `60d` | How far ahead a reviewed credential is shown as expiring soon. A display warning derived from the recorded expiry date — not a statutory renewal rule. Chosen for commercial drone inspection, where operator credentials and liability insurance are annual or longer; no requirement document specifies a window, so it is a product decision. |
+| `app.assets.drone-document-max-file-size` | `DRONE_DOCUMENT_MAX_FILE_SIZE` | `10MB` | Largest accepted Drone document upload. |
+| `app.assets.document-max-file-size` | `ASSET_DOCUMENT_MAX_FILE_SIZE` | `10MB` | Largest accepted asset document upload. |
+
+These are bound by `@ConfigurationProperties` classes (`WorkforceProperties`, `AssetProperties`)
+in the modules that own them. Accepted content types remain a fixed set on both document upload
+paths — a wildcard would defeat the check.
+
+A related setting, `app.evidence.max-file-size`, exists in `application.yml` but is not bound to
+any properties class. It should not be assumed to control these limits.
+
+**Scope of the expiry warning.** `EXPIRING_SOON` exists only on `workforce_credentials`
+(MF1-04/05). `flight_permits` (MF1-07) has no such status, so flight-permit records carry no
+expiring-soon signal in this release. That matters when comparing durations: under
+Nghị định 288/2025/NĐ-CP a recreational permit lasts up to 10 days while a commercial one
+lasts 12 months, and only the second kind is relevant to this product.
+
 ## Mobile flow
 
 Mobile endpoints mirror the auth contract under `/api/v1/mobile/auth/**`. Mobile clients receive access and refresh tokens in JSON and store them with platform secure storage. Browser `Origin` requests are rejected on these endpoints.

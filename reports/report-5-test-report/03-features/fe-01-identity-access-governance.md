@@ -4,9 +4,9 @@ Report 3 §3.2 titles this feature "Identity, Enterprise Subscription and
 Workforce Governance". The filename retains the earlier "identity / access
 governance" wording; the filename is stable, the scope is Report 3's.
 
-## Historical v1 evidence and current four-role baseline
+## Implemented four-role baseline
 
-Historical v1 checks below refer to `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`; they are retained for the version tested and are not reused as current-role evidence. The current roles are `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`. Current tenant/entitlement and workforce checks are recorded in the Enterprise SaaS sections below; pending targets remain pending unless a specific executed check is added.
+The recorded authentication, organization-scope and audit checks below concern the existing `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER` roles. They do not verify the 2026-10-07 Enterprise SaaS target roles `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`, or the new tenant/subscription entitlement and workforce-governance rules. Proposed target checks are Pending below; no existing Passed result is reused as evidence for those roles.
 
 ## Supporting verification
 
@@ -71,8 +71,43 @@ These FE-01 target cases are supporting checks outside the fixed WFx workbook ro
 
 | Target check | Procedure | Expected result | Preconditions | Status | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| FE01-T01 Organization and subscription entitlement gate | Register an enterprise organization; attempt MF1 setup before ADMIN activates the subscription; activate with ADMIN; then attempt cross-tenant workspace access. | MF1 setup is blocked until entitlement is active; ADMIN activates the workspace; a user from another organization cannot read or mutate the workspace. | Two organizations and an inactive subscription fixture exist. | Pending | No new runtime test executed. |
-| FE01-T02 Role separation of duties | Attempt ORG_ADMIN setup actions as `INSPECTOR`/`MAINTENANCE_ENGINEER`; attempt Inspector/Engineer evidence-quality actions as `ORG_ADMIN` or `ADMIN`; attempt independent maintenance acceptance by the report author or repair team. | Only ORG_ADMIN manages organization resources/workforce/teams; Inspectors and Engineers act only on assigned work; ADMIN has no default customer technical or acceptance authority; author/executing-team self-acceptance is denied. | Target four-role fixtures and one assigned inspection/work-order exist. | Partial — Frontend direct route guard Passed 2026-10-13; MF4 acceptance remains Pending | `RequireAuth.resources.test.tsx` verifies `/client/workforce` and `/client/assets` redirect ADMIN, INSPECTOR, MAINTENANCE_ENGINEER to Forbidden and allow ORG_ADMIN; does not exercise backend authorization or MF4 acceptance. |
+| FE01-T01 Organization and subscription entitlement gate | Register an enterprise organization; attempt MF1 setup before ADMIN activates the subscription; activate with ADMIN; then attempt cross-tenant workspace access. | MF1 setup is blocked until entitlement is active; ADMIN activates the workspace; a user from another organization cannot read or mutate the workspace. | Two organizations and an inactive subscription fixture exist. | Passed 2026-10-10 for the entitlement and tenant-isolation checks | `SubscriptionEntitlementServiceTest` — 4/4; cross-tenant isolation via `WorkforceApiIntegrationTest`. Subscription activation itself is the Supporting Flow and is not implemented. |
+| FE01-T02 Role separation of duties | Attempt ORG_ADMIN setup actions as `INSPECTOR`/`MAINTENANCE_ENGINEER`; attempt Inspector/Engineer evidence-quality actions as `ORG_ADMIN` or `ADMIN`; attempt independent maintenance acceptance by the report author or repair team. | Only ORG_ADMIN manages organization resources/workforce/teams; Inspectors and Engineers act only on assigned work; ADMIN has no default customer technical or acceptance authority; author/executing-team self-acceptance is denied. | Target four-role fixtures and one assigned inspection/work-order exist. | Partial — workforce side Passed 2026-10-11; maintenance self-acceptance still Pending | `WorkforceApiIntegrationTest` 22/22 and `WorkforceServiceTest` 13/13, including cross-tenant email non-disclosure: a foreign email returns `404 USER_NOT_FOUND`, while a same-organization duplicate remains `409 EMAIL_ALREADY_EXISTS`; privileged-role and peer-ORG_ADMIN mutations remain blocked. MF4 independent maintenance acceptance is unimplemented. |
+
+### Review-fix verification (executed 11 October 2026)
+
+- Preconditions: Integrated MF1 branch with PostgreSQL Testcontainers available; two organization fixtures and active ORG_ADMIN actors.
+- Procedure: Run `./mvnw -Dtest=WorkforceApiIntegrationTest,DroneApiIntegrationTest,DroneDocumentApiIntegrationTest,DronePersistenceTest,CompliancePersistenceTest,EvidenceOwnershipServiceTest,WorkforceCredentialExpiryWindowTest test` and attempt provisioning with an email owned by another organization.
+- Expected result: A globally unique email must not become an existence oracle: foreign-organization email returns the same non-disclosing `404 USER_NOT_FOUND` used for an absent user; same-organization duplicate remains a useful `409 EMAIL_ALREADY_EXISTS`. Persistence fixtures must roll back so later tests do not depend on execution order.
+- Round 4: Passed on 2026-10-11; tester: Claude Code (automated). The focused command passed 68 tests; the full `./mvnw verify` passed 301 tests, 0 failures, 0 errors, coverage gate met.
+- Defect note: The security review found `AdminUserService`'s global email check exposed `409 EMAIL_ALREADY_EXISTS` for another tenant's address. The fix scopes the non-disclosure decision at `UserAccessService` before delegation to the platform-admin service, preserving same-organization conflict behavior. The order-dependent persistence failure was reproduced by running `DronePersistenceTest` before `DroneApiIntegrationTest` (1 failure), then eliminated by adding transactional rollback to the persistence tests. |
+
+### Enterprise SaaS entitlement and workforce governance (executed 10 October 2026)
+
+These execute the previously Pending `FE01-T01`/`FE01-T02` checks for the MF1
+resource-setup slice. They are supporting gates outside the fixed WFx workbook
+rows, matching the existing FE-01 foundation-gate convention, so they do not
+alter workbook statistics.
+
+#### Subscription entitlement gate
+
+- Preconditions: Backend branch `integrate/mf1-resources`; PostgreSQL 17 through Testcontainers; Flyway `V25__enterprise_saas_target_schema.sql` creating `subscriptions`.
+- Procedure: Run `./mvnw -Dtest=SubscriptionEntitlementServiceTest test`; call `SubscriptionEntitlement.requireActive(organizationId, at)` for an in-window ACTIVE subscription, for a subscription whose exclusive `endsAt` has passed, and for expired, suspended and missing subscriptions.
+- Expected result: `requireActive` returns normally only for an ACTIVE subscription whose window covers the instant; every other case raises a `FORBIDDEN` `SUBSCRIPTION_INACTIVE` ProblemDetail. A null `startsAt`/`endsAt` is treated as unbounded, and one organization's entitlement never satisfies another's.
+- Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
+- Evidence: `SubscriptionEntitlementServiceTest` — 4/4. Part of the merged `./mvnw verify` run: 254 tests, 0 failures, 0 errors, `All coverage checks have been met.`, BUILD SUCCESS.
+- Scope note: This verifies the entitlement decision itself. It does not verify subscription activation or renewal, which is the Supporting Flow and is not implemented.
+
+#### ORG_ADMIN workforce provisioning and role-safe lifecycle
+
+- Preconditions: Same merged baseline; an active `ORG_ADMIN` in a `CUSTOMER_ORGANIZATION` zone, plus a second organization fixture for isolation checks.
+- Procedure: Run `./mvnw -Dtest=WorkforceApiIntegrationTest,WorkforceServiceTest test`; exercise `POST/GET/PATCH/PUT /api/v1/workforce/users` as ORG_ADMIN, then call the public `UserAccess` facade directly to attempt granting `ORG_ADMIN` or `ADMIN`, and to mutate a peer ORG_ADMIN's status and roles.
+- Expected result: Provisioning returns 201 with a one-time temporary password; organization scope comes from the authenticated actor and a request-supplied organization is ignored; only `INSPECTOR` and `MAINTENANCE_ENGINEER` are accepted; reads stay available while writes require entitlement; a rejected operation writes no user, role, audit, session or refresh-token row and leaves a peer ORG_ADMIN unchanged.
+- Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
+- Evidence: `WorkforceApiIntegrationTest` 20/20 and `WorkforceServiceTest` 13/13, inside the 254-test merged run above.
+- Defect note: An earlier implementation of this gate was rejected in review because `UserAccessService` relied on `RolePolicy`, which permits `ORG_ADMIN` for customer users. A direct facade call could therefore grant a privileged role or alter a peer ORG_ADMIN. Five direct-facade regression tests were written first and observed failing 5/5, then the workforce role allowlist and target-membership check were added and those five passed.
+- Known gap: the peer-admin rejection tests assert the target's auth session is not revoked but do **not** assert the associated refresh token remains unrevoked. The role guard itself is covered.
+- Scope note: This covers provisioning and lifecycle only. Credential records are recorded separately below.
 
 ### Enterprise SaaS identity, registration and target-schema reset (executed 8 October 2026)
 
@@ -92,6 +127,28 @@ These FE-01 target cases are supporting checks outside the fixed WFx workbook ro
 - Round 2: Passed on 2026-10-08; tester: Hermes (automated).
 - Evidence: Frontend 25 test files / 128 tests passed and production build succeeded (5 `react(only-export-components)` fast-refresh lint warnings, no errors). Mobile: format clean (0 changed), `flutter analyze` reported one pre-existing `info` lint in `lib/core/router/app_router.dart` that is not part of this change, and 16/16 tests passed.
 - Scope note: Frontend tests use a mocked transport; mobile tests use fakes. Neither is a live browser/device end-to-end run.
+
+#### MF1-04/05 workforce credential records and internal review
+
+- Preconditions: Same merged baseline at `dcd6516`; `V25` table `workforce_credentials`; an active ORG_ADMIN, a same-organization workforce subject, and a same-organization evidence record.
+- Procedure: Run `./mvnw -Dtest=WorkforceCredentialApiIntegrationTest,WorkforceCredentialPersistenceTest,EvidenceOwnershipServiceTest test`; exercise `POST /api/v1/workforce/credentials`, the list endpoint, and `PUT /{id}/review`; submit a foreign subject, a foreign `evidenceId`, an expiry that precedes its issue date, a blank `credentialType`, and a blank rejection reason.
+- Expected result: Credential creation succeeds only for a same-organization subject and same-organization evidence; a foreign subject and foreign evidence both return 404 with an identical problem body so the endpoint cannot be used to probe another tenant's identifiers; an inverted date range returns 400; a review records reviewer, timestamp and reason together; expiry status is derived at read time; the credential record survives its subject being suspended; and no field or status claims government or authority verification.
+- Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
+- Evidence: `WorkforceCredentialApiIntegrationTest` 15/15, `WorkforceCredentialPersistenceTest` 5/5, `EvidenceOwnershipServiceTest` 3/3, inside the 254-test merged run above.
+- Module-boundary note: verifying `evidence_id` tenant ownership required a path from `workforce` to `inspections`. A single-method facade `com.smartdroneinspection.inspections.EvidenceOwnership` was added at the `inspections` module root, and `workforce` was granted a module-root dependency on `inspections` — not `inspections::repository`, so Spring Modulith still forbids importing the evidence repositories or entities. The boundary was checked with a temporary probe that imported `EvidenceRepository` and correctly failed verification; the probe was removed before commit.
+- Configuration note: the `EXPIRING_SOON` horizon is bound to `app.workforce.credential-expiring-soon-window` (env `CREDENTIAL_EXPIRING_SOON_WINDOW`, default `60d`) via `WorkforceProperties`, so a deployment can change it without a rebuild. No requirement document specifies a window — MF1-05 asks only that expiry warnings be calculated — so 60 days is a product decision made for commercial drone inspection, where operator credentials and liability insurance are annual or longer. Covered by `WorkforceCredentialExpiryWindowTest` (5 cases), which proves the configured window and not a literal decides the status, and pins the default across `application.yml`, the properties class and the entity fallback so those three cannot drift apart silently.
+- Scope note: `EXPIRING_SOON` exists only on `workforce_credentials`. `flight_permits` (MF1-07) has no such status, so permit records carry no expiring-soon signal in this release.
+
+### Frontend MF1 resource-navigation and integration verification (executed 13 October 2026)
+
+This is supporting frontend evidence, outside the fixed WFx workbook rows, consistent with the FE-01 foundation-gate convention. Workbook statistics remain unchanged.
+
+- Preconditions: Frontend branch `feat/mf1-fe-drones`; four canonical roles; React Router guard and local test fixtures.
+- Procedure: Run `npx vitest run --pool=forks --maxWorkers=1 src/app/permissions/accessPolicy.test.ts src/app/router/router.test.ts src/features/auth/components/RequireAuth.resources.test.tsx src/features/assets/pages/AssetsPage.resources.test.tsx`; evaluate the access-policy matrix, direct `RequireAuth` outcomes for `/client/workforce` and `/client/assets`, and the resource-tab composition.
+- Expected result: ORG_ADMIN can enter the client Workforce and Assets guard; ADMIN, INSPECTOR and MAINTENANCE_ENGINEER are redirected to the forbidden surface on direct access; Drones and Permits tabs render only for ORG_ADMIN; existing Admin/Operations route entries remain matched.
+- Round 1: Passed on 2026-10-13; tester: Claude Code (automated).
+- Evidence: focused command passed 4 files / 44 tests, including direct guard behavior for both paths across all four roles.
+- Scope note: This is a component/guard test using the real RequireAuth component, not a browser-to-backend end-to-end authorization test. Backend authorization remains authoritative.
 
 ## Coverage boundary
 
