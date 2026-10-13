@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-13 |
 | Document Code | *Enter document code* |
-| Version | 4.13 (WF3 backend alignment adds server enforcement for non-blank shot-list comparisons, stale evidence-snapshot conflicts at report verify/submit, and finding-creator no-self-review. Updated Report 3/business-flow and FE case traceability. Existing WFx statuses/totals remain unchanged; new Docker/Testcontainers regression assertions are Pending because the 2026-10-13 full backend rerun could not access Docker (491 discovered, 0 assertion failures, 263 environment errors). Frontend 42 files/227 tests, typecheck and build passed; mobile 44 tests, analyze and formatting passed. Previously: 4.12 (MF3 workspace stage split and reports-list merge.) |
+| Version | 4.13 (WF3 backend alignment adds server enforcement for non-blank shot-list comparisons, stale evidence-snapshot conflicts at report verify/submit, and finding-creator no-self-review. Backend PR #69 CI run 38325774461 passed `./mvnw -B verify`: 491 tests, 0 failures/errors/skips, coverage gate and Modulith checks passed; the new Testcontainers regression assertions ran. The separate 2026-10-13 local rerun remains environment-blocked: 491 discovered, 0 assertion failures, 263 Docker errors. Existing eight WFx statuses/totals remain unchanged. Frontend 42 files/227 tests, typecheck and build passed; mobile 44 tests, analyze and formatting passed. Previously: 4.12 (MF3 workspace stage split and reports-list merge.) |
 
 ## Export-tool verification (not workbook cases)
 
