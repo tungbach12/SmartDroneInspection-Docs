@@ -4,9 +4,9 @@ Report 3 §3.2 titles this feature "Identity, Enterprise Subscription and
 Workforce Governance". The filename retains the earlier "identity / access
 governance" wording; the filename is stable, the scope is Report 3's.
 
-## Implemented v1 baseline and Enterprise SaaS target
+## Historical v1 evidence and current four-role baseline
 
-The recorded authentication, organization-scope and audit checks below concern the existing `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER` roles. They do not verify the 2026-10-07 Enterprise SaaS target roles `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`, or the new tenant/subscription entitlement and workforce-governance rules. Proposed target checks are Pending below; no existing Passed result is reused as evidence for those roles.
+Historical v1 checks below refer to `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`; they are retained for the version tested and are not reused as current-role evidence. The current roles are `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`. Current tenant/entitlement and workforce checks are recorded in the Enterprise SaaS sections below; pending targets remain pending unless a specific executed check is added.
 
 ## Supporting verification
 
@@ -72,7 +72,7 @@ These FE-01 target cases are supporting checks outside the fixed WFx workbook ro
 | Target check | Procedure | Expected result | Preconditions | Status | Evidence |
 | --- | --- | --- | --- | --- | --- |
 | FE01-T01 Organization and subscription entitlement gate | Register an enterprise organization; attempt MF1 setup before ADMIN activates the subscription; activate with ADMIN; then attempt cross-tenant workspace access. | MF1 setup is blocked until entitlement is active; ADMIN activates the workspace; a user from another organization cannot read or mutate the workspace. | Two organizations and an inactive subscription fixture exist. | Pending | No new runtime test executed. |
-| FE01-T02 Role separation of duties | Attempt ORG_ADMIN setup actions as `INSPECTOR`/`MAINTENANCE_ENGINEER`; attempt Inspector/Engineer evidence-quality actions as `ORG_ADMIN` or `ADMIN`; attempt independent maintenance acceptance by the report author or repair team. | Only ORG_ADMIN manages organization resources/workforce/teams; Inspectors and Engineers act only on assigned work; ADMIN has no default customer technical or acceptance authority; author/executing-team self-acceptance is denied. | Target four-role fixtures and one assigned inspection/work-order exist. | Pending | No new runtime test executed. |
+| FE01-T02 Role separation of duties | Attempt ORG_ADMIN setup actions as `INSPECTOR`/`MAINTENANCE_ENGINEER`; attempt Inspector/Engineer evidence-quality actions as `ORG_ADMIN` or `ADMIN`; attempt independent maintenance acceptance by the report author or repair team. | Only ORG_ADMIN manages organization resources/workforce/teams; Inspectors and Engineers act only on assigned work; ADMIN has no default customer technical or acceptance authority; author/executing-team self-acceptance is denied. | Target four-role fixtures and one assigned inspection/work-order exist. | Partial — Frontend direct route guard Passed 2026-10-13; MF4 acceptance remains Pending | `RequireAuth.resources.test.tsx` verifies `/client/workforce` and `/client/assets` redirect ADMIN, INSPECTOR, MAINTENANCE_ENGINEER to Forbidden and allow ORG_ADMIN; does not exercise backend authorization or MF4 acceptance. |
 
 ### Enterprise SaaS identity, registration and target-schema reset (executed 8 October 2026)
 
