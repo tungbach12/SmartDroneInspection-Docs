@@ -2,8 +2,8 @@
 title: "Business Flows (Enterprise SaaS, four roles)"
 document_type: business-flow-reference
 purpose: "Current four-role Enterprise SaaS business flows MF1-MF4 with actor-labelled steps. Authoritative for business requirements together with Report 3; the database design remains the storage contract."
-version: "4.0"
-updated: 2026-10-08
+version: "4.1"
+updated: 2026-10-10
 ---
 
 # SmartDroneInspection Business Flows — Enterprise SaaS
@@ -11,12 +11,13 @@ updated: 2026-10-08
 This document describes the current product target: a multi-tenant SaaS workspace rented by
 infrastructure-owning companies. Four human roles, four connected Main Flows, no marketplace.
 
-> **Requirements, not implementation.** These flows state required behaviour. On 8 October 2026 the
-> backend delivered identity, organization registration, the 41-table target schema and the runtime
-> cutover on VPS2, and then the MF3 workflow slice: evidence intake, the Inspector's evidence-quality
-> decision, advisory AI candidates with a manual fallback, and versioned report authoring, independent
-> ORG_ADMIN review, and immutable publication. MF1, MF2, and MF4 execution remains team work. See
-> [database-design.md](database-design.md) §11 for what currently exists, and
+> **Requirements, not implementation.** These flows state required behaviour. By 10 October 2026,
+> the backend had delivered identity, organization registration, the 41-table target schema/runtime
+> cutover, the MF3 workflow slice, and an MF2 slice covering assignment response, preparation/compliance,
+> readiness approval/return and field-session start/postpone/abort. MF2-08 source-change invalidation is
+> partial and MF2-12 session end/`FIELD_COMPLETED` is not implemented; MF1 and MF4 remain incomplete.
+> See the implementation-status table below and [database-design.md](database-design.md) §11 for
+> the verified runtime boundary, and
 > [Report 3](../reports/report-3-software-requirement-specification/03-functional-requirements.md)
 > for the binding requirements text.
 
@@ -131,8 +132,8 @@ ended field-session records under the same inspection.
 | MF2-03 | `INSPECTOR` | Prepare the component shot-list, required evidence types and checklist; identify access limitations, proposed field-session times and known hazards on the app. | Reviewable preparation version. Hardware configuration is out of scope. |
 | MF2-04 | `ORG_ADMIN` | Link the actual applicable issued permit/permission and credential/Drone records; document airspace-source checks, scope and time coverage, and conditions. | Missing authorization cannot be waived internally. A genuine exemption requires a recorded legal basis and supporting review. |
 | MF2-05 | `SYSTEM` | Validate required links, document dates/status, pair, plan version and known conflicts against the planned session time. | Blockers listed. Ambiguous authority or geographic conditions require human verification, not inferred clearance. |
-| MF2-06 | `INSPECTOR` | Read the restrictions and preparation checklist; record safety acknowledgments and submit the preparation. | Attributable Inspector submission. An acknowledgment is not a statutory licence or guaranteed digital signature. |
-| MF2-07 | `ORG_ADMIN` | As the named qualified reviewer, inspect the preparation and compliance basis. Approve or return with reasons. | `READY_FOR_FLIGHT` only when all applicable mandatory conditions pass. Reviewer identity and source-document versions recorded. |
+| MF2-06 | `INSPECTOR` | Read the restrictions and preparation checklist; record safety acknowledgments and submit the preparation. | Submission is allowed only while the assigned inspection is `PREPARING` and is serialized with readiness review using inspection-first locking; otherwise it is refused without modifying the preparation. An acknowledgment is not a statutory licence or guaranteed digital signature. |
+| MF2-07 | `ORG_ADMIN` | A separate active organization reviewer presents an ACTIVE internally verified credential with source-evidence attribution, inspects the current submitted preparation, and attests applicability using a traceable basis before approving or returning with reasons. | Approval requires correct organization/subject ownership and verification/review attribution for selected credentials and Drone documents, explicit validity bounds covering planned time, an accepted pair response strictly before planned start, and no machine-detectable permit blocker. Empty selected credential/document categories require category-specific reasons plus the applicability basis. Return requires a reason and reviewer credential valid at decision time but may proceed despite readiness evidence gaps; its snapshot records reviewer-observed/unresolved IDs with `observedSourceSetComplete=false`. These internal record checks do not verify an issuer registry or make a statutory determination. |
 | MF2-08 | `SYSTEM` | Snapshot the approved plan, pair and documents; notify the Inspector. | A material plan, pair, permit or schedule change invalidates readiness and requires review again. |
 | MF2-09 | `INSPECTOR` | On site, identify the assigned Drone, complete the current pre-flight checklist, then request Start or record a postponement/interruption reason. | No software control of the Drone. Weather and site safety can cause postponement even after approval. |
 | MF2-10 | `SYSTEM` | Immediately recheck entitlement, assignment, readiness version and required validity; on success record `IN_PROGRESS`, Inspector, Drone and session start time. | Stale, expired or revoked readiness is rejected. Start does not arm the aircraft or establish hardware flight time. |
@@ -152,15 +153,15 @@ draft → human author verification → qualified human review → publication.
 | --- | --- | --- | --- |
 | MF3-01 | `INSPECTOR` | Upload original evidence to the correct inspection and session; add component/capture context where metadata is missing. | Attributable files. No automatic quality acceptance. |
 | MF3-02 | `SYSTEM` | Validate technical intake, compute the hash, store source references and display upload/processing errors. | Valid stored files. Corrupt, wrong-type, oversize and duplicate failures identify the corrective action. |
-| MF3-03 | `INSPECTOR` | Compare evidence with the shot-list and directly decide completeness and quality. Re-upload a file or request another MF2 session. | Inspector's documented adequate/insufficient decision. The SYSTEM does not decide image usefulness. |
+| MF3-03 | `INSPECTOR` | Compare evidence with the shot-list and directly decide completeness and quality. Re-upload a file or request another MF2 session. The comparison is stored with the decision and is required before one is recorded. | Inspector's documented adequate/insufficient decision, with the coverage comparison behind it. The SYSTEM does not decide image usefulness. |
 | MF3-04 | `SYSTEM` | Snapshot the evidence set after Inspector confirmation; preserve missing-metadata and coverage flags. | Source set eligible for processing. Later changes make dependent drafts and review confirmations stale. |
-| MF3-05 | `SYSTEM` / AI Vision | Run compatible detection on eligible images; store suggested defects with model provenance. | Non-official candidates. The manual path stays available on failure or incompatibility. |
+| MF3-05 | `SYSTEM` / AI Vision | Run compatible detection on eligible images; store suggested defects with model provenance. Detection starts once the Inspector's quality decision is `ACCEPTED`; re-running it on an already analysed image returns the existing candidates rather than a duplicate. | Non-official candidates. The manual path stays available on failure or incompatibility. A `LIMITED` decision is not eligible. |
 | MF3-06 | `INSPECTOR` | Add source-backed field observations, annotations and any manual findings or notes needed for drafting. | Candidate/observation packet. Measurements require a documented method and unit, not pixel guesswork. |
-| MF3-07 | `SYSTEM` / LLM | After detection, generate a labelled `DRAFT` from authorized asset/scope/session/checklist/evidence references plus candidate and observation data. | Source-linked narrative. Candidate statements are labelled unverified; missing facts stay unknown. |
+| MF3-07 | `SYSTEM` / LLM | After detection, generate a labelled `DRAFT` from authorized asset/scope/session/checklist/evidence references plus candidate and observation data, proposing a value for each authored report section. | Section-scoped, source-linked draft. Candidate statements are labelled unverified; a section the sources do not support is left not supplied; drafting never writes to or alters the reviewed finding records. |
 | MF3-08 | `INSPECTOR` — report author | Read and edit the entire draft; verify identifiers, equipment, coverage, findings, uncertainty and recommendations against sources; submit the reviewed version. | Human author confirmation and submitted version. Unsupported causes and measurements removed. |
-| MF3-09 | `ORG_ADMIN` — qualified reviewer | Review source evidence; accept, modify or reject candidates; confirm manual findings; review text and limitations. Return with reasons or approve. | Final finding decisions and report sign-off. No self-review by the author and no default acceptance on a timer. |
+| MF3-09 | `ORG_ADMIN` — qualified reviewer | Review source evidence; accept, modify or reject candidates; confirm manual findings; review text and limitations. Return with reasons or approve. | Final finding decisions and report sign-off. The user who created a finding cannot decide that finding, and the report author cannot review or publish their own report; no default acceptance on a timer. |
 | MF3-10 | `SYSTEM` | Apply reviewer-approved structured finding changes and totals to the draft; return to MF3-08/MF3-09 if the narrative must be regenerated or edited. | Text and findings agree. Any material change invalidates the prior sign-off. |
-| MF3-11 | `SYSTEM` | Publish the approved report version and PDF with author, reviewer, date, source index and approval record; apply qualified digital-signature integration only if one is supplied. | Immutable official version. A logged application approval alone is not a certified digital signature. |
+| MF3-11 | `SYSTEM` | Publish the approved report version and its PDF with author, reviewer, date, source index and approval record; the published PDF is the version's deliverable, its object key and SHA-256 are recorded on the version, and publication does not complete unless the artefact is stored; apply qualified digital-signature integration only if one is supplied. | Immutable official version with a retained, checksum-verifiable artefact. A logged application approval alone is not a certified digital signature. |
 | MF3-12 | `ORG_ADMIN` | Mark required corrective items with priorities and deadlines, or record that no corrective work is required within the observed scope. | Approved repair list only. No empty work order for a no-repair outcome. |
 | MF3-13 | `SYSTEM` | Update inspection and asset history; hand approved corrective items to MF4 with report-version and finding references. | Pending corrective work stays visible. If none is required, close the outcome with limitations preserved. |
 
@@ -255,17 +256,21 @@ SUPERSEDED` by `InspectionReportVersion`.
 
 ## VIII. Implementation status
 
-| Area | Status on 8 October 2026 |
+| Area | Status on 10 October 2026 |
 | --- | --- |
 | Roles, organization registration, audit | Delivered and verified on VPS2 |
 | Target schema (41 tables) and runtime cutover | Delivered and verified on VPS2 |
-| Asset catalog, categories, checklists | Runtime present; MF1 pair/inspection workflow not implemented |
-| MF3 evidence, quality decision, findings, versioned report and publication | Implemented and verified on 8 October 2026 |
-| MF1, MF2, MF4 workflow execution | Not implemented. Team-owned work. |
+| Asset catalog, categories, checklists | Catalog runtime present; complete MF1 pair/inspection workflow remains incomplete |
+| MF2-01/02 assignment response | Implemented in backend `84fcc16`, frontend `287d5a4`, mobile `91092e6`; backend API/integration coverage included in PR #64 CI |
+| MF2-03/06 preparation and compliance | Backend API/service and web preparation panel implemented; backend and frontend cases added |
+| MF2-07 readiness approval/return | Backend decision service, snapshot hash, source-list/read routes and web review panel implemented; `WF2-008`/`WF2-009` record the decision rules and evidence |
+| MF2-08 invalidation | Partial: start requires the newest decision to be `APPROVED`; `INVALIDATED` is a supported decision type, but no source-change workflow currently appends it |
+| MF2-09/11 field session | Backend start/postpone/abort APIs and mobile field-session screen implemented; backend/mobile tests added |
+| MF2-12 session end and `FIELD_COMPLETED` handoff | Not implemented |
+| MF3 evidence, quality decision, findings, versioned report and publication | Implemented and verified on 8 October 2026; scoped list added and verified on 9 October 2026 |
+| MF4 workflow execution | Not implemented |
 
-Report 5 records the nine target acceptance cases (`WF2-005`-`WF2-007`, `WF3-005`-`WF4-005`) as
-`Pending`. They stay `Pending` until matching execution evidence exists; a table or schema row is
-not workflow evidence.
+The backend PR #64 workflow completed successfully: 334 tests, zero failures/errors/skips, JaCoCo and Modulith checks passed. Report 5 has seven executed workflow cases in the 8-feature output layout: two MF2-07 readiness cases on `Feature 3`/FE-03, plus five MF3 cases on `Feature 4`–`Feature 6`. Remaining MF1, MF2-08, MF2-12 and MF4 requirements stay visible as implementation/test gaps. Do not treat schema alone as workflow evidence; the statuses above refer to merged code and its recorded automated checks.
 
 ## IX. Source reference
 

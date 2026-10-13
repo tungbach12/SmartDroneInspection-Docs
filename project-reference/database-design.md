@@ -328,7 +328,13 @@ Stores human findings: inspection, source candidate optional, component/location
 - structured summary/limitations/recommendations JSON plus rendered object key/checksum;
 - source evidence/finding snapshot hash and published time.
 
-The two junction tables preserve exactly which evidence and findings supported a version. An approved report cannot be edited in place; correction creates a linked version. LLM regeneration never silently overwrites author edits.
+The report body's structured JSON holds the authored section values described in Report 3 §3.7.2,
+so no additional table is required for them. Automated drafting writes proposed section values into
+a new DRAFT version; it never updates `verified_findings`, and the author can replace or clear each
+proposal before verification. `rendered_object_key` and `rendered_checksum_sha256` are
+populated when the version is published, not before: they identify the published PDF that is the
+version's deliverable, and the checksum is taken from the stored bytes. A draft or returned version
+legitimately leaves them null. The two junction tables preserve exactly which evidence and findings supported a version, and the Confirmed findings, Evidence register, Approval block and Appendices sections of the document are rendered from those records and the version's own authorship columns rather than copied into the body. An approved report cannot be edited in place; correction creates a linked version. LLM regeneration never silently overwrites author edits.
 
 ### 6.6 MF4 repair team, costs and acceptance
 
@@ -457,7 +463,7 @@ Applied migration files remain forward-only history. The backend reset has begun
 1. Reconcile this logical target inventory against the current live schema and Java entities; do not assume all 41 target tables exist or that all legacy tables have been retired.
 2. Track V24 (role/zone alignment), V25 (additive target schema) and V26 (runtime cutover) as three separate forward migrations; V26 is the destructive step and is authorized as an explicit start-fresh reset.
 4. Pre-check populated data before unique indexes, checks and status constraints; backfill parent records before adding non-null foreign keys.
-5. Implement entity/repository ownership, authorization policies, and the workflow layers in separately scoped slices. Schema rows alone do not implement MF1–MF4 behavior; MF3 has been implemented as one such slice, and MF1/MF2/MF4 remain to be built.
+5. Implement entity/repository ownership, authorization policies, and workflow behavior in separately scoped slices. Schema rows alone do not implement a workflow; MF2 and MF3 have partial runtime slices, while complete MF1 and MF4 behavior remains to be built.
 6. Test empty and populated databases, including duplicate/expired credentials, cross-tenant access, stale readiness, self-acceptance and cost variance.
 7. Run schema validation and repository verification before claiming implementation; preserve actual execution results in Report 5 without extrapolating beyond tested behavior.
 
@@ -465,9 +471,7 @@ Applied migration files remain forward-only history. The backend reset has begun
 
 - This file is a **target database design aligned with Report 3**, not a full implementation report.
 - V24 aligns identity/role vocabulary, V25 adds the target schema, and V26 completes the runtime cutover to the 41-table target inventory. Verified by `./mvnw clean verify` on 8 October 2026 (88 tests, exit 0), including empty-database migration, populated V1-V23 fail-closed migration tests, and an exact-table-inventory assertion.
-- Current backend runtime has removed provider request/marketplace code. The `inspections` module implements the MF3 slice — evidence, evidence-quality decisions, findings, and versioned reports through publication — over the tables described here.
-- **MF1-02–MF1-06 became implemented on 10 October 2026** on backend branch `integrate/mf1-resources` (`dcd6516`): `subscriptions` is mapped and drives the entitlement gate; `workforce_credentials` is mapped with attributable internal review; `drones` and `drone_documents` are mapped with tenant-scoped CRUD. No migration was added — V25 already defined these tables completely. Verified by `./mvnw verify` (254 tests, 0 failures, 0 errors, JaCoCo gate met).
-- Still unimplemented: **MF1-01** (workspace and company identity), **MF1-07** (permit records), **MF1-08–MF1-14** (asset pairing, inspection setup, conflict, reassignment, dispatch), **MF2**, and **MF4**. Those tables remain persistence only.
+- Current backend runtime has removed provider request/marketplace code. The `inspections` module implements MF2 assignment response, preparation/compliance, readiness approval/return, and field-session start/postpone/abort, plus the MF3 evidence, quality decision, findings, and versioned report workflow. MF2-08 source-change invalidation is partial, and MF2-12 session end/`FIELD_COMPLETED` remains unimplemented; MF1 and MF4 remain incomplete workflow areas.
 - Asset/catalog/scheduling and auth runtime remain in the reset branch, but they are partial capabilities and must be checked against current source and the corresponding backend guides.
 - Do not read the 41-table target count as the current physical schema. A table's existence does not establish API, use-case, workflow, or test completion.
 
@@ -477,7 +481,8 @@ Applied migration files remain forward-only history. The backend reset has begun
 - V24 identity alignment: `backend/src/main/resources/db/migration/V24__enterprise_saas_role_and_schema_alignment.sql`
 - V25 additive target-schema bridge: `backend/src/main/resources/db/migration/V25__enterprise_saas_target_schema.sql`
 - V26 runtime cutover: `backend/src/main/resources/db/migration/V26__enterprise_saas_runtime_cutover.sql`
-- V27 MF3 report workflow: `backend/src/main/resources/db/migration/V27__mf3_report_workflow.sql` — drops the removed `peer_reviews` table and replaces the retired report-status vocabulary
+- V27 MF3 report workflow: `SmartDroneInspection-backend/src/main/resources/db/migration/V27__mf3_report_workflow.sql` — drops the removed `peer_reviews` table and replaces the retired report-status vocabulary
+- V28 assignment response: `SmartDroneInspection-backend/src/main/resources/db/migration/V28__assignment_response.sql` — records the Inspector's accept/reject response separately from pairing lifecycle
 
 - [Report 3 Software Requirement Specification](../reports/report-3-software-requirement-specification/)
 - [Authentication and Access Control](../backend/authentication-and-authorization.md)

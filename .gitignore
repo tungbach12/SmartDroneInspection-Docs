@@ -9,3 +9,8 @@ Thumbs.db
 # Agent planning scratch
 /superpowers/plans/
 .superpowers/
+
+# Reproducible local report exports and Python caches
+/reports/generated/
+__pycache__/
+*.pyc

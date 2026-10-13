@@ -43,6 +43,24 @@ Current features include `assets`, `auth`, `inspections`, `tasks`, and `profile`
 
 The mobile client is designed for `INSPECTOR` and `MAINTENANCE_ENGINEER` workflows. Organization registration and customer approvals are web-first experiences, although the mobile API exposes the same controlled registration contract for clients that need it. Route visibility can improve the user experience, but the backend remains responsible for assignment scope, organization scope, and all final authorization decisions.
 
+## Assignment inbox and field sessions
+
+The inspection feature includes an Inspector assignment inbox backed by
+`/api/v1/inspection-assignments/mine`. It displays unanswered pairings and
+submits accept/reject responses through
+`POST /api/v1/inspection-assignments/{assignmentId}/response`, requiring a reason
+for rejection. The backend resolves the caller and assignment scope; the client
+does not choose an Inspector or organization. Assignment acceptance does not
+grant readiness.
+
+The field-session screens list an Inspector's sessions for an assigned
+inspection, record a pre-flight note and request Start, and support postponement
+or abort with a reason. Start is available only after backend readiness/state
+checks; it records a software session and does not control or arm the Drone.
+Source-change invalidation is partial in the backend, and no session-end /
+`FIELD_COMPLETED` operation is currently available. These are server-enforced
+boundaries, not client-only workflow assumptions.
+
 ## Inspection capture
 
 An Inspector opens a detail flow for an assigned inspection that reads the

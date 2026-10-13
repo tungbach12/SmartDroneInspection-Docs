@@ -1,110 +1,76 @@
-# FE-02: Asset Registry and Inspection Schedule
+# FE-02: Asset, Drone, Workforce and Compliance Catalog — MF1
+
+Report 3 §3.3 titles this feature "Asset, Drone, Workforce and Compliance
+Catalog". The filename retains the earlier "asset registry / inspection
+schedule" wording; the filename is stable, the scope is Report 3's.
 
 ## Scope baseline
 
-An organization registers and maintains its assets, asset documents and
-recurring inspection schedules; categories and checklist templates are
-maintained centrally. The current roles are `ADMIN`, `ORG_ADMIN`, `INSPECTOR`
-and `MAINTENANCE_ENGINEER`.
+MF1 retains the agreed asset-creation assignment: **ORG_ADMIN creates an asset
+together with one responsible Inspector and one specific Drone**, then creates
+inspections that inherit that pair. Re-inspecting an existing asset does not
+recreate the asset. This is MF1, the source of the MF2 assignment FE-03
+consumes.
+
+The fourteen MF1 steps divide as:
+
+| Steps | Actor | What it does |
+| --- | --- | --- |
+| MF1-01 – MF1-05 | `ORG_ADMIN` + `SYSTEM` | Organization identity and authorized reviewers; subscription entitlement check; Inspector/Engineer provisioning; skills and credential records; document validation with expiry warnings. |
+| MF1-06 – MF1-07 | `ORG_ADMIN` | Drone registration by unique identifier, serviceability and documents; flight permits and compliance files with issuer, scope and conditions. |
+| MF1-08 – MF1-10 | `ORG_ADMIN` + `SYSTEM` | Asset profile, and in the **same workflow** selection of exactly one Inspector and one Drone; validation and audit that saves asset and pair together. |
+| MF1-11 – MF1-14 | `ORG_ADMIN` + `SYSTEM` | Create the inspection for that asset; inherit the current pair into a snapshot; confirm with a recorded reassignment reason; dispatch with document references. |
+
+Gates worth stating because they are easy to misread as satisfied:
+
+- **No partially created complete asset with a missing pair** (MF1-10). Asset
+  assignment is not a flight permit, nor an exclusive reservation of the Drone.
+- An updated asset default **never rewrites past inspection snapshots**
+  (MF1-12).
+- Unresolved conflicts, disabled users or unavailable Drones **block dispatch**
+  (MF1-13).
+- Cadence changes affect **future due work only**, not published history.
+- An informational airspace warning **does not authorize flight** (MF1-08).
+- Machine validation of a document **is not government verification** (MF1-05).
+
+The four canonical roles are `ADMIN`, `ORG_ADMIN`, `INSPECTOR` and
+`MAINTENANCE_ENGINEER`.
 
 ## Current test coverage
 
-No workbook test case is mapped to FE-02 in this report.
+No workbook test case is mapped to FE-02 in this report. **All fourteen MF1
+steps are unverified.**
 
 The former `WF1-001`–`WF1-019` cases were removed on 2026-10-09 because they
 described the retired five-role WF1 baseline (Service Manager review, Client
 asset registration, schedule proposals). That is not the current system, so
 their recorded results are not evidence for it.
 
-The current backend implements an asset catalog with organization scoping and
-a paged list. The current Frontend feature also contains asset registration and
-asset-document flows; those existing asset flows have no executed FE-02 case
-recorded here and are not claimed as verified by the MF1 tests below. The MF1-06
-Drone and MF1-07 permit UI/API contracts do have executed supporting verification
-recorded below. The remaining FE-02 asset registry and inspection-schedule
-coverage gap remains explicit.
+The backend does implement a catalog with organization scoping and a paged
+list, and the WF3 inspection collection depends on it. That is catalog CRUD,
+not the MF1 resource-creation workflow, and **no executed test case is recorded
+here for it**, so it is not reported as tested. This is an explicit, truthful
+coverage gap: FE-02 verification is outstanding and must be executed and
+recorded before the feature can be reported as verified.
+
+### Steps that would be covered first
+
+| Step | Gate to verify |
+| --- | --- |
+| MF1-09 – MF1-10 | An asset cannot be saved complete without exactly one Inspector and one Drone. |
+| MF1-12 | An inspection snapshots the pair; later asset default changes do not rewrite it. |
+| MF1-13 | A reassignment requires a recorded reason and is versioned. |
+| MF1-02 | A lapsed subscription denies the operation without deleting existing history. |
 
 The removed `WF1-*` case IDs stay reserved and are never reused.
 
-## MF1-06 organization Drone inventory and Drone documents (executed 10 October 2026)
+## Feature sheet summary
 
-This is supporting evidence for the MF1 resource-setup slice, recorded here
-outside the fixed WFx workbook rows so the workbook totals are unchanged.
+Values for the `Feature 2` summary block (`A2:E8` in the workbook).
+The template reads these back by formula, so an export needs them
+recorded here.
 
-### Drone inventory
-
-- Preconditions: Backend branch `integrate/mf1-resources` at `dcd6516`; PostgreSQL 17 through Testcontainers; `V25` tables `drones` and `drone_documents`; an active ORG_ADMIN plus a second organization for isolation checks.
-- Procedure: Run `./mvnw -Dtest=DroneApiIntegrationTest,DronePersistenceTest test`; create, list, fetch and change serviceability for a same-organization Drone; submit a duplicate serial number; request a foreign-organization Drone; query the selection endpoint; submit malformed and valid `payloadMetadata`; and attempt an out-of-set `serviceability` value.
-- Expected result: Create returns 201 and organization scope comes from the authenticated actor, never the request; a duplicate serial returns 409; a foreign-organization Drone returns 404 with a problem body identical to a missing Drone's, so existence elsewhere is not disclosed; the selection endpoint returns only same-organization `ACTIVE` drones and asserts no permit, clearance or readiness claim; malformed JSON metadata returns 400 without persistence; structured JSON metadata returns 201; and an unknown enum value returns 400, not 500.
-- Round 4: Passed on 2026-10-11; tester: Claude Code (automated).
-- Evidence: `DroneApiIntegrationTest` 14/14 and `DronePersistenceTest` 10/10, inside the merged `./mvnw verify` run: 301 tests, 0 failures, 0 errors, `All coverage checks have been met.`, BUILD SUCCESS.
-- Defect note: Review found that malformed `payloadMetadata` reached the PostgreSQL `jsonb` column and surfaced as a 500. `DroneService` now validates it with the same JSON parser pattern used by compliance records before saving.
-- Entitlement note: writes require an active subscription; reads stay available without one, following the MF1-02 precedent.
-
-### Drone documents
-
-- Preconditions: Same merged baseline; an `EvidenceObjectStore` is available for the upload path.
-- Procedure: Run `./mvnw -Dtest=DroneDocumentApiIntegrationTest test`; upload a document to a same-organization Drone with a forged client-supplied checksum; upload a duplicate object key; attempt a cross-organization Drone; move a document to `REVOKED` and attempt to change its status afterwards; and read a document whose `valid_until` has passed.
-- Expected result: The stored `checksum_sha256` is the server-derived digest of the uploaded bytes, never the client-asserted value; a duplicate object key is rejected; cross-organization access is refused; a revoked document cannot change status; and reads report `EXPIRED` derived from the validity window.
-- Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
-- Evidence: `DroneDocumentApiIntegrationTest` 7/7, inside the 254-test merged run above.
-- Design note: V25 declares `drone_documents.checksum_sha256` `NOT NULL` but the shared `EvidenceObjectStore.put` port takes no checksum argument. The checksum is therefore computed server-side over the buffered bytes and the existing port was left unchanged, so no second storage adapter was introduced and no constraint was relaxed.
-- Defect note: An unknown enum value in any request body returned 500 rather than 400 across the whole application. A `GlobalExceptionHandler` mapping for `HttpMessageNotReadableException` was added, turning it into a 400 `VALIDATION_FAILED` problem. This was a pre-existing platform-wide gap, not a Drone-specific one.
-- Scope note: Document upload is exercised against a mocked `EvidenceObjectStore`, matching the existing `AssetDocumentApiIntegrationTest`. No live MinIO round-trip is claimed.
-
-### Still unverified for FE-02
-
-MF1-08–10 asset creation with the required Inspector/Drone pair, and inspection
-scheduling, are not implemented in this slice and have no executed case.
-
-## Frontend MF1 Drone and permit resource UI verification (executed 13 October 2026)
-
-This supporting frontend verification is recorded outside the fixed WFx workbook rows. It exercises the web contract and UI; it does not replace backend integration/persistence evidence above or change workbook totals.
-
-### Drone inventory and documents
-
-- Preconditions: Frontend branch `feat/mf1-fe-drones`; Backend Drone API contract available; Vitest/jsdom with synthetic API results.
-- Procedure: Run `npx vitest run --pool=forks --maxWorkers=1 src/features/assets/api/assetsApi.test.ts src/features/assets/hooks/useDrones.test.tsx src/features/assets/pages/DroneInventoryPanel.test.tsx`; cover list/create/detail/selection/serviceability/document URLs, JSON-string `payloadMetadata`, multipart field names, server-derived checksum, ORG_ADMIN controls, loading/empty/retry, 413/415 errors, expiry labels, and lack of flight-clearance wording.
-- Expected result: The web client sends no organization ID or checksum, sends the exact backend request fields, leaves upload binary out of TanStack mutation variables, enables detail fetches only while the drawer is open, clears selected file data after completion/close, and presents serviceability only as a maintenance state.
-- Round 1: Passed on 2026-10-13; tester: Claude Code (automated).
-- Evidence: focused command passed 3 files / 31 tests. Full Frontend regression suite `npm test -- --maxWorkers=1` passed 44 files / 297 tests after integrated role-guard coverage was added; the report-wide result is also summarized below.
-- Scope note: API transport is mocked for the focused tests; no live MinIO, browser-to-Spring upload, or manual UI run is claimed.
-
-### Flight permit records and internal review
-
-- Preconditions: Frontend branch `feat/mf1-fe-drones`; Backend `CreateFlightPermitRequest`, `ReviewFlightPermitRequest` and `FlightPermitResponse` contracts; synthetic permit fixtures.
-- Procedure: Run `npx vitest run --pool=forks --maxWorkers=1 src/features/assets/api/assetsApi.test.ts src/features/assets/hooks/useFlightPermits.test.tsx src/features/assets/pages/FlightPermitPanel.test.tsx src/features/assets/pages/AssetsPage.resources.test.tsx`; cover list/create/review endpoints, JSON-string fields, no tenant field, optional references, all six status values, date ordering and malformed-JSON feedback, internal review reason, non-verification wording, ORG_ADMIN-only tab/actions, and loading/empty/retry.
-- Expected result: The client follows backend DTOs; status is identified as the organization’s own record; no copy or state claims external verification or permission to fly; no asset/evidence picker is invented; failed validation does not submit; dialog cancel starts a fresh draft.
-- Round 1: Passed on 2026-10-13; tester: Claude Code (automated).
-- Evidence: focused command passed 4 files / 33 tests; after review, the create-cancel reset regression was added and passed in `FlightPermitPanel.test.tsx` (7/7). Final full Frontend suite passed 44 files / 297 tests.
-- Review: Independent React review confirmed backend DTO alignment and found one issue—create form draft persisted across cancel/success. The dialog is now remounted per open/close cycle; a regression test observes the fresh blank form on reopen.
-- Scope note: API transport is mocked; no live backend, authority/registry, or manual browser verification is claimed.
-
-### Integrated Frontend regression and verification
-
-- Preconditions: Frontend branch includes Tasks 1–5 and the four canonical roles.
-- Procedure: `npm test -- --maxWorkers=1`; `npm run build`; `npm run lint`; `git diff --check`.
-- Expected result: All automated tests pass, strict TypeScript/Vite production build succeeds, lint has no feature warnings, and diff whitespace check passes.
-- Round 1: Passed on 2026-10-13; tester: Claude Code (automated).
-- Evidence: 44 files / 297 tests passed; `npm run build` succeeded; `npm run lint` exited 0 with four existing Fast Refresh warnings in `src/main.tsx`, `src/shared/ui/Toast.tsx` and `src/app/router/router.tsx`; `git diff --check` passed. Manual browser run was not performed because the connected browser was `about:blank`.
-
-## MF1-07 permit and compliance records (executed 10 October 2026)
-
-Also supporting evidence, outside the fixed WFx workbook rows.
-
-- Preconditions: Backend branch `integrate/mf1-resources` at `8365f99`; PostgreSQL 17 through Testcontainers; `V25` table `flight_permits`; an active ORG_ADMIN, a same-organization asset and a same-organization evidence record, plus a second organization for isolation checks.
-- Procedure: Run `./mvnw -Dtest=ComplianceApiIntegrationTest,CompliancePersistenceTest test`; record a permit with asset, area, geographic scope and conditions; list and review it; submit each of the six permitted statuses and one outside that set; submit an inverted validity window, a blank permit type and a non-JSON geographic scope; and reference a foreign organization's asset and evidence.
-- Expected result: Organization scope comes from the authenticated actor and a request-supplied organization is ignored; every status in the recorded vocabulary persists and anything outside it is rejected; an inverted window or malformed JSON is a 400 rather than a server fault; review records reviewer, timestamp and reason together; entitlement gates create and review but not list; a foreign asset, foreign evidence and another tenant's permit all return one identical 404; and no field or status claims government, registry or authority verification.
-- Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
-- Evidence: `ComplianceApiIntegrationTest` 31/31 and `CompliancePersistenceTest` 6/6, inside `./mvnw verify` on `8365f99`: 291 tests, 0 failures, 0 errors, `All coverage checks have been met.`, BUILD SUCCESS.
-- Non-verification evidence: two tests assert this directly — `noPermitFieldClaimsExternalOrGovernmentVerification` rejects the response body if it contains `verified`, `authorityConfirmed`, `authorityVerified`, `governmentVerified`, `registryChecked`, `legallyCleared`, `clearedToFly` or `authentic`; `theReviewApiMakesNoExternalVerificationClaimInItsSurface` additionally requires the schema's status vocabulary itself to contain no `verified`, `confirmed`, `cleared` or `approved`. This is the Report 3 MF1-07 rule that the platform does not apply to an authority automatically.
-- Scope note: `NOT_APPLICABLE` and `ACTIVE` are the organization's own recorded account. No registry, authority or government service is contacted anywhere in this codebase, so nothing here constitutes external verification.
-
-### First-run environment note
-
-The first `./mvnw verify` on this commit failed with 190 errors. Every error had the same
-environmental cause — `Could not find a valid Docker environment`, so Testcontainers could
-not start PostgreSQL and the application context failed to load. There were zero assertion
-failures. Docker Desktop had been shut down between working sessions. After restarting it,
-the same commit verified green at 291 tests. This is recorded because a failed run that is
-later superseded must still be visible rather than quietly replaced.
+| Cell | Label | Value |
+| --- | --- | --- |
+| `B2` | Feature | Asset, Drone, Workforce and Compliance Catalog — MF1 |
+| `B3` | Test requirement | Would verify asset registration with its assigned Inspector and Drone pair, compliance documents and due-cycle inspection generation. MF1 is unimplemented, so no case is recorded. |

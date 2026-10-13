@@ -10,95 +10,145 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | **2026-10-09 reset to the implemented MF3 slice; 2026-10-10 backend Round 3 added MF1-02–MF1-07 supporting verification; 2026-10-13 Frontend supporting verification recorded.** The workbook remains five MF3 cases; all are passed with executed backend and web evidence. Supporting FE-01/FE-02 Frontend checks do not change workbook counts. MF1-01, MF1-08–MF1-14, MF2 and MF4 remain unimplemented coverage gaps. |
+| Test round | **2026-10-13: WF3 backend enforcement aligned and verification status corrected.** The substantive evidence-quality decision requires a non-blank shot-list comparison; report verification/submission rejects changed evidence snapshots; finding creators cannot decide their own findings. Existing eight WFx case statuses remain Passed from prior evidence; new Docker/Testcontainers regression assertions are Pending, not additional Passed results. The full backend rerun was blocked by missing Docker (491 tests discovered, 0 assertion failures, 263 environment errors). Previously: 2026-10-12 MF3 workspace split into stage tabs and reports list merged into the inspections queue; 2026-10-12 MF3 workflow on the inspection route with comparison/enum/reviewer fixes; earlier reconciliation and MF2/MF3 implementation. |
 | Last updated | 2026-10-13 |
 
 ## Module summary
 
 | No | Module code | Passed | Failed | Pending | N/A | Number of test cases |
 | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 1 | Feature 1 sheet (no workbook cases; MF1-02–MF1-07 evidence recorded as supporting verification outside the workbook) | 0 | 0 | 0 | 0 | 0 |
-| 2 | Feature 2 sheet (FE-04/FE-05/FE-06; MF3) | 5 | 0 | 0 | 0 | 5 |
-| **Subtotal** |  | **5** | **0** | **0** | **0** | **5** |
+| 1 | Identity, Enterprise Subscription and Workforce Governance | 0 | 0 | 0 | 0 | 0 |
+| 2 | Asset, Drone, Workforce and Compliance Catalog — MF1 | 0 | 0 | 0 | 0 | 0 |
+| 3 | Mission Preparation, Assignment Response and Readiness — MF2 | 3 | 0 | 0 | 0 | 3 |
+| 4 | MF3 inspection evidence, findings and reporting | 2 | 0 | 0 | 0 | 2 |
+| 5 | AI Vision Candidates and Human Finding Decisions | 1 | 0 | 0 | 0 | 1 |
+| 6 | Inspection Report Drafting, Review and Publication — MF3 | 2 | 0 | 0 | 0 | 2 |
+| 7 | Team Maintenance, Cost Control and Completion Reporting — MF4 | 0 | 0 | 0 | 0 | 0 |
+| 8 | Dashboard, Analytics and Notifications | 0 | 0 | 0 | 0 | 0 |
+| **Subtotal** |  | **8** | **0** | **0** | **0** | **8** |
 
-## Reset scope
+`Module code` is not a free label. Each row's `C` cell is a formula —
+`='Feature N'!B2` — so this column reports whatever sits in that sheet's
+`Feature` cell (`B2`). The values above therefore match the `Feature sheet
+summary` block recorded in each `fe-0N-…md` source, not the sheet names. The
+remaining five columns are also formulas (`D:G` = `B6:E6` per-round counts,
+`H` = `B4`), so nothing in this table is typed by hand at export.
+
+One sheet per Report 3 feature means eight module rows. `Feature N` tests
+`FE-0N`, so the module numbering is not free either: adding a feature to Report
+3 adds the matching row here and the matching sheet in the workbook.
+
+Because there are eight modules, `Sub total` moves from row 14 to **row 19**,
+`Test coverage` to row 21 and `Test successful coverage` to row 22.
+
+### Why most modules are empty
+
+- **Modules 1, 2, 7 and 8 have no cases.** FE-01's supporting gates are
+  recorded outside the case sheets. MF1 (catalog) and MF4 (maintenance) remain
+  Report 3 requirements but are not implemented. FE-08 has no assigned case.
+- **Module 3 has the two MF2-07 readiness cases** (`WF2-008`, `WF2-009`). They
+  cover readiness approval/return only; they do not establish that all MF2
+  steps are complete or tested. MF2-08 source-change invalidation is partial;
+  MF2-12 session end/`FIELD_COMPLETED` remains unimplemented.
+- **Modules 4, 5 and 6 hold the five MF3 cases**: FE-04 (evidence intake and
+  scoped collections) has 2, FE-05 (advisory detection and human finding
+  verification) has 1, and FE-06 (report review, publication and immutability)
+  has 2.
+
+### Test coverage
+
+The template computes both figures from the `Sub total` row and its own
+formulas, `(Passed + Failed) * 100 / (Number of TCs - N/A)` and
+`Passed * 100 / (Number of TCs - N/A)`. With 7 cases, all `Passed`, none `N/A`,
+both are 100%. This is the rate for the recorded seven cases, not product or
+full MF2 coverage. Update the underlying round statuses, never the percentages.
+
+## Reset and reconciliation scope
 
 The previous statistics mixed a retired five-role WF1–WF4 baseline with
 unimplemented Enterprise SaaS MF1–MF4 target cases, giving 33 cases with 13
-`Passed` — a total that did not describe any single system. On 2026-10-09 that
-content was removed and the report was reset to the MF3 slice only.
+`Passed` — a total that did not describe any single system. The 2026-10-09
+reset removed obsolete and unimplemented rows, leaving five executed MF3 cases.
+On 2026-10-10, after fast-forwarding the merged implementation PRs, the two
+MF2-07 readiness cases `WF2-008` and `WF2-009` were restored to FE-03 based on
+their test procedures and successful backend PR #64 CI. The current mainline
+revisions are backend `84fcc16`, frontend `287d5a4`, and mobile `91092e6`.
 
-| Change | Before | After |
-| --- | ---: | ---: |
-| Cases | 33 | 5 |
-| Passed | 13 | 5 |
-| Failed | 0 | 0 |
-| Pending | 20 | 0 |
-| N/A | 0 | 0 |
+| Change | Before reset | After reset | Current |
+| --- | ---: | ---: | ---: |
+| Cases | 33 | 5 | 8 |
+| Passed | 13 | 5 | 8 |
+| Failed | 0 | 0 | 0 |
+| Pending | 20 | 0 | 0 |
+| N/A | 0 | 0 | 0 |
 
 The 28 removed cases (`WF1-001`–`WF1-019`, `WF2-001`–`WF2-007`, `WF3-001`,
 `WF3-004`, `WF3-007`, `WF3-008`, `WF4-001`–`WF4-005`) described behavior that
 no longer exists or has never been implemented. Their IDs stay reserved.
 
-The drop from 13 `Passed` to 5 is the honest consequence of that removal. It is
-not a regression, and it is **not** evidence that anything stopped working.
+The increase from five to seven cases reflects restored Report 5 coverage for
+implemented MF2-07 approval/return. It does not claim the remaining MF2 workflow
+is complete: MF2-08 invalidation is partial and MF2-12 session end remains
+unimplemented.
 
 ## Verification recorded this round
 
+The MF2-07 case statuses are supported by the backend PR #64 CI run on
+2026-10-10. Earlier MF3 evidence is retained from its own documented runs. The
+following fresh checks were run during this reconciliation:
+
 | Check | Command | Result |
 | --- | --- | --- |
-| Backend full suite + coverage gate + Modulith boundaries | `./mvnw -o verify` | **Passed.** 162 tests, 0 failures, 0 errors; Spotless clean; Spring Modulith boundary test passed. |
-| New collection scope and paging | `./mvnw -o -Dtest=InspectionListApiIntegrationTest test` | 11/11 passed. |
-| Draft-service configuration guards | `./mvnw -o -Dtest=ReportDraftConfigurationTest test` | 6/6 passed. |
-| Frontend lint | `npm run lint` | No errors; 4 pre-existing fast-refresh warnings in unrelated files. |
-| Frontend build | `npm run build` | Built successfully. |
-| Frontend suite | `npm test -- --run` | 161/161 passed across 31 files. |
-| MF1 resource-setup slice (Round 4, 2026-10-11) | `./mvnw verify` on `integrate/mf1-resources` after review fixes | **Passed.** 301 tests, 0 failures, 0 errors; `All coverage checks have been met.`; BUILD SUCCESS. Covers the full MF1 slice plus review regressions for cross-tenant email non-disclosure, Drone JSON validation, foreign-Drone document writes and test isolation. |
+| Backend full suite + coverage gate + Modulith boundaries | PR #64 CI workflow: `Verify (Spotless + tests + JaCoCo + Modulith checks)` | **Passed.** 334 tests, 0 failures, 0 errors, 0 skipped; JaCoCo coverage checks and Spring Modulith checks passed. The CI job ran the Maven verify build; this record does not claim a local Maven command was executed successfully. |
+| Backend local full suite (re-run, Docker available) | `./mvnw.cmd verify` | **Passed 2026-10-12.** 364 tests, 0 failures, 0 errors, 0 skipped; JaCoCo gate met ("All coverage checks have been met"); Spring Modulith boundary checks passed; BUILD SUCCESS. This is prior successful evidence; the 2026-10-13 rerun below is separate. |
+| Backend affected WF3 integration assertions | PR #69 CI, run [38325774461](https://github.com/tungbach12/SmartDroneInspection-Backend/actions/runs/38325774461) — `./mvnw -B verify` | **Passed 2026-10-13.** Full `verify` completed with 491 tests, 0 failures, 0 errors, 0 skipped; Spotless clean, JaCoCo coverage checks met, and Spring Modulith checks passed. This run exercised the new comparison enforcement, finding-author no-self-review, and report snapshot stale-at-verify/submit integration assertions. |
+| Backend full suite rerun (local) | `mvn.cmd -o verify` | **Blocked by environment 2026-10-13.** 491 tests discovered; 0 assertion failures and 263 errors because Testcontainers could not find a Docker environment. This local attempt is superseded for code verification by the successful CI run above; retain it as an environment record, not a product failure or pass. |
+| MF3 end-to-end API walkthrough against the running stack | `powershell -File .scratch/mf3-evidence-and-report/run-wf3-8080.ps1 -InspectionId <uuid>` | **Passed 2026-10-11.** 38 assertions, 0 failures, against `spring-boot:run` on port 8080 with live PostgreSQL and MinIO. Covers evidence intake, checksum dedupe, type/size/empty/corrupt rejection, quality decision, manual finding and reviewer decision, report draft → verify → submit → return → resubmit → approve → publish, separation of duties, cross-tenant isolation, and publication immutability. Not a substitute for the automated suite; it exercises the same HTTP surface against real infrastructure. |
+| Frontend lint | `npm run lint` | Passed with 6 `react(only-export-components)` warnings (exit 0). |
+| Frontend full suite | `npm test -- --run` | **Passed 2026-10-13.** 42 files, 227 tests, 0 failures. |
+| Frontend typecheck | `npx tsc --noEmit` | Passed 2026-10-13. |
+| Frontend build | `npm run build` | Passed 2026-10-13. |
+| Frontend focused inspections/reports/app suites (historical) | `npx vitest run src/features/inspections src/features/reports src/app/permissions/accessPolicy.test.ts` | **Passed 2026-10-12.** 13 files, 98 tests, 0 failures. Superseded by the broader 2026-10-13 full suite row above; retained as historical evidence. |
+| MF3 live walkthrough with a real vision model (historical) | Browser walkthrough against the running stack (Vite 3000 → backend 8080 → 9router) | **Passed 2026-10-12.** Accepted an evidence set on inspection `2586669b…`; MF3-05 returned three `PENDING` candidates with provenance `capstone · gemini-3.8-flash-n`. Re-opening reran detection on the second image only and returned existing candidates without duplication. No API key, prompt, or image bytes recorded. |
+| Mobile formatting | `dart format --set-exit-if-changed .` | **Passed 2026-10-13.** 63 files checked, no changes. |
+| Mobile analysis | `flutter analyze` | **Passed 2026-10-13.** No issues found. |
+| Mobile full suite | `flutter test` | **Passed 2026-10-13.** 44 tests, including ACCEPTED-only eligibility and four evidence-quality request payloads. |
 
-Progression of this branch's full-suite runs: 254 tests at `dcd6516` (before the
-permit slice), 291 at `8365f99` (after permits), 301 after moving the credential
-expiry window and document upload caps into `@ConfigurationProperties`, 307 after
-setting the expiry window to 60 days and pinning that default, and 301 after the
-review-fix pass removed six vacuous threshold tests while adding behavioral
-regressions. One run on `8365f99` failed with 190 errors purely because Docker
-Desktop had been stopped, so Testcontainers could not start; all 190 shared that
-single environmental cause and there were zero assertion failures. The commit
-verified green after Docker was restarted.
+The backend case-specific tests (`InspectionReadinessServiceTest`,
+`ReadinessSnapshotFactoryTest`, and `InspectionReadinessApiIntegrationTest`)
+were included in the historical successful 334-test PR #64 CI suite. The
+historical 2026-10-12 local full run also passed 364 tests, but is not evidence
+for assertions added afterward. On 2026-10-13, the full local rerun discovered
+491 tests and reported 0 assertion failures but 263 Testcontainers errors
+because Docker was unavailable. Consequently the new WF3 backend regression
+assertions and focused integration suites remain Pending Docker-backed
+execution; do not treat environment errors as passes or product failures.
+The earlier MF3 work closed the JaCoCo gate after it had failed at 74.66% line
+coverage on the original baseline and 78% after `InspectionListApiIntegrationTest`.
+`ReportDraftConfigurationTest` covers startup validation requiring endpoint,
+API key, model name and positive timeout. The PR #64 CI confirmation records
+that the integrated backend coverage checks passed; it does not verify the
+new 2026-10-13 assertions.
 
-The Round 3 backend run is the first that covers the whole MF1 slice. Per-slice
-runs reported during implementation do not substitute for it.
+## Supporting export-tool verification (not workbook cases)
 
-### Round 3 MF1 slice detail (2026-10-10)
+Executed on 2026-10-10 by Claude Code (automated). These are documentation-tool
+checks, not additional product test cases. The previously verified export had a
+five-case denominator because it predates this seven-case reconciliation; the
+current source denominator is seven. Export-tool checks do not change any round
+status/date/tester.
 
-| Area | Suite | Result |
+| Check | Command | Result |
 | --- | --- | --- |
-| Subscription entitlement | `SubscriptionEntitlementServiceTest` | 4/4 |
-| Workforce provisioning | `WorkforceApiIntegrationTest` | 22/22 |
-| Workforce service | `WorkforceServiceTest` | 13/13 |
-| Credential records | `WorkforceCredentialApiIntegrationTest` | 15/15 |
-| Credential persistence | `WorkforceCredentialPersistenceTest` | 5/5 |
-| Evidence ownership facade | `EvidenceOwnershipServiceTest` | 3/3 |
-| Drone inventory | `DroneApiIntegrationTest` | 14/14 |
-| Drone persistence | `DronePersistenceTest` | 10/10 |
-| Drone documents | `DroneDocumentApiIntegrationTest` | 8/8 |
-| Permit/compliance API | `ComplianceApiIntegrationTest` | 31/31 |
-| Permit persistence | `CompliancePersistenceTest` | 6/6 |
-| Credential expiry window is configurable | `WorkforceCredentialExpiryWindowTest` | 5/5 |
-| Modulith boundaries | `ModulithArchitectureTest` | 3/3 |
+| Independent exporter suites | `python -I -m unittest discover -s tools/tests -p "test_*.py" -v` | 29 tests passed: individual CLI execution, source tables, template styles/page settings, all three round/date/tester groups, original input preservation, safe outputs, Markdown readability, eight-sheet routing/statistics, and all eight FE summary blocks. |
+| Prior full source-backed generation | `python -I tools/export_all.py --output reports/generated/2026-10-10-eight-features-final-v4` | Nine files generated before the MF2 reconciliation: Reports 1–3, Report 5 and five weekly workbooks. Missing editable sources were reported rather than fabricated. |
+| Current Report 5 generation | `python -I tools/export_all.py --only report5 --output reports/generated/2026-10-10-mf2-final` | Generated seven cases routed to Feature 3 (2), Feature 4 (2), Feature 5 (1), Feature 6 (2); manifest confirms input hashes unchanged and format parts preserved. |
+| Current Report 5 Office validation | `./tools/verify_office_reports.ps1 -OutputDirectory reports/generated/2026-10-10-mf2-final` | Excel opened and recalculated the 11-sheet workbook. 7 cases / 7 Passed / 100% coverage and successful coverage; Round 2 and Round 3 each have 7 Pending. Source first-executed date/tester retained (2026-10-09 / Claude Code automated). Original generated package hash unchanged after Office read. |
+| PDF preview | Office `-ExportPdf` attempt | Did not complete; blocked PDF export was stopped. No visual-PDF acceptance is claimed. |
 
-**These MF1 results are supporting verification outside the workbook totals**, per
-the FE-01 foundation-gate convention. They do not change the 5-case workbook
-subtotal above, and they do not raise MF1-01, MF1-08–MF1-14, MF2 or MF4 coverage.
-
-**The JaCoCo 80% gate now passes: 80.47% line and 80.34% instruction coverage.**
-The gate was failing before this work — 74.66% line coverage on the original
-baseline, 78% after `InspectionListApiIntegrationTest` was added. It was closed
-with real tests over uncovered production code, not by excluding anything:
-`ReportDraftConfigurationTest` covers the startup validation that refuses to
-create a draft client unless endpoint, API key, model name and a positive
-timeout are all present. Without that guard a partially configured drafting
-service would fail at the first manual report, after an Inspector has already
-gathered evidence.
+Mermaid diagrams remain source text with manifest warnings, and long Excel
+cells may require visual review. Package/style preservation and Office-open
+verification are not a claim of final submission readiness.
 
 ## Supporting FE-01 verification (not workbook cases)
 
@@ -109,38 +159,46 @@ workbook case status.
 
 ## Coverage summary
 
-Every case below has an executed automated test behind it, so coverage equals
-success rate this round.
+Every listed case has executed automated-test evidence, including the deliverable
+assertions MF3-11 requires. These metrics describe the recorded cases, not full
+feature or product coverage.
 
-- **Test coverage** = cases with a recorded status (`Passed`, `Failed`, or
-  `N/A`) ÷ total cases = 5 / 5 = 100%.
-- **Successful coverage** = `Passed` cases ÷ total cases = 5 / 5 = 100%.
+- **Test coverage** = `(Passed + Failed) × 100 ÷ (Number of TCs − N/A)` =
+  `(8 + 0) × 100 ÷ (8 − 0)` = 100%.
+- **Test successful coverage** = `Passed × 100 ÷ (Number of TCs − N/A)` =
+  `8 × 100 ÷ (8 − 0)` = 100%.
 
-These percentages describe only the MF3 slice. They must not be read as product
-coverage: MF1, MF2, MF4, FE-02, FE-03, FE-07 and FE-08 are untested, and the
-denominator is the implemented scope, not the SRS.
+Both match the template's own formulas, which exclude `N/A` cases from the
+denominator rather than counting them as unverified. These percentages are not
+product coverage: FE-02/MF1, most MF2 steps, MF4/FE-07 and FE-08 remain
+unverified or unimplemented, and FE-01 support evidence is outside the
+workbook-case denominator.
 
-The two module rows are workbook-sheet totals, not SRS feature totals.
+The eight module rows are workbook-sheet totals, one per SRS feature; they are not counts of business workflows.
 
 ## Outstanding gaps
 
 | Area | Status |
 | --- | --- |
-| MF1 asset/schedule setup | Unimplemented; no case. |
-| MF2 request/assignment/readiness | Unimplemented; no case. |
-| MF4 maintenance/cost/acceptance | Unimplemented; no case. |
-| MF2 assignment/checklist entry | No endpoint; MF3 reachable only via the scoped list (`WF3-009`). |
-| FE-02 asset catalog | Implemented but no executed case recorded here. |
+| MF1 asset/drone/workforce/compliance catalog | Workflow implementation and executed test evidence absent; no case. |
+| MF2 assignment/preparation/compliance | Implemented in part; no Report 5 cases beyond readiness decision approval/return (`WF2-008`/`WF2-009`). |
+| MF2-08 source-change invalidation | Partial: start rejects unless newest readiness decision is APPROVED; no source-change workflow appends INVALIDATED. |
+| MF2-12 session end / FIELD_COMPLETED handoff | Not implemented; no case. |
+| MF4 maintenance/cost/completion reporting | Workflow implementation and executed test evidence absent; no case. |
+| FE-02 catalog CRUD | Implemented as a dependency of MF3, but no executed case is recorded for it. |
+| FE-06 required report content (Report 3 §3.7.2) | Not asserted by `WF3-005`/`WF3-006`. |
+| FE-06 LLM safeguards (Report 3 §3.7.3) | Not asserted by `WF3-005`/`WF3-006`. |
+| FE-01 subscription/workforce governance | Supporting evidence is outside workbook functional-case totals; current-role scope should be reverified separately. |
 | FE-08 dashboard/analytics/notifications | No assigned case. |
-| Mobile client | No verification recorded this round. |
-| Live external LLM drafting provider | Not exercised; manual structured draft is the tested path. |
-| JaCoCo 80% gate | Passing at 80.47% lines / 80.34% instructions. |
+| Mobile client | `flutter analyze` and `flutter test` passed (40 tests); no WFx case was added for mobile behavior. |
+| Live external LLM drafting provider | Not exercised in this reconciliation; manual structured draft is covered by existing MF3 evidence. |
+| Backend local environment | Docker unavailable for local Testcontainers; backend verification is based on successful PR #64 CI, not local test pass. |
 
 ## Update rules
 
 1. Update the Round 1/2/3 status in the feature source first.
 2. Recount `Passed`, `Failed`, `Pending`, and `N/A` per feature.
-3. Update the two module rows and subtotal row above.
+3. Update all eight module rows and the subtotal row above.
 4. Recalculate coverage; never mark a pending case as passed just to improve
    the percentage.
 5. Never record a case for a workflow that has no implementation.
