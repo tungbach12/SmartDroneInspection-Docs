@@ -4,13 +4,13 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope (updated 2026-10-10):** This report records seven executed cases for the
-four current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`):
-two MF2-07 readiness decision cases and five MF3 cases. The earlier content
-mixed a retired five-role WF1–WF4 baseline with unimplemented MF1–MF4 target
-cases; obsolete and unsupported cases were removed during the 2026-10-09 reset.
-The two MF2 cases were restored after the merged backend/frontend/mobile PRs
-were integrated locally: backend `84fcc16`, frontend `287d5a4`, mobile `91092e6`.
+**Scope (updated 2026-10-14):** This report indexes nine cases for the four
+current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`): three
+MF2 cases and six MF3 cases. Eight are `Passed`; `WF3-010` is `Pending`.
+The earlier content mixed a retired five-role WF1–WF4 baseline with
+unimplemented MF1–MF4 target cases; obsolete and unsupported cases were removed
+during the 2026-10-09 reset. MF2-07 decision cases were restored after PR
+integration; scoped preparation-history case `WF2-010` was added separately.
 
 This does not claim complete MF2 coverage. MF2-08 source-change invalidation is
 partial (session start checks the newest decision and requires APPROVED, but no
@@ -25,10 +25,9 @@ The supplied template has two feature sheets (`Feature 1`, `Feature 2`). Generat
 workbooks extend it to eight feature sheets (`Feature 1`–`Feature 8`), one per
 Report 3 feature. The original template remains unchanged. Sheet `Feature N`
 contains SRS feature `FE-0N`; these are separate naming layers, not synonyms.
-Feature 1 (supporting FE-01), Feature 2 (FE-02), Feature 7 (FE-07) and
-Feature 8 (FE-08) have no cases. Feature 3 (FE-03) contains `WF2-008` and
-`WF2-009`; Features 4–6 contain the five MF3 cases. All eight sheets remain so
-the workbook mirrors the eight SRS features.
+Feature 1/2/7/8 have no cases. Feature 3 (FE-03) contains `WF2-008`–`WF2-010`;
+Features 4–6 contain six MF3 cases, including pending `WF3-010`. All eight
+sheets remain so the workbook mirrors the eight SRS features.
 
 | Layer | Meaning | Example |
 | --- | --- | --- |
@@ -107,20 +106,21 @@ All verification statuses below describe the current source after the MF2 PR int
 1. FE-01 — identity/access supporting gates. Recorded separately in the FE-01
    file; not a workbook case.
 2. FE-02 — asset registry and schedule. No case (see coverage gap).
-3. FE-03 — MF2-07 readiness approval/return (`WF2-008`, `WF2-009`); other MF2
-   implementation and case-coverage gaps remain documented.
+3. FE-03 — MF2 readiness approval/return (`WF2-008`, `WF2-009`) and scoped
+   preparation-history read (`WF2-010`); other MF2 coverage gaps remain.
 4. FE-04 — inspection evidence and the Inspector's quality decision
    (`WF3-002`), and the scoped inspection/report collections (`WF3-009`).
-5. FE-05 — advisory detection and human finding verification (`WF3-003`).
+5. FE-05 — advisory detection and human finding verification (`WF3-003`);
+   reviewed-candidate correction/rejection (`WF3-010`) is Pending.
 6. FE-06 — report review, publication, and immutability (`WF3-005`, `WF3-006`).
 7. FE-07 — maintenance and defect resolution. No case; MF4 unimplemented.
 8. FE-08 — dashboard, analytics, and notifications. No assigned case; explicit
    coverage gap.
 
-Totals: **7 cases, 7 `Passed`, 0 `Failed`, 0 `Pending`.** Coverage of 100% is
-only of these seven recorded cases, not the SRS or the complete MF2 workflow.
-Removed case IDs stay reserved and are never reused; new cases continue from
-`WF3-010` after `WF3-009`.
+Totals: **9 cases, 8 `Passed`, 0 `Failed`, 1 `Pending`.** Both template coverage
+figures are 88.89%; pending cases remain in the denominator. These figures
+describe recorded cases only, not complete MF2/MF3 workflows. Removed case IDs
+stay reserved; subsequent MF3 cases continue from `WF3-011`.
 
 MinIO/evidence storage is tracked under FE-04. Integration suites run against a
 real MinIO container through the same `MinioEvidenceObjectStore` adapter

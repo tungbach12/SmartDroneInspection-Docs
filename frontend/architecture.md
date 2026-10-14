@@ -131,8 +131,10 @@ Confirm/Modify, and surfaces the MF3-09 reviewer verdict on undecided
 findings. The `report` tab generates the MF3-07 draft (gated on an ACCEPTED
 decision, matching the backend 409), keeps the manual narrative/disclosure
 seed form, and carries the single "Open the report document" link, enabled
-only once a version exists. The `preparation` tab mounts the MF2 preparation
-and readiness panels unchanged.
+only once a version exists. While generation is pending, the UI shows an
+indeterminate wait state; the API exposes no intermediate stages or progress
+percentage. Authors review and verify every section before submission. The
+`preparation` tab mounts the MF2 preparation and readiness panels unchanged.
 
 `/inspections` loads the assignment inbox and a server-paged, backend-scoped
 inspection collection; users select a row instead of entering an identifier by

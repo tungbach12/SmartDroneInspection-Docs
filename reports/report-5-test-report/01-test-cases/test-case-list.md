@@ -33,8 +33,9 @@ or was never implemented:
   cost and completion-report gates, outside FE-06 and unimplemented MF4 scope.
 - `WF4-001`–`WF4-005`: MF4 maintenance, triage and cost reconciliation.
 
-Retained MF3 cases: `WF3-002`, `WF3-003`, `WF3-005`, `WF3-006`, and `WF3-009`.
-The removed IDs remain reserved. New MF3 cases continue from `WF3-010`.
+Retained MF3 cases: `WF3-002`, `WF3-003`, `WF3-005`, `WF3-006`, `WF3-009`, and
+`WF3-010` (Pending). The removed IDs remain reserved; new MF3 cases continue
+from `WF3-011`.
 
 The 2026-10-10 merge of backend PR #64 (`84fcc16`), frontend PR #37
 (`287d5a4`) and mobile PR #9 (`91092e6`) added MF2 runtime. `WF2-008` and
@@ -60,6 +61,7 @@ stable business-flow test-case ID.
 | 5 | `[WF3-005]` FE-06 — MF3 human verification gates and section-scoped drafting | Feature 6 | Candidates and the report draft are verified by the author Inspector and approved by a qualified ORG_ADMIN before publication; automated drafting proposes section values without altering the reviewed findings, and a manual structured draft remains possible when drafting is unavailable. Evidence changes after draft creation stale its snapshot; verify/submit refuses a stale version. | Confirmed evidence set, an assigned Inspector, and a qualified reviewer in the same organization. |
 | 6 | `[WF3-006]` FE-06 — MF3 immutable approved report with PDF deliverable | Feature 6 | The approved report version is immutable and source-traceable, publication stores its PDF deliverable and records the checksum, and only repair-required findings are handed to MF4. | Published MF3 review artifacts exist. |
 | 7 | `[WF3-009]` FE-04 — MF3 scoped inspection and report collections | Feature 4 | A caller reaches MF3 through a server-paged, role-scoped list instead of a hand-entered identifier; the report review queue is the server-paged `/with-reports` collection shown as the inspections list's `?view=reports` filtered view, with saved `/reports` links redirecting to it. | Two organizations and fixtures for each of the four roles exist. |
+| 8 | `[WF3-010]` FE-05 — MF3 reviewed-candidate correction and rejection | Feature 5 | The assigned Inspector can correct their reviewed candidate and linked undecided finding before an ORG_ADMIN decision or downstream report lock; correction is refused after either lock. Rejecting the corrected candidate removes its linked undecided official finding, while final reviewer decisions remain immutable. | Reviewed candidate, linked finding, assigned Inspector, and report fixtures covering unlocked, submitted/locked and reviewer-decided states. |
 
 ## Coverage gaps
 
@@ -68,12 +70,15 @@ These are stated as gaps rather than filled with fabricated cases or statuses.
 - **MF1** (asset/schedule setup) and **MF4** (maintenance, triage, cost
   reconciliation) remain unimplemented and have no cases.
 - **MF2** is only partly covered: `WF2-008` and `WF2-009` test MF2-07 readiness
-  approval/return. Assignment response, preparation/compliance, source-change
-  invalidation, field-session start/postpone/abort and session-end handoff are not
-  represented by Report 5 cases. MF2-08 invalidation is partial in runtime;
-  MF2-12 session end/`FIELD_COMPLETED` remains unimplemented.
+  approval/return; `WF2-010` tests scoped preparation-history access. Assignment
+  response, preparation/compliance, source-change invalidation, field-session
+  start/postpone/abort and session-end handoff are not represented by these cases.
+  MF2-08 invalidation is partial in runtime; MF2-12 session end/`FIELD_COMPLETED`
+  remains unimplemented.
 - **FE-08** dashboard, analytics and notifications has no assigned case.
 
-The MF2-07 cases and the five MF3 cases have backend/web test evidence. The
-Report 5 case index does not claim mobile app verification for these cases; mobile
-checks are recorded separately in supporting statistics where run.
+The MF2-07 cases and five of the six MF3 cases have executed backend/web test
+evidence; `WF3-010` is explicitly Pending until its revision, rejection, lock,
+and immutable-decision paths have executed evidence. The case index does not
+claim mobile app verification for these cases; mobile checks are recorded
+separately in supporting statistics where run.
