@@ -21,11 +21,11 @@ round.
 | 2 | Asset, Drone, Workforce and Compliance Catalog — MF1 | 0 | 0 | 0 | 0 | 0 |
 | 3 | Mission Preparation, Assignment Response and Readiness — MF2 | 3 | 0 | 0 | 0 | 3 |
 | 4 | MF3 inspection evidence, findings and reporting | 2 | 0 | 0 | 0 | 2 |
-| 5 | AI Vision Candidates and Human Finding Decisions | 1 | 0 | 0 | 0 | 1 |
+| 5 | AI Vision Candidates and Human Finding Decisions | 1 | 0 | 1 | 0 | 2 |
 | 6 | Inspection Report Drafting, Review and Publication — MF3 | 2 | 0 | 0 | 0 | 2 |
 | 7 | Team Maintenance, Cost Control and Completion Reporting — MF4 | 0 | 0 | 0 | 0 | 0 |
 | 8 | Dashboard, Analytics and Notifications | 0 | 0 | 0 | 0 | 0 |
-| **Subtotal** |  | **8** | **0** | **0** | **0** | **8** |
+| **Subtotal** |  | **8** | **0** | **1** | **0** | **9** |
 
 `Module code` is not a free label. Each row's `C` cell is a formula —
 `='Feature N'!B2` — so this column reports whatever sits in that sheet's
@@ -46,22 +46,22 @@ Because there are eight modules, `Sub total` moves from row 14 to **row 19**,
 - **Modules 1, 2, 7 and 8 have no cases.** FE-01's supporting gates are
   recorded outside the case sheets. MF1 (catalog) and MF4 (maintenance) remain
   Report 3 requirements but are not implemented. FE-08 has no assigned case.
-- **Module 3 has the two MF2-07 readiness cases** (`WF2-008`, `WF2-009`). They
-  cover readiness approval/return only; they do not establish that all MF2
-  steps are complete or tested. MF2-08 source-change invalidation is partial;
-  MF2-12 session end/`FIELD_COMPLETED` remains unimplemented.
-- **Modules 4, 5 and 6 hold the five MF3 cases**: FE-04 (evidence intake and
+- **Module 3 has three MF2 cases**: `WF2-008` and `WF2-009` cover MF2-07
+  readiness approval/return; `WF2-010` covers scoped preparation-history read.
+  Other MF2 steps remain partial or unimplemented; MF2-08 invalidation is
+  partial and MF2-12 session end/`FIELD_COMPLETED` remains unimplemented.
+- **Modules 4, 5 and 6 hold the six MF3 cases**: FE-04 (evidence intake and
   scoped collections) has 2, FE-05 (advisory detection and human finding
-  verification) has 1, and FE-06 (report review, publication and immutability)
-  has 2.
+  verification) has 2 (one passed, `WF3-003`, and one pending, `WF3-010`),
+  and FE-06 (report review, publication and immutability) has 2.
 
 ### Test coverage
 
 The template computes both figures from the `Sub total` row and its own
 formulas, `(Passed + Failed) * 100 / (Number of TCs - N/A)` and
-`Passed * 100 / (Number of TCs - N/A)`. With 7 cases, all `Passed`, none `N/A`,
-both are 100%. This is the rate for the recorded seven cases, not product or
-full MF2 coverage. Update the underlying round statuses, never the percentages.
+`Passed * 100 / (Number of TCs - N/A)`. Pending cases remain in the denominator.
+With 9 cases, 8 `Passed`, 1 `Pending`, and none `N/A`, both coverage measures
+are 88.89%. These rates describe recorded cases only. Update underlying statuses.
 
 ## Reset and reconciliation scope
 
@@ -76,19 +76,20 @@ revisions are backend `84fcc16`, frontend `287d5a4`, and mobile `91092e6`.
 
 | Change | Before reset | After reset | Current |
 | --- | ---: | ---: | ---: |
-| Cases | 33 | 5 | 8 |
+| Cases | 33 | 5 | 9 |
 | Passed | 13 | 5 | 8 |
 | Failed | 0 | 0 | 0 |
-| Pending | 20 | 0 | 0 |
+| Pending | 20 | 0 | 1 |
 | N/A | 0 | 0 | 0 |
 
 The 28 removed cases (`WF1-001`–`WF1-019`, `WF2-001`–`WF2-007`, `WF3-001`,
 `WF3-004`, `WF3-007`, `WF3-008`, `WF4-001`–`WF4-005`) described behavior that
 no longer exists or has never been implemented. Their IDs stay reserved.
 
-The increase from five to seven cases reflects restored Report 5 coverage for
-implemented MF2-07 approval/return. It does not claim the remaining MF2 workflow
-is complete: MF2-08 invalidation is partial and MF2-12 session end remains
+The increase from five to nine cases reflects restored Report 5 coverage for
+MF2-07 approval/return, scoped preparation history, and pending MF3 correction/
+rejection case `WF3-010`. It does not claim the remaining MF2 workflow is
+complete: MF2-08 invalidation is partial and MF2-12 session end remains
 unimplemented.
 
 ## Verification recorded this round
@@ -132,18 +133,17 @@ new 2026-10-13 assertions.
 
 ## Supporting export-tool verification (not workbook cases)
 
-Executed on 2026-10-10 by Claude Code (automated). These are documentation-tool
-checks, not additional product test cases. The previously verified export had a
-five-case denominator because it predates this seven-case reconciliation; the
-current source denominator is seven. Export-tool checks do not change any round
-status/date/tester.
+Executed on 2026-10-10 by Claude Code (automated). These are historical
+documentation-tool checks, not additional product test cases. The verified
+export predates `WF2-010` and `WF3-010`; current source denominator is nine.
+Export-tool checks do not change any round status/date/tester.
 
 | Check | Command | Result |
 | --- | --- | --- |
 | Independent exporter suites | `python -I -m unittest discover -s tools/tests -p "test_*.py" -v` | 29 tests passed: individual CLI execution, source tables, template styles/page settings, all three round/date/tester groups, original input preservation, safe outputs, Markdown readability, eight-sheet routing/statistics, and all eight FE summary blocks. |
 | Prior full source-backed generation | `python -I tools/export_all.py --output reports/generated/2026-10-10-eight-features-final-v4` | Nine files generated before the MF2 reconciliation: Reports 1–3, Report 5 and five weekly workbooks. Missing editable sources were reported rather than fabricated. |
-| Current Report 5 generation | `python -I tools/export_all.py --only report5 --output reports/generated/2026-10-10-mf2-final` | Generated seven cases routed to Feature 3 (2), Feature 4 (2), Feature 5 (1), Feature 6 (2); manifest confirms input hashes unchanged and format parts preserved. |
-| Current Report 5 Office validation | `./tools/verify_office_reports.ps1 -OutputDirectory reports/generated/2026-10-10-mf2-final` | Excel opened and recalculated the 11-sheet workbook. 7 cases / 7 Passed / 100% coverage and successful coverage; Round 2 and Round 3 each have 7 Pending. Source first-executed date/tester retained (2026-10-09 / Claude Code automated). Original generated package hash unchanged after Office read. |
+| Historical Report 5 generation (2026-10-10) | `python -I tools/export_all.py --only report5 --output reports/generated/2026-10-10-mf2-final` | Generated seven cases routed to Feature 3 (2), Feature 4 (2), Feature 5 (1), Feature 6 (2); this predates WF2-010 and WF3-010. |
+| Historical Report 5 Office validation (2026-10-10) | `./tools/verify_office_reports.ps1 -OutputDirectory reports/generated/2026-10-10-mf2-final` | Excel recalculated the 11-sheet workbook: historical export had 7 cases / 7 Passed / 100% coverage, and 7 Pending in each unexecuted round. |
 | PDF preview | Office `-ExportPdf` attempt | Did not complete; blocked PDF export was stopped. No visual-PDF acceptance is claimed. |
 
 Mermaid diagrams remain source text with manifest warnings, and long Excel
@@ -159,20 +159,20 @@ workbook case status.
 
 ## Coverage summary
 
-Every listed case has executed automated-test evidence, including the deliverable
-assertions MF3-11 requires. These metrics describe the recorded cases, not full
-feature or product coverage.
+Eight of the nine listed cases have executed automated-test evidence; `WF3-010`
+remains Pending. These metrics describe recorded cases, not full feature or
+product coverage.
 
 - **Test coverage** = `(Passed + Failed) × 100 ÷ (Number of TCs − N/A)` =
-  `(8 + 0) × 100 ÷ (8 − 0)` = 100%.
+  `(8 + 0) × 100 ÷ (9 − 0)` = 88.89%.
 - **Test successful coverage** = `Passed × 100 ÷ (Number of TCs − N/A)` =
-  `8 × 100 ÷ (8 − 0)` = 100%.
+  `8 × 100 ÷ (9 − 0)` = 88.89%.
 
-Both match the template's own formulas, which exclude `N/A` cases from the
-denominator rather than counting them as unverified. These percentages are not
-product coverage: FE-02/MF1, most MF2 steps, MF4/FE-07 and FE-08 remain
-unverified or unimplemented, and FE-01 support evidence is outside the
-workbook-case denominator.
+Pending cases remain in the denominator; only `N/A` cases are excluded.
+These percentages are not product coverage: FE-02/MF1, most MF2 steps,
+MF4/FE-07 and FE-08 remain unverified or unimplemented, and FE-01 support
+evidence is outside the workbook-case denominator.
+
 
 The eight module rows are workbook-sheet totals, one per SRS feature; they are not counts of business workflows.
 
