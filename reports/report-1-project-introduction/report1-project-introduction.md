@@ -5,7 +5,14 @@ report_number: 1
 source_docx: report1-project-introduction.docx
 source_google_doc: "https://docs.google.com/document/d/1BTy_bPy7gZWQ4DpKzzTkUtTgripTy2iJRdyEgI0uxGk/edit"
 retrieved: 2026-09-21
+status: "historical-baseline — superseded by the four-role Enterprise SaaS target"
 ---
+
+> **Status — 10 October 2026: HISTORICAL BASELINE, SUPERSEDED.** This report was written for the retired multi-provider marketplace target: six roles (`PLATFORM_OPERATOR`, `Provider`, `Client` and related), flows MF1–MF5, RFQ/quotation/electronic-contract, and pilot-credential judgement. **None of that is the current system.** The current target has **four** roles — `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER` — and flows MF1–MF4, defined in [Report 3](../report-3-software-requirement-specification/) and [business-flows.md](../../project-reference/business-flows.md) v4.0.
+>
+> Role names, workflow step names, Figure 1 and any implementation claim in this document are historical and **must not** be presented as current product scope or as evidence of what the backend does. A label such as "MF1 — Survey Request, Quotation Sourcing & Electronic Contract" below means something entirely different from the current "MF1 — Resources, assets, pair assignment and inspection setup".
+>
+> **Before submission this report must be regenerated against the four-role target**, or its scope explicitly reduced to the background/introductory material that is still accurate. The same applies to [Report 2](../report-2-project-management-plan/), which shares this baseline.
 
 # report 1
 

@@ -38,8 +38,12 @@ The four canonical roles are `ADMIN`, `ORG_ADMIN`, `INSPECTOR` and
 
 ## Current test coverage
 
-No workbook test case is mapped to FE-02 in this report. **All fourteen MF1
-steps are unverified.**
+No workbook test case is mapped to FE-02 in this report. MF1-06 Drone and
+MF1-07 permit backend behavior is implemented and has backend plus Frontend
+supporting evidence recorded below, outside the fixed WFx workbook rows. MF1-01,
+MF1-08–MF1-14 remain unimplemented/unverified in this Frontend slice; the
+Frontend UI does not establish the asset-plus-Inspector/Drone assignment and
+dispatch workflow.
 
 The former `WF1-001`–`WF1-019` cases were removed on 2026-10-09 because they
 described the retired five-role WF1 baseline (Service Manager review, Client
@@ -63,6 +67,34 @@ recorded before the feature can be reported as verified.
 | MF1-02 | A lapsed subscription denies the operation without deleting existing history. |
 
 The removed `WF1-*` case IDs stay reserved and are never reused.
+
+### Frontend MF1-06 Drone inventory and documents — supporting verification (executed 2026-10-13)
+
+- Preconditions: Frontend `feat/mf1-org-admin-resources` based on current `origin/main`; Vitest/jsdom; synthetic API responses conforming to Backend Drone DTOs.
+- Procedure: Run `npx vitest run --pool=forks --maxWorkers=1 src/features/assets/api/assetsApi.test.ts src/features/assets/hooks/useDrones.test.tsx src/features/assets/pages/DroneInventoryPanel.test.tsx`. Verify Drone list/create/detail/selection/serviceability and document list/upload/status URLs; JSON-string `payloadMetadata`; multipart fields without client checksum; ORG_ADMIN create/serviceability/upload controls; loading/empty/retry, server 413/415 feedback, expired status, no flight-clearance wording; lazy detail queries; selected file not held in TanStack mutation variables and cleared after upload/close.
+- Expected result: The client follows the existing API contract, sends no organization field or checksum, tenant scope stays server-owned, detail queries run only while open, and serviceability is never described as flight permission/readiness.
+- Round 1: Passed 2026-10-13; tester: Claude Code (automated).
+- Evidence: focused command passed 3 files / 31 tests before final integration. Full suite on the clean release branch after `origin/main` merge: `npm test -- --maxWorkers=1` passed 51 files / 336 tests.
+- Scope note: This is mocked-transport component/contract verification; no live MinIO, authenticated browser/backend round-trip or manual browser check is claimed.
+
+### Frontend MF1-07 permit records and internal review — supporting verification (executed 2026-10-13)
+
+- Preconditions: Same Frontend release branch; synthetic fixtures matching `CreateFlightPermitRequest`, `ReviewFlightPermitRequest` and `FlightPermitResponse`.
+- Procedure: Run `npx vitest run --pool=forks --maxWorkers=1 src/features/assets/api/assetsApi.test.ts src/features/assets/hooks/useFlightPermits.test.tsx src/features/assets/pages/FlightPermitPanel.test.tsx src/features/assets/pages/AssetsPage.resources.test.tsx`. Verify list/create/review endpoints, no tenant field, JSON-string scope/conditions, optional raw asset/evidence IDs, six supported statuses, date-order and malformed JSON validation, required internal review reason, form reset after cancel, non-verification copy, ORG_ADMIN-only tabs/actions and list loading/empty/retry.
+- Expected result: The UI mirrors backend DTOs; permit status is labeled organization-recorded; no authority/registry verification, legal clearance, or permission-to-fly claim is implied; there are no invented asset/evidence pickers; canceled drafts do not persist.
+- Round 1: Passed 2026-10-13; tester: Claude Code (automated).
+- Evidence: focused command passed 4 files / 33 tests; create-cancel reset regression passed in `FlightPermitPanel.test.tsx` (7/7). Final clean-branch regression passed 51 files / 336 tests.
+- Review note: Independent React review confirmed DTO alignment and caught stale form state after cancel/success; the dialog now remounts on each open cycle and has a regression test.
+- Scope note: Mocked transport only; no live backend, authority/registry lookup, or manual browser verification claimed.
+
+### Integrated Frontend role/access and verification — supporting evidence (executed 2026-10-13)
+
+- Preconditions: Frontend `feat/mf1-org-admin-resources`, current upstream main merged, canonical roles `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`.
+- Procedure: `npm test -- --maxWorkers=1`; `npm run build`; `npm run lint`; focused direct guards via `npx vitest run --pool=forks --maxWorkers=1 src/app/permissions/accessPolicy.test.ts src/app/router/router.test.ts src/features/auth/components/RequireAuth.resources.test.tsx src/features/assets/pages/AssetsPage.resources.test.tsx`; `git diff --check`.
+- Expected result: All automated tests pass; route guards permit ORG_ADMIN and direct guard tests redirect the other three roles to Forbidden; strict build passes; lint exits zero; whitespace check is clean.
+- Round 1: Passed 2026-10-13; tester: Claude Code (automated).
+- Evidence: full suite 51 files / 336 tests; focused guard suite 9 files / 95 tests; `npm run build` passed; `npm run lint` exited 0 with six existing `react(only-export-components)` Fast Refresh warnings (in `Toast.tsx`, `main.tsx`, `ReportSectionForm.tsx`, and `router.tsx`); `git diff --check` passed. Manual browser verification was not run because the connected browser was `about:blank`.
+- Scope note: Role guards are navigation protection; backend authorization remains authoritative. No changes were made to backend APIs/schema in this Frontend task.
 
 ## Feature sheet summary
 
