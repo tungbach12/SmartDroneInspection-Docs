@@ -55,7 +55,7 @@ Executed evidence:
 - `npm test -- --run src/features/inspections/pages/InspectionFindingsPage.test.tsx` — 15 passed.
   Includes the new `does not auto-analyze again after the Inspector reopens findings` and
   `offers no re-run control on an image whose detection already ran` cases.
-- `npm test -- --run` — 54 files, 358 tests, 0 failures.
+- `npm test -- --run` — 54 files, 362 tests, 0 failures.
 - `npm run lint` — unchanged baseline of 6 pre-existing `react(only-export-components)` warnings,
   none in the changed files.
 - `npm run build` — succeeded.

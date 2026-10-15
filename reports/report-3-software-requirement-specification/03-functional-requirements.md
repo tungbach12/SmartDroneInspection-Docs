@@ -24,17 +24,17 @@ flowchart TD
   D["MF2 / INSPECTOR: pre-flight checklist and field-session start/end on app"] --> E
   E["MF3 / INSPECTOR: upload and decide evidence completeness/quality"] --> V
   E -.->|"New capture needed: same inspection, renewed readiness check"| B
-  V["MF3 / SYSTEM: AI Vision candidate detection"] --> Q
-  Q["MF3 / INSPECTOR: resolve candidates/manual findings; confirm set"] --> D
-  D["MF3 / INSPECTOR: choose AI-assisted or manual report draft"] --> R
+  V["MF3 / SYSTEM: AI Vision candidate detection"] --> FIND
+  FIND["MF3 / INSPECTOR: resolve candidates/manual findings; confirm set"] --> DRAFT
+  DRAFT["MF3 / INSPECTOR: choose AI-assisted or manual report draft"] --> R
   R["MF3 / INSPECTOR: verify/edit draft and submit"] --> F
   F["MF3 / ORG_ADMIN: decide findings; review report; approve publication"] --> G
   G{"Confirmed defects require repair?"}
   G -->|"No"| Z["SYSTEM: update asset history and inspection outcome"]
   G -->|"Yes"| T
   T["MF4 / ORG_ADMIN: work order, repair team, lead and report author"] --> P
-  P["MF4 / Team lead: tasks, method, estimate and resource needs"] --> Q
-  Q["MF4 / ORG_ADMIN: approve scope, budget and release"] --> W
+  P["MF4 / Team lead: tasks, method, estimate and resource needs"] --> RELEASE
+  RELEASE["MF4 / ORG_ADMIN: approve scope, budget and release"] --> W
   W["MF4 / Members: work logs, before/after evidence and actual costs"] --> H
   H["MF4 / SYSTEM: LLM draft maintenance completion report"] --> I
   I["MF4 / Report author: verify, edit and submit"] --> J
@@ -240,7 +240,8 @@ MF3 provides a **point-in-time asset inspection report**, not a flight permit, p
 | MF3-03 | Inspector | Compare evidence with shot-list and directly decide completeness/quality. Re-upload a file or request an additional MF2 session if needed. The comparison itself is stored with the decision, and both the client and the server refuse to record a decision without a non-blank comparison. | Inspector's documented adequate/insufficient decision, with the coverage comparison that supports it; SYSTEM does not decide image usefulness. |
 | MF3-04 | SYSTEM | Snapshot the evidence set after Inspector confirmation; preserve missing-metadata/coverage flags. Verifying or submitting a draft whose stored snapshot hash no longer matches the current evidence set is refused with a conflict, and the author drafts a new version instead. | Source set eligible for processing; changes make dependent drafts/review confirmations stale. |
 | MF3-05 | Assigned Inspector; SYSTEM / AI Vision | Once the Inspector records an `ACCEPTED` evidence-quality decision, configured eligible-image detection may start automatically; the assigned Inspector can also request a run/re-run. SYSTEM stores candidate, source-image, confidence, box and model provenance. Re-running an analysed image returns existing candidates. ORG_ADMIN can read candidates but cannot run detection or decide Inspector proposals. | Candidates are advisory. `LIMITED` evidence is not detection-eligible. AI outage, incompatible modality or intentional skip does not block manual findings; record analysis unavailable/omitted. |
-| MF3-06 | Inspector | Resolve every candidate: confirm, modify or reject; add manual visual findings as needed, each linked to source evidence. Location prose is optional if evidence/component/annotation provides context. Select **Confirm findings and continue** only after all candidates and edits settle. | Pending candidates block confirmation. An empty set requires explicit no-findings acknowledgment for observed scope. Confirmation records actor/time and evidence/findings snapshot, then advances to Report without creating a report/version or calling AI/LLM. Material changes reopen Findings and invalidate confirmation/dependent draft state. Measurements require method and units, not pixel guesswork. |
+| MF3-06 | Inspector | Resolve every candidate: confirm, modify or reject; add manual visual findings as needed, each linked to source evidence. Location prose is optional if evidence/component/annotation provides context. | Pending candidates block progression. An empty set may proceed only after the Inspector acknowledges no findings in the observed scope. Measurements require method and units, not pixel guesswork. |
+| MF3-06a | Inspector; SYSTEM | Select **Confirm findings and continue** after all candidates and edits settle. SYSTEM records the actor/time and current evidence/findings snapshot, then advances to Report. | Confirmation does not create a report/version or call AI/LLM. Material changes reopen Findings and invalidate confirmation/dependent draft state; reconfirmation is required. |
 | MF3-07 | Inspector; SYSTEM / LLM only for explicit AI choice | After confirmation, the Inspector chooses AI-assisted section drafting or manual structured authoring. AI uses authorized scope/criteria/session references, evidence metadata, Inspector observations and proposals; planned dates/assigned Drone stay labelled as plans. | AI creates a labelled source-grounded `DRAFT`; unsupported values stay not supplied and candidates do not become findings implicitly. Manual creates a structured draft without LLM. AI draft failure creates no partial version or automatic fallback; the manual choice remains explicit and discloses omitted analysis. |
 | MF3-08 | Inspector — report author | Read/edit the full draft; verify identifiers, evidence, scope, proposals, uncertainty, recommendations and limitations; attest authorship and submit. | Human-verified submitted version. Current evidence/findings must still match its recorded source snapshot; stale drafts cannot be verified or submitted. |
 | MF3-09 | Organization Admin — qualified independent reviewer | Decide every proposed finding against source evidence (confirm, modify or reject), then review the complete submitted report and limitations. Return with a reason or approve. | No self-review or timed acceptance. Approval is refused until each proposal has an attributable reviewer decision. A return sends the version back for author revision and a fresh submit/review cycle. |

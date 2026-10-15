@@ -76,11 +76,14 @@ finding renders its decision as "Awaiting reviewer decision" instead of being pr
 
 Executed evidence:
 
-- `./mvnw.cmd -B verify` — **645 tests, 0 failures, 0 errors, 0 skipped; BUILD SUCCESS.** Includes
-  the new `InspectionReportSectionsApiIntegrationTest.previewRendersAnInspectorConfirmedFindingThatHasNoReviewerDecisionYet`
+- `./mvnw.cmd -B verify` — **645 tests, 0 failures, 0 errors, 0 skipped; BUILD SUCCESS** for the
+  initial 4.19 correction. The 4.20 full rerun passed **647 tests, 0 failures, 0 errors, 0 skipped;
+  BUILD SUCCESS**, including `InspectionReportApiIntegrationTest.aReturnedVersionDoesNotAllowFindingDecisionsAfterPublication`,
+  `InspectionEvidenceApiIntegrationTest.evidenceUploadIsRejectedAfterReportPublication`,
+  `InspectionReportSectionsApiIntegrationTest.previewRendersAnInspectorConfirmedFindingThatHasNoReviewerDecisionYet`
   (observed red first: the PDF read "6. Confirmed findings / No confirmed findings were recorded for
   this version") and `previewOmitsAFindingTheReviewerRejected`.
-- Frontend `npm test -- --run` — 54 files, **358 tests passed**; `npm run lint` unchanged at the
+- Frontend `npm test -- --run` — 54 files, **362 tests passed**; `npm run lint` unchanged at the
   6 pre-existing warnings; `npm run build` succeeded. New cases:
   `ReportDerivedSections.test.tsx` "lists a finding the Inspector confirmed that has no reviewer
   decision yet" and "excludes a finding the reviewer rejected".

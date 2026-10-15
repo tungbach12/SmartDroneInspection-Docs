@@ -4,7 +4,7 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope (updated 2026-10-14):** This report indexes ten cases for the four
+**Scope (updated 2026-10-15):** This report indexes ten cases for the four
 current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`): three
 MF2 cases and seven MF3 cases. Eight cases are `Passed`; `WF3-010` and
 `WF3-011` are `Pending`.
@@ -28,8 +28,8 @@ workbooks extend it to eight feature sheets (`Feature 1`–`Feature 8`), one per
 Report 3 feature. The original template remains unchanged. Sheet `Feature N`
 contains SRS feature `FE-0N`; these are separate naming layers, not synonyms.
 Feature 1/2/7/8 have no cases. Feature 3 (FE-03) contains `WF2-008`–`WF2-010`;
-Features 4–6 contain seven MF3 cases, including pending `WF3-010` and `WF3-011`. All eight sheets
-remain so the workbook mirrors the eight SRS features.
+Features 4–6 contain seven MF3 cases, including pending `WF3-010` and `WF3-011`.
+All eight sheets remain so the workbook mirrors the eight SRS features.
 
 | Layer | Meaning | Example |
 | --- | --- | --- |
@@ -38,7 +38,7 @@ remain so the workbook mirrors the eight SRS features.
 | WF test ID | Business-flow traceability ID | `WF3-005` |
 
 Do not rename the files or IDs to make the sheet number look like an SRS
-feature code. In the generated workbook, `WF2-008`/`WF2-009` sit on `Feature 3` (FE-03),
+feature code. In the generated workbook, `WF2-008`–`WF2-010` sit on `Feature 3` (FE-03),
 and MF3 cases sit on `Feature 4`, `Feature 5`, and `Feature 6` (FE-04–FE-06).
 The remaining four sheets have zero cases, preserving the one-sheet-per-SRS-
 feature mapping.
@@ -75,9 +75,9 @@ feature mapping.
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary. |
 | `03-features/fe-01-identity-access-governance.md` | Support evidence | FE-01 gates; not a workbook case. |
 | `03-features/fe-02-asset-registry-inspection-schedule.md` | Coverage gap | No current case; MF1 catalog workflow unimplemented. |
-| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 3` sheet | `WF2-008`, `WF2-009` (MF2-07 readiness approval/return); other MF2 steps remain gaps or partial. |
+| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 3` sheet | `WF2-008`, `WF2-009` (MF2-07 readiness approval/return), `WF2-010` (scoped preparation-history listing); other MF2 steps remain gaps or partial. |
 | `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 4` sheet | `WF3-002`, `WF3-009`. |
-| `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 5` sheet | `WF3-003`. |
+| `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 5` sheet | `WF3-003`, `WF3-010` (Pending). |
 | `03-features/fe-06-inspection-report-approval.md` | `Feature 6` sheet | `WF3-005`, `WF3-006`, `WF3-011` (Pending). |
 | `03-features/fe-07-maintenance-defect-resolution.md` | Coverage gap | No current case; MF4 unimplemented. |
 | `03-features/fe-08-dashboard-analytics-notifications.md` | Coverage gap | No assigned case; do not infer execution. |

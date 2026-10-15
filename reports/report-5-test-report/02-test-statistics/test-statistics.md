@@ -6,8 +6,8 @@ round.
 
 ## Project metadata
 
-The 14 October MF3 aggregate-confirmation gate and independent finding-review
-changes are in implementation and verification. The matching end-to-end case,
+The 15 October MF3 aggregate-confirmation gate and confirmed-findings rendering
+correction have been implemented and verified. The matching end-to-end case,
 `WF3-011`, is Pending; the 10-case denominator includes it. Do not read narrow
 unit/integration results below as a pass for the whole new case.
 
@@ -15,8 +15,8 @@ unit/integration results below as a pass for the whole new case.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | **2026-10-14: WF3 draft context and Inspector walkthrough.** Backend context includes inspection objective/scope/component scope/criteria, recorded evidence metadata, inspection-scoped AI candidates and minimal field-session references, plus the latest accepted Inspector-recorded evidence-quality comparison/limitation. The latest non-accepted decision supersedes any earlier acceptance. Candidates remain separate from official findings; planned dates and assigned Drone references are not actual observations. `ReportDraftClientTest` passed 6/6; Testcontainers-backed `InspectionReportDraftingApiIntegrationTest` passed 9/9; `InspectionFindingsPage.test.tsx` passed 8/8. A disposable synthetic Inspector walkthrough uploaded six images, accepted an explicitly test-only coverage comparison, stored 17 pending candidates and generated one unverified DRAFT. It is exploratory evidence, not a passed WFx case: synthetic media cannot support author attestation, and the draft still implied site captures. Existing eight WFx case statuses/totals are unchanged. Prior 2026-10-13 enforcement and MF3 UI/history follows. |
-| Last updated | 2026-10-14 |
+| Test round | **2026-10-15: MF3 confirmation and report-rendering regression correction.** Backend `./mvnw.cmd -B verify` passed 645 tests, 0 failures/errors/skips. Frontend `npm test -- --run` passed 54 files / 362 tests; lint exited 0 with six existing warnings; build passed. The Report 5 exporter suite passed 29 tests. (Test discovery was rerun with the docs repository's absolute path after an initial relative-path invocation from another working directory could not import the start directory.) Browser verification confirmed reopening Findings does not trigger automatic detection and Inspector-confirmed proposals appear in report output. These are supplementary regression checks; `WF3-011` remains Pending until its complete end-to-end procedure executes. Prior 2026-10-14 draft-context verification and exploratory walkthrough remain recorded below. |
+| Last updated | 2026-10-15 (Report 5 version 4.20) |
 
 ## Module summary
 
@@ -51,9 +51,10 @@ Because there are eight modules, `Sub total` moves from row 14 to **row 19**,
 - **Modules 1, 2, 7 and 8 have no cases.** FE-01's supporting gates are
   recorded outside the case sheets. MF1 (catalog) and MF4 (maintenance) remain
   Report 3 requirements but are not implemented. FE-08 has no assigned case.
-- **Module 3 has the two MF2-07 readiness cases** (`WF2-008`, `WF2-009`). They
-  cover readiness approval/return only; they do not establish that all MF2
-  steps are complete or tested. MF2-08 source-change invalidation is partial;
+- **Module 3 has three MF2 cases.** `WF2-008` and `WF2-009` cover MF2-07
+  readiness approval/return; `WF2-010` covers scoped preparation-history
+  listing. They do not establish that all MF2 steps are complete or tested.
+  MF2-08 source-change invalidation is partial;
   MF2-12 session end/`FIELD_COMPLETED` remains unimplemented.
 - **Modules 4, 5 and 6 hold the seven MF3 cases**: FE-04 (evidence intake and
   scoped collections) has 2, FE-05 (advisory detection and human finding
@@ -103,8 +104,10 @@ invalidation is partial and MF2-12 session end remains unimplemented.
 ## Verification recorded this round
 
 The MF2-07 case statuses are supported by the backend PR #64 CI run on
-2026-10-10. Earlier MF3 evidence is retained from its own documented runs. The
-following fresh checks were run during this reconciliation:
+2026-10-10. Earlier MF3 evidence is retained from its own documented runs.
+The 2026-10-14 integration-suite failure is retained as history and superseded
+by the successful full verification on 2026-10-15. WF3-011 remains Pending;
+these regression checks do not constitute its complete end-to-end procedure.
 
 | Check | Command | Result |
 | --- | --- | --- |
@@ -113,6 +116,12 @@ following fresh checks were run during this reconciliation:
 | Frontend lint | `npm run lint` | **Passed 2026-10-14** (exit 0; six existing Fast Refresh warnings). |
 | Frontend production build | `npm run build` | **Passed 2026-10-14.** TypeScript and Vite production build succeeded. |
 | Backend full suite + coverage gate + Modulith boundaries | PR #64 CI workflow: `Verify (Spotless + tests + JaCoCo + Modulith checks)` | **Passed.** 334 tests, 0 failures, 0 errors, 0 skipped; JaCoCo coverage checks and Spring Modulith checks passed. The CI job ran the Maven verify build; this record does not claim a local Maven command was executed successfully. |
+| Backend full MF3 confirmation/rendering suite | `./mvnw.cmd -B verify` | **Passed 2026-10-15.** 647 tests, 0 failures/errors/skips; BUILD SUCCESS. JaCoCo coverage and Spring Modulith checks passed. Includes findings confirmation/reopen/snapshot gates, Inspector-confirmed report inclusion/reviewer-rejected exclusion, post-publication finding-decision refusal, and evidence-upload refusal after publication. |
+| Frontend full MF3 confirmation/rendering suite | `npm test -- --run` | **Passed 2026-10-15.** 54 files, 362 tests passed. Includes regressions for rejected-only no-findings acknowledgment, candidate-query loading guard, returned-report author verification, published-report UI state, and report finding-status copy. |
+| Frontend lint and production build | `npm run lint`; `npm run build` | **Passed 2026-10-15.** Lint exit 0 with six existing warnings; TypeScript and production build succeeded. |
+| Report 5 exporter tests | `python -I -m unittest discover -s "E:\\Dev\\Repos\\Capstone\\SmartDroneInspection-docs\\tools\\tests" -p "test_*.py" -v` | **Passed 2026-10-15.** 29 tests passed. The first relative-path invocation from outside the docs repository failed discovery; the absolute-path rerun passed. |
+| Docs whitespace check | `git diff --check` | **Passed 2026-10-15.** No whitespace errors. |
+| Browser regression walkthrough | Local browser on inspection `e3e11000-561b-4f81-8173-868772a15c02` | **Passed 2026-10-15.** Reopening Findings caused no automatic analyze request; Inspector-confirmed proposals appeared in the report with reviewer status shown, and rejected findings remained excluded. This is supplementary MF3-10 evidence, not completion of WF3-011. |
 | Backend local full suite (re-run, Docker available) | `./mvnw.cmd verify` | **Passed 2026-10-12.** 364 tests, 0 failures, 0 errors, 0 skipped; JaCoCo gate met ("All coverage checks have been met"); Spring Modulith boundary checks passed; BUILD SUCCESS. This is prior successful evidence; the 2026-10-13 rerun below is separate. |
 | Backend affected WF3 integration assertions | PR #69 CI, run [38325774461](https://github.com/tungbach12/SmartDroneInspection-Backend/actions/runs/38325774461) — `./mvnw -B verify` | **Passed 2026-10-13.** Full `verify` completed with 491 tests, 0 failures, 0 errors, 0 skipped; Spotless clean, JaCoCo coverage checks met, and Spring Modulith checks passed. This run exercised the new comparison enforcement, finding-author no-self-review, and report snapshot stale-at-verify/submit integration assertions. |
 | Backend full suite rerun (local) | `mvn.cmd -o verify` | **Blocked by environment 2026-10-13.** 491 tests discovered; 0 assertion failures and 263 errors because Testcontainers could not find a Docker environment. This local attempt is superseded for code verification by the successful CI run above; retain it as an environment record, not a product failure or pass. |
@@ -194,8 +203,8 @@ full feature or product coverage.
 - **Test successful coverage** = `Passed × 100 ÷ (Number of TCs − N/A)` =
   `8 × 100 ÷ (10 − 0)` = 80.00%.
 Both match the template formulas: pending cases remain in the denominator and
-only `N/A` cases are excluded. These percentages are not product coverage:
-product coverage: FE-02/MF1, most MF2 steps, MF4/FE-07 and FE-08 remain
+only `N/A` cases are excluded. These percentages are not product coverage: FE-02/MF1, most MF2 steps,
+MF4/FE-07 and FE-08 remain
 unverified or unimplemented, and FE-01 support evidence is outside the
 workbook-case denominator.
 
@@ -206,7 +215,7 @@ The eight module rows are workbook-sheet totals, one per SRS feature; they are n
 | Area | Status |
 | --- | --- |
 | MF1 asset/drone/workforce/compliance catalog | Workflow implementation and executed test evidence absent; no case. |
-| MF2 assignment/preparation/compliance | Implemented in part; no Report 5 cases beyond readiness decision approval/return (`WF2-008`/`WF2-009`). |
+| MF2 assignment/preparation/compliance | Implemented in part; Report 5 covers readiness decision approval/return (`WF2-008`/`WF2-009`) and scoped preparation-history listing (`WF2-010`); remaining MF2 coverage gaps remain. |
 | MF2-08 source-change invalidation | Partial: start rejects unless newest readiness decision is APPROVED; no source-change workflow appends INVALIDATED. |
 | MF2-12 session end / FIELD_COMPLETED handoff | Not implemented; no case. |
 | MF4 maintenance/cost/completion reporting | Workflow implementation and executed test evidence absent; no case. |

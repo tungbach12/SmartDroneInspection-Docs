@@ -8,9 +8,9 @@ when transferring values into the workbook.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Creator | *Enter team/member name* |
-| Issue Date | 2026-10-14 |
+| Issue Date | 2026-10-15 |
 | Document Code | *Enter document code* |
-| Version | 4.18 (Report 5 records the 14 October MF3 findings-gate requirements and adds `WF3-011` as Pending. Current totals are 10 cases: 8 Passed, 2 Pending; the two Pending cases remain in the denominator. Frontend focused tests/lint/build passed. Backend affected integration tests and live browser verification are still in progress and are not claimed as passing.) |
+| Version | 4.20 (Reconciles Report 5 metadata, case summaries, and verification history with the 15 October MF3 corrections; aligns the SRS flow diagram and MF3-06a step numbering. Current totals remain 10 cases: 8 Passed, 2 Pending. Verification: backend 647 tests, frontend 362 tests, exporter 29 tests. WF3-010 and WF3-011 remain Pending.) |
 
 ## Export-tool verification (not workbook cases)
 
@@ -33,7 +33,8 @@ verification is supporting evidence, not an additional WFx case result.
 ## Record of change
 
 The workbook's change table uses these columns. Add one row for each approved
-revision; do not remove old entries.
+revision; do not remove old entries. Current source version: **4.20**, last updated
+2026-10-15; see the record of changes below.
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |
 | --- | --- | --- | --- | --- | --- |

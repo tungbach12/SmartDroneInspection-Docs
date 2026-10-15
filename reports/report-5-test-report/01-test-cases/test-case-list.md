@@ -16,8 +16,9 @@ fixed: `No`, `Function Name`, `Sheet Name`, `Description`, `Pre-Condition`.
 
 The earlier content mixed a retired five-role WF1–WF4 baseline with the current
 four-role Enterprise SaaS target. The 2026-10-09 reset removed obsolete and
-unimplemented cases; this 2026-10-10 reconciliation adds only the two MF2-07
-readiness cases backed by the merged backend implementation and CI evidence.
+unimplemented cases. The 2026-10-10 reconciliation restored the two MF2-07
+readiness cases backed by merged backend PR #64 and its CI evidence; `WF2-010`
+was added later for the scoped preparation-history listing.
 
 Removed during the reset, because they describe behavior that no longer exists
 or was never implemented:
@@ -70,7 +71,8 @@ These are stated as gaps rather than filled with fabricated cases or statuses.
 - **MF1** (asset/schedule setup) and **MF4** (maintenance, triage, cost
   reconciliation) remain unimplemented and have no cases.
 - **MF2** is only partly covered: `WF2-008` and `WF2-009` test MF2-07 readiness
-  approval/return. Assignment response, preparation/compliance, source-change
+  approval/return, while `WF2-010` covers the scoped preparation-history read.
+  Assignment response, preparation/compliance, source-change
   invalidation, field-session start/postpone/abort and session-end handoff are not
   represented by Report 5 cases. MF2-08 invalidation is partial in runtime;
   MF2-12 session end/`FIELD_COMPLETED` remains unimplemented.
