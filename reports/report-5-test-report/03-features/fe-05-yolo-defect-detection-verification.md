@@ -69,4 +69,5 @@ Executed evidence:
   change.
 
 No WF3-003 case status changed; the case already records that re-analysis returns existing
-candidates rather than duplicating them. |
+candidates rather than duplicating them. A repeated Inspector review of a non-pending candidate
+now returns `409 CANDIDATE_ALREADY_REVIEWED`; use the revision action to make changes. |
