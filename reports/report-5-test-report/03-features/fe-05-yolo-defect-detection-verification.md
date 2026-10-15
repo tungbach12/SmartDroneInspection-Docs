@@ -35,3 +35,38 @@ exporter maps this file to the matching SRS feature sheet.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | WF3-003 | Inspector verifies AI candidates or records a manual finding. | Request analysis before the Inspector accepts the evidence set; analyze a representative accepted image; verify its returned candidate provenance, confidence, normalized box, and pending status; re-analyze the same accepted image and confirm the candidate set is unchanged; attempt analysis as a different Inspector; confirm a candidate through the Findings stage and check the created finding is still undecided; record a manual finding with prose measurement; sign in as a qualified ORG_ADMIN in the same organization and record the reviewer's decision on that finding; attempt decision by the finding creator and verify refusal; confirm the Inspector is not offered the reviewer decision. | Analysis is refused until the Inspector accepts the evidence; valid model detections are persisted only as `PENDING`; re-analysis of an already analysed image returns the existing candidates and creates no duplicate; out-of-scope Inspectors are refused; a confirmed candidate creates a `VerifiedFinding` whose `decision` is still null, because MF3-06 records a recommendation and not the official decision; a manual finding is available without analysis; a finding is official only after the qualified reviewer other than its creator records `CONFIRMED` or `MODIFIED`, stamping reviewer and time. | An assigned `FIELD_COMPLETED` inspection, accepted image evidence, PostgreSQL, and an authorized Inspector and ORG_ADMIN in the same organization. | Passed | 2026-10-12 | Claude Code (automated) | Pending |  |  | Pending |  |  | Verified with `InspectionReportApiIntegrationTest.analysisIsRefusedUntilTheInspectorAcceptsTheEvidence`, `analysisRequiresAssignmentAndAcceptedEvidenceAndPersistsOnlyPendingCandidates`, `reAnalysingTheSameEvidenceReturnsTheExistingCandidatesInsteadOfDuplicatingThem`, `manualFindingIsAvailableWithoutAnyAnalysis`, `aFindingMeasurementIsStorableAsProse`, and `anotherInspectorCannotAddAFinding`; plus `AiFindingCandidateTest` (4 candidate-review cases) and frontend `InspectionFindingsPage.test.tsx` (auto-detection runs for unanalysed images only; Confirm sends `CONFIRMED` with per-candidate severity/location; candidate cards render evidence-linked defect photos; reviewer control appears only for ORG_ADMIN on undecided findings). **WF3 alignment follow-up, 2026-10-13:** `FindingService.decideFinding` rejects the finding creator with 403 `FINDING_REVIEWER_INVALID`; `InspectionReportApiIntegrationTest.findingAuthorCannotDecideTheirOwnFinding` covers a persisted dual-role author and independent reviewer. **Passed in backend PR #69 CI run 38325774461:** `./mvnw -B verify` ran 491 tests with 0 failures/errors/skips; the finding-author test and related comparison/snapshot integration assertions executed under Testcontainers. The separate local full run remains recorded as Docker-blocked (263 environment errors) in `test-statistics.md`. |
 | WF3-010 | Assigned Inspector corrects a reviewed candidate and its linked undecided finding before reviewer decision or report lock; rejection removes that finding, while final reviewer decisions remain immutable. | Review a candidate, correct its label/details and linked undecided finding, reject the corrected candidate, and verify removal of the linked undecided finding. Repeat after a reviewer decision and after report submission/publication to verify revision is refused and final decisions remain unchanged. | Before a lock, the Inspector's correction updates the reviewed candidate and linked undecided finding; rejection removes the linked undecided finding. After reviewer decision or report lock, correction is refused; final reviewer decisions remain immutable. | Assigned Inspector; reviewed candidate with linked undecided finding; fixtures for reviewer-decided and submitted/published report states. | Pending |  |  | Pending |  |  | Pending |  |  | Implementation and a frontend correction-call unit test exist, but executed evidence for the complete revision, rejection, lock, and immutable-decision paths is not recorded. |
+
+### WF3 role-gating follow-up — 2026-10-14
+
+The assigned Inspector is the only role that may trigger automatic or manual AI detection. The Findings UI now hides Analyze/Re-run controls and skips the auto-analysis effect for ORG_ADMIN reviewers; reviewer verdict controls remain available. `InspectionFindingsPage.test.tsx` passed 8 tests, including the new accepted-evidence ORG_ADMIN case. The Report 3 §3.7.1 requirement was clarified to match the existing backend `INSPECTOR` endpoint authorization. No WF3-003 case status changed.
+
+### Reopen no longer restarts detection — 2026-10-15
+
+Reopening Findings returned the inspection to `FIELD_COMPLETED`, which re-armed the automatic
+detection effect and silently ran the model on any image that had produced no candidate. The
+automatic pass is now a single offer per inspection, remembered for the tab session per user and
+inspection, so reopening the reviewed set does not restart detection. Because MF3-05 makes re-running
+an analysed image return its existing candidates, an image that already has a candidate no longer
+offers a detection control; the "Detection complete" chip carries that state, and detection stays
+available from the explicit per-image **Analyze** action.
+
+Executed evidence:
+
+- `npm test -- --run src/features/inspections/pages/InspectionFindingsPage.test.tsx` — 15 passed.
+  Includes the new `does not auto-analyze again after the Inspector reopens findings` and
+  `offers no re-run control on an image whose detection already ran` cases.
+- `npm test -- --run` — 54 files, 358 tests, 0 failures.
+- `npm run lint` — unchanged baseline of 6 pre-existing `react(only-export-components)` warnings,
+  none in the changed files.
+- `npm run build` — succeeded.
+- Browser walkthrough on inspection `e3e11000-561b-4f81-8173-868772a15c02` (Field Inspector,
+  Inspector role): with no flag stored, first visit issued one
+  `POST /evidence/{id}/analyze`; after reload with the flag stored, **no** analyze request was
+  issued; confirming findings issued no analyze request; clicking **Reopen Findings** returned
+  `POST /findings/reopen` `200` with **no** analyze request, and the stage showed "Detection
+  complete" with no control on the analysed image; clicking the remaining **Analyze** button still
+  issued its analyze request. `analyze` is Inspector-only, so no negative-role case applies to this
+  change.
+
+No WF3-003 case status changed; the case already records that re-analysis returns existing
+candidates rather than duplicating them. |

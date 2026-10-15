@@ -124,17 +124,34 @@ single-file mutation call per file in order; a failed file stays in the queue
 with its error without blocking the rest. Below it, the single shot-list
 comparison field plus "Accept evidence set" records the MF3-03 set-level
 decision, disabled until at least one evidence item exists and the comparison
-is non-empty. The `findings` tab runs advisory detection automatically once the
-set is accepted, shows each candidate with its defect photo resolved from the
-evidence content endpoint, gives each candidate its own severity/location inputs for
-Confirm/Modify, and surfaces the MF3-09 reviewer verdict on undecided
-findings. The `report` tab generates the MF3-07 draft (gated on an ACCEPTED
-decision, matching the backend 409), keeps the manual narrative/disclosure
-seed form, and carries the single "Open the report document" link, enabled
-only once a version exists. While generation is pending, the UI shows an
-indeterminate wait state; the API exposes no intermediate stages or progress
-percentage. Authors review and verify every section before submission. The
-`preparation` tab mounts the MF2 preparation and readiness panels unchanged.
+is non-empty. The `findings` tab runs advisory detection automatically as a single
+pass over the images that have no candidate once the set is accepted, shows each
+candidate with its defect photo resolved from the evidence content endpoint and
+its own severity/location inputs for Confirm/Modify, and surfaces the MF3-09
+reviewer verdict on undecided findings. The automatic pass is offered once per
+inspection and remembered for the tab session, so reopening Findings does not
+restart detection. An image that already has candidates shows "Detection complete"
+and offers no re-run control because MF3-05 returns existing candidates rather
+than rerunning inference; the explicit per-image **Analyze** action remains
+available for unanalysed images. A finding remains linked to its evidence;
+location prose is optional where the image/component context is clear. Manual
+findings require source evidence.
+
+Pending candidates block **Confirm findings and continue**. An empty set requires
+explicit acknowledgment that no finding was observed within the covered scope.
+Confirmation records a backend snapshot and moves to Report without creating a
+version or calling the drafting model. The Inspector may reopen Findings before
+submission; material changes clear confirmation and require reconfirmation.
+
+The `report` tab reads backend workflow state and separately offers **Generate
+report draft** or manual structured authoring, both disabled until the current
+findings confirmation is valid. A failed model request creates no version; the
+Inspector may then explicitly choose manual authoring. The report-document link
+is enabled only after a version exists. While generation is pending, the UI shows
+an indeterminate wait state because the API exposes no progress percentage. The
+author reviews and verifies each section before submission. ORG_ADMIN performs
+independent finding/report review, return or approval and publication on the
+separate report page. The `preparation` tab mounts MF2 panels unchanged.
 
 `/inspections` loads the assignment inbox and a server-paged, backend-scoped
 inspection collection; users select a row instead of entering an identifier by

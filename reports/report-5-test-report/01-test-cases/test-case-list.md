@@ -33,9 +33,8 @@ or was never implemented:
   cost and completion-report gates, outside FE-06 and unimplemented MF4 scope.
 - `WF4-001`–`WF4-005`: MF4 maintenance, triage and cost reconciliation.
 
-Retained MF3 cases: `WF3-002`, `WF3-003`, `WF3-005`, `WF3-006`, `WF3-009`, and
-`WF3-010` (Pending). The removed IDs remain reserved; new MF3 cases continue
-from `WF3-011`.
+Retained MF3 cases: `WF3-002`, `WF3-003`, `WF3-005`, `WF3-006`, and `WF3-009`.
+The removed IDs remain reserved. `WF3-010` and `WF3-011` are active; new MF3 cases continue from `WF3-012`.
 
 The 2026-10-10 merge of backend PR #64 (`84fcc16`), frontend PR #37
 (`287d5a4`) and mobile PR #9 (`91092e6`) added MF2 runtime. `WF2-008` and
@@ -59,9 +58,10 @@ stable business-flow test-case ID.
 | 3 | `[WF3-002]` FE-04 — MF3 evidence and traceability | Feature 4 | Assigned Inspector uploads supported evidence with a server-computed checksum and source metadata, retry-safe persistence, and scoped read access; type, size, empty and corrupt/undecodable input are refused with a corrective action; the Inspector records the substantive evidence-quality decision together with its shot-list comparison, which both client and server require to be non-blank. | Assigned inspection past field work; valid image, PostgreSQL via Testcontainers, and MinIO via the shared test infrastructure initializer. |
 | 4 | `[WF3-003]` FE-05 — MF3 AI candidate and finding review | Feature 5 | Inspector reviews AI candidates or records a manual finding; pending/rejected detections stay non-official; a confirmed candidate creates an undecided finding that only a qualified ORG_ADMIN other than the finding creator can make official under MF3-09. | Accepted evidence set; deterministic inference stub or manual fallback available. |
 | 5 | `[WF3-005]` FE-06 — MF3 human verification gates and section-scoped drafting | Feature 6 | Candidates and the report draft are verified by the author Inspector and approved by a qualified ORG_ADMIN before publication; automated drafting proposes section values without altering the reviewed findings, and a manual structured draft remains possible when drafting is unavailable. Evidence changes after draft creation stale its snapshot; verify/submit refuses a stale version. | Confirmed evidence set, an assigned Inspector, and a qualified reviewer in the same organization. |
-| 6 | `[WF3-006]` FE-06 — MF3 immutable approved report with PDF deliverable | Feature 6 | The approved report version is immutable and source-traceable, publication stores its PDF deliverable and records the checksum, and only repair-required findings are handed to MF4. | Published MF3 review artifacts exist. |
+| 6 | `[WF3-006]` FE-06 — MF3 immutable approved report with PDF deliverable | Feature 6 | The approved report version is immutable and source-traceable, publication stores its PDF deliverable and records the checksum, only repair-required findings are handed to MF4, and the PDF evidence register shows linked official finding component/location when capture location is absent. | Published MF3 review artifacts exist; report preview fixtures include linked evidence and a confirmed finding with component/location. |
 | 7 | `[WF3-009]` FE-04 — MF3 scoped inspection and report collections | Feature 4 | A caller reaches MF3 through a server-paged, role-scoped list instead of a hand-entered identifier; the report review queue is the server-paged `/with-reports` collection shown as the inspections list's `?view=reports` filtered view, with saved `/reports` links redirecting to it. | Two organizations and fixtures for each of the four roles exist. |
-| 8 | `[WF3-010]` FE-05 — MF3 reviewed-candidate correction and rejection | Feature 5 | The assigned Inspector can correct their reviewed candidate and linked undecided finding before an ORG_ADMIN decision or downstream report lock; correction is refused after either lock. Rejecting the corrected candidate removes its linked undecided official finding, while final reviewer decisions remain immutable. | Reviewed candidate, linked finding, assigned Inspector, and report fixtures covering unlocked, submitted/locked and reviewer-decided states. |
+| 8 | `[WF3-010]` FE-05 — MF3 reviewed-candidate correction and rejection | Feature 5 | The assigned Inspector can correct their reviewed candidate and linked undecided finding before an ORG_ADMIN decision or downstream report lock; correction is refused after either lock. Rejecting the corrected candidate removes its linked undecided proposal, while final reviewer decisions remain immutable. | Reviewed candidate, linked finding, assigned Inspector, and report fixtures covering unlocked, submitted/locked and reviewer-decided states. |
+| 9 | `[WF3-011]` FE-06 — MF3 findings confirmation and separate draft choice | Feature 6 | Inspector resolves all AI candidates, confirms the complete findings set, and reaches Report without an implicit draft/version or AI call; empty scope requires acknowledgment. AI-assisted and manual draft choices remain separate, and stale evidence/findings require reopening and reconfirmation. | Assigned Inspector, completed inspection, accepted evidence-quality decision, API/UI tests for pending candidate, zero findings, confirmation, AI/manual paths, stale-source and reviewer-decision gates. |
 
 ## Coverage gaps
 
@@ -70,15 +70,15 @@ These are stated as gaps rather than filled with fabricated cases or statuses.
 - **MF1** (asset/schedule setup) and **MF4** (maintenance, triage, cost
   reconciliation) remain unimplemented and have no cases.
 - **MF2** is only partly covered: `WF2-008` and `WF2-009` test MF2-07 readiness
-  approval/return; `WF2-010` tests scoped preparation-history access. Assignment
-  response, preparation/compliance, source-change invalidation, field-session
-  start/postpone/abort and session-end handoff are not represented by these cases.
-  MF2-08 invalidation is partial in runtime; MF2-12 session end/`FIELD_COMPLETED`
-  remains unimplemented.
+  approval/return. Assignment response, preparation/compliance, source-change
+  invalidation, field-session start/postpone/abort and session-end handoff are not
+  represented by Report 5 cases. MF2-08 invalidation is partial in runtime;
+  MF2-12 session end/`FIELD_COMPLETED` remains unimplemented.
 - **FE-08** dashboard, analytics and notifications has no assigned case.
 
-The MF2-07 cases and five of the six MF3 cases have executed backend/web test
-evidence; `WF3-010` is explicitly Pending until its revision, rejection, lock,
-and immutable-decision paths have executed evidence. The case index does not
+The MF2-07 cases and five of the seven MF3 cases have executed backend/web test
+evidence. `WF3-010` is Pending until its correction/rejection/lock procedure
+executes; `WF3-011` is Pending until the aggregate gate, separate draft choices,
+stale-source and independent-review procedure executes. The case index does not
 claim mobile app verification for these cases; mobile checks are recorded
 separately in supporting statistics where run.
