@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-15 |
 | Document Code | *Enter document code* |
-| Version | 4.20 (Reconciles Report 5 metadata, case summaries, and verification history with the 15 October MF3 corrections; aligns the SRS flow diagram and MF3-06a step numbering. Current totals remain 10 cases: 8 Passed, 2 Pending. Verification: backend 647 tests, frontend 362 tests, exporter 29 tests. WF3-010 and WF3-011 remain Pending.) |
+| Version | 4.20 (Reconciles Report 5 metadata, case summaries, and verification history with the 15 October MF3 corrections; aligns the SRS flow diagram and MF3-06a step numbering. Current totals remain 10 cases: 8 Passed, 2 Pending. Verification: backend 647 tests, frontend 363 tests, exporter 29 tests. WF3-010 and WF3-011 remain Pending.) |
 
 ## Export-tool verification (not workbook cases)
 
