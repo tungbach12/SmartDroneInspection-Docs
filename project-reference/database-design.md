@@ -8,7 +8,7 @@ weight: 25
 
 > **Scope:** This document is the database-design companion to the Report 3 SRS revision dated **7 October 2026**. It specifies the Enterprise SaaS target with four human roles and four connected Main Flows; the 41-table count below is a target logical inventory, not a completed database inventory.
 >
-> **Implementation status — 8 October 2026:** Backend V24 aligns identity vocabulary and performs a fail-closed role/zone migration; V25 is an additive bridge that creates the target tables. `V26__enterprise_saas_runtime_cutover.sql` completes the runtime cutover: it drops every non-target marketplace, old-client and MF5 table, tightens composite tenant foreign keys, and enforces the target status vocabularies. `V27__mf3_report_workflow.sql` then drops the removed `peer_reviews` table and replaces the retired report-status vocabulary with the MF3 one. Schema cutover is complete. The MF3 workflow is implemented over the inspection tables below; MF1, MF2, and MF4 workflow implementation remains out of scope. A table's presence is not evidence that its use case or MF1–MF4 workflow is implemented. See the current backend plan and migration files for executable details.
+> **Implementation status — 16 October 2026:** Backend V24 aligns identity vocabulary and performs a fail-closed role/zone migration; V25 is an additive bridge that creates the target tables. `V26__enterprise_saas_runtime_cutover.sql` completes the runtime cutover: it drops every non-target marketplace, old-client and MF5 table, tightens composite tenant foreign keys, and enforces the target status vocabularies. `V27__mf3_report_workflow.sql` then drops the removed `peer_reviews` table and replaces the retired report-status vocabulary with the MF3 one. `V30__mf3_corrective_action_and_decision_revision.sql` adds the MF3-12 corrective-action outcome columns on `verified_findings` and the MF3-13 handoff columns on `inspections`. The MF3 workflow is implemented over the inspection tables below; MF1, MF2, and MF4 workflow implementation remains out of scope. The MF3-12/13 corrective-outcome change executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full backend `verify` gate) and has no passed Report 5 case yet. A table's or column's presence is not evidence that its use case or MF1–MF4 workflow is implemented. See the current backend plan and migration files for executable details.
 >
 > **Change boundary:** This design supersedes the former Provider/Client marketplace and MF1–MF5 target schema proposal. The current companion status/report references were also reconciled on 7 October 2026; Report 3 remains the source of business requirements. Backend migrations and code are owned by the backend repository and must not be inferred from this design alone.
 
@@ -315,7 +315,7 @@ Stores AI Vision suggestions: inspection/evidence, model/provider/version, label
 
 #### `verified_findings`
 
-Stores human findings: inspection, source candidate optional, component/location, description, observed condition, severity/priority, measurement JSON with method/unit, decision (`CONFIRMED`, `MODIFIED`, `REJECTED`), decided by/time, rationale and repair-required flag. Rejected candidates remain auditable but cannot create approved repair work.
+Stores human findings: inspection, source candidate optional, component/location, description, observed condition, severity, Inspector-proposed priority, measurement JSON with method/unit, decision (`CONFIRMED`, `MODIFIED`, `REJECTED`), decided by/time and rationale. `V30__mf3_corrective_action_and_decision_revision.sql` adds the separate post-publication MF3-12 reviewer outcome: `corrective_action_required`, `corrective_action_priority`, optional `corrective_action_due_at`, `corrective_action_reviewed_by_user_id`, `corrective_action_reviewed_at` and `corrective_action_rationale`. These fields are distinct from the Inspector proposal; a work-required outcome requires a priority, while a no-action outcome carries no priority/due date. The migration backfills existing reviewer dispositions into the new fields rather than leaving them undecided. Rejected findings remain auditable but cannot create corrective work.
 
 #### `inspection_reports`, `inspection_report_versions`, `report_version_evidence`, `report_version_findings`
 
@@ -323,7 +323,7 @@ Stores human findings: inspection, source candidate optional, component/location
 
 - sequential version and status `DRAFT`, `AUTHOR_VERIFIED`, `SUBMITTED`, `RETURNED`, `APPROVED`, `PUBLISHED`, `SUPERSEDED`;
 - Inspector author and verification timestamp;
-- qualified ORG_ADMIN reviewer and decision/time/reason;
+- ORG_ADMIN reviewer and decision/time/reason (the runtime validates role, tenant, active status and separation of duties; it does not validate reviewer credentials, so runtime review must not be described as professionally qualified);
 - LLM provider/model/template/prompt version and generation time;
 - structured summary/limitations/recommendations JSON plus rendered object key/checksum;
 - source evidence/finding snapshot hash and published time.
@@ -334,7 +334,19 @@ a new DRAFT version; it never updates `verified_findings`, and the author can re
 proposal before verification. `rendered_object_key` and `rendered_checksum_sha256` are
 populated when the version is published, not before: they identify the published PDF that is the
 version's deliverable, and the checksum is taken from the stored bytes. A draft or returned version
-legitimately leaves them null. The two junction tables preserve exactly which evidence and findings supported a version, and the Confirmed findings, Evidence register, Approval block and Appendices sections of the document are rendered from those records and the version's own authorship columns rather than copied into the body. An approved report cannot be edited in place; correction creates a linked version. LLM regeneration never silently overwrites author edits.
+legitimately leaves them null. MF3-12 corrective-action outcomes are stored against `verified_findings`
+after publication and never mutate this immutable PDF. Inspection columns `corrective_handoff_by_user_id`,
+`corrective_handoff_at` and `no_repair_rationale` (added by `V30`) record the final MF3-13 handoff:
+work-required findings move the inspection to `REPAIR_PENDING`, an all-no-action finding set completes
+it, and an explicitly confirmed empty findings set closes through the reasoned no-repair route. The
+handoff record is not an MF4 work order: MF4 work-order creation is not implemented, and the
+work-required priority/due-date values stored here are the reviewer's corrective-action metadata
+rather than a work-order triage record.
+The two junction tables preserve exactly which evidence and findings supported a version, and the
+Confirmed findings, Evidence register, Approval block and Appendices sections of the document are
+rendered from those records and the version's own authorship columns rather than copied into the body.
+An approved report cannot be edited in place; correction creates a linked version. LLM regeneration
+never silently overwrites author edits.
 
 ### 6.6 MF4 repair team, costs and acceptance
 
@@ -353,7 +365,7 @@ IN_PROGRESS -> REWORK_REQUIRED -> IN_PROGRESS
 SUBMITTED_FOR_ACCEPTANCE -> REINSPECTION_REQUIRED -> linked inspection
 ```
 
-The source report must be published and the finding must be human-confirmed repair-required. Active duplicate corrective scope requires an explicit follow-up reason.
+The source report must be published and the finding must be reviewer-confirmed with an MF3-12 outcome recording that corrective work is required. Active duplicate corrective scope requires an explicit follow-up reason. This table and its workflow are a target design: MF4 work-order creation and execution are not implemented, and the MF3-13 handoff does not create a work order. A handoff-eligible finding is one whose confirmed/modified decision and `corrective_action_required` outcome are both recorded.
 
 #### `maintenance_tasks`
 
@@ -417,7 +429,7 @@ Scoped delivery record: recipient, organization, event type, aggregate reference
 | Periodic inspection is idempotent | Unique `(schedule_id, due_cycle_key)` for generated inspections. |
 | Evidence is not duplicated in a workflow context | Scoped unique checksum indexes. |
 | AI candidate is not an official defect | Only `verified_findings` may enter approved report/work order links. |
-| Report publication requires human gates | State transition requires Inspector author verification and qualified ORG_ADMIN approval. |
+| Report publication requires human gates | State transition requires Inspector author verification and independent ORG_ADMIN approval; the runtime outcome field records a corrective-action decision per official finding, and the handoff columns record MF3-13. Reviewer professional qualification is a target condition, not a runtime credential check. |
 | Work order source is valid | FK to published report version and confirmed repair-required finding. |
 | One lead/report author per work order | Partial unique active assignment indexes plus application validation. |
 | Repair team cannot self-accept | Domain authorization checks accepting reviewer against active team membership. |
@@ -471,7 +483,7 @@ Applied migration files remain forward-only history. The backend reset has begun
 
 - This file is a **target database design aligned with Report 3**, not a full implementation report.
 - V24 aligns identity/role vocabulary, V25 adds the target schema, and V26 completes the runtime cutover to the 41-table target inventory. Verified by `./mvnw clean verify` on 8 October 2026 (88 tests, exit 0), including empty-database migration, populated V1-V23 fail-closed migration tests, and an exact-table-inventory assertion.
-- Current backend runtime has removed provider request/marketplace code. The `inspections` module implements MF2 assignment response, preparation/compliance, readiness approval/return, and field-session start/postpone/abort, plus the MF3 evidence, quality decision, findings, and versioned report workflow. MF2-08 source-change invalidation is partial, and MF2-12 session end/`FIELD_COMPLETED` remains unimplemented; MF1 and MF4 remain incomplete workflow areas.
+- Current backend runtime has removed provider request/marketplace code. The `inspections` module implements MF2 assignment response, preparation/compliance, readiness approval/return, and field-session start/postpone/abort, plus the MF3 evidence, quality decision, findings, and versioned report workflow. `V30` adds the MF3-12 corrective-outcome and MF3-13 handoff storage, and the code paths executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full `verify` gate); the new behavior has no passed case yet, and runtime review also does not verify reviewer credentials. MF2-08 source-change invalidation is partial, and MF2-12 session end/`FIELD_COMPLETED` remains unimplemented; MF1 and MF4 work-order creation remain incomplete workflow areas.
 - Asset/catalog/scheduling and auth runtime remain in the reset branch, but they are partial capabilities and must be checked against current source and the corresponding backend guides.
 - Do not read the 41-table target count as the current physical schema. A table's existence does not establish API, use-case, workflow, or test completion.
 
@@ -483,6 +495,8 @@ Applied migration files remain forward-only history. The backend reset has begun
 - V26 runtime cutover: `backend/src/main/resources/db/migration/V26__enterprise_saas_runtime_cutover.sql`
 - V27 MF3 report workflow: `SmartDroneInspection-backend/src/main/resources/db/migration/V27__mf3_report_workflow.sql` — drops the removed `peer_reviews` table and replaces the retired report-status vocabulary
 - V28 assignment response: `SmartDroneInspection-backend/src/main/resources/db/migration/V28__assignment_response.sql` — records the Inspector's accept/reject response separately from pairing lifecycle
+- V29 findings confirmation gate: `SmartDroneInspection-backend/src/main/resources/db/migration/V29__mf3_findings_confirmation_gate.sql`
+- V30 MF3 corrective outcome and handoff: `SmartDroneInspection-backend/src/main/resources/db/migration/V30__mf3_corrective_action_and_decision_revision.sql` — adds `verified_findings.corrective_action_*` and `inspections.corrective_handoff_*`/`no_repair_rationale`, and backfills existing reviewer dispositions
 
 - [Report 3 Software Requirement Specification](../reports/report-3-software-requirement-specification/)
 - [Authentication and Access Control](../backend/authentication-and-authorization.md)

@@ -60,6 +60,6 @@ recorded here.
 
 Backend MF2-01/02 assignment response, MF2-03/06 preparation and compliance, MF2-07 approval/return, and MF2-09/11 field-session start/postpone/abort are implemented on the current `main` baseline. The web client supplies assignment, preparation and readiness-review panels; mobile supplies assignment inbox and field-session screens.
 
-MF2-08 invalidation is partial: session start requires the newest readiness decision to be `APPROVED`; `INVALIDATED` exists as a decision type, but no source-change workflow appends it. MF2-12 session end and the `FIELD_COMPLETED` handoff remain unimplemented. These gaps are not covered by WF2-008/009. Field-session behavior has backend service/API tests but no Report 5 case yet.
+MF2-08 invalidation is partial: session start requires the newest readiness decision to be `APPROVED`; `INVALIDATED` exists as a decision type, but no source-change workflow appends it. MF2-12 session end and the `FIELD_COMPLETED` handoff remain unimplemented. These gaps are not covered by WF2-008/009/010. Field-session behavior has backend service/API tests but no Report 5 case yet.
 
 The two cases verify readiness decision behavior. `InspectionReadinessApiIntegrationTest` adds HTTP coverage for approval/return scope and failure paths; it ran in the successful backend PR #64 CI suite. These results do not cover MF2-08 source-change invalidation or MF2-12 session end/`FIELD_COMPLETED`. They also say nothing about MF1 or MF4.

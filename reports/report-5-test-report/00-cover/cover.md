@@ -8,9 +8,9 @@ when transferring values into the workbook.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Creator | *Enter team/member name* |
-| Issue Date | 2026-10-13 |
+| Issue Date | 2026-10-16 |
 | Document Code | *Enter document code* |
-| Version | 4.14 (Recorded Frontend MF1 supporting verification on top of the current 4.13 Report 5 baseline. Focused resource/role tests passed; full Frontend suite on `feat/mf1-org-admin-resources` passed 51 files/336 tests, build passed, lint exited 0 with six Fast Refresh warnings. No new workbook case was added: Feature 1 remains empty, Feature 2 retains eight existing WFx cases, and all statuses/totals remain unchanged. Manual browser verification was not performed.) |
+| Version | 4.22 (Records the executed MF3-12/13 verification: backend `.\mvnw.cmd verify` passed 650 tests, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met (five named MF3 suites: 81 tests); frontend focused suite 18/18 and full suite 55 files / 375 tests passed on 2026-10-17, lint and build clean. The MF3-12 panel was also corrected to render for published versions. Supersedes the 4.21 note that no broad run was green. Totals unchanged: 11 cases — 8 Passed, 3 Pending; `WF3-010`, `WF3-011` and `WF3-012` remain Pending for their full end-to-end procedures.) |
 
 ## Export-tool verification (not workbook cases)
 
@@ -19,19 +19,22 @@ preserve original OOXML format parts and read content from `reports/`.
 `python -I -m unittest discover -s tools/tests -p "test_*.py" -v` passed
 29 tests, including isolated CLI execution, table content, repeated round
 columns, template hashes, safe output paths, eight-sheet routing/statistics and
-FE summary blocks. The current Report 5 source was generated to
+FE summary blocks. This is historical exporter evidence for the 2026-10-10
+Report 5 snapshot, before `WF2-010` and `WF3-010` entered the case index. That
+snapshot was generated to
 `reports/generated/2026-10-10-mf2-final-v3/Report5_Test Report.xlsx` and
 opened/recalculated in local Excel: 7 cases, 7 Passed, 100% coverage, and 7
-Pending in each unexecuted round. Its eight feature sheets and source case
-dates/testers were verified; the generated package hash remained unchanged after
-Office read. PDF export was not requested, so no visual PDF inspection is
-claimed. Export-tool verification is supporting evidence, not an additional WFx
-case result.
+Pending in each unexecuted round. It does not describe the current eleven-case
+source totals. Its eight feature sheets and source case dates/testers were
+verified; the generated package hash remained unchanged after Office read. PDF
+export was not requested, so no visual PDF inspection is claimed. Export-tool
+verification is supporting evidence, not an additional WFx case result.
 
 ## Record of change
 
 The workbook's change table uses these columns. Add one row for each approved
-revision; do not remove old entries.
+revision; do not remove old entries. Current source version: **4.22**, last updated
+2026-10-16; see the record of changes below.
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |
 | --- | --- | --- | --- | --- | --- |

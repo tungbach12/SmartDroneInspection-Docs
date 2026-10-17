@@ -140,10 +140,13 @@ Multipart fields are `file` (required), `source`
 `captureTime`, `latitude`, `longitude`, `externalReference`.
 
 Accepted content types are `image/png`, `image/jpeg`, `image/webp`,
-`image/tiff`, `video/mp4`, `application/pdf`. The service caps a file at 50 MB;
-`EVIDENCE_MAX_FILE_SIZE` (default `1MB`) and `EVIDENCE_MAX_REQUEST_SIZE`
-(default `10MB`) cap the container request, so the effective limit is the
-smaller of the two.
+`image/tiff`, `video/mp4`, `application/pdf`. The per-file cap is 10 MB
+(`EVIDENCE_MAX_FILE_SIZE`, applied by both the Spring multipart parser and the
+service guard); the request cap is 20 MB (`EVIDENCE_MAX_REQUEST_SIZE`), leaving
+room for multipart framing across the single-file endpoint. An over-limit
+request is rejected with `413`: the multipart parser answers `PAYLOAD_TOO_LARGE`,
+while the service guard answers `EVIDENCE_TOO_LARGE` and derives its message from
+the enforced 10 MB limit.
 
 Latitude and longitude must be supplied together. The server computes SHA-256
 and treats a repeated inspection/checksum upload idempotently, returning the
@@ -215,11 +218,19 @@ rejected candidate returns `204 No Content`.
 | Read version | `GET /api/v1/inspections/{inspectionId}/report/versions/{versionId}` | assigned Inspector, same-org ORG_ADMIN |
 | Verify as author | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/verify` | assigned Inspector |
 | Submit for review | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/submit` | assigned Inspector |
-| Review | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/review` | qualified same-org ORG_ADMIN |
-| Publish | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/publish` | qualified same-org ORG_ADMIN |
+| Review | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/review` | independent same-org ORG_ADMIN |
+| Publish | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/publish` | independent same-org ORG_ADMIN |
+| Record per-finding corrective outcome | `PUT /api/v1/inspections/{inspectionId}/findings/{findingId}/corrective-action` | ORG_ADMIN |
+| Record corrective handoff | `POST /api/v1/inspections/{inspectionId}/report/corrective-handoff` | ORG_ADMIN |
+| Declare no corrective work | `POST /api/v1/inspections/{inspectionId}/report/no-corrective-work` | ORG_ADMIN |
 
 Version status moves `DRAFT` → `AUTHOR_VERIFIED` → `SUBMITTED` → (`RETURNED` |
 `APPROVED`) → `PUBLISHED` → `SUPERSEDED`.
+
+"Independent" means the runtime validates role, organization, active account and
+separation of duties (the author cannot review). Reviewer credential or
+professional-qualification checks do not exist at runtime, so a review recorded
+here is an Organization Admin decision, not proof of professional qualification.
 
 **Manual authoring is required, not optional.** Report 3 states that failed LLM
 generation permits the author to complete a structured manual draft with the
@@ -231,8 +242,30 @@ version records `llmModel` as `manual-authoring`, so a reader can tell that the
 narrative is the author's own.
 
 Drafting moves the inspection from `FIELD_COMPLETED` to `REPORT_DRAFT`.
-Publication requires that state and then moves the inspection to
-`REPORT_PUBLISHED`, and finally to `REPAIR_PENDING` or `COMPLETED`.
+Publication requires that state and moves the inspection to `REPORT_PUBLISHED`
+only; it stores and checksums the PDF but does not hand findings to maintenance
+or complete the inspection. Corrective work is recorded afterwards, in order:
+
+1. **MF3-12 per finding** — `PUT .../findings/{findingId}/corrective-action`
+   records `correctiveActionRequired` with a required `rationale`; a required
+   outcome also carries a `priority` and may carry a `dueAt`, while a no-action
+   outcome must carry neither. The recorded reviewer and timestamp are stored
+   with the outcome, which never modifies the published PDF.
+2. **MF3-13 handoff** — `POST .../report/corrective-handoff` requires every
+   confirmed/modified finding to have an outcome. It records the handoff
+   actor/time, emits `ReportPublishedEvent` with exactly the work-required
+   finding IDs, and moves the inspection to `REPAIR_PENDING`; when every
+   official finding was recorded as no-action, it moves the inspection to
+   `COMPLETED` with an empty ID list instead. A scope with no official
+   findings is refused with `409 NO_CORRECTIVE_WORK_PENDING` — the explicit
+   reasoned no-repair route below is required. It does **not** create an MF4
+   work order; MF4 work-order creation is not implemented.
+3. **No-repair close** — for a scope whose confirmed findings set is empty,
+   `POST .../report/no-corrective-work` with a required `rationale` records the
+   reviewer's explicit no-repair decision, emits the event with no finding IDs
+   and moves the inspection to `COMPLETED`. If any official finding exists the
+   call is refused with `409 CORRECTIVE_ACTION_REVIEW_REQUIRED`; an empty
+   outcome list is never treated as a no-repair result.
 
 Separation of duties is enforced twice. Only the assigned Inspector may author
 or verify, and only a same-organization `ORG_ADMIN` who is not the author may
@@ -245,27 +278,33 @@ Listing versions for an inspection that has no report returns an empty list
 rather than a missing-resource failure, because "no report yet" is the normal
 state before an author drafts one.
 
-Publication emits `ReportPublishedEvent` carrying the confirmed repair-required
-finding IDs. An empty list means no corrective work was required within the
-observed scope and the inspection completes; it never creates an empty work
-order.
+A repeated corrective outcome or handoff is refused with
+`409 CORRECTIVE_ACTION_ALREADY_RECORDED` or
+`409 CORRECTIVE_HANDOFF_ALREADY_COMPLETED`, so the published outcome chain
+cannot be silently rewritten.
 
 ## Verification records
 
 `InspectionReportVersionTest` and `AiFindingCandidateTest` cover the version
 state machine and candidate review states.
 `InspectionEvidenceApiIntegrationTest` and
-`InspectionReportApiIntegrationTest` exercise MF3-01 through MF3-13 over the
-real HTTP surface, including the manual authoring path, the return/resubmit
-cycle, self-review refusal, and the full draft-to-publish sequence.
-`InspectionListApiIntegrationTest` covers the collections: assignment scope for
-an Inspector, organization scope for an ORG_ADMIN, cross-tenant read for a
-platform `ADMIN`, refusal for `MAINTENANCE_ENGINEER`, the report-only filter,
-the inline report summary, and paging bounds. MF2 service and API coverage
-includes `InspectionReadinessServiceTest`, `ReadinessSnapshotFactoryTest`,
+`InspectionReportApiIntegrationTest` contain assertions for MF3-01 through
+MF3-13 over the real HTTP surface, including the manual authoring path, the
+return/resubmit cycle, self-review refusal, the full draft-to-publish sequence,
+and the post-publication corrective-outcome/handoff/no-repair paths. These
+tests executed green on 2026-10-16: the five named MF3 suites passed 81 tests
+(12/11/26/10/22) with zero failures, and the full `.\mvnw.cmd verify` gate passed
+650 tests with the Spotless, JaCoCo and Modulith checks met.
+`InspectionListApiIntegrationTest`
+covers the collections: assignment scope for an Inspector, organization scope
+for an ORG_ADMIN, cross-tenant read for a platform `ADMIN`, refusal for
+`MAINTENANCE_ENGINEER`, the report-only filter, the inline report summary, and
+paging bounds. MF2 service and API coverage includes
+`InspectionReadinessServiceTest`, `ReadinessSnapshotFactoryTest`,
 `InspectionReadinessApiIntegrationTest`, `InspectionPreparationApiIntegrationTest`,
 and the field-session service/API tests. The complete backend PR #64 CI run
 passed 334 tests with no failures/errors/skips, and the JaCoCo/Modulith checks
-passed. Report 5 records `WF2-008`/`WF2-009` for MF2-07 on `Feature 3`, and the
-MF3 cases on `Feature 4`–`Feature 6`; session end and source-change invalidation
-remain uncovered as noted above.
+passed; it predates the MF3-12/13 change. Report 5 records
+`WF2-008`/`WF2-009` for MF2-07 on `Feature 3`, the MF3 cases on `Feature 4`–`Feature 6`,
+plus the new Pending `WF3-012` for MF3-12/13; session end and source-change
+invalidation remain uncovered as noted above.
