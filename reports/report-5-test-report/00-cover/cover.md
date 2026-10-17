@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-16 |
 | Document Code | *Enter document code* |
-| Version | 4.22 (Records the executed MF3-12/13 verification: backend `.\mvnw.cmd verify` passed 650 tests, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met (five named MF3 suites: 81 tests); frontend focused suite 18/18 and full suite 55 files / 375 tests passed on 2026-10-17, lint and build clean. The MF3-12 panel was also corrected to render for published versions. Supersedes the 4.21 note that no broad run was green. Totals unchanged: 11 cases — 8 Passed, 3 Pending; `WF3-010`, `WF3-011` and `WF3-012` remain Pending for their full end-to-end procedures.) |
+| Version | 4.27 (Records findings CRUD while unsubmitted, capture retirement without deleting original bytes, author submission withdrawal before reviewer action, and reviewer return reason types `TEXT_REVISION` vs `FINDINGS_REVISION`. Backend `./mvnw -B verify` passed 663 tests; frontend 55 files / 384 tests. Totals unchanged: 11 cases — 8 Passed, 3 Pending.) |
 
 ## Export-tool verification (not workbook cases)
 

@@ -58,6 +58,31 @@ Executed evidence:
   Includes the new `does not auto-analyze again after the Inspector reopens findings` and
   `offers no re-run control on an image whose detection already ran` cases.
 - `npm test -- --run` — 54 files, 363 tests, 0 failures.
+
+### Detection runs in parallel with per-image updates — 2026-10-17
+
+The automatic pass analysed one image at a time: it awaited each request before starting the next,
+so a set of six images took six round trips in sequence and the page showed a single "Analysing
+<file>…" row while the rest waited. The pass now sends every unanalysed image at once and writes
+each response into the candidate cache as it arrives, so that image's row flips to "Detection
+complete" and its candidates appear in the Findings list immediately. One image failing or timing
+out no longer stops the rest: the failure is reported and the manual path stays open. The hook that
+owned a single in-flight request (`useAnalyzeEvidence`) now owns the set of in-flight images, so the
+automatic pass and the explicit per-image **Analyze** action share one source of truth.
+
+Executed evidence:
+
+- Live walkthrough on inspection `11111111-2222-3333-4444-555555555552` (six images already
+  analysed, three more added for the run): the banner read "Analysing 4 images in parallel…" with
+  four rows spinning at once, and the in-flight count stepped 4 → 2 → 0 as individual responses
+  landed, with the completed rows updating in place. One image's inference call exceeded the 30 s
+  client timeout and did not stop the other three; its candidate was nevertheless stored by the
+  backend, and the row showed "Detection complete" after the next load.
+- `npm test -- --run src/features/inspections/pages/InspectionFindingsPage.test.tsx` — 22 passed,
+  including `analyses every unanalysed image in one parallel pass` (asserts a single call carrying
+  every unanalysed image id) and `runs detection automatically once accepted, and only for
+  unanalysed images` (asserts the PDF is not analysed).
+- `npm test -- --run` — 55 files, 377 tests, 0 failures; `npm run lint` and `npm run build` exit 0.
 - `npm run lint` — unchanged baseline of 6 pre-existing `react(only-export-components)` warnings,
   none in the changed files.
 - `npm run build` — succeeded.
@@ -73,3 +98,85 @@ Executed evidence:
 No WF3-003 case status changed; the case already records that re-analysis returns existing
 candidates rather than duplicating them. A repeated Inspector review of a non-pending candidate
 now returns `409 CANDIDATE_ALREADY_REVIEWED`; use the revision action to make changes. |
+
+### The trained YOLO11s detector is the default advisory provider — 2026-10-17
+
+The advisory adapters existed but no detector was ever served, so every analysis ran through the
+OpenAI-compatible vision endpoint. The repository now ships the detector that was trained for this
+project and makes it the default provider, with the vision endpoint as the option behind it.
+
+- `ai-inference/` in the backend repository serves the **YOLO11s** model trained on **MBDD2025**
+  (`crack`, `leakage`, `abscission`, `corrosion`, `bulge`) with FastAPI/uvicorn and the weights
+  mounted at runtime. Compose runs it as the `ai-inference` service and the backend reaches it at
+  `http://ai-inference:8000`. The weights and the training notebook are kept in
+  `ai-inference/` with a README that records the kernel, the dataset and the re-download command.
+- The service answers the raw-body contract `YoloInferenceClient` already sent (the notebook's
+  original `app.py` used a multipart `UploadFile`, which the Spring client never sends).
+- `PrimaryWithFallbackInference` routes analysis to the detector first and to the vision endpoint
+  only when the detector cannot answer — a connection failure, a timeout, an error status or an
+  empty response. An image the detector processed with no detections is an answer, not a failure.
+  With neither provider configured the endpoints still report that automated analysis is not
+  configured, and candidates keep the `modelName`/`modelVersion` of the provider that produced them.
+
+Defect found and fixed while wiring this up: the JDK HTTP client attempts an **h2c upgrade** on a
+plain-http endpoint, and uvicorn answers that with `400 Unsupported upgrade request`, so the
+detector failed on every call and the vision fallback silently served all analysis. The YOLO client
+now pins HTTP/1.1, and
+`YoloInferenceConfigurationTest.theDetectorClientSpeaksHttp11SoAnAsgiServerAcceptsTheRequest` fails
+without the pin by refusing the upgrade the way uvicorn does.
+
+Executed evidence (live stack, `docker compose`, MBDD2025 weights in place):
+
+- `curl http://localhost:8000/health` — `{"status":"ok","model":"yolo11s","version":"mbdd2025-v1"}`.
+- `POST /predict` with raw image bytes — `sample-images/concrete-crack.jpg` returned three
+  detections (`abscission` 0.5644, `crack` 0.5462, `abscission` 0.2553) with normalized boxes;
+  `sample-images/bearing-seat.jpg` returned `abscission` 0.5029.
+- `POST /api/v1/inspections/{id}/evidence/{evidenceId}/analyze` with the detector running —
+  one candidate, `modelName=yolo11s`, `modelVersion=mbdd2025-v1`, `predictedLabel=abscission`,
+  in **1.4 s**.
+- The same endpoint with the `ai-inference` service stopped — the backend logged
+  `Primary detector failed (YOLO inference request failed); using the configured fallback detector`
+  and returned `capstone`/`gemini-3.8-flash-n` `corrosion` 0.97 in 27 s, so the option degrades
+  rather than removes the advisory step.
+- Backend `./mvnw -B verify` — **657 tests, 0 failures/errors/skips**, Spotless, JaCoCo and Modulith
+  checks met.
+
+`WF3-003` stays Pending for its full case procedure; this round adds the detector path and its
+fallback rather than executing that case.
+
+### The Inspector can re-detect an image after the detector changes — 2026-10-17
+
+Detection ran once per capture: an image that already had candidates offered no control, because
+MF3-05 makes a repeated analysis answer with the existing candidates rather than run the detector
+again. That left no way to move a capture from one detector to another — the switch to the trained
+YOLO11s model left every earlier suggestion in place with no way to refresh it.
+
+- `POST /evidence/{evidenceId}/analyze?replace=true` is the explicit re-run: it produces the new
+  detections first and then swaps the capture's **unreviewed** candidates for them. A candidate the
+  Inspector already confirmed, modified or rejected carries that decision and survives, so the
+  inspected record is never erased. Producing detections before deleting keeps a detector failure
+  from emptying the capture.
+- The findings panel now offers **Analyze again** on an image that already has candidates (the
+  automatic pass and the first analysis are unchanged), and its explanation states that a re-run
+  replaces the unreviewed suggestions and keeps the decided ones.
+- The candidate cache is updated per response as before, so the replaced image's suggestions change
+  in place.
+
+Executed evidence:
+
+- `npm test -- --run src/features/inspections/pages/InspectionFindingsPage.test.tsx` — 23 passed,
+  including `re-runs detection on an analysed image and asks the server to replace its suggestions`
+  and `analyses an image that has no candidates without replacing anything`.
+- `npm test -- --run` — 55 files, 378 tests, 0 failures; `npm run lint` and `npm run build` exit 0.
+- `InspectionReportApiIntegrationTest.anExplicitReRunReplacesUnreviewedCandidatesAndKeepsTheReviewedOnes`
+  — a rejected candidate survives a re-run while the pending one is replaced (2 rows: one `REJECTED`
+  from the first detector, one `PENDING` from the second).
+- Live walkthrough on `11111111-2222-3333-4444-555555555552`: **Analyze again** on
+  `shot-02-blade-leading-edge-crack.jpg` issued `POST /predict` `200` to the detector (no fallback),
+  replaced its three `capstone` suggestions, and the row returned to **Analyze** with
+  "No detected defects" — the detector found nothing on that turbine-blade capture, which is the
+  honest result for a model trained on MBDD2025 building defects.
+- Backend `./mvnw -B verify` — **658 tests, 0 failures/errors/skips**; Spotless, JaCoCo and Modulith
+  checks met.
+
+`WF3-003` stays Pending for its full case procedure.

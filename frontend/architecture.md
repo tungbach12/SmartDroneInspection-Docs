@@ -128,7 +128,12 @@ is non-empty. The `findings` tab runs advisory detection automatically as a sing
 pass over the images that have no candidate once the set is accepted, shows each
 candidate with its defect photo resolved from the evidence content endpoint and
 its own severity/location inputs for Confirm/Modify, and surfaces the MF3-09
-reviewer verdict on undecided findings. The automatic pass is offered once per
+reviewer verdict on undecided findings. The images of that pass are analysed in
+parallel and each result is written into the candidate cache as it arrives, so a
+row flips to "Detection complete" and its candidates appear in the Findings list
+as soon as that image's response lands instead of after the slowest image; a
+failure or timeout on one image leaves the others running and reports itself. The
+automatic pass is offered once per
 inspection and remembered for the tab session, so reopening Findings does not
 restart detection. An image that already has candidates shows "Detection complete"
 and offers no re-run control because MF3-05 returns existing candidates rather
@@ -227,6 +232,13 @@ Serve the built SPA from one host/port and configure the static host or reverse
 proxy to return `index.html` for valid nested frontend paths. Keep the API under
 its existing versioned contract. Do not treat a route guard, hidden menu item,
 URL prefix, or separate port as a security boundary.
+
+When the reverse proxy enforces a request-body limit, keep it at or above the
+backend's request bound (`EVIDENCE_MAX_REQUEST_SIZE`, 20 MB) rather than at the
+per-file limit (`EVIDENCE_MAX_FILE_SIZE`, 10 MB). A proxy bound equal to the
+per-file limit rejects a permitted upload before the backend sees it, and the
+client then receives the proxy's own error page instead of the API's structured
+`413` (`PAYLOAD_TOO_LARGE` or `EVIDENCE_TOO_LARGE`) that the upload UI reports.
 
 Canonical roles are `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and
 `MAINTENANCE_ENGINEER`. The first organization representative may register the

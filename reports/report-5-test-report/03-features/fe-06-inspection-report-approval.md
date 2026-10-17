@@ -135,6 +135,67 @@ full suite 55 files / 375 tests; lint and build clean).
 Reviewer credential qualification remains unvalidated at runtime and is reported
 as a gap rather than assumed.
 
+### MF3-12/13 end-to-end walkthrough and the defects it fixed — 2026-10-17
+
+The MF3 chain was then executed end to end through the running web client and the
+API against the merged source, on the rebuilt stack with `V30` and `V31` applied.
+Observed and verified: MF3-06a confirmation recorded the actor, time and snapshot
+and created no report version; the automated-draft failure produced no partial
+version and no automatic fallback; the manual draft created a version without LLM
+provenance; the pre-confirmation draft was refused with `REPORT_SNAPSHOT_STALE`;
+review kept approval disabled and reported `Decide every proposed finding before
+approving the report` until every proposal had an attributable decision;
+publication ended at `REPORT_PUBLISHED` with the stored checksummed PDF and an
+empty handed-off finding list; the MF3-12 outcome and the MF3-13 handoff moved the
+inspection to `REPAIR_PENDING` with exactly the work-required finding handed off
+and no `maintenance_work_orders` row created. Negative paths: repeating the
+handoff returned `409 CORRECTIVE_HANDOFF_ALREADY_COMPLETED`, repeating a recorded
+outcome `409 CORRECTIVE_ACTION_ALREADY_RECORDED`, `no-corrective-work` with
+official findings `409 CORRECTIVE_ACTION_REVIEW_REQUIRED`, the handoff with an
+incomplete outcome set `409 CORRECTIVE_ACTION_REVIEW_INCOMPLETE`, and a priority
+on a no-action outcome `400`.
+
+Four defects the walkthrough exposed were fixed in this round:
+
+1. `usePublishReportVersion` invalidated only the version list, so the MF3-12
+   panel stayed hidden after publishing until a manual reload even though the page
+   told the reviewer to record outcomes. The hook now invalidates the workflow
+   state too, and `ReportDetailPage.test.tsx` covers the publish-to-panel
+   transition (it fails without the fix).
+2. The web container's `client_max_body_size` capped requests at 10 MB while the
+   backend allows 10 MB per file / 20 MB per request, so an oversize upload was
+   answered with an nginx HTML page and the client showed
+   `Request failed with status code 413`. The proxy bound now matches the backend
+   request bound, so the backend's structured 413 reaches the user.
+3. The `V30` cutover backfill attributed a pre-publication reviewer disposition as
+   the post-publication outcome of a report published later, and the reviewer
+   could not change it. `V31__mf3_corrective_outcome_follows_publication.sql`
+   clears those outcomes, publication clears an outcome recorded before the new
+   version, and
+   `InspectionReportApiIntegrationTest.publishingClearsACorrectiveOutcomeRecordedBeforeThePublication`
+   covers it.
+4. The per-image chip counted AI candidates but read `No findings found`, which
+   contradicted the finding actually linked to that image. It now reads
+   `No detected defects`.
+
+Executed after the fixes: backend `./mvnw -B verify` passed 651 tests, 0
+failures/errors/skips, with the Spotless, JaCoCo and Modulith checks met;
+frontend `npm test -- --run` passed 55 files / 376 tests; `npm run lint` and
+`npm run build` exited 0. `WF3-012` still stays Pending: the all-no-action close
+(`COMPLETED` with no handed-off findings) and the explicitly confirmed
+empty-findings no-repair close were not executed.
+
+### Findings CRUD, author withdrawal, and review return reasons — 2026-10-17
+
+While a report is not submitted, the assigned Inspector can perform full CRUD on findings and retire captures:
+- `PUT /api/v1/inspections/{id}/findings/{findingId}` updates finding details and re-links active evidence.
+- `DELETE /api/v1/inspections/{id}/findings/{findingId}` soft-deletes a finding with an attributable deletion reason (`deleted_at`, `deleted_by_user_id`, `deletion_reason` stored for audit; excluded from active reads via `@SQLRestriction`). If linked to an AI candidate, the candidate reopens to `PENDING`.
+- `POST /api/v1/inspections/{id}/evidence/{evidenceId}/retire` marks a capture retired with an attributable reason (`retired_at`, `retired_by_user_id`, `retirement_reason`) without deleting original bytes or metadata. A capture cannot be retired while an active finding cites it.
+- `POST /api/v1/inspections/{id}/report/versions/{versionId}/withdraw` lets the author withdraw a submitted report before any reviewer action, returning it to author revision with `withdrawn_by_user_id`, `withdrawn_at`, and `withdrawal_reason` stored. Evidence and findings remain intact.
+- Reviewer return now requires `reasonType`: `TEXT_REVISION` (leaves findings decisions intact) or `FINDINGS_REVISION` (reopens findings, clears live reviewer decisions, and invalidates confirmation so the Inspector can revise findings and re-draft).
+- V32 forward migration adds the audit and return columns (`V32__mf3_findings_correction_and_author_withdrawal.sql`).
+- Executed verification: backend `./mvnw -B verify` passed 663 tests, 0 failures/errors/skips; frontend `npm test -- --run` passed 55 files / 384 tests, lint and build clean. Live walkthrough verified finding creation, in-place edit, soft-delete with audit reason, capture retirement with "Retired — audit copy" chip, and withdrawal / return reason handling.
+
 ## Feature sheet summary
 
 Values for the `Feature 6` summary block (`A2:E8` in the workbook).
