@@ -128,7 +128,12 @@ is non-empty. The `findings` tab runs advisory detection automatically as a sing
 pass over the images that have no candidate once the set is accepted, shows each
 candidate with its defect photo resolved from the evidence content endpoint and
 its own severity/location inputs for Confirm/Modify, and surfaces the MF3-09
-reviewer verdict on undecided findings. The automatic pass is offered once per
+reviewer verdict on undecided findings. The images of that pass are analysed in
+parallel and each result is written into the candidate cache as it arrives, so a
+row flips to "Detection complete" and its candidates appear in the Findings list
+as soon as that image's response lands instead of after the slowest image; a
+failure or timeout on one image leaves the others running and reports itself. The
+automatic pass is offered once per
 inspection and remembered for the tab session, so reopening Findings does not
 restart detection. An image that already has candidates shows "Detection complete"
 and offers no re-run control because MF3-05 returns existing candidates rather

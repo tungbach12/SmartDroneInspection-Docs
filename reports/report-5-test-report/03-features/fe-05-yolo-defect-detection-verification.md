@@ -58,6 +58,31 @@ Executed evidence:
   Includes the new `does not auto-analyze again after the Inspector reopens findings` and
   `offers no re-run control on an image whose detection already ran` cases.
 - `npm test -- --run` — 54 files, 363 tests, 0 failures.
+
+### Detection runs in parallel with per-image updates — 2026-10-17
+
+The automatic pass analysed one image at a time: it awaited each request before starting the next,
+so a set of six images took six round trips in sequence and the page showed a single "Analysing
+<file>…" row while the rest waited. The pass now sends every unanalysed image at once and writes
+each response into the candidate cache as it arrives, so that image's row flips to "Detection
+complete" and its candidates appear in the Findings list immediately. One image failing or timing
+out no longer stops the rest: the failure is reported and the manual path stays open. The hook that
+owned a single in-flight request (`useAnalyzeEvidence`) now owns the set of in-flight images, so the
+automatic pass and the explicit per-image **Analyze** action share one source of truth.
+
+Executed evidence:
+
+- Live walkthrough on inspection `11111111-2222-3333-4444-555555555552` (six images already
+  analysed, three more added for the run): the banner read "Analysing 4 images in parallel…" with
+  four rows spinning at once, and the in-flight count stepped 4 → 2 → 0 as individual responses
+  landed, with the completed rows updating in place. One image's inference call exceeded the 30 s
+  client timeout and did not stop the other three; its candidate was nevertheless stored by the
+  backend, and the row showed "Detection complete" after the next load.
+- `npm test -- --run src/features/inspections/pages/InspectionFindingsPage.test.tsx` — 22 passed,
+  including `analyses every unanalysed image in one parallel pass` (asserts a single call carrying
+  every unanalysed image id) and `runs detection automatically once accepted, and only for
+  unanalysed images` (asserts the PDF is not analysed).
+- `npm test -- --run` — 55 files, 377 tests, 0 failures; `npm run lint` and `npm run build` exit 0.
 - `npm run lint` — unchanged baseline of 6 pre-existing `react(only-export-components)` warnings,
   none in the changed files.
 - `npm run build` — succeeded.

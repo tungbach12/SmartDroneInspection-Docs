@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-16 |
 | Document Code | *Enter document code* |
-| Version | 4.22 (Records the executed MF3-12/13 verification: backend `.\mvnw.cmd verify` passed 650 tests, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met (five named MF3 suites: 81 tests); frontend focused suite 18/18 and full suite 55 files / 375 tests passed on 2026-10-17, lint and build clean. The MF3-12 panel was also corrected to render for published versions. Supersedes the 4.21 note that no broad run was green. Totals unchanged: 11 cases — 8 Passed, 3 Pending; `WF3-010`, `WF3-011` and `WF3-012` remain Pending for their full end-to-end procedures.) |
+| Version | 4.24 (Records parallel advisory detection with per-image live updates: the MF3-05 automatic pass sends every unanalysed image at once and writes each response into the candidate cache as it arrives, so each row and its candidates update as that image answers, and one image failing or timing out no longer stops the rest. Verified live on inspection `11111111-2222-3333-4444-555555555552` (`Analysing 4 images in parallel…`, in-flight count 4 → 2 → 0). Frontend full suite 55 files / 377 tests, lint and build clean. Also added a shared `asyncUtilTimeout` so the heaviest page tests stop failing against a still-loading page under full parallelism. Totals unchanged: 11 cases — 8 Passed, 3 Pending.) |
 
 ## Export-tool verification (not workbook cases)
 
