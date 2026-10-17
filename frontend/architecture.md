@@ -168,8 +168,10 @@ authorization boundary; the browser never receives a direct MinIO URL.
 
 The report document page presents only the actions permitted by the current
 capability and by whether the signed-in user is the version's author: the
-Inspector verifies and submits, while a qualified ORG_ADMIN who is not the
-author returns, approves, and publishes. A return requires a stated reason.
+Inspector verifies and submits, while a same-organization ORG_ADMIN who is not
+the author returns, approves, and publishes. Independence, role, organization
+and active-account checks are enforced; reviewer professional qualification is
+not validated at runtime. A return requires a stated reason.
 Platform ADMIN may read cross-tenant rows but does not receive author, reviewer,
 or publication actions. The backend scopes every list and mutation by
 assignment, organization, platform read-only authority, workflow state, and

@@ -8,9 +8,9 @@ when transferring values into the workbook.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Creator | *Enter team/member name* |
-| Issue Date | 2026-10-15 |
+| Issue Date | 2026-10-16 |
 | Document Code | *Enter document code* |
-| Version | 4.20 (Reconciles Report 5 metadata, case summaries, and verification history with the 15 October MF3 corrections; aligns the SRS flow diagram and MF3-06a step numbering. Current totals remain 10 cases: 8 Passed, 2 Pending. Verification: backend 647 tests, frontend 363 tests, exporter 29 tests. WF3-010 and WF3-011 remain Pending.) |
+| Version | 4.22 (Records the executed MF3-12/13 verification: backend `.\mvnw.cmd verify` passed 650 tests, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met (five named MF3 suites: 81 tests); frontend focused suite 18/18 and full suite 55 files / 375 tests passed on 2026-10-17, lint and build clean. The MF3-12 panel was also corrected to render for published versions. Supersedes the 4.21 note that no broad run was green. Totals unchanged: 11 cases — 8 Passed, 3 Pending; `WF3-010`, `WF3-011` and `WF3-012` remain Pending for their full end-to-end procedures.) |
 
 ## Export-tool verification (not workbook cases)
 
@@ -24,7 +24,7 @@ Report 5 snapshot, before `WF2-010` and `WF3-010` entered the case index. That
 snapshot was generated to
 `reports/generated/2026-10-10-mf2-final-v3/Report5_Test Report.xlsx` and
 opened/recalculated in local Excel: 7 cases, 7 Passed, 100% coverage, and 7
-Pending in each unexecuted round. It does not describe the current ten-case
+Pending in each unexecuted round. It does not describe the current eleven-case
 source totals. Its eight feature sheets and source case dates/testers were
 verified; the generated package hash remained unchanged after Office read. PDF
 export was not requested, so no visual PDF inspection is claimed. Export-tool
@@ -33,8 +33,8 @@ verification is supporting evidence, not an additional WFx case result.
 ## Record of change
 
 The workbook's change table uses these columns. Add one row for each approved
-revision; do not remove old entries. Current source version: **4.20**, last updated
-2026-10-15; see the record of changes below.
+revision; do not remove old entries. Current source version: **4.22**, last updated
+2026-10-16; see the record of changes below.
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |
 | --- | --- | --- | --- | --- | --- |

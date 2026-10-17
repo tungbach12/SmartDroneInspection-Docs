@@ -4,10 +4,10 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope (updated 2026-10-15):** This report indexes ten cases for the four
+**Scope (updated 2026-10-16):** This report indexes eleven cases for the four
 current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`): three
-MF2 cases and seven MF3 cases. Eight cases are `Passed`; `WF3-010` and
-`WF3-011` are `Pending`.
+MF2 cases and eight MF3 cases. Eight cases are `Passed`; `WF3-010`, `WF3-011`
+and `WF3-012` are `Pending`.
 The earlier content mixed a retired five-role WF1–WF4 baseline with
 unimplemented MF1–MF4 target cases; obsolete and unsupported cases were removed
 during the 2026-10-09 reset. The two MF2-07 decision cases were restored after
@@ -17,7 +17,11 @@ backend/frontend/mobile PR integration; scoped preparation-history case
 This does not claim complete MF2 coverage. MF2-08 source-change invalidation is
 partial (session start checks the newest decision and requires APPROVED, but no
 source-change flow appends INVALIDATED); MF2-12 session end and
-`FIELD_COMPLETED` handoff remain unimplemented. MF1, MF4 and FE-08 remain gaps.
+`FIELD_COMPLETED` handoff remain unimplemented. MF1, MF4 (including MF4
+work-order creation, which the MF3-13 handoff does not perform) and FE-08 remain
+gaps, and the MF3-12/13 corrective-outcome path is backed by executed green
+runs (81 targeted WF3 tests and the 650-test full `verify` gate on 2026-10-16)
+while its end-to-end case `WF3-012` remains Pending.
 The original workbook template remains unchanged; generated copies contain eight
 feature sheets as requested.
 
@@ -28,7 +32,8 @@ workbooks extend it to eight feature sheets (`Feature 1`–`Feature 8`), one per
 Report 3 feature. The original template remains unchanged. Sheet `Feature N`
 contains SRS feature `FE-0N`; these are separate naming layers, not synonyms.
 Feature 1/2/7/8 have no cases. Feature 3 (FE-03) contains `WF2-008`–`WF2-010`;
-Features 4–6 contain seven MF3 cases, including pending `WF3-010` and `WF3-011`.
+Features 4–6 contain eight MF3 cases, including pending `WF3-010`, `WF3-011` and
+`WF3-012`.
 All eight sheets remain so the workbook mirrors the eight SRS features.
 
 | Layer | Meaning | Example |
@@ -78,7 +83,7 @@ feature mapping.
 | `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 3` sheet | `WF2-008`, `WF2-009` (MF2-07 readiness approval/return), `WF2-010` (scoped preparation-history listing); other MF2 steps remain gaps or partial. |
 | `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 4` sheet | `WF3-002`, `WF3-009`. |
 | `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 5` sheet | `WF3-003`, `WF3-010` (Pending). |
-| `03-features/fe-06-inspection-report-approval.md` | `Feature 6` sheet | `WF3-005`, `WF3-006`, `WF3-011` (Pending). |
+| `03-features/fe-06-inspection-report-approval.md` | `Feature 6` sheet | `WF3-005`, `WF3-006`, `WF3-011` (Pending), `WF3-012` (Pending). |
 | `03-features/fe-07-maintenance-defect-resolution.md` | Coverage gap | No current case; MF4 unimplemented. |
 | `03-features/fe-08-dashboard-analytics-notifications.md` | Coverage gap | No assigned case; do not infer execution. |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
@@ -115,17 +120,18 @@ All verification statuses below describe the current source after the MF2 PR int
    (`WF3-002`), and the scoped inspection/report collections (`WF3-009`).
 5. FE-05 — advisory detection and human finding verification (`WF3-003`);
    reviewed-candidate correction/rejection (`WF3-010`) is Pending.
-6. FE-06 — report review/publication (`WF3-005`, `WF3-006`) and explicit findings
-   confirmation/draft choice (`WF3-011`, Pending).
+6. FE-06 — report review/publication (`WF3-005`, `WF3-006`), explicit findings
+   confirmation/draft choice (`WF3-011`, Pending) and post-publication corrective
+   outcome/handoff (`WF3-012`, Pending).
 7. FE-07 — maintenance and defect resolution. No case; MF4 unimplemented.
 8. FE-08 — dashboard, analytics, and notifications. No assigned case; explicit
    coverage gap.
 
-Totals: **10 cases, 8 `Passed`, 0 `Failed`, 2 `Pending`.** Coverage and successful
-coverage are 80.00%; pending `WF3-010` and `WF3-011` remain in the denominator. These
+Totals: **11 cases, 8 `Passed`, 0 `Failed`, 3 `Pending`.** Coverage and successful
+coverage are 72.73%; pending `WF3-010`, `WF3-011` and `WF3-012` remain in the denominator. These
 figures describe recorded cases only, not the SRS or the complete MF2/MF3
 workflows. Removed case IDs stay reserved; subsequent MF3 cases continue from
-`WF3-012`.
+`WF3-013`.
 
 MinIO/evidence storage is tracked under FE-04. Integration suites run against a
 real MinIO container through the same `MinioEvidenceObjectStore` adapter
