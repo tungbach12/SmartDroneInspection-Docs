@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-16 |
 | Document Code | *Enter document code* |
-| Version | 4.27 (Records findings CRUD while unsubmitted, capture retirement without deleting original bytes, author submission withdrawal before reviewer action, and reviewer return reason types `TEXT_REVISION` vs `FINDINGS_REVISION`. Backend `./mvnw -B verify` passed 663 tests; frontend 55 files / 384 tests. Totals unchanged: 11 cases — 8 Passed, 3 Pending.) |
+| Version | 4.28 (Records bulk evidence retirement (`POST .../evidence/bulk-retire`) for mistaken batches with shared audit reasons, and register filter tabs `Active`, `Retired audit`, `All`. Backend `./mvnw -B verify` passed 664 tests; frontend 55 files / 385 tests. Totals unchanged: 11 cases — 8 Passed, 3 Pending.) |
 
 ## Export-tool verification (not workbook cases)
 

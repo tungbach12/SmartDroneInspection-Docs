@@ -133,6 +133,7 @@ condition that must be monitored.
 | --- | --- | --- |
 | Upload evidence | `POST /api/v1/inspections/{inspectionId}/evidence` | assigned Inspector, same-org ORG_ADMIN |
 | Retire evidence | `POST /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/retire` | assigned Inspector |
+| Bulk retire evidence | `POST /api/v1/inspections/{inspectionId}/evidence/bulk-retire` | assigned Inspector |
 | List evidence | `GET /api/v1/inspections/{inspectionId}/evidence` | assigned Inspector, same-org ORG_ADMIN |
 | Stream evidence | `GET /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/content` | assigned Inspector, same-org ORG_ADMIN |
 
