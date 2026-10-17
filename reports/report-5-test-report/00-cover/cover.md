@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-16 |
 | Document Code | *Enter document code* |
-| Version | 4.25 (Records the trained YOLO11s detector as the default advisory provider: a new `ai-inference` service serves the MBDD2025 model and the backend tries it first, with the OpenAI-compatible vision endpoint as the option behind it. Verified on the live stack — `yolo11s` candidate in 1.4 s, and the fallback answering in 27 s once the detector was stopped. Fixed a latent defect in which the JDK client's h2c upgrade made uvicorn reject every detector call with `400 Unsupported upgrade request`. Backend `./mvnw -B verify` passed 657 tests. Totals unchanged: 11 cases — 8 Passed, 3 Pending.) |
+| Version | 4.26 (Records the explicit re-run for advisory detection: `POST /evidence/{evidenceId}/analyze?replace=true` runs the detector again and swaps the capture's unreviewed candidates for the new result while candidates the Inspector already decided survive, and the findings panel offers **Analyze again** on an image that already has candidates. Verified live on `11111111-2222-3333-4444-555555555552`. Backend `./mvnw -B verify` passed 658 tests; frontend 55 files / 378 tests. Totals unchanged: 11 cases — 8 Passed, 3 Pending.) |
 
 ## Export-tool verification (not workbook cases)
 

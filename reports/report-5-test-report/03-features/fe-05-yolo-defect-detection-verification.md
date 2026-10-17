@@ -143,3 +143,40 @@ Executed evidence (live stack, `docker compose`, MBDD2025 weights in place):
 
 `WF3-003` stays Pending for its full case procedure; this round adds the detector path and its
 fallback rather than executing that case.
+
+### The Inspector can re-detect an image after the detector changes — 2026-10-17
+
+Detection ran once per capture: an image that already had candidates offered no control, because
+MF3-05 makes a repeated analysis answer with the existing candidates rather than run the detector
+again. That left no way to move a capture from one detector to another — the switch to the trained
+YOLO11s model left every earlier suggestion in place with no way to refresh it.
+
+- `POST /evidence/{evidenceId}/analyze?replace=true` is the explicit re-run: it produces the new
+  detections first and then swaps the capture's **unreviewed** candidates for them. A candidate the
+  Inspector already confirmed, modified or rejected carries that decision and survives, so the
+  inspected record is never erased. Producing detections before deleting keeps a detector failure
+  from emptying the capture.
+- The findings panel now offers **Analyze again** on an image that already has candidates (the
+  automatic pass and the first analysis are unchanged), and its explanation states that a re-run
+  replaces the unreviewed suggestions and keeps the decided ones.
+- The candidate cache is updated per response as before, so the replaced image's suggestions change
+  in place.
+
+Executed evidence:
+
+- `npm test -- --run src/features/inspections/pages/InspectionFindingsPage.test.tsx` — 23 passed,
+  including `re-runs detection on an analysed image and asks the server to replace its suggestions`
+  and `analyses an image that has no candidates without replacing anything`.
+- `npm test -- --run` — 55 files, 378 tests, 0 failures; `npm run lint` and `npm run build` exit 0.
+- `InspectionReportApiIntegrationTest.anExplicitReRunReplacesUnreviewedCandidatesAndKeepsTheReviewedOnes`
+  — a rejected candidate survives a re-run while the pending one is replaced (2 rows: one `REJECTED`
+  from the first detector, one `PENDING` from the second).
+- Live walkthrough on `11111111-2222-3333-4444-555555555552`: **Analyze again** on
+  `shot-02-blade-leading-edge-crack.jpg` issued `POST /predict` `200` to the detector (no fallback),
+  replaced its three `capstone` suggestions, and the row returned to **Analyze** with
+  "No detected defects" — the detector found nothing on that turbine-blade capture, which is the
+  honest result for a model trained on MBDD2025 building defects.
+- Backend `./mvnw -B verify` — **658 tests, 0 failures/errors/skips**; Spotless, JaCoCo and Modulith
+  checks met.
+
+`WF3-003` stays Pending for its full case procedure.

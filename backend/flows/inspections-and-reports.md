@@ -180,7 +180,7 @@ unchanged. The same applies to a finding's `measurement`.
 | Operation | Endpoint | Actor |
 | --- | --- | --- |
 | List candidates | `GET /api/v1/inspections/{inspectionId}/finding-candidates` | assigned Inspector, same-org ORG_ADMIN |
-| Analyze evidence | `POST /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/analyze` | assigned Inspector |
+| Analyze evidence | `POST /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/analyze[?replace=true]` | assigned Inspector |
 | Review candidate | `POST /api/v1/inspections/{inspectionId}/finding-candidates/{candidateId}/review` | assigned Inspector |
 | List findings | `GET /api/v1/inspections/{inspectionId}/findings` | assigned Inspector, same-org ORG_ADMIN |
 | Add manual finding | `POST /api/v1/inspections/{inspectionId}/findings` | assigned Inspector |
@@ -195,6 +195,16 @@ status or an empty response. An image the detector processed with no detections 
 an answer, not a failure, and is not re-checked by the option. With neither
 provider configured the analysis endpoints report that automated analysis is not
 configured.
+
+Analysis without `replace` answers with the capture's existing candidates instead
+of running the detector again, so the automatic pass and a re-opened workspace do
+not accumulate duplicates. `replace=true` is the explicit re-run: it runs the
+detector again and swaps the capture's **unreviewed** candidates for the new
+result, while candidates the Inspector already confirmed, modified or rejected
+carry those decisions and survive. Detections are produced before the previous
+suggestions are removed, so a detector failure leaves them in place, and a re-run
+that finds nothing leaves the capture with no suggestions rather than stale ones
+from the previous detector.
 
 When the detector answers, the adapter posts raw eligible image bytes with their
 media type to `YOLO_INFERENCE_BASE_URL` plus `YOLO_INFERENCE_PREDICT_PATH`
