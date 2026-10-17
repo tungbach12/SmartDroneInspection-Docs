@@ -228,6 +228,13 @@ proxy to return `index.html` for valid nested frontend paths. Keep the API under
 its existing versioned contract. Do not treat a route guard, hidden menu item,
 URL prefix, or separate port as a security boundary.
 
+When the reverse proxy enforces a request-body limit, keep it at or above the
+backend's request bound (`EVIDENCE_MAX_REQUEST_SIZE`, 20 MB) rather than at the
+per-file limit (`EVIDENCE_MAX_FILE_SIZE`, 10 MB). A proxy bound equal to the
+per-file limit rejects a permitted upload before the backend sees it, and the
+client then receives the proxy's own error page instead of the API's structured
+`413` (`PAYLOAD_TOO_LARGE` or `EVIDENCE_TOO_LARGE`) that the upload UI reports.
+
 Canonical roles are `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and
 `MAINTENANCE_ENGINEER`. The first organization representative may register the
 organization and its first ORG_ADMIN account through the backend contract; the
