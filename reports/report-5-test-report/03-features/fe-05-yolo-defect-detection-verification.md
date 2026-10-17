@@ -98,3 +98,48 @@ Executed evidence:
 No WF3-003 case status changed; the case already records that re-analysis returns existing
 candidates rather than duplicating them. A repeated Inspector review of a non-pending candidate
 now returns `409 CANDIDATE_ALREADY_REVIEWED`; use the revision action to make changes. |
+
+### The trained YOLO11s detector is the default advisory provider — 2026-10-17
+
+The advisory adapters existed but no detector was ever served, so every analysis ran through the
+OpenAI-compatible vision endpoint. The repository now ships the detector that was trained for this
+project and makes it the default provider, with the vision endpoint as the option behind it.
+
+- `ai-inference/` in the backend repository serves the **YOLO11s** model trained on **MBDD2025**
+  (`crack`, `leakage`, `abscission`, `corrosion`, `bulge`) with FastAPI/uvicorn and the weights
+  mounted at runtime. Compose runs it as the `ai-inference` service and the backend reaches it at
+  `http://ai-inference:8000`. The weights and the training notebook are kept in
+  `ai-inference/` with a README that records the kernel, the dataset and the re-download command.
+- The service answers the raw-body contract `YoloInferenceClient` already sent (the notebook's
+  original `app.py` used a multipart `UploadFile`, which the Spring client never sends).
+- `PrimaryWithFallbackInference` routes analysis to the detector first and to the vision endpoint
+  only when the detector cannot answer — a connection failure, a timeout, an error status or an
+  empty response. An image the detector processed with no detections is an answer, not a failure.
+  With neither provider configured the endpoints still report that automated analysis is not
+  configured, and candidates keep the `modelName`/`modelVersion` of the provider that produced them.
+
+Defect found and fixed while wiring this up: the JDK HTTP client attempts an **h2c upgrade** on a
+plain-http endpoint, and uvicorn answers that with `400 Unsupported upgrade request`, so the
+detector failed on every call and the vision fallback silently served all analysis. The YOLO client
+now pins HTTP/1.1, and
+`YoloInferenceConfigurationTest.theDetectorClientSpeaksHttp11SoAnAsgiServerAcceptsTheRequest` fails
+without the pin by refusing the upgrade the way uvicorn does.
+
+Executed evidence (live stack, `docker compose`, MBDD2025 weights in place):
+
+- `curl http://localhost:8000/health` — `{"status":"ok","model":"yolo11s","version":"mbdd2025-v1"}`.
+- `POST /predict` with raw image bytes — `sample-images/concrete-crack.jpg` returned three
+  detections (`abscission` 0.5644, `crack` 0.5462, `abscission` 0.2553) with normalized boxes;
+  `sample-images/bearing-seat.jpg` returned `abscission` 0.5029.
+- `POST /api/v1/inspections/{id}/evidence/{evidenceId}/analyze` with the detector running —
+  one candidate, `modelName=yolo11s`, `modelVersion=mbdd2025-v1`, `predictedLabel=abscission`,
+  in **1.4 s**.
+- The same endpoint with the `ai-inference` service stopped — the backend logged
+  `Primary detector failed (YOLO inference request failed); using the configured fallback detector`
+  and returned `capstone`/`gemini-3.8-flash-n` `corrosion` 0.97 in 27 s, so the option degrades
+  rather than removes the advisory step.
+- Backend `./mvnw -B verify` — **657 tests, 0 failures/errors/skips**, Spotless, JaCoCo and Modulith
+  checks met.
+
+`WF3-003` stays Pending for its full case procedure; this round adds the detector path and its
+fallback rather than executing that case.

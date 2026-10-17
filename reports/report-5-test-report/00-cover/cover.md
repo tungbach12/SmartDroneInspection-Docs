@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-16 |
 | Document Code | *Enter document code* |
-| Version | 4.24 (Records parallel advisory detection with per-image live updates: the MF3-05 automatic pass sends every unanalysed image at once and writes each response into the candidate cache as it arrives, so each row and its candidates update as that image answers, and one image failing or timing out no longer stops the rest. Verified live on inspection `11111111-2222-3333-4444-555555555552` (`Analysing 4 images in parallel…`, in-flight count 4 → 2 → 0). Frontend full suite 55 files / 377 tests, lint and build clean. Also added a shared `asyncUtilTimeout` so the heaviest page tests stop failing against a still-loading page under full parallelism. Totals unchanged: 11 cases — 8 Passed, 3 Pending.) |
+| Version | 4.25 (Records the trained YOLO11s detector as the default advisory provider: a new `ai-inference` service serves the MBDD2025 model and the backend tries it first, with the OpenAI-compatible vision endpoint as the option behind it. Verified on the live stack — `yolo11s` candidate in 1.4 s, and the fallback answering in 27 s once the detector was stopped. Fixed a latent defect in which the JDK client's h2c upgrade made uvicorn reject every detector call with `400 Unsupported upgrade request`. Backend `./mvnw -B verify` passed 657 tests. Totals unchanged: 11 cases — 8 Passed, 3 Pending.) |
 
 ## Export-tool verification (not workbook cases)
 

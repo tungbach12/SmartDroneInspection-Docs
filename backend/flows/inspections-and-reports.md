@@ -186,12 +186,24 @@ unchanged. The same applies to a finding's `measurement`.
 | Add manual finding | `POST /api/v1/inspections/{inspectionId}/findings` | assigned Inspector |
 | Record finding decision | `POST /api/v1/inspections/{inspectionId}/findings/{findingId}/decision` | same-org ORG_ADMIN |
 
-AI is optional. Both `YOLO_INFERENCE_ENABLED` and `COMPATIBLE_VISION_ENABLED`
-default to `false`; configure at most one provider. When YOLO is selected, the
-adapter posts raw eligible image bytes with their media type to
-`YOLO_INFERENCE_BASE_URL` plus `YOLO_INFERENCE_PREDICT_PATH` (default
-`/predict`). The YOLO endpoint returns detections in its documented array
-contract. When the OpenAI-compatible vision provider is selected, it sends the
+AI is optional. `YOLO_INFERENCE_ENABLED` selects the self-hosted detector, which is
+the default advisory provider and is served by the `ai-inference` service in this
+repository; `COMPATIBLE_VISION_ENABLED` adds the OpenAI-compatible vision endpoint
+as the option behind it. The detector is tried first, and the vision endpoint
+answers only when the detector cannot — a connection failure, a timeout, an error
+status or an empty response. An image the detector processed with no detections is
+an answer, not a failure, and is not re-checked by the option. With neither
+provider configured the analysis endpoints report that automated analysis is not
+configured.
+
+When the detector answers, the adapter posts raw eligible image bytes with their
+media type to `YOLO_INFERENCE_BASE_URL` plus `YOLO_INFERENCE_PREDICT_PATH`
+(default `/predict`), and expects detections in its documented array contract. The
+service in `ai-inference/` serves the YOLO11s model trained on MBDD2025 and
+answers that contract; compose runs it as the `ai-inference` service, and the
+backend reaches it at `http://ai-inference:8000`.
+
+When the vision option answers, it sends the
 image as a MIME-aware base64 data URI to `<COMPATIBLE_VISION_BASE_URL>/v1/chat/completions`,
 sets `stream:false`, and asks for a JSON `detections` object. Configure
 `COMPATIBLE_VISION_MODEL`, `COMPATIBLE_VISION_API_KEY`, and
@@ -199,7 +211,8 @@ sets `stream:false`, and asks for a JSON `detections` object. Configure
 must not be committed. The adapter validates the label, confidence in `[0,1]`,
 and normalized `xMin`, `yMin`, `xMax`, `yMax` coordinates in `[0,1]` with
 positive box dimensions. Candidates retain the configured model alias and the
-provider-reported model version. These adapters provide advisory suggestions
+provider-reported model version, so a candidate records which detector produced
+it. These adapters provide advisory suggestions
 only; they do not make an AI result an official finding.
 
 Analysis is refused until the Inspector accepts the evidence. An inference
