@@ -132,6 +132,7 @@ condition that must be monitored.
 | Operation | Endpoint | Actor |
 | --- | --- | --- |
 | Upload evidence | `POST /api/v1/inspections/{inspectionId}/evidence` | assigned Inspector, same-org ORG_ADMIN |
+| Retire evidence | `POST /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/retire` | assigned Inspector |
 | List evidence | `GET /api/v1/inspections/{inspectionId}/evidence` | assigned Inspector, same-org ORG_ADMIN |
 | Stream evidence | `GET /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/content` | assigned Inspector, same-org ORG_ADMIN |
 
@@ -184,6 +185,8 @@ unchanged. The same applies to a finding's `measurement`.
 | Review candidate | `POST /api/v1/inspections/{inspectionId}/finding-candidates/{candidateId}/review` | assigned Inspector |
 | List findings | `GET /api/v1/inspections/{inspectionId}/findings` | assigned Inspector, same-org ORG_ADMIN |
 | Add manual finding | `POST /api/v1/inspections/{inspectionId}/findings` | assigned Inspector |
+| Update finding | `PUT /api/v1/inspections/{inspectionId}/findings/{findingId}` | assigned Inspector |
+| Delete finding | `DELETE /api/v1/inspections/{inspectionId}/findings/{findingId}` | assigned Inspector |
 | Record finding decision | `POST /api/v1/inspections/{inspectionId}/findings/{findingId}/decision` | same-org ORG_ADMIN |
 
 AI is optional. `YOLO_INFERENCE_ENABLED` selects the self-hosted detector, which is
@@ -241,7 +244,8 @@ rejected candidate returns `204 No Content`.
 | Read version | `GET /api/v1/inspections/{inspectionId}/report/versions/{versionId}` | assigned Inspector, same-org ORG_ADMIN |
 | Verify as author | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/verify` | assigned Inspector |
 | Submit for review | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/submit` | assigned Inspector |
-| Review | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/review` | independent same-org ORG_ADMIN |
+| Withdraw submission | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/withdraw` | assigned Inspector |
+| Review | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/review[?approve=...&reason=...&reasonType=...]` | independent same-org ORG_ADMIN |
 | Publish | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/publish` | independent same-org ORG_ADMIN |
 | Record per-finding corrective outcome | `PUT /api/v1/inspections/{inspectionId}/findings/{findingId}/corrective-action` | ORG_ADMIN |
 | Record corrective handoff | `POST /api/v1/inspections/{inspectionId}/report/corrective-handoff` | ORG_ADMIN |

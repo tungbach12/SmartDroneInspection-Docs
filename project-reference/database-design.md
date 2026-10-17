@@ -498,6 +498,7 @@ Applied migration files remain forward-only history. The backend reset has begun
 - V29 findings confirmation gate: `SmartDroneInspection-backend/src/main/resources/db/migration/V29__mf3_findings_confirmation_gate.sql`
 - V30 MF3 corrective outcome and handoff: `SmartDroneInspection-backend/src/main/resources/db/migration/V30__mf3_corrective_action_and_decision_revision.sql` — adds `verified_findings.corrective_action_*` and `inspections.corrective_handoff_*`/`no_repair_rationale`, and backfills existing reviewer dispositions
 - V31 corrective outcome follows publication: `SmartDroneInspection-backend/src/main/resources/db/migration/V31__mf3_corrective_outcome_follows_publication.sql` — clears backfilled outcomes that predate the publication they would be attributed to, leaving inspections that already completed the MF3-13 handoff untouched
+- V32 findings correction and author withdrawal: `SmartDroneInspection-backend/src/main/resources/db/migration/V32__mf3_findings_correction_and_author_withdrawal.sql` — adds `verified_findings.deleted_*`, `evidence.retired_*`, and `inspection_report_versions.withdrawn_*` / `return_reason_type`
 
 - [Report 3 Software Requirement Specification](../reports/report-3-software-requirement-specification/)
 - [Authentication and Access Control](../backend/authentication-and-authorization.md)

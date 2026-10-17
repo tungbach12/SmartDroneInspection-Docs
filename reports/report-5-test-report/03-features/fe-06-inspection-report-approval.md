@@ -185,6 +185,17 @@ frontend `npm test -- --run` passed 55 files / 376 tests; `npm run lint` and
 (`COMPLETED` with no handed-off findings) and the explicitly confirmed
 empty-findings no-repair close were not executed.
 
+### Findings CRUD, author withdrawal, and review return reasons — 2026-10-17
+
+While a report is not submitted, the assigned Inspector can perform full CRUD on findings and retire captures:
+- `PUT /api/v1/inspections/{id}/findings/{findingId}` updates finding details and re-links active evidence.
+- `DELETE /api/v1/inspections/{id}/findings/{findingId}` soft-deletes a finding with an attributable deletion reason (`deleted_at`, `deleted_by_user_id`, `deletion_reason` stored for audit; excluded from active reads via `@SQLRestriction`). If linked to an AI candidate, the candidate reopens to `PENDING`.
+- `POST /api/v1/inspections/{id}/evidence/{evidenceId}/retire` marks a capture retired with an attributable reason (`retired_at`, `retired_by_user_id`, `retirement_reason`) without deleting original bytes or metadata. A capture cannot be retired while an active finding cites it.
+- `POST /api/v1/inspections/{id}/report/versions/{versionId}/withdraw` lets the author withdraw a submitted report before any reviewer action, returning it to author revision with `withdrawn_by_user_id`, `withdrawn_at`, and `withdrawal_reason` stored. Evidence and findings remain intact.
+- Reviewer return now requires `reasonType`: `TEXT_REVISION` (leaves findings decisions intact) or `FINDINGS_REVISION` (reopens findings, clears live reviewer decisions, and invalidates confirmation so the Inspector can revise findings and re-draft).
+- V32 forward migration adds the audit and return columns (`V32__mf3_findings_correction_and_author_withdrawal.sql`).
+- Executed verification: backend `./mvnw -B verify` passed 663 tests, 0 failures/errors/skips; frontend `npm test -- --run` passed 55 files / 384 tests, lint and build clean. Live walkthrough verified finding creation, in-place edit, soft-delete with audit reason, capture retirement with "Retired — audit copy" chip, and withdrawal / return reason handling.
+
 ## Feature sheet summary
 
 Values for the `Feature 6` summary block (`A2:E8` in the workbook).
