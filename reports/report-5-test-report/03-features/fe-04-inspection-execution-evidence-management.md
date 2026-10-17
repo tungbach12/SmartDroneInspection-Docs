@@ -53,3 +53,12 @@ but Report 5 has no case for them; session end and the `FIELD_COMPLETED` handoff
 remain unimplemented. Report 3 §3.7.2 and §3.7.3 (required report content and
 LLM safeguards) belong to FE-06 and are likewise not asserted by these cases;
 see `fe-06-…md`.
+
+### Capture retirement and bulk batch retirement — 2026-10-17
+
+When captures need replacement (e.g. blurred photos) or an entire batch/flight session is invalid (e.g. imported the wrong SD card or incorrect site captures with hundreds of images):
+- Individual retirement: `POST /api/v1/inspections/{id}/evidence/{evidenceId}/retire` marks a capture retired with an attributable reason (`retired_at`, `retired_by_user_id`, `retirement_reason`) without deleting original bytes or checksums.
+- Bulk retirement: `POST /api/v1/inspections/{id}/evidence/bulk-retire` applies a single shared reason across a target list of evidence IDs (or all unretired captures if empty/null), enabling one-click retirement of an entire mistaken batch.
+- A capture citing active findings cannot be retired until the findings are re-linked or removed.
+- Evidence register UI provides `Active`, `Retired audit`, and `All` filter tabs, selection checkboxes, and a "Bulk retire all active / selected" action with a shared reason form.
+- Executed verification: backend `InspectionReportApiIntegrationTest.inspectorCanBulkRetireCapturesWithASingleSharedReason` passed; frontend `InspectionEvidencePage.test.tsx` (16/16 passed). Live walkthrough retired a batch of 9 captures in a single click, showing `Active (0)` and `Retired audit (12)` while preserving all files and database records.
