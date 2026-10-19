@@ -10,16 +10,16 @@ names no specific detection vendor or model family.
 The `inspections` module implements the MF3 finding slice of FE-05: advisory AI
 candidates that stay separate from human-verified findings, a manual finding
 path that remains available when inference is refused or fails, and the
-independent Organization Admin decision on a finding (role, organization,
-active-account and separation-of-duties checks; reviewer credential
-qualification is not validated at runtime). Report 3 requires that manual entry
+Inspector resolution and confirmation of findings, plus report-level Organization Admin review (role, organization, active-account and separation-of-duties checks; reviewer credential qualification is not validated at runtime). Organization Admin per-finding verdicts are not part of the current product flow; post-publication corrective outcomes remain per finding. Report 3 requires that manual entry
 survives an AI outage, so the manual path is not conditional on AI
 availability.
 
-Detection is served by an optional OpenAI-compatible vision adapter behind the
-inspections-owned `AiInferencePort`, with a mutually exclusive YOLO alternative.
-Credentials are environment-only. Both adapters are implementation choices
-behind the requirement, not part of it.
+Detection runs against active evidence only. Retired evidence is excluded from
+automatic/manual detection lists and candidate groups; retired images are not
+loaded as finding photos. Detection is served by the project's YOLO11s inference
+service first, with the OpenAI-compatible vision adapter behind the
+inspections-owned `AiInferencePort` as fallback. Credentials are environment-only.
+Both adapters are implementation choices behind the requirement, not part of it.
 
 ## Feature sheet summary
 
@@ -35,8 +35,8 @@ exporter maps this file to the matching SRS feature sheet.
 
 | Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| WF3-003 | Inspector verifies AI candidates or records a manual finding. | Request analysis before the Inspector accepts the evidence set; analyze a representative accepted image; verify its returned candidate provenance, confidence, normalized box, and pending status; re-analyze the same accepted image and confirm the candidate set is unchanged; attempt analysis as a different Inspector; confirm a candidate through the Findings stage and check the created finding is still undecided; record a manual finding with prose measurement; sign in as an ORG_ADMIN in the same organization and record the reviewer's decision on that finding; attempt decision by the finding creator and verify refusal; confirm the Inspector is not offered the reviewer decision. | Analysis is refused until the Inspector accepts the evidence; valid model detections are persisted only as `PENDING`; re-analysis of an already analysed image returns the existing candidates and creates no duplicate; out-of-scope Inspectors are refused; a confirmed candidate creates a `VerifiedFinding` whose `decision` is still null, because MF3-06 records a recommendation and not the official decision; a manual finding is available without analysis; a finding is official only after the independent ORG_ADMIN other than its creator records `CONFIRMED` or `MODIFIED`, stamping reviewer and time (qualification is not validated at runtime). | An assigned `FIELD_COMPLETED` inspection, accepted image evidence, PostgreSQL, and an authorized Inspector and ORG_ADMIN in the same organization. | Passed | 2026-10-12 | Claude Code (automated) | Pending |  |  | Pending |  |  | Verified with `InspectionReportApiIntegrationTest.analysisIsRefusedUntilTheInspectorAcceptsTheEvidence`, `analysisRequiresAssignmentAndAcceptedEvidenceAndPersistsOnlyPendingCandidates`, `reAnalysingTheSameEvidenceReturnsTheExistingCandidatesInsteadOfDuplicatingThem`, `manualFindingIsAvailableWithoutAnyAnalysis`, `aFindingMeasurementIsStorableAsProse`, and `anotherInspectorCannotAddAFinding`; plus `AiFindingCandidateTest` (4 candidate-review cases) and frontend `InspectionFindingsPage.test.tsx` (auto-detection runs for unanalysed images only; Confirm sends `CONFIRMED` with per-candidate severity/location; candidate cards render evidence-linked defect photos; reviewer control appears only for ORG_ADMIN on undecided findings). **WF3 alignment follow-up, 2026-10-13:** `FindingService.decideFinding` rejects the finding creator with 403 `FINDING_REVIEWER_INVALID`; `InspectionReportApiIntegrationTest.findingAuthorCannotDecideTheirOwnFinding` covers a persisted dual-role author and independent reviewer. **Passed in backend PR #69 CI run 38325774461:** `./mvnw -B verify` ran 491 tests with 0 failures/errors/skips; the finding-author test and related comparison/snapshot integration assertions executed under Testcontainers. The separate local full run remains recorded as Docker-blocked (263 environment errors) in `test-statistics.md`. |
-| WF3-010 | Assigned Inspector corrects a reviewed candidate and its linked undecided finding before reviewer decision or report lock; rejection removes that finding, while final reviewer decisions remain immutable. | Review a candidate, correct its label/details and linked undecided finding, reject the corrected candidate, and verify removal of the linked undecided finding. Repeat after a reviewer decision and after report submission/publication to verify revision is refused and final decisions remain unchanged. | Before a lock, the Inspector's correction updates the reviewed candidate and linked undecided finding; rejection removes the linked undecided finding. After reviewer decision or report lock, correction is refused; final reviewer decisions remain immutable. | Assigned Inspector; reviewed candidate with linked undecided finding; fixtures for reviewer-decided and submitted/published report states. | Pending |  |  | Pending |  |  | Pending |  |  | Implementation and a frontend correction-call unit test exist, but executed evidence for the complete revision, rejection, lock, and immutable-decision paths is not recorded. |
+| WF3-003 | Inspector verifies AI candidates or records a manual finding. | Request analysis before the Inspector accepts the evidence set; analyze a representative accepted image; verify its returned candidate provenance, confidence, normalized box, and pending status; re-analyze the same accepted image and confirm the candidate set is unchanged; attempt analysis as a different Inspector; confirm a candidate through the Findings stage and check the created finding is still undecided; record a manual finding with prose measurement; sign in as an ORG_ADMIN in the same organization and record the reviewer's decision on that finding; attempt decision by the finding creator and verify refusal; confirm the Inspector is not offered the reviewer decision. | Analysis is refused until the Inspector accepts the evidence; valid model detections are persisted only as `PENDING`; re-analysis of an already analysed image returns the existing candidates and creates no duplicate; out-of-scope Inspectors are refused; a confirmed candidate creates a `VerifiedFinding` whose `decision` is still null, because MF3-06 records a recommendation and not the official decision; a manual finding is available without analysis; a finding becomes reportable after the assigned Inspector confirms the findings set. The Organization Admin approves or returns the submitted report as a whole; no Admin finding-decision request is made. | An assigned `FIELD_COMPLETED` inspection, accepted image evidence, PostgreSQL, and an authorized Inspector and ORG_ADMIN in the same organization. | Passed | 2026-10-12 | Claude Code (automated) | Pending |  |  | Pending |  |  | Verified with `InspectionReportApiIntegrationTest.analysisIsRefusedUntilTheInspectorAcceptsTheEvidence`, `analysisRequiresAssignmentAndAcceptedEvidenceAndPersistsOnlyPendingCandidates`, `reAnalysingTheSameEvidenceReturnsTheExistingCandidatesInsteadOfDuplicatingThem`, `manualFindingIsAvailableWithoutAnyAnalysis`, `aFindingMeasurementIsStorableAsProse`, and `anotherInspectorCannotAddAFinding`; plus `AiFindingCandidateTest` (4 candidate-review cases) and frontend `InspectionFindingsPage.test.tsx` (auto-detection runs for unanalysed images only; Confirm sends `CONFIRMED` with per-candidate severity/location; candidate cards render evidence-linked defect photos; reviewer control appears only for ORG_ADMIN on undecided findings). **WF3 alignment follow-up, 2026-10-13:** `FindingService.decideFinding` rejects the finding creator with 403 `FINDING_REVIEWER_INVALID`; `InspectionReportApiIntegrationTest.findingAuthorCannotDecideTheirOwnFinding` covers a persisted dual-role author and independent reviewer. **Passed in backend PR #69 CI run 38325774461:** `./mvnw -B verify` ran 491 tests with 0 failures/errors/skips; the finding-author test and related comparison/snapshot integration assertions executed under Testcontainers. The separate local full run remains recorded as Docker-blocked (263 environment errors) in `test-statistics.md`. |
+| WF3-010 | Assigned Inspector corrects a reviewed candidate and linked Inspector finding before report submission; report return for findings/evidence revision reopens Inspector review. | Review/correct a candidate, confirm the findings set, create and submit a report, return it for findings/evidence revision, and verify Inspector confirmation is invalidated and must be recorded again. | Before submission the Inspector may correct the finding; after report submission edits are locked; a report-level findings/evidence return reopens the Inspector stage and requires reconfirmation. Organization Admin does not decide the finding individually. | Assigned Inspector; reviewed candidate with linked undecided finding; fixtures for reviewer-decided and submitted/published report states. | Pending |  |  | Pending |  |  | Pending |  |  | Implementation and a frontend correction-call unit test exist, but executed evidence for the complete revision, rejection, lock, and immutable-decision paths is not recorded. |
 
 ### WF3 role-gating follow-up — 2026-10-14
 
@@ -113,8 +113,8 @@ project and makes it the default provider, with the vision endpoint as the optio
 - The service answers the raw-body contract `YoloInferenceClient` already sent (the notebook's
   original `app.py` used a multipart `UploadFile`, which the Spring client never sends).
 - `PrimaryWithFallbackInference` routes analysis to the detector first and to the vision endpoint
-  only when the detector cannot answer — a connection failure, a timeout, an error status or an
-  empty response. An image the detector processed with no detections is an answer, not a failure.
+  only when the detector cannot answer — a connection failure, a timeout or an error status. A
+  valid response with zero detections is final and does not trigger fallback.
   With neither provider configured the endpoints still report that automated analysis is not
   configured, and candidates keep the `modelName`/`modelVersion` of the provider that produced them.
 
@@ -180,3 +180,36 @@ Executed evidence:
   checks met.
 
 `WF3-003` stays Pending for its full case procedure.
+
+### Empty detection results are explicit and persisted — 2026-10-18
+
+A successful analysis that returns no candidates is now recorded separately from an image that has never been analysed. The Findings page labels the image **No defects detected**, provides an informational toast, and leaves **Analyze again** available. Failures produce an error toast while retaining the inline error detail. The persisted status prevents the automatic pass from repeating an empty result after reload; a deliberate Analyze again still runs the detector. A valid empty YOLO result remains final and never invokes the optional vision fallback.
+
+Executed evidence:
+
+- Backend `InspectionReportApiIntegrationTest.emptyAnalysisResultIsPersistedAsCompletedAndDoesNotRerunAutomatically` — passed; verifies the empty candidate response, persisted completed status/count, and no second inference call.
+- Frontend focused API, hook and Findings suites — 3 files / 32 tests passed, including zero-result notification, inference-failure notification, persisted-status rendering and the Analyze-again action.
+- Full frontend suite re-run 2026-10-19 — 55 files / 414 tests passed; `useInspections.test.tsx` also asserts the success text and error severity of the other ten MF3 mutations.
+- Playwright (2026-10-19), synthetic Inspector session and mocked API, no live credentials: the Findings **Analyze** button sent `POST /api/v1/inspections/2fa8fd35-285a-43c4-a616-69d05cc8250d/evidence/evidence-defect-02/analyze?replace=false`, the info toast “Analysis completed; no defects were detected in this image.” appeared, the per-image chip read **No defects detected**, and the control became **Analyze again**.
+- `WF3-003` remains Pending; these focused regressions do not substitute for its full case procedure.
+
+### Retired evidence excluded from Findings — 2026-10-17
+
+The evidence register defaults to active captures and offers filename/content-type search,
+media-type filters, and an explicit evidence-status filter to view retired audit records.
+Findings filters retired captures out of automatic and manual detection rows, candidate groups,
+and the active candidate review count. Reviewer finding cards load a source photo only when its
+linked evidence is still active; historical finding text remains visible without requesting a
+retired source image. A pending candidate linked to retired evidence is excluded from the current
+active review gate, so it cannot block active findings progress.
+
+Executed evidence:
+
+- `npm test -- --run src/features/inspections/pages/InspectionEvidencePage.test.tsx src/features/inspections/pages/InspectionFindingsPage.test.tsx` — 45 passed, including retired-default/status filter, filename/media filters, retired candidate exclusion, detection exclusion, and reviewer photo exclusion.
+- `npm test -- --run` — 55 files / 389 tests passed.
+- `npm run lint` — passed with six existing `react(only-export-components)` warnings outside the changed files.
+- `npm run build` — passed.
+
+## 2026-10-18 role and detection preference alignment
+
+Inspector candidate confirmation now establishes reportable finding state; the Organization Admin makes one report-level approve/return decision and separately records MF3-12 corrective outcomes after publication. Removed the obsolete Admin finding-decision endpoint and panel. Added a persistent Inspector preference (default ON) to disable the automatic YOLO-failure vision fallback; empty YOLO results never invoke fallback. Verified backend `PrimaryWithFallbackInferenceTest` and full integration suite.

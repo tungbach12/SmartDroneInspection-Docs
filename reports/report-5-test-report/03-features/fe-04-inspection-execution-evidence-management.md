@@ -60,5 +60,31 @@ When captures need replacement (e.g. blurred photos) or an entire batch/flight s
 - Individual retirement: `POST /api/v1/inspections/{id}/evidence/{evidenceId}/retire` marks a capture retired with an attributable reason (`retired_at`, `retired_by_user_id`, `retirement_reason`) without deleting original bytes or checksums.
 - Bulk retirement: `POST /api/v1/inspections/{id}/evidence/bulk-retire` applies a single shared reason across a target list of evidence IDs (or all unretired captures if empty/null), enabling one-click retirement of an entire mistaken batch.
 - A capture citing active findings cannot be retired until the findings are re-linked or removed.
-- Evidence register UI provides `Active`, `Retired audit`, and `All` filter tabs, selection checkboxes, and a "Bulk retire all active / selected" action with a shared reason form.
-- Executed verification: backend `InspectionReportApiIntegrationTest.inspectorCanBulkRetireCapturesWithASingleSharedReason` passed; frontend `InspectionEvidencePage.test.tsx` (16/16 passed). Live walkthrough retired a batch of 9 captures in a single click, showing `Active (0)` and `Retired audit (12)` while preserving all files and database records.
+- Evidence register defaults to active captures and provides search, media-type and evidence-status filters; retired audit copies stay out of the register until requested. Selection checkboxes and a "Bulk retire all active / selected" action use a shared reason form.
+- The register reads `GET /api/v1/inspections/{id}/evidence/query`, which filters and pages in the database (`status`, `mediaType`, `search`, `page`, `pageSize`) and returns the inspection's active/retired counts plus the newest capture-added and capture-retired instants, so the status counts and the stale-decision check come from one payload. The existing unpaged `GET .../evidence` list remains for the Findings, Reports and other readers.
+- The Findings stage filters retired captures from analysis and candidate lists, and does not load retired images as candidate/reviewer finding photos.
+- Verification: backend `InspectionReportApiIntegrationTest.evidenceQueryFiltersAndPagesWithStableScope` covers the filtered/paged read (defaults, status, media type, case-insensitive search, page 2, `pageSize=5000` clamped to 100, ORG_ADMIN read, unrelated Inspector 404) and the pre-existing `inspectorCanBulkRetireCapturesWithASingleSharedReason` still passes; backend `./mvnw.cmd clean verify` passed 665 tests with Spotless, JaCoCo and Modulith checks met on 2026-10-18. Frontend targeted `InspectionEvidencePage.test.tsx` and `InspectionFindingsPage.test.tsx` passed 45 tests; full frontend suite passed 55 files / 389 tests; lint and build passed. A previous live walkthrough retired a batch of 9 captures in one click, showing `Active (0)` and `Retired audit (12)` while preserving all files and database records.
+
+
+Evidence uploads distinguish a new file, an active same-checksum retry (`deduplicated=true`), and an identical file already retired (`409 EVIDENCE_DUPLICATE_RETIRED`). A same-name/different-content upload is a new item. MF3 success/failure toasts are surfaced through the shared toast host. Evidence now owns one shared asset-area location, set by the assigned Inspector and propagated to its findings; GPS and detector pixel boxes remain separate metadata.
+
+### Mutation outcome notifications — 2026-10-19
+
+The MF3 workflow mutations now report their outcome through the shared toast host instead of leaving
+a successful decision silent. Each hook keeps its inline alert detail for validation and read
+errors; the toast is the acknowledgement that the server accepted the change.
+
+- Evidence: upload (`Uploaded <file>` / `Already uploaded: <file>`), retirement, bulk retirement,
+  shared evidence location.
+- Findings: evidence-quality decision, advisory analysis (including the empty-result and failure
+  toasts), candidate review/revision, manual finding add/update/remove, findings confirmation and
+  reopen.
+- Reports: AI-assisted draft, empty manual draft, section save, author verification, submission,
+  review (approve/return), withdrawal, publication and the MF3-12 corrective outcomes.
+- Verification: frontend `useInspections.test.tsx` asserts the success text and the error severity
+  for ten MF3 mutations; full frontend suite passed 55 files / 414 tests with `tsc`, lint and build.
+  The Analyse flow was also driven in a Playwright-managed browser against a synthetic Inspector and
+  a mocked API, confirming the real Findings button issues
+  `POST /api/v1/inspections/{id}/evidence/{evidenceId}/analyze?replace=false`, shows
+  "Analysis completed; no defects were detected in this image." and switches the chip to
+  "No defects detected" with "Analyze again" offered. No live credentials were used.

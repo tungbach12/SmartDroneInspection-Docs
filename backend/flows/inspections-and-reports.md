@@ -135,6 +135,7 @@ condition that must be monitored.
 | Retire evidence | `POST /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/retire` | assigned Inspector |
 | Bulk retire evidence | `POST /api/v1/inspections/{inspectionId}/evidence/bulk-retire` | assigned Inspector |
 | List evidence | `GET /api/v1/inspections/{inspectionId}/evidence` | assigned Inspector, same-org ORG_ADMIN |
+| Query evidence (filtered, paged) | `GET /api/v1/inspections/{inspectionId}/evidence/query` | assigned Inspector, same-org ORG_ADMIN |
 | Stream evidence | `GET /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/content` | assigned Inspector, same-org ORG_ADMIN |
 
 Multipart fields are `file` (required), `source`
@@ -149,6 +150,19 @@ room for multipart framing across the single-file endpoint. An over-limit
 request is rejected with `413`: the multipart parser answers `PAYLOAD_TOO_LARGE`,
 while the service guard answers `EVIDENCE_TOO_LARGE` and derives its message from
 the enforced 10 MB limit.
+
+`GET .../evidence/query` is the filtered, paged read used by the evidence
+register. Query parameters: `status` (`ACTIVE`|`RETIRED`|`ALL`, default `ALL`),
+`mediaType` (`IMAGE`|`VIDEO`|`DOCUMENT`|`ALL`, default `ALL`), optional `search`
+(case-insensitive file-name or content-type substring), `page` (1-based, default
+1) and `pageSize` (default 50, clamped to 1–100). Filtering and paging happen in
+the database, and rows are ordered by `createdAt` then `id` so a page cannot
+repeat or skip a row. The response carries `items`, `page`, `pageSize`,
+`totalCount`, `totalPages`, the inspection's `activeCount`/`retiredCount`, and
+`latestCreatedAt`/`latestRetiredAt` — the newest capture-added and
+capture-retired instants — so a client can show the status counts and detect a
+evidence-quality decision that predates the current set without loading every
+row. The original `GET .../evidence` list contract is unchanged.
 
 Latitude and longitude must be supplied together. The server computes SHA-256
 and treats a repeated inspection/checksum upload idempotently, returning the
@@ -182,6 +196,7 @@ unchanged. The same applies to a finding's `measurement`.
 | Operation | Endpoint | Actor |
 | --- | --- | --- |
 | List candidates | `GET /api/v1/inspections/{inspectionId}/finding-candidates` | assigned Inspector, same-org ORG_ADMIN |
+| List completed evidence analysis status (including zero detections) | `GET /api/v1/inspections/{inspectionId}/evidence/analysis-status` | assigned Inspector, same-org ORG_ADMIN |
 | Analyze evidence | `POST /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/analyze[?replace=true]` | assigned Inspector |
 | Review candidate | `POST /api/v1/inspections/{inspectionId}/finding-candidates/{candidateId}/review` | assigned Inspector |
 | List findings | `GET /api/v1/inspections/{inspectionId}/findings` | assigned Inspector, same-org ORG_ADMIN |
@@ -189,6 +204,8 @@ unchanged. The same applies to a finding's `measurement`.
 | Update finding | `PUT /api/v1/inspections/{inspectionId}/findings/{findingId}` | assigned Inspector |
 | Delete finding | `DELETE /api/v1/inspections/{inspectionId}/findings/{findingId}` | assigned Inspector |
 | Record finding decision | `POST /api/v1/inspections/{inspectionId}/findings/{findingId}/decision` | same-org ORG_ADMIN |
+
+Successful analysis timestamps and detection counts are persisted on evidence so a valid empty detector result is distinguishable from an image not yet analysed and does not repeat on reload. A deliberate `replace=true` request performs a new pass. A valid zero-detection YOLO response does not trigger fallback.
 
 AI is optional. `YOLO_INFERENCE_ENABLED` selects the self-hosted detector, which is
 the default advisory provider and is served by the `ai-inference` service in this
@@ -231,8 +248,7 @@ only; they do not make an AI result an official finding.
 
 Analysis is refused until the Inspector accepts the evidence. An inference
 failure returns `503 AI_INFERENCE_UNAVAILABLE` and the manual finding path
-stays available. Only a `CONFIRMED` or `MODIFIED` decision makes a finding
-official; pending and rejected candidates never enter report snapshots. A
+stays available. Only a candidate the assigned Inspector confirms or modifies creates a finding. Inspector confirmation makes it reportable; the Organization Admin later approves or returns the whole report rather than deciding each finding. Pending and rejected candidates never enter report snapshots. A
 rejected candidate returns `204 No Content`.
 
 ## Report authoring, review and publication (FE-06, MF3-07 to MF3-13)
@@ -242,11 +258,11 @@ rejected candidate returns `204 No Content`.
 | Generate AI draft | `POST /api/v1/inspections/{inspectionId}/report/draft` | assigned Inspector |
 | Author manual draft | `POST /api/v1/inspections/{inspectionId}/report/draft/manual` | assigned Inspector |
 | List versions | `GET /api/v1/inspections/{inspectionId}/report/versions` | assigned Inspector, same-org ORG_ADMIN |
-| Read version | `GET /api/v1/inspections/{inspectionId}/report/versions/{versionId}` | assigned Inspector, same-org ORG_ADMIN |
+| Read version and source-backed report context | `GET /api/v1/inspections/{inspectionId}/report/versions/{versionId}` | assigned Inspector, same-org ORG_ADMIN |
 | Verify as author | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/verify` | assigned Inspector |
 | Submit for review | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/submit` | assigned Inspector |
 | Withdraw submission | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/withdraw` | assigned Inspector |
-| Review | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/review[?approve=...&reason=...&reasonType=...]` | independent same-org ORG_ADMIN |
+| Review | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/review[?approve=...&reason=...&reasonType=...]` | independent same-org ORG_ADMIN (report-level decision) |
 | Publish | `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/publish` | independent same-org ORG_ADMIN |
 | Record per-finding corrective outcome | `PUT /api/v1/inspections/{inspectionId}/findings/{findingId}/corrective-action` | ORG_ADMIN |
 | Record corrective handoff | `POST /api/v1/inspections/{inspectionId}/report/corrective-handoff` | ORG_ADMIN |
@@ -257,8 +273,8 @@ Version status moves `DRAFT` → `AUTHOR_VERIFIED` → `SUBMITTED` → (`RETURNE
 
 "Independent" means the runtime validates role, organization, active account and
 separation of duties (the author cannot review). Reviewer credential or
-professional-qualification checks do not exist at runtime, so a review recorded
-here is an Organization Admin decision, not proof of professional qualification.
+professional-qualification checks do not exist at runtime, so a report approval
+recorded here is an Organization Admin decision, not proof of professional qualification. There is no per-finding Admin decision endpoint.
 
 **Manual authoring is required, not optional.** Report 3 states that failed LLM
 generation permits the author to complete a structured manual draft with the
@@ -269,13 +285,14 @@ optional `omissionDisclosure` recording which analysis was omitted. The manual
 version records `llmModel` as `manual-authoring`, so a reader can tell that the
 narrative is the author's own.
 
+The report-version response includes read-only, organization-scoped identity labels and recorded Drone, preparation/readiness, evidence-quality, field-session and findings-confirmation context. The same source records are composed into the PDF where present; missing session/checklist rows do not produce boilerplate that claims they exist. The session pre-flight note is persisted by V35 and is rendered as an Inspector-entered note, not proof that a checklist or flight was completed. Item-level checklist responses are included only when stored against the inspection and linked to the relevant session checklist template. This response context is not a qualification, permit-clearance or aircraft-operation verification.
+
 Drafting moves the inspection from `FIELD_COMPLETED` to `REPORT_DRAFT`.
 Publication requires that state and moves the inspection to `REPORT_PUBLISHED`
 only; it stores and checksums the PDF but does not hand findings to maintenance
 or complete the inspection. Corrective work is recorded afterwards, in order:
 
-1. **MF3-12 per finding** — `PUT .../findings/{findingId}/corrective-action`
-   records `correctiveActionRequired` with a required `rationale`; a required
+1. **MF3-12 per finding** — after report publication, `PUT .../findings/{findingId}/corrective-action` records `correctiveActionRequired` with a required `rationale`; a required
    outcome also carries a `priority` and may carry a `dueAt`, while a no-action
    outcome must carry neither. The recorded reviewer and timestamp are stored
    with the outcome, which never modifies the published PDF.
@@ -336,3 +353,9 @@ passed; it predates the MF3-12/13 change. Report 5 records
 `WF2-008`/`WF2-009` for MF2-07 on `Feature 3`, the MF3 cases on `Feature 4`–`Feature 6`,
 plus the new Pending `WF3-012` for MF3-12/13; session end and source-change
 invalidation remain uncovered as noted above.
+### Added contracts (2026-10-18)
+
+- Evidence upload response includes `deduplicated`. Same inspection + same SHA-256 active retry returns the existing row with `deduplicated=true`; a matching retired audit copy returns `409 EVIDENCE_DUPLICATE_RETIRED`. Filename alone is not duplicate identity.
+- `PUT /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/location` is assigned-Inspector-only; it saves one shared asset-area location on evidence and propagates it to linked findings.
+- `PUT /api/v1/auth/me/ai-fallback-preference` is Inspector-only and persists `visionFallbackEnabled`; default is enabled. YOLO remains primary, a valid empty result does not fall back, and the configured vision model is attempted only after detector failure when the Inspector preference is enabled.
+- `V33__mf3_evidence_locations_and_inspector_ai_preferences.sql` adds the evidence location, Inspector confirmation timestamp and per-user fallback preference; old reviewer decision columns remain readable for historical compatibility.

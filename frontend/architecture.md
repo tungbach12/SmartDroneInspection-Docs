@@ -121,14 +121,27 @@ on the separate `reports/:inspectionId` page.
 
 The `evidence` tab stages a multi-file queue and uploads it with one existing
 single-file mutation call per file in order; a failed file stays in the queue
-with its error without blocking the rest. Below it, the single shot-list
-comparison field plus "Accept evidence set" records the MF3-03 set-level
-decision, disabled until at least one evidence item exists and the comparison
-is non-empty. The `findings` tab runs advisory detection automatically as a single
-pass over the images that have no candidate once the set is accepted, shows each
-candidate with its defect photo resolved from the evidence content endpoint and
-its own severity/location inputs for Confirm/Modify, and surfaces the MF3-09
-reviewer verdict on undecided findings. The images of that pass are analysed in
+with its error without blocking the rest. Below it, the shot-list comparison field
+records the MF3-03 set-level decision, disabled until at least one active evidence item exists and the
+comparison is non-empty. The reason field is not a permanent fixture: it
+appears only after one of the reason-carrying decisions (re-upload, additional
+session, accept with limitation) is chosen and is confirmed separately, so a
+plain "Accept evidence set" is a single click. The panel also renders the
+recorded decision with its comparison and reason — labelled as no longer current
+once the evidence set has changed — because that text is the report's coverage
+disclosure and leaving it invisible let an unchecked value stand as the
+disclosure. Its evidence register is server-filtered and
+server-paged through `GET /inspections/{id}/evidence/query` (status, media type,
+file-name/content-type search, page and page size); the register defaults to
+active captures and includes retired audit captures only when selected in the
+status filter. The query response also carries the inspection's active/retired
+counts and the newest capture-added and capture-retired instants, so the page can
+show the status counts and detect a stale MF3-03 decision without loading every
+row. The `findings` tab runs
+advisory detection automatically as a single pass over active images that have
+no candidate once the set is accepted, shows each candidate with its defect
+photo resolved from the active evidence content endpoint and
+per-evidence shared asset location, and labelled, toggleable bounding-box overlays (label and confidence) on each candidate image. Box coordinates are pixel regions, not asset locations. The Inspector confirms/rejects candidates. The Org Admin has no finding-level decision controls in this stage; review is report-level after submission. The images of that pass are analysed in
 parallel and each result is written into the candidate cache as it arrives, so a
 row flips to "Detection complete" and its candidates appear in the Findings list
 as soon as that image's response lands instead of after the slowest image; a
@@ -165,16 +178,25 @@ summary cards to the server-paged `/with-reports` collection, so the report
 queue is that filtered view and `/reports` redirects to it. An assigned Inspector
 may open the evidence workspace, upload `WEB_UPLOAD` evidence, and record the
 substantive evidence-quality decision. The same collection is visible to
-same-organization ORG_ADMINs and platform ADMINs as read-only inspection rows;
-the Inspector-only mutation workspace stays hidden from those roles. `MAINTENANCE_ENGINEER` users are directed to Maintenance rather than shown an inspection list.
+same-organization ORG_ADMINs and platform ADMINs as read-only inspection rows.
+The ORG_ADMIN Client workspace makes the report queue a distinct reviewer surface:
+server-paged report rows show this-page submitted-decision, approved-publication,
+and published-follow-up counts plus status-specific actions; opening a row lands
+on a reviewer-first inspection workspace. Evidence is a read-only register with
+the Inspector's recorded quality assessment, Findings is a read-only overview of
+Inspector-confirmed findings and clearly advisory candidates, and Preparation is
+a readiness context. The former report-draft tab is version status/history, not
+an Inspector draft form. Report-level approve/return, publish, and post-publication
+corrective outcomes stay on the report document page. Inspector intake, candidate
+adjudication and authoring controls remain restricted to their owning role.
+Platform ADMIN remains read-only; `MAINTENANCE_ENGINEER` users are directed to
+Maintenance rather than shown an inspection list. Reviewer queue counts are for
+items on the current server page, not tenant-wide totals.
 Analysis and draft generation stay disabled until the evidence set is accepted,
 because the backend refuses both. The API computes evidence checksums and is the
 authorization boundary; the browser never receives a direct MinIO URL.
 
-The report document page presents only the actions permitted by the current
-capability and by whether the signed-in user is the version's author: the
-Inspector verifies and submits, while a same-organization ORG_ADMIN who is not
-the author returns, approves, and publishes. Independence, role, organization
+The report authoring page follows the generated PDF's order: Identification, Executive summary, Purpose/scope/criteria, Method/equipment/conditions, Evidence register, Confirmed findings, Conclusions/recommendations, Appendices, Approval/revisions. Inspector-authored sections remain individually editable and read-only sections come from records. Purpose/scope/criteria is composed from stored inspection/preparation JSON with separate labelled rows; planned shot-list items are not represented as completed coverage. The report document page presents only actions allowed for the current author/reviewer: the Inspector verifies/submits; an independent same-organization ORG_ADMIN reviews the complete submitted report and approves or returns with a reason; publication remains a separate action. Independence, role, organization
 and active-account checks are enforced; reviewer professional qualification is
 not validated at runtime. A return requires a stated reason.
 Platform ADMIN may read cross-tenant rows but does not receive author, reviewer,
@@ -266,3 +288,5 @@ sidebar and panels (`#030712`), a slate canvas (`#111827`), and blue accents
 (`#3758F9`), following the Lytic reference. Do not infer that role-specific
 metrics exist: show aggregate values only from APIs available to that role, and
 keep unavailable summaries clearly unavailable rather than inventing data.
+
+Inspector account settings include a persisted AI fallback preference (default enabled): YOLO remains primary, and the configured vision fallback is attempted only after detector failure when enabled. No provider selection button is exposed on Findings. WF3 uploads report success/deduplication/failure with toast notifications while keeping per-file inline errors. Every MF3 Evidence, Findings and Report mutation also reports its outcome through the shared toast host (upload, retirement, bulk retirement, shared evidence location, evidence-quality decision, analysis, candidate review/revision, manual finding add/update/remove, findings confirm/reopen, and the report draft/save/verify/submit/review/withdraw/publish and corrective outcomes), so a change the server accepted is never silent; inline alerts remain for validation and load failures. The manual-draft path is a single action that creates empty structured sections; the old narrative/disclosure seed inputs are removed.

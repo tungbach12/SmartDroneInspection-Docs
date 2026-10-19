@@ -48,6 +48,55 @@ These remain open gaps; the `Passed` FE-06 cases do not establish all of §3.7.
 
 ## Current cases
 
+### Source-backed report context and PDF alignment — 2026-10-19
+
+Backend changes now expose tenant-scoped organization/asset/Drone identity and stored preparation,
+readiness, evidence-quality, findings-confirmation and field-session details in the report-version
+response. The delivered PDF composes the same available records and omits absent-record boilerplate;
+pre-flight free text is labelled as an Inspector-entered note, not proof of an itemized checklist or
+flight. `V35__persist_field_session_preflight_note.sql` persists the required note from the existing
+start-session request. Item-level checklist responses are drafted/rendered only when a persisted
+response joins to a session and one of that session template's item records.
+
+Executed evidence (2026-10-19): backend `./mvnw.cmd -B verify` passed 668 tests, 0 failures,
+errors or skips; Spotless, JaCoCo and Spring Modulith checks passed. New/updated assertions cover
+response context identity, PDF rendering of asset/preparation/Drone/session facts without the old
+unconditional checklist boilerplate, persistence/readback of the pre-flight note, and passing only
+stored checklist responses from the session's template to draft context. Frontend
+`ReportDerivedSections.test.tsx` passed 6 tests; `npx tsc --noEmit` passed; `npm run build` passed;
+`npm run lint` exited 0 with the same six Fast Refresh warnings. Published report artifacts were not
+rewritten and no approve/publish or other irreversible workflow action was performed. These are
+supplementary source-context regressions, not a pass of WF3-005/006 or full §3.7.2 content compliance.
+
+### Organization Admin reviewer workspace — 2026-10-19
+
+The Client report queue now presents Organization Admin work as a distinct WF3 reviewer task rather
+than the Inspector's field-work screen with disabled controls. `/client/inspections?view=reports`
+uses the existing server-paged `/with-reports` collection and presents page-scoped counts for
+submitted decisions, approved-but-unpublished reports, and published follow-up; rows use
+review-specific status labels and route to a status-appropriate review, publish, or outcome action.
+This is a view of the current page only, not a cross-page aggregate. The reviewer inspection
+workspace opens on **Review report**, names the Organization Admin responsibility, returns to the
+review queue, and also labels Evidence, Findings and Preparation as review/readiness contexts. The
+Evidence page hides upload, retire, quality-decision editing and shot-list input while showing the
+Inspector's recorded comparison and the read-only register. Findings shows the Inspector-confirmed
+set and separately labels pending AI candidates as advisory; it has no detection or finding controls.
+The former report-draft tab is a read-only version-status/link view for this role. The existing
+`reports/:inspectionId` page remains the owner of report-level approve/return, publish and
+post-publication corrective outcomes; no backend authorization or API contract changed.
+
+Executed evidence (2026-10-19):
+
+- Frontend targeted review-flow tests — 7 files / 99 tests passed, including ORG_ADMIN queue rows
+  with `SUBMITTED` / `APPROVED` / `PUBLISHED` next actions, report-queue navigation, reviewer tabs,
+  read-only evidence and findings screens, Inspector-only draft controls, and the existing report
+  approve/return/publish actions.
+- `npx tsc --noEmit` — passed; `npm run build` — passed. `npm run lint` — exit 0 with six existing
+  `react(only-export-components)` Fast Refresh warnings.
+- No backend role, organization, author separation, qualification or workflow gate changed; UI
+  visibility remains navigation only. No Report 5 case status changed; WF3-005/006/011/012 retain
+  their existing statuses and acceptance boundaries.
+
 The added aggregate-confirmation and separate draft-choice requirement is tracked
 as `WF3-011`. The post-publication corrective-outcome and handoff requirement is
 tracked as `WF3-012`. Both remain Pending until their complete backend/UI
