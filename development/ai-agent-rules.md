@@ -54,6 +54,10 @@ Required handoff checks:
 | Mobile | `dart format --set-exit-if-changed .`, `flutter analyze`, and `flutter test` |
 | Docs | `git diff --check`, link/path review, and Hugo build when Hugo is available |
 
+### Existing local Docker stack verification
+
+When the workspace already has a local Docker Compose stack running, agents may run the frontend's Vite dev server against the existing backend through its normal `/api` proxy (default backend port `8080`). Reuse the existing backend, database and credentials; do not create a second Compose stack or backend/database container solely to test frontend changes. For frontend-only work, do not rebuild/recreate the backend or web containers unless deployment or container-artifact testing was explicitly requested. Check port ownership before starting a dev server; never stop or replace a process already in use without permission. Use development data and avoid irreversible workflow actions unless the user explicitly authorizes them.
+
 ## 5. Data and repository safety
 
 - **AI-25 MUST** create or modify Flyway migrations only when the current task explicitly includes database schema work, and must use a new forward migration rather than rewriting an applied migration.

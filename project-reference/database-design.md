@@ -301,7 +301,10 @@ Shared evidence metadata for inspection and repair:
 - organization, optional inspection/session/work-order/task/work-log parents;
 - kind (`INSPECTION_SOURCE`, `INSPECTION_ANNOTATION`, `BEFORE_REPAIR`, `DURING_REPAIR`, `AFTER_REPAIR`, `TEST_RESULT`, `DOCUMENT`);
 - MinIO object key, SHA-256, size, media type, source (`WEB`, `MOBILE`, `SD_CARD`, `IMPORTED`), available capture/GPS/device metadata;
-- uploader, created time and immutable-original flag.
+- uploader, created time and immutable-original flag;
+- shared asset-area `location_description` plus nullable `analysis_completed_at` and `analysis_detection_count` for successful image analysis, including zero detections. Failed inference leaves analysis completion unset.
+
+`field_sessions.pre_flight_checklist_note` (V35) stores the Inspector-entered pre-flight note that the start request already required. It is not item-level checklist evidence or proof of flight. Report context may list persisted item-level answers only when a `checklist_responses` row is associated with the inspection and the item belongs to the session's recorded checklist template; no source response means no claim that checklist answers were supplied.
 
 At least one workflow parent is required. Duplicate checksum within the same inspection/work-log scope is rejected. Original files are not overwritten.
 
@@ -327,6 +330,8 @@ Stores human findings: inspection, source candidate optional, component/location
 - LLM provider/model/template/prompt version and generation time;
 - structured summary/limitations/recommendations JSON plus rendered object key/checksum;
 - source evidence/finding snapshot hash and published time.
+
+Read-only report-version context resolves tenant-scoped organization, asset/category/location and assigned Drone labels, plus stored preparation/readiness, evidence-quality, field-session/pre-flight and findings-confirmation records. These are source facts, not independent permit, qualification or aircraft-operation validation. PDF rendering omits claims about absent checklist responses or session logs and renders recorded context only when supported by source rows; already published PDF objects remain immutable.
 
 The report body's structured JSON holds the authored section values described in Report 3 §3.7.2,
 so no additional table is required for them. Automated drafting writes proposed section values into
@@ -499,6 +504,7 @@ Applied migration files remain forward-only history. The backend reset has begun
 - V30 MF3 corrective outcome and handoff: `SmartDroneInspection-backend/src/main/resources/db/migration/V30__mf3_corrective_action_and_decision_revision.sql` — adds `verified_findings.corrective_action_*` and `inspections.corrective_handoff_*`/`no_repair_rationale`, and backfills existing reviewer dispositions
 - V31 corrective outcome follows publication: `SmartDroneInspection-backend/src/main/resources/db/migration/V31__mf3_corrective_outcome_follows_publication.sql` — clears backfilled outcomes that predate the publication they would be attributed to, leaving inspections that already completed the MF3-13 handoff untouched
 - V32 findings correction and author withdrawal: `SmartDroneInspection-backend/src/main/resources/db/migration/V32__mf3_findings_correction_and_author_withdrawal.sql` — adds `verified_findings.deleted_*`, `evidence.retired_*`, and `inspection_report_versions.withdrawn_*` / `return_reason_type`
+- V35 pre-flight note persistence: `SmartDroneInspection-backend/src/main/resources/db/migration/V35__persist_field_session_preflight_note.sql` — stores the required Inspector-entered session note; it is not item-level checklist evidence
 
 - [Report 3 Software Requirement Specification](../reports/report-3-software-requirement-specification/)
 - [Authentication and Access Control](../backend/authentication-and-authorization.md)

@@ -10,7 +10,22 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-16 |
 | Document Code | *Enter document code* |
-| Version | 4.28 (Records bulk evidence retirement (`POST .../evidence/bulk-retire`) for mistaken batches with shared audit reasons, and register filter tabs `Active`, `Retired audit`, `All`. Backend `./mvnw -B verify` passed 664 tests; frontend 55 files / 385 tests. Totals unchanged: 11 cases — 8 Passed, 3 Pending.) |
+| Version | 4.35 (Source-backed report context and PDF alignment; V35 persists required pre-flight notes. Backend 668-test verify passed; report context frontend 6 tests, typecheck, build and lint passed. No published artifacts modified.) |
+
+## Current verification — source-backed MF3 report context (2026-10-19)
+
+Backend `./mvnw.cmd -B verify` passed 668 tests, 0 failures/errors/skips, with
+Spotless, JaCoCo and Spring Modulith checks met. The focused report/session suites
+cover source-context response fields, rendered human-readable organization/asset/
+Drone and preparation/readiness/session facts, absence of boilerplate claiming
+missing checklists/session logs exist, session pre-flight note persistence, and
+item-level checklist answers joined only to the relevant session template.
+Frontend `ReportDerivedSections.test.tsx` passed 6 tests; `npx tsc --noEmit` and
+`npm run build` passed; `npm run lint` exited 0 with six existing Fast Refresh
+warnings. Existing Docker backend and web services were rebuilt and returned
+healthy; no additional stack was started. No published report object or report
+workflow state was changed. This is supplementary regression evidence and does
+not change any WF3 case status or claim full §3.7.2 compliance.
 
 ## Export-tool verification (not workbook cases)
 
@@ -33,8 +48,8 @@ verification is supporting evidence, not an additional WFx case result.
 ## Record of change
 
 The workbook's change table uses these columns. Add one row for each approved
-revision; do not remove old entries. Current source version: **4.22**, last updated
-2026-10-16; see the record of changes below.
+revision; do not remove old entries. Current source version: **4.35**, last updated
+2026-10-19; see the record of changes below.
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |
 | --- | --- | --- | --- | --- | --- |
