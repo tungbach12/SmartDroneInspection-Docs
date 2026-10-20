@@ -112,6 +112,30 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
 - Round 1: Passed 2026-10-20; tester: Claude Code (automated).
 - Evidence: Backend `InspectionCreationApiIntegrationTest` passed 7/7 tests; full backend verify passed 644 tests, JaCoCo and Modulith checks; Frontend `CreateInspectionDialog.test.tsx` passed 3/3 tests; full frontend suite passed 53 files / 342 tests and build succeeded.
 
+### MF2-09 – MF2-12 Field Session — supporting verification (executed 2026-10-20)
+
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an inspection assigned to the signed-in Inspector with an approved readiness decision.
+- Procedure: Run Backend `InspectionFieldSessionApiIntegrationTest` and Frontend `FieldSessionPage.test.tsx`. Verify the Inspector's session list; starting a session against the newest `APPROVED` readiness decision; the mandatory pre-flight checklist note; postponement with the Inspector's own reason; abort with the Inspector's own reason; refusal to open a second session while one is open.
+- Expected result: A session starts only after the pre-flight note is recorded and readiness holds; the startedAt instant is the software's session start and not hardware flight time; postponement keeps the inspection startable while abort ends the record; a second concurrent session is refused.
+- Round 1: Passed 2026-10-20; tester: Claude Code (automated).
+- Evidence: Backend `InspectionFieldSessionServiceTest` (19 tests) and `InspectionFieldSessionApiIntegrationTest` (9 tests) passed; Frontend `FieldSessionPage.test.tsx` passed 6/6 tests; full frontend suite passed 56 files / 361 tests.
+
+### MF4-01 – MF4-20 Maintenance Work Order Lifecycle — supporting verification (executed 2026-10-20)
+
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an organization with a published repair-required finding and an ORG_ADMIN plus MAINTENANCE_ENGINEER.
+- Procedure: Run Backend `MaintenanceApiIntegrationTest` (25 tests) and Frontend `MaintenancePage.test.tsx`. Verify the repair-candidate triage list (MF3-13 handoff), work order creation with priority, due date, corrective scope and acceptance criteria (MF4-01/02), team designation of exactly one lead, one report author and one independent accepting reviewer (MF4-03/04), task creation (MF4-05), estimate versions with system-computed totals and approval (MF4-06/07/08), the execution transitions release/start/declare-complete (MF4-09/10/14), work logs with hours and as-left condition (MF4-11), change requests and their decisions (MF4-12/13), completion report drafting, verification and submission (MF4-15/16/17), independent acceptance (MF4-18), cost reconciliation with the computed variance (MF4-19), and closure (MF4-20).
+- Expected result: Each transition is a named action rather than a generic state change; the role decides which actions are offered while the backend stays the enforcement boundary; the accepting reviewer may not be on the executing team; actual cost lines never overwrite an estimate line; the variance is computed by the platform; a work order closes only after independent acceptance and cost reconciliation.
+- Round 1: Passed 2026-10-20; tester: Claude Code (automated).
+- Evidence: Backend `MaintenanceApiIntegrationTest` passed 25/25 tests; full backend verify passed 648 tests, 0 failures, 0 errors, JaCoCo and Modulith checks met; Frontend `MaintenancePage.test.tsx` passed 6/6 tests and the full frontend suite passed 56 files / 361 tests.
+
+### FE-01 Platform Account Administration — supporting verification (executed 2026-10-20)
+
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an active platform ADMIN and an organization-scoped ORG_ADMIN.
+- Procedure: Run Backend `PlatformUserListApiIntegrationTest` and `AdminUserApiIntegrationTest`, and Frontend `PlatformUsersPage.test.tsx`. Verify the platform-wide account list with roles and actor zone; refusal of that list to a non-platform caller; password reset of another account with session revocation; the one-time temporary password shown once and never retrievable again; suspension through the named status change.
+- Expected result: The platform administrator manages the administrator-managed accounts only; a customer's own workforce is administered by that organization's ORG_ADMIN through a different contract; a password reset revokes the account's sessions and forces a new password at next sign-in; the temporary password is shown once.
+- Round 1: Passed 2026-10-20; tester: Claude Code (automated).
+- Evidence: Backend `PlatformUserListApiIntegrationTest` passed 3/3 tests and `AdminUserApiIntegrationTest` passed; Frontend `PlatformUsersPage.test.tsx` passed 4/4 tests. The `GET /api/v1/platform/users` listing was added by this work because the ADMIN portal had no way to read the accounts it manages.
+
 ## Feature sheet summary
 
 Values for the `Feature 2` summary block (`A2:E8` in the workbook).

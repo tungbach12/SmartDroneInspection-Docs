@@ -55,8 +55,17 @@ Automated execution on 2026-09-22: Passed. WorkflowBaselineTest verified Flyway 
 - Defect note: Before this round, `POST /api/v1/platform/users` returned 500 for the same cause as the client-registration defect above: `AdminUserService.create` passed the generated user id to `SecurityAuditService.record` (raw `JdbcTemplate` SQL) before Hibernate flushed the `users` insert. The fix uses `saveAndFlush` before the audit write. Verified RED first: the new integration test failed with 500 instead of 201 on the unfixed code, then passed after the one-line fix.
 - Scope note: This is an API-level integration test against a real database, not a live browser end-to-end run.
 
-### Cross-cutting successful API response-envelope verification
+### Platform account administration and listing — supporting verification (executed 2026-10-20)
 
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an active platform ADMIN and an organization-scoped ORG_ADMIN.
+- Procedure: Run Backend `PlatformUserListApiIntegrationTest` (3 tests) and `AdminUserApiIntegrationTest`, and Frontend `PlatformUsersPage.test.tsx` (4 tests). Verify the platform-wide account list carrying each account's roles and actor zone; refusal of that list to a caller who is not a platform administrator; password reset of another account with session revocation and a forced password change; the one-time temporary password shown once and never retrievable again; and suspension through the named status change.
+- Expected result: The platform administrator manages the administrator-managed accounts only — platform admins and each workspace's Organization Admin. A customer's own workforce is administered by that organization's ORG_ADMIN through a separate contract, so it is deliberately absent here. A password reset revokes the account's sessions and requires a new password at next sign-in.
+- Round 1: Passed 2026-10-20; tester: Claude Code (automated).
+- Evidence: Backend `PlatformUserListApiIntegrationTest` passed 3/3 tests within the full `verify` run of 648 tests, 0 failures, 0 errors. Frontend `PlatformUsersPage.test.tsx` passed 4/4 tests and the full frontend suite passed 56 files / 361 tests.
+- Defect note: `GET /api/v1/platform/users` did not exist before this round, so the ADMIN portal had no way to read the accounts it manages and the web client had no platform-user surface at all. The listing was added together with the `platform-users` section for the admin portal.
+- Scope note: This is an API-level integration test against a real database plus a mocked-transport client test, not a live browser end-to-end run.
+
+### Cross-cutting successful API response-envelope verification
 This is a shared API contract check recorded here for traceability. It is not an FE-01-only acceptance case or an additional workbook row.
 
 - Preconditions: The backend and first-party clients use the same versioned response contract; Docker-backed backend integration tests are available.
