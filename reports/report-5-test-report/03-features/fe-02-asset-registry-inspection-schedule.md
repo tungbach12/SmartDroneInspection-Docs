@@ -107,10 +107,10 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
 ### MF1-11 – MF1-14 Inspection Creation and Pair Inheritance/Reassignment — supporting verification (executed 2026-10-20)
 
 - Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; active asset with assigned default pair.
-- Procedure: Run Backend `InspectionCreationApiIntegrationTest` and Frontend `CreateInspectionDialog.test.tsx`. Verify inspection creation inheriting asset default pair snapshot; date ordering and non-empty objective validation; optional override of inspector or drone with mandatory reassignment reason; dispatch to `ASSIGNED` status; rejection of inspections on unpaired or foreign assets; ORG_ADMIN only creation authorization.
-- Expected result: Inspections inherit the active operational pair snapshot without mutating asset defaults; planned dates and objective are enforced; unauthorized roles receive 403; dispatched inspections are ready for MF2 inspector assignment response.
+- Procedure: Run Backend `InspectionCreationApiIntegrationTest` and Frontend `CreateInspectionDialog.test.tsx`. Verify inspection creation inheriting asset default pair snapshot; date ordering and non-empty objective validation; schedule conflict check for overlapping active missions on the same Inspector or Drone (MF1-12); optional override of inspector or drone with mandatory reassignment reason; dispatch to `ASSIGNED` status; rejection of inspections on unpaired or foreign assets; ORG_ADMIN only creation authorization.
+- Expected result: Inspections inherit the active operational pair snapshot without mutating asset defaults; planned dates, objective, and schedule conflicts are enforced; unauthorized roles receive 403; dispatched inspections are ready for MF2 inspector assignment response.
 - Round 1: Passed 2026-10-20; tester: Claude Code (automated).
-- Evidence: Backend `InspectionCreationApiIntegrationTest` passed 6/6 tests; full backend verify passed 640 tests, JaCoCo and Modulith checks; Frontend `CreateInspectionDialog.test.tsx` passed 3/3 tests; full frontend suite passed 53 files / 342 tests and build succeeded.
+- Evidence: Backend `InspectionCreationApiIntegrationTest` passed 7/7 tests; full backend verify passed 644 tests, JaCoCo and Modulith checks; Frontend `CreateInspectionDialog.test.tsx` passed 3/3 tests; full frontend suite passed 53 files / 342 tests and build succeeded.
 
 ## Feature sheet summary
 
