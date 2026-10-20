@@ -96,6 +96,22 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
 - Evidence: full suite 51 files / 336 tests; focused guard suite 9 files / 95 tests; `npm run build` passed; `npm run lint` exited 0 with six existing `react(only-export-components)` Fast Refresh warnings (in `Toast.tsx`, `main.tsx`, `ReportSectionForm.tsx`, and `router.tsx`); `git diff --check` passed. Manual browser verification was not run because the connected browser was `about:blank`.
 - Scope note: Role guards are navigation protection; backend authorization remains authoritative. No changes were made to backend APIs/schema in this Frontend task.
 
+### MF1-08 – MF1-10 Asset Creation and Default Pair Assignment — supporting verification (executed 2026-10-20)
+
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; active ORG_ADMIN, Inspector and Drone within the same organization.
+- Procedure: Run Backend `AssetApiIntegrationTest` and Frontend `AssetsPage.pairing.test.tsx`. Verify asset creation with default Inspector and Drone pair; tenant-scoped validation rejecting foreign inspectors, foreign drones, or retired drones; pair persistence in `asset_pair_assignments` with `ACTIVE` status; active pair retrieval and reassignment with recorded reason; drawer pairing display and "New inspection" row trigger.
+- Expected result: Assets save atomically with their active default operational pair; cross-tenant references fail with 400 `INVALID_INSPECTOR` or `INVALID_DRONE`; reassignment supersedes the previous pair and creates a new active version; UI displays the assigned pair with inspector and drone details.
+- Round 1: Passed 2026-10-20; tester: Claude Code (automated).
+- Evidence: Backend `AssetApiIntegrationTest` passed 11/11 tests; Frontend `AssetsPage.pairing.test.tsx` passed 3/3 tests.
+
+### MF1-11 – MF1-14 Inspection Creation and Pair Inheritance/Reassignment — supporting verification (executed 2026-10-20)
+
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; active asset with assigned default pair.
+- Procedure: Run Backend `InspectionCreationApiIntegrationTest` and Frontend `CreateInspectionDialog.test.tsx`. Verify inspection creation inheriting asset default pair snapshot; date ordering and non-empty objective validation; optional override of inspector or drone with mandatory reassignment reason; dispatch to `ASSIGNED` status; rejection of inspections on unpaired or foreign assets; ORG_ADMIN only creation authorization.
+- Expected result: Inspections inherit the active operational pair snapshot without mutating asset defaults; planned dates and objective are enforced; unauthorized roles receive 403; dispatched inspections are ready for MF2 inspector assignment response.
+- Round 1: Passed 2026-10-20; tester: Claude Code (automated).
+- Evidence: Backend `InspectionCreationApiIntegrationTest` passed 6/6 tests; full backend verify passed 640 tests, JaCoCo and Modulith checks; Frontend `CreateInspectionDialog.test.tsx` passed 3/3 tests; full frontend suite passed 53 files / 342 tests and build succeeded.
+
 ## Feature sheet summary
 
 Values for the `Feature 2` summary block (`A2:E8` in the workbook).
