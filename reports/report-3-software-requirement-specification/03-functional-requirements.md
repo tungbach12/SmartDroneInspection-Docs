@@ -9,384 +9,432 @@ source: "report3-software-requirement-specification.docx"
 
 ### 3.1 System Functional Overview
 
-**Target requirements — 7 October 2026.** This section specifies the Enterprise SaaS target for Report 3: four human roles and four connected Main Flows. It supersedes the previous multi-provider target within this report, not the deployed API, schema or executed tests. This requirements revision makes no claim that target workflow steps have been implemented or tested. The separate backend reset began on the same date. V24 aligns identity vocabulary, V25 adds the target schema, and V26 completed the runtime cutover to the exact 41-table target inventory on 8 October 2026 (verified by `./mvnw clean verify`, 88 tests, exit 0). MF1–MF4 workflow behavior remains outside reset scope. Selected companion documentation was synchronized on 7 October, without altering Report 5 test evidence; other reports, the proposal and client repositories may still require synchronization.
+The SmartDroneInspection platform provides an integrated web and mobile software ecosystem supporting the full infrastructure inspection-to-maintenance lifecycle. The web application serves administrative, planning, analytical, and review functions for `Platform Admin` and `Organization Admin`, while offering inspection and maintenance workspaces for `Inspector` and `Maintenance Engineer`. The mobile application provides an on-site operational interface for remote pilots and inspectors to perform pre-flight checklists, track flight survey sessions, and record immediate field observations. Automated background services execute computer vision inference, structured report synthesis, data integrity hashing, and scheduled event notifications.
 
 #### 3.1.1 Screens Flow
 
-The browser supports `ADMIN` platform governance and organization-scoped operations. Web/mobile support assigned `INSPECTOR` and `MAINTENANCE_ENGINEER` work. `SYSTEM`, AI Vision and LLM are automated actors, not user roles. The backend remains the authorization authority.
-
 ```mermaid
 flowchart TD
-  S["Supporting gate: enterprise registration and subscription activation"] --> A
-  A["MF1 / ORG_ADMIN: workforce, Drone and compliance records; create asset with Inspector + Drone; create inspection"] --> B
-  B["MF2 / INSPECTOR: accept assignment, shot-list and safety documents"] --> C
-  C["MF2 / ORG_ADMIN: review compliance and approve readiness"] --> D
-  D["MF2 / INSPECTOR: pre-flight checklist and field-session start/end on app"] --> E
-  E["MF3 / INSPECTOR: upload and decide evidence completeness/quality"] --> V
-  E -.->|"New capture needed: same inspection, renewed readiness check"| B
-  V["MF3 / SYSTEM: AI Vision candidate detection"] --> FIND
-  FIND["MF3 / INSPECTOR: resolve candidates/manual findings; confirm set"] --> DRAFT
-  DRAFT["MF3 / INSPECTOR: choose AI-assisted or manual report draft"] --> R
-  R["MF3 / INSPECTOR: verify/edit draft and submit"] --> F
-  F["MF3 / ORG_ADMIN: review report; approve or return"] --> G
-  G{"Confirmed defects require repair?"}
-  G -->|"No"| Z["SYSTEM: update asset history and inspection outcome"]
-  G -->|"Yes"| T
-  T["MF4 / ORG_ADMIN: work order, repair team, lead and report author"] --> P
-  P["MF4 / Team lead: tasks, method, estimate and resource needs"] --> RELEASE
-  RELEASE["MF4 / ORG_ADMIN: approve scope, budget and release"] --> W
-  W["MF4 / Members: work logs, before/after evidence and actual costs"] --> H
-  H["MF4 / SYSTEM: LLM draft maintenance completion report"] --> I
-  I["MF4 / Report author: verify, edit and submit"] --> J
-  J["MF4 / ORG_ADMIN: independent technical acceptance and cost reconciliation"] --> K
-  J -.->|"Rework / missing records"| W
-  K["SYSTEM: publish completion report, record acceptance and close work order"] --> Z
-  Z -.->|"Next cycle or separate re-inspection: new inspection, existing asset"| A
-```
+  LOGIN["Login & Workspace Selection"] --> DASH["Operational Dashboard"]
 
-Only platform interactions and recorded decisions are steps. RC flight, camera adjustment, physical repair, isolation and measurements are real-world activities outside the application's control; users record their preparation, observations and results. A Start action does not arm or pilot a Drone.
+  DASH --> ASSETS["Asset & Fleet Management"]
+  ASSETS --> ASSET_NEW["Register Asset (Assign Inspector + Drone)"]
+  ASSETS --> FLEET["Drone Fleet & Permit Registry"]
+  ASSETS --> CREDS["Personnel & Credential Registry"]
+
+  DASH --> INSP_LIST["Inspections Queue"]
+  INSP_LIST --> INSP_NEW["Create Inspection Mission (Inherit Pair)"]
+  INSP_NEW --> INSP_DETAIL["Inspection Detail Workspace"]
+
+  INSP_DETAIL --> STAGE_PREP["Stage: Preparation & Shot-List"]
+  STAGE_PREP --> READINESS["Administrative Readiness Review"]
+
+  READINESS -->|"Approved"| STAGE_FIELD["Stage: Field Session (Mobile / Web)"]
+  STAGE_FIELD --> PREFLIGHT["Pre-Flight Checklist Note"]
+  PREFLIGHT --> SESSION_RUN["Session Execution (Start / Postpone / Abort / Complete)"]
+
+  SESSION_RUN --> STAGE_EVI["Stage: Evidence Intake & Quality Review"]
+  STAGE_EVI --> UPLOAD["Multi-File Ingestion (SHA-256 Hashing)"]
+  UPLOAD --> EVAL_EVI["Evaluate Shot-List Quality (Accept / Additional Capture)"]
+
+  EVAL_EVI -->|"Accepted"| STAGE_FIND["Stage: AI Detections & Findings"]
+  STAGE_FIND --> YOLO["YOLO11s Defect Candidate Detection"]
+  YOLO --> REVIEW_FIND["Human Inspector Finding Verification"]
+  REVIEW_FIND --> CONFIRM_FIND["Explicit Findings Set Confirmation"]
+
+  CONFIRM_FIND --> STAGE_REP["Stage: Report Drafting & Publication"]
+  STAGE_REP --> DRAFT_GEN["Report Draft Synthesis (LLM / Manual)"]
+  DRAFT_GEN --> VERIFY_REP["Author Verification & Submission"]
+  VERIFY_REP --> ADMIN_REV["Organization Admin Report Review"]
+  ADMIN_REV -->|"Approved"| PUB_REP["Publish Immutable PDF Report"]
+
+  PUB_REP --> HANDOFF["Batch Send Confirmed Defects to Maintenance"]
+  HANDOFF --> MAINT_LIST["Maintenance Work Orders Queue"]
+  MAINT_LIST --> WO_CREATE["Create Maintenance Work Order"]
+  WO_CREATE --> WO_DETAIL["Work Order Detail Workspace"]
+
+  WO_DETAIL --> WO_PLAN["Task Deconstruction & Team Assignment"]
+  WO_PLAN --> WO_EST["Itemized Cost Estimation (Labor, Material, Equipment)"]
+  WO_EST --> WO_BUDGET_REV["Organization Admin Budget Approval"]
+
+  WO_BUDGET_REV -->|"Approved"| WO_EXEC["Repair Task Execution & Daily Logs"]
+  WO_EXEC --> WO_EVI["Before / After Photo Proof & Test Logs"]
+  WO_EXEC --> WO_CHANGE["Scope / Cost Change Request (if required)"]
+
+  WO_EVI --> WO_REPORT["Draft Maintenance Completion Report"]
+  WO_REPORT --> WO_ACCEPT["Independent Technical Acceptance"]
+  WO_ACCEPT --> WO_RECON["Cost Variance Reconciliation & Work Order Closure"]
+```
 
 #### 3.1.2 Screen Descriptions
 
-| Screen group | Responsible user | Purpose |
-| --- | --- | --- |
-| Registration, Login, Profile and Sessions | Initial Organization Admin; all issued users | Create an enterprise workspace; authenticate, manage profile and revoke sessions. |
-| Enterprise Subscriptions and Technical Settings | Platform Admin | Manage one ENTERPRISE offering with 1-, 6- or 12-month billing periods, platform configuration and support/security audit. |
-| Organization Team and Credentials | Organization Admin | Manage Inspector/Engineer accounts, qualifications, evidence, validity and disablement. |
-| Drone Fleet and Compliance Documents | Organization Admin | Manage identified company Drones, serviceability, maintenance records and applicable regulatory documents. |
-| Assets and Assigned Pair | Organization Admin | Create assets with one responsible Inspector and one identified Drone; maintain documents and assignment history. |
-| Inspection Schedule and Inspection Setup | Organization Admin | Create an inspection with scope/dates and a snapshot of the asset's assigned pair; review periodic due work. |
-| Mission Preparation and Readiness Review | Inspector; Organization Admin | Accept work, prepare component shot-list and applicable permits/checklists; review compliance and readiness. |
-| Field Sessions | Assigned Inspector | Complete current pre-flight checklist; record start/end, interruption, postponement and incidents. |
-| Evidence and Quality Decision | Assigned Inspector | Upload files, review coverage/quality and decide re-upload or additional capture. |
-| AI Candidates and Inspection Report Draft | Assigned Inspector; reviewing Organization Admin | Inspect suggested detections, request/read LLM draft, verify content and submit/return/approve. |
-| Published Inspection Reports | Organization Admin; authorized assigned users | Read the approved version and source evidence; initiate corrective work without editing that version. |
-| Maintenance Team and Work Order | Organization Admin; assigned Engineer team | Name the team, lead and report author; define tasks, dates and acceptance criteria. |
-| Estimate, Budget and Changes | Team lead; Organization Admin | Prepare versioned estimates, approve scope/budget and approve/reject changes. |
-| Maintenance Logs, Evidence and Actuals | Assigned team members; lead | Record completed work, materials, hours, equipment use, test results and supporting receipts. |
-| Maintenance Report and Acceptance | Report author; independent Organization Admin | Verify the LLM draft, submit, review technical results, reconcile costs and close or return work. |
-| Dashboards and Audit | Each role in permitted scope | View responsible work, deadlines, compliance expiries and history. |
+| # | Feature | Screen | Description |
+| --- | --- | --- | --- |
+| 1 | FE-01 | Sign In & Authentication | Secure login interface supporting credential verification, session management, and password recovery. |
+| 2 | FE-01 | Platform Administration | Platform Admin portal for managing customer tenant workspaces, enterprise subscriptions, and platform-wide configurations. |
+| 3 | FE-01 | Workforce & Credentials | Workspace for managing enterprise users (Inspectors, Engineers), professional licenses, safety certificates, and expiration dates. |
+| 4 | FE-02 | Asset Registry | Master inventory of infrastructure assets (bridges, towers, facilities) displaying specifications, location, and assigned default Inspector-Drone pairs. |
+| 5 | FE-02 | Asset Detail & Documents | Detailed view of an asset showing engineering drawings, historical inspection records, and default pair reassignment controls. |
+| 6 | FE-02 | Drone Fleet & Permits | Catalog of organization drone hardware, serviceability statuses, maintenance logs, and attached aviation flight permits. |
+| 7 | FE-03 | Inspection Mission Queue | Tabular overview of scheduled, active, and completed inspection missions with multi-criteria status, asset, and date filtering. |
+| 8 | FE-03 | Create Inspection Dialog | Dialog for creating inspection missions, defining objectives and dates, inheriting the asset's default pair, and detecting scheduling conflicts. |
+| 9 | FE-03 | Inspection Preparation Stage | Workspace for defining component shot-lists, verifying pilot credentials, linking applicable flight permits, and submitting for readiness review. |
+| 10 | FE-03 | Readiness Review Panel | Organization Admin review interface to evaluate submitted preparations, verify regulatory compliance, and record approval or return decisions. |
+| 11 | FE-04 | Field Session Stage (Web / Mobile) | On-site interface for recording mandatory pre-flight checklist notes, logging flight start/end times, and capturing postponement or abort reasons. |
+| 12 | FE-04 | Evidence Intake Stage | Digital evidence management interface supporting multi-file uploads, progress tracking, cryptographic checksum display, and metadata inspection. |
+| 13 | FE-04 | Evidence Quality Evaluation | Inspector interface to compare captured photographs against planned shot-lists, record unobserved scope disclosures, and approve or request re-surveys. |
+| 14 | FE-05 | Findings Verification Stage | Defect verification interface displaying YOLO11s advisory detections, severity classification controls, manual defect authoring, and set confirmation. |
+| 15 | FE-06 | Report Drafting Stage | Authoring workspace to trigger AI-assisted section drafting or manual authoring, edit narrative sections, and submit verified drafts for review. |
+| 16 | FE-06 | Report Review & Document View | Administrative review interface displaying formatted report preview, finding summaries, and controls to approve publication or return with comments. |
+| 17 | FE-06 | Published Report & Corrective Handoff | View of the published immutable PDF deliverable and batch selection interface to forward confirmed defect candidates to maintenance. |
+| 18 | FE-07 | Maintenance Work Orders Queue | Management queue of maintenance work orders displaying status, defect references, assigned leads, and cost variances. |
+| 19 | FE-07 | Work Order Detail & Planning | Workspace for breaking down defect remediation into tasks, appointing Team Lead and Report Author, and establishing acceptance criteria. |
+| 20 | FE-07 | Cost Estimate & Budget Panel | Form for compiling itemized repair estimates (labor, materials, equipment), viewing calculated baseline totals, and recording budget approval. |
+| 21 | FE-07 | Repair Execution & Work Logs | Interface for assigned Engineers to record daily task logs, consumed materials, equipment utilization, and upload before/after proof. |
+| 22 | FE-07 | Change Request Dialog | Interface to propose scope, cost, or schedule adjustments with justification; provides administrative approval or rejection controls. |
+| 23 | FE-07 | Maintenance Completion & Acceptance | Workspace to author completion reports, conduct independent technical acceptance, reconcile cost actuals against budget, and close work orders. |
+| 24 | FE-08 | Operational Dashboard | Role-specific dashboard displaying mission metrics, pending approvals, defect severity breakdowns, upcoming permit expiries, and alerts. |
 
 #### 3.1.3 Screen Authorization
 
-`O` means own organization; `A` means specifically assigned inspection, work order or task. An organization-level role is insufficient without resource scope. Platform support access must have an authorized purpose and be audited; Platform Admin has no default right to make customer technical or budget decisions.
-
-| Resource/action | Platform Admin | Organization Admin | Inspector | Maintenance Engineer |
-| --- | --- | --- | --- | --- |
-| Platform settings, enterprise activation | Manage platform | View/manage own subscription request | Denied | Denied |
-| Team, Drone and compliance catalog | Audited support only | Manage O | View applicable own records | View applicable own records |
-| Assets, default pair, inspection creation | Audited support only | Manage O | View A | View assets linked to A work |
-| Readiness approval | Denied | Approve/return O, qualified reviewer | Prepare/respond A; no self-approval | Denied |
-| Field-session start/end | Denied | View/return O | Manage A | Denied |
-| Evidence-quality decision | Denied | View O | Decide A | Manage evidence for A repair tasks only |
-| Inspection findings and draft | Denied | Review/approve O | Annotate, verify/edit authored A draft | View released sources linked to A work |
-| Inspection publication | Denied | Qualified, independent approval O | Submit A; cannot publish | Denied |
-| Maintenance team, scope and budget | Denied | Assign/approve O | View when assigned verification | Prepare A; lead privileges only if designated |
-| Task logs and actual costs | Denied | View/reconcile O | Denied unless scoped verification | Record own A tasks; lead consolidates A |
-| Maintenance report submission | Denied | Return/review O | Provide assigned verification results | Designated report author only |
-| Technical acceptance / work-order closure | Denied | Independent decision O | Provide verification if assigned | Cannot accept/close own team work |
-| Published history and audit | Platform security scope | O | A | A |
-
-Team lead and report author are work-order responsibilities assigned to `MAINTENANCE_ENGINEER` accounts, not new login roles. One Engineer may hold both responsibilities. Neither role nor designation allows self-approval of a budget or independent acceptance of the team's own work.
+| Screen | Platform Admin | Organization Admin | Inspector | Maintenance Engineer |
+| --- | :---: | :---: | :---: | :---: |
+| Sign In & Authentication | X | X | X | X |
+| Platform Administration & Subscriptions | X | — | — | — |
+| Workforce & Credentials Management | — | X | — | — |
+| Asset Registry & Fleet Catalog | Read-Only | X | Read (Assigned) | Read (Assigned) |
+| Inspection Mission Creation & Scheduling | — | X | — | — |
+| Mission Preparation & Shot-List | — | Read | X (Assigned) | — |
+| Readiness Authorization Panel | — | X | — | — |
+| Field Session Logging (Web / Mobile) | — | Read | X (Assigned) | — |
+| Evidence Intake & Quality Evaluation | — | Read | X (Assigned) | — |
+| Defect Verification & Findings Confirmation | — | Read | X (Assigned) | — |
+| Inspection Report Drafting | — | Read | X (Author) | — |
+| Inspection Report Administrative Review | — | X | — | — |
+| Published Report & Maintenance Handoff | Read-Only | X | Read (Assigned) | Read (Assigned) |
+| Maintenance Work Order Creation | — | X | — | — |
+| Work Order Task Planning & Estimation | — | Read | — | X (Team Lead) |
+| Work Order Budget & Change Approval | — | X | — | — |
+| Repair Execution & Work Logs | — | Read | — | X (Assigned) |
+| Maintenance Completion Report Authoring | — | Read | — | X (Report Author) |
+| Technical Acceptance & Cost Reconciliation | — | X | — | — |
+| Operational Dashboard & Notifications | X (Platform) | X (Enterprise) | X (Assigned) | X (Assigned) |
 
 #### 3.1.4 Non-Screen Functions
 
-- Enforce workspace/subscription entitlement and organization/assignment authorization on every protected action.
-- Generate due-cycle inspections idempotently by asset, schedule and due-cycle key; snapshot the assigned pair instead of making it an exclusive lifetime reservation of a Drone.
-- Check typed validity dates, identity links, serviceability and known resource conflicts. Authority-permit applicability, geographic coverage and regulatory conditions require a recorded human review when not reliably machine-verifiable; no universal government-registry integration is assumed.
-- Recheck readiness at Start; record postponement and invalidate approval when the relevant assignment, plan or required documents change.
-- Validate upload format/size/integrity, compute server-side SHA-256 and persist authorized evidence in MinIO. Technical validation is not the Inspector's substantive quality decision.
-- Run eligible image inference only after Inspector evidence confirmation; store candidate/model provenance separately from confirmed findings.
-- Produce source-grounded LLM drafts for both inspection and maintenance reports; track generation status/failure separately from evidence upload.
-- Calculate estimate, approved-change and actual totals from typed decimal line items. LLM does not calculate the authoritative financial totals.
-- Preserve report versions, estimate baselines, changes, decisions and audit events. Notify the next accountable user without granting access through the notification.
+| # | Feature | System Function | Description |
+| --- | --- | --- | --- |
+| 1 | FE-01 | Session Token Verification & Revocation | Validates JSON Web Tokens on API requests; automatically checks token expiration, blacklists revoked sessions, and enforces role boundaries. |
+| 2 | FE-02 | Resource Conflict Detection Engine | Evaluates scheduled time windows for Drones and Inspectors across concurrent missions to prevent overlapping assignments. |
+| 3 | FE-03 | Periodic Inspection Mission Generator | Automated scheduled job that inspects asset maintenance frequencies and generates draft inspection missions with inherited default pairs. |
+| 4 | FE-04 | Cryptographic Hashing & Deduplication | Computes SHA-256 digests on binary media during upload; cross-checks existing file hashes within the inspection scope to prevent duplicates. |
+| 5 | FE-04 | Image EXIF Metadata Extractor | Extracts embedded capture timestamps, camera parameters, and GPS coordinates from uploaded JPEG files to populate evidence records. |
+| 6 | FE-05 | Advisory YOLO11s Defect Detection Service | Computer vision microservice executing bounding-box defect detection on structural images, categorizing cracks, corrosion, and spalling. |
+| 7 | FE-06 | Context-Grounded Report Synthesis Engine | Assembles verified asset, mission, checklist, and defect data into targeted LLM prompts to generate cohesive, structured report section drafts. |
+| 8 | FE-06 | PDF Report Document Renderer | Compiles approved report sections, finding tables, attached evidence photos, and metadata into a publication-grade A4 PDF document with SHA-256 recording. |
+| 9 | FE-07 | Deterministic Cost Calculation Engine | Computes baseline estimate totals, approved change order deltas, actual expenditures, and variance metrics using exact decimal precision. |
+| 10 | FE-08 | Operational Event Notification Dispatcher | Event-driven notification worker delivering in-app alerts and email notifications for mission dispatches, readiness updates, and approval requests. |
 
 #### 3.1.5 Entity Relationship Diagram
 
-This is a requirements-level inventory, not a statement that tables, endpoints or migrations already exist. The retained legacy `assets/erd.png` describes an earlier model and is not normative for this revision. No schema change is included.
+```mermaid
+erDiagram
+  ORGANIZATION ||--o{ USER : employs
+  ORGANIZATION ||--o{ DRONE : owns
+  ORGANIZATION ||--o{ ASSET : owns
+  ORGANIZATION ||--o{ FLIGHT_PERMIT : holds
+  USER ||--o{ CREDENTIAL : possesses
 
-| Logical record | Responsibility and relationship |
-| --- | --- |
-| Organization, User, Role Assignment, Auth Session | One tenant owns its business records and issued workforce accounts; platform Platform Admin is outside the customer business chain. |
-| Enterprise Subscription | One ENTERPRISE plan, selected 1/6/12-month period, validity, confirmed billing/payment status and terms version. |
-| Workforce Credential / Compliance Document | Subject (organization/user/Drone/permit), issuer, type, reference, effective/expiry dates where applicable, evidence and verification history. Store only legally relevant personal data. |
-| Asset Category, Checklist Template | Versioned categories, component checklists and suggested cadences. |
-| Asset, Asset Document, Asset Pair Assignment | Own-organization infrastructure and document versions; one default Inspector + specific Drone, with effective assignment history. |
-| Drone | Organization-owned identified device, model/serial, applicable payload information, serviceability and maintenance history. |
-| Inspection Schedule / Inspection | Due-cycle planning and one uniquely identified inspection created in MF1; asset/scope/dates and assigned-pair snapshot. |
-| Mission Preparation / Readiness Decision | MF2 shot-list, applicable permits/checks, plan version, decision maker and approval basis. |
-| Field Session / Checklist Response | Start/end, responsible Inspector, actual assigned Drone, checklist and interruption/incident notes; many sessions may belong to one inspection. |
-| Evidence / Evidence Quality Decision | Source object/checksum/available metadata plus Inspector's coverage/quality decision for a particular evidence set. |
-| Finding | An AI-originated suggestion or Inspector observation with source evidence and, for AI-originated rows, model provenance; a finding becomes official only after Inspector confirmation. Rejected AI suggestions are removed and are not retained as finding-level audit records; explicit deletion of an Inspector working-set finding retains attribution. |
-| Inspection Report / Report Version | Draft generation inputs, human author review, qualified Organization Admin review, publication and immutable approved version. |
-| Maintenance Work Order / Task | Approved source report/finding links; corrective scope, acceptance criteria, task responsibilities and lifecycle. |
-| Maintenance Team Assignment | Members, exactly one lead and exactly one accountable report author per work order, with assignment history. |
-| Estimate Version / Budget Decision / Change Order | Decimal line items, initial approved baseline, approved scope/cost/time changes and decision history. |
-| Work Log / Cost Actual / Repair Evidence | Attributable task logs, labor/material/equipment/service actuals, document references and before/after proof. |
-| Maintenance Report Version / Acceptance Record | LLM-assisted draft, report-author verification, independent technical decision, cost reconciliation and published closeout. |
-| Notification / Audit Event | Scoped recipient and append-only attribution of consequential transitions. |
+  ASSET ||--o{ ASSET_PAIR : assigns
+  USER ||--o{ ASSET_PAIR : "default inspector"
+  DRONE ||--o{ ASSET_PAIR : "default drone"
+
+  ASSET ||--o{ INSPECTION : undergoes
+  INSPECTION ||--o{ PREPARATION : plans
+  PREPARATION ||--o{ READINESS_DECISION : evaluated_by
+  INSPECTION ||--o{ FIELD_SESSION : executes
+
+  INSPECTION ||--o{ EVIDENCE : contains
+  EVIDENCE ||--o{ EVIDENCE_QUALITY_DECISION : evaluated_by
+  EVIDENCE ||--o{ FINDING_CANDIDATE : analyzed_for
+  INSPECTION ||--o{ FINDING : records
+  FINDING ||--o{ EVIDENCE : attaches
+
+  INSPECTION ||--o{ REPORT_VERSION : generates
+  REPORT_VERSION ||--o{ REPORT_SECTION : contains
+
+  INSPECTION ||--o{ MAINTENANCE_WORK_ORDER : generates
+  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_TASK : contains
+  MAINTENANCE_WORK_ORDER ||--o{ ESTIMATE_VERSION : estimated_by
+  MAINTENANCE_WORK_ORDER ||--o{ CHANGE_ORDER : modifies
+  MAINTENANCE_TASK ||--o{ WORK_LOG : logs
+  MAINTENANCE_WORK_ORDER ||--o{ REPAIR_EVIDENCE : documents
+  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_REPORT : closes_with
+```
+
+**Entities Description**
+
+| # | Entity | Description |
+| --- | --- | --- |
+| 1 | Organization | Represents an enterprise customer tenant subscribing to the platform; isolates all workforce, asset, and operational data. |
+| 2 | User | System user identity assigned to an organization with a specific role (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`). |
+| 3 | Credential | Professional qualification record (pilot license, non-destructive testing certification) with validity dates and verification status. |
+| 4 | Drone | Hardware aircraft asset identified by model, serial number, equipment weight, payload capabilities, and serviceability status. |
+| 5 | Flight Permit | Official aviation authorization issued by civil or military authorities, specifying permitted geographical bounding boxes and validity dates. |
+| 6 | Asset | Physical infrastructure structure (bridge, pylon, tank, facility) managed by the organization, including location and technical metadata. |
+| 7 | Asset Pair | Default operational assignment linking an infrastructure asset to a responsible Inspector and a specific Drone. |
+| 8 | Inspection | Core operational mission record tracking purpose, scheduled time window, assigned personnel/equipment snapshot, and lifecycle status. |
+| 9 | Preparation | Pre-flight planning record comprising the structural component shot-list, safety protocols, and regulatory compliance data. |
+| 10 | Readiness Decision | Formal administrative authorization record approving or returning a mission preparation based on permit and credential validation. |
+| 11 | Field Session | Individual on-site flight execution session capturing pre-flight checklist notes, start/end timestamps, and postponement/abort outcomes. |
+| 12 | Evidence | High-resolution visual capture media (photograph, video frame) with server-calculated SHA-256 checksum and extracted GPS telemetry. |
+| 13 | Evidence Quality Decision | Substantive evaluation recorded by the Inspector assessing capture completeness, coverage against shot-list, and visual sharpness. |
+| 14 | Finding Candidate | Advisory defect proposal generated by YOLO11s computer vision, indicating defect classification, confidence score, and bounding coordinates. |
+| 15 | Finding | Official structural defect record verified and confirmed by the human Inspector, including defect type, severity, location, and photo references. |
+| 16 | Report Version | Versioned inspection report deliverable capturing structured authored sections, review decisions, and the compiled immutable PDF deliverable. |
+| 17 | Maintenance Work Order | Corrective remediation project initiated from confirmed inspection findings, tracking repair scope, schedule, and closure state. |
+| 18 | Maintenance Task | Decomposed unit of repair work assigned to a specific engineer, defining technical methods, required materials, and acceptance criteria. |
+| 19 | Estimate Version | Versioned financial projection detailing required labor hours, replacement materials, equipment rentals, and approved budget baseline. |
+| 20 | Change Order | Formal variance request documenting required adjustments to repair scope, budget, or completion date necessitated by site conditions. |
+| 21 | Work Log | Daily execution log recorded by assigned engineers tracking labor hours, material consumption, and task milestone progress. |
+| 22 | Repair Evidence | Before, during, and after photographic proof and non-destructive test certificates demonstrating structural defect remediation. |
+| 23 | Maintenance Report | Formal completion report authored by the designated engineer, reviewed by the organization administrator, and archived upon work order closure. |
+
+---
 
 ### 3.2 FE-01 Identity, Enterprise Subscription and Workforce Governance
 
-FE-01 provides supporting identity/subscription gates and the workforce/compliance capabilities used by MF1. Canonical human roles are `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`. No Provider, Client marketplace, commission settlement or Platform Operator role exists in this target.
+#### 3.2.1 Enterprise Registration and Tenant Management
+- **Function Trigger**: Public self-registration portal or Platform Admin workspace provisioning.
+- **Function Description**: Onboards enterprise infrastructure-owning companies, creates the initial Organization Admin account, and establishes tenant data boundaries.
+- **Function Details**:
+  - *Inputs*: Enterprise legal name, tax identification, representative full name, business email, initial password.
+  - *Validations*: Enforces unique email, compliant password complexity (minimum 8 characters with mixed case, numbers, and symbols), and valid corporate tax format.
+  - *Processing*: Creates tenant organization, registers administrator with hashed password (Argon2id), provisions isolated workspace schemas, and initializes security policies.
+  - *Outputs*: Initialized enterprise tenant workspace, email verification dispatch, active Organization Admin session.
 
-- A company's first representative registers the organization and initial Organization Admin account together. Subscription activation is a separate entitlement decision, not proof of aviation or engineering qualifications.
-- Platform Admin manages enterprise subscriptions and technical/security settings. ENTERPRISE has only 1-, 6- and 12-month payment periods. Price, discount, trial, resource limits and expiry/retention policies must be expressly configured/disclosed; no numerical discount, unlimited-use promise or trial duration is presumed.
-- Organization Admin provisions and manages its own Inspectors/Engineers and relevant credentials. A report reviewer must be identified and qualified for the inspection/repair scope; account administration rights alone do not confer professional authority.
-- Workforce and business records are tenant-scoped. Inspectors and Engineers can act only on their assignments; team designations narrow permission further.
-- Browser access tokens stay in memory; protected refresh credentials use HttpOnly cookies. Mobile credentials use the secure mobile contract and platform secure storage.
-- Logout, password/role/status changes and revocation invalidate affected sessions. Removing a user from a team or replacing the report author ends future authority without erasing prior attribution.
-- The first release records subscription invoice/payment confirmation administratively; no online payment gateway, provider billing, commission or custody of repair funds is required. An internal subscription statement is not automatically a statutory tax invoice.
+#### 3.2.2 Workforce Provisioning and Credential Management
+- **Function Trigger**: Organization Admin navigates to `Workforce Management` and selects `Add User` or `Manage Credentials`.
+- **Function Description**: Provisions user accounts for Inspectors and Maintenance Engineers, associates professional certifications (UAV Remote Pilot License, ASNT Level II NDT), and tracks expiration dates.
+- **Function Details**:
+  - *Inputs*: Full name, corporate email, role selection (`INSPECTOR` or `MAINTENANCE_ENGINEER`), credential type, certificate number, issuing authority, issue date, expiration date, supporting document PDF.
+  - *Validations*: Ensures email uniqueness within tenant; validates expiration date is in the future; verifies mandatory credential attachments.
+  - *Processing*: Encrypts credential records; flags accounts with approaching expiration (30-day alert); blocks assignment dispatch if mandatory flight licenses expire.
+  - *Outputs*: Provisioned workforce account, documented credential record with verification status.
 
-### 3.3 FE-02 Asset, Drone, Workforce and Compliance Catalog — MF1
+#### 3.2.3 Subscription Entitlements and Billing Governance
+- **Function Trigger**: Platform Admin navigates to `Enterprise Subscriptions` or Organization Admin views `Workspace Settings`.
+- **Function Description**: Manages ENTERPRISE tier subscriptions, selects 1-, 6-, or 12-month billing periods, records payment confirmation, and enforces quota limits.
+- **Function Details**:
+  - *Inputs*: Organization ID, billing period (1, 6, 12 months), subscription start date, confirmed payment reference, approved storage quota.
+  - *Validations*: Restricts plan selection to ENTERPRISE; verifies payment confirmation reference before activating term.
+  - *Processing*: Calculates subscription active term; records versioned billing snapshot; enforces storage quotas and active asset limits; logs audit trail.
+  - *Outputs*: Active enterprise subscription status, updated tenant quota limits, auditable billing confirmation record.
 
-MF1 retains the agreed asset-creation assignment: **Organization Admin creates an asset together with one responsible Inspector and one specific Drone**, then creates inspections that inherit that pair. Re-inspecting an existing asset does not recreate the asset.
+---
 
-#### 3.3.1 Detailed MF1 Steps
+### 3.3 FE-02 Infrastructure Asset, Equipment Fleet and Compliance Registry
 
-**Trigger:** Activated organization workspace; Organization Admin opens resource setup or an existing asset. **Outputs:** Managed resources plus an identified, assigned inspection ready for MF2. Step IDs below are Report 3 target-step references, not renamed Report 5 test IDs.
+#### 3.3.1 Infrastructure Asset Catalog and Default Pair Assignment
+- **Function Trigger**: Organization Admin navigates to `Assets` and selects `New Asset`.
+- **Function Description**: Registers physical infrastructure assets, records structural attributes and GPS coordinates, and assigns a default responsible Inspector and Drone.
+- **Function Details**:
+  - *Inputs*: Asset code, asset name, category (Bridge, Power Tower, Industrial Plant, Building), location coordinates, structural drawings, default Inspector ID, default Drone ID.
+  - *Validations*: Asset code must be unique within organization; selected Inspector and Drone must belong to the same tenant and possess active, serviceable status.
+  - *Processing*: Persists asset master record; atomically records the operational default pair assignment; establishes asset condition history.
+  - *Outputs*: Active asset record with linked default Inspector-Drone pair, available for inspection scheduling.
 
-| Step | Responsible actor | Platform action / input | Output and gate |
-| --- | --- | --- | --- |
-| MF1-01 | Organization Admin | Open own workspace; maintain company identity, operational contacts and authorized reviewers. | Named responsibility; no cross-tenant management. |
-| MF1-02 | SYSTEM | Authenticate and check role, organization and subscription entitlement. | Deny disallowed operations; show expiry/renewal guidance without deleting existing history. |
-| MF1-03 | Organization Admin | Invite/provision Inspector and Maintenance Engineer accounts; enable, update or suspend them. | Active workforce records; suspension removes future assignment eligibility. |
-| MF1-04 | Organization Admin | Record applicable skills/credentials: qualification, training, issuer/reference, dates and evidence; health/insurance documents only when relevant and lawfully required. | Reviewable credential history; do not assume every occupation requires the same licence. |
-| MF1-05 | SYSTEM | Validate document type/subject and dates; calculate expiry warnings and record review status. | Missing/expired/suspended status visible; machine validation is not government verification. |
-| MF1-06 | Organization Admin | Register each company Drone by unique identifier/serial, model, payload when applicable, serviceability and relevant maintenance/registration documents. | Identified Drone usable as an assignment reference; unavailable devices not eligible for release. |
-| MF1-07 | Organization Admin | Maintain flight-permit and other applicable compliance files, issuer/reference, geographic/time scope and conditions. | Distinguish application, issued permission, expiry, rejection and revocation; platform does not apply to an authority automatically. |
-| MF1-08 | Organization Admin | Enter asset code/category, components, location, scope context, site access, contact, source documents and known limitations. | Own-organization asset profile; informational airspace warning does not authorize flight. |
-| MF1-09 | Organization Admin | In the same asset-creation workflow, select exactly one responsible Inspector and one identified Drone from own resources. | Required default Inspector + Drone pair attached to the asset. |
-| MF1-10 | SYSTEM | Validate asset-code uniqueness, same organization, active users and valid Drone reference; save asset/pair together and audit. | No partially created complete asset with a missing pair. Asset assignment is not a flight permit or an exclusive reservation of the Drone. |
-| MF1-11 | Organization Admin | Create an inspection for this asset: objective, component scope, acceptance criteria, requested dates and, if needed, cadence. | New inspection ID; existing asset reused. No procurement/RFQ step. |
-| MF1-12 | SYSTEM | Inherit the current asset pair into the inspection, snapshot scope/defaults and test known Inspector/Drone schedule conflicts. | Draft/assigned inspection distinct from the mutable asset default; periodic due-cycle retry cannot duplicate it. |
-| MF1-13 | Organization Admin | Confirm the pair/date/scope; if reassignment is needed, record the reason and whether it affects only this inspection or future asset defaults. | Versioned assignment; unresolved conflicts/disabled users/unavailable Drones block dispatch. |
-| MF1-14 | SYSTEM | Dispatch the assigned inspection to Inspector; attach source-document references and notify. | MF1 → MF2: inspection ID, asset/scope/dates, Inspector, Drone and applicable document references. |
+#### 3.3.2 Drone Fleet Management and Serviceability Tracking
+- **Function Trigger**: Organization Admin navigates to `Drone Fleet` and selects `Register Drone`.
+- **Function Description**: Catalogs unmanned aerial vehicles (UAVs), tracks payload equipment, serviceability status, and hardware maintenance logs.
+- **Function Details**:
+  - *Inputs*: Manufacturer, model, hardware serial number, maximum takeoff weight (MTOW), camera payload specifications, initial serviceability (`SERVICEABLE`, `MAINTENANCE_REQUIRED`, `RETIRED`).
+  - *Validations*: Hardware serial number must be unique across tenant fleet; weight and payload fields must be positive numeric values.
+  - *Processing*: Stores hardware profile; monitors flight hours logged from field sessions; triggers serviceability alerts when maintenance intervals are reached.
+  - *Outputs*: Registered drone hardware profile available for mission assignment.
 
-**Exceptions:** Missing resources keep setup incomplete; the user must select/add appropriate resources rather than SYSTEM inventing them. Updated default asset assignments never rewrite past inspection snapshots. Known expiry at the planned time is flagged; the complete mission-specific permit/compliance decision is made in MF2. Cadence changes affect future due work, not published history.
+#### 3.3.3 Flight Permit Linkage and Legal Authorizations
+- **Function Trigger**: Organization Admin navigates to `Compliance` and selects `Attach Flight Permit`.
+- **Function Description**: Records official flight clearances issued by regulatory authorities (e.g., Department of Operations - Ministry of National Defence), defining permitted airspace boundaries and operational windows.
+- **Function Details**:
+  - *Inputs*: Permit reference number, issuing authority, geographical bounding polygon (latitude/longitude coordinates), permitted altitude ceiling, effective start date, expiration date, official permit PDF.
+  - *Validations*: Permit validity period must be valid; polygon coordinates must form a closed geometric boundary; PDF document attachment is mandatory.
+  - *Processing*: Attaches permit to organization compliance registry; links permit to relevant assets within geographical polygon; alerts on expiration.
+  - *Outputs*: Verified flight permit record, referenced during pre-flight readiness checks.
 
-### 3.4 FE-03 Mission Preparation, Assignment Response and Readiness — MF2
+---
 
-MF2 receives the assignment created in MF1; it does not source a Provider or calculate recommended GSD, overlap, gimbal or physical flight-control settings. The platform supports a component shot-list and documented compliance/safety preparation.
+### 3.4 FE-03 Flight Mission Planning and Readiness Authorization
 
-#### 3.4.1 Detailed MF2 Steps
+#### 3.4.1 Inspection Mission Scheduling and Conflict Detection
+- **Function Trigger**: Organization Admin selects `Create Inspection` from asset row or inspections list.
+- **Function Description**: Schedules an inspection mission for an asset, establishes planned start/end dates, inherits the asset's default Inspector-Drone pair, and performs automated resource conflict checks.
+- **Function Details**:
+  - *Inputs*: Asset ID, inspection objective, planned inspection window (start date, end date), mission priority (Low, Normal, High, Urgent), optional pair reassignment with reason.
+  - *Validations*: Planned end date must be on or after start date; designated Inspector and Drone must not have conflicting approved missions within the same window.
+  - *Processing*: Evaluates concurrent mission schedules; presents conflict alerts if overlapping bookings exist; creates inspection record in `ASSIGNED` status with pair snapshot.
+  - *Outputs*: Dispatched inspection mission record, automated notification to assigned Inspector.
 
-**Trigger:** Inspector receives an assigned inspection. **Outputs:** Audited readiness decision and one or more ended field-session records under the same inspection.
+#### 3.4.2 Component Shot-List and Pre-Flight Checklist Planning
+- **Function Trigger**: Assigned Inspector opens mission detail and selects `Preparation` tab.
+- **Function Description**: Inspector accepts mission assignment and compiles structural component shot-lists, capture angles, required ground sampling distance (GSD), and site access notes.
+- **Function Details**:
+  - *Inputs*: Target structural components (piers, girders, cables, deck joints), capture angles, minimum image resolution, planned sensor payloads, site safety notes.
+  - *Validations*: Inspector must have accepted mission assignment; at least one structural component must be specified in the shot-list.
+  - *Processing*: Assembles mission preparation draft (versioned); validates remote pilot license currency and linked flight permit validity; transitions status to `READY_FOR_REVIEW`.
+  - *Outputs*: Submitted mission preparation version awaiting administrative readiness review.
 
-| Step | Responsible actor | Platform action / input | Output and gate |
-| --- | --- | --- | --- |
-| MF2-01 | Inspector | Open the assignment; review asset, scope/dates, assigned Drone and relevant documents. Accept or reject with a reason. | Rejection returns to Organization Admin in MF1; no self-selection of an unassigned Drone. |
-| MF2-02 | SYSTEM | Check assignment/organization, record response and notify Organization Admin. | Only the assigned Inspector can respond; accepted assignment does not itself establish readiness. |
-| MF2-03 | Inspector | Prepare component shot-list, required evidence types and checklist; identify access limitations, proposed field-session times and known hazards on app. | Reviewable preparation version; hardware configuration is outside scope. |
-| MF2-04 | Organization Admin | Link the actual applicable issued permit/permission and credential/Drone records; document airspace-source checks, scope/time coverage and conditions. | Missing authorization cannot be waived by an internal approval. An exemption, if genuinely applicable, requires a recorded legal basis and supporting review. |
-| MF2-05 | SYSTEM | Validate required links, document dates/status, pair, plan version and known conflicts against planned session time. | List blockers; ambiguous authority/geographic conditions require human verification, not inferred automatic clearance. |
-| MF2-06 | INSPECTOR | Read restrictions and preparation checklist; record safety acknowledgments and submit preparation. | Attributable Inspector submission is allowed only while the assigned inspection remains `PREPARING`; submission is serialized with readiness review using inspection-first locking. A non-PREPARING inspection refuses submission without changing the preparation. Acknowledgment is not a statutory licence or guaranteed digital signature. |
-| MF2-07 | ORG_ADMIN | As a separate active organization reviewer, present an ACTIVE internally verified credential with source-evidence attribution; inspect the current submitted preparation and compliance basis; attest applicable credential/Drone-document classes with a traceable basis; approve or return with reasons. | `READY_FOR_FLIGHT` only when reviewer and selected assigned-Inspector credentials and assigned-Drone documents belong to the correct organization/subject, have required internal verification/review attribution, explicit validity bounds covering planned time, the accepted pair is valid before planned start, and no machine-detectable permit blocker remains. Empty credential/document selections require category-specific non-applicability reasons and the traceable applicability basis. Return requires a reason and a reviewer credential valid at decision time, but may proceed despite readiness evidence gaps; snapshots record observed/unresolved IDs and do not claim the selection is exhaustive. Reviewer identity and immutable source snapshots/hash are recorded. Internal record checks are not issuer-registry or statutory verification. |
-| MF2-08 | SYSTEM | Snapshot the approved plan/pair/documents and notify Inspector. | A material plan, pair, permit or schedule change invalidates readiness and requires review again. |
-| MF2-09 | Inspector | At site, identify the assigned Drone, complete the current pre-flight checklist and either request Start or record postponement/interruption reason. | No software control of Drone; weather/site safety can lead to postponement even after earlier approval. |
-| MF2-10 | SYSTEM | Immediately recheck current entitlement, assignment, readiness version and required validity; on success record `IN_PROGRESS`, Inspector, Drone and session start time. | Reject stale/expired/revoked readiness. Start does not arm the aircraft or establish actual flight time from hardware. |
-| MF2-11 | Inspector | On app, record checklist results, relevant observations/incidents and End, pause/abort or postponement. | Actual collected coverage/limitations and timestamps; government incident reporting, if applicable, remains the responsible person's duty. |
-| MF2-12 | SYSTEM | Save the Inspector's required session outcome notes and end time; mark the session `FIELD_COMPLETED` and inspection `FIELD_COMPLETED` only on normal completion of an in-progress session, preserving previous sessions. An aborted session is terminal and remains `ABORTED`; it is not converted to `FIELD_COMPLETED`. | MF2 → MF3: completed session references and recorded outcome. This is not overall inspection completion or report approval; no hardware telemetry or statutory incident report is implied. |
+#### 3.4.3 Administrative Flight Readiness Authorization
+- **Function Trigger**: Organization Admin navigates to mission detail `Readiness Review` tab.
+- **Function Description**: Administrative gate verifying legal flight permits, crew qualifications, hardware serviceability, and weather parameters before authorizing flight operations.
+- **Function Details**:
+  - *Inputs*: Inspection ID, preparation version ID, reviewer credential reference, decision (`APPROVE` or `RETURN`), return justification (mandatory on return).
+  - *Validations*: Reviewer must hold Organization Admin role and be distinct from the assigned Inspector; active flight permit and valid pilot credentials must be attached.
+  - *Processing*: On approval, records immutable readiness decision stamping timestamp and reviewer identity, transitioning mission to `APPROVED_FOR_FLIGHT`. On return, records reason and returns preparation to `PREPARING`.
+  - *Outputs*: Formal flight readiness authorization record, unlocking field session execution on mobile app.
 
-**Implementation status correction (2026-10-21).** The previous 20 October status line quoted an earlier 681-test run and a live walkthrough from an earlier local record. In this task, `./mvnw verify` passed 684 tests with zero failures/errors/skips, and `./mvnw -DskipTests package` passed without running tests. No live walkthrough was run in this task. Frontend production build passed; mobile code generation passed, while Android artifact build was blocked by the missing Android SDK and web build by the project's lack of a web target. No Report 5 case status changed.
+---
 
-**Additional capture:** After reviewing a completed evidence set in MF3, the assigned Inspector may request another session for the same inspection by recording `ADDITIONAL_SESSION_REQUIRED` with the required shot-list comparison and a reason. SYSTEM appends `INVALIDATED` for the prior readiness decision, supersedes that preparation version, creates a next-version draft and returns the inspection to `PREPARING`. The new draft retains Inspector-authored shot-list/evidence requirements and known access/safety notes; permit references are not copied and must be linked/reviewed again by ORG_ADMIN. Inspector records a new planned start and end before submitting. ORG_ADMIN independently reviews the current preparation and recomputes readiness against the new time, pair, credentials, Drone documents and applicable permits. No additional session is opened or approved by the MF3 decision. Past sessions and evidence remain preserved. Re-upload/replacement remains a normal upload/retirement action, not a quality decision. Weather or site-safety conditions encountered during an open field session are handled through MF2 postponement/abort and are not MF3 evidence-quality decisions.
+### 3.5 FE-04 Field Survey Execution and Evidence Management
 
-**Implementation status (2026-10-21).** MF2-01/02 assignment response, MF2-03/06 preparation and compliance, MF2-07 readiness approval/return, and MF2-09/11 start/postponement/abort have backend services/contracts. MF2-12 normal completion is implemented: the assigned active Inspector records outcome notes to close the current in-progress session as `FIELD_COMPLETED`; the inspection returns to `FIELD_COMPLETED` and prior sessions/evidence remain. Additional-session return is implemented as above. Session start requires the newest approved readiness to bind to the latest `READY` preparation ID/version; the old approved readiness is explicitly invalidated on additional-session return. Generic MF2-08 invalidation for all permit/pair/credential source changes remains partial. In this task, backend `./mvnw verify` passed 684 tests with coverage and Modulith checks met before the final AI-suggestion rejection-path correction; final `./mvnw -DskipTests package` passed with tests skipped. Tests were not rerun after the correction, per the requested build-only scope. No live walkthrough was run in this task. Frontend production build passed; mobile code generation passed, Android artifact build was blocked by missing Android SDK and web build was blocked because no web target is configured. No Report 5 case status changed. Mobile and web expose the two evidence choices and follow-through preparation/session steps. Do not infer flight control, actual telemetry or statutory authorization from recorded status.
+#### 3.5.1 On-Site Pre-Flight Check and Field Session Logging
+- **Function Trigger**: Inspector opens mission on mobile app or web `Field Session` tab and selects `Start Session`.
+- **Function Description**: Records mandatory on-site physical checklist notes, confirms airspace safety, logs flight start time, and manages session outcomes (completion, postponement, abort).
+- **Function Details**:
+  - *Inputs*: Pre-flight checklist verification note (aircraft condition, battery levels, site weather, emergency landing area), session action (`START`, `POSTPONE`, `ABORT`, `COMPLETE`), outcome reason.
+  - *Validations*: Mission must possess an active approved readiness decision; pre-flight note cannot be blank; only one session can be in progress concurrently.
+  - *Processing*: `START` logs session start timestamp and transitions status to `IN_PROGRESS`. `POSTPONE` logs postponement reason and leaves mission startable. `ABORT` logs abort reason and ends session as terminal `ABORTED`. `COMPLETE` records completion notes and transitions mission to `FIELD_COMPLETED`.
+  - *Outputs*: Auditable field flight session record with exact timestamps and operational logs.
 
-### 3.5 FE-04 Field Records, Evidence and Inspector Quality Decision
+#### 3.5.2 Digital Evidence Ingestion and Cryptographic Integrity
+- **Function Trigger**: Inspector opens `Evidence` tab and selects `Upload Evidence`.
+- **Function Description**: Ingests raw inspection photographs and video frames, extracts embedded telemetry, and enforces file integrity via SHA-256 cryptographic hashing.
+- **Function Details**:
+  - *Inputs*: High-resolution aerial image files (JPEG, PNG), optional camera telemetry files.
+  - *Validations*: Allowed MIME types; file size within limits (up to 100MB per file); checks against duplicate SHA-256 digests within same mission scope.
+  - *Processing*: Computes SHA-256 hash on server; stores original binary in MinIO object storage; extracts EXIF capture timestamp and GPS coordinates; generates thumbnail previews.
+  - *Outputs*: Persisted evidence register items with tamper-evident checksums and metadata provenance.
 
-FE-04 implements the session-record obligations of MF2 and evidence steps MF3-01–MF3-04. Inspector, not the upload validator or LLM, decides substantive evidence adequacy.
+#### 3.5.3 Inspector Evidence Completeness and Quality Evaluation
+- **Function Trigger**: Inspector completes upload and selects `Evaluate Evidence Quality`.
+- **Function Description**: Inspector compares ingested evidence against the planned component shot-list, discloses unobserved components, and records an official quality decision.
+- **Function Details**:
+  - *Inputs*: Shot-list comparison text, unobserved components disclosure, quality decision (`ACCEPTED`, `ADDITIONAL_SESSION_REQUIRED`).
+  - *Validations*: At least one active evidence item must exist; shot-list comparison disclosure cannot be blank; reason mandatory if additional capture requested.
+  - *Processing*: `ACCEPTED` confirms evidence adequacy and unlocks AI defect detection. `ADDITIONAL_SESSION_REQUIRED` supersedes current preparation, invalidates prior readiness, returns mission to `PREPARING`, and requires scheduling supplementary field capture.
+  - *Outputs*: Attributable evidence quality decision record governing downstream analysis eligibility.
 
-- Store every upload against its organization, inspection and source session; sources may include web/mobile uploads or imported/SD-card files. Do not imply a device SDK or live telemetry connection.
-- Validate type/size, detect corrupt input and compute checksum server-side; reject duplicate checksums within the same inspection/work log and support safe retries. A replacement is a new linked object; do not overwrite original evidence. Preserve retired originals and their metadata/checksums for audit, but hide them from the default evidence register and exclude them from active Findings analysis and image displays; provide an explicit audit filter to show retired items. The evidence register must be filtrable and paged by the server so an inspection with a large batch does not require the client to load the whole set.
-- Preserve available capture time/GPS/device metadata with its origin/confidence. Missing GPS/telemetry is disclosed, not fabricated and not an automatic rejection of otherwise adequate visual evidence.
-- After a normally completed field session, Inspector compares the current active evidence set with the shot-list: component coverage, focus/exposure, appropriate modality and observable details. The active decision choices are accept the set or request an additional MF2 session. The comparison is required, as is a reason for an additional session; a gap disclosure is not evidence of no defect. Re-upload/replacement remains a normal upload and audited retirement action. A request for another session routes back to MF2 preparation and independent readiness approval before Start; weather/site-safety encountered during an open session stays in MF2 postponement/abort.
-- Technical checks can flag problems, but cannot mark substantive evidence accepted on the Inspector's behalf. Disclosed limitations must not turn an unobserved area into a finding of no defect.
-- Hashes/timestamps support integrity/provenance; they do not prevent every modification or automatically establish legal admissibility.
+---
 
-#### 3.5.1 Inspection and Report Collections
+### 3.6 FE-05 AI-Assisted Defect Detection and Inspector Verification
 
-A user reaches MF3 work through a **scoped list**, not by entering a record identifier by hand. Identifier entry alone is not an acceptable discovery path: it is unauditable, gives no indication of scope, and pushes organization and assignment filtering onto the user.
+#### 3.6.1 Automated YOLO11s Advisory Defect Candidate Detection
+- **Function Trigger**: Automatic trigger upon evidence quality `ACCEPTED` decision, or explicit Inspector action `Run Defect Detection`.
+- **Function Description**: Computer vision microservice executes YOLO11s deep learning inference on aerial photographs to locate, bound, and classify structural surface defects.
+- **Function Details**:
+  - *Inputs*: Preprocessed inspection image bytes, confidence threshold parameter (default 0.25).
+  - *Validations*: Evidence item must be in `ACTIVE` status and belong to an accepted evidence set; duplicate inference on already analyzed images returns existing candidates.
+  - *Processing*: Runs YOLO11s object detection model (MBDD2025 defect classes: crack, spalling, corrosion, leakage, exposure); extracts bounding box coordinates, defect class, and confidence score.
+  - *Outputs*: Persistent advisory finding candidates linked to source images, labeled as unverified machine proposals.
 
-- Provide a paged inspection collection for the authenticated caller. Scope is resolved from the caller's role and never from a client-supplied organization, owner or assignment value: an Inspector sees only inspections assigned to them, an Organization Admin sees every inspection in their own organization, and a platform `ADMIN` may read across organizations.
-- Platform cross-tenant read is a **separate, read-only administrative capability**. It does not confer organization authority, does not extend to authoring, review or publication, and must not be granted implicitly by holding the role.
-- Report records are reached **through their inspection**, so the report review queue is a filtered view of the same collection rather than an independent resource. Each row states its report status and version so the inspection and report screens cannot disagree.
-- Listing is server-paged with a bounded page size, a stable ordering, and a unique tie-breaker, so no row can appear on two pages and no caller can retrieve an unbounded set.
-- A caller with no scope for the resource is refused; an out-of-scope record is not disclosed by appearing in a list.
+#### 3.6.2 Human Defect Verification and Official Findings Confirmation
+- **Function Trigger**: Inspector reviews candidates in `Findings` tab.
+- **Function Description**: Inspector inspects each AI-detected defect candidate, confirms or adjusts classifications and severities, rejects false positives, records manual findings, and confirms the complete official findings set.
+- **Function Details**:
+  - *Inputs*: Decision per candidate (`CONFIRM`, `MODIFY`, `REJECT`), modified defect class, severity rating (Minor, Moderate, Severe, Critical), component location description, manual finding inputs.
+  - *Validations*: All candidates must be resolved; rejection of AI candidate removes candidate from active findings; confirmation requires resolving all unreviewed items.
+  - *Processing*: Converts confirmed/modified candidates into official findings; persists finding records with attached evidence photos; records explicit set confirmation timestamp.
+  - *Outputs*: Confirmed official findings register, unlocking report drafting.
 
+---
 
-### 3.6 FE-05 AI Vision Candidates and Human Finding Decisions
+### 3.7 FE-06 Inspection Report Drafting, Review and Publication
 
-FE-05 supports MF3 detection and review. Inference starts only on the evidence set the assigned Inspector has confirmed suitable. Model availability and asset/modality compatibility must be checked.
+#### 3.7.1 Structured Report Authoring and Context-Grounded LLM Drafting
+- **Function Trigger**: Inspector selects `Generate Report Draft` or `Manual Authoring` in `Report` tab.
+- **Function Description**: Synthesizes a structured inspection report draft. LLM drafting compiles verified asset data, inspection parameters, checklist notes, and confirmed findings into cohesive narrative sections without hallucinating external facts.
+- **Function Details**:
+  - *Inputs*: Selected drafting method (`AI_ASSISTED` or `MANUAL`), authored section content: Executive Summary, Scope & Methodology, Weather & Site Observations, Component Findings Discussion, Recommendations.
+  - *Validations*: Finding set must be explicitly confirmed; generated draft sections must be manually reviewed and editable by the author prior to submission.
+  - *Processing*: In AI mode, constructs grounded prompt referencing strictly verified database entities; saves section draft fields; author edits text in place; author submits draft for administrative review.
+  - *Outputs*: Verified report draft version in `SUBMITTED` status, routed to Organization Admin review queue.
 
-- SYSTEM stores candidate label, confidence, source evidence, box/location and model version. Retired evidence is excluded from detection, candidate review and finding-photo displays; retiring it does not delete its audit record. Unsupported modalities remain for manual review; no guaranteed sub-millimetre measurement or structural diagnosis is promised.
-- The assigned Inspector resolves each AI candidate by confirm, modify or reject. A confirmed/modified candidate and each manual visual finding become an Inspector-proposed finding linked to source evidence; rejection creates no finding and the rejected suggestion is removed from the retained finding records. An explicit removal of an Inspector working-set finding remains attributable and auditable; rejection of an AI suggestion is not retained as a finding-level audit record. The Inspector may revise a candidate before report submission; rejecting a revised candidate removes its linked proposal. Manual findings remain available if AI is unavailable, incompatible, skipped or misses an issue. Location description is optional when linked evidence, component context or image annotation identifies the observed area. Pixel boxes and EXIF GPS are not verified asset coordinates.
-- The Findings stage cannot be confirmed while any AI candidate is pending. After resolving every candidate and adding any manual findings, the Inspector explicitly selects **Confirm findings and continue**. No findings is valid only after acknowledging that none was observed within the inspected scope. Confirmation records its actor, time and source snapshot and advances to Report; it neither creates a report version nor calls AI/LLM. A later evidence/findings change explicitly reopens Findings, clears the confirmation and requires reconfirmation; dependent drafts remain stale and cannot be verified/submitted/published.
-- Inspector-reviewed findings are proposals, not official or maintenance-eligible dispositions. During independent report review, a qualified Organization Admin decides every proposed finding against source evidence, then approves or returns the complete report with a reason. Approval/publication is blocked until every proposal has an independent decision. After publication, only confirmed/modified findings whose reviewer-recorded corrective-action outcome requires work are handed to MF4. Rejected AI suggestions do not remain in the finding record and are not official; separately removed Inspector working-set findings retain their attributable deletion audit fields.
-- After confirmation, the Inspector separately chooses AI-assisted report drafting or manual structured authoring. A failed/unconfigured AI-draft request creates no partial version and does not silently switch methods; the manual choice remains available and records omitted analysis. AI inference failures likewise preserve evidence and permit manual findings and reporting.
-- A report return requires a reason and sends the same version back for author revision, source recheck, author verification and resubmission before another reviewer decision. A post-publication no-repair outcome closes only the observed scope with limitations preserved; it does not imply that unobserved areas are defect-free.
+#### 3.7.2 Administrative Review, Digital Publication and Immutable Archival
+- **Function Trigger**: Organization Admin opens submitted report in `Report Review` workspace.
+- **Function Description**: Independent administrative review of report narrative, component findings, and attached evidence. Approves report for formal publication or returns it to author with comments.
+- **Function Details**:
+  - *Inputs*: Review decision (`APPROVE` or `RETURN`), return comments (mandatory on return).
+  - *Validations*: Reviewer must be an Organization Admin distinct from the report author; all findings must be in an evaluated state.
+  - *Processing*: On approval, compiles report data into formal A4 PDF template via openhtmltopdf, stores deliverable in MinIO, calculates SHA-256 digest, marks report version `PUBLISHED`, and transitions inspection status to `REPORT_PUBLISHED`. On return, marks version `RETURNED` and notifies author.
+  - *Outputs*: Published immutable PDF inspection report, recorded cryptographic checksum, and public download endpoint.
 
-### 3.7 FE-06 Inspection Report Drafting, Review and Publication — MF3
+#### 3.7.3 Batch Forwarding of Defect Candidates to Maintenance
+- **Function Trigger**: Organization Admin opens `Send to Maintenance` tab on published inspection.
+- **Function Description**: Displays all confirmed defects from the published report; administrator selects relevant defects in batch (default all selected, deselectable) to forward as candidates for maintenance remediation.
+- **Function Details**:
+  - *Inputs*: Inspection ID, array of selected finding IDs, optional global handoff notes.
+  - *Validations*: Inspection report must be in `PUBLISHED` status; at least one finding must be selected if transitioning to repair pending.
+  - *Processing*: Marks selected findings as forwarded repair candidates; if findings are forwarded, transitions inspection to `REPAIR_PENDING`. If all findings are deselected (no repair required), closes inspection as `COMPLETED`.
+  - *Outputs*: Forwarded repair candidates available in Maintenance workspace; updated inspection status.
 
-MF3 provides a **point-in-time asset inspection report**, not a flight permit, proof that the asset is structurally safe, or a repair-completion certificate. The assigned Inspector is the human report author; LLM is a drafting tool. The reviewer is an appropriately qualified Organization Admin distinct from the author. Responsibilities assigned here are product controls, not claimed certification under an international standard.
+---
 
-#### 3.7.1 Detailed MF3 Steps
+### 3.8 FE-07 Maintenance Remediation, Cost Control and Acceptance
 
-**Trigger:** An ended MF2 session and its evidence are available. **Sequence:** evidence review → Inspector findings resolution and explicit confirmation → Inspector chooses AI-assisted or manual report drafting → author verification → independent review → publication of the immutable PDF → attributable corrective-action outcome for every official finding → recorded handoff to MF4 or a reasoned no-repair close. Findings confirmation and report generation are separate actions, and corrective disposition is recorded after publication rather than folded into the report.
+#### 3.8.1 Maintenance Work Order Planning and Team Allocation
+- **Function Trigger**: Organization Admin navigates to `Maintenance` and selects `Create Work Order`.
+- **Function Description**: Initiates a formal maintenance work order linking forwarded defect candidates, decomposes corrective scope into tasks, and appoints the engineering team.
+- **Function Details**:
+  - *Inputs*: Source inspection ID, selected defect candidate IDs, work order title, priority, target completion date, assigned engineering team members, designated Team Lead, designated Report Author.
+  - *Validations*: Must reference valid forwarded defect candidates; designated Team Lead and Report Author must belong to the approved team; neither may serve as independent reviewer.
+  - *Processing*: Creates work order in `PLANNING` status; links defects to work order scope; initializes task inventory.
+  - *Outputs*: Created work order with appointed team, ready for technical estimation.
 
-| Step | Responsible actor | Platform action / input | Output and gate |
-| --- | --- | --- | --- |
-| MF3-01 | Inspector | Upload original evidence to the correct inspection/session; add component/capture context where metadata is missing. | Attributable files; no automatic quality acceptance. |
-| MF3-02 | SYSTEM | Validate technical intake, compute hash, store source references and display processing/upload errors. When explicit metadata is absent, extract GPS coordinates and capture time from valid JPEG EXIF where present; explicit upload metadata takes precedence. Preserve the original uploaded bytes and never infer missing metadata. | Valid stored files; corrupt/type/size/duplicate failures identify corrective action; metadata remains attributable to its source. |
-| MF3-03 | Inspector | After a completed session, compare the current evidence set with the shot-list and choose **Accept evidence set** or **Additional session needed**. Both require a non-blank comparison; the additional-session choice also requires a reason. Re-upload/replacement remains a normal upload/retirement action, not a quality choice. The recorded comparison and reason are shown with the decision. | Accept makes this set eligible for advisory processing. Additional session invalidates the prior readiness, returns the inspection to MF2 `PREPARING`, and requires a new planned window and independent ORG_ADMIN readiness approval before Start. Prior evidence and session history remain preserved; SYSTEM does not decide image usefulness or start a session. |
-| MF3-04 | SYSTEM | Snapshot the evidence set after Inspector confirmation; preserve missing-metadata/coverage flags. Verifying or submitting a draft whose stored snapshot hash no longer matches the current evidence set is refused with a conflict, and the author drafts a new version instead. | Source set eligible for processing; changes make dependent drafts/review confirmations stale. |
-| MF3-05 | Assigned Inspector; SYSTEM / AI Vision | After an `ACCEPTED` evidence-quality decision, YOLO advisory detection may run automatically over active images without candidates; the Inspector may re-run an active image. An Inspector account preference controls whether the configured vision provider is tried automatically when YOLO fails; it defaults on and can be disabled in account settings. A valid empty YOLO result is final and does not invoke fallback. Retired evidence stays auditable and is excluded from detection and finding-photo displays. Store candidate label, source evidence, confidence, normalized box, provider/model and version. | Candidates remain advisory until the assigned Inspector resolves them. AI outage, incompatible modality, disabled fallback or intentional skip does not block manual findings; report unavailable/omitted analysis honestly. |
-| MF3-06 | Inspector | Resolve every candidate: confirm, modify or reject; add manual visual findings as needed, each linked to source evidence. Location prose is optional if evidence/component/annotation provides context. | Pending candidates block progression. Rejecting an AI suggestion creates no finding and removes that suggestion from the retained finding records; explicit removal of an Inspector working-set finding remains attributable and auditable. An empty set may proceed only after the Inspector acknowledges no findings in the observed scope. Measurements require method and units, not pixel guesswork. |
-| MF3-06a | Inspector; SYSTEM | Select **Confirm findings and continue** after all candidates and edits settle. SYSTEM records the actor/time and current evidence/findings snapshot, then advances to Report. | Confirmation does not create a report/version or call AI/LLM. Material changes reopen Findings and invalidate confirmation/dependent draft state; reconfirmation is required. |
-| MF3-07 | Inspector; SYSTEM / LLM only for explicit AI choice | After confirmation, the Inspector chooses AI-assisted section drafting or manual structured authoring. AI uses authorized scope/criteria/session references, evidence metadata, Inspector observations and proposals; planned dates/assigned Drone stay labelled as plans. | AI creates a labelled source-grounded `DRAFT`; unsupported values stay not supplied and candidates do not become findings implicitly. Manual creates a structured draft without LLM. AI draft failure creates no partial version or automatic fallback; the manual choice remains explicit and discloses omitted analysis. |
-| MF3-08 | Inspector — report author | Read/edit the full draft; verify identifiers, evidence, scope, proposals, uncertainty, recommendations and limitations; attest authorship and submit. | Human-verified submitted version. Current evidence/findings must still match its recorded source snapshot; stale drafts cannot be verified or submitted. |
-| MF3-09 | Organization Admin — independent report reviewer | Review the submitted report as a whole, including the Inspector-confirmed findings, evidence, scope and limitations. Approve the report or return it to the Inspector with a reason. | No self-review or timed acceptance. The Organization Admin does not separately confirm or reject each finding; report-level approval/return is the independent review decision. A return sends the version back for author revision and a fresh submit/review cycle. Runtime role, organization scope, active account and separation-of-duties checks do not establish professional qualification. |
-| MF3-10 | Inspector, Organization Admin, SYSTEM | Keep Inspector candidate decisions and confirmation separate from the Organization Admin's report-level decision. If findings/evidence need revision, the reviewer returns the report; the Inspector edits and reconfirms the source set, creates/revises the report, verifies and resubmits. | Publish only a report with current evidence/findings snapshots and an attributable report-level approval. Inspector-confirmed findings remain visible to the reviewer; pending AI suggestions block progression and rejected AI suggestions are removed rather than retained as finding-level audit records. |
-| MF3-11 | SYSTEM | Publish the approved report version and its PDF with author, reviewer, date, source index and approval record; the published PDF is the version's deliverable, its object key and SHA-256 are recorded on the version, and publication does not complete unless the artefact is stored; apply qualified digital-signature integration only if supplied. | Immutable official version with a retained, checksum-verifiable artefact; logged application approval alone is not a certified digital signature. |
-| MF3-12 | Organization Admin | After report publication, select confirmed defect findings to forward to Maintenance as repair candidates, with all confirmed findings selected by default and the option to deselect items to postpone. Individual finding-level rationales, priorities and due dates are omitted from report review and left to maintenance triage and work-order planning. Deselecting all findings leaves the report published without creating repair candidates; omitted findings can be forwarded to maintenance later. An inspection with no confirmed defect findings can be completed without repairs through the reasoned no-repair route. | Confirmed findings selected by the administrator are forwarded to Maintenance as repair candidates. The published report PDF remains unchanged. |
-| MF3-13 | SYSTEM / Organization Admin | Record the handoff of selected repair candidates to MF4 with report-version and finding references. Forwarded findings enter the maintenance candidates inbox, where Maintenance creates work orders and assigns scope/team/budget; the handoff does not automatically generate work orders. If findings were forwarded, the inspection transitions to `REPAIR_PENDING`. When no findings were forwarded or none exist, the inspection remains published or closes as `COMPLETED` through the reasoned no-repair route. | Repair candidates are visible to the maintenance team. Omitted findings remain available to forward later. |
+#### 3.8.2 Itemized Cost Estimation and Change Order Governance
+- **Function Trigger**: Maintenance Team Lead compiles estimate; Organization Admin reviews budget.
+- **Function Description**: Compiles detailed itemized cost estimates across labor, replacement materials, equipment rentals, and specialized services. Supports formal Change Requests for emergent site conditions.
+- **Function Details**:
+  - *Inputs*: Line items (category, description, quantity, unit price, currency), change request justification, delta cost, delta schedule days.
+  - *Validations*: Quantities and unit prices must be positive decimal numbers; budget approval requires Organization Admin role.
+  - *Processing*: Calculates exact decimal baseline budget totals; on approval, freezes estimate baseline (`APPROVED`). Change requests require administrative review; approved changes calculate revised budget ceiling.
+  - *Outputs*: Approved initial cost baseline, approved change order records, auditable financial ceiling.
 
-**Draft-state semantics:** `DRAFT` → author-verified/submitted → report review/returned → approved/published are target states, not claims about every deployed enum. Drafts contain AI suggestions; the Inspector resolves candidates and explicitly confirms the findings set before report authoring. Failed LLM generation permits an empty structured manual draft under the same review gates. The Organization Admin reviews and approves/returns the complete submitted report, not individual findings. While a report is editable, the Inspector can update or soft-delete findings and retire captures with audit reasons. A return distinguishes text-only revision from findings/evidence revision; the latter reopens Inspector findings and requires reconfirmation.
+#### 3.8.3 Repair Execution Logging and Before/After Evidence Documentation
+- **Function Trigger**: Assigned Maintenance Engineers select task in `Work Order Execution`.
+- **Function Description**: Records daily task execution logs, material consumption, labor hours, and uploads photographic proof demonstrating structural defect rectification.
+- **Function Details*:
+  - *Inputs*: Task ID, labor hours worked, materials consumed, equipment hours, task progress percentage, before-repair photos, during-repair photos, after-repair photos, test certificates.
+  - *Validations*: Log entry restricted to assigned team members; completion of repair task requires mandatory after-repair photographic proof.
+  - *Processing*: Persists chronological work logs; updates real-time task progress; stores repair evidence with SHA-256 integrity hashing; updates work order status to `IN_PROGRESS`.
+  - *Outputs*: Documented repair logs and verifiable before/after evidence register.
 
-**Implementation status (16 October 2026; not a requirement change).** MF3-09's reviewer must be appropriately qualified and independent, but runtime review currently checks the Organization Admin role, organization scope, active account and separation of duties only; it does not verify professional credentials. This is an explicit implementation gap, not evidence that the runtime reviewer is qualified. Post-publication corrective-outcome and handoff-recording code exists and its backend paths executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full `verify` gate), but no MF3-12/13 case is passed yet because the complete end-to-end scenario has not been executed. A corrective-action outcome belongs to the publication that precedes it: publication clears an outcome recorded before the new version, and `V31__mf3_corrective_outcome_follows_publication.sql` clears the cutover-backfilled outcomes that predated their report's publication, so a reviewer must record an outcome for the version in force. Recording the MF3-13 handoff does not create an MF4 work order; MF4 work-order creation and its receiving workflow remain unimplemented. MF3-05's advisory detection now runs against the project's own trained YOLO11s model (MBDD2025) served by the `ai-inference` service, which is the default provider; the OpenAI-compatible vision endpoint is the option behind it and answers only when the detector cannot.
+#### 3.8.4 Completion Reporting, Independent Acceptance and Cost Reconciliation
+- **Function Trigger**: Designated Report Author compiles report; Organization Admin performs acceptance.
+- **Function Description**: Compiles maintenance completion report from task logs, test records, and financial actuals. Independent Organization Admin conducts technical acceptance and reconciles final costs against approved budget before closing work order.
+- **Function Details**:
+  - *Inputs*: Completion narrative, final acceptance test results, variance explanations, acceptance decision (`ACCEPT` or `REJECT`), final cost reconciliation sign-off.
+  - *Validations*: Reviewing Organization Admin must be independent (not Team Lead or Report Author); all tasks must be completed with attached proof; cost variance must be documented.
+  - *Processing*: Calculates financial variance (Budget vs. Actuals); on acceptance, marks work order `CLOSED`, publishes completion report deliverable, and updates asset maintenance history.
+  - *Outputs*: Closed maintenance work order, reconciled financial statement, and updated asset structural health record.
 
-#### 3.7.2 Required Inspection Report Content
+---
 
-These fields are a project template informed by report-writing and annotation practices, not a universal regulatory drone-report form. ASNT emphasizes traceable technique, evaluation criteria, equipment and detailed observations; PIX4D's report documentation separates project details and annotated screenshots/properties.[1][7]
+### 3.9 FE-08 Operational Dashboard and System Notifications
 
-Each section in the table below is an individually addressable field of the report version, authored or read by the accountable human named in its row. The delivered PDF is generated from these stored section values together with the records each section derives from; it is not a capture of an authoring screen. The **Confirmed findings** section is rendered from the reviewed finding records at render time rather than copied into the report body, so there is a single copy of each finding and the document cannot disagree with the finding decisions. The same applies to the Evidence register, Approval block and recorded inspection context, which are read from source evidence, preparation/readiness and quality-decision records, field sessions, and version authorship. Checklist responses are included only where a persisted inspection-scoped response can be joined to its recorded session checklist; an empty source is not represented as completed checklist evidence. A section whose value is absent is reported as not supplied rather than left silently empty.
+#### 3.9.1 Multi-Role Operational Dashboards and Analytics
+- **Function Trigger**: User signs in or navigates to `Dashboard`.
+- **Function Description**: Delivers role-customized operational metrics, status summaries, defect distribution charts, and workload queues.
+- **Function Details**:
+  - *Platform Admin*: Tenant count, active enterprise subscriptions, total managed assets, system storage utilization.
+  - *Organization Admin*: Asset condition summaries, active vs. completed inspection missions, defect severity distribution (Critical, Severe, Moderate, Minor), pending readiness reviews, maintenance budget variances.
+  - *Inspector*: Assigned upcoming missions, pending pre-flight checklists, open field sessions, unreviewed AI defect queues.
+  - *Maintenance Engineer*: Assigned repair tasks, work order deadlines, pending work log submissions.
 
-| Section | Content to record | Accountable human |
-| --- | --- | --- |
-| Identification | Report ID/version/status; human-readable organization and asset/site/component identity; inspection/session references; dates; Inspector author and reviewer. | SYSTEM composes source-backed identity; Inspector; reviewer confirms. |
-| Executive summary | Observed condition, important confirmed findings, priority actions and limitations; no unsupported whole-asset safety claim. | Inspector; Organization Admin approves. |
-| Purpose, scope and criteria | Objective, scope, included components, acceptance criteria and planned shot-list are composed from authorized inspection/preparation records as labelled rows. The Inspector records observed coverage separately; the planned shot-list is never treated as completed coverage. | SYSTEM composes record-backed facts; Inspector records coverage assessment; Organization Admin reviews the whole report. |
-| Method, equipment and conditions | Actual visual/thermal/other method used; identified Drone/payload/model/serial where recorded; calibration and measurement method when applicable; site conditions and unavailable data. Planned shot-list, assigned Drone, readiness decision, evidence-quality decision/comparison, and recorded field-session notes are separately labelled as source context and are not proof of equipment use, flight, permit clearance or actual inspection conditions. | Inspector authors method/conditions; SYSTEM composes source records; reviewer reviews. |
-| Evidence register | Evidence IDs, session, capture metadata if present, component/location references, original images and annotated views; missing metadata disclosed. | Inspector; SYSTEM indexes. |
-| Confirmed findings | Finding ID, component/location, description, observed evidence, measurements with method/units if valid, severity/priority and Inspector confirmation identity/time. | Inspector authors and confirms; Organization Admin reviews the findings within the complete report. |
-| Conclusions and recommendations | Point-in-time assessment limited to observed scope; suggested next actions or specialist/additional checks. Causal explanations remain hypotheses unless validated by an appropriate method. | Inspector and qualified reviewer. |
-| Approval and revisions | Author confirmation, reviewer approval/return rationale, approved version/time; applicable signature reference; corrections as new linked versions. | Organization Admin; SYSTEM records. |
-| Appendices | Persisted checklist responses, diagrams/source documents, evidence index and links to separate session/compliance logs. Only source responses joined to the session's checklist template are presented as checklist responses; a pre-flight note is not a substitute for item-level checklist answers. | Inspector; SYSTEM compiles. |
-
-No finding is automatically “absent” in an area not observed. This visual/AI-assisted record is not a certified NDT, load-capacity, electrical-safety or statutory inspection report unless the actual scope, methods, qualified personnel and applicable legal requirements justify that specific status. MF3 may identify that a repair estimate is needed; the authorized cost estimate belongs to MF4, not an LLM-invented price.
-
-#### 3.7.3 LLM Safeguards for Both Report Types
-
-NIST's Generative AI Profile identifies confabulation risk and recommends reviewing/verifying generated sources and citations; it is voluntary guidance, not a blanket legal mandate for these application roles.[5]
-
-- Use only scoped source snapshots. Do not provide secrets, unrelated tenant data or unnecessary personal/medical records to a model.
-- Treat file text, EXIF and prior drafts as untrusted data, not instructions to change workflow permissions or approve a report.
-- Preserve model/provider identifier, template/prompt version, generation time, input evidence/data IDs and subsequent human decisions. Store references to the source facts supporting each narrative section.
-- Do not invent telemetry, calibration, measured dimensions, dates, repair completion, cost rates, regulatory references or signatures. Missing data stays unknown/not supplied.
-- Separate observed facts, AI candidates, human-confirmed findings, hypotheses and recommendations. Confidence is not certification or engineering risk by itself.
-- Numeric report tables come from validated structured data/calculations. LLM may explain differences but cannot approve budgets, make authoritative financial totals or invent financial evidence.
-- No autonomous publication, acceptance, defect closure or repair scheduling from generated text. Every official report has a named author and qualified approval/acceptance record.
-- Automated drafting proposes values for the authored §3.7.2 sections only. It does not write to the reviewed finding records and cannot alter a finding's decision, severity or repair-required flag; a drafted section is a proposal the author accepts, edits or rejects before the MF3-08 verification gate.
-
-### 3.8 FE-07 Team Maintenance, Cost Control and Completion Reporting — MF4
-
-MF4 receives **published MF3 findings requiring repair**. It manages the enterprise's internal repair team, approved scope, estimates, changes, actuals and closeout. It is not a provider marketplace or payment/commission flow. Supplier quotes/receipts can be attached as cost evidence without creating a supplier user role, bidding portal, accounting ledger or procurement integration.
-
-#### 3.8.1 Team Responsibilities and Assignment
-
-CMMS practice supports work-order tasks, resource requirements, approval, execution records and cost comparison; it is a design reference for this project, not a mandate to copy every ERP role or module.[2][8]
-
-| Responsibility | Existing login role | Assigned by / scope | What this person does |
-| --- | --- | --- | --- |
-| Work-order owner / budget approver | Organization Admin | Authorized person in the asset's organization | Selects corrective scope; names team, lead, report author and accepting reviewer; approves baseline/changes and records closure authorization. |
-| Repair team lead | Maintenance Engineer | Organization Admin designates exactly one per work order | Coordinates assessment, task allocation, method, estimate, resource readiness and consolidated completion/actuals. |
-| Team member / task assignee | Maintenance Engineer | Organization Admin selects team; lead allocates tasks within approved membership | Accepts tasks, records own work/consumption/time, uploads before/during/after proof and technical checks. |
-| Accountable repair-report author | Maintenance Engineer | Organization Admin designates exactly one per work order | Collects the team's records, requests/verifies/edits the LLM completion report and submits it; remains the author even when LLM drafted text. |
-| Independent accepting reviewer | Organization Admin | Named qualified person not on the executing team and not the report author | Checks scope, evidence/test results and residual issues; accepts or returns; cost reconciliation is a separate recorded decision. |
-| Re-inspection verifier, if required | Inspector | Assigned through a linked MF1 inspection | Records independent inspection evidence/results; cannot stand in for a repair engineer's work log. |
-| Automated assistant | SYSTEM / LLM | Authorized workflow | Validates references, computes totals, drafts narrative, preserves decisions and publishes only after approval. |
-
-A team contains one or more active Engineers; normal multi-person work uses separate task responsibilities. Lead and report author may be the same Engineer, but final acceptance cannot be performed by that person or the executing team. Lead can allocate tasks only to approved members. Replacement of the lead/report author is performed by Organization Admin with a reason and a recorded handover; old logs retain their authors. Budget and technical acceptance are distinct actions even if performed by the same qualified, non-executing Organization Admin under company policy. If no qualified independent reviewer exists, the work remains awaiting review; the platform does not create a professional qualification.
-
-#### 3.8.2 Detailed MF4 Steps
-
-**Trigger:** MF3 report published with confirmed repair-required findings. **Outputs:** Human-verified maintenance completion report, independent acceptance, reconciled costs and immutable work-order history.
-
-| Step | Responsible actor | Platform action / input | Output and gate |
-| --- | --- | --- | --- |
-| MF4-01 | SYSTEM | Propose/create a draft work order for selected repair-required findings; link asset, inspection, published report version and source evidence; check duplicates. | Traceable draft; do not create a second active work item for the same scope without a reason. |
-| MF4-02 | Organization Admin | Triage priority, required corrective scope, due date, access/safety constraints and acceptance criteria; identify urgent controls in the record. | Explicit work-order scope; no automatic claim that controls have physically been applied. |
-| MF4-03 | Organization Admin | Select qualified own-organization team members and designate one lead, one report author and an independent qualified accepting Organization Admin. | Attributable team assignment; not a new role or an external Provider. |
-| MF4-04 | SYSTEM | Validate active membership, applicable skills/credential dates, organizational scope and reviewer independence; notify assigned people. | No release if required assignment/credentials/reviewer are missing. |
-| MF4-05 | Team lead — Maintenance Engineer | Accept/return the planning assignment; record remote/site assessment and divide approved defect scope into tasks with proposed assignees and method/verification needs. | Technical task plan; unexpected evidence remains linked to the source finding without rewriting MF3. |
-| MF4-06 | Team lead — Maintenance Engineer | Prepare estimate version: labor hours/rates, materials quantities/unit prices, equipment/tools, applicable services and supporting quotes; propose dates and permitted contingencies. | Itemized estimate and assumptions; the responsible Engineer supplies rates/data, not LLM. |
-| MF4-07 | SYSTEM | Validate decimal/currency/quantity inputs and calculate estimate totals; show resources, documents and missing cost lines. | Reviewable baseline candidate; unpriced work is not silently recorded as zero. |
-| MF4-08 | Organization Admin | Review technical method, safety/access preparation, acceptance criteria and estimate. Approve scope/budget/version or return with reasons. | Frozen initial approved baseline; lead/report author cannot approve their own estimate. |
-| MF4-09 | Team lead and assigned members — Maintenance Engineer | Confirm task acceptance, dates, resources and applicable work-permit/isolation evidence on app. | Ready task roster; resources awaiting availability remain blocked, not falsely in progress. |
-| MF4-10 | SYSTEM | Recheck approved scope/budget, team and applicable prerequisites before recording execution start. | `IN_PROGRESS` for recorded authorized work; no machine actuation or physical safety guarantee. |
-| MF4-11 | Assigned members — Maintenance Engineer | Enter task progress, hours, materials actually consumed, equipment/service usage, before/during/after evidence and relevant measured/test results. | Attributable task-level actuals and evidence; no self-acceptance of finished repair. |
-| MF4-12 | Team lead / members — Maintenance Engineer | For unexpected scope/cost/time, stop the affected additional work on app and submit a change request with reason, evidence and delta estimate. | Versioned pending change; unaffected approved tasks may continue only if safe and independent. |
-| MF4-13 | Organization Admin, then SYSTEM | Approve/reject/return the change. SYSTEM preserves initial baseline and calculates the revised authorized amount/dates from approved changes only. | Release of changed scope only after approval; rejected changes do not enlarge the budget. |
-| MF4-14 | Team lead — Maintenance Engineer | Consolidate member completion, actual quantities/hours, as-left condition, paired evidence, tests and unresolved issues; mark the physical work reported complete. | `WORK_COMPLETED` is a team declaration, not `ACCEPTED` or `CLOSED`. |
-| MF4-15 | Accountable report author — Maintenance Engineer | Check the team's source records, receipt/cost links and evidence; request draft generation when the completion packet is ready. | Named author and a versioned source packet; missing mandatory evidence blocks submission. |
-| MF4-16 | SYSTEM / LLM | Generate a labelled draft maintenance completion report from approved scope/baseline/changes, verified work logs, actuals and evidence. | Draft narrative plus SYSTEM-calculated cost tables; it cannot state “accepted” before the independent decision. |
-| MF4-17 | Accountable report author — Maintenance Engineer | Read/edit the entire draft, verify facts, tests, costs/variance and residual issues, then confirm and submit. | Author-verified version `SUBMITTED_FOR_ACCEPTANCE`; no claim that the team has independently accepted itself. |
-| MF4-18 | Independent qualified Organization Admin | Compare completion with scope/acceptance criteria, source proof and tests; Accept, Return for Rework or Request Re-inspection with reasons. | Technical acceptance record. Rework returns to relevant tasks; necessary re-inspection creates a linked MF1 inspection. |
-| MF4-19 | Organization Admin — authorized cost reviewer | Reconcile actuals/receipts with the approved baseline and changes; record variance explanations and financial review/disposition. | Separate cost reconciliation; unresolved missing/duplicate/unapproved costs block final closure, not historical recording. |
-| MF4-20 | SYSTEM | Once tasks, author review, technical acceptance, cost review and pending changes are resolved, publish completion report plus acceptance record and close the work order. | `CLOSED`; update repair disposition/asset history without altering original MF3 findings/report. |
-| MF4-21 | Organization Admin, then SYSTEM | Record follow-up/warranty conditions if applicable; inspect whether all required corrective work for the inspection has closed. | Any unresolved corrective scope remains visible; do not mark the whole lifecycle complete while related required work is still open. |
-
-**Workflow distinction:** Draft/planning → pending scope/budget approval → approved/ready → in progress → team work completed → submitted for acceptance → accepted and cost-reconciled → closed. Return/rework and waiting-for-resources are explicit non-final branches. These are target semantics, not existing API enum claims. IBM Maximo likewise distinguishes physical completion (`COMP`) from finalized/history (`CLOSE`); this project adds its named human acceptance and cost gates.[3]
-
-**Exceptions:** If LLM fails, the designated author completes the structured report manually under the same gates. Team changes or changed tasks invalidate affected confirmations. After published closure, corrections/recurrent defects use linked new versions/follow-up records, not silent reopening/overwriting. Warranty applies only when genuine terms are supplied; its expiry alone does not prove defect-free condition or automatically certify a repair.
-
-#### 3.8.3 Repair Cost Model and Approval Rules
-
-PeopleSoft's work-order documentation distinguishes estimated, scheduled and actual costs and variances, while Oracle's change-order workflow preserves reason, amount and revised commitment information.[8][4] The following is the bounded project cost register, not a full accounting/procurement system.
-
-| Category | Estimate input from team lead | Actual input from assigned team / cost reviewer |
-| --- | --- | --- |
-| Labor | Task, planned hours, approved hourly/internal allocation rate. | Recorded hours and applicable approved rate; internal allocated cost is not a wage payment or SaaS fee. |
-| Materials | Item, unit, planned quantity, unit price and quote basis. | Consumed quantity/unit cost and receipt/issue reference; record returns/corrections without deleting history. |
-| Equipment/tools | Planned usage and rental/internal allocation rate. | Actual recorded usage and cost basis; owned equipment is not assumed free unless explicitly recorded as included/zero. |
-| External services, if used | Documented supplier scope/quote and amount. | Received service amount and supporting record; supplier is a cost reference, not a new provider portal. |
-| Other authorized costs | Documented logistics, disposal or other justified line; separately itemized tax where applicable. | Supported actual amounts using the same tax basis/currency; do not hard-code a universal VAT rate. |
-| Optional contingency | Explicit reserve approved by Organization Admin with conditions. | Not an incurred cost. Spending requires justified actual lines and applicable change/release approval. |
-
-- A cost line records task/category, description, unit, quantity, unit rate/amount, currency, tax treatment where applicable, evidence/reference and responsible user. One work-order comparison uses one currency and consistent tax basis; no automatic foreign-exchange assumption.
-- SYSTEM calculates line amounts and totals with decimal arithmetic and a declared rounding rule. Approved initial baseline `E0` remains immutable; revised authorized amount `B = E0 + sum(approved change deltas)`. Pending/rejected changes are excluded.
-- Actual cost `A` is the sum of supported, reconciled incurred/allocation lines; variance `V = A − B`. Percentage variance is `100 × V / B` when `B > 0`; if the baseline is zero, percentage is `N/A`, not a divide-by-zero value.
-- Quotes/receipts evidence already-counted lines; attaching an invoice must not add the same materials/services a second time. Missing price is unknown/pending, not zero. Any reserve left unspent is not included in actuals.
-- Expected scope/budget growth requires a proposed change **before** the affected additional work is authorized. Actual unexpected spending must still be recorded honestly and escalated as a deviation; recording it does not retroactively authorize it.
-- Change records include reason, affected tasks, added/reduced quantity/cost, revised dates, supporting evidence and decision identity/time. Do not silently edit initial approved scope or baseline.
-- Final technical acceptance and financial reconciliation are separate. The final report displays initial estimate, approved changes, revised authorized amount, actual total and explained variance. Within-budget work still needs evidence/reconciliation; out-of-budget work needs documented resolution rather than hidden cost.
-- Repair expense belongs to the customer organization. It is separate from ENTERPRISE subscription revenue and does not generate platform commission. Supplier/petty-cash/payroll payments occur outside the platform; only references/status may be recorded. Statutory tax/accounting documentation remains the enterprise's responsibility.
-- No fixed quote count, spending threshold, contingency percentage or warranty period is assumed. Organization policy and applicable law govern these; policy/approval basis is captured with the decision.
-
-#### 3.8.4 Required Maintenance Completion Report and Acceptance Record
-
-Work-order practice records planned resources, executed work, actual usage and asset history, rather than simply repeating inspection findings.[2][8] The report must prove what the team reports doing and preserve the independent acceptance outcome; it does not replace the original MF3 report.
-
-| Section | Required content | Responsible person |
-| --- | --- | --- |
-| Identification and source | Work-order/report ID/version; organization/asset/site; source inspection report version and finding IDs; planned/actual dates. | Report author; SYSTEM links. |
-| Accountability | Full assigned team, task assignees, lead, report author, scope/budget approver and independent accepting reviewer; assignment/replacement history. | Organization Admin assigns; author verifies. |
-| Approved scope and criteria | Required correction by defect/task, approved method, limits, inspection/test and acceptance criteria; original scope/version. | Team lead; Organization Admin approves. |
-| Plan and approved changes | Initial estimate, allowed resources/dates and every approved/rejected/pending change with reason; budget calculation from structured records. | Lead proposes; Organization Admin decides. |
-| Execution and as-left condition | Actual task dates, attributed work logs, work reportedly carried out, consumed parts/materials, checks/tests and final observed condition. | Assigned members input; lead consolidates. |
-| Evidence and verification | Before/during/after references linked to the same defect/component, readings with method/units, missing proof and any separate re-inspection result. | Members; author verifies. |
-| Cost statement | Itemized actuals, supporting receipts/references, initial/revised approved budget, actual totals and explained variance; reconciliation status. | Lead/author consolidate; Organization Admin reconciles. |
-| Residual issues and follow-up | Unresolved/new defects, incomplete tasks, restrictions, monitoring or specialist needs; documented warranty conditions if actually applicable. | Lead and author; accepting reviewer assesses. |
-| Author declaration | LLM-assisted draft reviewed against source records; author's identity/time/version and corrections. | Designated report author. |
-| Independent acceptance and closure | Accepted/returned decision, checklist/test basis, reviewer/date/comments, cost-review decision, closure status and applicable signature reference. Not populated as “accepted” by LLM. | Independent Organization Admin; SYSTEM publishes. |
-
-Paired images are required proof, but do not by themselves demonstrate load capacity, electrical safety or concealed-work quality. Additional acceptance tests or specialist records are required when the approved scope demands them. A team declaring completion cannot mark defects independently resolved. Publish a maintenance disposition linked to the original finding; retain the point-in-time MF3 observation unchanged.
-
-### 3.9 FE-08 Dashboard, Analytics and Notifications
-
-- Platform Admin views subscriptions, technical health and platform/security audit, not customer technical approvals or repair budgets by default.
-- Organization Admin views own assets, workforce/Drone availability, credential/permit expiry, inspection/report queues, team workload, repair estimate/actual variance and pending acceptance/cost decisions.
-- Inspector views assigned inspections, quality decisions, draft authoring and returned work. Engineers view their assigned team/task responsibilities; lead/report-author actions appear only for the designated people.
-- Official findings analytics use approved findings; candidate/draft counts stay separate. Dashboards distinguish field completed, report published, repairs pending, team work completed, technically accepted and closed.
-- Notifications cover assignment/response, document expiry, readiness changes, upload/AI completion or failure, returned reports, budget/change decisions, rework and closure. Notifications do not waive backend scope checks.
+#### 3.9.2 Automated Event-Driven Operational Notifications
+- **Function Trigger**: System domain events (Mission Dispatched, Readiness Decision Recorded, Evidence Uploaded, Report Submitted, Work Order Budget Approved, Work Order Closed).
+- **Function Description**: Dispatches real-time in-app alerts and asynchronous email notifications to relevant stakeholders, informing them of required workflow actions.
+- **Function Details**:
+  - *Inputs*: Domain event payload, recipient user IDs, notification template.
+  - *Validations*: Recipient must have active account status and appropriate permission scope for the target entity.
+  - *Processing*: Renders notification message with direct deep-link to target workspace screen; dispatches in-app notification via WebSockets/polling; sends email notification via SMTP gateway.
+  - *Outputs*: Real-time notification badge increment, system notification record in user inbox, delivered email alert.
