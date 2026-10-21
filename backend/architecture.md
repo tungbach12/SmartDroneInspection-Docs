@@ -7,7 +7,7 @@ aliases:
 
 # Backend Architecture
 
-> **Current worktree status — 21 October 2026:** This page combines target architecture guidance with runtime inventory. The `inspections` module implements MF2 assignment response, preparation/compliance, readiness approval/return, session start/postpone/abort and normal completion, plus MF3 evidence, quality decisions, findings and reports. Additional-session requests return to `PREPARING`, invalidate the prior readiness, supersede the old approved preparation and create a next-version draft. Session start is bound to the latest READY preparation and its latest APPROVED readiness decision. Generic MF2-08 source-change invalidation remains partial; the additional-session path is covered. MF2-12 has focused implementation tests but not a Report 5 case. MF1 and MF4 remain incomplete workflow implementations. Verify runtime status against current source before treating target behaviors as shipped.
+> **Current runtime inventory — 21 October 2026:** Platform subscription activation and asset default-pair administration have local implementations and tests, with integration verification Pending because Docker is unavailable; reactivation after an ended term is handled. On `main`, the `inspections` module implements MF2 assignment response, preparation/compliance, readiness approval/return, session start/postpone/abort and normal completion, plus MF3 evidence, quality decisions, findings and reports. Additional-session requests return to `PREPARING`, invalidate the prior readiness, supersede the old approved preparation and create a next-version draft. Session start is bound to the latest READY preparation and its latest APPROVED readiness decision. Generic MF2-08 source-change invalidation remains partial; the additional-session path is covered. MF2-12 has focused implementation tests but not a Report 5 case. MF1 and MF4 remain incomplete workflow implementations. Verify runtime status against current source before treating target behaviors as shipped.
 
 The target backend architecture is a Java 21 Spring Boot modular monolith. Spring Modulith verifies the boundaries between direct feature packages so each team-owned capability stays focused.
 
@@ -34,9 +34,9 @@ com.smartdroneinspection/
 | Module | Capability | Runtime status |
 | --- | --- | --- |
 | `users` | Identity, authentication, organization, audit, and user administration | Auth/organization runtime and persistence remain; target organization-registration/auth contracts are still being reset. |
-| `subscriptions` | Enterprise subscription management | Package root only; the `subscriptions` table is schema, not subscription runtime. |
+| `subscriptions` | Enterprise subscription management | Platform ADMIN activation API creates an ENTERPRISE subscription with audit attribution; renewal, suspension, cancellation, and billing workflows are not established here. |
 | `workforce` | Credentials, qualifications, and compliance documents | Package root only; the `workforce_credentials` table is schema, not workforce runtime. |
-| `assets` | Asset catalog, asset documents, categories/checklists, and schedules | Asset/catalog/scheduling entities, repositories, controllers, and services remain; the reset branch is reconciling authorization and does not complete all MF1 target behavior. |
+| `assets` | Asset catalog, asset documents, categories/checklists, and schedules | Asset, category, Drone, Drone-document, permit and compliance APIs/services exist. Asset default-pair draft/history/activation/supersession API is implemented with domain tests; Docker-backed API cases are Pending. MF1 inspection creation/dispatch and asset pair defaults are also delivered in the latest main branch. |
 | `inspections` | Assignment response, mission preparation/compliance, readiness, field sessions, evidence, findings, and versioned reports | MF2-01/02, MF2-03/06, MF2-07, MF2-09/11 and MF2-12 normal completion are implemented. Additional-session return invalidates prior readiness and requires a new version/window/readiness approval; Start is bound to that current approval. Generic MF2-08 source-change invalidation is partial. MF2 additional-session/session-end code has focused implementation tests, not a full Report 5 scenario. MF3-01 through MF3-13 coding is present, including the MF3-12/13 corrective-outcome and handoff paths; that change executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full `verify` gate), and runtime review does not validate reviewer credentials. V37 consolidates detector suggestions and Inspector findings in `findings`; rejected AI suggestions are removed rather than retained as finding-level audit records, while explicit finding removal keeps its tombstone. In this task backend `./mvnw verify` passed 684 tests before the final AI-suggestion rejection-path correction; final `./mvnw -DskipTests package` passed without tests after that correction. Frontend production build passed. Mobile code generation passed, but no Android SDK or configured web target was available for an artifact build. Inspection creation remains in MF1; this module receives the assigned inspection. |
 | `maintenance` | Target work orders, teams, costs, work logs, reports, and acceptance | Legacy maintenance persistence artifacts remain; the MF4 target workflow implementation is not present. |
 | `notifications` | Notification records and delivery | Existing notification persistence may remain; target delivery behavior is not established by the reset. |
@@ -70,7 +70,8 @@ Shared code is limited to cross-cutting concerns such as error handling, securit
 
 ```text
 users -------------------------------> shared::api, shared::auth, shared::config, shared::exception
-subscriptions -----------------------> users, shared
+subscriptions -----------------------> users, shared::api, shared::exception
+assets ------------------------------> users, subscriptions, shared
 workforce ---------------------------> users, shared
 assets ------------------------------> shared, users
 inspections -------------------------> assets, shared::api, shared

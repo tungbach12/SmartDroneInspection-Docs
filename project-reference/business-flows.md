@@ -273,9 +273,9 @@ handoff, and `COMPLETED` by the recorded no-repair close.
 
 | Area | Status as of 20 October 2026 |
 | --- | --- |
-| Roles, organization registration, audit | Delivered and verified on VPS2 |
+| Roles and organization registration | Delivered; earlier registration integration verification remains recorded. Current Docker outage blocks newly added integration scenarios only. |
 | Target schema (41 tables) and runtime cutover | Delivered and verified on VPS2 |
-| Asset catalog, categories, checklists | Catalog runtime present; complete MF1 pair/inspection workflow remains incomplete |
+| Asset catalog, categories, checklists and pair defaults | Catalog runtime present; asset default-pair draft/history/activation/supersession API is implemented, but Docker-backed API cases are Pending; inspection creation/dispatch remains incomplete |
 | MF2-01/02 assignment response | Implemented in backend `84fcc16`, frontend `287d5a4`, mobile `91092e6`; backend API/integration coverage included in PR #64 CI |
 | MF2-03/06 preparation and compliance | Backend API/service and web preparation panel implemented; backend and frontend cases added |
 | MF2-07 readiness approval/return | Backend decision service, snapshot hash, source-list/read routes and web review panel implemented; `WF2-008`/`WF2-009` record the decision rules and evidence |
@@ -287,7 +287,7 @@ handoff, and `COMPLETED` by the recorded no-repair close.
 | MF3 evidence, quality decision, findings, versioned report and publication | Implemented and verified in earlier slices. Publication now precedes explicit corrective outcomes and handoff recording; the MF3-12/13 change executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full backend `verify` gate) but is not yet a passed Report 5 case. Runtime reviewer credential qualification remains unverified; role, tenant, active-account and separation-of-duties checks do not demonstrate qualification. |
 | MF4 work-order creation and workflow execution | Not implemented. MF3 corrective handoff records the eligible findings and inspection status only; it does not create a work order. |
 
-Earlier backend PR #64 verification completed with 334 tests, zero failures/errors/skips, and JaCoCo and Modulith checks passing; it does not verify the later corrective-outcome change. Report 5 currently records eleven cases: three MF2 cases and eight MF3 cases; `WF3-010`, `WF3-011` and `WF3-012` remain Pending. The new MF3-12/13 behavior has no passed case yet; its backend paths executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full `verify` gate with JaCoCo and Modulith checks). MF1, generic MF2-08 source-change invalidation, complete MF2 loop case evidence and MF4 work-order creation remain visible as implementation/test gaps. Do not treat schema or a code path as verified workflow evidence.
+Platform subscription activation and asset default-pair APIs were added locally on 21 October 2026; their Docker-backed integration cases are Pending because no Docker daemon was available. Domain and Modulith checks passed. These additions do not complete MF1 inspection creation/dispatch or the connected MF1-MF4 lifecycle. Earlier backend PR #64 verification completed with 334 tests, zero failures/errors/skips, and JaCoCo and Modulith checks passing; it does not verify the later corrective-outcome change. Report 5 currently records eleven cases: three MF2 cases and eight MF3 cases; `WF3-010`, `WF3-011` and `WF3-012` remain Pending. The new MF3-12/13 behavior has no passed case yet; its backend paths executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full `verify` gate with JaCoCo and Modulith checks). MF1, generic MF2-08 source-change invalidation, complete MF2 loop case evidence and MF4 work-order creation remain visible as implementation/test gaps. Do not treat schema or a code path as verified workflow evidence.
 
 ## IX. Source reference
 

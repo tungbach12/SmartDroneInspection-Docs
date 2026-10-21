@@ -6,6 +6,11 @@ round.
 
 ## Project metadata
 
+Supporting FE-01 subscription-activation/reactivation and FE-02 asset-pair API
+tests were added on 2026-10-21 but could not execute because Testcontainers
+could not find a Docker environment. They remain Pending supporting evidence
+and do not add workbook cases or change the 11-case totals below.
+
 The 15 October MF3 aggregate-confirmation gate and confirmed-findings rendering
 correction have been implemented and verified. The matching end-to-end case,
 `WF3-011`, is Pending; the 16 October post-publication corrective-outcome and
@@ -19,8 +24,8 @@ narrow unit/integration results below as a pass for either new case.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | **2026-10-21: MF1 integrated with MF2/MF3 workflow.** Supporting verification for MF1 asset pairing and inspection creation is recorded in FE-02. Backend clean package and frontend production build passed. See the dated verification sections below. No functional case status changed. |
-| Last updated | 2026-10-21 (MF1 asset pairing and dispatch integrated; no case status changed) |
+| Test round | **2026-10-21: MF1 integrated with MF2/MF3 workflow and supporting APIs.** Supporting verification for MF1 asset pairing, inspection creation, and supporting subscription activation / asset-pair administration is recorded in FE-01 and FE-02. Backend compilation, unit/domain/Modulith tests, and frontend production build passed. No functional case status changed. |
+| Last updated | 2026-10-21 (Report 5 version 4.39; no functional case status changed) |
 
 ## Module summary
 

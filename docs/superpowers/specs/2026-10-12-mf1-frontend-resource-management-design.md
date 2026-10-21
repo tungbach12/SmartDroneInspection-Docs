@@ -1,8 +1,8 @@
 # MF1 Frontend Resource Management Design
 
-**Status:** Draft for user review — conversational design approved; this written specification still awaits review  
-**Date:** 12 October 2026  
-**Repositories:** SmartDroneInspection-Frontend (`hieu`), SmartDroneInspection-Backend (`hieu`), SmartDroneInspection-Docs (`hieu`)  
+**Status:** Draft for user review — conversational design approved; this written specification still awaits review
+**Date:** 12 October 2026
+**Repositories:** SmartDroneInspection-Frontend (`hieu`), SmartDroneInspection-Backend (`hieu`), SmartDroneInspection-Docs (`hieu`)
 **Scope:** Frontend flows for MF1-02–MF1-07, consuming the already-implemented backend APIs. This design does not claim that the Frontend is implemented.
 
 ## 1. Purpose and success criteria
