@@ -222,7 +222,7 @@ Online payments through PayPal are scoped strictly to SaaS subscription activati
 
 #### `users`, `user_roles`, `auth_sessions`, `refresh_tokens`
 
-- `users`: `id`, `organization_id` nullable only for platform `ADMIN`, normalized email, full name, status (`ACTIVE`, `SUSPENDED`, `DISABLED`), `auth_version`, password hash and timestamps.
+- `users`: `id`, `organization_id` nullable only for platform `ADMIN`, normalized email, full name, phone number, avatar URL, status (`ACTIVE`, `SUSPENDED`, `DISABLED`), `auth_version`, password hash and timestamps.
 - `user_roles`: `user_id`, `role`; unique `(user_id, role)`. Allowed roles are exactly `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`.
 - `auth_sessions`: user, client type (`WEB`/`MOBILE`), expiry, revoked time/reason.
 - `refresh_tokens`: session, token hash, issued/expiry/revoked timestamps. Raw tokens are never stored.
