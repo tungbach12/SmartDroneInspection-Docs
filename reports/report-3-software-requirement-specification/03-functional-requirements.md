@@ -139,70 +139,108 @@ flowchart TD
 #### 3.1.5 Entity Relationship Diagram
 
 ```mermaid
+%% title: Entity Relationship Diagram (ERD)
 erDiagram
   ORGANIZATION ||--o{ USER : employs
+  ORGANIZATION ||--o{ SUBSCRIPTION : holds
+  ORGANIZATION ||--o{ ASSET_CATEGORY : defines
   ORGANIZATION ||--o{ DRONE : owns
   ORGANIZATION ||--o{ ASSET : owns
   ORGANIZATION ||--o{ FLIGHT_PERMIT : holds
-  ORGANIZATION ||--o{ SUBSCRIPTION : holds
-  SUBSCRIPTION ||--o{ PAYMENT_TRANSACTION : settles
-  USER ||--o{ CREDENTIAL : possesses
+  ORGANIZATION ||--o{ AUDIT_EVENT : records
+  ORGANIZATION ||--o{ NOTIFICATION : receives
 
-  ASSET ||--o{ ASSET_PAIR : assigns
-  USER ||--o{ ASSET_PAIR : "default inspector"
-  DRONE ||--o{ ASSET_PAIR : "default drone"
+  USER ||--o{ USER_ROLE : assigned
+  USER ||--o{ AUTH_SESSION : opens
+  AUTH_SESSION ||--o{ REFRESH_TOKEN : issues
+  USER ||--o{ WORKFORCE_CREDENTIAL : holds
+
+  ASSET_CATEGORY ||--o{ CHECKLIST_TEMPLATE : configures
+  CHECKLIST_TEMPLATE ||--o{ CHECKLIST_ITEM : contains
+  ASSET_CATEGORY ||--o{ ASSET : categorizes
+
+  ASSET ||--o{ ASSET_DOCUMENT : attaches
+  ASSET ||--o{ ASSET_PAIR_ASSIGNMENT : binds
+  USER ||--o{ ASSET_PAIR_ASSIGNMENT : "assigned inspector"
+  DRONE ||--o{ ASSET_PAIR_ASSIGNMENT : "assigned drone"
+
+  DRONE ||--o{ DRONE_DOCUMENT : attaches
+  ASSET ||--o{ INSPECTION_SCHEDULE : schedules
 
   ASSET ||--o{ INSPECTION : undergoes
-  INSPECTION ||--o{ PREPARATION : plans
-  PREPARATION ||--o{ READINESS_DECISION : evaluated_by
+  INSPECTION ||--o{ INSPECTION_PREPARATION : plans
+  INSPECTION_PREPARATION ||--o{ INSPECTION_READINESS_DECISION : evaluated_by
   INSPECTION ||--o{ FIELD_SESSION : executes
+  FIELD_SESSION ||--o{ CHECKLIST_RESPONSE : logs
+  CHECKLIST_ITEM ||--o{ CHECKLIST_RESPONSE : answers
 
   INSPECTION ||--o{ EVIDENCE : contains
-  EVIDENCE ||--o{ EVIDENCE_QUALITY_DECISION : evaluated_by
-  EVIDENCE ||--o{ FINDING_CANDIDATE : analyzed_for
+  FIELD_SESSION ||--o{ EVIDENCE : captures
+  INSPECTION ||--o{ EVIDENCE_QUALITY_DECISION : evaluates
   INSPECTION ||--o{ FINDING : records
-  FINDING ||--o{ EVIDENCE : attaches
+  EVIDENCE ||--o{ FINDING : locates
 
-  INSPECTION ||--o{ REPORT_VERSION : generates
-  REPORT_VERSION ||--o{ REPORT_SECTION : contains
+  INSPECTION ||--o{ INSPECTION_REPORT : owns
+  INSPECTION_REPORT ||--o{ INSPECTION_REPORT_VERSION : publishes
+  INSPECTION_REPORT_VERSION ||--o{ REPORT_VERSION_FINDING : includes
+  INSPECTION_REPORT_VERSION ||--o{ REPORT_VERSION_EVIDENCE : includes
 
-  INSPECTION ||--o{ MAINTENANCE_WORK_ORDER : generates
-  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_TASK : contains
-  MAINTENANCE_WORK_ORDER ||--o{ ESTIMATE_VERSION : estimated_by
-  MAINTENANCE_WORK_ORDER ||--o{ CHANGE_ORDER : modifies
-  MAINTENANCE_TASK ||--o{ WORK_LOG : logs
-  MAINTENANCE_WORK_ORDER ||--o{ REPAIR_EVIDENCE : documents
-  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_REPORT : closes_with
+  INSPECTION ||--o{ MAINTENANCE_WORK_ORDER : initiates
+  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_TEAM_MEMBER : deploys
+  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_TASK : deconstructs
+  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_ESTIMATE_VERSION : projects
+  MAINTENANCE_ESTIMATE_VERSION ||--o{ MAINTENANCE_COST_LINE : itemizes
+  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_CHANGE_ORDER : requests
+  MAINTENANCE_TASK ||--o{ MAINTENANCE_WORK_LOG : tracks
+  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_REPORT_VERSION : delivers
+  MAINTENANCE_REPORT_VERSION ||--o{ MAINTENANCE_ACCEPTANCE_DECISION : accepts
 ```
 
 **Entities Description**
 
-| # | Entity | Description |
-| --- | --- | --- |
-| 1 | Organization | Represents an enterprise customer tenant subscribing to the platform; isolates all workforce, asset, and operational data. |
-| 2 | User | System user identity assigned to an organization with a specific role (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`). |
-| 3 | Credential | Professional qualification record (pilot license, non-destructive testing certification) with validity dates and verification status. |
-| 4 | Drone | Hardware aircraft asset identified by model, serial number, equipment weight, payload capabilities, and serviceability status. |
-| 5 | Flight Permit | Official aviation authorization issued by civil or military authorities, specifying permitted geographical bounding boxes and validity dates. |
-| 6 | Asset | Physical infrastructure structure (bridge, pylon, tank, facility) managed by the organization, including location and technical metadata. |
-| 7 | Asset Pair | Default operational assignment linking an infrastructure asset to a responsible Inspector and a specific Drone. |
-| 8 | Inspection | Core operational mission record tracking purpose, scheduled time window, assigned personnel/equipment snapshot, and lifecycle status. |
-| 9 | Preparation | Pre-flight planning record comprising the structural component shot-list, safety protocols, and regulatory compliance data. |
-| 10 | Readiness Decision | Formal administrative authorization record approving or returning a mission preparation based on permit and credential validation. |
-| 11 | Field Session | Individual on-site flight execution session capturing pre-flight checklist notes, start/end timestamps, and postponement/abort outcomes. |
-| 12 | Evidence | High-resolution visual capture media (photograph, video frame) with server-calculated SHA-256 checksum and extracted GPS telemetry. |
-| 13 | Evidence Quality Decision | Substantive evaluation recorded by the Inspector assessing capture completeness, coverage against shot-list, and visual sharpness. |
-| 14 | Finding Candidate | Advisory defect proposal generated by YOLO11s computer vision, indicating defect classification, confidence score, and bounding coordinates. |
-| 15 | Finding | Official structural defect record verified and confirmed by the human Inspector, including defect type, severity, location, and photo references. |
-| 16 | Report Version | Versioned inspection report deliverable capturing structured authored sections, review decisions, and the compiled immutable PDF deliverable. |
-| 17 | Maintenance Work Order | Corrective remediation project initiated from confirmed inspection findings, tracking repair scope, schedule, and closure state. |
-| 18 | Maintenance Task | Decomposed unit of repair work assigned to a specific engineer, defining technical methods, required materials, and acceptance criteria. |
-| 19 | Estimate Version | Versioned financial projection detailing required labor hours, replacement materials, equipment rentals, and approved budget baseline. |
-| 20 | Change Order | Formal variance request documenting required adjustments to repair scope, budget, or completion date necessitated by site conditions. |
-| 21 | Work Log | Daily execution log recorded by assigned engineers tracking labor hours, material consumption, and task milestone progress. |
-| 22 | Repair Evidence | Before, during, and after photographic proof and non-destructive test certificates demonstrating structural defect remediation. |
-| 23 | Maintenance Report | Formal completion report authored by the designated engineer, reviewed by the organization administrator, and archived upon work order closure. |
-| 24 | Payment Transaction | Records individual online payment transactions via PayPal, logging PayPal order ID, capture ID, transaction amount, currency, payer email, and capture timestamp. |
+| # | Entity | Table Name | Description |
+| --- | --- | --- | --- |
+| 1 | Organization | `organizations` | Tenant enterprise customer company subscribing to the platform; isolates all workforce, asset, and operational records. |
+| 2 | User | `users` | System user account across Platform Admin, Organization Admin, Inspector, and Maintenance Engineer roles. |
+| 3 | User Role | `user_roles` | Associates users with specific role privileges and access control scopes. |
+| 4 | Auth Session | `auth_sessions` | Tracks active login sessions, device metadata, IP address, and revocation state. |
+| 5 | Refresh Token | `refresh_tokens` | Stores cryptographically hashed refresh tokens for secure JWT session rotation. |
+| 6 | Workforce Credential | `workforce_credentials` | Records professional pilot licenses, safety certifications, and technical qualifications with expiration tracking. |
+| 7 | Subscription | `subscriptions` | Tracks ENTERPRISE subscription contracts, periods (1, 6, 12 months), and billing/payment status. |
+| 8 | Asset Category | `asset_categories` | Structural categorization for infrastructure assets (Bridges, Power Towers, Industrial Facilities). |
+| 9 | Checklist Template | `checklist_templates` | Inspection checklist templates associated with specific asset categories. |
+| 10 | Checklist Item | `checklist_items` | Individual inspection checkpoints and verification criteria within a checklist template. |
+| 11 | Asset | `assets` | Physical infrastructure asset (bridge, pylon, building, facility) managed by the organization. |
+| 12 | Asset Document | `asset_documents` | Engineering schematics, structural drawings, and technical specifications attached to an asset. |
+| 13 | Drone | `drones` | Hardware aircraft asset identified by model, serial number, MTOW, and serviceability status. |
+| 14 | Drone Document | `drone_documents` | Airworthiness certificates, maintenance logs, and registration paperwork attached to a drone. |
+| 15 | Flight Permit | `flight_permits` | Official aviation flight authorizations, permitted geographical bounding boxes, and validity windows. |
+| 16 | Asset Pair Assignment | `asset_pair_assignments` | Operational default Inspector and Drone pairing assigned to an infrastructure asset. |
+| 17 | Inspection Schedule | `inspection_schedules` | Periodic inspection schedule establishing recurrence frequencies and due cycles. |
+| 18 | Inspection | `inspections` | Core inspection mission tracking scheduled windows, operational state, pair snapshot, and defect handoff. |
+| 19 | Inspection Preparation | `inspection_preparations` | Versioned pre-flight planning data including component shot-lists, capture angles, and compliance declarations. |
+| 20 | Checklist Response | `checklist_responses` | Pilot responses and notes recorded against individual checklist items during field sessions. |
+| 21 | Inspection Readiness Decision | `inspection_readiness_decisions` | Administrative authorization records approving or returning a mission preparation based on permits and credentials. |
+| 22 | Field Session | `field_sessions` | Individual on-site flight survey session capturing pre-flight checklist notes and operational outcomes (start, postpone, abort, complete). |
+| 23 | Evidence | `evidence` | Digital media assets with server-calculated SHA-256 digests and extracted GPS coordinates. |
+| 24 | Evidence Quality Decision | `evidence_quality_decisions` | Substantive Inspector evaluation of captured media against planned component shot-lists. |
+| 25 | Finding | `findings` | Unified findings table managing AI defect candidates and human-verified official defect findings. |
+| 26 | Inspection Report | `inspection_reports` | Master container anchoring report versions and active authoring drafts for an inspection. |
+| 27 | Inspection Report Version | `inspection_report_versions` | Versioned inspection report deliverables, rendered PDF object keys, and SHA-256 hashes. |
+| 28 | Report Version Finding | `report_version_findings` | Join table binding confirmed defect findings to specific published report versions. |
+| 29 | Report Version Evidence | `report_version_evidence` | Join table linking visual capture evidence items to specific published report versions. |
+| 30 | Maintenance Work Order | `maintenance_work_orders` | Remediation projects initiated from confirmed inspection findings, tracking repair scope, schedule, and state. |
+| 31 | Maintenance Team Member | `maintenance_team_members` | Engineering team members allocated to a maintenance work order. |
+| 32 | Maintenance Task | `maintenance_tasks` | Decomposed repair tasks with technical methods, criteria, and assigned engineers. |
+| 33 | Maintenance Estimate Version | `maintenance_estimate_versions` | Versioned financial projection baselines for labor, materials, equipment, and services. |
+| 34 | Maintenance Cost Line | `maintenance_cost_lines` | Individual itemized cost rows within an estimate baseline, change order, or actual expenditure. |
+| 35 | Maintenance Change Order | `maintenance_change_orders` | Formal variance requests adjusting repair scope, budget ceiling, or completion schedule. |
+| 36 | Maintenance Work Log | `maintenance_work_logs` | Daily execution entries logging labor hours, material consumption, and task milestone notes. |
+| 37 | Maintenance Report Version | `maintenance_report_versions` | Versioned maintenance completion deliverables, verified by the author and accepted by the administrator. |
+| 38 | Maintenance Acceptance Decision | `maintenance_acceptance_decisions` | Formal technical acceptance records evaluating repair completion and cost reconciliation. |
+| 39 | Notification | `notifications` | Operational alerts and domain event notifications delivered to system users. |
+| 40 | Audit Event | `audit_events` | Append-only security audit trail recording consequential domain transitions and access events. |
+| 41 | Event Publication | `event_publication` | Outbox pattern transactional event publication log for reliable asynchronous domain event delivery. |
 
 ---
 
