@@ -71,7 +71,7 @@ API compatibility enum values `REUPLOAD_REQUIRED` and `LIMITED` remain available
 for legacy history/API callers, but web/mobile active Inspector UI only exposes
 Accept and Additional session.
 
-Verification: full backend `./mvnw.cmd -B verify` passed **681 tests**, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met. Frontend full suite passed 55 files / 431 tests with typecheck, build and lint clean; mobile format, analyze and the 49-test suite passed. A live walkthrough against the existing Docker stack exercised the loop with a disposable inspection, and the web client was driven in a browser to confirm the two-choice panel, the additional-session reason field and the route to Preparation; the walkthrough data was deleted afterwards. The repeated visit was not re-assessed as a new evidence set in the product UI, so no case status is changed.
+Verification in this task: backend `./mvnw verify` passed **684 tests**, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met; `./mvnw -DskipTests package` passed. Frontend `npm run build` passed; mobile code generation passed, but Android build was blocked by the missing Android SDK and the project has no web target. Docs `git diff --check` passed. Frontend/mobile tests and live walkthrough were not run in this task. The repeated visit was not re-assessed as a new evidence set in the product UI, so no case status is changed.
 
 ### Capture retirement and bulk batch retirement — 2026-10-17
 

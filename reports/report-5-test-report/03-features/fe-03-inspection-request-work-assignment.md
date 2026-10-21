@@ -77,29 +77,14 @@ complete MF3-to-MF2 end-to-end case and no case status is promoted:
   passes after its additional-session supersession fixture was corrected to use
   legacy `LIMITED`, which does not initiate MF2 rework.
 
-Executed command: full backend `./mvnw.cmd -B verify` — **681 tests**, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met.
+Executed commands during this task: backend `./mvnw verify` — **684 tests**, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met; `./mvnw -DskipTests package` — passed with tests skipped. No live walkthrough was run in this task.
 
-A live walkthrough then ran the whole loop against the existing Docker stack with a disposable
-inspection (`.scratch/mf3-evidence-and-report/verify_additional_session.py`): the ORG_ADMIN
-approved readiness, the Inspector started and normally completed a session with outcome notes,
-uploaded evidence against that session, recorded the additional-session decision, the
-inspection returned to `PREPARING` with a superseded preparation and a next draft, a start
-was refused before the new approval, the Inspector proposed a new window and submitted
-preparation version 2, the ORG_ADMIN approved it, and a second session started against the new
-readiness decision. The web client was driven in a browser for the same decision: only **Accept
-evidence set** and **Additional session needed** were offered, the reason field appeared only for
-the additional-session choice, and confirming it routed the Inspector to the Preparation tab
-showing version 2 with the planned-window fields. The walkthrough data was deleted afterwards, so
-the seeded inspections, reports and published artifacts are unchanged.
-
-This is implementation and walkthrough evidence for the loop. It is still not a Report 5 functional
-case: no case status is promoted, and the repeated-session evidence set has not been re-assessed
-end to end in the product UI.
+This is implementation evidence, not a Report 5 functional case: no case status is promoted, and the repeated-session evidence set has not been re-assessed end to end in the product UI.
 
 ## Implemented and unverified boundaries
 
 Backend MF2-01/02 assignment response, MF2-03/06 preparation and compliance, MF2-07 approval/return, MF2-09/11 start/postpone/abort and MF2-12 normal completion are implemented. Session starts require a current approved decision bound to the latest READY preparation. An MF3 additional-session request marks the old readiness invalid, returns to PREPARING, creates a new versioned draft, and requires a new planned window before MF2 readiness review. The web client exposes the additional-session route and preparation-window fields; mobile now exposes preparation, session completion, and only the two supported evidence-quality choices.
 
-MF2-08 generic source-change invalidation remains partial: this slice appends INVALIDATED for the additional-session return specifically; there is still no general permit/pair/credential change workflow. MF2-12 and the repeated additional-session handoff are not represented by a complete Report 5 end-to-end case. The backend regressions (full 681-test `verify`) are implementation evidence, not a full readiness approval/start/re-capture execution.
+MF2-08 generic source-change invalidation remains partial: this slice appends INVALIDATED for the additional-session return specifically; there is still no general permit/pair/credential change workflow. MF2-12 and the repeated additional-session handoff are not represented by a complete Report 5 end-to-end case. The backend regressions (full 684-test `verify` in this task) are implementation evidence, not a full readiness approval/start/re-capture execution.
 
 The existing three cases verify readiness decision behavior and scoped history, not the full MF2 lifecycle. New focused regressions cover the additional-session mutation and session completion but do not cover one complete repeat visit with real readiness approval and second evidence assessment. Generic MF2-08 source-change invalidation remains partial. These results also say nothing about MF1 or MF4.
