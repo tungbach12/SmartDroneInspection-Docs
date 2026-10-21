@@ -226,14 +226,18 @@ erDiagram
   - *Processing*: Encrypts credential records; flags accounts with approaching expiration (30-day alert); blocks assignment dispatch if mandatory flight licenses expire.
   - *Outputs*: Provisioned workforce account, documented credential record with verification status.
 
-#### 3.2.3 Subscription Entitlements and Billing Governance
-- **Function Trigger**: Organization Admin views `Workspace Settings -> Subscriptions` and clicks `Subscribe with PayPal` or `Renew Plan`; or Platform Admin reviews corporate accounts.
-- **Function Description**: Manages ENTERPRISE tier subscriptions, calculates billing amounts for 1-, 6-, or 12-month periods, integrates PayPal Orders v2 API for online checkout, captures payment transactions, and automatically extends enterprise quotas upon payment confirmation.
+#### 3.2.3 Subscription Entitlements, Dynamic Pricing Configuration and Billing
+- **Function Trigger**: Platform Admin navigates to `Platform Administration -> Subscription Configuration` to set pricing/quotas; or Organization Admin views `Workspace Settings -> Subscriptions` to pay/renew.
+- **Function Description**: Enables Platform Admin to dynamically configure subscription rates per billing period (1, 6, 12 months) and quota ceilings (storage GB, active assets, drone fleet size) without code deployment. Enables Organization Admin to review dynamic pricing, select billing periods, checkout via PayPal Orders v2 API, and receive immediate quota activation upon payment capture.
 - **Function Details**:
-  - *Inputs*: Organization ID, billing period (1, 6, 12 months), subscription currency (USD), PayPal order ID, capture confirmation payload.
-  - *Validations*: Restricts plan selection to ENTERPRISE; verifies PayPal payment capture status is `COMPLETED`; validates transaction amount matches configured subscription pricing; checks against duplicate PayPal transaction capture IDs.
-  - *Processing*: Initiates PayPal order via REST API; user authorizes checkout; backend captures payment; persists `payment_transactions` record; sets subscription status to `ACTIVE`; recalculates expiration date (adds 30, 180, or 365 days); immediately unlocks tenant storage and active asset quotas; dispatches billing confirmation email.
-  - *Outputs*: Active enterprise subscription status, persisted PayPal transaction receipt, updated workspace quota entitlements, confirmation email.
+  - *Inputs*:
+    - Admin Configuration: Period duration (1, 6, 12 months), subscription unit price (USD), quota limits (storage GB, maximum assets, maximum users), discount percentage.
+    - Customer Checkout: Organization ID, selected billing period, PayPal Order ID, capture confirmation payload.
+  - *Validations*: Configured prices and quotas must be positive numeric values; verifies PayPal payment capture status is `COMPLETED`; validates transaction amount matches active configured pricing; checks against duplicate transaction capture IDs.
+  - *Processing*:
+    - Admin Mode: Persists versioned subscription plan definitions; updates active price catalog dynamically.
+    - Checkout Mode: Initiates PayPal order based on dynamically configured price; user authorizes checkout; backend captures payment; persists `payment_transactions` record; sets subscription status to `ACTIVE`; recalculates expiration date (adds 30, 180, or 365 days); immediately unlocks tenant storage and active asset quotas; dispatches billing confirmation email.
+  - *Outputs*: Updated platform subscription pricing catalog, active enterprise subscription status, persisted PayPal transaction receipt, updated workspace quota entitlements.
 
 ---
 

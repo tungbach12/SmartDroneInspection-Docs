@@ -57,7 +57,7 @@ Automated components (`SYSTEM`, YOLO11s AI Vision microservice, and LLM Report D
 | BR-07 | Inspection preparation requires a defined component shot-list and mandatory pre-flight safety checklist prior to readiness submission. |
 | BR-08 | Mission readiness authorization verifies valid flight permits, credential currency, and environmental suitability; internal approvals do not grant governmental flight exemptions. |
 | BR-09 | Periodic inspection generation is idempotent per asset, schedule, and cycle, inheriting the asset's active default Inspector and Drone pair into the inspection snapshot. |
-| BR-10 | ENTERPRISE is the sole platform subscription plan, supporting configurable billing periods of 1, 6, or 12 months with online payment settlement via PayPal or corporate billing records. |
+| BR-10 | ENTERPRISE subscription pricing rates, billing intervals (1, 6, or 12 months), and associated resource quotas (storage, assets, fleet size) are dynamically configured by Platform Admin and settled online via PayPal or corporate billing records without requiring source code modifications. |
 | BR-11 | Subscription entitlements, service quotas, and contractual terms are versioned and audited; PayPal transactions record unique order and capture IDs for audit reconciliation. |
 | BR-12 | Report drafts, cost estimate baselines, scope change requests, and approval decisions preserve complete version histories; published records cannot be modified in place. |
 | BR-13 | Subscription renewal, cancellation, and expiration follow transparent contractual terms; subscription expiration preserves historical business records and does not auto-complete open work. |

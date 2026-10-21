@@ -26,6 +26,7 @@ classDiagram
     +revokeSession(UUID userId) void
   }
   class SubscriptionService {
+    +configurePricingPlan(PlanPricingInput) SubscriptionPlanDto
     +activateSubscription(UUID orgId, SubscriptionInput) SubscriptionDto
     +checkEntitlement(UUID orgId) EntitlementStatus
   }
@@ -71,7 +72,7 @@ classDiagram
 
 - **AuthController**: Exposes authentication endpoints for web and mobile clients; coordinates password verification and token generation.
 - **UserService**: Manages tenant organization onboarding, workforce user creation, credential validation, and session revocation.
-- **SubscriptionService**: Governs enterprise subscription plans, payment confirmation recording, and quota enforcement.
+- **SubscriptionService**: Governs dynamic enterprise subscription plan pricing and quota configuration (storage GB, asset limits, period rates), payment confirmation recording, and quota enforcement.
 - **PayPalPaymentController & PayPalService**: Orchestrates online PayPal checkout order creation, client authorization redirects, payment capture, and cryptographic webhook IPN signature verification.
 
 #### 3.1.2 User Authentication Sequence Diagram
