@@ -14,8 +14,9 @@ infrastructure-owning companies. Four human roles, four connected Main Flows, no
 > **Requirements, not implementation.** These flows state required behaviour. By 10 October 2026,
 > the backend had delivered identity, organization registration, the 41-table target schema/runtime
 > cutover, the MF3 workflow slice, and an MF2 slice covering assignment response, preparation/compliance,
-> readiness approval/return and field-session start/postpone/abort. MF2-08 source-change invalidation is
-> partial and MF2-12 session end/`FIELD_COMPLETED` is not implemented; MF1 and MF4 remain incomplete.
+> readiness approval/return and field-session start/postpone/abort/completion. The MF3 additional-session
+> handoff returns to MF2 preparation and readiness. Generic MF2-08 source-change invalidation remains
+> partial; MF1 and MF4 remain incomplete.
 > See the implementation-status table below and [database-design.md](database-design.md) §11 for
 > the verified runtime boundary, and
 > [Report 3](../reports/report-3-software-requirement-specification/03-functional-requirements.md)
@@ -69,7 +70,7 @@ flowchart TD
   D["MF2 / INSPECTOR<br/>pre-flight checklist, session start/end"] --> E
   E["MF3 / INSPECTOR<br/>upload, decide evidence completeness/quality"] --> V
   E -.->|"More capture needed:<br/>same inspection, readiness rechecked"| B
-  V["MF3 / SYSTEM + AI Vision<br/>defect candidates with model provenance"] --> N
+  V["MF3 / SYSTEM + AI Vision<br/>findings with model provenance"] --> N
   N["MF3 / SYSTEM + LLM<br/>labelled report draft"] --> R
   R["MF3 / INSPECTOR<br/>verify, edit, submit"] --> F
   F["MF3 / ORG_ADMIN<br/>review report, approve or return"] --> G
@@ -140,9 +141,20 @@ ended field-session records under the same inspection.
 | MF2-11 | `INSPECTOR` | On the app, record checklist results, observations/incidents, then End, pause/abort or postpone. | Actual collected coverage, limitations and timestamps. Government incident reporting remains the responsible person's duty. |
 | MF2-12 | `SYSTEM` | Save the session outcome/end; mark that session `FIELD_COMPLETED` only when ended, preserving previous sessions. | Hand-off to MF3: session references, checklist/shot-list, pair and compliance snapshot. Not overall inspection completion or report approval. |
 
-**Additional capture:** the Inspector may request another session for the same inspection from MF3.
-Return to preparation/readiness before Start, especially when time, scope or permits changed. Do not
-jump from missing evidence to an unconditional Start.
+**Additional capture:** after MF3-03 review of a completed evidence set, the assigned Inspector may
+request another session for the same inspection. The decision is recorded with required comparison
+and reason, invalidates the current readiness approval, supersedes its preparation, creates a new
+versioned draft and returns the inspection to `PREPARING`. The Inspector updates the shot-list,
+known hazards/access and both planned start/end times. Existing permit references are not copied into
+the new preparation; the ORG_ADMIN must link/review applicable sources and independently approve the
+new readiness version. Only then may the Inspector start a new session. A normally ended new session
+returns to MF3 `FIELD_COMPLETED` with outcome notes. Prior sessions and evidence remain preserved.
+Re-uploading/replacing a file remains an ordinary upload/retirement action, not a quality-decision
+choice.
+
+**Weather/site safety:** conditions encountered during an open field session use MF2 postponement or
+abort. They are not MF3 evidence-quality outcomes. The app does not start a session automatically
+when MF3 requests additional capture.
 
 ### MF3 — Evidence, AI candidates, inspection report and publication
 
@@ -154,16 +166,16 @@ jump from missing evidence to an unconditional Start.
 | MF3-02 | `SYSTEM` | Validate technical intake, compute the hash, store source references and display upload/processing errors. | Valid stored files. Corrupt, wrong-type, oversize and duplicate failures identify the corrective action. |
 | MF3-03 | `INSPECTOR` | Compare evidence with the shot-list and directly decide completeness and quality. Re-upload a file or request another MF2 session. The comparison is stored with the decision and is required before one is recorded. | Inspector's documented adequate/insufficient decision, with the coverage comparison behind it. The SYSTEM does not decide image usefulness. |
 | MF3-04 | `SYSTEM` | Snapshot the evidence set after Inspector confirmation; preserve missing-metadata and coverage flags. | Source set eligible for processing. Later changes make dependent drafts and review confirmations stale. |
-| MF3-05 | Assigned `INSPECTOR`; AI Vision | Once the Inspector records an `ACCEPTED` evidence-quality decision, configured eligible-image detection may start automatically as a single pass over active images that have no candidate; the assigned Inspector can also request a run on any active image. Retired evidence stays in the audit register but is excluded from analysis and candidate photos in Findings. SYSTEM stores suggestions and model provenance. Re-running analysed evidence returns existing candidates unless the Inspector explicitly requests a replacement run. | Candidates remain advisory and linked to active source images. The automatic pass is a one-time offer per inspection: reopening Findings reopens the reviewed set and does not restart detection, which then runs only from the explicit action. AI unavailable, incompatible or skipped does not block manual findings; disclose analysis not performed. `LIMITED` evidence is not eligible for detection. |
-| MF3-06 | `INSPECTOR` | Review every AI candidate (confirm, modify or reject), add manual findings/observations, and link each proposal to active supporting evidence. The Inspector's action is a proposal, not the independent official decision. Location prose is optional when image, component context or annotation is sufficient; pixel boxes and EXIF GPS are not verified asset coordinates. | No candidate remains pending. An empty findings set is valid only after explicit acknowledgment that no finding was observed within the covered scope. Measurements require a documented method and unit, not pixel guesswork. |
-| MF3-06a | `INSPECTOR` / `SYSTEM` | Inspector selects **Confirm findings and continue**. SYSTEM verifies all candidates are resolved, records actor/time and the evidence/findings snapshot, and advances to the Report stage. | Does not create a report/version or invoke AI/LLM. A later material evidence/finding edit reopens Findings, clears confirmation, and requires reconfirmation; dependent draft content is stale. |
+| MF3-05 | Assigned `INSPECTOR`; AI Vision | Once the Inspector records an `ACCEPTED` evidence-quality decision, configured eligible-image detection may start automatically as a single pass over active images that have no finding; the assigned Inspector can also request a run on any active image. Retired evidence stays in the audit register but is excluded from analysis and finding photos in Findings. SYSTEM stores the suggestions as findings together with their model provenance. Re-running analysed evidence returns the existing findings unless the Inspector explicitly requests a replacement run. | A detector suggestion stays advisory and linked to active source images until the Inspector confirms or rejects it. Rejecting an AI suggestion removes it from retained finding records; explicit deletion of an Inspector working-set finding remains auditable. The automatic pass is a one-time offer per inspection: reopening Findings reopens the reviewed set and does not restart detection, which then runs only from the explicit action. AI unavailable, incompatible or skipped does not block manual findings; disclose analysis not performed. `LIMITED` evidence is not eligible for detection. |
+| MF3-06 | `INSPECTOR` | Confirm every finding, whether the detector proposed it or the Inspector recorded it, and link each one to active supporting evidence. Rejecting an AI suggestion removes it without creating a finding-level audit record; explicitly removing an Inspector working-set finding remains attributable and auditable. The Inspector's action is a proposal, not the independent official decision. Location prose is optional when image, component context or annotation is sufficient; pixel boxes and EXIF GPS are not verified asset coordinates. | No finding remains undecided. An empty findings set is valid only after explicit acknowledgment that no finding was observed within the covered scope. Measurements require a documented method and unit, not pixel guesswork. |
+| MF3-06a | `INSPECTOR` / `SYSTEM` | Inspector selects **Confirm findings and continue**. SYSTEM verifies every finding is decided, records actor/time and the evidence/findings snapshot, and advances to the Report stage. | Does not create a report/version or invoke AI/LLM. A later material evidence/finding edit reopens Findings, clears confirmation, and requires reconfirmation; dependent draft content is stale. |
 | MF3-07 | `INSPECTOR`, then `SYSTEM` / LLM only when selected | After confirmation, Inspector separately chooses AI-assisted draft generation or manual structured authoring. AI uses authorized inspection scope, evidence, observations and Inspector proposals; unsupported data remains not supplied, and planning data stays labelled as planned. | AI creates a labelled section-scoped `DRAFT`; manual creates a structured draft without invoking LLM. AI failure creates no partial version and does not switch methods; the Inspector may explicitly choose manual authoring. |
 | MF3-08 | `INSPECTOR` — report author | Read and edit the entire draft; verify scope, evidence, findings, uncertainty, recommendations and limitations; confirm authorship and submit. | Human-verified submitted version; evidence and findings still match the confirmed snapshot. Unsupported causes and measurements are removed. |
 | MF3-09 | `ORG_ADMIN` — independent reviewer | Review the submitted report as a whole, including Inspector-confirmed findings, evidence, scope and limitations; approve or return with a reason. | Report-level approval/return is the independent review decision; no per-finding Admin verdicts. No self-review or timed acceptance. Runtime role, active-account, organization and separation-of-duties checks do not establish professional qualification. |
-| MF3-10 | `INSPECTOR`, `ORG_ADMIN`, `SYSTEM` | Keep Inspector candidate review/confirmation separate from report-level Admin review. Findings/evidence changes require a report return, Inspector revision/reconfirmation, new draft, verification and resubmission. | Publication requires a current source snapshot and report-level approval. Pending/rejected AI candidates never become findings. |
+| MF3-10 | `INSPECTOR`, `ORG_ADMIN`, `SYSTEM` | Keep Inspector finding confirmation separate from report-level Admin review. Findings/evidence changes require a report return, Inspector revision/reconfirmation, new draft, verification and resubmission. | Publication requires a current source snapshot and report-level approval. An unconfirmed finding never becomes official. |
 | MF3-11 | `SYSTEM` | Publish the approved report version and its PDF with author, reviewer, date, source index and approval record; the published PDF is the version's deliverable, its object key and SHA-256 are recorded on the version, and publication does not complete unless the artefact is stored; apply qualified digital-signature integration only if one is supplied. | Immutable official version with a retained, checksum-verifiable artefact. A logged application approval alone is not a certified digital signature. |
-| MF3-12 | `ORG_ADMIN` | After publication, record an attributable corrective-action outcome for each Inspector-confirmed finding: work required, with a rationale, required priority and optional due date; or no work required within the observed scope, with a rationale. For an explicitly confirmed empty findings set, record a reasoned no-repair outcome rather than infer it from an empty list. | Each official finding has an explicit outcome and the report PDF remains unchanged. Priority is required only for corrective work; due date is optional. |
-| MF3-13 | `SYSTEM` / accountable `ORG_ADMIN` | After all MF3-12 outcomes are recorded, persist the handoff and send corrective items with recorded Org Admin outcomes to MF4 with report-version and finding references. When every official finding was recorded as no-action, the handoff still records the actor and closes the inspection as `COMPLETED` without an empty work order; a confirmed empty findings set is closed through the reasoned no-repair route rather than an empty list. | The handoff record does not itself create an MF4 work order; work-order creation and the receiving MF4 workflow are not implemented. No-repair rationale and report limitations remain traceable. |
+| MF3-12 | `ORG_ADMIN` | After report publication, select confirmed defect findings to forward to Maintenance as repair candidates (default all selected, deselectable). Individual finding-level rationales, priorities and due dates are omitted from report review and left to maintenance triage and work-order planning. Deselecting all leaves the report published without handoff, allowing forward later. An inspection with no confirmed defect findings can be completed without repairs through the reasoned no-repair route. | Confirmed findings selected by the administrator are forwarded to Maintenance as repair candidates. The published report PDF remains unchanged. |
+| MF3-13 | `SYSTEM` / accountable `ORG_ADMIN` | Record the handoff of selected repair candidates to MF4 with report-version and finding references. Forwarded findings enter the maintenance candidates inbox, where Maintenance creates work orders and assigns scope/team/budget; the handoff does not automatically generate work orders. If findings were forwarded, the inspection transitions to `REPAIR_PENDING`. When no findings were forwarded or none exist, the inspection remains published or closes as `COMPLETED` through the reasoned no-repair route. | Repair candidates are visible to the maintenance team. Omitted findings remain available to forward later. |
 
 **Report scope:** MF3 produces a point-in-time asset inspection record. It is not a flight permit,
 not proof the asset is structurally safe, and not a repair-completion certificate. AI suggestions
@@ -247,7 +259,7 @@ handoff, and `COMPLETED` by the recorded no-repair close.
    ownership, assignment or separation-of-duties scope.
 3. **Snapshot history is immutable.** Approved report versions, estimate baselines and audit events
    are never edited; corrections create a linked version.
-4. **AI output is separate from human decisions.** Candidates are not findings; drafts are not
+4. **AI output is separate from human decisions.** Detector suggestions carry provenance on the unified finding record while pending; rejection removes the suggestion and does not create a finding. Drafts are not
    approved reports; the LLM never calculates authoritative financial totals.
 5. **Completion is not acceptance.** Physical work being reported done requires an independent
    qualified reviewer before closure.
@@ -258,7 +270,7 @@ handoff, and `COMPLETED` by the recorded no-repair close.
 
 ## VIII. Implementation status
 
-| Area | Status on 10 October 2026 (MF3-12/13 row updated 16 October 2026) |
+| Area | Status as of 20 October 2026 |
 | --- | --- |
 | Roles and organization registration | Delivered; earlier registration integration verification remains recorded. Current Docker outage blocks newly added integration scenarios only. |
 | Target schema (41 tables) and runtime cutover | Delivered and verified on VPS2 |
@@ -268,11 +280,13 @@ handoff, and `COMPLETED` by the recorded no-repair close.
 | MF2-07 readiness approval/return | Backend decision service, snapshot hash, source-list/read routes and web review panel implemented; `WF2-008`/`WF2-009` record the decision rules and evidence |
 | MF2-08 invalidation | Partial: start requires the newest decision to be `APPROVED`; `INVALIDATED` is a supported decision type, but no source-change workflow currently appends it |
 | MF2-09/11 field session | Backend start/postpone/abort APIs and mobile field-session screen implemented; backend/mobile tests added |
-| MF2-12 session end and `FIELD_COMPLETED` handoff | Not implemented |
+| MF2-12 session completion | Backend records outcome and `FIELD_COMPLETED`; mobile exposes normal End action; targeted tests exist, no Report 5 case yet |
+| MF3 additional-session handoff to MF2 | Backend returns to PREPARING with next draft, invalidates old approval and requires a new planned window/readiness approval; web/mobile expose their steps |
+| MF2-12 normal session completion and `FIELD_COMPLETED` handoff | Implemented with required Inspector outcome notes; focused backend/mobile tests executed, but no complete Report 5 session case yet |
 | MF3 evidence, quality decision, findings, versioned report and publication | Implemented and verified in earlier slices. Publication now precedes explicit corrective outcomes and handoff recording; the MF3-12/13 change executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full backend `verify` gate) but is not yet a passed Report 5 case. Runtime reviewer credential qualification remains unverified; role, tenant, active-account and separation-of-duties checks do not demonstrate qualification. |
 | MF4 work-order creation and workflow execution | Not implemented. MF3 corrective handoff records the eligible findings and inspection status only; it does not create a work order. |
 
-Platform subscription activation and asset default-pair APIs were added locally on 21 October 2026; their Docker-backed integration cases are Pending because no Docker daemon was available. Domain and Modulith checks passed. These additions do not complete MF1 inspection creation/dispatch or the connected MF1-MF4 lifecycle. Earlier backend PR #64 verification completed with 334 tests, zero failures/errors/skips, and JaCoCo and Modulith checks passing; it does not verify the later corrective-outcome change. Report 5 currently records eleven cases: three MF2 cases and eight MF3 cases; `WF3-010`, `WF3-011` and `WF3-012` remain Pending. The new MF3-12/13 behavior has no passed case yet; its backend paths executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full `verify` gate with JaCoCo and Modulith checks). MF1, MF2-08, MF2-12 and MF4 work-order creation remain visible as implementation/test gaps. Do not treat schema or a code path as verified workflow evidence.
+Platform subscription activation and asset default-pair APIs were added locally on 21 October 2026; their Docker-backed integration cases are Pending because no Docker daemon was available. Domain and Modulith checks passed. These additions do not complete MF1 inspection creation/dispatch or the connected MF1-MF4 lifecycle. Earlier backend PR #64 verification completed with 334 tests, zero failures/errors/skips, and JaCoCo and Modulith checks passing; it does not verify the later corrective-outcome change. Report 5 currently records eleven cases: three MF2 cases and eight MF3 cases; `WF3-010`, `WF3-011` and `WF3-012` remain Pending. The new MF3-12/13 behavior has no passed case yet; its backend paths executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full `verify` gate with JaCoCo and Modulith checks). MF1, generic MF2-08 source-change invalidation, complete MF2 loop case evidence and MF4 work-order creation remain visible as implementation/test gaps. Do not treat schema or a code path as verified workflow evidence.
 
 ## IX. Source reference
 

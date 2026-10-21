@@ -122,15 +122,22 @@ on the separate `reports/:inspectionId` page.
 The `evidence` tab stages a multi-file queue and uploads it with one existing
 single-file mutation call per file in order; a failed file stays in the queue
 with its error without blocking the rest. Below it, the shot-list comparison field
-records the MF3-03 set-level decision, disabled until at least one active evidence item exists and the
-comparison is non-empty. The reason field is not a permanent fixture: it
-appears only after one of the reason-carrying decisions (re-upload, additional
-session, accept with limitation) is chosen and is confirmed separately, so a
-plain "Accept evidence set" is a single click. The panel also renders the
+records the MF3-03 set-level decision, available only in `FIELD_COMPLETED` and
+disabled until at least one active evidence item exists and the comparison is
+non-empty. The active choices are **Accept evidence set** and **Additional
+session needed**; legacy `REUPLOAD_REQUIRED` and `LIMITED` remain readable but
+are not actionable UI options. The reason field appears only for an additional
+session request and is required. On success the UI routes to MF2 Preparation,
+where the Inspector proposes a new future planned window and submits the next
+preparation version. A separate same-organization ORG_ADMIN readiness decision
+is still required before the mobile Inspector may start another session. The panel also renders the
 recorded decision with its comparison and reason — labelled as no longer current
 once the evidence set has changed — because that text is the report's coverage
 disclosure and leaving it invisible let an unchecked value stand as the
-disclosure. Its evidence register is server-filtered and
+disclosure. While status is `PREPARING` after an additional-session decision,
+prior evidence and decision history remain read-only; analysis and drafting
+remain unavailable until a later completed session is assessed and accepted.
+Its evidence register is server-filtered and
 server-paged through `GET /inspections/{id}/evidence/query` (status, media type,
 file-name/content-type search, page and page size); the register defaults to
 active captures and includes retired audit captures only when selected in the
@@ -139,23 +146,30 @@ counts and the newest capture-added and capture-retired instants, so the page ca
 show the status counts and detect a stale MF3-03 decision without loading every
 row. The `findings` tab runs
 advisory detection automatically as a single pass over active images that have
-no candidate once the set is accepted, shows each candidate with its defect
+no finding once the set is accepted, shows each finding with its defect
 photo resolved from the active evidence content endpoint and
-per-evidence shared asset location, and labelled, toggleable bounding-box overlays (label and confidence) on each candidate image. Box coordinates are pixel regions, not asset locations. The Inspector confirms/rejects candidates. The Org Admin has no finding-level decision controls in this stage; review is report-level after submission. The images of that pass are analysed in
-parallel and each result is written into the candidate cache as it arrives, so a
-row flips to "Detection complete" and its candidates appear in the Findings list
+per-evidence shared asset location, and labelled, toggleable bounding-box overlays (label and confidence) on each finding image. Box coordinates are pixel regions, not asset locations. The Inspector confirms a finding or removes it; the Org Admin has no finding-level decision controls in this stage; review is report-level after submission. The images of that pass are analysed in
+parallel and each result is written into the findings cache as it arrives, so a
+row flips to "Detection complete" and its findings appear in the Findings list
 as soon as that image's response lands instead of after the slowest image; a
 failure or timeout on one image leaves the others running and reports itself. The
 automatic pass is offered once per
 inspection and remembered for the tab session, so reopening Findings does not
-restart detection. An image that already has candidates shows "Detection complete"
-and offers no re-run control because MF3-05 returns existing candidates rather
+restart detection. An image that already has findings shows "Detection complete"
+and offers no re-run control because MF3-05 returns the existing findings rather
 than rerunning inference; the explicit per-image **Analyze** action remains
 available for unanalysed images. A finding remains linked to its evidence;
 location prose is optional where the image/component context is clear. Manual
 findings require source evidence.
 
-Pending candidates block **Confirm findings and continue**. An empty set requires
+A finding is one object, whoever produced it: a detector suggestion and something
+the Inspector recorded are the same kind of row, and the only question the screen asks
+is whether the Inspector has confirmed it. A confirmed finding shows a green chip; an
+undecided one shows "Awaiting review" and offers **Confirm** and **Remove**. A removed
+finding leaves the working set, and the **Removed findings** section behind a toggle lists
+what was removed with a **Restore** button, so a removal made by mistake is recoverable.
+
+Undecided findings block **Confirm findings and continue**. An empty set requires
 explicit acknowledgment that no finding was observed within the covered scope.
 Confirmation records a backend snapshot and moves to Report without creating a
 version or calling the drafting model. The Inspector may reopen Findings before
