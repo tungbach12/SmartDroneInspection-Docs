@@ -14,10 +14,10 @@ during the 2026-10-09 reset. The two MF2-07 decision cases were restored after
 backend/frontend/mobile PR integration; scoped preparation-history case
 `WF2-010` was added separately.
 
-This does not claim complete MF2 coverage. MF2-08 source-change invalidation is
-partial (session start checks the newest decision and requires APPROVED, but no
-source-change flow appends INVALIDATED); MF2-12 session end and
-`FIELD_COMPLETED` handoff remain unimplemented. MF1, MF4 (including MF4
+This does not claim complete MF2 coverage. MF2-08 generic source-change invalidation remains
+partial (the additional-session return now appends INVALIDATED and session start checks the latest
+approval/preparation binding); MF2-12 normal session completion is implemented and tested, but a
+complete MF3-to-MF2 repeated-session case has not been executed. MF1, MF4 (including MF4
 work-order creation, which the MF3-13 handoff does not perform) and FE-08 remain
 gaps, and the MF3-12/13 corrective-outcome path is backed by executed green
 runs (81 targeted WF3 tests and the 650-test full `verify` gate on 2026-10-16)

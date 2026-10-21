@@ -18,7 +18,9 @@ The earlier content mixed a retired five-role WF1–WF4 baseline with the curren
 four-role Enterprise SaaS target. The 2026-10-09 reset removed obsolete and
 unimplemented cases. The 2026-10-10 reconciliation restored the two MF2-07
 readiness cases backed by merged backend PR #64 and its CI evidence; `WF2-010`
-was added later for the scoped preparation-history listing.
+was added later for the scoped preparation-history listing. The current
+additional-session loop and MF2-12 completion have focused tests but no complete
+Report 5 end-to-end case yet.
 
 Removed during the reset, because they describe behavior that no longer exists
 or was never implemented:
@@ -40,8 +42,9 @@ The removed IDs remain reserved. `WF3-010`, `WF3-011` and `WF3-012` are active; 
 The 2026-10-10 merge of backend PR #64 (`84fcc16`), frontend PR #37
 (`287d5a4`) and mobile PR #9 (`91092e6`) added MF2 runtime. `WF2-008` and
 `WF2-009` now record MF2-07 readiness approve/return verification only; they do
-not claim full MF2 completion. MF2-08 invalidation is partial and MF2-12
-session-end handoff remains unimplemented. MF1 and MF4 remain gaps. FE-01
+not claim full MF2 completion. MF2-08 generic invalidation is partial, and
+MF2-12 normal session completion is implemented without a Report 5 case. MF1 and
+MF4 remain gaps. FE-01
 supporting verification remains outside the workbook case index and functional
 case statistics; see `03-features/fe-01-identity-access-governance.md`.
 
@@ -74,9 +77,9 @@ These are stated as gaps rather than filled with fabricated cases or statuses.
 - **MF2** is only partly covered: `WF2-008` and `WF2-009` test MF2-07 readiness
   approval/return, while `WF2-010` covers the scoped preparation-history read.
   Assignment response, preparation/compliance, source-change
-  invalidation, field-session start/postpone/abort and session-end handoff are not
-  represented by Report 5 cases. MF2-08 invalidation is partial in runtime;
-  MF2-12 session end/`FIELD_COMPLETED` remains unimplemented.
+  invalidation, field-session start/postpone/abort/completion and the full
+  additional-session round trip are not represented by Report 5 cases. MF2-08
+  generic invalidation remains partial in runtime; MF2-12 completion is now implemented.
 - **FE-08** dashboard, analytics and notifications has no assigned case.
 
 The MF2-07 cases and five of the eight MF3 cases have executed backend/web test

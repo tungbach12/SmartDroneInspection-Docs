@@ -8,14 +8,15 @@ weight: 40
 This describes the implemented Report 3 MF2 slice and MF3 workflow inside the
 `inspections` Spring Modulith module. Roles are the four Enterprise SaaS roles:
 `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`. The assigned
-Inspector is the human report author; AI is advisory only. MF2-08 source-change
-invalidation is partial; MF2-12 session end and `FIELD_COMPLETED` handoff are
-not implemented.
+Inspector is the human report author; AI is advisory only. MF2-12 normal
+completion and the MF3 additional-session return to MF2 are implemented.
+Generic MF2-08 source-change invalidation remains partial.
 
 Access is decided by the authenticated principal and scoped lookups, never by
 client-supplied user, organization, owner, or assignment identifiers. Write
 operations require the *assigned* Inspector; read and review operations also
-allow a same-organization `ORG_ADMIN`.
+allow a same-organization `ORG_ADMIN`. Write decisions remain backend-owned;
+no decision automatically starts a field session.
 
 ## Assignment inbox and assignment response (FE-03, MF2-01/02)
 
@@ -40,7 +41,15 @@ Preparation is versioned under an assigned inspection at
 list the history (`GET`), read a preparation (`GET /{preparationId}`), update
 the shot-list (`PUT`), and submit the current version (`POST
 /{preparationId}/submission`). Submission is serialized with readiness review
-and is permitted only while the inspection is `PREPARING`.
+and is permitted only while the inspection is `PREPARING`. An MF3
+`ADDITIONAL_SESSION_REQUIRED` decision returns the inspection to `PREPARING`,
+appends readiness invalidation, supersedes the prior approved preparation, and
+creates a next-version draft preserving the Inspector's shot-list, evidence
+requirements and safety/access notes. Permit references are re-linked during
+MF2 review rather than silently copied. The Inspector must set both a new future
+planned start/end window on the additional-session preparation before the ORG_ADMIN
+can re-evaluate credentials, Drone documents, pair validity and permits against
+the revised time.
 
 An `ORG_ADMIN` links applicable permit records with
 `POST /compliance/permits` and reads the compliance gate with
@@ -68,22 +77,30 @@ and resolve records within the caller's organization. These internal record
 checks are not external registry verification. `WF2-008` and `WF2-009` are the
 Report 5 cases for approval/return rules; they do not cover all MF2 behavior.
 
-## Field sessions (FE-03, MF2-09/11; partial handoff)
+## Field sessions (FE-03, MF2-09/12)
 
 An assigned active `INSPECTOR` may list their sessions, start a session, record
-postponement, or abort an open session. Start requires an inspection in
-`READY_FOR_FLIGHT`, a non-blank pre-flight checklist note, no other open session,
-and the newest readiness decision to be `APPROVED`. Start records a software
-session and moves the inspection to `IN_PROGRESS`; it never actuates or pilots
-the Drone. Postponement reopens the inspection to `READY_FOR_FLIGHT`; abort
-records the abort but leaves the inspection `IN_PROGRESS`.
+postponement, abort an open session, or normally complete it. Start requires an
+inspection in `READY_FOR_FLIGHT`, a non-blank pre-flight checklist note, no
+other open session, and the newest readiness decision to be `APPROVED`. That
+approval must reference the latest preparation ID/version and the preparation
+must be `READY`. Start records a software session and moves the inspection to
+`IN_PROGRESS`; it never actuates or pilots the Drone. Postponement reopens the
+inspection to `READY_FOR_FLIGHT`; abort records the abort but leaves the
+inspection `IN_PROGRESS`.
 
-The `INVALIDATED` readiness decision type exists, and start checks the newest
-decision so an appended invalidation would prevent reuse of an older approval.
-However, no source-change workflow currently appends `INVALIDATED`; that part of
-MF2-08 is partial. There is no session-end route to close an aborted/started
-session or transition the inspection to `FIELD_COMPLETED`; MF2-12 remains
-unimplemented.
+The additional-session handoff appends `INVALIDATED` after verifying the
+current approval belongs to the latest preparation. Generic permit/pair/credential
+source-change workflows do not yet append invalidation, so MF2-08 remains partial.
+
+Normal completion is `POST /api/v1/inspections/{inspectionId}/field-sessions/{sessionId}/completion`
+with required `outcomeNotes`. It is restricted to the assigned active Inspector
+and the current session/readiness decision. In one transaction it records
+session `FIELD_COMPLETED`, end time and outcome notes and changes the inspection
+from `IN_PROGRESS` to `FIELD_COMPLETED`; previous sessions/evidence remain.
+Weather/site-safety postponement is separate and only applies while a session is
+open. No aircraft control, hardware telemetry or statutory incident reporting
+is implied.
 
 ## Inspection and report collections (FE-04, FE-06)
 
@@ -128,6 +145,18 @@ writes and exports. Denied or unexpected cross-tenant attempts remain the
 condition that must be monitored.
 
 ## Evidence intake (FE-04, MF3-01/02)
+
+The Inspector may record a substantive evidence-quality decision only in
+`FIELD_COMPLETED`. On `ADDITIONAL_SESSION_REQUIRED`, the previous completed
+capture set and decision history remain auditable, but the old set becomes
+read-only for further assessment/upload while the inspection is `PREPARING`.
+After new preparation is submitted, independent ORG_ADMIN readiness review is
+required before another start. Once that session is normally completed, the
+inspection returns to `FIELD_COMPLETED`, and the Inspector can add captures and
+assess the current active evidence set again. Only the latest `ACCEPTED` decision
+unlocks advisory analysis and drafting. Weather/safety during field work remains
+an MF2 postponement/abort, not an MF3 evidence-quality decision.
+
 
 | Operation | Endpoint | Actor |
 | --- | --- | --- |
@@ -191,19 +220,20 @@ detection and report drafting.
 prose, so the service stores the text as a single `summary` entry and returns it
 unchanged. The same applies to a finding's `measurement`.
 
-## AI candidates and verified findings (FE-05, MF3-05/06/09)
+## Findings (FE-05, MF3-05/06/09)
 
 | Operation | Endpoint | Actor |
 | --- | --- | --- |
-| List candidates | `GET /api/v1/inspections/{inspectionId}/finding-candidates` | assigned Inspector, same-org ORG_ADMIN |
+| List findings | `GET /api/v1/inspections/{inspectionId}/findings` | assigned Inspector, same-org ORG_ADMIN |
+| List removed findings | `GET /api/v1/inspections/{inspectionId}/findings/removed` | assigned Inspector, same-org ORG_ADMIN |
 | List completed evidence analysis status (including zero detections) | `GET /api/v1/inspections/{inspectionId}/evidence/analysis-status` | assigned Inspector, same-org ORG_ADMIN |
 | Analyze evidence | `POST /api/v1/inspections/{inspectionId}/evidence/{evidenceId}/analyze[?replace=true]` | assigned Inspector |
-| Review candidate | `POST /api/v1/inspections/{inspectionId}/finding-candidates/{candidateId}/review` | assigned Inspector |
-| List findings | `GET /api/v1/inspections/{inspectionId}/findings` | assigned Inspector, same-org ORG_ADMIN |
+| Confirm finding | `POST /api/v1/inspections/{inspectionId}/findings/{findingId}/confirmation` | assigned Inspector |
 | Add manual finding | `POST /api/v1/inspections/{inspectionId}/findings` | assigned Inspector |
 | Update finding | `PUT /api/v1/inspections/{inspectionId}/findings/{findingId}` | assigned Inspector |
-| Delete finding | `DELETE /api/v1/inspections/{inspectionId}/findings/{findingId}` | assigned Inspector |
-| Record finding decision | `POST /api/v1/inspections/{inspectionId}/findings/{findingId}/decision` | same-org ORG_ADMIN |
+| Remove finding | `DELETE /api/v1/inspections/{inspectionId}/findings/{findingId}` | assigned Inspector |
+| Restore removed finding | `POST /api/v1/inspections/{inspectionId}/findings/{findingId}/restore` | assigned Inspector |
+| Record corrective outcome | `PUT /api/v1/inspections/{inspectionId}/findings/{findingId}/corrective-action` | same-org ORG_ADMIN |
 
 Successful analysis timestamps and detection counts are persisted on evidence so a valid empty detector result is distinguishable from an image not yet analysed and does not repeat on reload. A deliberate `replace=true` request performs a new pass. A valid zero-detection YOLO response does not trigger fallback.
 
@@ -217,12 +247,17 @@ an answer, not a failure, and is not re-checked by the option. With neither
 provider configured the analysis endpoints report that automated analysis is not
 configured.
 
-Analysis without `replace` answers with the capture's existing candidates instead
+A finding is one observation, whoever made it. The detector proposes and the Inspector
+records what they saw, and both are the same kind of row: a `PENDING` finding that the
+Inspector has yet to look at, and a `CONFIRMED` finding that is official. The model
+provenance travels with the row when there is one, so a caller can see which findings
+came from the detector without the workflow depending on that distinction.
+
+Analysis without `replace` answers with the capture's existing findings instead
 of running the detector again, so the automatic pass and a re-opened workspace do
 not accumulate duplicates. `replace=true` is the explicit re-run: it runs the
-detector again and swaps the capture's **unreviewed** candidates for the new
-result, while candidates the Inspector already confirmed, modified or rejected
-carry those decisions and survive. Detections are produced before the previous
+detector again and swaps the capture's **undecided** findings for the new
+result, while findings the Inspector already confirmed survive. Detections are produced before the previous
 suggestions are removed, so a detector failure leaves them in place, and a re-run
 that finds nothing leaves the capture with no suggestions rather than stale ones
 from the previous detector.
@@ -242,14 +277,25 @@ sets `stream:false`, and asks for a JSON `detections` object. Configure
 must not be committed. The adapter validates the label, confidence in `[0,1]`,
 and normalized `xMin`, `yMin`, `xMax`, `yMax` coordinates in `[0,1]` with
 positive box dimensions. Candidates retain the configured model alias and the
-provider-reported model version, so a candidate records which detector produced
+provider-reported model version, so a finding records which detector produced
 it. These adapters provide advisory suggestions
 only; they do not make an AI result an official finding.
 
 Analysis is refused until the Inspector accepts the evidence. An inference
 failure returns `503 AI_INFERENCE_UNAVAILABLE` and the manual finding path
-stays available. Only a candidate the assigned Inspector confirms or modifies creates a finding. Inspector confirmation makes it reportable; the Organization Admin later approves or returns the whole report rather than deciding each finding. Pending and rejected candidates never enter report snapshots. A
-rejected candidate returns `204 No Content`.
+stays available. A finding becomes official only when the assigned Inspector confirms it;
+the Organization Admin later approves or returns the whole report rather than deciding each finding.
+Undecided findings never enter report snapshots.
+
+Confirming a finding the Inspector already confirmed is refused with
+`409 FINDING_ALREADY_CONFIRMED`: the confirmation is a statement about the content, so
+the content cannot move underneath a decision that was already made. Editing a finding
+takes the confirmation back, and the Inspector confirms it again.
+
+Removing a finding hides it from the working set rather than erasing it. The row stays
+for audit, reads filter it out, and `GET /findings/removed` lists what was removed.
+`POST /findings/{findingId}/restore` brings one back, so a removal made by mistake is
+recoverable.
 
 ## Report authoring, review and publication (FE-06, MF3-07 to MF3-13)
 

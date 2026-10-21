@@ -10,9 +10,13 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-16 |
 | Document Code | *Enter document code* |
-| Version | 4.35 (Source-backed report context and PDF alignment; V35 persists required pre-flight notes. Backend 668-test verify passed; report context frontend 6 tests, typecheck, build and lint passed. No published artifacts modified.) |
+| Version | 4.36 (MF3 additional-session handoff to MF2 + MF2-12 completion implemented. Backend full `./mvnw.cmd -B verify` passed 681 tests with coverage/Modulith gates; frontend 431 tests/typecheck/build/lint and mobile 49 tests/analyze/format passed.) |
 
-## Current verification — source-backed MF3 report context (2026-10-19)
+## Current verification — MF3 additional-session handoff + MF2-12 completion (2026-10-20)
+
+Backend full `./mvnw.cmd -B verify` passed **681 tests**, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met. The change covers the MF3 additional-session handoff to `PREPARING` (prior READY preparation marked SUPERSEDED, INVALIDATED readiness appended, next-version draft created, prior sessions/evidence preserved), the new planned start/end required on that preparation, refusal to start against an approval belonging to an older preparation, normal MF2-12 completion with required Inspector outcome notes, and evidence/decision association with the completed visit. Frontend full suite passed 55 files / **431 tests**; `npx tsc --noEmit` and `npm run build` passed; `npm run lint` exited 0 with six existing Fast Refresh warnings. Mobile `dart format --set-exit-if-changed .`, `flutter analyze`, and `flutter test` passed (**49 tests**). Docs `git diff --check` passed and the Report 5 exporter suite passed 29 tests; no Hugo build was run. A live walkthrough against the existing Docker stack exercised the full additional-session loop with a disposable inspection, and the web client was driven in a browser to confirm the two-choice panel and the route to Preparation; the walkthrough data was deleted afterwards. No published artifacts or workflow actions were changed. No Report 5 case status was promoted; the complete repeat-visit scenario remains unexecuted.
+
+## Previous verification — source-backed MF3 report context (2026-10-19)
 
 Backend `./mvnw.cmd -B verify` passed 668 tests, 0 failures/errors/skips, with
 Spotless, JaCoCo and Spring Modulith checks met. The focused report/session suites
@@ -48,8 +52,8 @@ verification is supporting evidence, not an additional WFx case result.
 ## Record of change
 
 The workbook's change table uses these columns. Add one row for each approved
-revision; do not remove old entries. Current source version: **4.35**, last updated
-2026-10-19; see the record of changes below.
+revision; do not remove old entries. Current source version: **4.36**, last updated
+2026-10-20; see the record of changes below.
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |
 | --- | --- | --- | --- | --- | --- |

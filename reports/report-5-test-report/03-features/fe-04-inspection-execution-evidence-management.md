@@ -7,8 +7,7 @@ evidence management" wording; the filename is stable, the scope is Report 3's.
 ## Scope baseline
 
 Report 3 §3.5 gives FE-04 two halves: the **session-record obligations of MF2**
-(MF2-09–MF2-12) and the **evidence steps of MF3** (MF3-01–MF3-04). Only the MF3
-half is implemented and verified.
+(MF2-09–MF2-12) and the **evidence steps of MF3** (MF3-01–MF3-04). Backend/mobile MF2 session start, postponement, abort and normal completion now exist; the additional-session round-trip still lacks complete Report 5 end-to-end execution.
 
 The `inspections` module implements the MF3 half: scoped evidence upload with a
 server-computed checksum and idempotent retry, evidence listing and streaming,
@@ -16,10 +15,7 @@ the assigned Inspector's substantive evidence-quality decision that gates AI
 analysis and report drafting, and the scoped inspection and report collections
 that make those records reachable.
 
-The MF2 half — field-session start/end, postponement and interruption records —
-is **not** implemented: there is no `/assignments`, `/start`, or `/checklist`
-endpoint, so this feature has no case for it. Manual drone piloting remains
-outside the platform target.
+Normal field-session completion uses `POST /api/v1/inspections/{inspectionId}/field-sessions/{sessionId}/completion` with required outcome notes. It closes only the assigned Inspector's current in-progress session as `FIELD_COMPLETED`; it does not assert hardware telemetry, flight-control, or statutory incident reporting. Weather/site-safety postponement remains a separate MF2 action. Manual drone piloting remains outside the platform target.
 
 ## Feature sheet summary
 
@@ -48,11 +44,34 @@ covers discovery and scoping of the same records, and the inline report summary
 that keeps the inspections and reports screens consistent.
 
 Neither case covers the MF2 session-record obligations assigned to FE-04 by
-Report 3. Session start, postponement and abort have backend runtime and tests,
-but Report 5 has no case for them; session end and the `FIELD_COMPLETED` handoff
-remain unimplemented. Report 3 §3.7.2 and §3.7.3 (required report content and
-LLM safeguards) belong to FE-06 and are likewise not asserted by these cases;
+Report 3. Session start, postponement, abort and completion have backend runtime
+and targeted tests, but Report 5 has no complete session case. Report 3 §3.7.2
+and §3.7.3 (required report content and LLM safeguards) belong to FE-06 and are
+likewise not asserted by these cases;
 see `fe-06-…md`.
+
+### MF2 session completion and MF3 additional-session boundaries — 2026-10-20
+
+Targeted backend evidence is recorded in FE-03; this FE-04 source does not yet
+have a Report 5 case for the complete MF2 session lifecycle. Normal completion
+stores `outcomeNotes`, `endedAt`, and session status `FIELD_COMPLETED`, then
+returns the inspection from `IN_PROGRESS` to `FIELD_COMPLETED` atomically. The
+assigned active Inspector alone can complete their current session against the
+current readiness decision. Weather/site-safety postponement is unchanged and
+remains a distinct MF2 path.
+
+`EvidenceQualityService` accepts an additional-session request only from a
+`FIELD_COMPLETED` inspection whose latest completed field session carries
+available evidence, with a latest READY preparation and matching latest APPROVED
+readiness decision. It appends the request plus an INVALIDATED readiness row,
+supersedes the prior preparation, creates the next draft and returns to PREPARING
+in one transaction. The new preparation requires a future window before
+submission; ORG_ADMIN review still gates Start. Prior sessions/evidence remain.
+API compatibility enum values `REUPLOAD_REQUIRED` and `LIMITED` remain available
+for legacy history/API callers, but web/mobile active Inspector UI only exposes
+Accept and Additional session.
+
+Verification: full backend `./mvnw.cmd -B verify` passed **681 tests**, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met. Frontend full suite passed 55 files / 431 tests with typecheck, build and lint clean; mobile format, analyze and the 49-test suite passed. A live walkthrough against the existing Docker stack exercised the loop with a disposable inspection, and the web client was driven in a browser to confirm the two-choice panel, the additional-session reason field and the route to Preparation; the walkthrough data was deleted afterwards. The repeated visit was not re-assessed as a new evidence set in the product UI, so no case status is changed.
 
 ### Capture retirement and bulk batch retirement — 2026-10-17
 

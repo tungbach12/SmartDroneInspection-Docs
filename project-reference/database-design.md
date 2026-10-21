@@ -8,7 +8,7 @@ weight: 25
 
 > **Scope:** This document is the database-design companion to the Report 3 SRS revision dated **7 October 2026**. It specifies the Enterprise SaaS target with four human roles and four connected Main Flows; the 41-table count below is a target logical inventory, not a completed database inventory.
 >
-> **Implementation status — 16 October 2026:** Backend V24 aligns identity vocabulary and performs a fail-closed role/zone migration; V25 is an additive bridge that creates the target tables. `V26__enterprise_saas_runtime_cutover.sql` completes the runtime cutover: it drops every non-target marketplace, old-client and MF5 table, tightens composite tenant foreign keys, and enforces the target status vocabularies. `V27__mf3_report_workflow.sql` then drops the removed `peer_reviews` table and replaces the retired report-status vocabulary with the MF3 one. `V30__mf3_corrective_action_and_decision_revision.sql` adds the MF3-12 corrective-action outcome columns on `verified_findings` and the MF3-13 handoff columns on `inspections`. `V31__mf3_corrective_outcome_follows_publication.sql` then clears the outcomes that predate the publication they would be attributed to, and the publication path repeats that correction at runtime. The MF3 workflow is implemented over the inspection tables below; MF1, MF2, and MF4 workflow implementation remains out of scope. The MF3-12/13 corrective-outcome change executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full backend `verify` gate) and has no passed Report 5 case yet. A table's or column's presence is not evidence that its use case or MF1–MF4 workflow is implemented. See the current backend plan and migration files for executable details.
+> **Implementation status — 16 October 2026:** Backend V24 aligns identity vocabulary and performs a fail-closed role/zone migration; V25 is an additive bridge that creates the target tables. `V26__enterprise_saas_runtime_cutover.sql` completes the runtime cutover: it drops every non-target marketplace, old-client and MF5 table, tightens composite tenant foreign keys, and enforces the target status vocabularies. `V27__mf3_report_workflow.sql` then drops the removed `peer_reviews` table and replaces the retired report-status vocabulary with the MF3 one. `V30__mf3_corrective_action_and_decision_revision.sql` adds the MF3-12 corrective-action outcome columns on `findings` and the MF3-13 handoff columns on `inspections`. `V31__mf3_corrective_outcome_follows_publication.sql` then clears the outcomes that predate the publication they would be attributed to, and the publication path repeats that correction at runtime. The MF3 workflow is implemented over the inspection tables below; MF1, MF2, and MF4 workflow implementation remains out of scope. The MF3-12/13 corrective-outcome change executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full backend `verify` gate) and has no passed Report 5 case yet. A table's or column's presence is not evidence that its use case or MF1–MF4 workflow is implemented. See the current backend plan and migration files for executable details.
 >
 > **Change boundary:** This design supersedes the former Provider/Client marketplace and MF1–MF5 target schema proposal. The current companion status/report references were also reconciled on 7 October 2026; Report 3 remains the source of business requirements. Backend migrations and code are owned by the backend repository and must not be inferred from this design alone.
 
@@ -76,7 +76,7 @@ The target design contains **41 application tables** plus optional framework inf
 | Workforce and compliance | `workforce_credentials`, `drones`, `drone_documents`, `flight_permits` | 4 |
 | Asset and MF1 setup | `asset_categories`, `checklist_templates`, `checklist_items`, `assets`, `asset_documents`, `asset_pair_assignments`, `inspection_schedules`, `inspections` | 8 |
 | MF2 preparation and field | `inspection_preparations`, `inspection_readiness_decisions`, `field_sessions`, `checklist_responses` | 4 |
-| MF3 evidence, findings and reports | `evidence`, `evidence_quality_decisions`, `ai_finding_candidates`, `verified_findings`, `inspection_reports`, `inspection_report_versions`, `report_version_evidence`, `report_version_findings` | 8 |
+| MF3 evidence, findings and reports | `evidence`, `evidence_quality_decisions`, `findings`, `inspection_reports`, `inspection_report_versions`, `report_version_evidence`, `report_version_findings` | 7 |
 | MF4 repair and cost | `maintenance_work_orders`, `maintenance_tasks`, `maintenance_team_members`, `maintenance_estimate_versions`, `maintenance_cost_lines`, `maintenance_change_orders`, `maintenance_work_logs`, `maintenance_report_versions`, `maintenance_acceptance_decisions` | 9 |
 | Cross-cutting | `audit_events`, `notifications` | 2 |
 
@@ -278,7 +278,7 @@ A due-cycle uniqueness key prevents duplicate generated inspections. Past snapsh
 
 #### `inspection_preparations`
 
-Versioned preparation records: inspection, Inspector, preparation version, component shot-list JSON, evidence types, access constraints, safety observations, permit/document references, submitted time and status (`DRAFT`, `SUBMITTED`, `RETURNED`, `READY`).
+Versioned preparation records: inspection, Inspector, preparation version, component shot-list JSON, evidence types, access constraints, safety observations, permit/document references, submitted time and status (`DRAFT`, `SUBMITTED`, `RETURNED`, `READY`, `SUPERSEDED`). Inspection planned start/end remain on the inspection and are updated when the Inspector proposes the window for an additional-session preparation; each readiness decision snapshots the version and planned window it reviewed.
 
 #### `inspection_readiness_decisions`
 
@@ -286,7 +286,7 @@ Append-only decisions: inspection, preparation version, decision (`APPROVED`, `R
 
 #### `field_sessions`
 
-Records app-only sessions: inspection, organization, Inspector, assigned Drone snapshot, readiness version, status (`PLANNED`, `IN_PROGRESS`, `FIELD_COMPLETED`, `POSTPONED`, `ABORTED`), start/end, postponement/abort reason, checklist version and limitations. It does not require flight-control telemetry and does not imply the app piloted the aircraft.
+Records app-only sessions: inspection, organization, Inspector, assigned Drone snapshot, readiness version, status (`PLANNED`, `IN_PROGRESS`, `FIELD_COMPLETED`, `POSTPONED`, `ABORTED`), start/end, postponement/abort reason, normal-completion `outcome_notes`, checklist version and limitations. `V36__record_completed_field_session_outcome.sql` adds the outcome-notes field and `SUPERSEDED` preparation status. Normal completion records `FIELD_COMPLETED`; weather/site-safety postponement stays distinct. It does not require flight-control telemetry and does not imply the app piloted the aircraft.
 
 #### `checklist_responses`
 
@@ -312,13 +312,24 @@ At least one workflow parent is required. Duplicate checksum within the same ins
 
 Inspector-controlled decision per evidence set/version: `PENDING`, `ACCEPTED`, `REUPLOAD_REQUIRED`, `ADDITIONAL_SESSION_REQUIRED`, `LIMITED`. Stores shot-list comparison, limitation reason, Inspector and time. Technical intake cannot create `ACCEPTED` by itself.
 
-#### `ai_finding_candidates`
+#### `findings`
 
-Stores AI Vision suggestions: inspection/evidence, model/provider/version, label/confidence/region, raw-result reference, processing status and timestamps. Status: `PENDING`, `CONFIRMED`, `MODIFIED`, `REJECTED`, `ERROR`. Candidates are never official findings by default.
+One table for every finding, whoever produced it. `V37__merge_findings_into_one_table.sql` merges
+the former `ai_finding_candidates` and `verified_findings` tables into this one, because the
+workflow never asked which of the two a row was: it asked whether the Inspector had confirmed it.
 
-#### `verified_findings`
+- **Identity**: `id`, `inspection_id`, `evidence_id`, `created_by_user_id`, `finding_code` (unique per inspection, assigned to every row including a detector suggestion).
+- **Status**: `PENDING` or `CONFIRMED`. A detector suggestion and a manual observation both start `PENDING`; only the Inspector's confirmation makes a finding official.
+- **Content**: `defect_label`, `severity`, `location_description`, `technical_notes`, `recommended_action`, `component`, `description`, `observed_condition`, `priority`, measurement JSON with method/unit, `bounding_box`.
+- **Provenance** (nullable, present only when a detector produced the finding): `model_name`, `model_version`, `model_provider`, `confidence`.
+- **Confirmation**: `inspector_confirmed_at` and `confirmed_by_user_id`.
+- **Removal**: `deleted_at`, `deleted_by_user_id`, `deletion_reason`. Removal is a tombstone rather than a status, so a finding that was confirmed and later removed still records that it was confirmed, and a removed finding can be restored.
+- **Corrective outcome** (MF3-12): `corrective_action_required`, `corrective_action_priority`, optional `corrective_action_due_at`, `corrective_action_reviewed_by_user_id`, `corrective_action_reviewed_at` and `corrective_action_rationale`. These fields are distinct from the Inspector proposal; a work-required outcome requires a priority, while a no-action outcome carries no priority/due date. A corrective-action outcome belongs to the published version that precedes it: `V31__mf3_corrective_outcome_follows_publication.sql` clears a recorded outcome that predates its report's publication (for an inspection that has not completed the MF3-13 handoff), and publication clears an outcome recorded before the new version, so a disposition from an earlier cycle is never presented as the outcome of a later one.
 
-Stores human findings: inspection, source candidate optional, component/location, description, observed condition, severity, Inspector-proposed priority, measurement JSON with method/unit, decision (`CONFIRMED`, `MODIFIED`, `REJECTED`), decided by/time and rationale. `V30__mf3_corrective_action_and_decision_revision.sql` adds the separate post-publication MF3-12 reviewer outcome: `corrective_action_required`, `corrective_action_priority`, optional `corrective_action_due_at`, `corrective_action_reviewed_by_user_id`, `corrective_action_reviewed_at` and `corrective_action_rationale`. These fields are distinct from the Inspector proposal; a work-required outcome requires a priority, while a no-action outcome carries no priority/due date. The migration backfills existing reviewer dispositions into the new fields rather than leaving them undecided. A corrective-action outcome belongs to the published version that precedes it: `V31__mf3_corrective_outcome_follows_publication.sql` clears a recorded outcome that predates its report's publication (for an inspection that has not completed the MF3-13 handoff), and publication clears an outcome recorded before the new version, so a disposition from an earlier cycle is never presented as the outcome of a later one. Rejected findings remain auditable but cannot create corrective work.
+The merge keeps every finding that was already official, with its code, confirmation time and
+corrective outcome intact, so a published report and its PDF still point at the same rows. A
+detector suggestion the Inspector never resolved becomes a `PENDING` row of its own; a suggestion
+that already produced a finding is that finding, so it is not copied twice.
 
 #### `inspection_reports`, `inspection_report_versions`, `report_version_evidence`, `report_version_findings`
 
@@ -335,11 +346,11 @@ Read-only report-version context resolves tenant-scoped organization, asset/cate
 
 The report body's structured JSON holds the authored section values described in Report 3 §3.7.2,
 so no additional table is required for them. Automated drafting writes proposed section values into
-a new DRAFT version; it never updates `verified_findings`, and the author can replace or clear each
+a new DRAFT version; it never updates `findings`, and the author can replace or clear each
 proposal before verification. `rendered_object_key` and `rendered_checksum_sha256` are
 populated when the version is published, not before: they identify the published PDF that is the
 version's deliverable, and the checksum is taken from the stored bytes. A draft or returned version
-legitimately leaves them null. MF3-12 corrective-action outcomes are stored against `verified_findings`
+legitimately leaves them null. MF3-12 corrective-action outcomes are stored against `findings`
 after publication and never mutate this immutable PDF. Inspection columns `corrective_handoff_by_user_id`,
 `corrective_handoff_at` and `no_repair_rationale` (added by `V30`) record the final MF3-13 handoff:
 work-required findings move the inspection to `REPAIR_PENDING`, an all-no-action finding set completes
@@ -433,7 +444,7 @@ Scoped delivery record: recipient, organization, event type, aggregate reference
 | Asset pair members belong to the same tenant | Domain service plus explicit organization FKs/validation. |
 | Periodic inspection is idempotent | Unique `(schedule_id, due_cycle_key)` for generated inspections. |
 | Evidence is not duplicated in a workflow context | Scoped unique checksum indexes. |
-| AI candidate is not an official defect | Only `verified_findings` may enter approved report/work order links. |
+| AI candidate is not an official defect | Only `findings` may enter approved report/work order links. |
 | Report publication requires human gates | State transition requires Inspector author verification and independent ORG_ADMIN approval; the runtime outcome field records a corrective-action decision per official finding, and the handoff columns record MF3-13. Reviewer professional qualification is a target condition, not a runtime credential check. |
 | Work order source is valid | FK to published report version and confirmed repair-required finding. |
 | One lead/report author per work order | Partial unique active assignment indexes plus application validation. |
@@ -501,9 +512,10 @@ Applied migration files remain forward-only history. The backend reset has begun
 - V27 MF3 report workflow: `SmartDroneInspection-backend/src/main/resources/db/migration/V27__mf3_report_workflow.sql` — drops the removed `peer_reviews` table and replaces the retired report-status vocabulary
 - V28 assignment response: `SmartDroneInspection-backend/src/main/resources/db/migration/V28__assignment_response.sql` — records the Inspector's accept/reject response separately from pairing lifecycle
 - V29 findings confirmation gate: `SmartDroneInspection-backend/src/main/resources/db/migration/V29__mf3_findings_confirmation_gate.sql`
-- V30 MF3 corrective outcome and handoff: `SmartDroneInspection-backend/src/main/resources/db/migration/V30__mf3_corrective_action_and_decision_revision.sql` — adds `verified_findings.corrective_action_*` and `inspections.corrective_handoff_*`/`no_repair_rationale`, and backfills existing reviewer dispositions
+- V30 MF3 corrective outcome and handoff: `SmartDroneInspection-backend/src/main/resources/db/migration/V30__mf3_corrective_action_and_decision_revision.sql` — adds `verified_findings.corrective_action_*` (the table was renamed to `findings` by V37) and `inspections.corrective_handoff_*`/`no_repair_rationale`, and backfills existing reviewer dispositions
 - V31 corrective outcome follows publication: `SmartDroneInspection-backend/src/main/resources/db/migration/V31__mf3_corrective_outcome_follows_publication.sql` — clears backfilled outcomes that predate the publication they would be attributed to, leaving inspections that already completed the MF3-13 handoff untouched
-- V32 findings correction and author withdrawal: `SmartDroneInspection-backend/src/main/resources/db/migration/V32__mf3_findings_correction_and_author_withdrawal.sql` — adds `verified_findings.deleted_*`, `evidence.retired_*`, and `inspection_report_versions.withdrawn_*` / `return_reason_type`
+- V32 findings correction and author withdrawal: `SmartDroneInspection-backend/src/main/resources/db/migration/V32__mf3_findings_correction_and_author_withdrawal.sql` — adds `verified_findings.deleted_*` (now `findings.deleted_*`), `evidence.retired_*`, and `inspection_report_versions.withdrawn_*` / `return_reason_type`
+- V37 findings merge: `SmartDroneInspection-backend/src/main/resources/db/migration/V37__merge_findings_into_one_table.sql` — renames `verified_findings` to `findings`, folds the detector's suggestions into it, and replaces the duplicated review vocabularies with one status (`PENDING`, `CONFIRMED`) plus a removal tombstone
 - V35 pre-flight note persistence: `SmartDroneInspection-backend/src/main/resources/db/migration/V35__persist_field_session_preflight_note.sql` — stores the required Inspector-entered session note; it is not item-level checklist evidence
 
 - [Report 3 Software Requirement Specification](../reports/report-3-software-requirement-specification/)
