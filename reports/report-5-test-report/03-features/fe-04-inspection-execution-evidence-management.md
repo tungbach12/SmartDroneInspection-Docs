@@ -71,7 +71,7 @@ API compatibility enum values `REUPLOAD_REQUIRED` and `LIMITED` remain available
 for legacy history/API callers, but web/mobile active Inspector UI only exposes
 Accept and Additional session.
 
-Verification in this task: backend `./mvnw verify` passed **684 tests**, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met; `./mvnw -DskipTests package` passed. Frontend `npm run build` passed; mobile code generation passed, but Android build was blocked by the missing Android SDK and the project has no web target. Docs `git diff --check` passed. Frontend/mobile tests and live walkthrough were not run in this task. The repeated visit was not re-assessed as a new evidence set in the product UI, so no case status is changed.
+Verification in this task: backend `./mvnw verify` passed **684 tests**, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met before the final AI-suggestion rejection-path correction; final `./mvnw -DskipTests package` passed after that correction without executing tests. Frontend `npm run build` passed; mobile code generation passed, but Android build was blocked by the missing Android SDK and the project has no web target. Docs `git diff --check` passed. Frontend/mobile tests and live walkthrough were not run in this task. The repeated visit was not re-assessed as a new evidence set in the product UI, so no case status is changed.
 
 ### Capture retirement and bulk batch retirement — 2026-10-17
 

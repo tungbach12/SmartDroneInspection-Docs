@@ -43,7 +43,7 @@ The 2026-10-10 merge of backend PR #64 (`84fcc16`), frontend PR #37
 (`287d5a4`) and mobile PR #9 (`91092e6`) added MF2 runtime. `WF2-008` and
 `WF2-009` now record MF2-07 readiness approve/return verification only; they do
 not claim full MF2 completion. MF2-08 generic invalidation is partial, and
-MF2-12 normal session completion is implemented without a Report 5 case. MF1 and
+MF2-12 normal session completion is implemented in code and has focused tests but no Report 5 case. MF1 and
 MF4 remain gaps. FE-01
 supporting verification remains outside the workbook case index and functional
 case statistics; see `03-features/fe-01-identity-access-governance.md`.

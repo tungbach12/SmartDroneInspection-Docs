@@ -99,8 +99,10 @@ and the current session/readiness decision. In one transaction it records
 session `FIELD_COMPLETED`, end time and outcome notes and changes the inspection
 from `IN_PROGRESS` to `FIELD_COMPLETED`; previous sessions/evidence remain.
 Weather/site-safety postponement is separate and only applies while a session is
-open. No aircraft control, hardware telemetry or statutory incident reporting
-is implied.
+open. An aborted session may later be closed with normal completion notes; that records
+`FIELD_COMPLETED` plus the retained `abortReason`, so consumers must not interpret this status as
+proof of a wholly uninterrupted session. No aircraft control, hardware telemetry or statutory
+incident reporting is implied.
 
 ## Inspection and report collections (FE-04, FE-06)
 

@@ -8,7 +8,7 @@ weight: 25
 
 > **Scope:** This document is the database-design companion to the Report 3 SRS revision dated **7 October 2026**. It specifies the Enterprise SaaS target with four human roles and four connected Main Flows; the 41-table count below is a target logical inventory, not a completed database inventory.
 >
-> **Implementation status — 16 October 2026:** Backend V24 aligns identity vocabulary and performs a fail-closed role/zone migration; V25 is an additive bridge that creates the target tables. `V26__enterprise_saas_runtime_cutover.sql` completes the runtime cutover: it drops every non-target marketplace, old-client and MF5 table, tightens composite tenant foreign keys, and enforces the target status vocabularies. `V27__mf3_report_workflow.sql` then drops the removed `peer_reviews` table and replaces the retired report-status vocabulary with the MF3 one. `V30__mf3_corrective_action_and_decision_revision.sql` adds the MF3-12 corrective-action outcome columns on `findings` and the MF3-13 handoff columns on `inspections`. `V31__mf3_corrective_outcome_follows_publication.sql` then clears the outcomes that predate the publication they would be attributed to, and the publication path repeats that correction at runtime. The MF3 workflow is implemented over the inspection tables below; MF1, MF2, and MF4 workflow implementation remains out of scope. The MF3-12/13 corrective-outcome change executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full backend `verify` gate) and has no passed Report 5 case yet. A table's or column's presence is not evidence that its use case or MF1–MF4 workflow is implemented. See the current backend plan and migration files for executable details.
+> **Implementation status — 21 October 2026:** Backend V24 aligns identity vocabulary and performs a fail-closed role/zone migration; V25 is an additive bridge that creates the target tables. `V26__enterprise_saas_runtime_cutover.sql` completes the runtime cutover: it drops every non-target marketplace, old-client and MF5 table, tightens composite tenant foreign keys, and enforces the target status vocabularies. `V27__mf3_report_workflow.sql` then drops the removed `peer_reviews` table and replaces the retired report-status vocabulary with the MF3 one. `V30__mf3_corrective_action_and_decision_revision.sql` adds the MF3-12 corrective-action outcome columns on `findings` and the MF3-13 handoff columns on `inspections`. `V31__mf3_corrective_outcome_follows_publication.sql` then clears the outcomes that predate the publication they would be attributed to, and the publication path repeats that correction at runtime. The `inspections` module has focused MF2 preparation/readiness/session and MF3 evidence/findings/report workflow slices; MF1 and MF4 workflow implementation remains incomplete. `V37__merge_findings_into_one_table.sql` consolidates detector suggestions and Inspector findings; rejected AI suggestions are excluded and are not retained as finding-level audit records, while explicitly removed Inspector findings retain deletion attribution. In this task `./mvnw verify` passed 684 tests before the final rejection-path correction; `./mvnw -DskipTests package` then passed after the correction without running tests. No Report 5 case was promoted; a table or column's presence is not proof that its full workflow is implemented. See current source and migrations for executable detail.
 >
 > **Change boundary:** This design supersedes the former Provider/Client marketplace and MF1–MF5 target schema proposal. The current companion status/report references were also reconciled on 7 October 2026; Report 3 remains the source of business requirements. Backend migrations and code are owned by the backend repository and must not be inferred from this design alone.
 
@@ -60,7 +60,7 @@ The system does **not** store or control:
 3. **The asset pair is historical data.** An asset has a current/default Inspector + specific Drone pair, but each inspection snapshots the pair. Changing the default never rewrites past inspections.
 4. **Published records are append-only.** Inspection reports, maintenance reports, decisions, cost baselines and change decisions are versioned. Corrections create a linked version.
 5. **Evidence bytes stay in MinIO.** PostgreSQL stores object identity, checksum, metadata, ownership and workflow links; it does not store large image/video bytes.
-6. **AI output is separate from human findings.** AI candidates cannot be used as official defects until a human decision records confirmation, modification or rejection.
+6. **AI provenance is retained with accepted findings.** AI suggestions cannot be used as official defects until the Inspector confirms or modifies them. Rejecting an AI suggestion removes it from retained finding records; deletion audit fields apply to explicitly removed Inspector working-set findings.
 7. **LLM output is separate from approved reports.** A draft stores model provenance and source references. It cannot become published/accepted without the named human gates.
 8. **Estimate, approved budget, actual and variance are different values.** A cost line is never silently changed from estimate to actual.
 9. **Completion is not acceptance.** A team can report physical work complete; an independent qualified reviewer must accept it before closure.
@@ -139,9 +139,8 @@ erDiagram
     FIELD_SESSIONS ||--o{ CHECKLIST_RESPONSES : answers
     FIELD_SESSIONS ||--o{ EVIDENCE : captures
     EVIDENCE ||--o{ EVIDENCE_QUALITY_DECISIONS : reviewed
-    EVIDENCE ||--o{ AI_FINDING_CANDIDATES : analyzes
-    INSPECTIONS ||--o{ VERIFIED_FINDINGS : contains
-    AI_FINDING_CANDIDATES o|--o| VERIFIED_FINDINGS : may_become
+    EVIDENCE ||--o{ FINDINGS : supports
+    INSPECTIONS ||--o{ FINDINGS : contains
     INSPECTIONS ||--|| INSPECTION_REPORTS : has
     INSPECTION_REPORTS ||--o{ INSPECTION_REPORT_VERSIONS : versions
     INSPECTION_REPORT_VERSIONS ||--o{ REPORT_VERSION_EVIDENCE : cites
@@ -151,7 +150,7 @@ erDiagram
 ```mermaid
 erDiagram
     INSPECTION_REPORT_VERSIONS ||--o{ MAINTENANCE_WORK_ORDERS : sources
-    VERIFIED_FINDINGS ||--o{ MAINTENANCE_WORK_ORDERS : corrects
+    FINDINGS ||--o{ MAINTENANCE_WORK_ORDERS : corrects
     MAINTENANCE_WORK_ORDERS ||--o{ MAINTENANCE_TASKS : contains
     MAINTENANCE_WORK_ORDERS ||--o{ MAINTENANCE_TEAM_MEMBERS : assigns
     USERS ||--o{ MAINTENANCE_TEAM_MEMBERS : joins
@@ -329,7 +328,10 @@ workflow never asked which of the two a row was: it asked whether the Inspector 
 The merge keeps every finding that was already official, with its code, confirmation time and
 corrective outcome intact, so a published report and its PDF still point at the same rows. A
 detector suggestion the Inspector never resolved becomes a `PENDING` row of its own; a suggestion
-that already produced a finding is that finding, so it is not copied twice.
+that already produced a finding is that finding, so it is not copied twice. Rejected AI suggestions
+are excluded from the migration and removed when the old candidate table is dropped; they do not
+remain as finding-level audit records. Explicitly removed Inspector working-set findings retain the
+delete attribution fields.
 
 #### `inspection_reports`, `inspection_report_versions`, `report_version_evidence`, `report_version_findings`
 
@@ -444,7 +446,7 @@ Scoped delivery record: recipient, organization, event type, aggregate reference
 | Asset pair members belong to the same tenant | Domain service plus explicit organization FKs/validation. |
 | Periodic inspection is idempotent | Unique `(schedule_id, due_cycle_key)` for generated inspections. |
 | Evidence is not duplicated in a workflow context | Scoped unique checksum indexes. |
-| AI candidate is not an official defect | Only `findings` may enter approved report/work order links. |
+| AI suggestion is not an official defect | Only `findings` confirmed by the assigned Inspector may enter approved report/work order links; pending rows are advisory, and rejected AI suggestions are removed rather than retained as findings. |
 | Report publication requires human gates | State transition requires Inspector author verification and independent ORG_ADMIN approval; the runtime outcome field records a corrective-action decision per official finding, and the handoff columns record MF3-13. Reviewer professional qualification is a target condition, not a runtime credential check. |
 | Work order source is valid | FK to published report version and confirmed repair-required finding. |
 | One lead/report author per work order | Partial unique active assignment indexes plus application validation. |
@@ -499,7 +501,7 @@ Applied migration files remain forward-only history. The backend reset has begun
 
 - This file is a **target database design aligned with Report 3**, not a full implementation report.
 - V24 aligns identity/role vocabulary, V25 adds the target schema, and V26 completes the runtime cutover to the 41-table target inventory. Verified by `./mvnw clean verify` on 8 October 2026 (88 tests, exit 0), including empty-database migration, populated V1-V23 fail-closed migration tests, and an exact-table-inventory assertion.
-- Current backend runtime has removed provider request/marketplace code. The `inspections` module implements MF2 assignment response, preparation/compliance, readiness approval/return, and field-session start/postpone/abort, plus the MF3 evidence, quality decision, findings, and versioned report workflow. `V30` adds the MF3-12 corrective-outcome and MF3-13 handoff storage, and the code paths executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full `verify` gate); the new behavior has no passed case yet, and runtime review also does not verify reviewer credentials. MF2-08 source-change invalidation is partial, and MF2-12 session end/`FIELD_COMPLETED` remains unimplemented; MF1 and MF4 work-order creation remain incomplete workflow areas.
+- Current backend runtime has removed provider request/marketplace code. The `inspections` module implements MF2 assignment response, preparation/compliance, readiness approval/return, field-session start/postpone/abort and normal completion, plus the MF3 evidence, quality decision, findings, and versioned report workflow. `V30` adds the MF3-12 corrective-outcome and MF3-13 handoff storage; runtime review also does not validate reviewer credentials. MF2-08 source-change invalidation is partial; MF2-12 normal completion records `FIELD_COMPLETED` and Inspector outcome notes. `V37` merges detector suggestions and Inspector findings into `findings`; rejected AI suggestions are excluded and are not retained as finding-level audit records, while explicitly removed Inspector findings retain deletion attribution. In this task `./mvnw verify` passed 684 tests before the final rejection-path correction; `./mvnw -DskipTests package` then passed after the correction without running tests. MF1 and MF4 work-order creation remain incomplete workflow areas.
 - Asset/catalog/scheduling and auth runtime remain in the reset branch, but they are partial capabilities and must be checked against current source and the corresponding backend guides.
 - Do not read the 41-table target count as the current physical schema. A table's existence does not establish API, use-case, workflow, or test completion.
 
