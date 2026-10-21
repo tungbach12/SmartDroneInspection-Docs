@@ -99,9 +99,8 @@ and the current session/readiness decision. In one transaction it records
 session `FIELD_COMPLETED`, end time and outcome notes and changes the inspection
 from `IN_PROGRESS` to `FIELD_COMPLETED`; previous sessions/evidence remain.
 Weather/site-safety postponement is separate and only applies while a session is
-open. An aborted session may later be closed with normal completion notes; that records
-`FIELD_COMPLETED` plus the retained `abortReason`, so consumers must not interpret this status as
-proof of a wholly uninterrupted session. No aircraft control, hardware telemetry or statutory
+open. An aborted session is terminal and remains `ABORTED`; it cannot be converted
+to `FIELD_COMPLETED`. No aircraft control, hardware telemetry or statutory
 incident reporting is implied.
 
 ## Inspection and report collections (FE-04, FE-06)
@@ -337,28 +336,19 @@ The report-version response includes read-only, organization-scoped identity lab
 
 Drafting moves the inspection from `FIELD_COMPLETED` to `REPORT_DRAFT`.
 Publication requires that state and moves the inspection to `REPORT_PUBLISHED`
-only; it stores and checksums the PDF but does not hand findings to maintenance
-or complete the inspection. Corrective work is recorded afterwards, in order:
+only; it stores and checksums the PDF. Forwarding findings to Maintenance occurs
+afterwards:
 
-1. **MF3-12 per finding** — after report publication, `PUT .../findings/{findingId}/corrective-action` records `correctiveActionRequired` with a required `rationale`; a required
-   outcome also carries a `priority` and may carry a `dueAt`, while a no-action
-   outcome must carry neither. The recorded reviewer and timestamp are stored
-   with the outcome, which never modifies the published PDF.
-2. **MF3-13 handoff** — `POST .../report/corrective-handoff` requires every
-   confirmed/modified finding to have an outcome. It records the handoff
-   actor/time, emits `ReportPublishedEvent` with exactly the work-required
-   finding IDs, and moves the inspection to `REPAIR_PENDING`; when every
-   official finding was recorded as no-action, it moves the inspection to
-   `COMPLETED` with an empty ID list instead. A scope with no official
-   findings is refused with `409 NO_CORRECTIVE_WORK_PENDING` — the explicit
-   reasoned no-repair route below is required. It does **not** create an MF4
-   work order; MF4 work-order creation is not implemented.
-3. **No-repair close** — for a scope whose confirmed findings set is empty,
-   `POST .../report/no-corrective-work` with a required `rationale` records the
-   reviewer's explicit no-repair decision, emits the event with no finding IDs
-   and moves the inspection to `COMPLETED`. If any official finding exists the
-   call is refused with `409 CORRECTIVE_ACTION_REVIEW_REQUIRED`; an empty
-   outcome list is never treated as a no-repair result.
+1. **Forward to Maintenance** — after report publication, `POST .../report/corrective-handoff`
+   accepts `findingIds` (confirmed findings selected to forward as repair candidates). All
+   confirmed defect findings are selected by default; the administrator may deselect items to
+   postpone. No per-finding rationales, priorities or due dates are required during report review.
+   Forwarded findings transition the inspection to `REPAIR_PENDING` and enter the Maintenance
+   candidates inbox (`/repair-candidates`); deselecting all items leaves the report published
+   without handoff, allowing forward later.
+2. **No-repair close** — for an inspection with no confirmed defect findings,
+   `POST .../report/no-corrective-work` records the reviewer's explicit rationale and moves
+   the inspection to `COMPLETED`.
 
 Separation of duties is enforced twice. Only the assigned Inspector may author
 or verify, and only a same-organization `ORG_ADMIN` who is not the author may
