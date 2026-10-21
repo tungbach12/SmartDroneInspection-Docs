@@ -11,7 +11,7 @@ source: "report3-software-requirement-specification.docx"
 
 ### 1.1 Product Overview
 
-SmartDroneInspection is an Enterprise, multi-tenant Software-as-a-Service (SaaS) platform engineered for infrastructure-owning enterprises (such as industrial plant operators, energy utilities, and civil engineering asset managers) to manage their physical infrastructure assets, drone fleet, personnel credentials, regulatory flight permits, inspection evidence, AI-assisted defect analysis, certified inspection reports, and maintenance remediation. The platform offers an ENTERPRISE subscription model supporting flexible billing intervals of 1 month, 6 months, or 12 months.
+SmartDroneInspection is an Enterprise, multi-tenant Software-as-a-Service (SaaS) platform engineered for infrastructure-owning enterprises (such as industrial plant operators, energy utilities, and civil engineering asset managers) to manage their physical infrastructure assets, drone fleet, personnel credentials, regulatory flight permits, inspection evidence, AI-assisted defect analysis, certified inspection reports, and maintenance remediation. The platform offers an ENTERPRISE subscription model supporting flexible billing intervals of 1 month, 6 months, or 12 months with integrated online payment processing via PayPal (supporting PayPal wallet and international credit/debit card checkout).
 
 The software replaces manual, hazardous, and fragmented inspection practices with an end-to-end digital inspection and maintenance management workflow. The system integrates cloud-based multi-tenant management, mobile field applications, secure object storage, computer vision for defect detection (YOLO11s), and automated report drafting within strict human-in-the-loop review boundaries.
 
@@ -41,6 +41,7 @@ Automated components (`SYSTEM`, YOLO11s AI Vision microservice, and LLM Report D
 - **Flight Control Separation**: The software manages operational planning, compliance records, and inspection data. It does not interface directly with drone flight controllers, execute radio-control (RC) commands, or automate physical aircraft flight. Drone piloting remains the direct real-world responsibility of licensed remote pilots.
 - **Airspace and Permit Compliance**: Informational airspace queries (e.g., restricted zone references) assist operational planning but do not constitute legal flight authorization. Enterprise administrators and remote pilots must obtain and verify valid flight permits from relevant aviation authorities (such as the Ministry of National Defence under Decree No. 288/2025/NĐ-CP).
 - **Advisory AI Boundaries**: Computer vision detections and LLM report drafts are strictly advisory suggestions. Detections become official findings only upon explicit human Inspector verification. AI services cannot price maintenance work, certify legal compliance, or authorize report publication.
+- **Payment Processing Scope**: Online payment processing is integrated specifically for enterprise SaaS subscription activation and renewal via PayPal REST API v2. Repair labor, material, and equipment actuals remain an internal enterprise cost accounting register, not an online e-commerce checkout.
 - **Data Integrity and Legal Validity**: SHA-256 cryptographic hashing, audit timestamps, and append-only version histories ensure document and evidence traceability. System approvals represent recorded enterprise workflow decisions and do not substitute for statutory digital signatures unless explicitly configured with certified public-key infrastructure.
 
 ### 1.2 Business Rules
@@ -56,8 +57,8 @@ Automated components (`SYSTEM`, YOLO11s AI Vision microservice, and LLM Report D
 | BR-07 | Inspection preparation requires a defined component shot-list and mandatory pre-flight safety checklist prior to readiness submission. |
 | BR-08 | Mission readiness authorization verifies valid flight permits, credential currency, and environmental suitability; internal approvals do not grant governmental flight exemptions. |
 | BR-09 | Periodic inspection generation is idempotent per asset, schedule, and cycle, inheriting the asset's active default Inspector and Drone pair into the inspection snapshot. |
-| BR-10 | ENTERPRISE is the sole platform subscription plan, supporting configurable billing periods of 1, 6, or 12 months with audited renewal terms. |
-| BR-11 | Subscription entitlements, service quotas, and contractual terms are versioned and audited; subsequent administrative updates do not retroactively alter past agreements. |
+| BR-10 | ENTERPRISE is the sole platform subscription plan, supporting configurable billing periods of 1, 6, or 12 months with online payment settlement via PayPal or corporate billing records. |
+| BR-11 | Subscription entitlements, service quotas, and contractual terms are versioned and audited; PayPal transactions record unique order and capture IDs for audit reconciliation. |
 | BR-12 | Report drafts, cost estimate baselines, scope change requests, and approval decisions preserve complete version histories; published records cannot be modified in place. |
 | BR-13 | Subscription renewal, cancellation, and expiration follow transparent contractual terms; subscription expiration preserves historical business records and does not auto-complete open work. |
 | BR-14 | Remote pilots and Inspectors must record session postponement or abort whenever adverse weather or site conditions compromise flight safety. |
@@ -82,7 +83,7 @@ Automated components (`SYSTEM`, YOLO11s AI Vision microservice, and LLM Report D
 | BR-33 | Maintenance warranty and defect follow-up terms apply only when explicitly specified and contracted; no universal statutory warranty is presumed. |
 | BR-34 | Any increase in repair scope, cost, or delivery schedule requires an approved Change Request prior to executing the additional work; the initial baseline remains immutable. |
 | BR-35 | Maintenance completion reports require paired before-and-after photographic evidence and documented test results for each repaired defect. |
-| BR-36 | Maintenance remediation costs are internal enterprise operational expenditures, tracked independently of software SaaS subscription billing. |
+| BR-36 | Repair cost is an internal tenant cost register, separate from software subscription billing; PayPal online payment processes SaaS platform subscriptions, while internal repair actuals are operational expenditures. |
 | BR-37 | A separate re-inspection creates a new linked inspection mission; additional evidence required for an existing inspection returns the mission to the preparation phase. |
 | BR-38 | All assignment, readiness, evidence quality, finding verification, report publication, budget approval, and acceptance actions are logged in an immutable audit trail. |
 | BR-39 | Direct URL access, notification links, and raw file paths confer no authority; backend multi-tenant boundary checks and role verifications remain mandatory on every request. |

@@ -59,6 +59,8 @@ The system defines standard user-facing messages, validation alerts, and toast n
 | 44 | MSG44 | In line | Self-acceptance attempted | Authors and executing team members cannot independently accept their own work. |
 | 45 | MSG45 | In line | Cost reconciliation unresolved | Resolve missing, duplicate or unapproved costs and variance explanations before final closure. |
 | 46 | MSG46 | Toast | Maintenance author submits report | Author-verified maintenance completion draft submitted for independent acceptance. |
+| 47 | MSG47 | Toast | PayPal payment captured | Enterprise subscription payment confirmed via PayPal. Workspace quotas have been updated. |
+| 48 | MSG48 | In line | PayPal payment failed | PayPal transaction was declined or canceled. Please check your payment method and retry. |
 
 ### 5.2 Appendix 2 - Common Requirements
 
@@ -82,6 +84,7 @@ The system defines standard user-facing messages, validation alerts, and toast n
   - *Database & Storage*: PostgreSQL 17 with `pgvector` extension; MinIO S3-compatible distributed object storage.
   - *Web Client*: React 19, TypeScript, Material-UI (MUI), Vite, TanStack React Query.
   - *Mobile Client*: Flutter 3, Dart, Riverpod state management.
+  - *Payment Gateway*: PayPal REST API v2 (Orders v2 & Webhooks).
   - *AI Services*: Python 3.11, FastAPI, Ultralytics YOLO11s (MBDD2025 dataset), OpenAI-compatible LLM gateway.
 
 ### 5.4 Feature and Flow Traceability
@@ -90,7 +93,7 @@ This traceability matrix maps the eight core product features (`FE-01` to `FE-08
 
 | Product Feature | Operational Responsibility | Supported Use Cases |
 | --- | --- | --- |
-| FE-01 | Identity, tenant governance, workforce accounts and credential management | UC-01, UC-02, UC-03, UC-05 |
+| FE-01 | Identity, tenant governance, workforce accounts, credentials, and PayPal subscription billing | UC-01, UC-02, UC-03, UC-05 |
 | FE-02 | Infrastructure asset inventory, drone fleet management, and flight permit linkage | UC-04, UC-06, UC-07, UC-08 |
 | FE-03 | Inspection mission planning, shot-list preparation, and flight readiness authorization | UC-09, UC-10, UC-11 |
 | FE-04 | Field survey logging, cryptographic evidence intake, and evidence quality evaluation | UC-12, UC-13, UC-14 |

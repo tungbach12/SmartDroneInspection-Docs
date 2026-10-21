@@ -71,7 +71,7 @@ flowchart TD
 | # | Feature | Screen | Description |
 | --- | --- | --- | --- |
 | 1 | FE-01 | Sign In & Authentication | Secure login interface supporting credential verification, session management, and password recovery. |
-| 2 | FE-01 | Platform Administration | Platform Admin portal for managing customer tenant workspaces, enterprise subscriptions, and platform-wide configurations. |
+| 2 | FE-01 | Platform Administration & Subscriptions | Platform Admin portal for managing customer tenant workspaces, enterprise subscriptions, PayPal billing records, and platform-wide configurations. |
 | 3 | FE-01 | Workforce & Credentials | Workspace for managing enterprise users (Inspectors, Engineers), professional licenses, safety certificates, and expiration dates. |
 | 4 | FE-02 | Asset Registry | Master inventory of infrastructure assets (bridges, towers, facilities) displaying specifications, location, and assigned default Inspector-Drone pairs. |
 | 5 | FE-02 | Asset Detail & Documents | Detailed view of an asset showing engineering drawings, historical inspection records, and default pair reassignment controls. |
@@ -134,6 +134,7 @@ flowchart TD
 | 8 | FE-06 | PDF Report Document Renderer | Compiles approved report sections, finding tables, attached evidence photos, and metadata into a publication-grade A4 PDF document with SHA-256 recording. |
 | 9 | FE-07 | Deterministic Cost Calculation Engine | Computes baseline estimate totals, approved change order deltas, actual expenditures, and variance metrics using exact decimal precision. |
 | 10 | FE-08 | Operational Event Notification Dispatcher | Event-driven notification worker delivering in-app alerts and email notifications for mission dispatches, readiness updates, and approval requests. |
+| 11 | FE-01 | PayPal Webhook Listener & Payment Capture | Ingests asynchronous PayPal webhook notifications (PAYMENT.CAPTURE.COMPLETED), verifies cryptographic signatures, validates transaction amounts, and automatically activates tenant subscription periods. |
 
 #### 3.1.5 Entity Relationship Diagram
 
@@ -143,6 +144,8 @@ erDiagram
   ORGANIZATION ||--o{ DRONE : owns
   ORGANIZATION ||--o{ ASSET : owns
   ORGANIZATION ||--o{ FLIGHT_PERMIT : holds
+  ORGANIZATION ||--o{ SUBSCRIPTION : holds
+  SUBSCRIPTION ||--o{ PAYMENT_TRANSACTION : settles
   USER ||--o{ CREDENTIAL : possesses
 
   ASSET ||--o{ ASSET_PAIR : assigns
@@ -199,6 +202,7 @@ erDiagram
 | 21 | Work Log | Daily execution log recorded by assigned engineers tracking labor hours, material consumption, and task milestone progress. |
 | 22 | Repair Evidence | Before, during, and after photographic proof and non-destructive test certificates demonstrating structural defect remediation. |
 | 23 | Maintenance Report | Formal completion report authored by the designated engineer, reviewed by the organization administrator, and archived upon work order closure. |
+| 24 | Payment Transaction | Records individual online payment transactions via PayPal, logging PayPal order ID, capture ID, transaction amount, currency, payer email, and capture timestamp. |
 
 ---
 
@@ -223,13 +227,13 @@ erDiagram
   - *Outputs*: Provisioned workforce account, documented credential record with verification status.
 
 #### 3.2.3 Subscription Entitlements and Billing Governance
-- **Function Trigger**: Platform Admin navigates to `Enterprise Subscriptions` or Organization Admin views `Workspace Settings`.
-- **Function Description**: Manages ENTERPRISE tier subscriptions, selects 1-, 6-, or 12-month billing periods, records payment confirmation, and enforces quota limits.
+- **Function Trigger**: Organization Admin views `Workspace Settings -> Subscriptions` and clicks `Subscribe with PayPal` or `Renew Plan`; or Platform Admin reviews corporate accounts.
+- **Function Description**: Manages ENTERPRISE tier subscriptions, calculates billing amounts for 1-, 6-, or 12-month periods, integrates PayPal Orders v2 API for online checkout, captures payment transactions, and automatically extends enterprise quotas upon payment confirmation.
 - **Function Details**:
-  - *Inputs*: Organization ID, billing period (1, 6, 12 months), subscription start date, confirmed payment reference, approved storage quota.
-  - *Validations*: Restricts plan selection to ENTERPRISE; verifies payment confirmation reference before activating term.
-  - *Processing*: Calculates subscription active term; records versioned billing snapshot; enforces storage quotas and active asset limits; logs audit trail.
-  - *Outputs*: Active enterprise subscription status, updated tenant quota limits, auditable billing confirmation record.
+  - *Inputs*: Organization ID, billing period (1, 6, 12 months), subscription currency (USD), PayPal order ID, capture confirmation payload.
+  - *Validations*: Restricts plan selection to ENTERPRISE; verifies PayPal payment capture status is `COMPLETED`; validates transaction amount matches configured subscription pricing; checks against duplicate PayPal transaction capture IDs.
+  - *Processing*: Initiates PayPal order via REST API; user authorizes checkout; backend captures payment; persists `payment_transactions` record; sets subscription status to `ACTIVE`; recalculates expiration date (adds 30, 180, or 365 days); immediately unlocks tenant storage and active asset quotas; dispatches billing confirmation email.
+  - *Outputs*: Active enterprise subscription status, persisted PayPal transaction receipt, updated workspace quota entitlements, confirmation email.
 
 ---
 

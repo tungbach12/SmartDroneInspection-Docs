@@ -29,6 +29,7 @@ flowchart TD
 
   AI_SERVICE["YOLO11s Defect Detection Service (FastAPI / PyTorch)"]
   LLM_GATEWAY["OpenAI-Compatible LLM Gateway"]
+  PAYPAL["PayPal Payment Gateway (REST API v2)"]
 
   DB_PG["PostgreSQL 17 (Relational Data & pgvector)"]
   STORE_MINIO["MinIO Distributed Object Storage (S3-Compatible)"]
@@ -37,6 +38,7 @@ flowchart TD
   CLIENT_MOB -->|HTTPS / REST| API_GATEWAY
 
   API_GATEWAY --> AUTH_SERVICE
+  API_GATEWAY --> PAYPAL
   API_GATEWAY --> MOD_ASSETS
   API_GATEWAY --> MOD_INSP
   API_GATEWAY --> MOD_REP
@@ -62,6 +64,7 @@ flowchart TD
 5. **LLM Report Synthesis Gateway**: Context-grounded language model integration synthesizing structured narrative drafts for inspection and maintenance reports exclusively from verified database inputs.
 6. **Relational & Vector Database (PostgreSQL 17, pgvector)**: Central transactional database managing multi-tenant business entities, mission parameters, defect coordinates, and maintenance audit trails with strict foreign key constraints.
 7. **Distributed Object Storage (MinIO / S3-Compatible)**: Encrypted, scalable binary storage housing full-resolution aerial imagery, inspection evidence, and compiled PDF deliverables, addressed via server-generated pre-signed URLs.
+8. **Online Payment Gateway Adapter (PayPal REST API v2)**: Interfaces with PayPal's payment services to generate checkout orders, capture transaction authorizations, and verify cryptographic webhook IPN signatures for automated enterprise SaaS subscription billing.
 
 ---
 
@@ -102,7 +105,7 @@ flowchart TD
 
 | No | Package | Description |
 | :---: | :--- | :--- |
-| 01 | `com.smartdroneinspection.auth` | Manages authentication flows, Argon2id password hashing, access and refresh token issuance, session blacklisting, and Spring Security filter chains. |
+| 01 | `com.smartdroneinspection.auth` | Manages authentication flows, Argon2id password hashing, access and refresh token issuance, session blacklisting, PayPal subscription checkout, and Spring Security filter chains. |
 | 02 | `com.smartdroneinspection.users` | Governs multi-tenant enterprise organizations, workforce provisioning (Inspectors, Maintenance Engineers), and professional credential verification. |
 | 03 | `com.smartdroneinspection.assets` | Manages physical infrastructure assets, drone hardware inventory, regulatory flight permits, and default Inspector-Drone operational pairings. |
 | 04 | `com.smartdroneinspection.inspections` | Handles inspection scheduling, conflict checking, flight preparations, readiness reviews, field session logging, evidence ingestion, and finding confirmations. |

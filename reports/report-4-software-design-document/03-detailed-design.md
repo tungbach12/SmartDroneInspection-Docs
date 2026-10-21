@@ -29,6 +29,24 @@ classDiagram
     +activateSubscription(UUID orgId, SubscriptionInput) SubscriptionDto
     +checkEntitlement(UUID orgId) EntitlementStatus
   }
+  class PayPalPaymentController {
+    +createOrder(UUID orgId, CreatePaymentRequest) ApiResponse~PayPalOrderResponse~
+    +captureOrder(String orderId) ApiResponse~PaymentTransactionDto~
+    +handleWebhook(String payload, Map headers) ResponseEntity
+  }
+  class PayPalService {
+    +createPayPalOrder(BigDecimal amount, String currency, String customId) String
+    +capturePayment(String orderId) PaymentTransaction
+    +verifyWebhookSignature(String payload, Map headers) boolean
+  }
+  class PaymentTransaction {
+    -UUID id
+    -String paypalOrderId
+    -String paypalCaptureId
+    -BigDecimal amount
+    -String currency
+    -PaymentStatus status
+  }
   class User {
     -UUID id
     -String email
@@ -45,12 +63,16 @@ classDiagram
   AuthController --> UserService
   UserService --> User
   UserService --> Credential
+  PayPalPaymentController --> PayPalService
+  PayPalService --> SubscriptionService
+  PayPalService --> PaymentTransaction
   SubscriptionService --> Organization
 ```
 
 - **AuthController**: Exposes authentication endpoints for web and mobile clients; coordinates password verification and token generation.
 - **UserService**: Manages tenant organization onboarding, workforce user creation, credential validation, and session revocation.
 - **SubscriptionService**: Governs enterprise subscription plans, payment confirmation recording, and quota enforcement.
+- **PayPalPaymentController & PayPalService**: Orchestrates online PayPal checkout order creation, client authorization redirects, payment capture, and cryptographic webhook IPN signature verification.
 
 #### 3.1.2 User Authentication Sequence Diagram
 
@@ -105,6 +127,46 @@ sequenceDiagram
   UserCtrl-->>Client: 201 Created (UserDTO)
   Client-->>Admin: Display Success Notification
 ```
+
+#### 3.1.4 PayPal Subscription Payment and Webhook Capture Sequence Diagram
+
+```mermaid
+%% title: PayPal Subscription Payment and Webhook Capture Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Admin as Organization Admin
+  participant Client as Web Portal
+  participant PayCtrl as PayPalPaymentController
+  participant PaySvc as PayPalService
+  participant PayPalAPI as PayPal Orders v2 API
+  participant SubSvc as SubscriptionService
+  participant DB as PostgreSQL Database
+
+  Admin->>Client: Select ENTERPRISE Plan (6 Months) & Click "Pay with PayPal"
+  Client->>PayCtrl: POST /api/v1/subscriptions/paypal/create-order
+  PayCtrl->>PaySvc: createOrder(orgId, planDuration)
+  PaySvc->>PayPalAPI: POST /v2/checkout/orders (Amount, Currency, CustomId)
+  PayPalAPI-->>PaySvc: PayPal Order (orderId, approveUrl)
+  PaySvc-->>Client: 200 OK (orderId, approveUrl)
+  Client->>Admin: Open PayPal Hosted Checkout Popup
+  Admin->>PayPalAPI: Authorize Payment (PayPal Account / Card)
+  PayPalAPI-->>Client: Redirect onApprove(orderId, payerId)
+
+  Client->>PayCtrl: POST /api/v1/subscriptions/paypal/capture-order (orderId)
+  PayCtrl->>PaySvc: capturePayment(orderId)
+  PaySvc->>PayPalAPI: POST /v2/checkout/orders/{orderId}/capture
+  PayPalAPI-->>PaySvc: Capture Completed (captureId, amount, status=COMPLETED)
+  PaySvc->>DB: savePaymentTransaction(orderId, captureId, amount, status=COMPLETED)
+  PaySvc->>SubSvc: extendSubscriptionEntitlement(orgId, 180 days)
+  SubSvc->>DB: updateSubscription(status=ACTIVE, newExpiryDate)
+  SubSvc-->>Client: 200 OK (PaymentTransactionDTO)
+  Client-->>Admin: Show Payment Receipt & Activated Entitlements
+```
+
+- Steps 1–5: The Organization Admin selects an ENTERPRISE plan duration. The application server interfaces with PayPal Orders v2 API to create an order.
+- Steps 6–8: The user authorizes the transaction securely inside PayPal's hosted checkout window.
+- Steps 9–12: The backend captures the approved transaction and verifies the PayPal response status.
+- Steps 13–15: The system persists the payment transaction record, extends the subscription expiration date, and unlocks enterprise quotas.
 
 ---
 

@@ -16,6 +16,8 @@ erDiagram
   ORGANIZATION ||--o{ DRONE : owns
   ORGANIZATION ||--o{ ASSET : owns
   ORGANIZATION ||--o{ FLIGHT_PERMIT : holds
+  ORGANIZATION ||--o{ SUBSCRIPTION : holds
+  SUBSCRIPTION ||--o{ PAYMENT_TRANSACTION : settles
   USER ||--o{ CREDENTIAL : possesses
 
   ASSET ||--o{ ASSET_PAIR : assigns
@@ -70,3 +72,4 @@ erDiagram
 | 22 | `change_orders` | Formal variance requests adjusting repair scope, budget ceiling, or completion schedule.<br>- Primary key: `id` (UUID)<br>- Foreign keys: `work_order_id` references `maintenance_work_orders(id)`, `requested_by` references `users(id)`, `approved_by` references `users(id)` |
 | 23 | `work_logs` | Daily execution entries logging labor hours, material consumption, and task milestone notes.<br>- Primary key: `id` (UUID)<br>- Foreign keys: `task_id` references `maintenance_tasks(id)`, `logged_by` references `users(id)` |
 | 24 | `maintenance_reports` | Final repair completion deliverables, verified by the author and accepted by the administrator.<br>- Primary key: `id` (UUID)<br>- Foreign keys: `work_order_id` references `maintenance_work_orders(id)`, `author_id` references `users(id)`, `accepted_by` references `users(id)` |
+| 25 | `payment_transactions` | Records online payment transactions processed through PayPal for enterprise subscriptions.<br>- Primary key: `id` (UUID)<br>- Foreign keys: `subscription_id` references `subscriptions(id)` |
