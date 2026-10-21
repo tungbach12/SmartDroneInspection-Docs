@@ -48,7 +48,7 @@ The system does **not** store or control:
 
 | Flow | Primary records | Handover |
 | --- | --- | --- |
-| MF1 — Resources, assets, pair assignment and inspection setup | `organizations`, `subscriptions`, workforce credentials, Drones, permits, `assets`, `asset_pair_assignments`, `inspections` | Inspection ID, scope/dates, Inspector + Drone snapshot and compliance references → MF2 |
+| MF1 — Resources, assets, pair assignment and inspection setup | `organizations`, `subscriptions`, `payment_transactions`, workforce credentials, Drones, permits, `assets`, `asset_pair_assignments`, `inspections` | Inspection ID, scope/dates, Inspector + Drone snapshot and compliance references → MF2 |
 | MF2 — Preparation, Compliance Gate and field-session records | `inspection_preparations`, `inspection_readiness_decisions`, `field_sessions`, `checklist_responses` | Ended field session, checklist, shot-list and readiness snapshot → MF3 |
 | MF3 — Evidence, AI Vision, LLM report and review | `evidence`, evidence-quality decisions, candidates, findings, report versions and source links | Published inspection report version + confirmed repair-required findings → MF4 |
 | MF4 — Team repair, cost control, LLM completion report and acceptance | Work orders/tasks/team assignments, estimate/change/actual cost lines, work logs, repair evidence, completion reports and acceptance | Accepted repair disposition, reconciled cost and updated asset history |
@@ -68,11 +68,11 @@ The system does **not** store or control:
 
 ## 3. Right-sized logical schema
 
-The target design contains **41 application tables** plus optional framework infrastructure such as Spring Modulith `event_publication`. Table count is a design inventory, not an implementation claim.
+The target design contains **42 application tables** plus optional framework infrastructure such as Spring Modulith `event_publication`. Table count is a design inventory, not an implementation claim.
 
 | Area | Tables | Count |
 | --- | --- | ---: |
-| Tenant, subscription and access | `organizations`, `subscriptions`, `users`, `user_roles`, `auth_sessions`, `refresh_tokens` | 6 |
+| Tenant, subscription and access | `organizations`, `subscriptions`, `payment_transactions`, `users`, `user_roles`, `auth_sessions`, `refresh_tokens` | 7 |
 | Workforce and compliance | `workforce_credentials`, `drones`, `drone_documents`, `flight_permits` | 4 |
 | Asset and MF1 setup | `asset_categories`, `checklist_templates`, `checklist_items`, `assets`, `asset_documents`, `asset_pair_assignments`, `inspection_schedules`, `inspections` | 8 |
 | MF2 preparation and field | `inspection_preparations`, `inspection_readiness_decisions`, `field_sessions`, `checklist_responses` | 4 |
@@ -113,6 +113,7 @@ Append-only decisions, evidence metadata and versions use `created_at` plus thei
 ```mermaid
 erDiagram
     ORGANIZATIONS ||--o{ SUBSCRIPTIONS : owns
+    SUBSCRIPTIONS ||--o{ PAYMENT_TRANSACTIONS : settles
     ORGANIZATIONS ||--o{ USERS : employs
     USERS ||--o{ USER_ROLES : receives
     USERS ||--o{ WORKFORCE_CREDENTIALS : holds
@@ -201,6 +202,23 @@ The organization is the tenant boundary. It is not a Provider organization and d
 | `confirmed_by_user_id`, `confirmed_at` | `uuid`, `timestamptz` | Activation decision attribution. |
 
 At most one subscription may be `ACTIVE` for an organization. A future migration must pre-check populated data before adding that partial unique index.
+
+#### `payment_transactions`
+
+| Column | Type | Constraint/purpose |
+| --- | --- | --- |
+| `id` | `uuid` | PK. |
+| `subscription_id` | `uuid` | FK `subscriptions`; RESTRICT. |
+| `paypal_order_id` | `varchar(64)` | PayPal Orders v2 transaction identifier. |
+| `paypal_capture_id` | `varchar(64)` | PayPal payment capture identifier; unique. |
+| `amount` | `numeric(12,2)` | Settled subscription amount. |
+| `currency` | `varchar(3)` | Currency ISO-4217 code (default `USD`). |
+| `status` | `varchar(24)` | `COMPLETED`, `PENDING`, `DECLINED`, `REFUNDED`. |
+| `payer_email` | `varchar(255)` | PayPal payer account email. |
+| `captured_at` | `timestamptz` | Settlement capture timestamp. |
+| common columns | — | Timestamps and optimistic version. |
+
+Online payments through PayPal are scoped strictly to SaaS subscription activation and renewal. Technical maintenance and repair costs remain internal cost accounting registers.
 
 #### `users`, `user_roles`, `auth_sessions`, `refresh_tokens`
 

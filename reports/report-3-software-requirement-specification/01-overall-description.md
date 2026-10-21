@@ -11,95 +11,89 @@ source: "report3-software-requirement-specification.docx"
 
 ### 1.1 Product Overview
 
-**Report 3 target revision — 7 October 2026.** SmartDroneInspection is an Enterprise, multi-tenant SaaS application rented by infrastructure-owning companies to manage their own assets, workforce, Drones, compliance records, inspection evidence, reports and repairs. One ENTERPRISE offering supports payment periods of **1 month, 6 months or 12 months**. The platform supplies storage, AI Vision and LLM drafting through its authorized interfaces; it is not an inspection-service marketplace or a Drone flight-control product.
+SmartDroneInspection is an Enterprise, multi-tenant Software-as-a-Service (SaaS) platform engineered for infrastructure-owning enterprises (such as industrial plant operators, energy utilities, and civil engineering asset managers) to manage their physical infrastructure assets, drone fleet, personnel credentials, regulatory flight permits, inspection evidence, AI-assisted defect analysis, certified inspection reports, and maintenance remediation. The platform offers an ENTERPRISE subscription model supporting flexible billing intervals of 1 month, 6 months, or 12 months with integrated online payment processing via PayPal (supporting PayPal wallet and international credit/debit card checkout).
 
-This revision supersedes Report 3's previous multi-provider target. It specifies intended behavior, not deployed functionality or completed workflow APIs. The Enterprise SaaS backend reset began on 7 October 2026 in a separate backend repository. V24 aligns identity vocabulary, V25 adds the target schema, and V26 completed the runtime cutover to the exact 41-table target inventory on 8 October 2026 (verified by `./mvnw clean verify`, 88 tests, exit 0). MF1–MF4 workflow behavior remains outside reset scope. On the date of this revision, related documents were not yet synchronized; the 7 October documentation reconciliation updated selected database, backend status, and Report 5 references while preserving their histories. Other references and client repositories may still describe earlier contracts. No feature-completion or runtime-test claim is made.
+The software replaces manual, hazardous, and fragmented inspection practices with an end-to-end digital inspection and maintenance management workflow. The system integrates cloud-based multi-tenant management, mobile field applications, secure object storage, computer vision for defect detection (YOLO11s), and automated report drafting within strict human-in-the-loop review boundaries.
 
-There are two ownership layers and **four human roles**:
+The system defines two governance layers and **four human roles**:
 
-- **Platform:** `ADMIN` manages SaaS customer workspaces, enterprise subscription activation/renewal, technical/security settings and authorized platform audit/support. It does not make customer technical conclusions, repair-budget decisions or internal work acceptance.
-- **Customer organization:** `ORG_ADMIN` manages its workforce, credentials, Drone fleet, assets with assigned Inspector/Drone pairs, inspection creation, readiness review, final inspection findings/report approval, maintenance team/budget assignment and independent acceptance. Each technical reviewer must actually be qualified for the scope; account privileges do not establish qualifications.
-- **Customer workforce:** `INSPECTOR` accepts assigned inspection work, prepares/checks the shot-list and compliance inputs, records field sessions on app, uploads evidence, directly decides its completeness/quality and verifies/edits the inspection report draft.
-- **Customer workforce:** `MAINTENANCE_ENGINEER` works within assigned repair teams/tasks, supplies technical assessment/estimates, records work/evidence/actuals and, when designated, leads the team or authors the maintenance report. Team lead and report author are scoped responsibilities, not extra roles.
+- **Platform Layer:**
+  - `Platform Admin`: Governs customer enterprise tenant accounts, manages SaaS subscription lifecycles, configures system-wide parameters, and reviews security/audit logs. Platform administrators do not participate in operational inspection evaluations, repair budgeting, or technical work acceptance.
 
-`SYSTEM`, AI Vision and LLM are automatic components, not account roles. No `PLATFORM_OPERATOR`, `PROVIDER_MANAGER` or `CLIENT` role is used in this target. There is no external Provider sourcing, RFQ, commission, Client–Provider settlement or Platform arbitration workflow.
+- **Customer Enterprise Layer:**
+  - `Organization Admin`: Manages the enterprise workspace, including workforce accounts, professional credentials, drone fleet records, infrastructure assets with assigned Inspector-Drone pairs, flight permit compliance, and inspection mission dispatch. Conducts independent readiness authorization, approves final inspection reports, assigns maintenance teams, approves repair budgets, and performs final technical acceptance.
+  - `Inspector`: Conducts on-site inspection activities. Prepares inspection shot-lists and compliance documentation, executes field survey sessions via the mobile application, uploads raw capture evidence, evaluates evidence completeness and quality, reviews and verifies AI defect candidates, authors inspection findings, and verifies the inspection report draft.
+  - `Maintenance Engineer`: Executes corrective maintenance tasks. Assesses defect repair requirements, prepares itemized cost estimates (labor, material, equipment), records repair execution logs with before/after photographic proof, and drafts maintenance completion reports. Designated Engineers may serve as Maintenance Team Lead or Report Author.
 
-#### Four connected Main Flows
+Automated components (`SYSTEM`, YOLO11s AI Vision microservice, and LLM Report Drafting engine) provide automated data processing, candidate suggestions, and initial text synthesis. They operate strictly under human oversight and hold no legal, approving, or licensing authority.
 
-| Flow | Primary responsibility | Output used by the next flow |
+**Core Operational Stages**
+
+| Stage | Operational Scope | Primary Output |
 | --- | --- | --- |
-| MF1 — Resources, Assets, Assignment and Inspection Setup | Organization Admin manages Inspectors/Engineers, credentials, identified Drones and applicable compliance files; creates an asset **with one Inspector and one specific Drone assigned**; creates an inspection inheriting that pair. | Inspection ID, asset/scope/dates, pair snapshot and document references for MF2. |
-| MF2 — Preparation, Compliance and Field-Session Records | Inspector accepts/prepares; qualified Organization Admin reviews compliance/readiness; Inspector completes current pre-flight checklist and records Start/End/postponement on app. | Ended session(s), checklist/shot-list, assigned pair and approval basis for MF3. |
-| MF3 — Evidence, AI Vision, LLM Inspection Report and Review | Inspector decides evidence quality; SYSTEM detects candidates and produces a draft; Inspector authors/verifies; qualified Organization Admin confirms findings and approves publication. | Immutable inspection report version and confirmed repair-required findings for MF4; a no-repair outcome closes without an empty work order. |
-| MF4 — Team Repairs, Costs, LLM Completion Report and Acceptance | Organization Admin assigns team/lead/report author; Engineers plan and document work; scope/budget/changes require approval; LLM drafts; report author verifies; independent qualified Organization Admin accepts and reconciles costs. | Published repair completion/acceptance record, reconciled cost and updated asset history; required open work stays visible. |
+| Stage 1: Asset Onboarding & Inspection Scheduling | Organization Admin manages personnel, credentials, drone hardware, and regulatory permits; registers assets with default Inspector and Drone assignments; schedules inspection missions with conflict detection. | Scheduled inspection record with asset context, assigned pair snapshot, and compliance references. |
+| Stage 2: Mission Preparation & Flight Execution | Inspector accepts assignment, prepares component shot-lists and pre-flight compliance; Organization Admin authorizes flight readiness; Inspector conducts field sessions and logs pre-flight checks and flight outcomes. | Completed field session record, pre-flight checklist notes, and survey execution logs. |
+| Stage 3: Evidence Intake, AI Detection & Reporting | Inspector uploads raw capture media with SHA-256 verification and evaluates quality; YOLO11s detects defect candidates; Inspector verifies findings and drafts report; Organization Admin approves and publishes immutable PDF report. | Formally published inspection report with cryptographic checksum, and confirmed defects ready for maintenance. |
+| Stage 4: Maintenance Remediation & Cost Control | Organization Admin creates work orders from confirmed defects and assigns engineering team; Team Lead plans tasks and estimates costs; Organization Admin approves budget; Engineers execute repairs and log before/after evidence; Organization Admin performs independent technical acceptance and cost reconciliation. | Closed work order with reconciled costs, documented repair proof, and updated asset condition history. |
 
-Registration/authentication and subscription activation are **supporting gates**, not a fifth MF. Assets remain master records; later inspections reuse the asset and create a new inspection ID in MF1. The pair assigned at asset creation is a default, not an exclusive lifetime reservation of a Drone. Inspection-specific changes preserve past snapshots. MF4 never overwrites the original MF3 report.
+**System Boundaries and Safety Disclaimers**
 
-**Boundaries:** Flying by RC, adjusting equipment and doing physical repairs are outside software steps. The application stores preparations/observations/results; it does not pilot, arm, isolate or prove hardware safety. Flight/compliance logs are separate from the asset-condition inspection report. Informational public restricted-airspace data is not permission. Applicable issued permits, legal exemptions, credentials and operating conditions must be reviewed for the mission; missing mandatory authorization cannot be waived by Organization Admin. Research/application limits are explained in [Functional Requirements §3.10](../03-functional-requirements/#310-research-basis-and-applicability).
-
-SHA-256, timestamps and version histories support technical integrity/traceability, not automatically conclusive legal proof. Logged application approval is not automatically a legally qualified digital signature. LLM produces a labelled source-grounded draft only; missing data remains unknown, numerical totals come from structured calculations, and humans remain accountable for official conclusions and acceptance.
-
-The ENTERPRISE subscription pays for use of the software. Repair labor/material/equipment costs are the enterprise's internal work-order expenses, recorded separately from SaaS revenue. Supplier quotes/receipts can be attachments; supplier payment, payroll, procurement/accounting integration and statutory tax-invoice issuance are not included by implication.
-
-The retained `assets/context.png` illustrates an earlier baseline and is not normative for this revision. The current textual flow and [detailed steps](../03-functional-requirements/) define this Report 3 target; binary diagram/DOCX regeneration is not included.
+- **Flight Control Separation**: The software manages operational planning, compliance records, and inspection data. It does not interface directly with drone flight controllers, execute radio-control (RC) commands, or automate physical aircraft flight. Drone piloting remains the direct real-world responsibility of licensed remote pilots.
+- **Airspace and Permit Compliance**: Informational airspace queries (e.g., restricted zone references) assist operational planning but do not constitute legal flight authorization. Enterprise administrators and remote pilots must obtain and verify valid flight permits from relevant aviation authorities (such as the Ministry of National Defence under Decree No. 288/2025/NĐ-CP).
+- **Advisory AI Boundaries**: Computer vision detections and LLM report drafts are strictly advisory suggestions. Detections become official findings only upon explicit human Inspector verification. AI services cannot price maintenance work, certify legal compliance, or authorize report publication.
+- **Payment Processing Scope**: Online payment processing is integrated specifically for enterprise SaaS subscription activation and renewal via PayPal REST API v2. Repair labor, material, and equipment actuals remain an internal enterprise cost accounting register, not an online e-commerce checkout.
+- **Data Integrity and Legal Validity**: SHA-256 cryptographic hashing, audit timestamps, and append-only version histories ensure document and evidence traceability. System approvals represent recorded enterprise workflow decisions and do not substitute for statutory digital signatures unless explicitly configured with certified public-key infrastructure.
 
 ### 1.2 Business Rules
 
-Existing `BR-01`–`BR-41` identifiers are retained with revised definitions for this target. Their prior meanings remain in change history/Git; they must not be read as mappings to unchanged historical tests. Additional rules extend the sequence instead of renaming existing IDs.
-
 | ID | Rule Definition |
 | --- | --- |
-| BR-01 | Only Platform Admin is platform-owned; Organization Admin, Inspector and Maintenance Engineer are customer-workspace roles. Platform administration and customer operational identities are separate. |
-| BR-02 | Organization Admin can manage only its own organization's assets, resources, inspections, reports, work orders and cost records. |
-| BR-03 | Customer workforce identities belong to the relevant organization; a team or role cannot bridge tenant boundaries. |
-| BR-04 | Inspectors/Engineers can act only on assigned inspections, work orders or tasks; lead/report-author designation further scopes actions. |
-| BR-05 | Active users and applicable qualifications/documents are required for operational release. Each credential is checked for the relevant activity; unrelated qualifications do not satisfy it. |
-| BR-06 | Enterprise registration, authentication and subscription activation are supporting gates; MF1–MF4 are the four connected business flows. |
-| BR-07 | Preparation requires a component shot-list and safety/compliance checklist. No automatic GSD, overlap, gimbal, waypoint or physical flight-setting recommendation is required. |
-| BR-08 | Mission readiness records applicable airspace/permit checks, dates and conditions; public map lookup and internal approval never grant government authorization. |
-| BR-09 | Periodic due work is idempotent for asset/schedule/cycle and inherits the current asset pair into a new inspection snapshot. |
-| BR-10 | ENTERPRISE is the sole software plan, with 1-, 6- or 12-month payment periods; no trial, discount, unlimited quota or price is presumed. |
-| BR-11 | Subscription terms and entitlement decisions are versioned/audited; future updates do not rewrite agreed or historical records. |
-| BR-12 | Report versions, estimate baselines, scope changes and approval decisions preserve prior versions; published reports cannot be silently changed. |
-| BR-13 | Subscription renewal/cancellation/expiry follows explicitly disclosed terms; expiry never automatically marks open business work complete. |
-| BR-14 | Inspector records postponement/abort when weather/site conditions are unsafe; a prior readiness decision does not force operational Start. |
-| BR-15 | Assigned Inspector must accept the assignment before readiness release; rejection requires a reason and returns to Organization Admin. |
-| BR-16 | Manual flight and physical repair remain real-world responsibilities of qualified customer personnel; software Start/End is recordkeeping, not device control. |
-| BR-17 | Evidence retains server-computed SHA-256, source links and available metadata; missing metadata is disclosed, and hashes do not confer legal admissibility by themselves. |
-| BR-18 | Duplicate evidence in the same inspection/work-log scope is rejected and retry cannot create duplicate intake records. |
-| BR-19 | Missing GPS/telemetry is recorded, not invented and not an automatic quality failure for otherwise suitable visual evidence. |
-| BR-20 | AI detections remain candidates until human review; the qualified Organization Admin's final finding decisions govern the published report. |
-| BR-21 | Rejected/unverified candidates never enter official defect statistics or approved corrective-work scope. |
-| BR-22 | Inspector can add source-backed manual observations/findings; AI unavailability does not discard evidence or prevent manual reporting. |
-| BR-23 | Inspector is responsible for evidence-quality decisions and author verification/editing of every required inspection-report section before submission. |
-| BR-24 | A qualified Organization Admin distinct from the inspection author reviews findings/text/limits and approves publication; missing qualifications/approval block release. |
-| BR-25 | Draft/unverified content is restricted to assigned authors and authorized reviewers and clearly separated from approved results. |
-| BR-26 | Published report versions are immutable; corrections create linked revisions and invalidate affected prior review confirmations. |
-| BR-27 | No silence-based or timer-based technical acceptance is presumed. Publication and maintenance acceptance require attributable human decisions. |
-| BR-28 | An incomplete report returns to its named author with reasons and preserved versions; no marketplace complaint/payment-hold flow exists. |
-| BR-29 | Platform Admin governs/supports SaaS, not customer technical approval, repair-budget approval or legal arbitration. |
-| BR-30 | App acknowledgments/approvals are auditable records, not automatically government permits, qualified signatures, safety certificates or court determinations. |
-| BR-31 | Corrective work references at least one confirmed repair-required finding from a published own-organization inspection report version. |
-| BR-32 | Assigned qualified Engineer/lead supplies technical scope, tasks and itemized estimate; LLM does not invent labor rates, quantities or repair prices. |
-| BR-33 | Follow-up/warranty conditions apply only when actually supplied and applicable; no standard warranty duration or expiry-based proof of safe repair is presumed. |
-| BR-34 | Scope/budget/time growth requires approved change control before the affected additional work is authorized; initial baseline stays unchanged. |
-| BR-35 | Repair completion submission requires paired before/after evidence per relevant defect/task and required tests/checklists; photos alone do not establish every acceptance criterion. |
-| BR-36 | Repair cost is an internal tenant cost register, separate from software subscription billing; no Platform repair commission or routing/custody of repair payments. |
-| BR-37 | Separate re-inspection creates a linked new inspection in MF1; additional missing evidence for the current inspection returns to MF2 under that same inspection. |
-| BR-38 | Assignment, compliance, quality, findings, report, scope/budget/change, acceptance and closure decisions are audited with identity/time/version/outcome. |
-| BR-39 | File possession, notification links and object paths confer no authorization; backend role and scope checks remain mandatory. |
-| BR-40 | Password, role, status and session-revocation changes invalidate affected sessions; reassignment ends future scoped authority without erasing prior actions. |
-| BR-41 | Workforce/compliance catalog management is in MF1; mission-specific approval is in MF2; permit applicability is assessed against authoritative current law and recorded evidence. |
-| BR-42 | Asset creation includes exactly one responsible Inspector and one identified Drone in the same workflow; dispatch requires an inspection snapshot of that pair and resolved conflicts. |
-| BR-43 | Only the assigned Inspector decides substantive evidence completeness/quality before AI; technical upload validation does not substitute for that decision. |
-| BR-44 | MF3 order is evidence quality → AI Vision → LLM draft → Inspector verification → qualified Organization Admin findings/report review → publication. AI/LLM cannot bypass it. |
-| BR-45 | Each MF4 work order has an approved Engineer team, exactly one lead and one accountable report author; lead and author may be the same person but neither accepts their own team's work. |
-| BR-46 | Every task has a responsible approved team member; lead allocates only within approved membership, and Organization Admin records lead/author replacement and handover. |
-| BR-47 | SYSTEM computes authorized budget and actual/variance totals with decimals and consistent currency/tax basis; missing cost is not zero, and contingency is not an incurred expense. |
-| BR-48 | LLM drafts both report types solely from permitted sources and preserves uncertainty/provenance; it cannot invent measurements, causes, completion, financial evidence or approval. |
-| BR-49 | MF4 report author verifies and submits the completion draft; a qualified Organization Admin outside the executing team performs independent technical acceptance. |
-| BR-50 | Team-declared work completion, technical acceptance, financial reconciliation and closure are distinct. CLOSED requires all required tasks, evidence, decisions and pending changes resolved. |
-| BR-51 | MF3 records point-in-time observed condition; MF4 records executed work, actuals and acceptance. Original published findings/report remain unchanged by repair. |
-| BR-52 | Readiness is rechecked at field-session Start and after material changes; expired/revoked mandatory authorization cannot be bypassed by internal exception approval. |
-| BR-53 | A no-repair MF3 outcome closes without an empty work order. Where corrective work is required, open related work prevents a false overall-completed outcome. |
-| BR-54 | GenAI failure allows a structured manual draft under identical author/review gates; regeneration is explicit/versioned and cannot silently overwrite human edits. |
+| BR-01 | Platform Admin accounts are platform-scoped; Organization Admin, Inspector, and Maintenance Engineer accounts are scoped strictly to their respective enterprise tenant. |
+| BR-02 | An Organization Admin can access and manage only the assets, resources, inspections, reports, and maintenance records belonging to their own enterprise organization. |
+| BR-03 | Workforce identities belong to a single enterprise tenant; no user account or operational role can bridge across organization boundaries. |
+| BR-04 | Inspectors and Maintenance Engineers can access and act only upon inspection missions, work orders, or repair tasks explicitly assigned to them. |
+| BR-05 | Active user accounts and valid professional credentials/permits are mandatory for mission release; expired or revoked credentials automatically block operational authorization. |
+| BR-06 | Enterprise tenant registration, identity management, and subscription activation serve as supporting governance gates for the primary inspection and maintenance lifecycle. |
+| BR-07 | Inspection preparation requires a defined component shot-list and mandatory pre-flight safety checklist prior to readiness submission. |
+| BR-08 | Mission readiness authorization verifies valid flight permits, credential currency, and environmental suitability; internal approvals do not grant governmental flight exemptions. |
+| BR-09 | Periodic inspection generation is idempotent per asset, schedule, and cycle, inheriting the asset's active default Inspector and Drone pair into the inspection snapshot. |
+| BR-10 | ENTERPRISE subscription pricing rates, billing intervals (1, 6, or 12 months), and associated resource quotas (storage, assets, fleet size) are dynamically configured by Platform Admin and settled online via PayPal or corporate billing records without requiring source code modifications. |
+| BR-11 | Subscription entitlements, service quotas, and contractual terms are versioned and audited; PayPal transactions record unique order and capture IDs for audit reconciliation. |
+| BR-12 | Report drafts, cost estimate baselines, scope change requests, and approval decisions preserve complete version histories; published records cannot be modified in place. |
+| BR-13 | Subscription renewal, cancellation, and expiration follow transparent contractual terms; subscription expiration preserves historical business records and does not auto-complete open work. |
+| BR-14 | Remote pilots and Inspectors must record session postponement or abort whenever adverse weather or site conditions compromise flight safety. |
+| BR-15 | An assigned Inspector must explicitly accept or reject an inspection assignment; rejection requires a mandatory justification and returns the mission to the administrator. |
+| BR-16 | Aircraft flight operation and physical structural repair are real-world technical actions; system Start and End commands represent software session logging, not hardware actuation. |
+| BR-17 | Uploaded digital evidence retains a server-calculated SHA-256 checksum, upload timestamp, and original capture metadata; missing telemetry is explicitly noted. |
+| BR-18 | Duplicate evidence files within the same inspection scope are rejected based on SHA-256 checksum matching; upload retries are idempotent. |
+| BR-19 | Absence of GPS coordinates or camera telemetry is recorded as missing metadata and does not automatically invalidate otherwise suitable visual evidence. |
+| BR-20 | AI vision detections remain unconfirmed candidates until reviewed by a qualified Inspector; only human-verified findings enter the official inspection record. |
+| BR-21 | Rejected AI defect suggestions are excluded from official defect metrics, inspection report deliverables, and maintenance repair scopes. |
+| BR-22 | Inspectors may record manual defect findings backed by capture evidence; unavailability of AI services does not prevent manual inspection reporting. |
+| BR-23 | The assigned Inspector is responsible for evaluating evidence quality and verifying every authored section of the inspection report before submission. |
+| BR-24 | An Organization Admin distinct from the report author reviews findings and approves report publication; lack of independent review blocks publication. |
+| BR-25 | Draft, returned, and unverified inspection content remains restricted to assigned authors and reviewers, strictly separated from published documents. |
+| BR-26 | Published inspection report versions are immutable; subsequent corrections require creating a new linked revision with renewed administrative approval. |
+| BR-27 | System workflows require explicit, attributable human decisions; no automated timer-based or silence-based approval is permitted for report publication or maintenance acceptance. |
+| BR-28 | A returned inspection or maintenance report is directed back to its designated author with mandatory review comments while preserving prior version history. |
+| BR-29 | Platform Admin provides technical SaaS governance and infrastructure maintenance, holding no authority over customer engineering assessments or repair budgets. |
+| BR-30 | Application workflow approvals represent auditable software authorizations and do not constitute certified statutory signatures or governmental safety warranties. |
+| BR-31 | Maintenance work orders must reference at least one confirmed defect requiring repair from a published inspection report within the same organization. |
+| BR-32 | The designated Maintenance Team Lead prepares itemized repair estimates; automated systems do not generate arbitrary labor rates, material quantities, or prices. |
+| BR-33 | Maintenance warranty and defect follow-up terms apply only when explicitly specified and contracted; no universal statutory warranty is presumed. |
+| BR-34 | Any increase in repair scope, cost, or delivery schedule requires an approved Change Request prior to executing the additional work; the initial baseline remains immutable. |
+| BR-35 | Maintenance completion reports require paired before-and-after photographic evidence and documented test results for each repaired defect. |
+| BR-36 | Repair cost is an internal tenant cost register, separate from software subscription billing; PayPal online payment processes SaaS platform subscriptions, while internal repair actuals are operational expenditures. |
+| BR-37 | A separate re-inspection creates a new linked inspection mission; additional evidence required for an existing inspection returns the mission to the preparation phase. |
+| BR-38 | All assignment, readiness, evidence quality, finding verification, report publication, budget approval, and acceptance actions are logged in an immutable audit trail. |
+| BR-39 | Direct URL access, notification links, and raw file paths confer no authority; backend multi-tenant boundary checks and role verifications remain mandatory on every request. |
+| BR-40 | Password resets, role modifications, and session revocations immediately invalidate active tokens; user reassignment terminates future permissions without altering past audit logs. |
+| BR-41 | Personnel credentials and drone equipment are registered in the resource catalog; mission-specific flight authorization is evaluated prior to starting field sessions. |
+| BR-42 | Asset creation requires assigning exactly one responsible Inspector and one identified Drone; inspection mission dispatch inherits this operational pair snapshot. |
+| BR-43 | The assigned Inspector holds sole authority to evaluate evidence completeness and quality; automated technical upload checks do not replace human quality review. |
+| BR-44 | The inspection workflow follows a strict sequential gate: Evidence Quality Review → AI Defect Detection → Report Draft Synthesis → Author Verification → Admin Approval → Publication. |
+| BR-45 | Each maintenance work order designates an approved engineering team, exactly one Team Lead, and one Report Author; neither may perform final acceptance on their team's work. |
+| BR-46 | Every repair task is allocated to an approved team member; the Team Lead manages task assignments within approved membership, with all changes audited. |
+| BR-47 | Financial totals for budgets, change orders, and actual expenditures are calculated using exact decimal precision; missing item costs cannot default to zero. |
+| BR-48 | Automated language models synthesize report drafts exclusively from verified source records, preserving uncertainty disclosures and preventing fabricated assertions. |
+| BR-49 | The designated Report Author verifies and submits the maintenance completion report; an independent Organization Admin performs final technical acceptance. |

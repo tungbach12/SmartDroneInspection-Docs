@@ -10,6 +10,7 @@ if __package__ in (None, ""):
 import export_report1
 import export_report2
 import export_report3
+import export_report4
 import export_report5
 import export_weekly
 from export_common import (METADATA_SOURCE, input_hashes, original, parser,
@@ -20,11 +21,11 @@ EXPORTERS = {
     "report1": export_report1,
     "report2": export_report2,
     "report3": export_report3,
+    "report4": export_report4,
     "report5": export_report5,
     "weekly": export_weekly,
 }
 MISSING_SOURCES = {
-    "report4": "Report4_Software Design Document.docx",
     "report5-documentation": "Report5_Test Documentation.docx",
     "report5-unit": "Report5_Unit Test.xls",
     "report6": "Report6_Software User Guides.docx",

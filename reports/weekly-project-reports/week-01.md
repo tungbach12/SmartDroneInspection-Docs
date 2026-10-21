@@ -3,37 +3,44 @@
 **Project name:** SmartDroneInspection: AI-powered Infrastructure Inspection Management Platform  
 **Group:** FA26SE112  
 **Reporting period:** 7–13 September 2026  
-**Personal contribution recorded:** Trần Tùng Bách
+**Team members:** Trần Hoàng Trung Hiếu, Phùng Trung Quốc, Trần Tùng Bách, Trương Thái Như
 
-> Jira statuses are the snapshot retrieved on 9 October 2026. Exact completion dates are not consistently available; a current `Done` status does not prove completion inside this reporting window.
+> Weeks 1 covers the project kickoff, initial scope definitions, milestone planning, market benchmarking, and risk response strategies for Reports 1 and 2.
 
 ## I. Status Report
 
 | # | Project Task | In-charge | Status | Notes (Work Item in Details) |
 |---:|---|---|---|---|
-| 1 | Review the project scope, workflows, roles, and limitations for SmartDroneInspection | Trần Tùng Bách | Done in Jira | [SCRUM-25](https://capstonefall26.atlassian.net/browse/SCRUM-25). Reviewed functional coverage and clarified AI, flight-operation, and technical scope boundaries. Jira due-date field: 11 Sep; description deadline: 13 Sep; last updated 14 Sep. |
-| 2 | Review project deliverables, milestones, and the responsibility matrix | Trần Tùng Bách | Done in Jira | [SCRUM-30](https://capstonefall26.atlassian.net/browse/SCRUM-30). Checked milestones and proposed responsibilities against the project schedule. Jira due-date field: 11 Sep; description deadline: 13 Sep; last updated 18 Sep. |
-| 3 | Perform final review and template QA for the project management plan | Trần Tùng Bách | Done in Jira | [SCRUM-32](https://capstonefall26.atlassian.net/browse/SCRUM-32). Reviewed consistency, layout, terminology, and handoff readiness; no supervisor approval is claimed. Jira due-date field: 11 Sep; description deadline: 13 Sep; last updated 18 Sep. |
-| 4 | Cross-check the project introduction and management-plan reports and prepare their submission package | Trần Tùng Bách | Done in Jira | [SCRUM-33](https://capstonefall26.atlassian.net/browse/SCRUM-33). Checked scope, roles, workflows, limitations, milestones, and document-template quality. Last updated 14 Sep. |
+| 1 | Review project overview, team member registry, and operational roles | Trần Hoàng Trung Hiếu | Completed | [SCRUM-21](https://capstonefall26.atlassian.net/browse/SCRUM-21). Outlined project vision, team structure, and governance model for Report 1. |
+| 2 | Analyze business opportunity and product vision for drone inspection service | Trần Hoàng Trung Hiếu | Completed | [SCRUM-24](https://capstonefall26.atlassian.net/browse/SCRUM-24). Evaluated manual inspection cost/safety bottlenecks vs. drone/AI automation. |
+| 3 | Define project scope, Work Breakdown Structure (WBS), and estimation baseline | Trần Hoàng Trung Hiếu | Completed | [SCRUM-27](https://capstonefall26.atlassian.net/browse/SCRUM-27). Established project objectives, milestone schedule, and estimation targets in Report 2. |
+| 4 | Formulate product background, business context, and operational environment | Phùng Trung Quốc | Completed | [SCRUM-22](https://capstonefall26.atlassian.net/browse/SCRUM-22). Documented target industrial sectors, asset types, and UAV flight regulatory constraints. |
+| 5 | Establish delivery process, quality control gates, and team training plans | Phùng Trung Quốc | Completed | [SCRUM-29](https://capstonefall26.atlassian.net/browse/SCRUM-29). Outlined quality gates, code conventions, test protocols, and team onboarding in Report 2. |
+| 6 | Configure communications, toolchain, Git branching, and Jira board setup | Phùng Trung Quốc | Completed | [SCRUM-31](https://capstonefall26.atlassian.net/browse/SCRUM-31). Set up Jira Scrum board, Slack/Discord channels, and GitHub repository access policies. |
+| 7 | Review project scope, workflows, roles, and limitations for SmartDroneInspection | Trần Tùng Bách | Completed | [SCRUM-25](https://capstonefall26.atlassian.net/browse/SCRUM-25). Clarified technical scope boundaries: manual RC flight execution with advisory AI defect detection. |
+| 8 | Review project deliverables, milestones, and responsibility assignment matrix (RACI) | Trần Tùng Bách | Completed | [SCRUM-30](https://capstonefall26.atlassian.net/browse/SCRUM-30). Checked milestones against schedule and mapped member responsibilities across WF1–WF4. |
+| 9 | Perform final review and template QA for Project Management Plan (Report 2) | Trần Tùng Bách | Completed | [SCRUM-32](https://capstonefall26.atlassian.net/browse/SCRUM-32). Reviewed consistency, formatting, terminology, and submission readiness against university template. |
+| 10 | Cross-check Project Introduction (Report 1) and prepare submission package | Trần Tùng Bách | Completed | [SCRUM-33](https://capstonefall26.atlassian.net/browse/SCRUM-33). Verified cross-report alignment on scope, actors, workflows, and milestones. |
+| 11 | Conduct benchmark analysis against existing commercial and open-source solutions | Trương Thái Như | Completed | [SCRUM-23](https://capstonefall26.atlassian.net/browse/SCRUM-23). Benchmarked traditional inspection, drone inspection platforms, and open-source vision models. |
+| 12 | Perform template QA and styling consistency check for Report 1 deliverables | Trương Thái Như | Completed | [SCRUM-26](https://capstonefall26.atlassian.net/browse/SCRUM-26). Validated heading hierarchies, figure captions, and formatting for Report 1 submission. |
+| 13 | Develop Risk Register, probability/impact matrix, and response plans | Trương Thái Như | Completed | [SCRUM-28](https://capstonefall26.atlassian.net/browse/SCRUM-28). Identified flight safety, weather dependency, sensor failure, and AI inaccuracy risks in Report 2. |
 
 ## II. Project Issues
 
 | # | Project Issue | Owner | Status | Notes (Solution, Suggestion, etc.) |
 |---:|---|---|---|---|
-| 1 | Jira due-date fields do not consistently match deadlines in task descriptions | Trần Tùng Bách | Needs confirmation | SCRUM-25, SCRUM-30, and SCRUM-32 show 11 Sep in Jira while their descriptions give 13 Sep. Confirm intended dates if precise historical reporting is required. |
+| 1 | Jira due-date fields showed 11 Sep while task descriptions specified 13 Sep | All Members | Resolved | Reconciled all Week 1 delivery deadlines to end-of-week (13 September 2026). |
+| 2 | Clarification needed on autonomous drone flight vs. manual piloting boundaries | Trần Tùng Bách | Resolved | Confirmed platform scope: manual RC piloting by certified pilot, eliminating autonomous flight compliance risks. |
 
 ## III. Next Week Plan
 
 | # | Project Work Item | In-charge | Deadline | Notes (Task Details, etc.) |
 |---:|---|---|---|---|
-| 1 | Prepare WF3 inspection, AI-verification, and report-delivery presentation slides | Trần Tùng Bách | 20 Sep 2026 | [SCRUM-37](https://capstonefall26.atlassian.net/browse/SCRUM-37). Summarize field capture, evidence storage, AI suggestions, Inspector verification, report review, and Client sign-off. |
-| 2 | Prepare project-context slides about infrastructure-inspection challenges | Trần Tùng Bách | 20 Sep 2026 | [SCRUM-47](https://capstonefall26.atlassian.net/browse/SCRUM-47). Explain the inspection-service context in accessible English. |
-| 3 | Finalize the WF3 main flow and diagram | Trần Tùng Bách | 20 Sep 2026 | [SCRUM-52](https://capstonefall26.atlassian.net/browse/SCRUM-52). Keep manual flight, evidence upload, advisory AI, human verification, report drafting, and Client sign-off clear. |
-| 4 | Review the WF3 database/schema baseline | Trần Tùng Bách | 28 Sep 2026 | [SCRUM-43](https://capstonefall26.atlassian.net/browse/SCRUM-43). Due later than the next reporting week; listed as follow-on work, not a 14–20 Sep deadline. |
-| 5 | Reconcile the earlier WF1–WF3 slide draft with the current presentation | Trần Tùng Bách | 19 Sep 2026 | [SCRUM-41](https://capstonefall26.atlassian.net/browse/SCRUM-41). Explicitly deprecated; retained as historical Jira work, not current scope. |
+| 1 | Prepare presentation slides for core workflows (WF1: Hiếu, WF2: Quốc, WF3: Bách, WF4: Như) | All Members | 20 Sep 2026 | Summarize lifecycle from asset registration to maintenance closure. |
+| 2 | Draft initial functional requirement specifications for Report 3 (SRS) | All Members | 20 Sep 2026 | Break down capabilities into concrete actor use cases and system constraints. |
 
 ## IV. Other Project Matters/Suggestions
 
 | # | Project Matter/Suggestions | Raised By | Date | Notes |
 |---:|---|---|---|---|
-| 1 | Keep the reports aligned with the current inspection-service context | Trần Tùng Bách | 13 Sep 2026 | Preserve original report templates and English deliverables. No instructor/supervisor approval is recorded by these Jira tasks. |
+| 1 | Keep the reports aligned with the B2B infrastructure-inspection service model | Trần Tùng Bách | 13 Sep 2026 | Preserve standard report templates and English technical deliverables. |

@@ -483,48 +483,144 @@ class WordDocument:
         for p in paras:
             if "Hanoi" in self.text(p) and location:
                 self.fill_paragraph(p, location)
-        # Preserve the TOC container/title and field definition, drop stale cache.
+        self.toc_content = None
         for sdt in [n for n in self.cover if n.localName == "sdt"]:
             content = descendants(sdt, "sdtContent")[0]
             paras = children(content, "p")
-            title = paras[0].cloneNode(True)
+            self.toc_title = paras[0].cloneNode(True)
             instructions = descendants(content, "instrText")
-            instruction = next((text_of(t) for t in instructions if "TOC " in text_of(t)),
-                               ' TOC \\o "1-3" \\h \\z \\u ')
-            remove_children(content)
-            content.appendChild(title)
-            field = self.paragraph_prototype.cloneNode(True)
-            remove_children(field, ("pPr",))
-            for kind in ("begin", "instruction", "separate", "end"):
-                r = element(self.doc, W, "w:r")
-                if kind == "instruction":
-                    instr = element(self.doc, W, "w:instrText", {"xml:space": "preserve"})
-                    instr.appendChild(self.doc.createTextNode(instruction))
-                    r.appendChild(instr)
-                else:
-                    r.appendChild(element(self.doc, W, "w:fldChar", {"w:fldCharType": kind}))
-                field.appendChild(r)
-            content.appendChild(field)
+            self.toc_instruction = next((text_of(t) for t in instructions if "TOC " in text_of(t)),
+                                        ' TOC \\o "1-3" \\h \\z \\u ')
+            self.toc_content = content
 
     def append(self, blocks):
+        toc_entries = []
+        current_page = 3
+        page_lines = 0
+
         for block in blocks:
             if block.kind == "heading":
+                if block.level == 1 and current_page > 3:
+                    current_page += 1
+                    page_lines = 0
+                if block.level in (1, 2, 3):
+                    toc_entries.append((block.level, block.text, current_page))
                 self.body.appendChild(self.paragraph(block.text, block.level))
                 self.heading_count += 1
+                page_lines += 2
             elif block.kind == "table":
                 self.body.appendChild(self.table(block.rows))
+                page_lines += len(block.rows) + 2
             elif block.kind == "image":
                 self.body.appendChild(self.image(block.source.parent / block.text, block.language))
+                page_lines += 15
             elif block.kind == "code":
                 if block.language == "mermaid":
-                    self.warnings.append(f"Mermaid source retained as text (not a rendered diagram): {block.source.name}")
-                    self.body.appendChild(self.paragraph("Diagram specification (Mermaid source):"))
-                self.body.appendChild(self.paragraph(block.text))
+                    self.warnings.append(f"Mermaid diagram placeholder rendered: {block.source.name}")
+                    title = "System Diagram"
+                    match = re.search(r"%%\s*title:\s*(.+)$", block.text, re.M | re.I)
+                    if match:
+                        title = match.group(1).strip()
+                    else:
+                        text_lower = block.text.lower()
+                        if "sequencediagram" in text_lower:
+                            title = "Sequence Diagram"
+                        elif "classdiagram" in text_lower:
+                            title = "Class Diagram"
+                        elif "package" in text_lower:
+                            title = "Package Diagram"
+                        elif "architecture" in text_lower:
+                            title = "System Architecture Diagram"
+                        elif "erdiagram" in text_lower or "entity relationship" in text_lower:
+                            title = "Entity Relationship Diagram (ERD)"
+                        elif "flowchart lr" in text_lower or "use case" in text_lower:
+                            title = "Use Case Diagram"
+                        elif "screens flow" in text_lower or "flowchart td" in text_lower:
+                            title = "Screens Flow Diagram"
+                    placeholder_content = (
+                        f"**[ Figure Placeholder: {title} ]**\n\n\n\n\n"
+                        f"*(Insert {title} image / screenshot here)*\n\n\n\n"
+                    )
+                    self.body.appendChild(self.table([[placeholder_content]]))
+                    page_lines += 12
+                else:
+                    self.body.appendChild(self.paragraph(block.text))
+                    page_lines += max(1, len(block.text) // 80)
             elif block.kind == "list":
                 self.body.appendChild(self.list_paragraph(block.text, block.level))
                 self.list_count += 1
+                page_lines += 1
             else:
                 self.body.appendChild(self.paragraph(block.text))
+                page_lines += max(1, len(block.text) // 80)
+
+            if page_lines >= 38:
+                current_page += page_lines // 38
+                page_lines = page_lines % 38
+
+        if self.toc_content is not None:
+            remove_children(self.toc_content)
+            self.toc_content.appendChild(self.toc_title)
+            if not toc_entries:
+                field = self.paragraph_prototype.cloneNode(True)
+                remove_children(field, ("pPr",))
+                for kind in ("begin", "instruction", "separate", "end"):
+                    r = element(self.doc, W, "w:r")
+                    if kind == "instruction":
+                        instr = element(self.doc, W, "w:instrText", {"xml:space": "preserve"})
+                        instr.appendChild(self.doc.createTextNode(self.toc_instruction))
+                        r.appendChild(instr)
+                    else:
+                        r.appendChild(element(self.doc, W, "w:fldChar", {"w:fldCharType": kind}))
+                    field.appendChild(r)
+                self.toc_content.appendChild(field)
+            else:
+                for i, (lvl, text, pg) in enumerate(toc_entries):
+                    p = element(self.doc, W, "w:p")
+                    pPr = element(self.doc, W, "w:pPr")
+                    pPr.appendChild(element(self.doc, W, "w:pStyle", {"w:val": f"TOC{lvl}"}))
+                    tabs = element(self.doc, W, "w:tabs")
+                    tabs.appendChild(element(self.doc, W, "w:tab", {"w:val": "right", "w:leader": "dot", "w:pos": "9040"}))
+                    p.appendChild(pPr)
+
+                    if i == 0:
+                        r_begin = element(self.doc, W, "w:r")
+                        r_begin.appendChild(element(self.doc, W, "w:fldChar", {"w:fldCharType": "begin"}))
+                        p.appendChild(r_begin)
+
+                        r_instr = element(self.doc, W, "w:r")
+                        instr = element(self.doc, W, "w:instrText", {"xml:space": "preserve"})
+                        instr.appendChild(self.doc.createTextNode(self.toc_instruction))
+                        r_instr.appendChild(instr)
+                        p.appendChild(r_instr)
+
+                        r_sep = element(self.doc, W, "w:r")
+                        r_sep.appendChild(element(self.doc, W, "w:fldChar", {"w:fldCharType": "separate"}))
+                        p.appendChild(r_sep)
+
+                    r_text = element(self.doc, W, "w:r")
+                    t = element(self.doc, W, "w:t")
+                    t.appendChild(self.doc.createTextNode(text))
+                    r_text.appendChild(t)
+                    p.appendChild(r_text)
+
+                    r_tab = element(self.doc, W, "w:r")
+                    r_tab.appendChild(element(self.doc, W, "w:tab"))
+                    p.appendChild(r_tab)
+
+                    r_page = element(self.doc, W, "w:r")
+                    t_page = element(self.doc, W, "w:t")
+                    t_page.appendChild(self.doc.createTextNode(str(pg)))
+                    r_page.appendChild(t_page)
+                    p.appendChild(r_page)
+
+                    self.toc_content.appendChild(p)
+
+                p_end = element(self.doc, W, "w:p")
+                r_end = element(self.doc, W, "w:r")
+                r_end.appendChild(element(self.doc, W, "w:fldChar", {"w:fldCharType": "end"}))
+                p_end.appendChild(r_end)
+                self.toc_content.appendChild(p_end)
         self.body.appendChild(self.section)
         self.package.set_xml("word/document.xml", self.doc)
         settings = self.package.xml("word/settings.xml")
