@@ -517,9 +517,22 @@ class WordDocument:
                 self.body.appendChild(self.image(block.source.parent / block.text, block.language))
             elif block.kind == "code":
                 if block.language == "mermaid":
-                    self.warnings.append(f"Mermaid source retained as text (not a rendered diagram): {block.source.name}")
-                    self.body.appendChild(self.paragraph("Diagram specification (Mermaid source):"))
-                self.body.appendChild(self.paragraph(block.text))
+                    self.warnings.append(f"Mermaid diagram placeholder rendered: {block.source.name}")
+                    title = "System Diagram"
+                    text_lower = block.text.lower()
+                    if "flowchart lr" in text_lower or "use case" in text_lower:
+                        title = "Use Case Diagram"
+                    elif "screens flow" in text_lower or "flowchart td" in text_lower:
+                        title = "Screens Flow Diagram"
+                    elif "erdiagram" in text_lower or "entity relationship" in text_lower:
+                        title = "Entity Relationship Diagram (ERD)"
+                    placeholder_content = (
+                        f"**[ Figure Placeholder: {title} ]**\n\n\n\n\n"
+                        f"*(Insert {title} image / screenshot here)*\n\n\n\n"
+                    )
+                    self.body.appendChild(self.table([[placeholder_content]]))
+                else:
+                    self.body.appendChild(self.paragraph(block.text))
             elif block.kind == "list":
                 self.body.appendChild(self.list_paragraph(block.text, block.level))
                 self.list_count += 1
