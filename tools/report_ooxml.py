@@ -519,13 +519,25 @@ class WordDocument:
                 if block.language == "mermaid":
                     self.warnings.append(f"Mermaid diagram placeholder rendered: {block.source.name}")
                     title = "System Diagram"
-                    text_lower = block.text.lower()
-                    if "flowchart lr" in text_lower or "use case" in text_lower:
-                        title = "Use Case Diagram"
-                    elif "screens flow" in text_lower or "flowchart td" in text_lower:
-                        title = "Screens Flow Diagram"
-                    elif "erdiagram" in text_lower or "entity relationship" in text_lower:
-                        title = "Entity Relationship Diagram (ERD)"
+                    match = re.search(r"%%\s*title:\s*(.+)$", block.text, re.M | re.I)
+                    if match:
+                        title = match.group(1).strip()
+                    else:
+                        text_lower = block.text.lower()
+                        if "sequencediagram" in text_lower:
+                            title = "Sequence Diagram"
+                        elif "classdiagram" in text_lower:
+                            title = "Class Diagram"
+                        elif "package" in text_lower:
+                            title = "Package Diagram"
+                        elif "architecture" in text_lower:
+                            title = "System Architecture Diagram"
+                        elif "erdiagram" in text_lower or "entity relationship" in text_lower:
+                            title = "Entity Relationship Diagram (ERD)"
+                        elif "flowchart lr" in text_lower or "use case" in text_lower:
+                            title = "Use Case Diagram"
+                        elif "screens flow" in text_lower or "flowchart td" in text_lower:
+                            title = "Screens Flow Diagram"
                     placeholder_content = (
                         f"**[ Figure Placeholder: {title} ]**\n\n\n\n\n"
                         f"*(Insert {title} image / screenshot here)*\n\n\n\n"
