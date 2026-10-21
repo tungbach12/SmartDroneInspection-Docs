@@ -102,3 +102,25 @@ Existing FE product codes remain stable; the MF mapping below is a **revised tar
 | FE-08 | Scope-filtered queues, analytics, notifications and audit visibility | Cross-flow supporting functions |
 
 Two-digit use-case slots, BR IDs and MSG IDs were retained/revised or extended, not renumbered. `MFx-nn` identifies the detailed target steps in this report only. Existing `WFx-yyy` workbook/test IDs and executed statuses outside Report 3 are untouched; acceptance tests for this target have not been run or recorded by this edit.
+
+### 5.5 Appendix 4 - Research Basis and References
+
+The referenced sources support the report and maintenance design; they do not certify this SaaS or supply a universal report template for all asset types.
+
+- **Inspection reports:** ASNT's first-party report-writing guidance stresses reproducible technique, criteria/equipment identification, honest missing information and attributable authors; PIX4D documents project details, annotations and screenshots in inspection-support reports.[1][7] Requirements in 3.7 are the project's synthesis, to be adapted to the actual asset type and professional scope.
+- **Maintenance lifecycle:** Oracle documents an approval → schedule → technician actuals → complete tasks → close/history flow; IBM distinguishes work completed from work-order closure.[2][3]
+- **Cost and change control:** Oracle documents resource/task costs and approved change information.[8][4] We adopt a smaller internal-team workflow, not ERP/vendor integration requirements.
+- **Generative reports:** NIST AI 600-1 is voluntary cross-sector guidance addressing confabulation and source verification, used here to justify bounded drafting and human gates.[5] The application's four-role approvals are project decisions.
+- **Vietnamese UAV documents:** The Government portal identifies Nghị định 288/2025/NĐ-CP as governing unmanned aircraft and other flying vehicles.[6] This metadata does not establish every applicable clause or the latest amendment; mission-specific applicability, exemptions and later changes must be checked against authoritative law before operation. Foreign FAA/CAA or bridge rules are benchmarks, not Vietnamese legal obligations.
+- No claim of ISO/ASTM accreditation, mandatory industry-standard report form, certified digital signature, legal admissibility, or statutory inspection authority is made from these references. Qualified reviewers and asset-specific criteria remain necessary.
+
+#### Document References
+
+- [1] https://www.asnt.org/standards-publications/blog/nondestructive-testing-report-writing-back-to-basics — Nondestructive Testing Report Writing: Back to Basics - ASNT Pulse
+- [2] https://docs.oracle.com/en/applications/peoplesoft/financials-and-supply-chain-management/9.2.056/peoplesoft-maintenance-management/peoplesoft-maintenance-management-process-flow.html — PeopleSoft Maintenance Management Process Flow
+- [3] https://www.ibm.com/docs/en/maximo-manage/cd?topic=orders-work-order-statuses — Work order statuses
+- [4] https://docs.oracle.com/en/industries/construction-engineering/primavera-unifier/26/accelerator-user/changeorderbusinessprocess-10296629a.html — Change Order Business Process
+- [5] https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf — Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile
+- [6] https://vanban.chinhphu.vn/?docid=215810&pageid=27160 — Nghị định số 288/2025/NĐ-CP của Chính phủ: Quy định về quản lý tàu bay không người lái và phương tiện bay khác
+- [7] https://support.pix4d.com/hc/en-us/articles/13552115283613 — Annotations report - PIX4Dcloud Pro
+- [8] https://docs.oracle.com/cd/G47724_01/fscm92pbr55/eng/fscm/fwkm/UnderstandingWorkOrders-c9f12c.html — Understanding Work Orders

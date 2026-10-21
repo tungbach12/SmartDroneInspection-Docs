@@ -24,7 +24,7 @@ There are two ownership layers and **four human roles**:
 
 `SYSTEM`, AI Vision and LLM are automatic components, not account roles. No `PLATFORM_OPERATOR`, `PROVIDER_MANAGER` or `CLIENT` role is used in this target. There is no external Provider sourcing, RFQ, commission, Client–Provider settlement or Platform arbitration workflow.
 
-#### Four connected Main Flows
+**Four connected Main Flows**
 
 | Flow | Primary responsibility | Output used by the next flow |
 | --- | --- | --- |
@@ -35,7 +35,7 @@ There are two ownership layers and **four human roles**:
 
 Registration/authentication and subscription activation are **supporting gates**, not a fifth MF. Assets remain master records; later inspections reuse the asset and create a new inspection ID in MF1. The pair assigned at asset creation is a default, not an exclusive lifetime reservation of a Drone. Inspection-specific changes preserve past snapshots. MF4 never overwrites the original MF3 report.
 
-**Boundaries:** Flying by RC, adjusting equipment and doing physical repairs are outside software steps. The application stores preparations/observations/results; it does not pilot, arm, isolate or prove hardware safety. Flight/compliance logs are separate from the asset-condition inspection report. Informational public restricted-airspace data is not permission. Applicable issued permits, legal exemptions, credentials and operating conditions must be reviewed for the mission; missing mandatory authorization cannot be waived by Organization Admin. Research/application limits are explained in [Functional Requirements §3.10](../03-functional-requirements/#310-research-basis-and-applicability).
+**Boundaries:** Flying by RC, adjusting equipment and doing physical repairs are outside software steps. The application stores preparations/observations/results; it does not pilot, arm, isolate or prove hardware safety. Flight/compliance logs are separate from the asset-condition inspection report. Informational public restricted-airspace data is not permission. Applicable issued permits, legal exemptions, credentials and operating conditions must be reviewed for the mission; missing mandatory authorization cannot be waived by Organization Admin. Research/application limits are explained in [Requirement Appendix §5.5](../05-requirement-appendix/#55-appendix-4---research-basis-and-references).
 
 SHA-256, timestamps and version histories support technical integrity/traceability, not automatically conclusive legal proof. Logged application approval is not automatically a legally qualified digital signature. LLM produces a labelled source-grounded draft only; missing data remains unknown, numerical totals come from structured calculations, and humans remain accountable for official conclusions and acceptance.
 
