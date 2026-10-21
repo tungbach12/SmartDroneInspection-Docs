@@ -73,7 +73,10 @@ stable business-flow test-case ID.
 These are stated as gaps rather than filled with fabricated cases or statuses.
 
 - **MF1** (asset/schedule setup) and **MF4** (maintenance, triage, cost
-  reconciliation) remain unimplemented and have no cases.
+  reconciliation) carry executed supporting verification recorded in FE-02 and FE-07
+  rather than as new workbook rows, so those sheets stay empty and the totals do
+  not move. MF1-01 to MF1-07 and the MF4-21 follow-up/warranty condition are
+  still not represented by Report 5 cases.
 - **MF2** is only partly covered: `WF2-008` and `WF2-009` test MF2-07 readiness
   approval/return, while `WF2-010` covers the scoped preparation-history read.
   Assignment response, preparation/compliance, source-change

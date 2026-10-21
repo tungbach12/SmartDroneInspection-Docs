@@ -54,6 +54,15 @@ acceptance.
 This is an explicit coverage gap. The removed `WF4-*` IDs stay reserved and are
 never reused.
 
+### MF4-01 – MF4-20 Work Order Lifecycle — supporting verification (executed 2026-10-20)
+
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an organization with a published repair-required finding, an ORG_ADMIN and a MAINTENANCE_ENGINEER.
+- Procedure: Run Backend `MaintenanceApiIntegrationTest` (25 tests) and Frontend `MaintenancePage.test.tsx` (6 tests). Verify the repair-candidate triage list that carries the MF3-13 handoff; work order creation with priority, due date, corrective scope and acceptance criteria (MF4-01/02); team designation of exactly one lead, one report author and one independent accepting reviewer (MF4-03/04); task creation by the lead (MF4-05); estimate versions with system-computed totals (MF4-06/07) and their approval by the budget approver (MF4-08); the execution transitions release, start and declare-complete (MF4-09/10/14); work logs recording hours, as-left condition and test readings (MF4-11); change requests with approve, reject and return decisions (MF4-12/13); completion report drafting, verification and submission (MF4-15/16/17); independent acceptance with accept, return for rework and request re-inspection (MF4-18); cost reconciliation with the computed variance (MF4-19); and closure (MF4-20).
+- Expected result: Each transition is a named action rather than a generic state change; the role decides which actions are offered while the backend stays the enforcement boundary; the accepting reviewer may not be drawn from the executing team; the lead and report author may be the same engineer; actual cost lines never overwrite an estimate line and the variance is computed by the platform from the approved baseline, the approved change deltas and the reconciled actuals; a work order closes only after independent acceptance and cost reconciliation.
+- Round 1: Passed 2026-10-20; tester: Claude Code (automated).
+- Evidence: Backend `MaintenanceApiIntegrationTest` passed 25/25 tests within the full `verify` run of 648 tests, 0 failures, 0 errors, JaCoCo and Modulith checks met. Frontend `MaintenancePage.test.tsx` passed 6/6 tests and the full frontend suite passed 56 files / 361 tests. The web client previously had no maintenance surface at all — `MaintenancePage` was a static placeholder with hardcoded counts and no data fetching — so MF4 was unreachable from the browser even though the backend workflow existed.
+- Scope note: MF4-21 follow-up and warranty conditions have no backend endpoint and are not claimed here. The cost register is an internal record; it is not a statutory tax invoice and no payment is captured.
+
 ## Feature sheet summary
 
 Values for the `Feature 7` summary block (`A2:E8` in the workbook).
