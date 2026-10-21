@@ -55,10 +55,20 @@ grant readiness.
 
 The field-session screens list an Inspector's sessions for an assigned
 inspection, record a pre-flight note and request Start, and support postponement
-or abort with a reason. Start is available only after backend readiness/state
-checks; it records a software session and does not control or arm the Drone.
-Source-change invalidation is partial in the backend, and no session-end /
-`FIELD_COMPLETED` operation is currently available. These are server-enforced
+or abort with a reason. Normal completion uses a required outcome note and
+returns the inspection to MF3 `FIELD_COMPLETED`. Start is available only after
+the backend confirms the latest approved readiness decision is bound to the
+latest READY preparation; it records a software session and does not control or
+arm the Drone.
+
+The mobile inspection detail exposes MF2 Preparation: list and edit the current
+version, update the planned start/end on an additional-session version, and
+submit it for independent organization review. Its MF3 evidence-quality card
+shows only **Accept evidence set** and **Additional session needed**. The latter
+returns to preparation/readiness and provides a route to the preparation screen;
+it does not approve or start a session. Weather or site-safety encountered
+while a session is open remains the postponement/abort path. Generic source-change
+invalidation remains partial in the backend. These are server-enforced
 boundaries, not client-only workflow assumptions.
 
 ## Inspection capture

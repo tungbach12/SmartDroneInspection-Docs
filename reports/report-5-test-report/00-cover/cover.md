@@ -10,9 +10,13 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-16 |
 | Document Code | *Enter document code* |
-| Version | 4.35 (Source-backed report context and PDF alignment; V35 persists required pre-flight notes. Backend 668-test verify passed; report context frontend 6 tests, typecheck, build and lint passed. No published artifacts modified.) |
+| Version | 4.38 (MF2/MF3 workflow updates and rejected-suggestion behavior clarified. Backend final `./mvnw -DskipTests package` passed; the earlier 684-test verify preceded the final rejection-path correction. Frontend production build passed; mobile artifact build is blocked by missing Android SDK/no web target.) |
 
-## Current verification — source-backed MF3 report context (2026-10-19)
+## Current verification — MF2/MF3 workflow updates (2026-10-21)
+
+Backend `./mvnw verify` passed **684 tests**, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met before the final AI-suggestion rejection-path correction. Final backend code then passed `./mvnw -DskipTests package`; tests were not rerun after that correction, per the requested build-only verification scope. The change covers the MF3 additional-session handoff to `PREPARING` (prior READY preparation marked SUPERSEDED, INVALIDATED readiness appended, next-version draft created, prior sessions/evidence preserved), the new planned start/end required on that preparation, refusal to start against an approval belonging to an older preparation, normal MF2-12 completion with required Inspector outcome notes, and evidence/decision association with the completed visit. Frontend `npm run build` passed; frontend tests/lint were not run in this task. Mobile code generation passed; artifact builds were blocked because no Android SDK is configured and the project is not configured for web. Mobile tests/analyze/format were not run in this task. Docs `git diff --check` passed. No Hugo build was run because Hugo is unavailable. No live walkthrough was run in this task. No published artifacts or workflow actions were changed. No Report 5 case status was promoted; the complete repeat-visit scenario remains unexecuted.
+
+## Previous verification — source-backed MF3 report context (2026-10-19)
 
 Backend `./mvnw.cmd -B verify` passed 668 tests, 0 failures/errors/skips, with
 Spotless, JaCoCo and Spring Modulith checks met. The focused report/session suites
@@ -48,8 +52,8 @@ verification is supporting evidence, not an additional WFx case result.
 ## Record of change
 
 The workbook's change table uses these columns. Add one row for each approved
-revision; do not remove old entries. Current source version: **4.35**, last updated
-2026-10-19; see the record of changes below.
+revision; do not remove old entries. Current source version: **4.36**, last updated
+2026-10-20; see the record of changes below.
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |
 | --- | --- | --- | --- | --- | --- |
