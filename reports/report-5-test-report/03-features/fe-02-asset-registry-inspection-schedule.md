@@ -50,12 +50,22 @@ described the retired five-role WF1 baseline (Service Manager review, Client
 asset registration, schedule proposals). That is not the current system, so
 their recorded results are not evidence for it.
 
-The backend does implement a catalog with organization scoping and a paged
-list, and the WF3 inspection collection depends on it. That is catalog CRUD,
-not the MF1 resource-creation workflow, and **no executed test case is recorded
-here for it**, so it is not reported as tested. This is an explicit, truthful
-coverage gap: FE-02 verification is outstanding and must be executed and
-recorded before the feature can be reported as verified.
+The backend implements catalog CRUD and now has a local asset-pair default API
+for DRAFT creation, history, explicit activation and supersession. Those changes
+have not passed their Testcontainers API procedures because Docker is unavailable;
+they are recorded as Pending below rather than reported as tested. This is not the
+full MF1 resource-creation workflow: atomic asset-plus-pair creation, inspection
+creation/snapshot/dispatch and client flow remain outstanding. FE-02 verification
+therefore remains a coverage gap.
+
+### Backend pair-default API — supporting verification (integration Pending)
+
+- Preconditions: Backend branch `feat/quoc-mf1-mf4-e2e`; PostgreSQL and MinIO Testcontainers available; active subscription; own-organization active asset, active Inspector, and serviceable Drone; second organization and second same-organization Inspector for scope/supersession checks.
+- Procedure: Run `./mvnw.cmd '-Dtest=AssetPairAdminApiIntegrationTest' test`. Verify ORG_ADMIN can create a `DRAFT` default pair and list only own-asset history; wrong role is denied; foreign asset/Drone and foreign/suspended Inspector are rejected; unavailable Drone, invalid window, blank reason and future-effective activation are refused; an unentitled organization cannot create pairs; explicit activation requires a reason and supersedes the previous active default with audit while preserving its prior Inspector response.
+- Expected result: Pair history remains tenant scoped, draft creation does not expose an active default, exactly one active default exists per asset, and supersession never erases historical response fields.
+- Round 1: Pending 2026-10-21; tester: Claude Code (automated test authored, execution blocked).
+- Evidence: `./mvnw.cmd '-Dtest=AssetPairAdminApiIntegrationTest' test` failed before Spring context initialization because Testcontainers could not find a Docker environment. Test compilation passed with `./mvnw.cmd '-DskipTests' test-compile`; separate domain tests passed, but do not substitute for this API integration procedure.
+- Scope note: No UI, inspection creation/dispatch, or end-to-end client journey is verified by this API test. No WFx workbook row or stable case ID is fabricated; the FE-02 coverage gap remains.
 
 ### Steps that would be covered first
 
@@ -105,4 +115,4 @@ recorded here.
 | Cell | Label | Value |
 | --- | --- | --- |
 | `B2` | Feature | Asset, Drone, Workforce and Compliance Catalog — MF1 |
-| `B3` | Test requirement | Would verify asset registration with its assigned Inspector and Drone pair, compliance documents and due-cycle inspection generation. MF1 is unimplemented, so no case is recorded. |
+| `B3` | Test requirement | Would verify atomic asset registration with its assigned Inspector and Drone, compliance records and due-cycle inspection generation. Default-pair draft/history/activation API exists, but integration remains Pending and inspection creation/dispatch is unimplemented, so no workbook case is recorded. |

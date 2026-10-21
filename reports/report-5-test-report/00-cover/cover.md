@@ -10,9 +10,19 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-16 |
 | Document Code | *Enter document code* |
-| Version | 4.35 (Source-backed report context and PDF alignment; V35 persists required pre-flight notes. Backend 668-test verify passed; report context frontend 6 tests, typecheck, build and lint passed. No published artifacts modified.) |
+| Version | 4.36 (Supporting subscription activation/reactivation and asset-pair API procedures added as Pending because Docker/Testcontainers is unavailable; no WFx workbook cases or totals changed.) |
 
-## Current verification — source-backed MF3 report context (2026-10-19)
+## Current verification — supporting FE-01/FE-02 API procedures (2026-10-21)
+
+Supporting tests were added for Platform ADMIN subscription activation/reactivation
+and ORG_ADMIN asset-pair draft/history/activation/supersession. They are recorded as
+Pending: Testcontainers could not find a Docker environment, so the integration
+procedures did not reach Spring context startup. Local test compilation, ten
+asset-pair domain tests, three Modulith checks, six Node E2E bootstrap/isolation
+tests and `git diff --check` passed. No workbook case ID/status/total changed and
+no unexecuted test is marked Passed.
+
+## Previous verification — source-backed MF3 report context (2026-10-19)
 
 Backend `./mvnw.cmd -B verify` passed 668 tests, 0 failures/errors/skips, with
 Spotless, JaCoCo and Spring Modulith checks met. The focused report/session suites
@@ -48,8 +58,8 @@ verification is supporting evidence, not an additional WFx case result.
 ## Record of change
 
 The workbook's change table uses these columns. Add one row for each approved
-revision; do not remove old entries. Current source version: **4.35**, last updated
-2026-10-19; see the record of changes below.
+revision; do not remove old entries. Current source version: **4.36**, last updated
+2026-10-21; see the record of changes below.
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |
 | --- | --- | --- | --- | --- | --- |
@@ -93,3 +103,4 @@ revision; do not remove old entries. Current source version: **4.35**, last upda
 | 2026-10-10 | 3.6 | Independent report exporters and verification | A | Added independent exporters for Reports 1, 2, 3, Report 5 and weekly reports, with shared original-package preservation and an orchestration-only `export_all` command. Fifteen automated tooling tests passed at that stage. Nine generated files opened in Word/Excel; the then-current Report 5 recalculated to five cases / five Passed. Template calculation-index repairs applied only to generated copies; original files remained unchanged. PDF export did not complete and Mermaid remained source text, so visual submission readiness was not claimed. This is supporting tooling evidence, not a WFx case; current seven-case evidence is recorded under version 4.2. | `tools/tests/`; `tools/README.md`; `tools/verify_office_reports.ps1`; prior generated output manifest |
 | 2026-10-10 | 4.2 | MF2 PRs integrated and readiness cases restored | M | Integrated backend PR #64, frontend PR #37 and mobile PR #9 on local mainlines. Restored WF2-008 and WF2-009 as Passed MF2-07 cases in Feature 3; backend PR #64 CI passed 334 tests with coverage and Modulith gates. Recounted seven cases / seven Passed. Added seven-case exporter and Excel verification. MF2-08 remains partial; MF2-12 remains unimplemented. Original template unchanged. | Backend PR #64 CI; Report 3 §3.4; business-flow status; Report 5 seven-case sources; generated workbook manifest/Office verification |
 | 2026-10-11 | 4.8 | Object storage exercised through a real MinIO container | M | Replaced the in-memory `EvidenceObjectStore` stubs in the integration suites with a real MinIO server, so evidence bytes and the published report PDF travel through the same `MinioEvidenceObjectStore` adapter production uses rather than a `Map<String, byte[]>`. Three duplicated stub classes were removed: `InspectionEvidenceApiIntegrationTest.StubStore`, `InspectionReportApiIntegrationTest.StubStore` and the store half of `InspectionReportDraftingApiIntegrationTest.DraftingStub`. MinIO is started by `MinioTestInfrastructure`, registered as an `ApplicationContextInitializer` in `META-INF/spring.factories`; `@ServiceConnection` was not usable because it resolves properties through a registered `ConnectionDetailsFactory` and Spring Boot ships none for MinIO, which failed every suite importing `TestcontainersConfiguration` before any test body ran. Verification: `./mvnw.cmd verify` passed 362 tests, 0 failures/errors/skips; JaCoCo gate met; Modulith boundary clean. Two suites failed on first run because their happy-path fixtures used an 11-byte fake PNG signature, which the MF3-02 decode check correctly refuses; both now use real 1x1 PNG bytes. The `ReportDraftPort` remains deliberately stubbed with a deterministic model, and `AssetDocumentApiIntegrationTest` keeps its `@MockitoBean` store because it exists to force storage failures rather than to stand in for an unimplemented path. **No case ID, round status, total or coverage figure changed** — all eight cases remain `Passed`. `README.md`, `test-case-list.md` and `fe-04-…md` no longer describe CI storage as S3Mock-based; `MinioEvidenceObjectStoreIntegrationTest` still covers the S3 API subset against S3Mock. | `MinioTestInfrastructure`; `META-INF/spring.factories`; `TestcontainersConfiguration`; `InspectionEvidenceApiIntegrationTest` (10); `InspectionReportApiIntegrationTest` (14); `InspectionReportDraftingApiIntegrationTest` (5); `InspectionReportSectionsApiIntegrationTest` (18); `pom.xml` (`org.testcontainers:testcontainers`); `./mvnw.cmd verify` |
+| 2026-10-21 | 4.36 | Subscription activation and asset-pair API evidence status | M | Added supporting FE-01/FE-02 API procedures and truthful Pending evidence after Docker/Testcontainers could not start. Local domain, Modulith, Node script and compile checks passed; subscription/asset-pair integration tests remain unexecuted. No fabricated WFx ID, workbook case, Passed status or total change. | `fe-01-identity-access-governance.md`; `fe-02-asset-registry-inspection-schedule.md`; `test-statistics.md`; backend E2E and pair API integration sources |

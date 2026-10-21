@@ -7,7 +7,7 @@ aliases:
 
 # Backend Architecture
 
-> **Current worktree status — 10 October 2026:** This page combines target architecture guidance with the runtime inventory. The `inspections` module implements MF2 assignment response, preparation/compliance, readiness approval/return, and field-session start/postpone/abort, plus the MF3 evidence, quality-decision, findings and report workflow. MF2-08 source-change invalidation is partial: start requires the newest readiness decision to be `APPROVED`, but no source-change workflow appends `INVALIDATED`. MF2-12 session end and `FIELD_COMPLETED` handoff remain unimplemented. Backend PR #64 CI passed 334 tests with JaCoCo and Modulith checks. MF1 and MF4 are not complete workflow implementations. Verify runtime status against current source before treating target behaviors as shipped.
+> **Current runtime inventory — 21 October 2026:** Platform subscription activation and asset default-pair administration now have local implementations and tests. An independent review also identified and prompted a fix for reactivation after an ended subscription; this regression test and subscription/asset-pair Testcontainers integration tests remain Pending because Docker is unavailable. Do not treat the code paths as integration-verified. MF1 inspection creation/dispatch remains absent. The `inspections` module implements MF2 assignment response, preparation/compliance, readiness approval/return, and field-session start/postpone/abort, plus the MF3 evidence, quality-decision, findings and report workflow. MF2-08 source-change invalidation is partial, and MF2-12 session end/`FIELD_COMPLETED` handoff remains unimplemented. No complete cross-client Main Flow E2E has been executed.
 
 The target backend architecture is a Java 21 Spring Boot modular monolith. Spring Modulith verifies the boundaries between direct feature packages so each team-owned capability stays focused.
 
@@ -34,9 +34,9 @@ com.smartdroneinspection/
 | Module | Capability | Runtime status |
 | --- | --- | --- |
 | `users` | Identity, authentication, organization, audit, and user administration | Auth/organization runtime and persistence remain; target organization-registration/auth contracts are still being reset. |
-| `subscriptions` | Enterprise subscription management | Package root only; the `subscriptions` table is schema, not subscription runtime. |
+| `subscriptions` | Enterprise subscription management | Platform ADMIN activation API creates an ENTERPRISE subscription with audit attribution; renewal, suspension, cancellation, and billing workflows are not established here. |
 | `workforce` | Credentials, qualifications, and compliance documents | Package root only; the `workforce_credentials` table is schema, not workforce runtime. |
-| `assets` | Asset catalog, asset documents, categories/checklists, and schedules | Asset/catalog/scheduling entities, repositories, controllers, and services remain; the reset branch is reconciling authorization and does not complete all MF1 target behavior. |
+| `assets` | Asset catalog, asset documents, categories/checklists, and schedules | Asset, category, Drone, Drone-document, permit and compliance APIs/services exist. Asset default-pair draft/history/activation/supersession API is implemented with domain tests; Docker-backed API cases are Pending. MF1 inspection creation/dispatch remains absent. |
 | `inspections` | Assignment response, mission preparation/compliance, readiness, field sessions, evidence, findings, and versioned reports | MF2-01/02, MF2-03/06, MF2-07, and MF2-09/11 are implemented; MF2-08 invalidation is partial and MF2-12 session end is not implemented. MF3-01 through MF3-13 coding is present, including the MF3-12/13 corrective-outcome and handoff paths; that change executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full `verify` gate), and runtime review does not validate reviewer credentials. Inspection creation remains in MF1; this module receives the assigned inspection. |
 | `maintenance` | Target work orders, teams, costs, work logs, reports, and acceptance | Legacy maintenance persistence artifacts remain; the MF4 target workflow implementation is not present. |
 | `notifications` | Notification records and delivery | Existing notification persistence may remain; target delivery behavior is not established by the reset. |
@@ -70,7 +70,8 @@ Shared code is limited to cross-cutting concerns such as error handling, securit
 
 ```text
 users -------------------------------> shared::api, shared::auth, shared::config, shared::exception
-subscriptions -----------------------> users, shared
+subscriptions -----------------------> users, shared::api, shared::exception
+assets ------------------------------> users, subscriptions, shared
 workforce ---------------------------> users, shared
 assets ------------------------------> shared, users
 inspections -------------------------> assets, shared::api, shared

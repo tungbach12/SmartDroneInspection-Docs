@@ -73,12 +73,18 @@ Successful registration returns `201 Created` with the organization identifier/c
 
 The `data` payload is `{ organizationId, organizationName, organizationCode, user }`; `user` contains the new user's identifier, normalized email, name, role list (`ORG_ADMIN`), actor zone, and organization identifier. The complete success body is `{ success: true, message: "Success", data: { ... } }`.
 
-## Platform user administration
+## Platform user and subscription administration
 Platform user management is under `/api/v1/platform/users/**` and requires `ADMIN`:
 - `POST /api/v1/platform/users` creates a provisioned account.
 - `POST /api/v1/platform/users/{userId}/reset-password` issues a new setup credential.
 - `PUT /api/v1/platform/users/{userId}/roles` changes roles and revokes the user's sessions.
 - `PATCH /api/v1/platform/users/{userId}/status` activates, suspends, or disables an account.
+
+Subscription activation is a separate Platform ADMIN operation:
+- `POST /api/v1/platform/organizations/{organizationId}/subscriptions` activates one ENTERPRISE subscription for an existing organization.
+- The caller must be an active platform `ADMIN` with no organization scope. Organization Admins cannot self-activate; missing organizations are returned as not found.
+- Supported billing periods are 1, 6, or 12 months. Activation records the confirming actor/time and an audit reason; a second currently active subscription is rejected with `409 SUBSCRIPTION_ALREADY_ACTIVE`.
+- Subscription activation does not change organization-registration behavior. Newly registered workspaces remain unentitled until separately activated; entitled resource writes are gated while reads/history remain available.
 
 ## Tenant resource administration (MF1)
 
