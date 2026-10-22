@@ -107,3 +107,33 @@ errors; the toast is the acknowledgement that the server accepted the change.
   `POST /api/v1/inspections/{id}/evidence/{evidenceId}/analyze?replace=false`, shows
   "Analysis completed; no defects were detected in this image." and switches the chip to
   "No defects detected" with "Analyze again" offered. No live credentials were used.
+
+### Bilingual checklist content — 2026-10-22
+
+The checklist read and response routes are Inspector-scoped and resolve their
+language from `Accept-Language`, with English as the explicit default and
+fallback. `V39__add_vietnamese_checklist_content.sql` adds nullable
+`name_vi`/`description_vi` to `checklist_templates` and
+`section_name_vi`/`prompt_vi`/`guidance_vi` to `checklist_items`. A localized read
+returns the Vietnamese column when present and falls back to the English column
+when it is absent or blank, so an untranslated template never returns empty
+content. The columns are read-only in this release: the backend exposes no
+write path for a Vietnamese checklist value and the repository ships no
+checklist seed data, so checklist content currently reads as English in either
+locale. The Vietnamese read path itself is exercised by the tests below.
+
+The Inspector's recorded answer value, note and completion time are returned
+exactly as written in either locale. `InspectionChecklistApiIntegrationTest`
+asserts the route shape, the localized system text and the unchanged authored
+note; `V39VietnameseChecklistMigrationTest` applies V39 to a populated
+pre-V39 database and confirms the English columns are untouched and the
+Vietnamese columns are nullable.
+
+Verification in this task: backend `./mvnw -B clean verify` passed, including
+`InspectionChecklistApiIntegrationTest` (9 tests),
+`ChecklistTemplatePersistenceTest` (3 tests),
+`V39VietnameseChecklistMigrationTest`, `RuntimePersistenceInventoryTest` and
+`ComplianceApiIntegrationTest`. The Testcontainers MinIO initializer selects a
+multi-architecture image on ARM64 so the integration context starts natively.
+No Report 5 case status changed; a dedicated end-to-end checklist-localization
+case is still outstanding.

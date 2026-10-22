@@ -261,6 +261,12 @@ A readiness decision references the permit and snapshots its version/status. A p
 - `checklist_templates`: versioned template, context (`MF2_FIELD`, `MF3_EVIDENCE`, `MF4_ACCEPTANCE`), active period and author.
 - `checklist_items`: typed item, order, required flag, evidence requirement and template FK.
 
+`V39__add_vietnamese_checklist_content.sql` adds nullable `name_vi`/`description_vi` to
+`checklist_templates` and `section_name_vi`/`prompt_vi`/`guidance_vi` to `checklist_items`.
+The columns are additive and nullable: existing checklist content is retained unchanged, and a
+localized read falls back to the English columns whenever a Vietnamese value is absent or blank.
+The migration is verified against a populated pre-V39 database, not only an empty one.
+
 A response references the exact template/item version used; later edits do not rewrite historical responses.
 
 #### `assets`
@@ -536,7 +542,8 @@ Applied migration files remain forward-only history. The backend reset has begun
 - V31 corrective outcome follows publication: `SmartDroneInspection-backend/src/main/resources/db/migration/V31__mf3_corrective_outcome_follows_publication.sql` — clears backfilled outcomes that predate the publication they would be attributed to, leaving inspections that already completed the MF3-13 handoff untouched
 - V32 findings correction and author withdrawal: `SmartDroneInspection-backend/src/main/resources/db/migration/V32__mf3_findings_correction_and_author_withdrawal.sql` — adds `verified_findings.deleted_*` (now `findings.deleted_*`), `evidence.retired_*`, and `inspection_report_versions.withdrawn_*` / `return_reason_type`
 - V37 findings merge: `SmartDroneInspection-backend/src/main/resources/db/migration/V37__merge_findings_into_one_table.sql` — renames `verified_findings` to `findings`, folds the detector's suggestions into it, and replaces the duplicated review vocabularies with one status (`PENDING`, `CONFIRMED`) plus a removal tombstone
-- V35 pre-flight note persistence: `SmartDroneInspection-backend/src/main/resources/db/migration/V35__persist_field_session_preflight_note.sql` — stores the required Inspector-entered session note; it is not item-level checklist evidence
+- V35 pre-flight note persistence: `backend/src/main/resources/db/migration/V35__persist_field_session_preflight_note.sql` — stores the required Inspector-entered session note; it is not item-level checklist evidence
+- V39 Vietnamese checklist content: `backend/src/main/resources/db/migration/V39__add_vietnamese_checklist_content.sql` — adds nullable Vietnamese columns to the checklist template and item tables so system-managed checklist text can be localized, keeping the English columns as the explicit fallback
 
 - [Report 3 Software Requirement Specification](../reports/report-3-software-requirement-specification/)
 - [Authentication and Access Control](../backend/authentication-and-authorization.md)

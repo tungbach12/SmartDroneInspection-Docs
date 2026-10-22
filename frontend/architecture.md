@@ -304,3 +304,23 @@ metrics exist: show aggregate values only from APIs available to that role, and
 keep unavailable summaries clearly unavailable rather than inventing data.
 
 Inspector account settings include a persisted AI fallback preference (default enabled): YOLO remains primary, and the configured vision fallback is attempted only after detector failure when enabled. No provider selection button is exposed on Findings. WF3 uploads report success/deduplication/failure with toast notifications while keeping per-file inline errors. Every MF3 Evidence, Findings and Report mutation also reports its outcome through the shared toast host (upload, retirement, bulk retirement, shared evidence location, evidence-quality decision, analysis, candidate review/revision, manual finding add/update/remove, findings confirm/reopen, and the report draft/save/verify/submit/review/withdraw/publish and corrective outcomes), so a change the server accepted is never silent; inline alerts remain for validation and load failures. The manual-draft path is a single action that creates empty structured sections; the old narrative/disclosure seed inputs are removed.
+
+### Bilingual interface
+
+The web client is English-first with Vietnamese selectable. `LocaleProvider` in
+`src/shared/i18n/` owns the active locale; English is the explicit default and
+the fallback, and a saved Vietnamese preference is restored from
+`localStorage` under `sdi-locale`. The provider is mounted at the application
+root, so every screen reads the same locale, and `LocaleToggle` in the workspace
+header is the only control that changes it.
+
+System-managed interface text is wrapped in `t('...')` and resolved against the
+Vietnamese catalog. Date and number formatting go through the locale-aware
+`formatDate`, `formatDateTime` and `formatNumber` helpers rather than
+`toLocaleString()`, so a Vietnamese user sees Vietnamese date and number
+conventions instead of the browser's. User-authored values — recorded notes,
+findings, checklist answers and report narratives — are displayed exactly as
+entered and are never translated.
+
+Every request sends `Accept-Language` through the shared Axios interceptor, so
+the backend can return localized system-managed content for the same session.

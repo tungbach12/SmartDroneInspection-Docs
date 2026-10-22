@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-21 |
 | Document Code | *Enter document code* |
-| Version | 4.39 (Integrated teammate MF1 asset pairing, inspection creation, and account management alongside MF2/MF3 workflow updates, with supporting Platform ADMIN subscription activation and asset-pair lifecycle.) |
+| Version | 4.41 (Bilingual system-managed content: English default with Vietnamese selectable, applied to checklist text, report drafting and the generated PDF, on web, mobile and backend.) |
 
 ## Current verification — MF1 integrated with MF2/MF3 workflow and supporting APIs (2026-10-21)
 
