@@ -56,9 +56,9 @@ provide distinct entry pages and layouts:
 
 | Entry route | Roles | Visible sections |
 | --- | --- | --- |
-| `/admin/*` | `ADMIN` | Dashboard, assets, inspections, reports, maintenance |
+| `/admin/*` | `ADMIN` | Dashboard, assets, inspections, reports; no maintenance authority |
 | `/org/*` | `ORG_ADMIN` | Dashboard, assets, inspections, reports, maintenance |
-| `/field/*` | `INSPECTOR`, `MAINTENANCE_ENGINEER` | Dashboard for both; inspections/reports for Inspector; maintenance for Maintenance Engineer |
+| `/field/*` | `INSPECTOR`, `MAINTENANCE_ENGINEER` | Dashboard for both; inspections/reports for Inspector; maintenance is not yet exposed in the Web client |
 
 The central `app/permissions/accessPolicy.ts` is the frontend navigation and
 route-guard policy. It follows the screen-access matrix in Report 3, section
@@ -129,6 +129,16 @@ Platform ADMIN may read cross-tenant rows but does not receive author, reviewer,
 or publication actions. The backend scopes every list and mutation by
 assignment, organization, platform read-only authority, workflow state, and
 separation-of-duties rules.
+
+## MF4 maintenance Web status
+
+The maintenance route is an ORG_ADMIN-only, read-only console for the backend's
+published repair-candidate queue and organization-scoped work orders. It supports
+viewing work-order detail; it does not create orders, assign teams, approve costs,
+or claim maintenance evidence, notifications, or re-inspection dispatch. Team
+assignment remains unavailable in the client until an eligible-member and
+qualification lookup contract exists. The backend remains the authorization
+boundary for every query and action.
 
 ## Browser authentication flow
 

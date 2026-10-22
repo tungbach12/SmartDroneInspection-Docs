@@ -13,11 +13,12 @@ infrastructure-owning companies. Four human roles, four connected Main Flows, no
 
 > **Requirements, not implementation.** These flows state required behaviour. By 10 October 2026,
 > the backend had delivered identity, organization registration, the 41-table target schema/runtime
-> cutover, the MF3 workflow slice, and an MF2 slice covering assignment response, preparation/compliance,
-> readiness approval/return and field-session start/postpone/abort. MF2-08 source-change invalidation is
-> partial and MF2-12 session end/`FIELD_COMPLETED` is not implemented; MF1 and MF4 remain incomplete.
-> See the implementation-status table below and [database-design.md](database-design.md) §11 for
-> the verified runtime boundary, and
+> cutover, the MF3 workflow slice, an MF2 slice covering assignment response, preparation/compliance,
+> readiness approval/return and field-session start/postpone/abort, and an MF4 backend API slice for
+> work orders, team/cost control and closeout. MF2-08 source-change invalidation is partial and MF2-12
+> session end/`FIELD_COMPLETED` is not implemented. MF1 and broader MF4 requirements remain incomplete;
+> MF4 web/mobile workflows are not yet verified. See the implementation-status table below and
+> [database-design.md](database-design.md) §11 for the verified runtime boundary, and
 > [Report 3](../reports/report-3-software-requirement-specification/03-functional-requirements.md)
 > for the binding requirements text.
 
@@ -268,9 +269,9 @@ SUPERSEDED` by `InspectionReportVersion`.
 | MF2-09/11 field session | Backend start/postpone/abort APIs and mobile field-session screen implemented; backend/mobile tests added |
 | MF2-12 session end and `FIELD_COMPLETED` handoff | Not implemented |
 | MF3 evidence, quality decision, findings, versioned report and publication | Implemented and verified on 8 October 2026; scoped list added and verified on 9 October 2026 |
-| MF4 workflow execution | Not implemented |
+| MF4 backend API slice | Implemented and verified for repair candidates, work-order creation/scope, team and estimate/change control, execution, independent acceptance and cost reconciliation/closeout. This does not establish full MF4 or client delivery. |
 
-The backend PR #64 workflow completed successfully: 334 tests, zero failures/errors/skips, JaCoCo and Modulith checks passed. Report 5 has seven executed workflow cases in the 8-feature output layout: two MF2-07 readiness cases on `Feature 3`/FE-03, plus five MF3 cases on `Feature 4`–`Feature 6`. Remaining MF1, MF2-08, MF2-12 and MF4 requirements stay visible as implementation/test gaps. Do not treat schema alone as workflow evidence; the statuses above refer to merged code and its recorded automated checks.
+The MF4 backend API slice was verified with 457 tests, zero failures/errors, and passing JaCoCo/Modulith gates; Report 5 records `WF3-010`–`WF3-012` under FE-07. Report 5 currently has eleven executed cases in its eight-feature output layout: three MF2 cases (`WF2-008`–`WF2-010`), five MF3 cases on `Feature 4`–`Feature 6`, and three MF4 backend API cases on `Feature 7`. Remaining MF1, MF2-08, MF2-12 and MF4 requirements stay visible as implementation/test gaps. MF4 credential presence/skills, maintenance evidence/report artifacts, notifications, linked MF1 re-inspection and Web/Mobile client tests remain uncovered. Do not treat schema alone as workflow evidence; the statuses above refer to merged code and its recorded automated checks.
 
 ## IX. Source reference
 

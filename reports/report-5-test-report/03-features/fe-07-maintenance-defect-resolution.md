@@ -41,6 +41,8 @@ Separation-of-duties rules that carry real risk:
 Three cases cover the implemented MF4 **backend API** slice: tenant and
 assignment scope, team/estimate/change approval, and execution through
 independent acceptance and reconciled closure. They are not full MF4 delivery.
+The ORG_ADMIN Web read-only surface remains the planned next slice; no Web test
+case or result is included in this source reconciliation.
 
 | Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -58,7 +60,9 @@ These three cases are **backend API** evidence. They do not establish:
 - Applicable-skill matching; no skill model exists.
 - Notification delivery, evidence object upload, rendered report artifact or
   linked MF1 re-inspection dispatch.
-- Any web or mobile client behaviour; no client consumes this API yet.
+- Web or mobile workflow completion. The first Web slice is read-only ORG_ADMIN
+  candidate/work-order viewing; its implementation test evidence is not yet
+  recorded here. No mobile maintenance client is implemented.
 
 `WF3-006` verifies MF3 publication handing repair-required finding IDs to the
 maintenance boundary; it remains an MF3 publication test owned by FE-06.

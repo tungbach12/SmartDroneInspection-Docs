@@ -22,9 +22,10 @@ file in `template/` is unchanged. `Feature N` maps to `FE-0N` (Report 3 §§3.2�
 The generator clones the official feature-sheet layout, including its widths,
 styles, print settings and metadata block. It adds no rows or columns to the
 execution table; it adds worksheets because the SRS has eight product features.
-Feature 1/2/7/8 have zero cases. Feature 3 contains two MF2-07 cases, and
-Features 4/5/6 contain five MF3 cases. Adding or reordering an SRS FE requires
-updating the case routing and summary row in the same change.
+Feature 1/2/8 have zero cases. Feature 3 contains three MF2 cases, Features
+4/5/6 contain five MF3 cases, and Feature 7 contains three verified MF4 backend
+API cases. Adding or reordering an SRS FE requires updating the case routing and
+summary row in the same change.
 
 ## `Cover`
 
@@ -82,7 +83,7 @@ computed from it at rows 21–22:
 - `Test coverage` = `(Passed + Failed) * 100 / (Number of TCs - N/A)`
 - `Test successful coverage` = `Passed * 100 / (Number of TCs - N/A)`
 
-With seven cases, all `Passed` and no `N/A`, both evaluate to 100% for the
+With eleven cases, all `Passed` and no `N/A`, both evaluate to 100% for the
 recorded cases only. Keep the workbook formulas; change only the underlying
 per-round statuses.
 
@@ -143,32 +144,32 @@ the `Feature sheet summary` table in each matching `fe-0N-…md` file. Populate
 | --- | --- | --- |
 | FE-01 identity/access governance (§3.2) | Supporting evidence, outside case sheets | No WFx IDs |
 | FE-02 asset/drone/workforce/compliance catalog (§3.3) | Coverage gap; MF1 unimplemented | None assigned |
-| FE-03 mission preparation and readiness (§3.4) | `Feature 3` | WF2-008, WF2-009 (MF2-07 readiness approval/return) |
+| FE-03 mission preparation and readiness (§3.4) | `Feature 3` | WF2-008, WF2-009 (MF2-07 readiness approval/return), WF2-010 (preparation-listing scope) |
 | FE-04 field records and evidence (§3.5) | `Feature 4` | WF3-002, WF3-009 |
 | FE-05 AI vision candidates (§3.6) | `Feature 5` | WF3-003 |
 | FE-06 report drafting/review/publication (§3.7) | `Feature 6` | WF3-005, WF3-006 |
-| FE-07 team maintenance and cost control (§3.8) | Coverage gap; MF4 unimplemented | None assigned |
+| FE-07 team maintenance and cost control (§3.8) | `Feature 7` | WF3-010, WF3-011, WF3-012 (verified backend API slice) |
 | FE-08 dashboard/analytics/notifications (§3.9) | Coverage gap; no assigned case | None assigned |
 
 The FE-xx codes are Report 3's own, one per section 3.2–3.9. Report 5 does not
 invent them. See `README.md` for the full code-to-section table.
 
 The sheet names are generated presentation labels; the exported mapping is
-explicit: sheet `Feature N` corresponds to SRS `FE-0N`. After the 2026-10-10
-reconciliation, `Feature 3` (FE-03) contains `WF2-008` and `WF2-009` for MF2-07
-readiness approval/return; the five MF3 cases remain on `Feature 4`, `Feature 5`,
-and `Feature 6`. The other sheets stay present with zero cases. FE codes identify
-SRS capabilities and WFx IDs retain stable case identity:
+explicit: sheet `Feature N` corresponds to SRS `FE-0N`. The current `Feature 3`
+(FE-03) contains `WF2-008`–`WF2-010`; the five MF3 cases remain on `Feature 4`,
+`Feature 5`, and `Feature 6`; `Feature 7` (FE-07) contains backend API cases
+`WF3-010`–`WF3-012`. Feature 1, 2 and 8 remain present with no functional cases.
+FE codes identify SRS capabilities and WFx IDs retain stable case identity:
 
 | Workbook sheet | Included SRS feature | Included WF IDs |
 | --- | --- | --- |
 | `Feature 1` | FE-01 — supporting evidence only; no case | None |
 | `Feature 2` | FE-02 — MF1 unimplemented | None |
-| `Feature 3` | FE-03 — MF2 readiness approval/return | WF2-008, WF2-009 |
+| `Feature 3` | FE-03 — MF2 readiness | WF2-008, WF2-009, WF2-010 |
 | `Feature 4` | FE-04 — field records and evidence | WF3-002, WF3-009 |
 | `Feature 5` | FE-05 — AI vision candidates | WF3-003 |
 | `Feature 6` | FE-06 — report drafting/review/publication | WF3-005, WF3-006 |
-| `Feature 7` | FE-07 — MF4 unimplemented | None |
+| `Feature 7` | FE-07 — MF4 backend API slice | WF3-010, WF3-011, WF3-012 |
 | `Feature 8` | FE-08 — no assigned case | None |
 
 There are exactly eight FE-specific Markdown source files. The supplied
@@ -176,9 +177,10 @@ workbook has two feature sheets; generated workbooks have eight output sheets,
 one for each source file. Neither sheet names nor source filenames replace the
 stable SRS feature codes. Removed case IDs (`WF1-*`, `WF2-001`–`WF2-007`,
 `WF3-001`, `WF3-004`, `WF3-007`, `WF3-008`, `WF4-*`) stay reserved and are never
-reused; `WF2-008` and `WF2-009` are active FE-03 case IDs. New MF3 cases continue
-from `WF3-010`. FE-02/MF1, the remaining MF2 boundaries, FE-07/MF4 and FE-08
-remain coverage gaps; cases may cover only implemented behavior.
+reused; `WF2-008`–`WF2-010` are active FE-03 case IDs. MF3 cases remain on
+FE-04–FE-06; FE-07's existing backend API cases retain `WF3-010`–`WF3-012`.
+FE-02/MF1, remaining MF2 boundaries, broader MF4 client/requirement coverage,
+and FE-08 remain gaps; cases may cover only implemented and executed behavior.
 
 ## Visual and status rules
 

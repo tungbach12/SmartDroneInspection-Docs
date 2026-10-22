@@ -4,20 +4,22 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope (updated 2026-10-10):** This report records seven executed cases for the
+**Scope (updated 2026-10-13):** This report records eleven executed cases for the
 four current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`):
-two MF2-07 readiness decision cases and five MF3 cases. The earlier content
-mixed a retired five-role WF1–WF4 baseline with unimplemented MF1–MF4 target
-cases; obsolete and unsupported cases were removed during the 2026-10-09 reset.
-The two MF2 cases were restored after the merged backend/frontend/mobile PRs
-were integrated locally: backend `84fcc16`, frontend `287d5a4`, mobile `91092e6`.
+three MF2 cases, five MF3 cases, and three FE-07/MF4 backend API cases. The earlier
+content mixed a retired five-role WF1–WF4 baseline with unsupported target cases;
+obsolete cases were removed during the 2026-10-09 reset. MF2-07 readiness cases
+`WF2-008`/`WF2-009` and the MF4 backend slice `WF3-010`–`WF3-012` are retained as
+separately recorded execution evidence. `WF2-010` records preparation-listing
+scope.
 
-This does not claim complete MF2 coverage. MF2-08 source-change invalidation is
-partial (session start checks the newest decision and requires APPROVED, but no
-source-change flow appends INVALIDATED); MF2-12 session end and
-`FIELD_COMPLETED` handoff remain unimplemented. MF1, MF4 and FE-08 remain gaps.
-The original workbook template remains unchanged; generated copies contain eight
-feature sheets as requested.
+This does not claim complete MF2 or MF4 coverage. MF2-08 source-change
+invalidation is partial, and MF2-12 session end/`FIELD_COMPLETED` handoff remains
+unimplemented. MF4 is partially implemented in the backend API; required
+credential/skill validation, maintenance evidence/artifacts, notifications,
+linked MF1 re-inspection, and client workflow verification remain gaps. FE-08 has
+no assigned case. The Web-first ORG_ADMIN client slice is the documented next delivery step and is not represented as test evidence. The original workbook template remains
+unchanged; generated copies contain eight feature sheets as requested.
 
 ## Naming layers and mapping
 
@@ -25,10 +27,11 @@ The supplied template has two feature sheets (`Feature 1`, `Feature 2`). Generat
 workbooks extend it to eight feature sheets (`Feature 1`–`Feature 8`), one per
 Report 3 feature. The original template remains unchanged. Sheet `Feature N`
 contains SRS feature `FE-0N`; these are separate naming layers, not synonyms.
-Feature 1 (supporting FE-01), Feature 2 (FE-02), Feature 7 (FE-07) and
-Feature 8 (FE-08) have no cases. Feature 3 (FE-03) contains `WF2-008` and
-`WF2-009`; Features 4–6 contain the five MF3 cases. All eight sheets remain so
-the workbook mirrors the eight SRS features.
+Feature 1 (supporting FE-01), Feature 2 (FE-02) and Feature 8 (FE-08) have no
+cases. Feature 3 (FE-03) contains `WF2-008`–`WF2-010`; Features 4–6 contain the
+five MF3 cases; Feature 7 (FE-07) contains `WF3-010`–`WF3-012` for the implemented
+backend API slice. All eight sheets remain so the workbook mirrors the eight SRS
+features.
 
 | Layer | Meaning | Example |
 | --- | --- | --- |
@@ -78,7 +81,7 @@ feature mapping.
 | `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 4` sheet | `WF3-002`, `WF3-009`. |
 | `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 5` sheet | `WF3-003`. |
 | `03-features/fe-06-inspection-report-approval.md` | `Feature 6` sheet | `WF3-005`, `WF3-006`. |
-| `03-features/fe-07-maintenance-defect-resolution.md` | Coverage gap | No current case; MF4 unimplemented. |
+| `03-features/fe-07-maintenance-defect-resolution.md` | `Feature 7` sheet | `WF3-010`–`WF3-012`; backend API slice only, broader MF4 gaps remain. |
 | `03-features/fe-08-dashboard-analytics-notifications.md` | Coverage gap | No assigned case; do not infer execution. |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
 | `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
@@ -107,20 +110,22 @@ All verification statuses below describe the current source after the MF2 PR int
 1. FE-01 — identity/access supporting gates. Recorded separately in the FE-01
    file; not a workbook case.
 2. FE-02 — asset registry and schedule. No case (see coverage gap).
-3. FE-03 — MF2-07 readiness approval/return (`WF2-008`, `WF2-009`); other MF2
-   implementation and case-coverage gaps remain documented.
+3. FE-03 — MF2 readiness (`WF2-008`–`WF2-010`); other MF2 implementation and
+   case-coverage gaps remain documented.
 4. FE-04 — inspection evidence and the Inspector's quality decision
    (`WF3-002`), and the scoped inspection/report collections (`WF3-009`).
 5. FE-05 — advisory detection and human finding verification (`WF3-003`).
 6. FE-06 — report review, publication, and immutability (`WF3-005`, `WF3-006`).
-7. FE-07 — maintenance and defect resolution. No case; MF4 unimplemented.
+7. FE-07 — maintenance and defect resolution (`WF3-010`–`WF3-012`), covering the
+   implemented backend API slice only; client and remaining MF4 coverage is open.
 8. FE-08 — dashboard, analytics, and notifications. No assigned case; explicit
    coverage gap.
 
-Totals: **7 cases, 7 `Passed`, 0 `Failed`, 0 `Pending`.** Coverage of 100% is
-only of these seven recorded cases, not the SRS or the complete MF2 workflow.
-Removed case IDs stay reserved and are never reused; new cases continue from
-`WF3-010` after `WF3-009`.
+Totals: **11 cases, 11 `Passed`, 0 `Failed`, 0 `Pending`.** Coverage of 100% is
+only of these eleven recorded cases, not the SRS or complete MF2/MF4 workflows.
+The three MF4 cases verify backend API behavior, not Web/Mobile completion. Removed
+case IDs stay reserved and are never reused; MF4 backend cases continue after the
+MF3 collection case `WF3-009` with their existing stable IDs.
 
 MinIO/evidence storage is tracked under FE-04. Integration suites run against a
 real MinIO container through the same `MinioEvidenceObjectStore` adapter

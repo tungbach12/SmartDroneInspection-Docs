@@ -16,8 +16,9 @@ fixed: `No`, `Function Name`, `Sheet Name`, `Description`, `Pre-Condition`.
 
 The earlier content mixed a retired five-role WF1–WF4 baseline with the current
 four-role Enterprise SaaS target. The 2026-10-09 reset removed obsolete and
-unimplemented cases; this 2026-10-10 reconciliation adds only the two MF2-07
-readiness cases backed by the merged backend implementation and CI evidence.
+unsupported cases. Later reconciliations restored the three MF2 cases
+(`WF2-008`–`WF2-010`) and added the verified MF4 backend API slice
+(`WF3-010`–`WF3-012`); Web/Mobile MF4 behavior is not yet case evidence.
 
 Removed during the reset, because they describe behavior that no longer exists
 or was never implemented:
@@ -36,13 +37,14 @@ or was never implemented:
 Retained MF3 cases: `WF3-002`, `WF3-003`, `WF3-005`, `WF3-006`, and `WF3-009`.
 The removed IDs remain reserved. New MF3 cases continue from `WF3-010`.
 
-The 2026-10-10 merge of backend PR #64 (`84fcc16`), frontend PR #37
-(`287d5a4`) and mobile PR #9 (`91092e6`) added MF2 runtime. `WF2-008` and
-`WF2-009` now record MF2-07 readiness approve/return verification only; they do
-not claim full MF2 completion. MF2-08 invalidation is partial and MF2-12
-session-end handoff remains unimplemented. MF1 and MF4 remain gaps. FE-01
-supporting verification remains outside the workbook case index and functional
-case statistics; see `03-features/fe-01-identity-access-governance.md`.
+The 2026-10-10 merge of backend PR #64, frontend PR #37 and mobile PR #9 added
+MF2 runtime. `WF2-008`/`WF2-009` record MF2-07 readiness approval/return;
+`WF2-010` records preparation-listing scope. MF2-08 invalidation is partial and
+MF2-12 session-end handoff remains unimplemented. MF4 backend API behavior is
+covered by `WF3-010`–`WF3-012` under FE-07; mandatory qualification, maintenance
+artifacts, notifications, linked MF1 re-inspection and client behavior remain
+uncovered. FE-01 supporting verification remains outside the case index and
+functional-case statistics; see `03-features/fe-01-identity-access-governance.md`.
 
 ## Case index
 

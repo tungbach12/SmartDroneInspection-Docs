@@ -10,8 +10,8 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | **2026-10-12: MF2, MF3 and the implemented MF4 backend API slice reconciled.** The MF3 decision flow moved onto the inspection route, MF3-03 now requires the shot-list comparison, and the MF3-06 candidate enum and missing MF3-09 reviewer surface were fixed. The combined baseline contains eleven cases, all Passed: three MF2, five MF3 and three MF4 backend API cases (`WF3-010`–`WF3-012`). MF2-08 source-change invalidation is partial; MF2-12 session end, MF4 credential presence, skills, notifications, evidence objects and re-inspection dispatch remain uncovered. |
-| Last updated | 2026-10-12 |
+| Test round | **2026-10-14: Report 5 source reconciled with the implemented MF4 API slice.** Eleven cases are recorded: three MF2 (`WF2-008`–`WF2-010`), five MF3, and three MF4 backend API cases (`WF3-010`–`WF3-012`). All eleven remain Passed; this documentation reconciliation adds no test result. MF2-08 is partial, MF2-12 is unimplemented, and remaining MF4 credential/skill, evidence/artifact, notification, re-inspection and client behavior is not covered. |
+| Last updated | 2026-10-14 |
 
 ## Module summary
 
@@ -44,16 +44,16 @@ Because there are eight modules, `Sub total` moves from row 14 to **row 19**,
 ### Why most modules are empty
 
 - **Modules 1, 2 and 8 have no cases.** FE-01's supporting gates are recorded
-  outside the case sheets. MF1 (catalog) remains a Report 3 requirement but is
-  not implemented. FE-08 has no assigned case.
-- **Module 7 has the three MF4 backend API cases** (`WF3-010`–`WF3-012`). They
-  cover tenant scope, team/estimate/change control, execution, independent
-  acceptance and reconciliation. They do not establish full MF4 delivery: skills,
-  mandatory credential presence, notifications, evidence objects and linked MF1
-  re-inspection remain outstanding, and no client consumes the API yet.
-- **Module 3 has the two MF2-07 readiness cases** (`WF2-008`, `WF2-009`). They
-  cover readiness approval/return only; they do not establish that all MF2
-  steps are complete or tested. MF2-08 source-change invalidation is partial;
+  outside the case sheets. MF1 (catalog) remains unimplemented; FE-08 has no
+  assigned case.
+- **Module 7 has three MF4 backend API cases** (`WF3-010`–`WF3-012`). They cover
+  tenant scope, team/estimate/change control, execution, independent acceptance
+  and reconciliation. Skills, mandatory credential presence, notifications,
+  evidence objects, linked MF1 re-inspection, and client behavior remain
+  outstanding.
+- **Module 3 has three MF2 cases** (`WF2-008`–`WF2-010`). `WF2-008` and
+  `WF2-009` cover readiness approval/return; `WF2-010` covers preparation-listing
+  scope. They do not establish that all MF2 steps are complete or tested. MF2-08 source-change invalidation is partial;
   MF2-12 session end/`FIELD_COMPLETED` remains unimplemented.
 - **Modules 4, 5 and 6 hold the five MF3 cases**: FE-04 (evidence intake and
   scoped collections) has 2, FE-05 (advisory detection and human finding
@@ -74,10 +74,11 @@ The previous statistics mixed a retired five-role WF1–WF4 baseline with
 unimplemented Enterprise SaaS MF1–MF4 target cases, giving 33 cases with 13
 `Passed` — a total that did not describe any single system. The 2026-10-09
 reset removed obsolete and unimplemented rows, leaving five executed MF3 cases.
-On 2026-10-10, after fast-forwarding the merged implementation PRs, the two
-MF2-07 readiness cases `WF2-008` and `WF2-009` were restored to FE-03 based on
-their test procedures and successful backend PR #64 CI. The current mainline
-revisions are backend `84fcc16`, frontend `287d5a4`, and mobile `91092e6`.
+On 2026-10-10, after fast-forwarding the merged implementation PRs, MF2-07
+readiness cases `WF2-008` and `WF2-009` were restored to FE-03 based on their
+procedures and successful backend PR #64 CI. `WF2-010` covers preparation-listing
+scope. `WF3-010`–`WF3-012` cover the verified MF4 backend API slice; they do not
+claim complete MF4 delivery.
 
 | Change | Before reset | After reset | Current |
 | --- | ---: | ---: | ---: |
@@ -91,10 +92,12 @@ The 28 removed cases (`WF1-001`–`WF1-019`, `WF2-001`–`WF2-007`, `WF3-001`,
 `WF3-004`, `WF3-007`, `WF3-008`, `WF4-001`–`WF4-005`) described behavior that
 no longer exists or has never been implemented. Their IDs stay reserved.
 
-The increase from five to seven cases reflects restored Report 5 coverage for
-implemented MF2-07 approval/return. It does not claim the remaining MF2 workflow
-is complete: MF2-08 invalidation is partial and MF2-12 session end remains
-unimplemented.
+The increase from five to eight cases reflects the two restored MF2-07
+approval/return cases and `WF2-010` preparation-listing scope. Three verified MF4
+backend API cases bring the current total to eleven. This does not claim complete
+MF2/MF4 delivery: MF2-08 invalidation is partial, MF2-12 session end is
+unimplemented, and remaining MF4 qualification, artifact, notification,
+re-inspection and client behavior remain uncovered.
 
 ## Verification recorded this round
 
@@ -132,17 +135,17 @@ Testcontainers execution was unavailable in this session.
 ## Supporting export-tool verification (not workbook cases)
 
 Executed on 2026-10-10 by Claude Code (automated). These are documentation-tool
-checks, not additional product test cases. The previously verified export had a
-five-case denominator because it predates this seven-case reconciliation; the
-current source denominator is seven. Export-tool checks do not change any round
-status/date/tester.
+checks, not additional product test cases. The archived verified export predates
+the MF2/MF4 additions; its seven-case denominator is historical and is not
+validation of the current eleven-case source. Export-tool checks do not change any
+round status/date/tester.
 
 | Check | Command | Result |
 | --- | --- | --- |
 | Independent exporter suites | `python -I -m unittest discover -s tools/tests -p "test_*.py" -v` | 29 tests passed: individual CLI execution, source tables, template styles/page settings, all three round/date/tester groups, original input preservation, safe outputs, Markdown readability, eight-sheet routing/statistics, and all eight FE summary blocks. |
 | Prior full source-backed generation | `python -I tools/export_all.py --output reports/generated/2026-10-10-eight-features-final-v4` | Nine files generated before the MF2 reconciliation: Reports 1–3, Report 5 and five weekly workbooks. Missing editable sources were reported rather than fabricated. |
-| Current Report 5 generation | `python -I tools/export_all.py --only report5 --output reports/generated/2026-10-10-mf2-final` | Generated seven cases routed to Feature 3 (2), Feature 4 (2), Feature 5 (1), Feature 6 (2); manifest confirms input hashes unchanged and format parts preserved. |
-| Current Report 5 Office validation | `./tools/verify_office_reports.ps1 -OutputDirectory reports/generated/2026-10-10-mf2-final` | Excel opened and recalculated the 11-sheet workbook. 7 cases / 7 Passed / 100% coverage and successful coverage; Round 2 and Round 3 each have 7 Pending. Source first-executed date/tester retained (2026-10-09 / Claude Code automated). Original generated package hash unchanged after Office read. |
+| Archived Report 5 generation | `python -I tools/export_all.py --only report5 --output reports/generated/2026-10-10-mf2-final` | Generated seven cases routed to Feature 3 (2), Feature 4 (2), Feature 5 (1), Feature 6 (2). This artifact predates `WF2-010` and the three FE-07 API cases. |
+| Archived Report 5 Office validation | `./tools/verify_office_reports.ps1 -OutputDirectory reports/generated/2026-10-10-mf2-final` | Excel opened and recalculated that historical 11-sheet workbook: 7 cases / 7 Passed / 100% coverage. This is not Office validation of the current eleven-case source; the original generated package hash remained unchanged after Office read. |
 | PDF preview | Office `-ExportPdf` attempt | Did not complete; blocked PDF export was stopped. No visual-PDF acceptance is claimed. |
 
 Mermaid diagrams remain source text with manifest warnings, and long Excel
@@ -158,14 +161,14 @@ workbook case status.
 
 ## Coverage summary
 
-Every listed case has executed automated-test evidence, including the deliverable
-assertions MF3-11 requires. These metrics describe the recorded cases, not full
-feature or product coverage.
+Every listed case has executed automated-test evidence, including the MF3-11
+deliverable assertions and the FE-07 backend API cases. These metrics describe
+the eleven recorded cases, not full feature or product coverage.
 
 - **Test coverage** = `(Passed + Failed) × 100 ÷ (Number of TCs − N/A)` =
-  `(8 + 0) × 100 ÷ (8 − 0)` = 100%.
+  `(11 + 0) × 100 ÷ (11 − 0)` = 100%.
 - **Test successful coverage** = `Passed × 100 ÷ (Number of TCs − N/A)` =
-  `8 × 100 ÷ (8 − 0)` = 100%.
+  `11 × 100 ÷ (11 − 0)` = 100%.
 
 Both match the template's own formulas, which exclude `N/A` cases from the
 denominator rather than counting them as unverified. These percentages are not
@@ -180,7 +183,7 @@ The eight module rows are workbook-sheet totals, one per SRS feature; they are n
 | Area | Status |
 | --- | --- |
 | MF1 asset/drone/workforce/compliance catalog | Workflow implementation and executed test evidence absent; no case. |
-| MF2 assignment/preparation/compliance | Implemented in part; no Report 5 cases beyond readiness decision approval/return (`WF2-008`/`WF2-009`). |
+| MF2 assignment/preparation/compliance | Implemented in part; Report 5 includes `WF2-010` preparation-listing scope and `WF2-008`/`WF2-009` readiness decisions; other steps remain uncovered. |
 | MF2-08 source-change invalidation | Partial: start rejects unless newest readiness decision is APPROVED; no source-change workflow appends INVALIDATED. |
 | MF2-12 session end / FIELD_COMPLETED handoff | Not implemented; no case. |
 | MF4 maintenance/cost/completion reporting | Workflow implementation and executed test evidence absent; no case. |
