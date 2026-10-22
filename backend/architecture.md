@@ -99,6 +99,8 @@ System-managed text — checklist templates and item prompts, report section lab
 
 `Accept-Language: vi` reads Vietnamese checklist content, drafts the AI report narrative in Vietnamese, and renders the report document in Vietnamese. The Vietnamese checklist columns are nullable and additive, so a template without a Vietnamese value falls back to its English columns rather than losing content.
 
+Recording a Vietnamese checklist value is a separate, still-unbuilt step: the backend exposes no write path for checklist templates or their translations, and the repository carries no checklist seed data. Until that administration path exists, every checklist template reads as English. The other localized surfaces — report drafting, the generated document and the problem responses — are reachable in Vietnamese today.
+
 Content an Inspector or another actor authored — the answer value, the note, the finding text and an authored report narrative — is never translated or paraphrased. It is stored and returned exactly as written. The AI drafting prompt is given the requested language and is explicitly instructed to preserve the supplied source values verbatim, so a localization change cannot silently rewrite a recorded observation.
 
 ## Error handling and verification

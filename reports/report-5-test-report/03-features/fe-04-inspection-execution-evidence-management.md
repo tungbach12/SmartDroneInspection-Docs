@@ -117,7 +117,10 @@ fallback. `V39__add_vietnamese_checklist_content.sql` adds nullable
 `section_name_vi`/`prompt_vi`/`guidance_vi` to `checklist_items`. A localized read
 returns the Vietnamese column when present and falls back to the English column
 when it is absent or blank, so an untranslated template never returns empty
-content.
+content. The columns are read-only in this release: the backend exposes no
+write path for a Vietnamese checklist value and the repository ships no
+checklist seed data, so checklist content currently reads as English in either
+locale. The Vietnamese read path itself is exercised by the tests below.
 
 The Inspector's recorded answer value, note and completion time are returned
 exactly as written in either locale. `InspectionChecklistApiIntegrationTest`
