@@ -135,6 +135,7 @@ flowchart TD
 | 9 | FE-07 | Deterministic Cost Calculation Engine | Computes baseline estimate totals, approved change order deltas, actual expenditures, and variance metrics using exact decimal precision. |
 | 10 | FE-08 | Operational Event Notification Dispatcher | Event-driven notification worker delivering in-app alerts and email notifications for mission dispatches, readiness updates, and approval requests. |
 | 11 | FE-01 | PayPal Webhook Listener & Payment Capture | Ingests asynchronous PayPal webhook notifications (PAYMENT.CAPTURE.COMPLETED), verifies cryptographic signatures, validates transaction amounts, and automatically activates tenant subscription periods. |
+| 12 | FE-08 | Bilingual System-Content Localization | Resolves the requested locale from the `Accept-Language` header with English as the explicit default and fallback; returns localized checklist templates, item prompts, report section labels, generated document headings and problem-response messages. Content authored by an Inspector or another actor is returned unchanged in the language it was written in. |
 
 #### 3.1.5 Entity Relationship Diagram
 

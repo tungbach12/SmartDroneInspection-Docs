@@ -77,6 +77,28 @@ and resolve records within the caller's organization. These internal record
 checks are not external registry verification. `WF2-008` and `WF2-009` are the
 Report 5 cases for approval/return rules; they do not cover all MF2 behavior.
 
+## Inspection checklist (FE-04, MF2-11)
+
+The assigned active `INSPECTOR` records checklist results against the
+inspection. `GET /api/v1/inspections/{inspectionId}/checklist` returns the
+checklist items and any answer already recorded against them, and
+`PUT /api/v1/inspections/{inspectionId}/checklist-responses/{checklistItemId}`
+records or replaces one answer. Both routes are restricted to the assigned
+Inspector; a caller from another organization receives not-found rather than
+another tenant's checklist.
+
+The applicable checklist is the newest `ACTIVE` template for the inspection's
+asset category, because templates are platform-scoped rather than
+organization-scoped. An inspection whose category has no active template has no
+checklist, and the list is empty rather than a missing-resource failure.
+
+The checklist's own text — section, prompt, guidance — is system-managed and
+follows the requested locale, with English as the explicit fallback when a
+Vietnamese version has not been recorded. The Inspector's answer value, note and
+completion time are their own record and are returned exactly as written: a note
+is evidence of what was observed on site, not system copy to be translated.
+Responses are refused once the inspection is published.
+
 ## Field sessions (FE-03, MF2-09/12)
 
 An assigned active `INSPECTOR` may list their sessions, start a session, record
@@ -391,6 +413,13 @@ passed; it predates the MF3-12/13 change. Report 5 records
 `WF2-008`/`WF2-009` for MF2-07 on `Feature 3`, the MF3 cases on `Feature 4`–`Feature 6`,
 plus the new Pending `WF3-012` for MF3-12/13; session end and source-change
 invalidation remain uncovered as noted above.
+### Added contracts (2026-10-22)
+
+- Bilingual system-managed content follows the requested locale, with English as the explicit default and fallback. `GET /api/v1/inspections/{inspectionId}/checklist` and `PUT /api/v1/inspections/{inspectionId}/checklist-responses/{checklistItemId}` are Inspector-only routes; the checklist's section, prompt and guidance are read in the requested locale, while the Inspector's answer value, note and completion time are returned exactly as recorded.
+- `V39__add_vietnamese_checklist_content.sql` adds nullable Vietnamese columns to `checklist_templates` and `checklist_items`. The migration is additive: existing checklist content is unchanged, and a localized read falls back to the English columns when no Vietnamese value is recorded.
+- The AI drafting prompt is written in the requested language and instructs the model to preserve supplied source values verbatim, so an Inspector-authored note is never translated or paraphrased into the draft. The recorded prompt version moves to `mf3-report-v3-bilingual`.
+- The generated report document renders its system-managed labels, headings and page furniture in the requested locale. Authored narrative sections, finding text and recorded notes are embedded unchanged.
+
 ### Added contracts (2026-10-18)
 
 - Evidence upload response includes `deduplicated`. Same inspection + same SHA-256 active retry returns the existing row with `deduplicated=true`; a matching retired audit copy returns `409 EVIDENCE_DUPLICATE_RETIRED`. Filename alone is not duplicate identity.

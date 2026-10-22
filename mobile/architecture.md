@@ -86,3 +86,16 @@ decisions with a separation-of-duties requirement, not field capture, so the
 mobile client does not duplicate them.
 
 Run `flutter test` for tests and `dart run build_runner build --delete-conflicting-outputs` after changing generated Freezed or JSON-serializable models.
+
+## Localization
+
+English is the explicit default and fallback locale; Vietnamese is selectable
+and the choice is persisted on the device. Flutter ARB catalogs in `lib/l10n/`
+hold the user-facing strings, and `locale_provider.dart` owns the active locale
+and its persisted preference. System-managed text follows the selected locale;
+content an Inspector authored — a checklist answer, a note, a finding — is
+displayed and stored exactly as entered and is never translated.
+
+Every request sends `Accept-Language` through the Dio interceptor, so the
+backend returns checklist and report content in the same language the app is
+displayed in. A locale change re-renders the interface without a reload.
