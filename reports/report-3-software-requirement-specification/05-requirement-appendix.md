@@ -59,8 +59,8 @@ The system defines standard user-facing messages, validation alerts, and toast n
 | 44 | MSG44 | In line | Self-acceptance attempted | Authors and executing team members cannot independently accept their own work. |
 | 45 | MSG45 | In line | Cost reconciliation unresolved | Resolve missing, duplicate or unapproved costs and variance explanations before final closure. |
 | 46 | MSG46 | Toast | Maintenance author submits report | Author-verified maintenance completion draft submitted for independent acceptance. |
-| 47 | MSG47 | Toast | PayPal payment captured | Enterprise subscription payment confirmed via PayPal. Workspace quotas have been updated. |
-| 48 | MSG48 | In line | PayPal payment failed | PayPal transaction was declined or canceled. Please check your payment method and retry. |
+| 47 | MSG47 | Toast | Subscription payment confirmed | The authorized settlement has been verified and the subscription is active. |
+| 48 | MSG48 | In line | Online payment unavailable or failed | Online payment is unavailable or could not be verified. Use the corporate wire/invoice process or contact the Platform Admin for assistance. |
 
 ### 5.2 Appendix 2 - Common Requirements
 
@@ -84,7 +84,7 @@ The system defines standard user-facing messages, validation alerts, and toast n
   - *Database & Storage*: PostgreSQL 17 with `pgvector` extension; MinIO S3-compatible distributed object storage.
   - *Web Client*: React 19, TypeScript, Material-UI (MUI), Vite, TanStack React Query.
   - *Mobile Client*: Flutter 3, Dart, Riverpod state management.
-  - *Payment Gateway*: PayPal REST API v2 (Orders v2 & Webhooks).
+  - *Optional Payment Gateway*: PayPal REST API v2 (Orders v2 & Webhooks), enabled by deployment configuration only; secrets supplied through environment configuration, with no online checkout when disabled.
   - *AI Services*: Python 3.11, FastAPI, Ultralytics YOLO11s (MBDD2025 dataset), OpenAI-compatible LLM gateway.
 
 ### 5.4 Feature and Flow Traceability
@@ -93,7 +93,7 @@ This traceability matrix maps the eight core product features (`FE-01` to `FE-08
 
 | Product Feature | Operational Responsibility | Supported Use Cases |
 | --- | --- | --- |
-| FE-01 | Identity, tenant governance, workforce accounts, credentials, and PayPal subscription billing | UC-01, UC-02, UC-03, UC-05 |
+| FE-01 | Identity, tenant governance, workforce accounts, credentials, versioned terms, and subscription settlement | UC-01, UC-02, UC-03, UC-05 |
 | FE-02 | Infrastructure asset inventory, drone fleet management, and flight permit linkage | UC-04, UC-06, UC-07, UC-08 |
 | FE-03 | Inspection mission planning, shot-list preparation, and flight readiness authorization | UC-09, UC-10, UC-11 |
 | FE-04 | Field survey logging, cryptographic evidence intake, and evidence quality evaluation | UC-12, UC-13, UC-14 |

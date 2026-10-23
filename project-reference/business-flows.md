@@ -31,7 +31,7 @@ infrastructure-owning companies. Four human roles, four connected Main Flows, no
 
 | Zone | Role | Responsibility |
 | --- | --- | --- |
-| Platform | `ADMIN` | Manages enterprise workspaces, subscription activation/renewal (via PayPal online payment capture or corporate billing records), dynamic plan pricing and quota ceilings, technical and security settings, and authorized audited support access. Makes no customer technical conclusion, repair-budget decision, or internal acceptance. |
+| Platform | `ADMIN` | Manages enterprise workspaces, reviews subscription proposals, confirms final commercial terms and reconciles cleared wire/invoice or optional verified PayPal settlement, technical/security settings, and authorized audited support access. Standard pricing is application configuration, not a dynamic Admin catalog. Makes no customer technical conclusion, repair-budget decision, or internal acceptance. |
 | Customer organization | `ORG_ADMIN` | Manages workforce, credentials, Drone fleet, assets with their assigned pair, inspections, readiness review, report approval, maintenance team/budget, and independent acceptance. Qualifications are personal: admin rights do not confer professional authority. |
 | Customer workforce | `INSPECTOR` | Accepts assigned inspections, prepares the shot-list and compliance inputs, records field sessions, uploads evidence, decides its completeness/quality, and authors the inspection report draft. |
 | Customer workforce | `MAINTENANCE_ENGINEER` | Works within assigned repair teams and tasks, supplies assessments and estimates, records work/evidence/actuals, and when designated acts as team lead or report author. |
@@ -48,8 +48,11 @@ scoped to exactly one organization). Every non-`ADMIN` user belongs to exactly o
 ## II. Scope boundary — what the platform does not do
 
 - No external Provider sourcing, RFQ, quotation, commission, or Client-Provider settlement. Repair
-  costs are an internal cost register, not a payment system. Online payment processing is integrated
-  specifically for enterprise SaaS subscription activation and renewal via PayPal (Orders v2 API & webhooks).
+  costs are an internal cost register, not a payment system. Enterprise subscription requests are
+  settled primarily by corporate wire/invoice with Platform Admin reconciliation. Optional PayPal
+  Orders v2 checkout is deployment-configured and disabled by default; its server-created order,
+  server-side capture, amount/currency checks and signature-verified webhook are required before
+  activation. Customer price proposals are not approved contract amounts.
 - No Drone flight control. A Start action records an operator decision; it never arms, pilots, or
   configures an aircraft. Waypoints, GSD and overlap are recorded intent, not flight parameters
   the platform enforces.
@@ -57,14 +60,16 @@ scoped to exactly one organization). Every non-`ADMIN` user belongs to exactly o
   issuer references and validity, and requires a recorded human review. An airspace lookup is a
   planning warning, never a clearance.
 - No autonomous approval. Every publication, acceptance and closure has a named human actor.
-- No certified digital signature from an application checkbox. A signature reference is recorded
-  only when a real signing service supplies one.
+- No certified digital signature from an application checkbox. Registration's affirmative, versioned
+  Terms and Privacy Notice acknowledgements are recorded as application audit evidence only; they do
+  not by themselves certify a signature or guarantee legal enforceability. A signature reference is
+  recorded only when a real signing service supplies one.
 
 ## III. Flow map
 
 ```mermaid
 flowchart TD
-  S["Support: ORG_ADMIN registers the organization,<br/>subscribes via PayPal online checkout (or corporate billing),<br/>ADMIN/SYSTEM activates subscription & unlocks quotas"] --> A
+  S["Support: organization representative registers;<br/>accepts active Terms + Privacy Notice versions,<br/>requests subscription terms;<br/>ADMIN confirms reconciled payment;<br/>optional configured PayPal capture is provider-verified"] --> A
   A["MF1 / ORG_ADMIN<br/>workforce, Drones, compliance, asset + pair, inspection"] --> B
   B["MF2 / INSPECTOR<br/>accept, shot-list, safety inputs"] --> C
   C["MF2 / ORG_ADMIN<br/>compliance links, readiness approval"] --> D
@@ -103,7 +108,7 @@ assigned inspection ready for MF2.
 | Step | Actor | Action | Output and gate |
 | --- | --- | --- | --- |
 | MF1-01 | `ORG_ADMIN` | Open own workspace; maintain company identity, operational contacts and named authorized reviewers. | Named responsibility. No cross-tenant management. |
-| MF1-02 | `SYSTEM` | Authenticate and check role, organization and subscription entitlement (verified PayPal capture or active billing record). | Disallowed operations denied; expiry/renewal guidance shown without deleting existing history. |
+| MF1-02 | `SYSTEM` | Authenticate and check role, organization and subscription entitlement. Entitlement requires an active term created by authorized Platform Admin reconciliation of cleared wire/invoice payment or, when PayPal is enabled, server-verified provider capture/webhook. | Disallowed operations denied; a browser-supplied payment claim or unapproved customer price proposal cannot activate entitlement; expiry/renewal guidance is shown without deleting history. |
 | MF1-03 | `ORG_ADMIN` | Provision `INSPECTOR` and `MAINTENANCE_ENGINEER` accounts; enable, update or suspend them. | Active workforce records. Suspension removes future assignment eligibility. |
 | MF1-04 | `ORG_ADMIN` | Record applicable skills and credentials: qualification, training, issuer/reference, dates and evidence. Health or insurance documents only where lawfully required. | Reviewable credential history. Not every occupation requires the same licence. |
 | MF1-05 | `SYSTEM` | Validate document type/subject and dates; calculate expiry warnings and record review status. | Missing, expired and suspended status visible. Machine validation is not government verification. |

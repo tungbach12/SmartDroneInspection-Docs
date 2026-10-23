@@ -18,7 +18,7 @@ The platform defines four primary human roles across platform governance and ent
 | 3 | Inspector (`INSPECTOR`) | Qualified remote pilot and inspection specialist. Accepts assigned inspection missions, defines component shot-lists, completes pre-flight safety checklists, logs field survey sessions, uploads raw image evidence, evaluates evidence quality, verifies AI defect candidates, authors manual findings, verifies report drafts, and submits reports for administrative review. |
 | 4 | Maintenance Engineer (`MAINTENANCE_ENGINEER`) | Infrastructure maintenance technician. Executes assigned repair tasks, logs labor hours, material consumption, and equipment utilization, uploads before/after repair evidence, and records completion declarations. When designated, serves as Maintenance Team Lead (planning tasks and cost estimates) or Report Author (synthesizing completion reports). |
 | — | Automated System (`SYSTEM` / AI Engine) | Automated backend services including YOLO11s defect detection microservice, LLM report drafting engine, cryptographic hashing workers, and scheduled due-cycle generators. Operates under strict human oversight and carries no autonomous approval authority. |
-| — | PayPal Payment Gateway (External Service) | External payment processing gateway executing subscription payment authorizations, capturing funds for enterprise SaaS billing plans, and issuing cryptographic webhook IPN event notifications. |
+| — | PayPal Payment Gateway (Optional External Service) | When configured for a deployment, creates and captures approved subscription orders through PayPal Orders v2 and provides signed webhook notifications; it has no platform role or authority and cannot set contract prices. |
 
 ### 2.2 Use Cases
 
@@ -27,7 +27,7 @@ The platform defines four primary human roles across platform governance and ent
 ```mermaid
 flowchart LR
   PA["Platform Admin"] --> UC_SUB["Subscription & Tenant Governance"]
-  PP["PayPal Gateway"] --> UC_SUB
+  PP["Optional PayPal Gateway"] --> UC_SUB
   OA["Organization Admin"] --> UC_ASSET["Asset & Fleet Management"]
   OA --> UC_SCHED["Inspection Mission Scheduling"]
   OA --> UC_AUTH["Flight Readiness Authorization"]
@@ -54,8 +54,8 @@ The system defines 32 primary use cases covering the complete operational lifecy
 | ID | Use Case | Actors | Use Case Description |
 | --- | --- | --- | --- |
 | UC-01 | Authenticate User | All Roles, System | User signs in using verified email and password; system validates credentials, issues access/refresh tokens, enforces role-based permissions, and supports session logout. |
-| UC-02 | Configure Platform Settings & Subscription Plans | Platform Admin | Configure system-wide technical parameters, dynamic subscription pricing rates across 1, 6, and 12-month periods, resource quota ceilings, and PayPal API credentials. |
-| UC-03 | Manage Enterprise Subscription & PayPal Payment | Organization Admin, Platform Admin, PayPal, System | Review dynamically configured subscription options; initiate online checkout via PayPal, capture payment transactions, and automatically extend tenant entitlements upon payment confirmation. |
+| UC-02 | Manage Platform Settings & Subscription Terms | Platform Admin | Configure system-wide technical parameters and review tenant subscription requests, proposed commercial terms, and settlement records. Standard subscription pricing is application configuration, not a dynamic plan catalog; provider credentials are deployment secrets, not editable through this use case. |
+| UC-03 | Request Enterprise Subscription & Reconcile Payment | Organization Admin, Platform Admin, System, optional PayPal Gateway | Review versioned terms and standard pricing; request a standard/custom term with an optional price proposal; settle by corporate wire/invoice with Platform Admin reconciliation, or use optional configured PayPal checkout only for a platform-approved contract amount. Activate entitlement only after authorized, verified settlement. |
 | UC-04 | Register Infrastructure Asset | Organization Admin, System | Register physical infrastructure assets (bridges, towers, facilities), specify asset specifications, upload engineering drawings, and assign a default responsible Inspector and Drone. |
 | UC-05 | Manage Workforce Credentials | Organization Admin, System | Provision Inspector and Maintenance Engineer accounts; record professional pilot licenses, safety certifications, and track document expiration dates. |
 | UC-06 | Manage Drone Fleet & Permits | Organization Admin, System | Register drone hardware (model, serial number, serviceability status); link government-issued flight permits and legal authorizations. |

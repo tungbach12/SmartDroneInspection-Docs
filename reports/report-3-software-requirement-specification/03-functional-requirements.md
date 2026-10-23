@@ -71,7 +71,7 @@ flowchart TD
 | # | Feature | Screen | Description |
 | --- | --- | --- | --- |
 | 1 | FE-01 | Sign In & Authentication | Secure login interface supporting credential verification, session management, and password recovery. |
-| 2 | FE-01 | Platform Administration & Subscriptions | Platform Admin portal for managing customer tenant workspaces, enterprise subscriptions, PayPal billing records, and platform-wide configurations. |
+| 2 | FE-01 | Platform Administration & Subscriptions | Platform Admin portal for managing customer tenant workspaces, enterprise subscriptions, offline payment reconciliation, and platform-wide configurations. |
 | 3 | FE-01 | Workforce & Credentials | Workspace for managing enterprise users (Inspectors, Engineers), professional licenses, safety certificates, and expiration dates. |
 | 4 | FE-02 | Asset Registry | Master inventory of infrastructure assets (bridges, towers, facilities) displaying specifications, location, and assigned default Inspector-Drone pairs. |
 | 5 | FE-02 | Asset Detail & Documents | Detailed view of an asset showing engineering drawings, historical inspection records, and default pair reassignment controls. |
@@ -134,8 +134,7 @@ flowchart TD
 | 8 | FE-06 | PDF Report Document Renderer | Compiles approved report sections, finding tables, attached evidence photos, and metadata into a publication-grade A4 PDF document with SHA-256 recording. |
 | 9 | FE-07 | Deterministic Cost Calculation Engine | Computes baseline estimate totals, approved change order deltas, actual expenditures, and variance metrics using exact decimal precision. |
 | 10 | FE-08 | Operational Event Notification Dispatcher | Event-driven notification worker delivering in-app alerts and email notifications for mission dispatches, readiness updates, and approval requests. |
-| 11 | FE-01 | PayPal Webhook Listener & Payment Capture | Ingests asynchronous PayPal webhook notifications (PAYMENT.CAPTURE.COMPLETED), verifies cryptographic signatures, validates transaction amounts, and automatically activates tenant subscription periods. |
-| 12 | FE-08 | Bilingual System-Content Localization | Resolves the requested locale from the `Accept-Language` header with English as the explicit default and fallback; returns localized checklist templates, item prompts, report section labels, generated document headings and problem-response messages. Content authored by an Inspector or another actor is returned unchanged in the language it was written in. |
+| 11 | FE-01 | Subscription Payment Capture and Reconciliation | When PayPal is explicitly configured, the server creates and captures provider orders, validates the provider-reported amount/currency and webhook signature before activation; otherwise online checkout fails closed and authorized ADMIN confirms wire/invoice payment. |
 
 #### 3.1.5 Entity Relationship Diagram
 
@@ -248,13 +247,14 @@ erDiagram
 ### 3.2 FE-01 Identity, Enterprise Subscription and Workforce Governance
 
 #### 3.2.1 Enterprise Registration and Tenant Management
-- **Function Trigger**: Public self-registration portal or Platform Admin workspace provisioning.
-- **Function Description**: Onboards enterprise infrastructure-owning companies, creates the initial Organization Admin account, and establishes tenant data boundaries.
+- **Function Trigger**: A first organization representative submits the public organization self-registration form.
+- **Function Description**: Creates one active customer organization and its first active `ORG_ADMIN` account atomically; registration does not issue an authenticated session. The representative must separately affirm authority to represent the organization and acceptance of the active Terms of Service, and acknowledge/accept the active Privacy Notice before provisioning.
 - **Function Details**:
-  - *Inputs*: Enterprise legal name, tax identification, representative full name, business email, initial password.
-  - *Validations*: Enforces unique email, compliant password complexity (minimum 8 characters with mixed case, numbers, and symbols), and valid corporate tax format.
-  - *Processing*: Creates tenant organization, registers administrator with hashed password (Argon2id), provisions isolated workspace schemas, and initializes security policies.
-  - *Outputs*: Initialized enterprise tenant workspace, email verification dispatch, active Organization Admin session.
+  - *Inputs*: Representative full name, business email, organization name and unique organization code, password, `termsAccepted` and `privacyNoticeAccepted` (both explicitly `true`), and the displayed `termsVersion` and `privacyNoticeVersion`.
+  - *Validations*: Enforces existing email/organization-code uniqueness, password policy, explicit true values for both consent flags, and exact matches against the server's active Terms and Privacy Notice versions. Missing, false, or stale consent/version values are rejected with HTTP 400 before organization/user persistence.
+  - *Processing*: Creates the organization and first administrator in one transaction, hashes the password (Argon2id), assigns only `ORG_ADMIN` in `CUSTOMER_ORGANIZATION`, and records the accepted policy versions and server timestamp with registration IP/user-agent in the append-only `ORGANIZATION_REGISTRATION` audit event's `safe_metadata` within the same transaction. Passwords and credentials are never included in consent metadata. The audit entry is technical evidence of the recorded application interaction; it is not a certified digital signature and does not by itself guarantee legal enforceability or statutory compliance.
+  - *Outputs*: Created organization and user profile; no access/refresh token or authenticated session is issued during registration.
+- **Policy content status**: The displayed Terms and Privacy Notice are versioned product drafts pending legal review. They must not be represented as approved legal advice, guaranteed SLA, invoice commitment, absolute liability exclusion, or a certified-signature instrument until authorized review and operational approval are complete.
 
 #### 3.2.2 Workforce Provisioning and Credential Management
 - **Function Trigger**: Organization Admin navigates to `Workforce Management` and selects `Add User` or `Manage Credentials`.
@@ -265,18 +265,21 @@ erDiagram
   - *Processing*: Encrypts credential records; flags accounts with approaching expiration (30-day alert); blocks assignment dispatch if mandatory flight licenses expire.
   - *Outputs*: Provisioned workforce account, documented credential record with verification status.
 
-#### 3.2.3 Subscription Entitlements, Dynamic Pricing Configuration and Billing
-- **Function Trigger**: Platform Admin navigates to `Platform Administration -> Subscription Configuration` to set pricing/quotas; or Organization Admin views `Workspace Settings -> Subscriptions` to pay/renew.
-- **Function Description**: Enables Platform Admin to dynamically configure subscription rates per billing period (1, 6, 12 months) and quota ceilings (storage GB, active assets, drone fleet size) without code deployment. Enables Organization Admin to review dynamic pricing, select billing periods, checkout via PayPal Orders v2 API, and receive immediate quota activation upon payment capture.
+#### 3.2.3 Subscription Entitlements, Contract Terms and Settlement
+- **Function Trigger**: Organization Admin requests or renews an ENTERPRISE subscription; Platform Admin reviews a pending request and reconciles cleared funds.
+- **Function Description**: Provides a versioned terms preview and fixed standard price schedule for 1, 6, and 12-month terms. An Organization Admin may request a custom duration of 1–120 months and submit a proposed price and negotiation notes; these are a proposal, not an approved contract amount. A platform administrator confirms the final amount and subscription activation after reconciling a corporate wire/invoice reference. If PayPal is explicitly enabled and configured for the deployment, an Organization Admin may use provider-hosted approval for a platform-approved amount. Online payment is disabled by default.
 - **Function Details**:
   - *Inputs*:
-    - Admin Configuration: Period duration (1, 6, 12 months), subscription unit price (USD), quota limits (storage GB, maximum assets, maximum users), discount percentage.
-    - Customer Checkout: Organization ID, selected billing period, PayPal Order ID, capture confirmation payload.
-  - *Validations*: Configured prices and quotas must be positive numeric values; verifies PayPal payment capture status is `COMPLETED`; validates transaction amount matches active configured pricing; checks against duplicate transaction capture IDs.
+    - Subscription request: billing period (1–120 months), affirmative agreement to the displayed terms version, optional proposed price and negotiation notes.
+    - Platform settlement confirmation: subscription ID, cleared external wire/invoice reference, effective period, final agreed amount and administrator attribution.
+    - Optional configured PayPal checkout: subscription ID to create an order; provider order ID to request server-side capture. Capture ID, amount, currency and payer details are obtained from PayPal, never asserted by the browser.
+  - *Validations*: The system validates term bounds, required terms agreement, tenant scope, authorization, and effective date ordering. A proposed price is not eligible for PayPal checkout until a platform-approved contract amount exists. For enabled PayPal checkout, the server requires provider capture status `COMPLETED`, exact order ownership, matching approved amount and supported currency, and an idempotently unique provider capture ID. Webhooks are signature-verified against the deployment's configured PayPal webhook ID and environment before a completion event can be applied. When PayPal is disabled or unconfigured, checkout fails closed and no payment transaction or subscription activation is created.
   - *Processing*:
-    - Admin Mode: Persists versioned subscription plan definitions; updates active price catalog dynamically.
-    - Checkout Mode: Initiates PayPal order based on dynamically configured price; user authorizes checkout; backend captures payment; persists `payment_transactions` record; sets subscription status to `ACTIVE`; recalculates expiration date (adds 30, 180, or 365 days); immediately unlocks tenant storage and active asset quotas; dispatches billing confirmation email.
-  - *Outputs*: Updated platform subscription pricing catalog, active enterprise subscription status, persisted PayPal transaction receipt, updated workspace quota entitlements.
+    - Request: stores an immutable `terms_snapshot` containing the accepted terms version, actor, selected term, standard price estimate, and any customer price proposal/notes; the subscription remains `PENDING`.
+    - Wire/invoice settlement: an authorized Platform Admin records the cleared external reference and final agreed amount, closes any prior active term, attributes the confirmation, and activates the approved subscription.
+    - Optional PayPal settlement: server creates a provider order for the platform-approved contract amount, the payer approves on PayPal-hosted checkout, and the server captures and verifies the provider response before recording/completing `payment_transactions` and activating the subscription. A verified webhook is an idempotent reconciliation path. Payment-provider credentials are deployment secrets and are not stored in application tables.
+  - *Outputs*: Current and historical subscription state, immutable request terms snapshot, deterministic wire/invoice payment instructions, administrative settlement attribution, and (only when configured and verified) a provider transaction record. Entitlement is granted only for an active subscription whose validity window covers the current time.
+- **Scope and legal status**: Standard rate values and provider integration configuration are deployment/application configuration, not a dynamic Platform Admin pricing catalog. Customer proposals do not become accepted prices without platform confirmation. The printable terms view is a draft order/terms summary pending legal review; its recorded application acceptance is not a certified digital signature and does not itself guarantee legal enforceability.
 
 ---
 

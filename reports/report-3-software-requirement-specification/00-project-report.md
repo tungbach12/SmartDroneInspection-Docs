@@ -15,7 +15,7 @@ The software requirements baseline is structured around the complete operational
 
 | Area | Status | Evidence and next step |
 | --- | --- | --- |
-| Product scope | Baseline aligned | The platform manages the inspection-to-maintenance lifecycle. Hardware flight control and autonomous AI approval remain out of scope; online enterprise subscription payment is integrated via PayPal. |
+| Product scope | Baseline aligned | The platform manages the inspection-to-maintenance lifecycle. Hardware flight control and autonomous AI approval remain out of scope. Enterprise subscription settlement supports administrative wire/invoice reconciliation; optional PayPal Orders v2 is disabled by default and requires server-side provider verification when configured. |
 | Requirements | Finalized | Report 3 defines system actors, use cases, functional requirements (FE-01 to FE-08), non-functional requirements, business rules, messages, and technology constraints. |
 | Software foundation | In progress | The system utilizes a multi-repository architecture comprising Spring Boot backend, React web portal, Flutter mobile application, and AI inference microservice. |
 | Verification | Ongoing | Continuous integration gates ensure multi-layer testing, code formatting, security analysis, and schema consistency across all client and server components. |

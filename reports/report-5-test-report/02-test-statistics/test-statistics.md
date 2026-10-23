@@ -6,10 +6,11 @@ round.
 
 ## Project metadata
 
-Supporting FE-01 subscription-activation/reactivation and FE-02 asset-pair API
-tests were added on 2026-10-21 but could not execute because Testcontainers
-could not find a Docker environment. They remain Pending supporting evidence
-and do not add workbook cases or change the 11-case totals below.
+Supporting FE-01 subscription settlement/webhook and FE-02 asset-pair API
+tests include local unit/component verification; the Docker-backed subscription
+API/migration and live PayPal sandbox checks could not run. Those remain Pending
+supporting evidence and do not add workbook cases or change the 11-case totals
+below.
 
 The 15 October MF3 aggregate-confirmation gate and confirmed-findings rendering
 correction have been implemented and verified. The matching end-to-end case,
@@ -24,8 +25,8 @@ narrow unit/integration results below as a pass for either new case.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | **2026-10-22: bilingual system-managed content.** English is the explicit default and fallback locale on web, mobile and backend; Vietnamese is selectable and persisted per device, and the backend localizes checklist text, report drafting, the generated PDF and problem responses through `Accept-Language`. Inspector-authored answers, notes and findings are returned unchanged. Backend `./mvnw -B clean verify` passed; frontend type-check, lint, build and the i18n suite passed. No functional case status changed. |
-| Last updated | 2026-10-22 (Report 5 version 4.41; no functional case status changed) |
+| Test round | **2026-10-22: Versioned registration consent and optional subscription PayPal safeguards.** Supporting FE-01 verification covers frontend dual-consent, platform-approved price enforcement, provider-reported capture validation, PayPal webhook payload/controller behavior, checkout retry cleanup, contract-preview caveat, and Modulith boundaries. Backend PaymentGatewayServiceTest (15), PayPalPaymentGatewayTest (2), PayPalWebhookControllerTest (5), and ModulithArchitectureTest (3) passed. Frontend subscription page tests passed 5/5; production build passed; lint exited 0 with repository warnings. Docker/Testcontainers API/migration integration and live PayPal sandbox verification remain Pending. Workbook case statuses and totals are unchanged. |
+| Last updated | 2026-10-22 (Report 5 version 4.42; 11 cases remain 8 Passed, 3 Pending) |
 
 ## Module summary
 
@@ -113,6 +114,8 @@ Pending MF3-12/13 post-publication corrective-outcome and handoff case
 MF2-08 invalidation remains partial, and no Report 5 case exercises the full additional-session loop.
 
 ## Verification recorded this round
+
+**2026-10-22 — Optional PayPal webhook and checkout retry supporting checks.** Backend service, gateway adapter, webhook controller and Modulith tests passed (25 total); frontend subscription suite passed 10/10 across 3 files, production build passed, and lint exited 0 with repository warnings. Docker-backed API/migration checks and live PayPal sandbox handshake remain Pending. These supporting checks do not alter the 11 functional case statuses or totals.
 
 **2026-10-21 — MF2/MF3 workflow update and build-only final verification (no Report 5 case status change).** Backend `./mvnw verify` passed **684 tests**, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met before the final AI-suggestion rejection-path correction; final `./mvnw -DskipTests package` passed without executing tests. No tests were rerun after the correction, per the requested build-only verification scope. The change covers: the MF3 additional-session handoff to `PREPARING` (prior READY preparation marked SUPERSEDED, INVALIDATED readiness appended, next-version draft created, prior sessions/evidence preserved); the new planned start/end required on that preparation; session start refused when the approval belongs to an older preparation; normal MF2-12 completion with required Inspector outcome notes closing the session and inspection into `FIELD_COMPLETED`; and evidence/decision association with the completed visit. Frontend `npm run build` passed; frontend tests/lint were not run in this task. Mobile code generation passed; Android artifact build was blocked because Android SDK is unavailable, and web build was blocked because the project is not configured for web. Mobile tests/analyze/format were not run in this task. Docs `git diff --check` passed; Hugo unavailable. No Report 5 exporter run or live walkthrough was performed in this task. No WF case was promoted; the complete repeat-visit scenario (readiness approval → new start → re-capture → second assessment) remains unexecuted.
 
@@ -212,9 +215,9 @@ verification are not a claim of final submission readiness.
 ## Supporting FE-01 verification (not workbook cases)
 
 Supporting gates are excluded from the functional workbook totals. FE-01
-auth-flow and role-policy evidence is recorded in
-`03-features/fe-01-identity-access-governance.md`. Those gates change no
-workbook case status.
+auth-flow, role-policy, subscription price/capture, webhook, and checkout-retry
+evidence is recorded in `03-features/fe-01-identity-access-governance.md`.
+Those checks change no workbook case status.
 
 ## Coverage summary
 

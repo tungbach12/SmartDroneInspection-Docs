@@ -55,11 +55,11 @@ previous CSRF cookie during those transitions.
 
 ## Organization onboarding
 
-The first organization representative (an `ORG_ADMIN`) may self-register a new organization through `POST /register`. The request contains the representative's name and credentials together with the organization name and unique organization code. The backend creates the organization and the first user in one transaction, activates both immediately, and assigns only the `ORG_ADMIN` role in the `CUSTOMER_ORGANIZATION` actor zone. There is no email-verification or administrator-approval gate in v1.
+The first organization representative (an `ORG_ADMIN`) may self-register a new organization through the browser-only `POST /api/v1/auth/register` endpoint. The request contains the representative's name and credentials together with the organization name/code and explicit acceptance of the active Terms of Service and Privacy Notice. The backend creates the organization and first user in one transaction, activates both immediately, and assigns only the `ORG_ADMIN` role in the `CUSTOMER_ORGANIZATION` actor zone. There is no email-verification or administrator-approval gate in v1.
 
-Registration cannot create or select `ADMIN`, `INSPECTOR`, or `MAINTENANCE_ENGINEER`. Email and organization-code uniqueness, password policy, request rate limits, organization isolation, and an append-only `ORGANIZATION_REGISTRATION` audit event are enforced by the backend. The registration response contains the created organization and user profile but no access or refresh token; the representative signs in through the normal login flow.
+Registration cannot create or select `ADMIN`, `INSPECTOR`, or `MAINTENANCE_ENGINEER`. Email and organization-code uniqueness, password policy, request rate limits, organization isolation, affirmative dual consent, and exact active policy-version checks are enforced by the backend. Missing/false acceptance or a stale policy version is rejected with HTTP 400 before tenant/user persistence. On success, the append-only `ORGANIZATION_REGISTRATION` audit event records the policy versions, acceptance flags, server UTC timestamp, IP address, and bounded user-agent in `safe_metadata`, in the same database transaction. This is application audit evidence, not a certified digital signature or a guarantee of legal enforceability. The registration response contains the created organization and user profile but no access or refresh token; the representative signs in through the normal login flow.
 
-The browser and mobile request body is:
+The browser registration request body is:
 
 | Field | Meaning |
 | --- | --- |
@@ -68,6 +68,10 @@ The browser and mobile request body is:
 | `organizationName` | Name of the new customer organization. |
 | `organizationCode` | Unique 3–64 character code using letters, numbers, `-`, or `_`; it is stored in uppercase. |
 | `password` | A 15–128 Unicode-character password validated by the shared password policy. |
+| `termsAccepted` | Required boolean; must be explicitly `true`. |
+| `termsVersion` | Required Terms of Service version; must exactly match the server's active version (`2026.1`). |
+| `privacyNoticeAccepted` | Required boolean; must be explicitly `true`. |
+| `privacyNoticeVersion` | Required Privacy Notice version; must exactly match the server's active version (`2026.1`). |
 
 Successful registration returns `201 Created` with the organization identifier/code and the new user profile. It does not issue tokens, set a refresh cookie, or expose the password.
 
