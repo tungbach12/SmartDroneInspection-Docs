@@ -8,13 +8,13 @@ when transferring values into the workbook.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Creator | *Enter team/member name* |
-| Issue Date | 2026-10-21 |
+| Issue Date | 2026-10-22 |
 | Document Code | *Enter document code* |
-| Version | 4.41 (Bilingual system-managed content: English default with Vietnamese selectable, applied to checklist text, report drafting and the generated PDF, on web, mobile and backend.) |
+| Version | 4.42 (MF3 pre-report simplification, 41-table canonical baseline B40, and V40 audit migration.) |
 
-## Current verification — MF1 integrated with MF2/MF3 workflow and supporting APIs (2026-10-21)
+## Current documentation update — MF3 pre-report simplification (2026-10-22)
 
-Backend `./mvnw clean -DskipTests package` passed with 0 errors. Backend `./mvnw verify` passed **684 tests** earlier in this task. Frontend `npm run build` passed with Vite and TypeScript clean. Mobile code generation passed. The change integrates MF1 asset default pairing, inspection dispatch with conflict alerts, and platform account management, while preserving MF2 additional-session return, terminal abort, unified findings, and batch Send to Maintenance. Supporting tests for Platform ADMIN subscription activation/reactivation and asset-pair draft/history/activation/supersession are authored and compile clean, with integration execution Pending because Docker/Testcontainers is unavailable. Local test compilation, 22 unit/domain/Modulith checks, and 6 Node E2E bootstrap/isolation tests passed. Docs `git diff --check` passed. No Report 5 case status was promoted.
+Documentation-only alignment to the agreed MF3 target: no code, database migration or schema was changed, and no application tests were run. Existing Report 5 round statuses, dates, testers, and historical outcomes were preserved. Previously Passed cases include behavior superseded by the simplified contract; they are historical results, not fresh evidence for the new target. `WF3-010`, `WF3-011`, and `WF3-012` remain Pending. No new product verification is claimed.
 
 ## Export-tool verification (not workbook cases)
 
@@ -37,8 +37,8 @@ verification is supporting evidence, not an additional WFx case result.
 ## Record of change
 
 The workbook's change table uses these columns. Add one row for each approved
-revision; do not remove old entries. Current source version: **4.39**, last updated
-2026-10-21; see the record of changes below.
+revision; do not remove old entries. Current source version: **4.40**, last updated
+2026-10-22; see the record of changes below.
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |
 | --- | --- | --- | --- | --- | --- |
