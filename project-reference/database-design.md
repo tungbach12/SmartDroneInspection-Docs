@@ -396,6 +396,21 @@ Append-only completion report versions store work order/version/status, designat
 
 Append-only decision: work order/report version, ORG_ADMIN reviewer, decision (`ACCEPTED`, `REWORK_REQUIRED`, `REINSPECTION_REQUIRED`, `REJECTED`), technical comments, acceptance checklist/test result, time and signature reference where a real signature service is used. The executing team cannot create final acceptance.
 
+#### `repair_knowledge_chunks`
+
+Storage and vector indexing for civil/structural engineering repair specifications and standard codes (TCVN, ISO, EN, AASHTO, ACI, manufacturer method statements) supporting RAG-assisted maintenance scope and criteria generation.
+
+Columns:
+- `id` (UUID, primary key)
+- `standard_code` (VARCHAR(64), e.g. `TCVN 9343:2012`, `ISO 12944-5`)
+- `title` (VARCHAR(255), human-readable repair guideline title)
+- `category` (VARCHAR(64), indexed: `CONCRETE_CRACK`, `SPALLING`, `STEEL_CORROSION`, `WATER_LEAKAGE`, `STRUCTURAL_DEFORMATION`)
+- `defect_patterns` (VARCHAR(255), keyword match patterns for fallback/hybrid retrieval)
+- `content` (TEXT, detailed methodology, surface preparation, material specs, and quantifiable acceptance thresholds)
+- `reference_url` (VARCHAR(500), authoritative legal/standard documentation source link)
+- `embedding` (vector(1536), pgvector representation indexed via HNSW `vector_cosine_ops` for semantic similarity retrieval `<=>`)
+- `created_at` (TIMESTAMPTZ)
+
 ### 6.7 Cross-cutting tables
 
 #### `audit_events`

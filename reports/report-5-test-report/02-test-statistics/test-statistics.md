@@ -10,8 +10,8 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | **2026-10-14: Report 5 source reconciled with the implemented MF4 API slice.** Eleven cases are recorded: three MF2 (`WF2-008`–`WF2-010`), five MF3, and three MF4 backend API cases (`WF3-010`–`WF3-012`). All eleven remain Passed; this documentation reconciliation adds no test result. MF2-08 is partial, MF2-12 is unimplemented, and remaining MF4 credential/skill, evidence/artifact, notification, re-inspection and client behavior is not covered. |
-| Last updated | 2026-10-14 |
+| Test round | **2026-10-23: Report 5 source reconciled with full MF4 lifecycle and RAG scope advisor.** Twelve cases are recorded: three MF2 (`WF2-008`–`WF2-010`), five MF3, and four MF4 cases (`WF3-010`–`WF3-013`). All twelve remain Passed. |
+| Last updated | 2026-10-23 |
 
 ## Module summary
 
@@ -23,9 +23,9 @@ round.
 | 4 | MF3 inspection evidence, findings and reporting | 2 | 0 | 0 | 0 | 2 |
 | 5 | AI Vision Candidates and Human Finding Decisions | 1 | 0 | 0 | 0 | 1 |
 | 6 | Inspection Report Drafting, Review and Publication — MF3 | 2 | 0 | 0 | 0 | 2 |
-| 7 | Team Maintenance, Cost Control and Completion Reporting — MF4 | 3 | 0 | 0 | 0 | 3 |
+| 7 | Team Maintenance, Cost Control and Completion Reporting — MF4 | 4 | 0 | 0 | 0 | 4 |
 | 8 | Dashboard, Analytics and Notifications | 0 | 0 | 0 | 0 | 0 |
-| **Subtotal** |  | **11** | **0** | **0** | **0** | **11** |
+| **Subtotal** |  | **12** | **0** | **0** | **0** | **12** |
 
 `Module code` is not a free label. Each row's `C` cell is a formula —
 `='Feature N'!B2` — so this column reports whatever sits in that sheet's
@@ -46,11 +46,11 @@ Because there are eight modules, `Sub total` moves from row 14 to **row 19**,
 - **Modules 1, 2 and 8 have no cases.** FE-01's supporting gates are recorded
   outside the case sheets. MF1 (catalog) remains unimplemented; FE-08 has no
   assigned case.
-- **Module 7 has three MF4 backend API cases** (`WF3-010`–`WF3-012`). They cover
-  tenant scope, team/estimate/change control, execution, independent acceptance
-  and reconciliation. Skills, mandatory credential presence, notifications,
-  evidence objects, linked MF1 re-inspection, and client behavior remain
-  outstanding.
+- **Module 7 has four MF4 cases** (`WF3-010`–`WF3-013`). They cover
+  tenant scope, team/estimate/change control, execution, independent acceptance,
+  reconciliation, and RAG technical scope suggestions. Re-inspection dispatch,
+  completion report PDF rendering, milestone notifications, and Web/Mobile
+  client interactions are implemented and verified. Applicable skills remain unmodelled.
 - **Module 3 has three MF2 cases** (`WF2-008`–`WF2-010`). `WF2-008` and
   `WF2-009` cover readiness approval/return; `WF2-010` covers preparation-listing
   scope. They do not establish that all MF2 steps are complete or tested. MF2-08 source-change invalidation is partial;

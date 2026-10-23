@@ -75,7 +75,68 @@ product scope.
 - Credential validation currently permits no credential record and rejects a
   present non-ACTIVE or expired credential per the approved interim rule; applicable skills are not modelled.
 
-Full end-to-end WF4 implementation is now complete across Backend, Web, and Mobile.
+- **RAG-Assisted Repair Scope & Acceptance Criteria Advisor (23 Oct 2026)**:
+  1. **Knowledge Base & pgvector (V29)**: Created `repair_knowledge_chunks` table with `vector(1536)`
+     embeddings, category index, and HNSW cosine distance index (`vector_cosine_ops`). Seeded 5 standard
+     civil/infrastructure repair guidelines:
+     - TCVN 9343:2012 / ACI 224.1R for concrete crack epoxy injection (UPV >= 90%, pull-off >= 1.5 MPa).
+     - TCVN 9343:2012 / EN 1504-9 for spalling breakout, rebar Sa 2 rust removal, and polymer mortar.
+     - ISO 12944-5 / AASHTO for steel corrosion abrasive blasting (Sa 2.5) and 3-coat protective system.
+     - TCVN 9343:2012 / ASTM C1583 for hydrophilic PU pressure injection water leakage control.
+     - TCVN 9361:2012 / AASHTO for expansion joint sealant and settlement monitoring.
+  2. **Hexagonal Architecture & Spring Modulith Compliance**:
+     - Declared `@NamedInterface("spi")` in `com.smartdroneinspection.maintenance.spi.package-info.java`.
+     - Defined `MaintenanceScopeAdvisorPort` outbound SPI in `maintenance::spi`.
+     - Implemented `MaintenanceScopeAdvisorClient` in `infrastructure.ai` using Spring `RestClient`
+       against OpenAI-compatible `/v1/chat/completions` with strict JSON schema response format.
+     - Bound properties via `@ConfigurationProperties("app.maintenance-advisor")`.
+     - Added `"maintenance::spi"` to `infrastructure`'s allowed Modulith dependencies.
+  3. **Zero-Downtime Deterministic Fallback**:
+     - Built `DeterministicScopeFallback` component that categorizes defects into standard engineering
+       domains and returns actionable methodology and quantifiable acceptance criteria when external
+       AI inference is disabled or unreachable.
+     - Orchestrated in `MaintenanceScopeAdvisorService` with multi-tenant check and fallback activation.
+     - Exposed endpoint `POST /api/v1/maintenance/suggest-scope` with `@PreAuthorize("hasAnyRole('ORG_ADMIN', 'MAINTENANCE_ENGINEER')")`.
+  4. **Frontend UI Integration**:
+     - Added "AI Suggest Scope & Criteria (RAG)" button with `AutoAwesomeOutlined` icon in
+       `RepairCandidatePanel.tsx`'s "Open work order" modal.
+     - Automatically populates `correctiveScope` and `acceptanceCriteria`, while rendering reference
+       standard chips (e.g., `[TCVN 9343:2012]`, `[ISO 12944-5]`) for engineering traceability.
+
+- **WF4 End-to-End Defect Remediation & Verification (23 Oct 2026)**:
+  1. **Fixed Cost Reconciliation Task Reference**: Corrected `CostsTab` in `WorkOrderDetailPanel.tsx`
+     to bind actual cost lines to planned tasks (`taskId`) rather than finding ID, resolving the
+     `400 COST_LINE_TASK_UNKNOWN` error and unblocking `markCostsReconciled` and work order closure.
+  2. **Implemented Team Lead Work Log Verification**: Added `useVerifyWorkLog` mutation and inline
+     "Verify work log" action in `WorkOrderDetailPanel.tsx`, allowing team leads to verify submitted
+     logs and satisfying `markWorkCompleted`'s prerequisite.
+  3. **Added State-Guarded Action Buttons**: Updated engineer transitions in `WorkOrderDetailPanel.tsx`
+     to disable buttons incompatible with the current order status, preventing 409 conflict errors.
+  4. **Hardened Budget Approver Validation**: Added validation in `WorkOrderService.create` ensuring
+     `budgetApproverUserId` is an active `ORG_ADMIN` belonging to the caller's organization.
+  5. **Protected Closed Work Order Immutability**: Added status guards across `createTask`,
+     `createEstimateVersion`, `recordWork`, and `proposeChange` to throw `409 WORK_ORDER_CLOSED`
+     if an order has reached terminal closure.
+  6. **Formal PDF Artifact Download**: Integrated PDF report download link in `WorkOrderDetailPanel.tsx`
+     pointing to `GET /api/v1/maintenance/work-orders/{id}/reports/{versionNo}/pdf`.
+
+Full end-to-end WF4 implementation is now complete and hardened across Backend, Web, and Mobile.
+
+---
+
+## Detailed Personal Work Log & Timeline — Trương Thái Như
+
+| Tuần / Giai đoạn | Ngày thực hiện | Hạng mục công việc & Đầu ra cụ thể | Jira / Mã Task | Trạng thái |
+| :--- | :--- | :--- | :--- | :--- |
+| **Tuần 1: Khởi động & Lập kế hoạch** | 07/09 – 11/09/2026 | • Phân tích đối sánh các giải pháp quản lý kiểm định hiện có (`Existing Solutions Benchmark`).<br>• Lập bảng quản trị rủi ro & kế hoạch ứng phó (`Risk Register & Response Plan`).<br>• Rà soát chất lượng template và kiểm tra chéo báo cáo Report 1 & Report 2. | [SCRUM-23](https://capstonefall26.atlassian.net/browse/SCRUM-23)<br>[SCRUM-28](https://capstonefall26.atlassian.net/browse/SCRUM-28)<br>[SCRUM-26](https://capstonefall26.atlassian.net/browse/SCRUM-26) | ✅ Hoàn thành 100% |
+| **Tuần 2: Thiết kế Quy trình WF4** | 14/09 – 20/09/2026 | • Thiết kế luồng nghiệp vụ WF4: Tiếp nhận khuyết tật, đánh giá hiện trường, thi công sửa chữa.<br>• Soạn thảo slide bối cảnh, bài toán, giải pháp và trách nhiệm các tác nhân trong hệ thống. | [SCRUM-38](https://capstonefall26.atlassian.net/browse/SCRUM-38)<br>[SCRUM-42](https://capstonefall26.atlassian.net/browse/SCRUM-42)<br>[SCRUM-49](https://capstonefall26.atlassian.net/browse/SCRUM-49) | ✅ Hoàn thành 100% |
+| **Tuần 3: Thiết kế Cơ sở dữ liệu** | 21/09 – 02/10/2026 | • Thiết kế và khởi tạo lược đồ cơ sở dữ liệu WF4: Bảng `maintenance_work_orders`, `maintenance_tasks`, `maintenance_work_logs`, `maintenance_cost_lines`.<br>• Tích hợp migration Flyway ban đầu cho luồng bảo trì. | [SCRUM-46](https://capstonefall26.atlassian.net/browse/SCRUM-46) | ✅ Hoàn thành 100% |
+| **Tuần 4: Tái cấu trúc Enterprise SaaS** | 03/10 – 09/10/2026 | • Tái cấu trúc WF4 từ mô hình sàn marketplace sang mô hình **Enterprise SaaS nội bộ** theo Report 3 §3.8.<br>• Thiết lập ma trận phân quyền độc lập (Separation of Duties): Tách biệt người duyệt ngân sách, đội thi công và người nghiệm thu kỹ thuật. | `REWORK-WF4`<br>[SCRUM-57](https://capstonefall26.atlassian.net/browse/SCRUM-57) | ✅ Hoàn thành 100% |
+| **Tuần 5: Lập trình Backend API Slice** | 10/10 – 15/10/2026 | • Xây dựng Backend API slice: Khởi tạo work order từ repair candidates, phân công team, lập task, lập & duyệt dự toán (Estimate), đề xuất thay đổi (Change Order), nghiệm thu và quyết toán.<br>• Soạn thảo tài liệu thiết kế giao diện Web & Mobile (`2026-10-10-mf4-web-mobile-design.md`). | `T034`–`T041`<br>[SCRUM-57](https://capstonefall26.atlassian.net/browse/SCRUM-57) | ✅ Hoàn thành 100% |
+| **Tuần 6: Hoàn thiện Web, Mobile & Test Suites** | 16/10 – 18/10/2026 | • **Backend:** Triển khai cơ chế Event Modulith tái kiểm định (`ReinspectionRequestedEvent`), xuất báo cáo PDF (`MaintenanceReportRenderer`), lắng nghe thông báo (`MaintenanceNotificationListener`).<br>• **Web:** Xây dựng toàn bộ giao diện `MaintenancePage.tsx` và `WorkOrderDetailPanel.tsx` với TanStack Query và Material UI.<br>• **Mobile:** Xây dựng màn hình nhiệm vụ Flutter (`tasks_page.dart`, `work_order_detail_page.dart`, `record_work_log_sheet.dart`) với Riverpod.<br>• **Testing:** Xây dựng 25 bài test tích hợp `MaintenanceApiIntegrationTest.java` (đạt 25/25 Passed). | `T042`–`T045`<br>`WF3-010`–`WF3-012` | ✅ Hoàn thành 100% |
+| **Tuần 7: Tích hợp RAG AI & Vá lỗi toàn diện** | 19/10 – 23/10/2026 | • **RAG Maintenance Scope Advisor:** Tạo migration `V29__repair_knowledge_base.sql`, chỉ mục `pgvector` HNSW, SPI `MaintenanceScopeAdvisorPort`, Client gọi OpenAI API, bộ sinh quy tắc `DeterministicScopeFallback` và nút bấm **✨ AI Suggest Scope & Criteria** trên Web.<br>• **Vá lỗi luồng WF4:** Sửa triệt để 6 bugs (lỗi task cost reconciliation, nút verify work log cho Lead, status guards chống lỗi 409, validate budget approver, immutability closed order, tải file PDF).<br>• **Hồ sơ báo cáo:** Soạn thảo 3 tài liệu kỹ thuật chuyên sâu (`mf4-rag-scope-advisor-design.md`, `mf4-api-and-contracts.md`, `mf4-verification-and-bug-fixes.md`). | [SCRUM-57](https://capstonefall26.atlassian.net/browse/SCRUM-57)<br>FE-07 / MF4 | ✅ Hoàn thành 100% |
+
+---
 
 ## Outcome
 

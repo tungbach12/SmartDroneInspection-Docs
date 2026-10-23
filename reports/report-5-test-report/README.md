@@ -4,22 +4,23 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope (updated 2026-10-13):** This report records eleven executed cases for the
+**Scope (updated 2026-10-23):** This report records twelve executed cases for the
 four current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`):
-three MF2 cases, five MF3 cases, and three FE-07/MF4 backend API cases. The earlier
+three MF2 cases, five MF3 cases, and four FE-07/MF4 cases (`WF3-010`–`WF3-013`). The earlier
 content mixed a retired five-role WF1–WF4 baseline with unsupported target cases;
 obsolete cases were removed during the 2026-10-09 reset. MF2-07 readiness cases
-`WF2-008`/`WF2-009` and the MF4 backend slice `WF3-010`–`WF3-012` are retained as
+`WF2-008`/`WF2-009` and the MF4 cases `WF3-010`–`WF3-013` are retained as
 separately recorded execution evidence. `WF2-010` records preparation-listing
 scope.
 
-This does not claim complete MF2 or MF4 coverage. MF2-08 source-change
+This does not claim complete MF2 coverage. MF2-08 source-change
 invalidation is partial, and MF2-12 session end/`FIELD_COMPLETED` handoff remains
-unimplemented. MF4 is partially implemented in the backend API; required
-credential/skill validation, maintenance evidence/artifacts, notifications,
-linked MF1 re-inspection, and client workflow verification remain gaps. FE-08 has
-no assigned case. The Web-first ORG_ADMIN client slice is the documented next delivery step and is not represented as test evidence. The original workbook template remains
-unchanged; generated copies contain eight feature sheets as requested.
+unimplemented. MF4 full lifecycle is covered across Backend API (re-inspection
+dispatch, PDF completion report, milestone notifications), Web management console,
+Mobile tasks app, and RAG technical scope suggestions. Applicable skills remain
+unmodelled; credential presence remains conditional. FE-08 has no assigned case.
+The original workbook template remains unchanged; generated copies contain eight
+feature sheets as requested.
 
 ## Naming layers and mapping
 
@@ -29,8 +30,8 @@ Report 3 feature. The original template remains unchanged. Sheet `Feature N`
 contains SRS feature `FE-0N`; these are separate naming layers, not synonyms.
 Feature 1 (supporting FE-01), Feature 2 (FE-02) and Feature 8 (FE-08) have no
 cases. Feature 3 (FE-03) contains `WF2-008`–`WF2-010`; Features 4–6 contain the
-five MF3 cases; Feature 7 (FE-07) contains `WF3-010`–`WF3-012` for the implemented
-backend API slice. All eight sheets remain so the workbook mirrors the eight SRS
+five MF3 cases; Feature 7 (FE-07) contains `WF3-010`–`WF3-013` for the full-stack
+MF4 delivery. All eight sheets remain so the workbook mirrors the eight SRS
 features.
 
 | Layer | Meaning | Example |

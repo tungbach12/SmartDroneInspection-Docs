@@ -3,9 +3,9 @@
 **Project name:** SmartDroneInspection: AI-powered Infrastructure Inspection Management Platform  
 **Group:** FA26SE112  
 **Reporting period:** 5–9 October 2026  
-**Personal contribution recorded:** Trần Tùng Bách only
+**Personal contribution recorded:** Trần Tùng Bách, Trương Thái Như
 
-> This draft records Bách's work only. Teammate contributions are intentionally omitted until they supply their own updates.
+> Records contributions for Bách (WF3) and Như (WF4). Teammate contributions for Hiếu and Quốc remain for them to supply.
 
 ## I. Status Report
 
@@ -14,6 +14,8 @@
 | 1 | Implement and exercise the WF3 inspection workflow | Trần Tùng Bách | Implemented; browser happy-path exercised | Built out the inspection flow from assigned field work and checklist/evidence capture through AI-assisted defect review, Inspector verification, and inspection reporting. Exercised the WF3 happy path in the browser with test data and iterated on issues found. AI output remains advisory and requires human verification. |
 | 2 | Design and implement the SmartDroneInspection landing page | Trần Tùng Bách | Implemented in session | Created and refined a drone-forward landing page for a B2B platform serving infrastructure owners and inspection teams. Focused the content on the service and customer outcomes, with visual storytelling around drone capture, AI-assisted inspection, and infrastructure defects rather than technical feature jargon. |
 | 3 | Refine the landing-page composition and supporting visuals | Trần Tùng Bách | Iterated; final acceptance not recorded | Adjusted the page structure toward three full-width visual sections and strengthened the AI/drone message and defect imagery. The user later shifted focus to the weekly project reports; no final landing-page acceptance is recorded here. |
+| 4 | Implement MF4 Maintenance Backend API Slice | Trương Thái Như | Implemented & verified | Implemented full backend API slice for team maintenance and cost control: repair candidates queue, work order triage, team assignment, task planning, priced estimate versions, change order delta workflow, work logs, independent acceptance, and cost reconciliation. |
+| 5 | Author MF4 Web and Mobile Client Design Specification | Trương Thái Như | Completed | Authored `2026-10-10-mf4-web-mobile-design.md` detailing the client architecture, role-based screen split (Web ORG_ADMIN planning/review vs Mobile field engineer execution), API mapping, and security invariants. |
 
 ## II. Project Issues
 

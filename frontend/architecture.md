@@ -132,13 +132,15 @@ separation-of-duties rules.
 
 ## MF4 maintenance Web status
 
-The maintenance route is an ORG_ADMIN-only, read-only console for the backend's
-published repair-candidate queue and organization-scoped work orders. It supports
-viewing work-order detail; it does not create orders, assign teams, approve costs,
-or claim maintenance evidence, notifications, or re-inspection dispatch. Team
-assignment remains unavailable in the client until an eligible-member and
-qualification lookup contract exists. The backend remains the authorization
-boundary for every query and action.
+The maintenance route (`/client/maintenance` for `ORG_ADMIN` and `/operations/maintenance` for `MAINTENANCE_ENGINEER`) is an interactive management and execution console for repair work orders and published repair candidates.
+
+Capabilities delivered and verified:
+- **Candidate Triage & RAG Scope Advisor:** `ORG_ADMIN` views published repair candidates and opens work orders. The "AI Suggest Scope & Criteria (RAG)" action queries standard engineering specifications (TCVN, ISO, EN) stored in PostgreSQL with pgvector, auto-populating actionable repair methodology and verifiable acceptance thresholds with fallback safety.
+- **Team Assignment & Task Planning:** `ORG_ADMIN` designates the repair team (Lead, Report Author, independent Reviewer, and Members) from active workforce users. The Lead divides scope into sequential tasks.
+- **Estimate Baseline & Change Control:** Team lead prepares itemized estimate versions with priced lines. The designated budget approver approves or returns estimates for rework. Engineers propose change orders with cost deltas and evidence; only the budget approver decides changes.
+- **Execution & Work Log Verification:** Assigned engineers record progress, hours, as-left condition, and test measurements. The team lead reviews and verifies submitted logs inline before declaring completion (`WORK_COMPLETED`).
+- **Completion Reporting & Independent Acceptance:** The designated report author drafts and submits completion reports, with official rendered PDF artifact downloads available directly in the UI. A distinct, non-executing `ORG_ADMIN` records independent technical acceptance (`ACCEPTED`, `REWORK_REQUIRED`, `REINSPECTION_REQUIRED`).
+- **Cost Reconciliation & Closure:** Reconciles itemized actual cost lines against planned tasks and approved authorized amounts. The order transitions to `COST_RECONCILED` and closes (`CLOSED`) only after independent acceptance and cost reconciliation are complete.
 
 ## Browser authentication flow
 

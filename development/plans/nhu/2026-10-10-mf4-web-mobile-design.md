@@ -1,9 +1,9 @@
 # MF4 Web and Mobile Clients — Design
 
 **Owner:** Như
-**Date:** 10 October 2026
-**Status:** Proposed design; awaiting review
-**Repos:** `SmartDroneInspection-Frontend`, `SmartDroneInspection-Mobile`; API dependency is backend branch `feat/maintenance-mf4-work-order`
+**Date:** 10 October 2026 (Updated: 23 October 2026)
+**Status:** Implemented and Verified
+**Repos:** `SmartDroneInspection-Frontend`, `SmartDroneInspection-Mobile`, `SmartDroneInspection-Backend`; API branch is `feat/maintenance-mf4-work-order`
 **Product traceability:** FE-07 / MF4; Report 3 §3.8
 
 ## 1. Purpose and success criteria
@@ -231,3 +231,25 @@ Paths below are relative to `/api/v1` after each app's shared base URL.
   exposure.
 - Build client screens only against the feature-branch backend contract; no
   fallback to legacy ticket/quotation endpoints from the pre-reset system.
+
+## 9. Implementation and Verification Record (23 October 2026)
+
+All planned client and backend workflows were implemented, hardened, and verified:
+
+1. **RAG-Assisted Scope & Acceptance Criteria Suggestion**:
+   - Database: Migration `V29__repair_knowledge_base.sql` created `repair_knowledge_chunks` with `vector(1536)` and HNSW cosine distance index.
+   - Backend: Outbound SPI `MaintenanceScopeAdvisorPort` in `maintenance::spi` implemented by `MaintenanceScopeAdvisorClient` in `infrastructure.ai` using Spring `RestClient`.
+   - Fallback: `DeterministicScopeFallback` guarantees standard TCVN/ISO/EN engineering specifications when AI is disabled or unreachable.
+   - API: `POST /api/v1/maintenance/suggest-scope` exposed for `ORG_ADMIN` and `MAINTENANCE_ENGINEER`.
+   - Web: Added "AI Suggest Scope & Criteria (RAG)" button in `RepairCandidatePanel.tsx` with reference standard chips for engineering traceability.
+2. **Client Defect Remediation**:
+   - Fixed `CostsTab` actual cost line task reference (binding to real task ID instead of finding ID), unblocking `markCostsReconciled` and work order closure.
+   - Added inline `verifyWorkLog` action in `WorkOrderDetailPanel.tsx` for team leads, satisfying `markWorkCompleted`'s prerequisite.
+   - Guarded transition buttons in `WorkOrderDetailPanel.tsx` against premature clicks causing 409 conflict errors.
+   - Hardened `WorkOrderService.create` to strictly validate `budgetApproverUserId` role and tenant.
+   - Protected closed work orders from post-closure mutation (`WORK_ORDER_CLOSED`).
+   - Integrated PDF download link for completion report versions.
+3. **Mobile Client Localization & Execution**:
+   - Integrated bilingual English/Vietnamese localization across the mobile tasks page (`lib/features/tasks/presentation/tasks_page.dart`).
+   - Connected `WorkOrderDetailPage` route `/tasks/:workOrderId` to Riverpod providers for field execution.
+

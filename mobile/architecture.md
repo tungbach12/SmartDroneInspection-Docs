@@ -75,4 +75,12 @@ Report authoring, review, and publication stay web-only. They are governance
 decisions with a separation-of-duties requirement, not field capture, so the
 mobile client does not duplicate them.
 
+## Maintenance field tasks execution
+
+Field engineers (`MAINTENANCE_ENGINEER`) access assigned maintenance work through the `/tasks` bottom-navigation destination:
+- **Assigned Tasks Inbox (`TasksPage`):** Lists work orders assigned to the logged-in engineer's team via server-scoped queries. Supports pull-to-refresh (`AsyncValueWidget`), displays status and priority chips, and navigates to the detailed task view. Bilingual English/Vietnamese localization is supported via `context.l10n`.
+- **Work Order Detail (`WorkOrderDetailPage`):** Presents approved corrective scope, verifiable acceptance criteria, planned sequential tasks list, and verified work logs history.
+- **Execution Actions & Work Logging (`RecordWorkLogSheet`):** Lead triggers start of execution (`POST .../start`); team members open a modal bottom sheet to record task hours, as-left structural condition, and test measurements (`POST .../work-logs`); lead declares physical completion (`POST .../declare-complete`) once work logs are verified.
+- **State Management:** Riverpod `maintenanceWorkOrdersProvider` and `maintenanceTasksProvider` in `maintenance_providers.dart` manage asynchronous task state and Dio REST interactions.
+
 Run `flutter test` for tests and `dart run build_runner build --delete-conflicting-outputs` after changing generated Freezed or JSON-serializable models.

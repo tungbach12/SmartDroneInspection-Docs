@@ -65,17 +65,14 @@ stable business-flow test-case ID.
 | 8 | `[WF3-010]` FE-07 — MF4 work-order source and tenant scope | Feature 7 | ORG_ADMIN reads published repair candidates and opens one draft work order; duplicate active finding is rejected, cross-tenant requests are not-found, and non-admin creation is denied. | PostgreSQL 17/Testcontainers; published MF3 report with a human-confirmed repair-required finding; two organizations and active users. |
 | 9 | `[WF3-011]` FE-07 — MF4 team, estimate and change control | Feature 7 | ORG_ADMIN assigns an independent team, the lead prepares a priced estimate whose total is SYSTEM-calculated, only the designated budget approver decides, invalid credentials are blocked, and a rejected change never enlarges the authorized budget. | Draft work order; same-organization engineers and ORG_ADMIN; credentials absent or expired per scenario. |
 | 10 | `[WF3-012]` FE-07 — MF4 execution, independent acceptance and reconciliation | Feature 7 | Team work logs are submitted and lead-verified before completion; the designated author submits the completion report; the independent reviewer accepts; currency-checked actual costs reconcile against the authorized baseline before closure; reviewer rework returns to execution. | Approved work order and estimate; team, task and verified work log; report author and distinct accepting reviewer; PostgreSQL/Testcontainers. |
+| 11 | `[WF3-013]` FE-07 — MF4 RAG-assisted scope and acceptance criteria advisor | Feature 7 | ORG_ADMIN or MAINTENANCE_ENGINEER requests repair scope and criteria suggestions for a finding; the system retrieves standard engineering specifications from pgvector (TCVN, ISO, EN) and generates structured methodology, quantifiable acceptance criteria, reference standards, and sequential tasks; when AI inference is disabled or unreachable, the system activates a deterministic rule-based fallback without failure. | Published repair-required finding; repair_knowledge_chunks table populated in PostgreSQL 17; pgvector extension; active ORG_ADMIN or MAINTENANCE_ENGINEER actor. |
 
 ## Coverage gaps
 
 These are stated as gaps rather than filled with fabricated cases or statuses.
 
 - **MF1** (asset/schedule setup) remains unimplemented and has no cases.
-- **MF4** is covered only for the implemented backend API slice (`WF3-010` to
-  `WF3-012`). Credential presence remains conditional, applicable skills are not
-  modelled, notifications, evidence object workflow, rendered report artifact and
-  linked MF1 re-inspection dispatch are not covered. No web or mobile client
-  verification exists for MF4.
+- **MF4** full lifecycle is covered by `WF3-010` to `WF3-013` across Backend, Web, Mobile, and RAG advisor. Applicable skills remain unmodelled; credential presence remains conditional per the approved interim rule.
 - **MF2** is only partly covered: `WF2-008` and `WF2-009` test MF2-07 readiness
   approval/return. Assignment response, preparation/compliance, source-change
   invalidation, field-session start/postpone/abort and session-end handoff are not
