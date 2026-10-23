@@ -4,10 +4,12 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope (updated 2026-10-16):** This report indexes eleven cases for the four
+**Scope (updated 2026-10-22):** This report indexes eleven cases for the four
 current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`): three
-MF2 cases and eight MF3 cases. Eight cases are `Passed`; `WF3-010`, `WF3-011`
-and `WF3-012` are `Pending`.
+MF2 cases and eight MF3 cases. Recorded statuses are eight `Passed`; `WF3-010`,
+`WF3-011` and `WF3-012` are `Pending`. The MF3 target changed on 2026-10-22;
+existing Passed outcomes remain historical and do not verify the simplified
+no-quality-gate, Inspector-invoked-analysis or per-finding-forwarding contract.
 The earlier content mixed a retired five-role WF1–WF4 baseline with
 unimplemented MF1–MF4 target cases; obsolete and unsupported cases were removed
 during the 2026-10-09 reset. The two MF2-07 decision cases were restored after
@@ -96,7 +98,7 @@ The FE-xx codes and their Report 3 sections are:
 | FE-01 | 3.2 | Identity, Enterprise Subscription and Workforce Governance |
 | FE-02 | 3.3 | Asset, Drone, Workforce and Compliance Catalog — MF1 |
 | FE-03 | 3.4 | Mission Preparation, Assignment Response and Readiness — MF2 |
-| FE-04 | 3.5 | Field Records, Evidence and Inspector Quality Decision |
+| FE-04 | 3.5 | Field Records and Evidence |
 | FE-05 | 3.6 | AI Vision Candidates and Human Finding Decisions |
 | FE-06 | 3.7 | Inspection Report Drafting, Review and Publication — MF3 |
 | FE-07 | 3.8 | Team Maintenance, Cost Control and Completion Reporting — MF4 |
@@ -108,7 +110,7 @@ reviewer's bookmark for no reporting benefit.
 
 ## Current test scope
 
-All verification statuses below describe the current source after the MF2 PR integration; the dated change history records superseded earlier states.
+Recorded statuses and execution notes below preserve the historical MF2/MF3 results. The 22 October MF3 target update changes requirements and active case definitions but does not create fresh test evidence; Passed cases may describe superseded behavior.
 
 1. FE-01 — identity/access supporting gates. Recorded separately in the FE-01
    file; not a workbook case.
@@ -116,13 +118,11 @@ All verification statuses below describe the current source after the MF2 PR int
 3. FE-03 — MF2-07 readiness approval/return (`WF2-008`, `WF2-009`) and the
    scoped preparation-history read (`WF2-010`); other MF2 implementation and
    case-coverage gaps remain documented.
-4. FE-04 — inspection evidence and the Inspector's quality decision
-   (`WF3-002`), and the scoped inspection/report collections (`WF3-009`).
-5. FE-05 — advisory detection and human finding verification (`WF3-003`);
-   reviewed-candidate correction/rejection (`WF3-010`) is Pending.
+4. FE-04 — inspection evidence intake without a separate quality-decision gate (`WF3-002`), and the scoped inspection/report collections (`WF3-009`).
+5. FE-05 — Inspector-invoked advisory detection and human finding verification (`WF3-003`); reviewed-candidate correction/rejection (`WF3-010`) is Pending.
 6. FE-06 — report review/publication (`WF3-005`, `WF3-006`), explicit findings
-   confirmation/draft choice (`WF3-011`, Pending) and post-publication corrective
-   outcome/handoff (`WF3-012`, Pending).
+   confirmation/draft choice (`WF3-011`, Pending) and post-publication per-finding
+   forwarding (`WF3-012`, Pending).
 7. FE-07 — maintenance and defect resolution. No case; MF4 unimplemented.
 8. FE-08 — dashboard, analytics, and notifications. No assigned case; explicit
    coverage gap.

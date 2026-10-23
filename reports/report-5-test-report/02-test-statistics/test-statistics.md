@@ -12,13 +12,14 @@ could not find a Docker environment. They remain Pending supporting evidence
 and do not add workbook cases or change the 11-case totals below.
 
 The 15 October MF3 aggregate-confirmation gate and confirmed-findings rendering
-correction have been implemented and verified. The matching end-to-end case,
-`WF3-011`, is Pending; the 16 October post-publication corrective-outcome and
-handoff change (`WF3-012`) is also Pending. The 11-case denominator includes
-both. The MF3-12/13 backend paths executed green on 2026-10-16 (81 targeted WF3
-tests; 650-test full `verify` gate); the cases remain Pending until their
-complete end-to-end procedures execute. Do not read
-narrow unit/integration results below as a pass for either new case.
+correction have historical verification. The matching end-to-end case,
+`WF3-011`, remains Pending under the simplified target definition. The post-
+publication per-finding forwarding case, `WF3-012`, is also Pending. The 11-case
+denominator includes both. Earlier backend paths executed green on 2026-10-16
+(81 targeted WF3 tests; 650-test full `verify` gate), but those runs exercised the
+superseded evidence-quality/per-finding corrective-outcome implementation and do
+not verify the simplified target. Do not read historical unit/integration results
+below as a pass for either current target case.
 
 | Field | Value |
 | --- | --- |
@@ -34,7 +35,7 @@ narrow unit/integration results below as a pass for either new case.
 | 1 | Identity, Enterprise Subscription and Workforce Governance | 0 | 0 | 0 | 0 | 0 |
 | 2 | Asset, Drone, Workforce and Compliance Catalog — MF1 | 0 | 0 | 0 | 0 | 0 |
 | 3 | Mission Preparation, Assignment Response and Readiness — MF2 | 3 | 0 | 0 | 0 | 3 |
-| 4 | MF3 inspection evidence, findings and reporting | 2 | 0 | 0 | 0 | 2 |
+| 4 | MF3 inspection evidence and scoped collections | 2 | 0 | 0 | 0 | 2 |
 | 5 | AI Vision Candidates and Human Finding Decisions | 1 | 0 | 1 | 0 | 2 |
 | 6 | Inspection Report Drafting, Review and Publication — MF3 | 2 | 0 | 2 | 0 | 4 |
 | 7 | Team Maintenance, Cost Control and Completion Reporting — MF4 | 0 | 0 | 0 | 0 | 0 |
@@ -65,11 +66,13 @@ Because there are eight modules, `Sub total` moves from row 14 to **row 19**,
   listing. They do not establish that all MF2 steps are complete or tested.
   MF2-08 generic source-change invalidation remains partial; MF2-12 normal session completion is implemented with focused tests but has no Report 5 case.
 - **Modules 4, 5 and 6 hold the eight MF3 cases**: FE-04 (evidence intake and
-  scoped collections) has 2, FE-05 (advisory detection and human finding
-  verification) has 2 (one passed, `WF3-003`, and one pending, `WF3-010`),
-  and FE-06 (report review/publication `WF3-005`/`WF3-006` plus pending findings
-  confirmation/draft choice `WF3-011` and pending post-publication corrective
-  outcome/handoff `WF3-012`) has 4.
+  scoped collections) has 2; FE-05 (Inspector-invoked advisory detection and
+  human finding verification) has 2 (`WF3-003` recorded Passed, `WF3-010`
+  Pending); FE-06 (report review/publication `WF3-005`/`WF3-006` plus pending
+  findings confirmation/draft choice `WF3-011` and per-finding forwarding
+  `WF3-012`) has 4. Existing Passed rows predate the simplified target and are
+  retained as historical run records, not fresh evidence of the no-quality-gate,
+  manual-invocation, per-finding-forwarding contract.
 
 ### Test coverage
 
@@ -107,12 +110,17 @@ no longer exists or has never been implemented. Their IDs stay reserved.
 The increase from five to eleven cases reflects restored Report 5 coverage for
 implemented MF2-07 approval/return, the scoped MF2 preparation-history read,
 the pending MF3 reviewed-candidate correction/rejection case `WF3-010`, the
-new Pending MF3 findings-confirmation/draft-choice case `WF3-011`, and the
-Pending MF3-12/13 post-publication corrective-outcome and handoff case
-`WF3-012`. It does not claim the remaining MF2 workflow is complete: generic
-MF2-08 invalidation remains partial, and no Report 5 case exercises the full additional-session loop.
+Pending MF3 findings-confirmation/draft-choice case `WF3-011`, and the Pending
+MF3-13 per-finding forwarding case `WF3-012`. `WF3-012` was originally added for
+the prior corrective-outcome/handoff contract; its active definition now tests
+the agreed simplified handoff. No new tests or status changes are implied. It
+does not claim the remaining MF2 workflow is complete: generic MF2-08
+invalidation remains partial, and no Report 5 case exercises the full
+additional-session loop.
 
 ## Verification recorded this round
+
+**2026-10-22 — MF3 pre-report documentation target update.** Report 3, business flows, database design, backend flow guidance and Report 5 case definitions were aligned to the simplified MF3 pre-report and per-finding forwarding target. Documentation-only work: no application code/schema changes, test execution, Report 5 case status changes or new product verification are claimed. Historical test outcomes remain unchanged and are not evidence for the new target contracts. The required docs whitespace/path checks must be reported from their current execution at handoff; this entry does not claim other test results.
 
 **2026-10-21 — MF2/MF3 workflow update and build-only final verification (no Report 5 case status change).** Backend `./mvnw verify` passed **684 tests**, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met before the final AI-suggestion rejection-path correction; final `./mvnw -DskipTests package` passed without executing tests. No tests were rerun after the correction, per the requested build-only verification scope. The change covers: the MF3 additional-session handoff to `PREPARING` (prior READY preparation marked SUPERSEDED, INVALIDATED readiness appended, next-version draft created, prior sessions/evidence preserved); the new planned start/end required on that preparation; session start refused when the approval belongs to an older preparation; normal MF2-12 completion with required Inspector outcome notes closing the session and inspection into `FIELD_COMPLETED`; and evidence/decision association with the completed visit. Frontend `npm run build` passed; frontend tests/lint were not run in this task. Mobile code generation passed; Android artifact build was blocked because Android SDK is unavailable, and web build was blocked because the project is not configured for web. Mobile tests/analyze/format were not run in this task. Docs `git diff --check` passed; Hugo unavailable. No Report 5 exporter run or live walkthrough was performed in this task. No WF case was promoted; the complete repeat-visit scenario (readiness approval → new start → re-capture → second assessment) remains unexecuted.
 
@@ -218,9 +226,11 @@ workbook case status.
 
 ## Coverage summary
 
-Eight of the eleven listed cases have executed automated-test evidence;
-`WF3-010`, `WF3-011` and `WF3-012` remain Pending. These metrics describe the
-recorded cases, not full feature or product coverage.
+Eight of the eleven listed cases have historical executed-test evidence;
+`WF3-010`, `WF3-011` and `WF3-012` remain Pending. The historical Passed cases
+include behavior superseded by the 22 October target update. These metrics
+preserve recorded case statuses, not verification coverage of the simplified
+target, the complete features or the product.
 
 - **Test coverage** = `(Passed + Failed) × 100 ÷ (Number of TCs − N/A)` =
   `(8 + 0) × 100 ÷ (11 − 0)` = 72.73%.
@@ -244,9 +254,9 @@ The eight module rows are workbook-sheet totals, one per SRS feature; they are n
 | MF2-12 session end / FIELD_COMPLETED handoff | Implemented with targeted backend/mobile tests; no Report 5 case. |
 | MF4 maintenance/cost/completion reporting | Workflow implementation and executed test evidence absent; no case. The MF3-13 handoff records eligible findings and inspection status only and does **not** create a work order; `WF3-012` is Pending. |
 | FE-02 catalog CRUD | Implemented as a dependency of MF3, but no executed case is recorded for it. |
-| FE-06 MF3-12/13 corrective outcome and handoff | Code and V30 schema exist and executed green on 2026-10-16 (81 targeted tests; 650-test full `verify`), but no case is passed yet. `WF3-012` (Pending) tracks the publish → per-finding outcome → work-required handoff, all-no-action completion, and empty-scope no-repair scenario. |
+| MF3-13 per-finding forwarding target | The simplified `forwarded_to_maintenance_at` target has not been implemented or tested. `WF3-012` remains Pending for selective forwarding, no-selection completion, and explicitly acknowledged empty-findings completion. The 16–17 October backend/UI runs covered the superseded per-finding corrective-outcome and inspection-level handoff flow only. |
 | FE-06 MF3-09 reviewer credential qualification | Runtime validates role, organization, active account and separation of duties only; no credential or professional-qualification check. Explicit implementation gap. |
-| FE-06 MF3-07 source-input coverage | Objective/scope/criteria, evidence metadata, scoped candidates/sessions, and the latest accepted Inspector evidence-quality comparison have prompt/context test coverage; a synthetic disposable live run generated a draft. No dedicated checklist-answer or Inspector-observation source was identified; per-section source citations and complete source-state coverage remain unverified. The live draft predates the final quality-context addition. |
+| FE-06 MF3-07 source-input coverage | Historical prompt/context tests covered objective/scope/criteria, evidence metadata, scoped candidates/sessions, and the then-current accepted Inspector evidence-quality comparison. The simplified target removes that decision context and requires coverage/limitations authored in report sections; the revised source-coverage behavior remains unverified. No dedicated checklist-answer or Inspector-observation source was identified; per-section citations and full source-state coverage remain unverified. |
 | FE-06 required report content (Report 3 §3.7.2) | Linked evidence component/location projection and targeted WF3 prompt/source-input coverage are recorded; full required section-content verification remains unverified. The synthetic live draft disclosed missing fields but also described fixture images as submitted captures and recommended physical validation. |
 | FE-06 LLM safeguards (Report 3 §3.7.3) | Prompt constraints and candidate/official-finding distinction have focused coverage; full safeguards, including numeric-table sourcing and untrusted evidence-metadata handling, are not asserted by `WF3-005`/`WF3-006`. |
 | FE-01 subscription/workforce governance | Supporting evidence is outside workbook functional-case totals; current-role scope should be reverified separately. |
