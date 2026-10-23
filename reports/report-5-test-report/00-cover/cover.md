@@ -10,7 +10,7 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-22 |
 | Document Code | *Enter document code* |
-| Version | 4.40 (MF3 pre-report simplification documentation alignment; no application changes or new test execution.) |
+| Version | 4.42 (MF3 pre-report simplification, 41-table canonical baseline B40, and V40 audit migration.) |
 
 ## Current documentation update — MF3 pre-report simplification (2026-10-22)
 

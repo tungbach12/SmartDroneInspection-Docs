@@ -27,6 +27,7 @@ This section specifies the non-functional requirements and quality attributes fo
 - **High-Contrast Outdoor Readability:** The mobile application provides high-contrast typography, large touch targets (minimum 48x48 dp), and outdoor-optimized color schemes suitable for direct sunlight field conditions.
 - **Clear AI Delineation:** Machine-generated defect candidates and draft texts are visually distinguished from human-verified findings using distinctive badges, ensuring reviewers clearly perceive automated suggestions versus official data.
 - **Accessibility Standards:** Web interfaces comply with Web Content Accessibility Guidelines (WCAG 2.1) Level AA, ensuring full keyboard navigation, aria-labels for screen readers, and high text contrast ratios (minimum 4.5:1).
+- **Bilingual Interface Support:** The web and mobile applications expose English and Vietnamese. English is the explicit default and fallback; a user-selected Vietnamese preference is persisted on the device and applied to system-managed interface text, including navigation, labels, validation messages and generated documents. User-authored entries — notes, answers, findings and authored narratives — are never translated, so a localized interface cannot alter a recorded observation.
 
 #### 4.2.2 Reliability and Record Integrity
 

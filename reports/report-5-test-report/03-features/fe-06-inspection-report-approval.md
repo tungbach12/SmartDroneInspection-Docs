@@ -269,3 +269,22 @@ recorded here.
 | --- | --- | --- |
 | `B2` | Feature | Inspection Report Drafting, Review and Publication — MF3 |
 | `B3` | Test requirement | Verifies Inspector-authored coverage/limitations, manual or explicitly requested AI-assisted drafting, author verification, independent review, return, approval and immutable publication of the version with its checksummed PDF; after publication, selected findings are forwarded per finding and inspection status records the overall outcome. |
+
+### Bilingual report drafting and PDF rendering — 2026-10-22
+
+The drafting context carries the request locale, so the AI narrative is drafted
+in the requested language while the supplied source values are preserved
+verbatim: the prompt explicitly instructs the model not to translate or
+paraphrase an Inspector-authored note, finding text or answer. The recorded
+prompt version moved to `mf3-report-v3-bilingual` to mark that behaviour.
+
+The generated PDF renders its system-managed labels, headings and page furniture
+in the requested locale. An authored narrative section, a finding text and a
+recorded note are embedded unchanged, so switching the locale cannot alter a
+published observation. `ReportDraftClientTest` asserts the Vietnamese prompt and
+the preserved source values; `ReportHtmlTemplateLocalizationTest` asserts the
+Vietnamese PDF labels and the unchanged `Normal wear` note and authored summary.
+
+Verification in this task: backend `./mvnw -B clean verify` passed, including the
+localized prompt, PDF and report API tests. No Report 5 case status changed; the
+live drafting-provider path remains unexecuted as recorded above.

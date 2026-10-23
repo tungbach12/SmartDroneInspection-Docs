@@ -25,8 +25,8 @@ below as a pass for either current target case.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
-| Test round | **2026-10-21: MF1 integrated with MF2/MF3 workflow and supporting APIs.** Supporting verification for MF1 asset pairing, inspection creation, and supporting subscription activation / asset-pair administration is recorded in FE-01 and FE-02. Backend compilation, unit/domain/Modulith tests, and frontend production build passed. No functional case status changed. |
-| Last updated | 2026-10-21 (Report 5 version 4.39; no functional case status changed) |
+| Test round | **2026-10-22: bilingual system-managed content.** English is the explicit default and fallback locale on web, mobile and backend; Vietnamese is selectable and persisted per device, and the backend localizes checklist text, report drafting, the generated PDF and problem responses through `Accept-Language`. Inspector-authored answers, notes and findings are returned unchanged. Backend `./mvnw -B clean verify` passed; frontend type-check, lint, build and the i18n suite passed. No functional case status changed. |
+| Last updated | 2026-10-22 (Report 5 version 4.41; no functional case status changed) |
 
 ## Module summary
 
