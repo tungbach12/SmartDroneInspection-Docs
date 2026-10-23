@@ -193,11 +193,12 @@ The organization is the tenant boundary. It is not a Provider organization and d
 | `id` | `uuid` | PK. |
 | `organization_id` | `uuid` | FK `organizations`; RESTRICT. |
 | `plan_code` | `varchar(32)` | Only `ENTERPRISE`. |
-| `billing_period_months` | `smallint` | Check `IN (1, 6, 12)`. |
+| `billing_period_months` | `integer` | Standard price schedule supports 1, 6, and 12 months; negotiated custom term bound is 1–120 months (V38). |
 | `status` | `varchar(24)` | `PENDING`, `ACTIVE`, `PAST_DUE`, `SUSPENDED`, `EXPIRED`, `CANCELLED`. |
 | `starts_at`, `ends_at` | `timestamptz` | Entitlement window. |
 | `external_reference` | `varchar(128)` | Administrative invoice/payment reference; not a payment token. |
-| `terms_snapshot` | `jsonb` | Immutable accepted subscription terms. |
+| `agreed_amount_usd` | `numeric(12,2)` | Optional platform-approved final amount; a customer proposal is stored only in `terms_snapshot` until the Platform Admin agrees it. |
+| `terms_snapshot` | `jsonb` | Immutable terms/version/actor snapshot, including any unapproved customer price proposal and negotiation notes. |
 | `confirmed_by_user_id`, `confirmed_at` | `uuid`, `timestamptz` | Activation decision attribution. |
 
 At most one subscription may be `ACTIVE` for an organization. A future migration must pre-check populated data before adding that partial unique index.
@@ -209,19 +210,19 @@ At most one subscription may be `ACTIVE` for an organization. A future migration
 | `id` | `uuid` | PK. |
 | `subscription_id` | `uuid` | FK `subscriptions`; RESTRICT. |
 | `paypal_order_id` | `varchar(64)` | PayPal Orders v2 transaction identifier. |
-| `paypal_capture_id` | `varchar(64)` | PayPal payment capture identifier; unique. |
+| `paypal_capture_id` | `varchar(64)` nullable | Provider-issued capture ID, unique when present; `NULL` while a server-created order is pending. It is never supplied as trusted evidence by the browser. |
 | `amount` | `numeric(12,2)` | Settled subscription amount. |
 | `currency` | `varchar(3)` | Currency ISO-4217 code (default `USD`). |
 | `status` | `varchar(24)` | `COMPLETED`, `PENDING`, `DECLINED`, `REFUNDED`. |
 | `payer_email` | `varchar(255)` | PayPal payer account email. |
-| `captured_at` | `timestamptz` | Settlement capture timestamp. |
+| `captured_at` | `timestamptz` nullable | Provider capture time; `NULL` while status is `PENDING`. |
 | common columns | — | Timestamps and optimistic version. |
 
-Online payments through PayPal are scoped strictly to SaaS subscription activation and renewal. Technical maintenance and repair costs remain internal cost accounting registers.
+When PayPal is explicitly enabled for a deployment, `payment_transactions` records the provider order and its later verified capture; disabled/unconfigured online checkout creates no transaction and cannot activate a subscription. Webhook notifications must be signature-verified before a capture is applied. PayPal credentials and webhook secrets are deployment secrets, never database columns. Technical maintenance and repair costs remain internal cost accounting registers.
 
 #### `users`, `user_roles`, `auth_sessions`, `refresh_tokens`
 
-- `users`: `id`, `organization_id` nullable only for platform `ADMIN`, normalized email, full name, phone number, avatar URL, status (`ACTIVE`, `SUSPENDED`, `DISABLED`), `auth_version`, password hash and timestamps.
+- `users`: `id`, `organization_id` nullable only for platform `ADMIN`, normalized email, full name, status (`ACTIVE`, `SUSPENDED`, `DISABLED`), `auth_version`, password hash and timestamps.
 - `user_roles`: `user_id`, `role`; unique `(user_id, role)`. Allowed roles are exactly `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`.
 - `auth_sessions`: user, client type (`WEB`/`MOBILE`), expiry, revoked time/reason.
 - `refresh_tokens`: session, token hash, issued/expiry/revoked timestamps. Raw tokens are never stored.
@@ -259,12 +260,6 @@ A readiness decision references the permit and snapshots its version/status. A p
 - `asset_categories`: platform categories plus optional organization-specific categories.
 - `checklist_templates`: versioned template, context (`MF2_FIELD`, `MF3_EVIDENCE`, `MF4_ACCEPTANCE`), active period and author.
 - `checklist_items`: typed item, order, required flag, evidence requirement and template FK.
-
-`V39__add_vietnamese_checklist_content.sql` adds nullable `name_vi`/`description_vi` to
-`checklist_templates` and `section_name_vi`/`prompt_vi`/`guidance_vi` to `checklist_items`.
-The columns are additive and nullable: existing checklist content is retained unchanged, and a
-localized read falls back to the English columns whenever a Vietnamese value is absent or blank.
-The migration is verified against a populated pre-V39 database, not only an empty one.
 
 A response references the exact template/item version used; later edits do not rewrite historical responses.
 
@@ -451,7 +446,7 @@ Append-only decision: work order/report version, ORG_ADMIN reviewer, decision (`
 
 #### `audit_events`
 
-Append-only security/workflow history: organization, actor, action, aggregate type/id, before/after status, version, reason, timestamp, trace ID and safe metadata. Never store passwords, raw tokens, private keys or protected file contents.
+Append-only security/workflow history: organization, actor, action, aggregate type/id, before/after status, version, reason, timestamp, trace ID and safe metadata. For successful `ORGANIZATION_REGISTRATION`, `safe_metadata` includes bounded `ip_address`/`user_agent`, `terms_accepted: true`, `terms_version`, `privacy_notice_accepted: true`, `privacy_notice_version`, and server-generated UTC `accepted_at`, written in the same transaction as organization and first-user creation. This is application interaction evidence, not a certified digital signature or guarantee of legal enforceability. Never store passwords, raw tokens, private keys or protected file contents.
 
 #### `notifications`
 
@@ -544,7 +539,9 @@ Applied migration files remain forward-only history. The backend reset has begun
 - V35 pre-flight note persistence: `backend/src/main/resources/db/migration/V35__persist_field_session_preflight_note.sql` — stores the required Inspector-entered session note; it is not item-level checklist evidence
 - V39 Vietnamese checklist content: `backend/src/main/resources/db/migration/V39__add_vietnamese_checklist_content.sql` — adds nullable Vietnamese columns to the checklist template and item tables so system-managed checklist text can be localized, keeping the English columns as the explicit fallback
 - V40 MF3 entity field audit: `backend/src/main/resources/db/migration/V40__mf3_entity_field_audit.sql` — streamlines finding/evidence models, transitions to per-finding handoff (`forwarded_to_maintenance_at`), and drops obsolete `evidence_quality_decisions`
-- B40 Complete baseline schema: `backend/src/main/resources/db/migration/B40__complete_schema.sql` — canonical 41-table schema snapshot for single-step instantiation on fresh databases
+- V41 custom subscription period and negotiated pricing: `backend/src/main/resources/db/migration/V41__custom_subscription_period_and_negotiated_pricing.sql` — allows custom billing periods and records agreed pricing
+- V42 PayPal payment transactions: `backend/src/main/resources/db/migration/V42__paypal_payment_transactions.sql` — stores PayPal Orders v2 transactions and capture status
+- B42 Complete baseline schema: `backend/src/main/resources/db/migration/B42__complete_schema.sql` — canonical 42-table schema snapshot for single-step instantiation on fresh databases
 
 - [Report 3 Software Requirement Specification](../reports/report-3-software-requirement-specification/)
 - [Authentication and Access Control](../backend/authentication-and-authorization.md)
