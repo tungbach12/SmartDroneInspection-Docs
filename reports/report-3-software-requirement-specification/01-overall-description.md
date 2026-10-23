@@ -64,13 +64,13 @@ Automated components (`SYSTEM`, YOLO11s AI Vision microservice, and LLM Report D
 | BR-14 | Remote pilots and Inspectors must record session postponement or abort whenever adverse weather or site conditions compromise flight safety. |
 | BR-15 | An assigned Inspector must explicitly accept or reject an inspection assignment; rejection requires a mandatory justification and returns the mission to the administrator. |
 | BR-16 | Aircraft flight operation and physical structural repair are real-world technical actions; system Start and End commands represent software session logging, not hardware actuation. |
-| BR-17 | Uploaded digital evidence retains a server-calculated SHA-256 checksum, upload timestamp, and original capture metadata; missing telemetry is explicitly noted. |
-| BR-18 | Duplicate evidence files within the same inspection scope are rejected based on SHA-256 checksum matching; upload retries are idempotent. |
+| BR-17 | Uploaded digital evidence retains an upload timestamp, file identity, and original capture metadata; missing telemetry is explicitly noted. |
+| BR-18 | Duplicate evidence files within the same inspection scope are rejected based on sanitized filename matching. |
 | BR-19 | Absence of GPS coordinates or camera telemetry is recorded as missing metadata and does not automatically invalidate otherwise suitable visual evidence. |
 | BR-20 | AI vision detections remain unconfirmed candidates until reviewed by a qualified Inspector; only human-verified findings enter the official inspection record. |
 | BR-21 | Rejected AI defect suggestions are excluded from official defect metrics, inspection report deliverables, and maintenance repair scopes. |
 | BR-22 | Inspectors may record manual defect findings backed by capture evidence; unavailability of AI services does not prevent manual inspection reporting. |
-| BR-23 | The assigned Inspector is responsible for evaluating evidence quality and verifying every authored section of the inspection report before submission. |
+| BR-23 | The assigned Inspector is responsible for reviewing evidence coverage, authoring coverage/limitation disclosures, and verifying every authored section of the inspection report before submission. |
 | BR-24 | An Organization Admin distinct from the report author reviews findings and approves report publication; lack of independent review blocks publication. |
 | BR-25 | Draft, returned, and unverified inspection content remains restricted to assigned authors and reviewers, strictly separated from published documents. |
 | BR-26 | Published inspection report versions are immutable; subsequent corrections require creating a new linked revision with renewed administrative approval. |
@@ -85,7 +85,7 @@ Automated components (`SYSTEM`, YOLO11s AI Vision microservice, and LLM Report D
 | BR-35 | Maintenance completion reports require paired before-and-after photographic evidence and documented test results for each repaired defect. |
 | BR-36 | Repair cost is an internal tenant cost register, separate from software subscription billing; PayPal online payment processes SaaS platform subscriptions, while internal repair actuals are operational expenditures. |
 | BR-37 | A separate re-inspection creates a new linked inspection mission; additional evidence required for an existing inspection returns the mission to the preparation phase. |
-| BR-38 | All assignment, readiness, evidence quality, finding verification, report publication, budget approval, and acceptance actions are logged in an immutable audit trail. |
+| BR-38 | All assignment, readiness, finding verification, report publication, budget approval, and acceptance actions are logged in an immutable audit trail. |
 | BR-39 | Direct URL access, notification links, and raw file paths confer no authority; backend multi-tenant boundary checks and role verifications remain mandatory on every request. |
 | BR-40 | Password resets, role modifications, and session revocations immediately invalidate active tokens; user reassignment terminates future permissions without altering past audit logs. |
 | BR-41 | Personnel credentials and drone equipment are registered in the resource catalog; mission-specific flight authorization is evaluated prior to starting field sessions. |

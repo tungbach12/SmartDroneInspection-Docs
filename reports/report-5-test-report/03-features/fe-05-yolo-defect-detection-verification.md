@@ -7,19 +7,22 @@ names no specific detection vendor or model family.
 
 ## Scope baseline
 
-The `inspections` module implements the MF3 finding slice of FE-05: advisory AI
-candidates that stay separate from human-verified findings, a manual finding
-path that remains available when inference is refused or fails, and the
-Inspector resolution and confirmation of findings, plus report-level Organization Admin review (role, organization, active-account and separation-of-duties checks; reviewer credential qualification is not validated at runtime). Organization Admin per-finding verdicts are not part of the current product flow; post-publication corrective outcomes remain per finding. Report 3 requires that manual entry
-survives an AI outage, so the manual path is not conditional on AI
-availability.
+The agreed MF3 target keeps advisory AI candidates separate from Inspector-
+confirmed findings, preserves manual finding entry when inference is unavailable,
+and requires explicit confirmation of the resolved set. AI analysis is invoked
+by the assigned Inspector per selected image; it is not automatically triggered
+by upload or evidence acceptance. An empty findings set requires explicit
+Inspector acknowledgment that no damage was observed within scope. Report-level
+Organization Admin review remains a whole-report decision; reviewer credential
+qualification is not validated at runtime. Per-finding maintenance forwarding is
+recorded after publication, without an MF3 corrective-action outcome form.
 
-Detection runs against active evidence only. Retired evidence is excluded from
-automatic/manual detection lists and candidate groups; retired images are not
-loaded as finding photos. Detection is served by the project's YOLO11s inference
-service first, with the OpenAI-compatible vision adapter behind the
-inspections-owned `AiInferencePort` as fallback. Credentials are environment-only.
-Both adapters are implementation choices behind the requirement, not part of it.
+Detection runs only when explicitly requested for active evidence. Retired
+evidence is excluded from analysis and candidate groups; retired images are not
+loaded as finding photos. The project's YOLO11s inference service is the default
+advisory provider, with the OpenAI-compatible vision adapter behind it as
+fallback. Credentials are environment-only. Both adapters are implementation
+choices behind the requirement, not part of it.
 
 ## Feature sheet summary
 
@@ -29,18 +32,18 @@ exporter maps this file to the matching SRS feature sheet.
 | Cell | Label | Value |
 | --- | --- | --- |
 | `B2` | Feature | AI Vision Candidates and Human Finding Decisions |
-| `B3` | Test requirement | Verifies human review of advisory AI suggestions and manual findings; unconfirmed detections do not enter official findings, and rejected AI suggestions are removed rather than retained as finding-level audit records. |
+| `B3` | Test requirement | Verifies Inspector-invoked analysis of selected active evidence, human resolution of advisory AI suggestions and manual findings, and explicit confirmation of a non-empty or acknowledged-empty findings set. |
 
 ## Current case
 
 | Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| WF3-003 | Inspector verifies AI suggestions or records a manual finding. | Request analysis before the Inspector accepts the evidence set; analyze a representative accepted image; verify its returned finding provenance, confidence, normalized box and pending status; re-analyze the same accepted image and confirm the finding set is unchanged; attempt analysis as a different Inspector; confirm one suggestion and verify its finding remains pending until the Inspector confirms the findings set; reject another suggestion and verify it is removed from the retained finding records; record a manual finding with prose measurement; confirm the findings set; attempt an out-of-scope Inspector read. | Analysis is refused until the Inspector accepts the evidence; valid model detections are persisted only as `PENDING`; re-analysis of an already analysed image returns existing findings and creates no duplicate; out-of-scope Inspectors are refused; confirming a suggestion creates/updates a unified `Finding` whose status remains `PENDING` until Inspector confirmation; rejecting a suggestion removes it from retained finding records and creates no finding; manual findings remain available without analysis; confirmed findings become reportable after the assigned Inspector confirms the set. The Organization Admin approves or returns the submitted report as a whole; no Admin per-finding decision is made. | An assigned `FIELD_COMPLETED` inspection, accepted image evidence, PostgreSQL, and an authorized Inspector and ORG_ADMIN in the same organization. | Passed | 2026-10-12 | Claude Code (automated) | Pending |  |  | Pending |  |  | Verified with `InspectionReportApiIntegrationTest.analysisIsRefusedUntilTheInspectorAcceptsTheEvidence`, `analysisRequiresAssignmentAndAcceptedEvidenceAndPersistsOnlyPendingCandidates`, `reAnalysingTheSameEvidenceReturnsTheExistingCandidatesInsteadOfDuplicatingThem`, `manualFindingIsAvailableWithoutAnyAnalysis`, `aFindingMeasurementIsStorableAsProse`, and `anotherInspectorCannotAddAFinding`; plus `AiFindingCandidateTest` (4 historical candidate-review cases) and frontend `InspectionFindingsPage.test.tsx` (auto-detection runs for unanalysed images only; Confirm sends `CONFIRMED` with per-finding severity/location; finding cards render evidence-linked defect photos; reviewer navigation remains role-scoped). **WF3 alignment follow-up, 2026-10-13:** `FindingService.decideFinding` rejects the finding creator with 403 `FINDING_REVIEWER_INVALID`; `InspectionReportApiIntegrationTest.findingAuthorCannotDecideTheirOwnFinding` covers a persisted dual-role author and independent reviewer. **Passed in backend PR #69 CI run 38325774461:** `./mvnw -B verify` ran 491 tests with 0 failures/errors/skips; the finding-author test and related comparison/snapshot integration assertions executed under Testcontainers. The separate local full run remains recorded as Docker-blocked (263 environment errors) in `test-statistics.md`. |
+| WF3-003 | Assigned Inspector explicitly analyzes an active image or records a manual finding, resolves every proposal, and confirms the complete findings set. | Request analysis for an active image; verify returned proposal provenance, confidence, normalized box and pending status; repeat analysis and confirm existing proposals are returned; attempt analysis as a different Inspector; confirm one proposal and reject another; add a manual finding; resolve all proposals and confirm a non-empty findings set; repeat with no findings and omit the required acknowledgment, then acknowledge that no damage was observed within scope and confirm; attempt an out-of-scope Inspector read. | Analysis occurs only after explicit Inspector action and does not require evidence acceptance; valid detections are advisory pending findings; repeated analysis does not duplicate proposals unless replacement is requested; out-of-scope Inspectors are refused; rejected AI proposals are removed; manual findings remain available without analysis; unresolved proposals block confirmation; an empty findings set requires explicit acknowledgment; only a confirmed set is reportable. The Organization Admin approves or returns the submitted report as a whole; no Admin per-finding decision is made. | An assigned `FIELD_COMPLETED` inspection with active image evidence, PostgreSQL, and an authorized Inspector and ORG_ADMIN in the same organization. | Passed | 2026-10-12 | Claude Code (automated) | Pending |  |  | Pending |  |  | Historical Round 1 evidence exercised then-current accepted-evidence gating and analysis behavior. Backend tests later verified suggestion persistence/replacement, manual findings, and Inspector scope; frontend tests covered historical automatic-analysis behavior. The no-acceptance/manual-invocation/explicit-empty-acknowledgment target procedure has not been executed as a complete case. Keep the recorded Passed status as historical evidence; it does not assert the simplified target is verified. |
 | WF3-010 | Assigned Inspector corrects a finding before report submission; report return for findings/evidence revision reopens Inspector review. | Revise an AI-originated finding or manual finding, confirm the findings set, create and submit a report, return it for findings/evidence revision, and verify Inspector confirmation is invalidated and must be recorded again; reject an AI suggestion and verify it is removed rather than retained as a finding record. | Before submission the Inspector may correct the finding; after report submission edits are locked; a report-level findings/evidence return reopens the Inspector stage and requires reconfirmation. Rejecting an AI suggestion creates no finding and removes it from retained finding records; explicit removal of an Inspector working-set finding remains attributable and auditable. Organization Admin does not decide findings individually. | Assigned Inspector; AI-originated or manual finding and submitted report fixtures. | Pending |  |  | Pending |  |  | Pending |  |  | Implementation and correction-call unit test exist; executed evidence for the complete revision, rejection/removal, lock and immutable-decision paths is not recorded. |
 
 ### WF3 role-gating follow-up — 2026-10-14
 
-The assigned Inspector is the only role that may trigger automatic or manual AI detection. The Findings UI now hides Analyze/Re-run controls and skips the auto-analysis effect for ORG_ADMIN reviewers; reviewer verdict controls remain available. `InspectionFindingsPage.test.tsx` passed 8 tests, including the new accepted-evidence ORG_ADMIN case. The Report 3 §3.7.1 requirement was clarified to match the existing backend `INSPECTOR` endpoint authorization. No WF3-003 case status changed.
+The assigned Inspector is the only role authorized to trigger AI analysis. The Findings UI hides Analyze/Re-run controls for ORG_ADMIN reviewers; reviewer controls remain separate. `InspectionFindingsPage.test.tsx` passed 8 tests, including the historical accepted-evidence ORG_ADMIN case. No WF3-003 case status changed.
 
 ### Reopen no longer restarts detection — 2026-10-15
 

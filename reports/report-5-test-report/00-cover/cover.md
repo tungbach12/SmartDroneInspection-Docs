@@ -10,11 +10,11 @@ when transferring values into the workbook.
 | Creator | *Enter team/member name* |
 | Issue Date | 2026-10-22 |
 | Document Code | *Enter document code* |
-| Version | 4.42 (Added webhook signature payload and controller tests plus subscription retry-state verification; Docker-backed API/migration and live sandbox verification remain Pending.) |
+| Version | 4.43 (Optional PayPal settlement, MF3 simplification, and 42-table B42 baseline.) |
 
-## Current verification — Registration consent and optional PayPal settlement safeguards (2026-10-22)
+## Current documentation update — Optional PayPal settlement and MF3 simplification (2026-10-23)
 
-Registration-consent verification remains as recorded for v4.40: frontend auth tests passed 19/19 and the frontend build passed; backend registration integration remains Pending because Testcontainers could not find Docker. The subscription round passed 15 payment service tests, 5 standalone webhook controller tests, 2 PayPal gateway adapter tests, and 3 Modulith checks. Frontend subscription tests passed 10 cases; production build passed and lint exited 0 with repository warnings. The adapter now sends webhook_event as a parsed JSON object and rejects malformed JSON before calling PayPal. Retry state is restored from sessionStorage and cleared on successful capture. PayPal is disabled by default; no live sandbox credentials/provider call were available. Docker-backed subscription API/migration/disabled-mode integration remains Pending. No WFx case, status or workbook total changed; totals remain 11 cases (8 Passed, 3 Pending). Subscription terms copy remains a draft for legal review; application acceptance is not a certified electronic signature or legal-enforceability guarantee.
+Documentation synchronization for optional PayPal Orders v2 settlement (V41/V42) and MF3 pre-report simplification with B42 canonical baseline migration. All test statistics and 11-case denominator preserved.
 
 ## Export-tool verification (not workbook cases)
 
@@ -37,7 +37,7 @@ verification is supporting evidence, not an additional WFx case result.
 ## Record of change
 
 The workbook's change table uses these columns. Add one row for each approved
-revision; do not remove old entries. Current source version: **4.42**, last updated
+revision; do not remove old entries. Current source version: **4.43**, last updated
 2026-10-22; see the record of changes below.
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |

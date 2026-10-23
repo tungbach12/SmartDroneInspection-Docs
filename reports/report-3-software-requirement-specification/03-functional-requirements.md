@@ -33,22 +33,21 @@ flowchart TD
   STAGE_FIELD --> PREFLIGHT["Pre-Flight Checklist Note"]
   PREFLIGHT --> SESSION_RUN["Session Execution (Start / Postpone / Abort / Complete)"]
 
-  SESSION_RUN --> STAGE_EVI["Stage: Evidence Intake & Quality Review"]
-  STAGE_EVI --> UPLOAD["Multi-File Ingestion (SHA-256 Hashing)"]
-  UPLOAD --> EVAL_EVI["Evaluate Shot-List Quality (Accept / Additional Capture)"]
-
-  EVAL_EVI -->|"Accepted"| STAGE_FIND["Stage: AI Detections & Findings"]
-  STAGE_FIND --> YOLO["YOLO11s Defect Candidate Detection"]
+  SESSION_RUN --> STAGE_EVI["Stage: Evidence Intake"]
+  SESSION_RUN -->|"Inspector requests more capture"| STAGE_PREP
+  STAGE_EVI --> UPLOAD["Evidence Upload and Metadata Review"]
+  UPLOAD --> STAGE_FIND["Stage: Inspector Findings"]
+  STAGE_FIND --> YOLO["Inspector-Invoked AI Detection on Selected Images"]
   YOLO --> REVIEW_FIND["Human Inspector Finding Verification"]
-  REVIEW_FIND --> CONFIRM_FIND["Explicit Findings Set Confirmation"]
+  REVIEW_FIND --> CONFIRM_FIND["Explicit Findings Set Confirmation\n(acknowledge no findings when empty)"]
 
-  CONFIRM_FIND --> STAGE_REP["Stage: Report Drafting & Publication"]
+  CONFIRM_FIND --> STAGE_REP["Stage: Report Drafting & Publication\n(Inspector records coverage and limitations)"]
   STAGE_REP --> DRAFT_GEN["Report Draft Synthesis (LLM / Manual)"]
   DRAFT_GEN --> VERIFY_REP["Author Verification & Submission"]
   VERIFY_REP --> ADMIN_REV["Organization Admin Report Review"]
   ADMIN_REV -->|"Approved"| PUB_REP["Publish Immutable PDF Report"]
 
-  PUB_REP --> HANDOFF["Batch Send Confirmed Defects to Maintenance"]
+  PUB_REP --> HANDOFF["Forward Selected Findings to Maintenance"]
   HANDOFF --> MAINT_LIST["Maintenance Work Orders Queue"]
   MAINT_LIST --> WO_CREATE["Create Maintenance Work Order"]
   WO_CREATE --> WO_DETAIL["Work Order Detail Workspace"]
@@ -81,12 +80,12 @@ flowchart TD
 | 9 | FE-03 | Inspection Preparation Stage | Workspace for defining component shot-lists, verifying pilot credentials, linking applicable flight permits, and submitting for readiness review. |
 | 10 | FE-03 | Readiness Review Panel | Organization Admin review interface to evaluate submitted preparations, verify regulatory compliance, and record approval or return decisions. |
 | 11 | FE-04 | Field Session Stage (Web / Mobile) | On-site interface for recording mandatory pre-flight checklist notes, logging flight start/end times, and capturing postponement or abort reasons. |
-| 12 | FE-04 | Evidence Intake Stage | Digital evidence management interface supporting multi-file uploads, progress tracking, cryptographic checksum display, and metadata inspection. |
-| 13 | FE-04 | Evidence Quality Evaluation | Inspector interface to compare captured photographs against planned shot-lists, record unobserved scope disclosures, and approve or request re-surveys. |
-| 14 | FE-05 | Findings Verification Stage | Defect verification interface displaying YOLO11s advisory detections, severity classification controls, manual defect authoring, and set confirmation. |
-| 15 | FE-06 | Report Drafting Stage | Authoring workspace to trigger AI-assisted section drafting or manual authoring, edit narrative sections, and submit verified drafts for review. |
-| 16 | FE-06 | Report Review & Document View | Administrative review interface displaying formatted report preview, finding summaries, and controls to approve publication or return with comments. |
-| 17 | FE-06 | Published Report & Corrective Handoff | View of the published immutable PDF deliverable and batch selection interface to forward confirmed defect candidates to maintenance. |
+| 12 | FE-04 | Evidence Intake Stage | Digital evidence management interface supporting multi-file uploads, progress tracking, and capture metadata inspection. |
+| 13 | FE-03 | Additional Field Session | MF2 action for the assigned Inspector to request another session after a field session ends; a new preparation and independent readiness approval are required before another session starts. |
+| 14 | FE-05 | Findings Verification Stage | Inspector-invoked AI suggestions, manual finding authoring, severity classification, resolution of every finding, and explicit confirmation of the findings set (including acknowledgment when no damage was observed). |
+| 15 | FE-06 | Report Drafting Stage | Authoring workspace to trigger AI-assisted section drafting or manual authoring, record coverage and limitations, edit narrative sections, and submit verified drafts for review. |
+| 16 | FE-06 | Report Review & Document View | Administrative review interface displaying formatted report preview, finding summaries, and controls to approve publication or return with a reason. |
+| 17 | FE-06 | Published Report & Corrective Handoff | View of the published immutable PDF deliverable and per-finding controls to forward selected findings to maintenance. |
 | 18 | FE-07 | Maintenance Work Orders Queue | Management queue of maintenance work orders displaying status, defect references, assigned leads, and cost variances. |
 | 19 | FE-07 | Work Order Detail & Planning | Workspace for breaking down defect remediation into tasks, appointing Team Lead and Report Author, and establishing acceptance criteria. |
 | 20 | FE-07 | Cost Estimate & Budget Panel | Form for compiling itemized repair estimates (labor, materials, equipment), viewing calculated baseline totals, and recording budget approval. |
@@ -107,7 +106,7 @@ flowchart TD
 | Mission Preparation & Shot-List | — | Read | X (Assigned) | — |
 | Readiness Authorization Panel | — | X | — | — |
 | Field Session Logging (Web / Mobile) | — | Read | X (Assigned) | — |
-| Evidence Intake & Quality Evaluation | — | Read | X (Assigned) | — |
+| Evidence Intake | — | Read | X (Assigned) | — |
 | Defect Verification & Findings Confirmation | — | Read | X (Assigned) | — |
 | Inspection Report Drafting | — | Read | X (Author) | — |
 | Inspection Report Administrative Review | — | X | — | — |
@@ -127,9 +126,9 @@ flowchart TD
 | 1 | FE-01 | Session Token Verification & Revocation | Validates JSON Web Tokens on API requests; automatically checks token expiration, blacklists revoked sessions, and enforces role boundaries. |
 | 2 | FE-02 | Resource Conflict Detection Engine | Evaluates scheduled time windows for Drones and Inspectors across concurrent missions to prevent overlapping assignments. |
 | 3 | FE-03 | Periodic Inspection Mission Generator | Automated scheduled job that inspects asset maintenance frequencies and generates draft inspection missions with inherited default pairs. |
-| 4 | FE-04 | Cryptographic Hashing & Deduplication | Computes SHA-256 digests on binary media during upload; cross-checks existing file hashes within the inspection scope to prevent duplicates. |
+| 4 | FE-04 | Evidence Intake Validation | Validates uploaded files and inspection/session scope, stores original bytes, and rejects a repeated sanitized filename within the inspection; evidence-file SHA-256 hashing is not part of the intake contract. |
 | 5 | FE-04 | Image EXIF Metadata Extractor | Extracts embedded capture timestamps, camera parameters, and GPS coordinates from uploaded JPEG files to populate evidence records. |
-| 6 | FE-05 | Advisory YOLO11s Defect Detection Service | Computer vision microservice executing bounding-box defect detection on structural images, categorizing cracks, corrosion, and spalling. |
+| 6 | FE-05 | Inspector-Invoked Advisory Defect Detection | Optional computer vision service proposes defects only when the assigned Inspector explicitly requests analysis of selected images. |
 | 7 | FE-06 | Context-Grounded Report Synthesis Engine | Assembles verified asset, mission, checklist, and defect data into targeted LLM prompts to generate cohesive, structured report section drafts. |
 | 8 | FE-06 | PDF Report Document Renderer | Compiles approved report sections, finding tables, attached evidence photos, and metadata into a publication-grade A4 PDF document with SHA-256 recording. |
 | 9 | FE-07 | Deterministic Cost Calculation Engine | Computes baseline estimate totals, approved change order deltas, actual expenditures, and variance metrics using exact decimal precision. |
@@ -176,7 +175,6 @@ erDiagram
 
   INSPECTION ||--o{ EVIDENCE : contains
   FIELD_SESSION ||--o{ EVIDENCE : captures
-  INSPECTION ||--o{ EVIDENCE_QUALITY_DECISION : evaluates
   INSPECTION ||--o{ FINDING : records
   EVIDENCE ||--o{ FINDING : locates
 
@@ -222,25 +220,24 @@ erDiagram
 | 20 | Checklist Response | `checklist_responses` | Pilot responses and notes recorded against individual checklist items during field sessions. |
 | 21 | Inspection Readiness Decision | `inspection_readiness_decisions` | Administrative authorization records approving or returning a mission preparation based on permits and credentials. |
 | 22 | Field Session | `field_sessions` | Individual on-site flight survey session capturing pre-flight checklist notes and operational outcomes (start, postpone, abort, complete). |
-| 23 | Evidence | `evidence` | Digital media assets with server-calculated SHA-256 digests and extracted GPS coordinates. |
-| 24 | Evidence Quality Decision | `evidence_quality_decisions` | Substantive Inspector evaluation of captured media against planned component shot-lists. |
-| 25 | Finding | `findings` | Unified findings table managing AI defect candidates and human-verified official defect findings. |
-| 26 | Inspection Report | `inspection_reports` | Master container anchoring report versions and active authoring drafts for an inspection. |
-| 27 | Inspection Report Version | `inspection_report_versions` | Versioned inspection report deliverables, rendered PDF object keys, and SHA-256 hashes. |
-| 28 | Report Version Finding | `report_version_findings` | Join table binding confirmed defect findings to specific published report versions. |
-| 29 | Report Version Evidence | `report_version_evidence` | Join table linking visual capture evidence items to specific published report versions. |
-| 30 | Maintenance Work Order | `maintenance_work_orders` | Remediation projects initiated from confirmed inspection findings, tracking repair scope, schedule, and state. |
-| 31 | Maintenance Team Member | `maintenance_team_members` | Engineering team members allocated to a maintenance work order. |
-| 32 | Maintenance Task | `maintenance_tasks` | Decomposed repair tasks with technical methods, criteria, and assigned engineers. |
-| 33 | Maintenance Estimate Version | `maintenance_estimate_versions` | Versioned financial projection baselines for labor, materials, equipment, and services. |
-| 34 | Maintenance Cost Line | `maintenance_cost_lines` | Individual itemized cost rows within an estimate baseline, change order, or actual expenditure. |
-| 35 | Maintenance Change Order | `maintenance_change_orders` | Formal variance requests adjusting repair scope, budget ceiling, or completion schedule. |
-| 36 | Maintenance Work Log | `maintenance_work_logs` | Daily execution entries logging labor hours, material consumption, and task milestone notes. |
-| 37 | Maintenance Report Version | `maintenance_report_versions` | Versioned maintenance completion deliverables, verified by the author and accepted by the administrator. |
-| 38 | Maintenance Acceptance Decision | `maintenance_acceptance_decisions` | Formal technical acceptance records evaluating repair completion and cost reconciliation. |
-| 39 | Notification | `notifications` | Operational alerts and domain event notifications delivered to system users. |
-| 40 | Audit Event | `audit_events` | Append-only security audit trail recording consequential domain transitions and access events. |
-| 41 | Event Publication | `event_publication` | Outbox pattern transactional event publication log for reliable asynchronous domain event delivery. |
+| 23 | Evidence | `evidence` | Digital media assets with stored object references, capture metadata, and extracted GPS coordinates. |
+| 24 | Finding | `findings` | Unified findings table managing AI defect candidates and Inspector-confirmed official defect findings. |
+| 25 | Inspection Report | `inspection_reports` | Master container anchoring report versions and active authoring drafts for an inspection. |
+| 26 | Inspection Report Version | `inspection_report_versions` | Versioned inspection report deliverables, rendered PDF object keys, and SHA-256 hashes. |
+| 27 | Report Version Finding | `report_version_findings` | Reserved join table; runtime currently does not persist per-version finding membership. Exact historical source membership therefore remains an implementation traceability gap. |
+| 28 | Report Version Evidence | `report_version_evidence` | Reserved join table; runtime currently does not persist per-version evidence membership. Exact historical source membership therefore remains an implementation traceability gap. |
+| 29 | Maintenance Work Order | `maintenance_work_orders` | Remediation projects initiated from forwarded inspection findings, tracking repair scope, schedule, and state. |
+| 30 | Maintenance Team Member | `maintenance_team_members` | Engineering team members allocated to a maintenance work order. |
+| 31 | Maintenance Task | `maintenance_tasks` | Decomposed repair tasks with technical methods, criteria, and assigned engineers. |
+| 32 | Maintenance Estimate Version | `maintenance_estimate_versions` | Versioned financial projection baselines for labor, materials, equipment, and services. |
+| 33 | Maintenance Cost Line | `maintenance_cost_lines` | Individual itemized cost rows within an estimate baseline, change order, or actual expenditure. |
+| 34 | Maintenance Change Order | `maintenance_change_orders` | Formal variance requests adjusting repair scope, budget ceiling, or completion schedule. |
+| 35 | Maintenance Work Log | `maintenance_work_logs` | Daily execution entries logging labor hours, material consumption, and task milestone notes. |
+| 36 | Maintenance Report Version | `maintenance_report_versions` | Versioned maintenance completion deliverables, verified by the author and accepted by the administrator. |
+| 37 | Maintenance Acceptance Decision | `maintenance_acceptance_decisions` | Formal technical acceptance records evaluating repair completion and cost reconciliation. |
+| 38 | Notification | `notifications` | Operational alerts and domain event notifications delivered to system users. |
+| 39 | Audit Event | `audit_events` | Append-only security audit trail recording consequential domain transitions and access events. |
+| 40 | Event Publication | `event_publication` | Outbox pattern transactional event publication log for reliable asynchronous domain event delivery. |
 
 ---
 
@@ -343,9 +340,18 @@ erDiagram
   - *Processing*: On approval, records immutable readiness decision stamping timestamp and reviewer identity, transitioning mission to `APPROVED_FOR_FLIGHT`. On return, records reason and returns preparation to `PREPARING`.
   - *Outputs*: Formal flight readiness authorization record, unlocking field session execution on mobile app.
 
+#### 3.4.4 Additional Field Session Request (MF2-12)
+- **Function Trigger**: After a field session ends, the assigned Inspector selects `Additional Session` when more field coverage is required.
+- **Function Description**: Requests a further field session under MF2 preparation/readiness controls. This action is not part of the MF3 evidence workspace and does not make an evidence-quality decision.
+- **Function Details**:
+  - *Inputs*: Inspection ID and reason for requesting another field session.
+  - *Validations*: The completed session must have active evidence; the current preparation must be `READY` and its current readiness decision `APPROVED`.
+  - *Processing*: Records an `INVALIDATED` readiness decision with the request reason, supersedes the current preparation, creates the next preparation draft, and returns the inspection to `PREPARING`. The Inspector updates the planned session window; an independent Organization Admin readiness review is required before another session can start.
+  - *Outputs*: A new preparation version awaiting independent readiness review, with earlier field sessions and evidence preserved.
+
 ---
 
-### 3.5 FE-04 Field Survey Execution and Evidence Management
+### 3.5 FE-04 Field Records and Evidence
 
 #### 3.5.1 On-Site Pre-Flight Check and Field Session Logging
 - **Function Trigger**: Inspector opens mission on mobile app or web `Field Session` tab and selects `Start Session`.
@@ -356,76 +362,69 @@ erDiagram
   - *Processing*: `START` logs session start timestamp and transitions status to `IN_PROGRESS`. `POSTPONE` logs postponement reason and leaves mission startable. `ABORT` logs abort reason and ends session as terminal `ABORTED`. `COMPLETE` records completion notes and transitions mission to `FIELD_COMPLETED`.
   - *Outputs*: Auditable field flight session record with exact timestamps and operational logs.
 
-#### 3.5.2 Digital Evidence Ingestion and Cryptographic Integrity
+#### 3.5.2 Digital Evidence Intake and Retention
 - **Function Trigger**: Inspector opens `Evidence` tab and selects `Upload Evidence`.
-- **Function Description**: Ingests raw inspection photographs and video frames, extracts embedded telemetry, and enforces file integrity via SHA-256 cryptographic hashing.
+- **Function Description**: Stores inspection captures and their available metadata as evidence for findings and report preparation. Evidence quality is not a separate approval gate.
 - **Function Details**:
-  - *Inputs*: High-resolution aerial image files (JPEG, PNG), optional camera telemetry files.
-  - *Validations*: Allowed MIME types; file size within limits (up to 100MB per file); checks against duplicate SHA-256 digests within same mission scope.
-  - *Processing*: Computes SHA-256 hash on server; stores original binary in MinIO object storage; extracts EXIF capture timestamp and GPS coordinates; generates thumbnail previews.
-  - *Outputs*: Persisted evidence register items with tamper-evident checksums and metadata provenance.
+  - *Inputs*: Supported image or document files, optional capture time and paired GPS coordinates.
+  - *Validations*: Allowed content types and configured size limits; inspection, organization, and field-session scope; repeated sanitized filenames within the inspection are rejected.
+  - *Processing*: Stores original bytes in MinIO, extracts available EXIF capture time and GPS, and keeps retired evidence as a soft-deleted audit copy without removing its stored bytes. Evidence intake does not compute or expose a SHA-256 digest.
+  - *Outputs*: Evidence register items with file and capture metadata; active evidence can support findings and report content without an `ACCEPTED` quality decision.
 
-#### 3.5.3 Inspector Evidence Completeness and Quality Evaluation
-- **Function Trigger**: Inspector completes upload and selects `Evaluate Evidence Quality`.
-- **Function Description**: Inspector compares ingested evidence against the planned component shot-list, discloses unobserved components, and records an official quality decision.
-- **Function Details**:
-  - *Inputs*: Shot-list comparison text, unobserved components disclosure, quality decision (`ACCEPTED`, `ADDITIONAL_SESSION_REQUIRED`).
-  - *Validations*: At least one active evidence item must exist; shot-list comparison disclosure cannot be blank; reason mandatory if additional capture requested.
-  - *Processing*: `ACCEPTED` confirms evidence adequacy and unlocks AI defect detection. `ADDITIONAL_SESSION_REQUIRED` supersedes current preparation, invalidates prior readiness, returns mission to `PREPARING`, and requires scheduling supplementary field capture.
-  - *Outputs*: Attributable evidence quality decision record governing downstream analysis eligibility.
+The Inspector records coverage and limitations while authoring the report (§3.7.1), not as an evidence-set decision. If more field coverage is needed, the Inspector requests an Additional Session in MF2; readiness must be independently approved before the next session starts.
 
 ---
 
 ### 3.6 FE-05 AI-Assisted Defect Detection and Inspector Verification
 
-#### 3.6.1 Automated YOLO11s Advisory Defect Candidate Detection
-- **Function Trigger**: Automatic trigger upon evidence quality `ACCEPTED` decision, or explicit Inspector action `Run Defect Detection`.
-- **Function Description**: Computer vision microservice executes YOLO11s deep learning inference on aerial photographs to locate, bound, and classify structural surface defects.
+#### 3.6.1 Inspector-Invoked Advisory Defect Detection
+- **Function Trigger**: The assigned Inspector explicitly selects `Analyze` for an eligible active image; analysis never starts automatically when evidence is uploaded or another workflow step completes.
+- **Function Description**: An optional computer-vision service proposes structural defect findings for human review. Its availability or omission does not prevent manual finding entry.
 - **Function Details**:
-  - *Inputs*: Preprocessed inspection image bytes, confidence threshold parameter (default 0.25).
-  - *Validations*: Evidence item must be in `ACTIVE` status and belong to an accepted evidence set; duplicate inference on already analyzed images returns existing candidates.
-  - *Processing*: Runs YOLO11s object detection model (MBDD2025 defect classes: crack, spalling, corrosion, leakage, exposure); extracts bounding box coordinates, defect class, and confidence score.
-  - *Outputs*: Persistent advisory finding candidates linked to source images, labeled as unverified machine proposals.
+  - *Inputs*: Selected active inspection image and the configured model confidence threshold.
+  - *Validations*: The image must belong to the assigned inspection and remain active. No evidence-quality decision or accepted-set status is required.
+  - *Processing*: Runs the configured detection model only on the Inspector's explicit request and records model provenance, defect label, confidence, and bounding box with each proposal. A repeated request returns existing proposals unless the Inspector explicitly requests a replacement run.
+  - *Outputs*: Pending advisory finding proposals linked to their source images; no proposal becomes an official finding without Inspector confirmation.
 
-#### 3.6.2 Human Defect Verification and Official Findings Confirmation
-- **Function Trigger**: Inspector reviews candidates in `Findings` tab.
-- **Function Description**: Inspector inspects each AI-detected defect candidate, confirms or adjusts classifications and severities, rejects false positives, records manual findings, and confirms the complete official findings set.
+#### 3.6.2 Human Finding Verification and Findings-Set Confirmation
+- **Function Trigger**: The assigned Inspector opens `Findings` after evidence intake.
+- **Function Description**: The Inspector resolves advisory AI proposals, records or edits manual findings, and confirms the complete findings set before report drafting.
 - **Function Details**:
-  - *Inputs*: Decision per candidate (`CONFIRM`, `MODIFY`, `REJECT`), modified defect class, severity rating (Minor, Moderate, Severe, Critical), component location description, manual finding inputs.
-  - *Validations*: All candidates must be resolved; rejection of AI candidate removes candidate from active findings; confirmation requires resolving all unreviewed items.
-  - *Processing*: Converts confirmed/modified candidates into official findings; persists finding records with attached evidence photos; records explicit set confirmation timestamp.
-  - *Outputs*: Confirmed official findings register, unlocking report drafting.
+  - *Inputs*: Per-proposal decision (`CONFIRM`, `MODIFY`, `REJECT`); defect label, severity, technical notes, recommended action, linked active evidence, and any AI annotation.
+  - *Validations*: Every pending proposal must be resolved before confirmation. A confirmed finding has supporting active evidence. An empty findings set is valid only after the Inspector explicitly acknowledges that no damage was observed within the inspection scope.
+  - *Processing*: Confirmed or modified proposals and manual observations are maintained as findings; rejecting an AI proposal removes that proposal from the retained findings. The Inspector confirms the resolved set; material evidence or finding changes require confirmation again. Finding location is taken from linked evidence metadata when available rather than a separate UI-only component/location field.
+  - *Outputs*: A current, Inspector-confirmed findings set (which may be explicitly empty) that permits report drafting.
 
 ---
 
 ### 3.7 FE-06 Inspection Report Drafting, Review and Publication
 
 #### 3.7.1 Structured Report Authoring and Context-Grounded LLM Drafting
-- **Function Trigger**: Inspector selects `Generate Report Draft` or `Manual Authoring` in `Report` tab.
-- **Function Description**: Synthesizes a structured inspection report draft. LLM drafting compiles verified asset data, inspection parameters, checklist notes, and confirmed findings into cohesive narrative sections without hallucinating external facts.
+- **Function Trigger**: The assigned Inspector selects `Generate Report Draft` or `Manual Authoring` in the `Report` tab.
+- **Function Description**: Creates a structured inspection report from the retained inspection scope, evidence, field-session records, Inspector-confirmed findings, and the Inspector's coverage and limitation assessment. Coverage disclosure belongs to the report, not a separate evidence-quality decision.
 - **Function Details**:
-  - *Inputs*: Selected drafting method (`AI_ASSISTED` or `MANUAL`), authored section content: Executive Summary, Scope & Methodology, Weather & Site Observations, Component Findings Discussion, Recommendations.
-  - *Validations*: Finding set must be explicitly confirmed; generated draft sections must be manually reviewed and editable by the author prior to submission.
-  - *Processing*: In AI mode, constructs grounded prompt referencing strictly verified database entities; saves section draft fields; author edits text in place; author submits draft for administrative review.
-  - *Outputs*: Verified report draft version in `SUBMITTED` status, routed to Organization Admin review queue.
+  - *Inputs*: Selected drafting method (`AI_ASSISTED` or `MANUAL`); authored sections including Executive Summary, Scope & Methodology, Weather & Site Observations, Component Findings Discussion, Recommendations, `inspectorCoverageAssessment`, and `omissionDisclosure`.
+  - *Validations*: The findings set must be confirmed, including explicit acknowledgment when empty; active evidence must exist for evidence-based claims. Generated draft sections must be reviewed and editable by the author before submission.
+  - *Processing*: AI-assisted drafting is invoked only when the Inspector selects it. The prompt uses retained inspection scope fields (`objective`, `scope`, `component_scope`, `acceptance_criteria`) and available authorized records; manual authoring remains available without invoking AI. The Inspector reviews and edits the sections before submission.
+  - *Outputs*: An author-reviewed report version submitted to the Organization Admin review queue.
 
 #### 3.7.2 Administrative Review, Digital Publication and Immutable Archival
 - **Function Trigger**: Organization Admin opens submitted report in `Report Review` workspace.
 - **Function Description**: Independent administrative review of report narrative, component findings, and attached evidence. Approves report for formal publication or returns it to author with comments.
 - **Function Details**:
-  - *Inputs*: Review decision (`APPROVE` or `RETURN`), return comments (mandatory on return).
+  - *Inputs*: Review decision (`APPROVE` or `RETURN`), `return_reason` text (mandatory on return).
   - *Validations*: Reviewer must be an Organization Admin distinct from the report author; all findings must be in an evaluated state.
-  - *Processing*: On approval, compiles report data into formal A4 PDF template via openhtmltopdf, stores deliverable in MinIO, calculates SHA-256 digest, marks report version `PUBLISHED`, and transitions inspection status to `REPORT_PUBLISHED`. On return, marks version `RETURNED` and notifies author.
-  - *Outputs*: Published immutable PDF inspection report, recorded cryptographic checksum, and public download endpoint.
+  - *Processing*: Submission records `submitted_at` on the report version. On approval, compiles report data into a formal A4 PDF, stores the deliverable in MinIO, calculates and records the PDF SHA-256 digest, marks the version `PUBLISHED`, and transitions the inspection to `REPORT_PUBLISHED`. On return, stores `return_reason`, marks the version `RETURNED`, and notifies the author; a subsequent review cycle may replace the current return reason.
+  - *Outputs*: Published immutable PDF inspection report, its recorded PDF checksum, and an authorized download endpoint.
 
-#### 3.7.3 Batch Forwarding of Defect Candidates to Maintenance
-- **Function Trigger**: Organization Admin opens `Send to Maintenance` tab on published inspection.
-- **Function Description**: Displays all confirmed defects from the published report; administrator selects relevant defects in batch (default all selected, deselectable) to forward as candidates for maintenance remediation.
+#### 3.7.3 Per-Finding Corrective Handoff
+- **Function Trigger**: An Organization Admin opens `Send to Maintenance` for a published inspection.
+- **Function Description**: The Organization Admin selects which Inspector-confirmed findings to forward to MF4. Each finding records its forwarding timestamp; the consequential reviewer decision and selected IDs are retained in the append-only audit event stream, not duplicated as handoff columns on the inspection.
 - **Function Details**:
-  - *Inputs*: Inspection ID, array of selected finding IDs, optional global handoff notes.
-  - *Validations*: Inspection report must be in `PUBLISHED` status; at least one finding must be selected if transitioning to repair pending.
-  - *Processing*: Marks selected findings as forwarded repair candidates; if findings are forwarded, transitions inspection to `REPAIR_PENDING`. If all findings are deselected (no repair required), closes inspection as `COMPLETED`.
-  - *Outputs*: Forwarded repair candidates available in Maintenance workspace; updated inspection status.
+  - *Inputs*: The published inspection and the IDs of confirmed findings selected for forwarding.
+  - *Validations*: The report must be published and the inspection not already `COMPLETED`; each selected finding must belong to the inspection, be confirmed, and not already have a `forwarded_to_maintenance_at` value.
+  - *Processing*: Sets `forwarded_to_maintenance_at` for each selected finding and records the reviewer, report version, selected IDs and before/after inspection status in an append-only audit event. If one or more findings are forwarded, the inspection status becomes `REPAIR_PENDING`; if none are forwarded on a newly published inspection (including an explicitly confirmed empty findings set), its status becomes `COMPLETED`. A completed inspection cannot change its maintenance disposition afterward; the UI requires explicit confirmation before completing without forwarding. No no-repair rationale or duplicate handoff columns are stored on `inspections`.
+  - *Outputs*: Individually traceable forwarded findings for MF4, an audit event for the Admin's selected IDs and an inspection status carrying the overall outcome. Per-version evidence/finding source membership is not currently persisted by the reserved report join tables. Forwarding does not create a maintenance work order.
 
 ---
 

@@ -30,7 +30,7 @@ The system defines standard user-facing messages, validation alerts, and toast n
 | 15 | MSG15 | Under field | Rejection lacks reason | Enter a reason for rejecting the assignment. |
 | 16 | MSG16 | In line | Unsupported/corrupt/large evidence | This file cannot be uploaded. Check its type, integrity and size. |
 | 17 | MSG17 | In line | Duplicate evidence | This evidence has already been uploaded in this scope. |
-| 18 | MSG18 | Toast | Upload saved | Evidence uploaded. Inspector quality review is still required. |
+| 18 | MSG18 | Toast | Upload saved | Evidence uploaded and available for findings. |
 | 19 | MSG19 | In line | AI unavailable | AI analysis is unavailable. Evidence is saved for manual review or later processing. |
 | 20 | MSG20 | Toast | Inspection author submission | Author-verified draft submitted to Organization Admin for review. |
 | 21 | MSG21 | In line | Author review incomplete | Verify each required report section against source evidence and scope before submitting. |
@@ -50,7 +50,7 @@ The system defines standard user-facing messages, validation alerts, and toast n
 | 35 | MSG35 | Toast | Enterprise payment confirmed | Authorized subscription payment confirmation recorded for the selected 1/6/12-month period. |
 | 36 | MSG36 | In line | Missing pair at asset creation | Select one responsible Inspector and one identified own-organization Drone. |
 | 37 | MSG37 | In line | Expired/revoked readiness basis | Cannot start this session. Review current assignment, plan, required permits and credential validity. |
-| 38 | MSG38 | Toast | Inspector evidence confirmed | Evidence adequacy confirmed by the assigned Inspector; the source set is ready for compatible analysis. |
+| 38 | MSG38 | Toast | Findings confirmed | Findings set confirmed by the assigned Inspector; ready for report drafting. |
 | 39 | MSG39 | In line | LLM draft failure | Draft generation failed. Source records are saved; the responsible author can retry or prepare a manual draft. |
 | 40 | MSG40 | In line | Missing maintenance lead/author | Assign one team lead and one accountable report author before release. |
 | 41 | MSG41 | In line | Unpriced/unsupported cost | Record the price basis and supporting reference. Unknown cost cannot be silently treated as zero. |
@@ -96,7 +96,7 @@ This traceability matrix maps the eight core product features (`FE-01` to `FE-08
 | FE-01 | Identity, tenant governance, workforce accounts, credentials, versioned terms, and subscription settlement | UC-01, UC-02, UC-03, UC-05 |
 | FE-02 | Infrastructure asset inventory, drone fleet management, and flight permit linkage | UC-04, UC-06, UC-07, UC-08 |
 | FE-03 | Inspection mission planning, shot-list preparation, and flight readiness authorization | UC-09, UC-10, UC-11 |
-| FE-04 | Field survey logging, cryptographic evidence intake, and evidence quality evaluation | UC-12, UC-13, UC-14 |
+| FE-04 | Field survey logging and digital evidence intake | UC-12, UC-13, UC-14 |
 | FE-05 | Advisory YOLO11s defect detection and human findings verification | UC-15, UC-32 |
 | FE-06 | Context-grounded report drafting, administrative review, publication, and maintenance handoff | UC-16, UC-17, UC-18, UC-19, UC-20, UC-21 |
 | FE-07 | Maintenance work orders, cost estimation, change control, repair logs, and acceptance | UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31 |
