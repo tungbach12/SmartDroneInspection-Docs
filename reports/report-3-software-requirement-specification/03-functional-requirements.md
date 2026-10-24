@@ -224,20 +224,19 @@ erDiagram
 | 24 | Finding | `findings` | Unified findings table managing AI defect candidates and Inspector-confirmed official defect findings. |
 | 25 | Inspection Report | `inspection_reports` | Master container anchoring report versions and active authoring drafts for an inspection. |
 | 26 | Inspection Report Version | `inspection_report_versions` | Versioned inspection report deliverables, rendered PDF object keys, and SHA-256 hashes. |
-| 27 | Report Version Finding | `report_version_findings` | Reserved join table; runtime currently does not persist per-version finding membership. Exact historical source membership therefore remains an implementation traceability gap. |
-| 28 | Report Version Evidence | `report_version_evidence` | Reserved join table; runtime currently does not persist per-version evidence membership. Exact historical source membership therefore remains an implementation traceability gap. |
-| 29 | Maintenance Work Order | `maintenance_work_orders` | Remediation projects initiated from forwarded inspection findings, tracking repair scope, schedule, and state. |
-| 30 | Maintenance Team Member | `maintenance_team_members` | Engineering team members allocated to a maintenance work order. |
-| 31 | Maintenance Task | `maintenance_tasks` | Decomposed repair tasks with technical methods, criteria, and assigned engineers. |
-| 32 | Maintenance Estimate Version | `maintenance_estimate_versions` | Versioned financial projection baselines for labor, materials, equipment, and services. |
-| 33 | Maintenance Cost Line | `maintenance_cost_lines` | Individual itemized cost rows within an estimate baseline, change order, or actual expenditure. |
-| 34 | Maintenance Change Order | `maintenance_change_orders` | Formal variance requests adjusting repair scope, budget ceiling, or completion schedule. |
-| 35 | Maintenance Work Log | `maintenance_work_logs` | Daily execution entries logging labor hours, material consumption, and task milestone notes. |
-| 36 | Maintenance Report Version | `maintenance_report_versions` | Versioned maintenance completion deliverables, verified by the author and accepted by the administrator. |
-| 37 | Maintenance Acceptance Decision | `maintenance_acceptance_decisions` | Formal technical acceptance records evaluating repair completion and cost reconciliation. |
-| 38 | Notification | `notifications` | Operational alerts and domain event notifications delivered to system users. |
-| 39 | Audit Event | `audit_events` | Append-only security audit trail recording consequential domain transitions and access events. |
-| 40 | Event Publication | `event_publication` | Outbox pattern transactional event publication log for reliable asynchronous domain event delivery. |
+| 27 | Maintenance Work Order | `maintenance_work_orders` | Remediation projects initiated from forwarded inspection findings, tracking repair scope, schedule, and state. |
+| 28 | Maintenance Team Member | `maintenance_team_members` | Engineering team members allocated to a maintenance work order. |
+| 29 | Maintenance Task | `maintenance_tasks` | Decomposed repair tasks with technical methods, criteria, and assigned engineers. |
+| 30 | Maintenance Estimate Version | `maintenance_estimate_versions` | Versioned financial projection baselines for labor, materials, equipment, and services. |
+| 31 | Maintenance Cost Line | `maintenance_cost_lines` | Individual itemized cost rows within an estimate baseline, change order, or actual expenditure. |
+| 32 | Maintenance Change Order | `maintenance_change_orders` | Formal variance requests adjusting repair scope, budget ceiling, or completion schedule. |
+| 33 | Maintenance Work Log | `maintenance_work_logs` | Daily execution entries logging labor hours, material consumption, and task milestone notes. |
+| 34 | Maintenance Report Version | `maintenance_report_versions` | Versioned maintenance completion deliverables, verified by the author and accepted by the administrator. |
+| 35 | Maintenance Acceptance Decision | `maintenance_acceptance_decisions` | Formal technical acceptance records evaluating repair completion and cost reconciliation. |
+| 36 | Repair Knowledge Chunk | `repair_knowledge_chunks` | Civil/structural engineering repair standard chunks and embeddings supporting RAG scope suggestions. |
+| 37 | Notification | `notifications` | Operational alerts and domain event notifications delivered to system users. |
+| 38 | Audit Event | `audit_events` | Append-only security audit trail recording consequential domain transitions and access events. |
+| 39 | Event Publication | `event_publication` | Outbox pattern transactional event publication log for reliable asynchronous domain event delivery. |
 
 ---
 
