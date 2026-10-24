@@ -149,9 +149,7 @@ erDiagram
   ORGANIZATION ||--o{ AUDIT_EVENT : records
   ORGANIZATION ||--o{ NOTIFICATION : receives
 
-  USER ||--o{ USER_ROLE : assigned
   USER ||--o{ AUTH_SESSION : opens
-  AUTH_SESSION ||--o{ REFRESH_TOKEN : issues
   USER ||--o{ WORKFORCE_CREDENTIAL : holds
 
   ASSET_CATEGORY ||--o{ CHECKLIST_TEMPLATE : configures
@@ -164,7 +162,6 @@ erDiagram
   DRONE ||--o{ ASSET_PAIR_ASSIGNMENT : "assigned drone"
 
   DRONE ||--o{ DRONE_DOCUMENT : attaches
-  ASSET ||--o{ INSPECTION_SCHEDULE : schedules
 
   ASSET ||--o{ INSPECTION : undergoes
   INSPECTION ||--o{ INSPECTION_PREPARATION : plans
@@ -178,10 +175,7 @@ erDiagram
   INSPECTION ||--o{ FINDING : records
   EVIDENCE ||--o{ FINDING : locates
 
-  INSPECTION ||--o{ INSPECTION_REPORT : owns
-  INSPECTION_REPORT ||--o{ INSPECTION_REPORT_VERSION : publishes
-  INSPECTION_REPORT_VERSION ||--o{ REPORT_VERSION_FINDING : includes
-  INSPECTION_REPORT_VERSION ||--o{ REPORT_VERSION_EVIDENCE : includes
+  INSPECTION ||--o{ INSPECTION_REPORT : delivers
 
   INSPECTION ||--o{ MAINTENANCE_WORK_ORDER : initiates
   MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_TEAM_MEMBER : deploys
@@ -190,8 +184,8 @@ erDiagram
   MAINTENANCE_ESTIMATE_VERSION ||--o{ MAINTENANCE_COST_LINE : itemizes
   MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_CHANGE_ORDER : requests
   MAINTENANCE_TASK ||--o{ MAINTENANCE_WORK_LOG : tracks
-  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_REPORT_VERSION : delivers
-  MAINTENANCE_REPORT_VERSION ||--o{ MAINTENANCE_ACCEPTANCE_DECISION : accepts
+  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_REPORT : delivers
+  MAINTENANCE_REPORT ||--o{ MAINTENANCE_ACCEPTANCE_DECISION : accepts
 ```
 
 **Entities Description**
@@ -218,9 +212,9 @@ erDiagram
 | 18 | Checklist Response | `checklist_responses` | Pilot responses and notes recorded against individual checklist items during field sessions. |
 | 19 | Inspection Readiness Decision | `inspection_readiness_decisions` | Administrative authorization records approving or returning a mission preparation based on permits and credentials. |
 | 20 | Field Session | `field_sessions` | Individual on-site flight survey session capturing pre-flight checklist notes and operational outcomes (start, postpone, abort, complete). |
-| 21 | Evidence | `evidence` | Digital media assets with stored object references, capture metadata, and extracted GPS coordinates. |
-| 22 | Finding | `findings` | Unified findings table managing AI defect candidates and Inspector-confirmed official defect findings. |
-| 23 | Inspection Report | `inspection_reports` | Versioned inspection report deliverables, human review gates, rendered PDF object keys, and SHA-256 hashes. |
+| 21 | Evidence | `evidence` | Digital media captures collected during inspection field sessions with stored object references and GPS coordinates (13 columns; organization resolved via inspections; soft-delete via `is_deleted`). |
+| 22 | Finding | `findings` | Unified defect findings table managing AI defect candidates and Inspector-confirmed official findings (15 columns; confirmation via `status = CONFIRMED`; soft-delete via `is_deleted`). |
+| 23 | Inspection Report | `inspection_reports` | Versioned inspection report deliverables, review decisions, content snapshots, and rendered PDF keys (13 columns; author resolved via `inspections.inspector_id`; linear versioning via `version_no`). |
 | 24 | Maintenance Work Order | `maintenance_work_orders` | Remediation projects initiated from forwarded inspection findings, tracking repair scope, schedule, and state. |
 | 25 | Maintenance Team Member | `maintenance_team_members` | Engineering team members allocated to a maintenance work order. |
 | 26 | Maintenance Task | `maintenance_tasks` | Decomposed repair tasks with technical methods, criteria, and assigned engineers. |
@@ -420,7 +414,7 @@ The Inspector records coverage and limitations while authoring the report (§3.7
   - *Inputs*: The published inspection and the IDs of confirmed findings selected for forwarding.
   - *Validations*: The report must be published and the inspection not already `COMPLETED`; each selected finding must belong to the inspection, be confirmed, and not already have a `forwarded_to_maintenance_at` value.
   - *Processing*: Sets `forwarded_to_maintenance_at` for each selected finding and records the reviewer, report version, selected IDs and before/after inspection status in an append-only audit event. If one or more findings are forwarded, the inspection status becomes `REPAIR_PENDING`; if none are forwarded on a newly published inspection (including an explicitly confirmed empty findings set), its status becomes `COMPLETED`. A completed inspection cannot change its maintenance disposition afterward; the UI requires explicit confirmation before completing without forwarding. No no-repair rationale or duplicate handoff columns are stored on `inspections`.
-  - *Outputs*: Individually traceable forwarded findings for MF4, an audit event for the Admin's selected IDs and an inspection status carrying the overall outcome. Per-version evidence/finding source membership is not currently persisted by the reserved report join tables. Forwarding does not create a maintenance work order.
+  - *Outputs*: Individually traceable forwarded findings for MF4, an audit event for the Admin's selected IDs and an inspection status carrying the overall outcome. Findings and evidence are associated with the inspection directly. Forwarding does not create a maintenance work order.
 
 ---
 
