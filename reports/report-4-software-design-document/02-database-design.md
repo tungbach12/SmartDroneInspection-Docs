@@ -140,11 +140,11 @@ Consolidates all defect observations—both automated YOLO11s AI proposals and m
 | :--- | :--- | :---: | :--- | :--- |
 | `id` | `uuid` | No | `gen_random_uuid()` | Primary key. Unique identifier of the finding. |
 | `inspection_id` | `uuid` | No | — | Foreign key referencing `inspections(id)`. |
-| `evidence_id` | `uuid` | No | — | Foreign key referencing `evidence(id)`. Source photographic capture supporting this finding. |
+| `evidence_id` | `uuid` | Yes | `NULL` | Foreign key referencing `evidence(id)`. Source photographic capture supporting this finding (`NULL` for general observations). |
 | `finding_code` | `varchar(64)` | No | — | Sequential inspection-scoped reference code (e.g. `FND-001`). Unique per inspection. |
 | `defect_label` | `varchar(160)` | No | — | Defect classification label (e.g. `Cracking`, `Corrosion`, `Spalling`). |
 | `severity` | `varchar(24)` | No | — | Defect severity rating: `LOW`, `MEDIUM`, `HIGH`, or `CRITICAL`. |
-| `bounding_box` | `jsonb` | No | — | Normalized bounding box coordinates `{x, y, width, height}` identifying defect position on evidence media. |
+| `bounding_box` | `jsonb` | Yes | `NULL` | Normalized bounding box coordinates `{x, y, width, height}` identifying defect position on evidence media (`NULL` for unlocated defects). |
 | `technical_notes` | `varchar(4000)` | No | — | Detailed engineering narrative describing defect dimensions, condition, and observations. |
 | `recommended_action` | `varchar(4000)` | Yes | `NULL` | Recommended remediation or engineering intervention. |
 | `status` | `varchar(24)` | No | — | Finding lifecycle status: `PENDING` (advisory proposal) or `CONFIRMED` (official verified defect). |
