@@ -432,7 +432,7 @@ The Inspector records coverage and limitations while authoring the report (§3.7
 
 #### 3.8.1 Maintenance Work Order Planning and Team Allocation
 - **Function Trigger**: Organization Admin navigates to `Maintenance` and selects `Create Work Order`.
-- **Function Description**: Initiates a formal maintenance work order linking forwarded defect candidates, decomposes corrective scope into tasks, and appoints the engineering team.
+- **Function Description**: Initiates a formal maintenance work order linking forwarded defect candidates, decomposes corrective scope into tasks (with optional RAG-assisted engineering standard scope and acceptance-criteria suggestions from `repair_knowledge_chunks` and deterministic fallback), and appoints the engineering team.
 - **Function Details**:
   - *Inputs*: Source inspection ID, selected defect candidate IDs, work order title, priority, target completion date, assigned engineering team members, designated Team Lead, designated Report Author.
   - *Validations*: Must reference valid forwarded defect candidates; designated Team Lead and Report Author must belong to the approved team; neither may serve as independent reviewer.
