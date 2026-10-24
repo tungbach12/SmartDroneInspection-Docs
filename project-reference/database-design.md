@@ -68,7 +68,7 @@ The system does **not** store or control:
 
 ## 3. Right-sized logical schema
 
-The target design contains **40 application tables** plus optional framework infrastructure such as Spring Modulith `event_publication`. Table count is a design inventory, not an implementation claim.
+The target design contains **39 application tables** plus optional framework infrastructure such as Spring Modulith `event_publication`. Table count is a design inventory, not an implementation claim.
 
 | Area | Tables | Count |
 | --- | --- | ---: |
@@ -76,8 +76,8 @@ The target design contains **40 application tables** plus optional framework inf
 | Workforce and compliance | `workforce_credentials`, `drones`, `drone_documents`, `flight_permits` | 4 |
 | Asset and MF1 setup | `asset_categories`, `checklist_templates`, `checklist_items`, `assets`, `asset_documents`, `asset_pair_assignments`, `inspection_schedules`, `inspections` | 8 |
 | MF2 preparation and field | `inspection_preparations`, `inspection_readiness_decisions`, `field_sessions`, `checklist_responses` | 4 |
-| MF3 evidence, findings and reports | `evidence`, `findings`, `inspection_reports`, `inspection_report_versions`, `report_version_evidence`, `report_version_findings` | 6 |
-| MF4 repair and cost | `maintenance_work_orders`, `maintenance_tasks`, `maintenance_team_members`, `maintenance_estimate_versions`, `maintenance_cost_lines`, `maintenance_change_orders`, `maintenance_work_logs`, `maintenance_report_versions`, `maintenance_acceptance_decisions` | 9 |
+| MF3 evidence, findings and reports | `evidence`, `findings`, `inspection_reports`, `inspection_report_versions` | 4 |
+| MF4 repair and cost | `maintenance_work_orders`, `maintenance_tasks`, `maintenance_team_members`, `maintenance_estimate_versions`, `maintenance_cost_lines`, `maintenance_change_orders`, `maintenance_work_logs`, `maintenance_report_versions`, `maintenance_acceptance_decisions`, `repair_knowledge_chunks` | 10 |
 | Cross-cutting | `audit_events`, `notifications` | 2 |
 
 The inventory is intentionally explicit so a later migration review can reconcile every Report 3 step with a storage home. No Provider organization, RFQ, commission, marketplace dispute or MF5 table belongs in this target design.
@@ -351,7 +351,7 @@ finding, so it is not copied twice. Rejected AI suggestions are excluded from th
 not remain as finding-level audit records. Explicitly removed Inspector working-set findings retain
 their soft-delete timestamp and can be restored; exact actor and reason are not retained.
 
-#### `inspection_reports`, `inspection_report_versions`, `report_version_evidence`, `report_version_findings`
+#### `inspection_reports`, `inspection_report_versions`
 
 `inspection_reports` is one aggregate per inspection. `inspection_report_versions` is append-only and stores:
 
