@@ -68,16 +68,16 @@ The system does **not** store or control:
 
 ## 3. Right-sized logical schema
 
-The target design contains **39 application tables** plus optional framework infrastructure such as Spring Modulith `event_publication`. Table count is a design inventory, not an implementation claim.
+The target design contains **35 application tables** plus optional framework infrastructure such as Spring Modulith `event_publication`. Table count is a design inventory, not an implementation claim.
 
 | Area | Tables | Count |
 | --- | --- | ---: |
-| Tenant, subscription and access | `organizations`, `subscriptions`, `payment_transactions`, `users`, `user_roles`, `auth_sessions`, `refresh_tokens` | 7 |
+| Tenant, subscription and access | `organizations`, `subscriptions`, `payment_transactions`, `users`, `auth_sessions` | 5 |
 | Workforce and compliance | `workforce_credentials`, `drones`, `drone_documents`, `flight_permits` | 4 |
-| Asset and MF1 setup | `asset_categories`, `checklist_templates`, `checklist_items`, `assets`, `asset_documents`, `asset_pair_assignments`, `inspection_schedules`, `inspections` | 8 |
+| Asset and MF1 setup | `asset_categories`, `checklist_templates`, `checklist_items`, `assets`, `asset_documents`, `asset_pair_assignments`, `inspections` | 7 |
 | MF2 preparation and field | `inspection_preparations`, `inspection_readiness_decisions`, `field_sessions`, `checklist_responses` | 4 |
-| MF3 evidence, findings and reports | `evidence`, `findings`, `inspection_reports`, `inspection_report_versions` | 4 |
-| MF4 repair and cost | `maintenance_work_orders`, `maintenance_tasks`, `maintenance_team_members`, `maintenance_estimate_versions`, `maintenance_cost_lines`, `maintenance_change_orders`, `maintenance_work_logs`, `maintenance_report_versions`, `maintenance_acceptance_decisions`, `repair_knowledge_chunks` | 10 |
+| MF3 evidence, findings and reports | `evidence`, `findings`, `inspection_reports` | 3 |
+| MF4 repair and cost | `maintenance_work_orders`, `maintenance_tasks`, `maintenance_team_members`, `maintenance_estimate_versions`, `maintenance_cost_lines`, `maintenance_change_orders`, `maintenance_work_logs`, `maintenance_reports`, `maintenance_acceptance_decisions`, `repair_knowledge_chunks` | 10 |
 | Cross-cutting | `audit_events`, `notifications` | 2 |
 
 The inventory is intentionally explicit so a later migration review can reconcile every Report 3 step with a storage home. No Provider organization, RFQ, commission, marketplace dispute or MF5 table belongs in this target design.
