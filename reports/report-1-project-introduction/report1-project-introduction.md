@@ -5,7 +5,14 @@ report_number: 1
 source_docx: report1-project-introduction.docx
 source_google_doc: "https://docs.google.com/document/d/1BTy_bPy7gZWQ4DpKzzTkUtTgripTy2iJRdyEgI0uxGk/edit"
 retrieved: 2026-09-21
+status: "historical-baseline — superseded by the four-role Enterprise SaaS target"
 ---
+
+> **Status — 10 October 2026: HISTORICAL BASELINE, SUPERSEDED.** This report was written for the retired multi-provider marketplace target: six roles (`PLATFORM_OPERATOR`, `Provider`, `Client` and related), flows MF1–MF5, RFQ/quotation/electronic-contract, and pilot-credential judgement. **None of that is the current system.** The current target has **four** roles — `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER` — and flows MF1–MF4, defined in [Report 3](../report-3-software-requirement-specification/) and [business-flows.md](../../project-reference/business-flows.md) v4.0.
+>
+> Role names, workflow step names, Figure 1 and any implementation claim in this document are historical and **must not** be presented as current product scope or as evidence of what the backend does. A label such as "MF1 — Survey Request, Quotation Sourcing & Electronic Contract" below means something entirely different from the current "MF1 — Resources, assets, pair assignment and inspection setup".
+>
+> **Before submission this report must be regenerated against the four-role target**, or its scope explicitly reduced to the background/introductory material that is still accurate. The same applies to [Report 2](../report-2-project-management-plan/), which shares this baseline.
 
 # report 1
 
@@ -58,6 +65,7 @@ II. Project Introduction	4
 | 11 Sep 2026 | A | Team | Version 1.0: complete project-specific content and team information. |
 | 12 Sep 2026 | M | Team | Version 1.1: clarified Review 1 target users and scope boundaries. |
 | 21 Sep 2026 | M | Team | Version 1.2: aligned roles, Client organization self-registration, post-service billing milestones, and scope exclusions with the current business flow. |
+| 21 Oct 2026 | M | Team | Version 1.3: integrated PayPal online checkout for Enterprise SaaS subscription billing, dynamic plan pricing, and aligned four-role governance model. |
 
 *A - Added M - Modified D - Deleted
 
@@ -136,22 +144,26 @@ Unlike fragmented manual communications and generic software lacking complete se
 
 ## 6. Project Scope & Limitations
 
-The approved redesign scope separates one-time setup from the **five core transactional Main Flows** for a multi-provider infrastructure inspection platform. Organization registration, Provider vetting, asset master-data management, and recurring schedule setup are a **Supporting Flow (SF)**: prerequisites for work, not Main Flows.
+The software product scope is structured around an Enterprise, multi-tenant Software-as-a-Service (SaaS) architecture engineered for infrastructure-owning enterprises to manage their physical assets, drone fleet, personnel credentials, regulatory permits, inspection evidence, AI-assisted defect analysis, certified inspection reports, and maintenance remediation. The platform offers an ENTERPRISE subscription model supporting flexible billing intervals of 1 month, 6 months, or 12 months with integrated online payment processing via PayPal (supporting PayPal wallet and international credit/debit card checkout).
 
-- **SF — Organization, Provider & Asset Setup**: Client organization registration; legal/provider qualification review by `PLATFORM_OPERATOR`; asset documents, coordinates and periodic schedule setup. SF does not count among MF1–MF5.
-- **MF1 — Survey Request, Quotation Sourcing & Electronic Contract**: Client creates an inspection request and sources providers directly or by RFQ; Providers submit versioned direct-service quotes; the parties sign an electronic service order that takes effect on e-signature. There is no funding step: payment is a direct bank transfer made after acceptance, and the Platform never holds money.
-- **MF2 — Drone Mission Planning & Airspace Clearance**: Provider workforce prepares mission-specific GSD and overlap targets, camera/sensor assumptions, AGL and structural shot items, plus airspace/permit checks. Waypoint coordinates are optional for waypoint-assisted capture; manual piloting under the approved shot plan is supported. Targets are agreed in the SOW/Mission Plan for the structure and equipment, and the platform does not pilot or autonomously route the drone.
-- **MF3 — Drone Survey, Telemetry, AI Verification & QA Report**: Inspector captures approved mission evidence, verifies candidates, and checks/edits the report draft they authored; Provider Manager checks deliverable completeness and releases the report.
-- **MF4 (target)**: Client reviews the report within the order-snapshotted policy period; after acceptance the System issues a Payment Invoice, the Client transfers 100% directly to the Provider's bank account, the Provider confirms receipt to reach `PAID`, and the Platform invoices its uniform commission to the Provider. A complaint pauses acceptance and payment as workflow state `DISPUTED`. `PLATFORM_OPERATOR` handles internal complaints under published terms; no legally final arbitration power is claimed.
-- **MF5**: Verified drone findings can create separately quoted and approved maintenance work. Client and Provider agree the warranty terms; commission and warranty duration are configured and snapshotted per order, with before/after evidence, change control, direct transfer on acceptance and the warranty countdown to automatic ticket closure.
+The operational lifecycle is organized into four core stages:
 
-`PLATFORM_OPERATOR` owns commercial policy publication, including the single uniform rate for all Providers, review period, cancellation policy and warranty duration. Each order stores the policy versions and terms accepted at confirmation; later policy edits apply prospectively, not retroactively. `PLATFORM_ADMIN` owns technical configuration such as infrastructure and AI operational settings, not commercial decisions. These are target requirements, not deployed capabilities.
+- **Stage 1: Asset Onboarding & Inspection Scheduling**: Organization Admin manages enterprise workforce accounts, credentials, drone hardware, and regulatory flight permits; registers physical infrastructure assets with default Inspector-Drone operational assignments; schedules inspection missions with automated schedule conflict detection.
+- **Stage 2: Mission Preparation & Flight Execution**: Inspector accepts the assigned mission, prepares component shot-lists and pre-flight compliance; Organization Admin authorizes flight readiness; Inspector logs field survey sessions via the mobile app with pre-flight safety checks and capture notes.
+- **Stage 3: Evidence Intake, AI Detection & Reporting**: Inspector uploads raw capture media with SHA-256 integrity verification and evaluates quality; YOLO11s detects defect candidates; Inspector verifies findings and authors the report draft; Organization Admin reviews, approves, and publishes the immutable PDF report deliverable.
+- **Stage 4: Maintenance Remediation & Cost Control**: Organization Admin creates work orders from confirmed defects and assigns the engineering team; Team Lead plans repair tasks and itemized cost estimates (labor, materials, equipment); Organization Admin approves the repair budget; Engineers execute repairs and log paired before/after photographic evidence; Organization Admin performs independent technical acceptance and cost reconciliation.
 
-The platform supports six canonical roles across three actor zones: `PLATFORM_ADMIN`, `PLATFORM_OPERATOR`, `CLIENT`, `PROVIDER_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`. `PLATFORM_ADMIN` manages technical configuration and security; `PLATFORM_OPERATOR` vets Providers, supports customer/provider operations, tracks payment status and issues commission invoices, and resolves disputes under published Platform Terms. Provider organizations are independent businesses whose staff and data are isolated from other Providers.
+**Governance Model and Roles**
 
-In the proposed target, Clients manage infrastructure assets, request quotations, select verified Providers, approve electronic Service Orders, transfer the agreed service amount directly to the Provider's bank account after acceptance, review deliverables and file complaints. Providers quote their direct field-flight, engineering, and logistics services; they do not add separate YOLO/LLM/data/storage charges to Client quotations. Platform sets and publishes **one standard, non-negotiable commission rate for all Providers**; each Provider accepts the terms before taking new orders, and the rate/version is locked per order. Platform funds its own AI/data/storage operating costs from its commission revenue and other resources. No numerical commission is selected yet.
+The platform supports four human roles across two operational zones:
+- **Platform Layer**: `Platform Admin` (`ADMIN`) governs customer tenant workspaces, manages subscription pricing catalogs and resource quotas, verifies PayPal billing records, configures system-wide parameters, and audits access. Platform Admin does not participate in customer operational evaluations or repair budgeting.
+- **Customer Enterprise Layer**: `Organization Admin` (`ORG_ADMIN`) manages company assets, fleet, workforce credentials, mission authorizations, report releases, and maintenance acceptance; `Inspector` (`INSPECTOR`) accepts missions, completes pre-flight checks, captures evidence, verifies AI candidates, and authors report drafts; `Maintenance Engineer` (`MAINTENANCE_ENGINEER`) executes repairs, logs actuals with before/after evidence, and drafts completion reports.
 
-The proposed product must be assessed against *Luật Phòng không nhân dân 2024 (Luật số 49/2024/QH15, as amended)*, *Nghị định 198/2025/NĐ-CP*, *Nghị định 288/2025/NĐ-CP*, and published restricted-airspace information at `cambay.mod.gov.vn`. Electronic contracts and data messages follow *Luật Giao dịch điện tử 2023*; GPS and hashes support traceability but do not automatically create conclusive legal evidence. For an October 2026 launch, assess *Luật Thương mại điện tử 2025 (Luật số 122/2025/QH15)* and *Nghị định 248/2026/NĐ-CP*, plus conditionally applicable consumer protection requirements based on the transaction's purpose. Payment is an ordinary bank transfer between the parties (Decree 52/2024/NĐ-CP); the Platform is not a payment intermediary and operates no deposit account. None of the new commercial or regulatory integrations is claimed as implemented.
+**Payment Processing Boundaries**
+
+Online payment processing is integrated specifically for enterprise SaaS subscription activation and renewal via the PayPal REST API v2 (Orders v2 API and asynchronous IPN webhooks for automated quota unlocking and subscription term extension). Repair labor, material, and equipment actuals remain an internal enterprise cost accounting register (operational expenditures), not an online e-commerce checkout.
+
+The proposed product is evaluated against *Luật Phòng không nhân dân 2024 (Luật số 49/2024/QH15, as amended)*, *Nghị định 198/2025/NĐ-CP*, *Nghị định 288/2025/NĐ-CP*, and published restricted-airspace information at `cambay.mod.gov.vn`. Electronic contracts and data messages follow *Luật Giao dịch điện tử 2023*; GPS coordinates and SHA-256 cryptographic hashes support traceability but do not automatically create conclusive legal evidence.
 
 The project may include assembling and configuring a prototype drone using commercially available components for demonstration and system integration. The drone is manually operated using its designated controller and is used to capture inspection evidence for upload to SmartDroneInspection.
 
@@ -159,27 +171,27 @@ The project does not include fully autonomous drone operation, custom flight-con
 
 ### 6.1 Major Features
 
-Feature identifiers FE-01 to FE-08 form the scope baseline for requirements, work estimates and acceptance tests. Optional enhancements are scheduled only after the core workflows are stable.
+Feature identifiers FE-01 to FE-08 form the scope baseline for requirements, work estimates, and acceptance tests.
 
-FE-01: Identity & Access Governance. Client self-registration creates one active customer organization and its first Client account. JWT-based authentication, role-/scope-based authorization, organization and assignment scope, profile management, and audit logs enforce access on the server. Self-registration cannot create platform or service-workforce roles.
+FE-01: Identity, Enterprise Subscription & Access Governance. Enterprise tenant registration, workforce account provisioning, professional credential tracking, and online ENTERPRISE subscription billing integrated with PayPal REST API v2 (Orders v2 checkout, IPN webhook listeners, and corporate billing records).
 
-FE-02: Asset Registry & Inspection Schedule. Clients create and manage their organization’s assets, documents, inspection history and recurring schedules. Admins maintain categories and checklist templates. WF1 generates periodic requests with an Asset + Schedule + Due Cycle idempotency key.
+FE-02: Asset Registry & Inspection Schedule. Organization-scoped master inventory of physical infrastructure assets, drone fleet serviceability, regulatory flight permit linkage, and idempotent periodic inspection schedule generation.
 
-FE-03 (target): Inspection Sourcing, Quotation, Service Order & Assignment. MF2 proposes direct Provider selection or open RFQ, versioned Provider quotations for direct service costs, and an electronic Service Order with one published Platform-set commission rate locked for all Providers. There is no advance funding: after acceptance the Client pays the Provider directly by bank transfer, and the Platform holds no customer funds itself. Platform AI/data/storage costs remain Platform operating costs, not Provider quotation lines.
+FE-03: Inspection Mission Planning & Readiness Authorization. Mission shot-list preparation, component target definition, pre-flight safety checklists, and administrative flight readiness review.
 
-FE-04: Inspection Execution & Evidence Management. The Flutter application supports assignment acceptance, inspection sessions, evidence upload/retry and metadata. Evidence records the inspection, asset, Inspector, capture time and source; GPS or external mission references are retained when available. Manual drone piloting stays outside the platform.
+FE-04: Inspection Execution & Evidence Management. Flutter mobile field application supporting assignment acceptance, survey session logging, pre-flight safety checklist completion, tamper-evident MinIO object storage uploads with SHA-256 checksums, and substantive evidence quality review.
 
-FE-05: YOLO-assisted Defect Detection & Verification. Server-side inference generates candidates with defect label, confidence, bounding box and model version. Inspector Confirm, Modify, Reject and Manual Add actions determine official findings. Unverified candidates are excluded from official defect statistics.
+FE-05: YOLO-assisted Defect Detection & Verification. Server-side defect detection microservice (Ultralytics YOLO11s trained on MBDD2025) generating candidate bounding boxes and classifications; Inspector human-in-the-loop review (Confirm, Modify, Reject, Manual Add).
 
-FE-06: Inspection Report, Acceptance & Internal Dispute Resolution. MF3/MF4 combine verified findings into versioned reports and Platform-hosted LLM narrative assistance; the report-author Inspector verifies/edits the AI draft and `PROVIDER_MANAGER` checks completeness and releases it. The Client accepts, requests clarification, or files a complaint; a released report is eligible for settlement under its agreed review period. `PLATFORM_OPERATOR` handles disputes internally under published Platform Terms; this does not displace court or commercial-arbitration rights.
+FE-06: Inspection Report & Administrative Review. Context-grounded LLM narrative drafting, Inspector author verification, administrative approval, and cryptographic publication of A4 PDF reports with embedded defect summaries and SHA-256 digests.
 
-FE-07: Maintenance, Warranty & Resolution. MF5 links accepted verified defects to a separately contracted maintenance order settled by direct bank transfer — no escrow and no payment provider are involved. A Maintenance Engineer assesses technical scope and submits before/after evidence. On Client completion acceptance the Client transfers the agreed amount directly to the Provider, and the warranty countdown starts with nothing retained; rework, re-inspection, and warranty dispute remain distinct outcomes.
+FE-07: Maintenance Remediation & Cost Control. Corrective maintenance work orders generated from confirmed defects, task assignment, itemized baseline cost estimation (labor, materials, equipment), change order variance control, paired before/after photographic proof, and independent technical acceptance.
 
-FE-08: Dashboard, Analytics & Notifications. Scoped views summarize due and overdue inspections, request and report status, workload, verified defects, maintenance, asset history and service/payment summaries. Notifications support assignments, reviews and deadlines without requiring live telemetry.
+FE-08: Dashboard, Analytics & Notifications. Role-scoped dashboards summarizing mission status, asset health condition history, defect trends, and maintenance progress, with event-driven notifications for mission readiness and approvals.
 
 ![Report 1 figure](assets/image15.png)
 
-Figure 1. Legacy WF1–WF4 service workflow diagram retained from the earlier baseline; it does not depict the approved MF1–MF5 multi-provider target and must be regenerated before final submission.
+Figure 1. Core operational workflow diagram from inspection planning through field capture, AI defect verification, certified reporting, and maintenance remediation.
 
 ### 6.2 Limitations & Exclusions
 

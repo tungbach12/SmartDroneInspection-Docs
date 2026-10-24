@@ -4,7 +4,7 @@ Report 3 §3.2 titles this feature "Identity, Enterprise Subscription and
 Workforce Governance". The filename retains the earlier "identity / access
 governance" wording; the filename is stable, the scope is Report 3's.
 
-## Implemented v1 baseline and Enterprise SaaS target
+## Implemented four-role baseline
 
 The recorded authentication, organization-scope and audit checks below concern the existing `ADMIN`, `CLIENT`, `SERVICE_MANAGER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER` roles. They do not verify the 2026-10-07 Enterprise SaaS target roles `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`, or the new tenant/subscription entitlement and workforce-governance rules. Proposed target checks are Pending below; no existing Passed result is reused as evidence for those roles.
 
@@ -45,6 +45,15 @@ Automated execution on 2026-09-22: Passed. WorkflowBaselineTest verified Flyway 
 - Defect note: Before this round, `POST /api/v1/auth/register` returned 500 because `ClientRegistrationService` passed the generated user id to `SecurityAuditService.record` (raw `JdbcTemplate` SQL) before Hibernate flushed the `users` insert, so the audit insert failed the foreign key introduced in `V3__authentication.sql` (present since commit 46baa59). The fix flushes the saved user before the audit write.
 - Scope note: This is an API-level integration test against a real database, not a live browser end-to-end run.
 
+### Versioned Terms and Privacy Notice consent gate — supporting verification (2026-10-22)
+
+- Preconditions: Frontend register page exposes active policy versions; backend registration endpoint validates them; PostgreSQL/Testcontainers available for the audit persistence check.
+- Procedure: Frontend: run `npx vitest run src/features/auth/pages/RegisterPage.test.tsx src/features/auth/schemas/authSchemas.test.ts src/features/auth/api/authApi.test.ts`; verify both consent checkboxes begin unchecked, either unchecked box blocks submission, each policy opens separately and checks only its own box, and the submitted request carries both active versions. Backend (from `SmartDroneInspection-Backend`): run `mvnw.cmd test -Dtest=OrganizationRegistrationApiIntegrationTest`; verify missing/false consent and either stale version return 400 without creating a user/organization; on success query the registration audit event's `safe_metadata` for both consent flags/versions and `accepted_at`.
+- Expected result: Only explicit agreement to both active policy versions permits registration. The successful `ORGANIZATION_REGISTRATION` event records affirmative choices, versions, server UTC acceptance time, IP and bounded user agent in the same transaction as the organization/user. This is application audit evidence, not a certified digital signature or legal-enforceability guarantee.
+- Round 1 frontend: Passed 2026-10-22; tester: Claude Code (automated). Backend integration execution: Pending — Testcontainers could not find a Docker environment; `mvnw test-compile` passed.
+- Evidence: Frontend `RegisterPage.test.tsx`, `authSchemas.test.ts`, `authApi.test.ts` — 19/19 tests passed; frontend production build passed. Backend `OrganizationRegistrationApiIntegrationTest` compiled; execution blocked before Spring context startup by unavailable Docker environment.
+- Legal/content note: Displayed policy copy is a draft pending qualified legal/business approval; its version string and effective date are product identifiers, not evidence that the text has received such approval.
+
 ### Admin user creation persistence gate
 
 - Preconditions: An ADMIN account exists; the backend integration environment provisions PostgreSQL through Testcontainers with Flyway migrations V1-V10 applied.
@@ -55,8 +64,41 @@ Automated execution on 2026-09-22: Passed. WorkflowBaselineTest verified Flyway 
 - Defect note: Before this round, `POST /api/v1/platform/users` returned 500 for the same cause as the client-registration defect above: `AdminUserService.create` passed the generated user id to `SecurityAuditService.record` (raw `JdbcTemplate` SQL) before Hibernate flushed the `users` insert. The fix uses `saveAndFlush` before the audit write. Verified RED first: the new integration test failed with 500 instead of 201 on the unfixed code, then passed after the one-line fix.
 - Scope note: This is an API-level integration test against a real database, not a live browser end-to-end run.
 
-### Cross-cutting successful API response-envelope verification
+### Enterprise Subscription Lifecycle, Contract Terms, Custom Periods, and Negotiated Pricing (executed 21 October 2026)
 
+- Preconditions: Backend `com.smartdroneinspection.subscriptions`, Frontend `src/features/subscription`, PostgreSQL 17/Testcontainers with migration `V38` (flexible billing periods 1–120 months and `agreed_amount_usd`), active `ORG_ADMIN` and platform `ADMIN` actors.
+- Procedure:
+  1. Run Backend `SubscriptionApiIntegrationTest` (7 tests) covering terms preview, subscription request with standard and custom durations (1 to 120 months), commercial deal proposals (`proposedPriceUsd`, `negotiationNotes`), agreed terms snapshot, validation rules, platform listing, payment confirmation with external bank reference and agreed contract amount, and seamless renewal with `uq_subscriptions_active_organization` partial unique index enforcement.
+  2. Run Frontend `ClientSubscriptionPage.test.tsx` (4 tests) and `PlatformSubscriptionsPage.test.tsx` (3 tests), and update access policy/router tests.
+- Expected result:
+  - An `ORG_ADMIN` views current subscription state, legal clauses (Version 2026.1), and pricing tiers ($1,200/mo, $1,000/mo, $850/mo), agrees to terms, selects standard or custom duration (1–120 months), optionally proposes a commercial deal budget with negotiation notes, and creates a `PENDING` subscription carrying an immutable `terms_snapshot` JSONB.
+  - The client displays offline wire transfer payment instructions with deterministic reference code `SDI-SUB-{ORG_CODE}-{PERIOD}M`.
+  - The platform `ADMIN` lists and filters tenant subscriptions, inspects agreed contract snapshots and customer commercial deal notes, inputs bank statement external references, confirms the final agreed contract amount, and activates the subscription.
+  - The subscription transitions to `ACTIVE`, sets validity dates (`starts_at` to `ends_at`), records agreed revenue (`agreed_amount_usd`), records confirmation attribution (`confirmed_by_user_id`), and satisfies `SubscriptionEntitlement.requireActive()`.
+  - Any previously active subscription for the organization is seamlessly transitioned to `EXPIRED`, maintaining the single active subscription constraint without database collision.
+- Round 1: Passed on 2026-10-21; tester: Claude Code (automated).
+- Evidence: Backend `SubscriptionApiIntegrationTest` passed 7/7 tests; Frontend `ClientSubscriptionPage.test.tsx` (4 tests) and `PlatformSubscriptionsPage.test.tsx` (3 tests) passed; `accessPolicy.test.ts` and `router.test.ts` updated and passing.
+- Scope note: This 21 October round verifies the corporate wire/invoice administrative reconciliation path and quote snapshot; it is not evidence of PayPal gateway integration.
+
+### Optional PayPal settlement and contract-preview safeguards — supporting verification (2026-10-22)
+
+- Preconditions: PayPal deployment configuration defaults to disabled. Backend gateway/controller checks use a local mock HTTP server and standalone MockMvc; Docker-backed API integration is needed to verify Flyway V38/V39, transaction persistence, endpoint wiring and disabled-mode application startup.
+- Procedure: Backend `Set-Location D:\CTP\SmartDroneInspection-Backend; .\mvnw.cmd test '-Dtest=PaymentGatewayServiceTest,PayPalPaymentGatewayTest,PayPalWebhookControllerTest,ModulithArchitectureTest'`; cover server-computed order amount, platform-approved amount, provider-reported capture data, tenant scope, duplicate capture, parsed webhook_event object, malformed payload rejection, invalid-signature rejection, verified capture dispatch, unrelated-event acknowledgement and contract-preview caveats. Frontend `Set-Location D:\CTP\SmartDroneInspection-Frontend; npx vitest run src/features/subscription/pages/ClientSubscriptionPage.test.tsx; npm run build; npm run lint`; verify hosted approval redirect and restoration/cleanup of pending order state after retry.
+- Expected result: A customer price proposal remains only in the terms snapshot and does not populate the approved `agreed_amount_usd` field; it cannot create a PayPal order or be charged. The customer’s proposal is not accepted contract pricing until the Platform Admin records the amount through the payment-confirmation workflow. Gateway-disabled deployments start with wire reconciliation available. When enabled, the server creates/captures the provider order, verifies settled amount and currency, and webhook signature verification is bound to the configured sandbox/live environment and webhook ID with `webhook_event` encoded as a JSON object. The terms print view is a draft subscription-order summary, not a certified electronic signature or legal opinion.
+- Round 1: Backend service/adapter/controller/architecture verification Passed (25 tests: 15 payment service, 2 PayPal adapter, 5 webhook controller, 3 Modulith). Frontend subscription suite Passed (10 tests across 3 files); production build Passed; lint exited 0 with repository warnings. Backend API/migration integration remains Pending because Docker is unavailable; no live PayPal sandbox credentials/provider call was available.
+- Evidence: `PaymentGatewayServiceTest`, `PayPalPaymentGatewayTest`, `PayPalWebhookControllerTest`, `ModulithArchitectureTest`, `SubscriptionApiIntegrationTest` (authored but Docker-blocked), and `ClientSubscriptionPage.test.tsx`. Local mock HTTP/MockMvc tests do not prove a live PayPal sandbox handshake or webhook verification against PayPal.
+
+### Platform account administration and listing — supporting verification (executed 2026-10-20)
+
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an active platform ADMIN and an organization-scoped ORG_ADMIN.
+- Procedure: Run Backend `PlatformUserListApiIntegrationTest` (3 tests) and `AdminUserApiIntegrationTest`, and Frontend `PlatformUsersPage.test.tsx` (4 tests). Verify the platform-wide account list carrying each account's roles and actor zone; refusal of that list to a caller who is not a platform administrator; password reset of another account with session revocation and a forced password change; the one-time temporary password shown once and never retrievable again; and suspension through the named status change.
+- Expected result: The platform administrator manages the administrator-managed accounts only — platform admins and each workspace's Organization Admin. A customer's own workforce is administered by that organization's ORG_ADMIN through a separate contract, so it is deliberately absent here. A password reset revokes the account's sessions and requires a new password at next sign-in.
+- Round 1: Passed 2026-10-20; tester: Claude Code (automated).
+- Evidence: Backend `PlatformUserListApiIntegrationTest` passed 3/3 tests within the full `verify` run of 648 tests, 0 failures, 0 errors. Frontend `PlatformUsersPage.test.tsx` passed 4/4 tests and the full frontend suite passed 56 files / 361 tests.
+- Defect note: `GET /api/v1/platform/users` did not exist before this round, so the ADMIN portal had no way to read the accounts it manages and the web client had no platform-user surface at all. The listing was added together with the `platform-users` section for the admin portal.
+- Scope note: This is an API-level integration test against a real database plus a mocked-transport client test, not a live browser end-to-end run.
+
+### Cross-cutting successful API response-envelope verification
 This is a shared API contract check recorded here for traceability. It is not an FE-01-only acceptance case or an additional workbook row.
 
 - Preconditions: The backend and first-party clients use the same versioned response contract; Docker-backed backend integration tests are available.
@@ -71,8 +113,43 @@ These FE-01 target cases are supporting checks outside the fixed WFx workbook ro
 
 | Target check | Procedure | Expected result | Preconditions | Status | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| FE01-T01 Organization and subscription entitlement gate | Register an enterprise organization; attempt MF1 setup before ADMIN activates the subscription; activate with ADMIN; then attempt cross-tenant workspace access. | MF1 setup is blocked until entitlement is active; ADMIN activates the workspace; a user from another organization cannot read or mutate the workspace. | Two organizations and an inactive subscription fixture exist. | Pending | No new runtime test executed. |
-| FE01-T02 Role separation of duties | Attempt ORG_ADMIN setup actions as `INSPECTOR`/`MAINTENANCE_ENGINEER`; attempt Inspector/Engineer evidence-quality actions as `ORG_ADMIN` or `ADMIN`; attempt independent maintenance acceptance by the report author or repair team. | Only ORG_ADMIN manages organization resources/workforce/teams; Inspectors and Engineers act only on assigned work; ADMIN has no default customer technical or acceptance authority; author/executing-team self-acceptance is denied. | Target four-role fixtures and one assigned inspection/work-order exist. | Pending | No new runtime test executed. |
+| FE01-T01 Organization and subscription entitlement gate | Register an enterprise organization; attempt MF1 setup before ADMIN activates the subscription; activate with ADMIN; attempt cross-tenant workspace access; reactivate after an existing subscription's end date. | MF1 setup is blocked until entitlement is active; ADMIN activates/reactivates the workspace; an ended active row is marked EXPIRED with audit before the replacement term; a user from another organization cannot read or mutate the workspace. | Two organizations; inactive subscription; ended ACTIVE subscription fixture; Docker/Testcontainers PostgreSQL. | Partial — entitlement and tenant-isolation checks Passed 2026-10-10; subscription activation/reactivation API tests Pending 2026-10-21 | `SubscriptionEntitlementServiceTest` — 4/4; cross-tenant isolation via `WorkforceApiIntegrationTest`; `SubscriptionActivationApiIntegrationTest` authored for activation/audit/authorization/period/window/duplicate/organization/resource-gate/reactivation but blocked before context startup because Testcontainers has no Docker environment. |
+| FE01-T02 Role separation of duties | Attempt ORG_ADMIN setup actions as `INSPECTOR`/`MAINTENANCE_ENGINEER`; attempt Inspector/Engineer evidence-quality actions as `ORG_ADMIN` or `ADMIN`; attempt independent maintenance acceptance by the report author or repair team. | Only ORG_ADMIN manages organization resources/workforce/teams; Inspectors and Engineers act only on assigned work; ADMIN has no default customer technical or acceptance authority; author/executing-team self-acceptance is denied. | Target four-role fixtures and one assigned inspection/work-order exist. | Partial — workforce side Passed 2026-10-11; maintenance self-acceptance still Pending | `WorkforceApiIntegrationTest` 22/22 and `WorkforceServiceTest` 13/13, including cross-tenant email non-disclosure: a foreign email returns `404 USER_NOT_FOUND`, while a same-organization duplicate remains `409 EMAIL_ALREADY_EXISTS`; privileged-role and peer-ORG_ADMIN mutations remain blocked. MF4 independent maintenance acceptance is unimplemented. |
+
+### Review-fix verification (executed 11 October 2026)
+
+- Preconditions: Integrated MF1 branch with PostgreSQL Testcontainers available; two organization fixtures and active ORG_ADMIN actors.
+- Procedure: Run `./mvnw -Dtest=WorkforceApiIntegrationTest,DroneApiIntegrationTest,DroneDocumentApiIntegrationTest,DronePersistenceTest,CompliancePersistenceTest,EvidenceOwnershipServiceTest,WorkforceCredentialExpiryWindowTest test` and attempt provisioning with an email owned by another organization.
+- Expected result: A globally unique email must not become an existence oracle: foreign-organization email returns the same non-disclosing `404 USER_NOT_FOUND` used for an absent user; same-organization duplicate remains a useful `409 EMAIL_ALREADY_EXISTS`. Persistence fixtures must roll back so later tests do not depend on execution order.
+- Round 4: Passed on 2026-10-11; tester: Claude Code (automated). The focused command passed 68 tests; the full `./mvnw verify` passed 301 tests, 0 failures, 0 errors, coverage gate met.
+- Defect note: The security review found `AdminUserService`'s global email check exposed `409 EMAIL_ALREADY_EXISTS` for another tenant's address. The fix scopes the non-disclosure decision at `UserAccessService` before delegation to the platform-admin service, preserving same-organization conflict behavior. The order-dependent persistence failure was reproduced by running `DronePersistenceTest` before `DroneApiIntegrationTest` (1 failure), then eliminated by adding transactional rollback to the persistence tests. |
+
+### Enterprise SaaS entitlement and workforce governance (executed 10 October 2026)
+
+These execute the previously Pending `FE01-T01`/`FE01-T02` checks for the MF1
+resource-setup slice. They are supporting gates outside the fixed WFx workbook
+rows, matching the existing FE-01 foundation-gate convention, so they do not
+alter workbook statistics.
+
+#### Subscription entitlement gate
+
+- Preconditions: Backend branch `integrate/mf1-resources`; PostgreSQL 17 through Testcontainers; Flyway `V25__enterprise_saas_target_schema.sql` creating `subscriptions`.
+- Procedure: Run `./mvnw -Dtest=SubscriptionEntitlementServiceTest test`; call `SubscriptionEntitlement.requireActive(organizationId, at)` for an in-window ACTIVE subscription, for a subscription whose exclusive `endsAt` has passed, and for expired, suspended and missing subscriptions.
+- Expected result: `requireActive` returns normally only for an ACTIVE subscription whose window covers the instant; every other case raises a `FORBIDDEN` `SUBSCRIPTION_INACTIVE` ProblemDetail. A null `startsAt`/`endsAt` is treated as unbounded, and one organization's entitlement never satisfies another's.
+- Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
+- Evidence: `SubscriptionEntitlementServiceTest` — 4/4. Part of the merged `./mvnw verify` run: 254 tests, 0 failures, 0 errors, `All coverage checks have been met.`, BUILD SUCCESS.
+- Scope note: This verifies the entitlement decision itself. Subscription activation/reactivation is now implemented locally, but its API integration procedure remains Pending because Docker/Testcontainers was unavailable on 2026-10-21.
+
+#### ORG_ADMIN workforce provisioning and role-safe lifecycle
+
+- Preconditions: Same merged baseline; an active `ORG_ADMIN` in a `CUSTOMER_ORGANIZATION` zone, plus a second organization fixture for isolation checks.
+- Procedure: Run `./mvnw -Dtest=WorkforceApiIntegrationTest,WorkforceServiceTest test`; exercise `POST/GET/PATCH/PUT /api/v1/workforce/users` as ORG_ADMIN, then call the public `UserAccess` facade directly to attempt granting `ORG_ADMIN` or `ADMIN`, and to mutate a peer ORG_ADMIN's status and roles.
+- Expected result: Provisioning returns 201 with a one-time temporary password; organization scope comes from the authenticated actor and a request-supplied organization is ignored; only `INSPECTOR` and `MAINTENANCE_ENGINEER` are accepted; reads stay available while writes require entitlement; a rejected operation writes no user, role, audit, session or refresh-token row and leaves a peer ORG_ADMIN unchanged.
+- Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
+- Evidence: `WorkforceApiIntegrationTest` 20/20 and `WorkforceServiceTest` 13/13, inside the 254-test merged run above.
+- Defect note: An earlier implementation of this gate was rejected in review because `UserAccessService` relied on `RolePolicy`, which permits `ORG_ADMIN` for customer users. A direct facade call could therefore grant a privileged role or alter a peer ORG_ADMIN. Five direct-facade regression tests were written first and observed failing 5/5, then the workforce role allowlist and target-membership check were added and those five passed.
+- Known gap: the peer-admin rejection tests assert the target's auth session is not revoked but do **not** assert the associated refresh token remains unrevoked. The role guard itself is covered.
+- Scope note: This covers provisioning and lifecycle only. Credential records are recorded separately below.
 
 ### Enterprise SaaS identity, registration and target-schema reset (executed 8 October 2026)
 
@@ -92,6 +169,28 @@ These FE-01 target cases are supporting checks outside the fixed WFx workbook ro
 - Round 2: Passed on 2026-10-08; tester: Hermes (automated).
 - Evidence: Frontend 25 test files / 128 tests passed and production build succeeded (5 `react(only-export-components)` fast-refresh lint warnings, no errors). Mobile: format clean (0 changed), `flutter analyze` reported one pre-existing `info` lint in `lib/core/router/app_router.dart` that is not part of this change, and 16/16 tests passed.
 - Scope note: Frontend tests use a mocked transport; mobile tests use fakes. Neither is a live browser/device end-to-end run.
+
+#### MF1-04/05 workforce credential records and internal review
+
+- Preconditions: Same merged baseline at `dcd6516`; `V25` table `workforce_credentials`; an active ORG_ADMIN, a same-organization workforce subject, and a same-organization evidence record.
+- Procedure: Run `./mvnw -Dtest=WorkforceCredentialApiIntegrationTest,WorkforceCredentialPersistenceTest,EvidenceOwnershipServiceTest test`; exercise `POST /api/v1/workforce/credentials`, the list endpoint, and `PUT /{id}/review`; submit a foreign subject, a foreign `evidenceId`, an expiry that precedes its issue date, a blank `credentialType`, and a blank rejection reason.
+- Expected result: Credential creation succeeds only for a same-organization subject and same-organization evidence; a foreign subject and foreign evidence both return 404 with an identical problem body so the endpoint cannot be used to probe another tenant's identifiers; an inverted date range returns 400; a review records reviewer, timestamp and reason together; expiry status is derived at read time; the credential record survives its subject being suspended; and no field or status claims government or authority verification.
+- Round 3: Passed on 2026-10-10; tester: Claude Code (automated).
+- Evidence: `WorkforceCredentialApiIntegrationTest` 15/15, `WorkforceCredentialPersistenceTest` 5/5, `EvidenceOwnershipServiceTest` 3/3, inside the 254-test merged run above.
+- Module-boundary note: verifying `evidence_id` tenant ownership required a path from `workforce` to `inspections`. A single-method facade `com.smartdroneinspection.inspections.EvidenceOwnership` was added at the `inspections` module root, and `workforce` was granted a module-root dependency on `inspections` — not `inspections::repository`, so Spring Modulith still forbids importing the evidence repositories or entities. The boundary was checked with a temporary probe that imported `EvidenceRepository` and correctly failed verification; the probe was removed before commit.
+- Configuration note: the `EXPIRING_SOON` horizon is bound to `app.workforce.credential-expiring-soon-window` (env `CREDENTIAL_EXPIRING_SOON_WINDOW`, default `60d`) via `WorkforceProperties`, so a deployment can change it without a rebuild. No requirement document specifies a window — MF1-05 asks only that expiry warnings be calculated — so 60 days is a product decision made for commercial drone inspection, where operator credentials and liability insurance are annual or longer. Covered by `WorkforceCredentialExpiryWindowTest` (5 cases), which proves the configured window and not a literal decides the status, and pins the default across `application.yml`, the properties class and the entity fallback so those three cannot drift apart silently.
+- Scope note: `EXPIRING_SOON` exists only on `workforce_credentials`. `flight_permits` (MF1-07) has no such status, so permit records carry no expiring-soon signal in this release.
+
+### Frontend MF1 resource-navigation and integration verification (executed 13 October 2026)
+
+This is supporting frontend evidence, outside the fixed WFx workbook rows, consistent with the FE-01 foundation-gate convention. Workbook statistics remain unchanged.
+
+- Preconditions: Frontend branch `feat/mf1-fe-drones`; four canonical roles; React Router guard and local test fixtures.
+- Procedure: Run `npx vitest run --pool=forks --maxWorkers=1 src/app/permissions/accessPolicy.test.ts src/app/router/router.test.ts src/features/auth/components/RequireAuth.resources.test.tsx src/features/assets/pages/AssetsPage.resources.test.tsx`; evaluate the access-policy matrix, direct `RequireAuth` outcomes for `/client/workforce` and `/client/assets`, and the resource-tab composition.
+- Expected result: ORG_ADMIN can enter the client Workforce and Assets guard; ADMIN, INSPECTOR and MAINTENANCE_ENGINEER are redirected to the forbidden surface on direct access; Drones and Permits tabs render only for ORG_ADMIN; existing Admin/Operations route entries remain matched.
+- Round 1: Passed on 2026-10-13; tester: Claude Code (automated).
+- Evidence: focused command passed 4 files / 44 tests, including direct guard behavior for both paths across all four roles.
+- Scope note: This is a component/guard test using the real RequireAuth component, not a browser-to-backend end-to-end authorization test. Backend authorization remains authoritative.
 
 ## Coverage boundary
 

@@ -5,7 +5,14 @@ report_number: 2
 source_docx: report2-project-management-plan.docx
 source_google_doc: "https://docs.google.com/document/d/1BTy_bPy7gZWQ4DpKzzTkUtTgripTy2iJRdyEgI0uxGk/edit"
 retrieved: 2026-09-21
+status: "historical-baseline — superseded by the four-role Enterprise SaaS target"
 ---
+
+> **Status — 10 October 2026: HISTORICAL BASELINE, SUPERSEDED.** This plan was written for the retired multi-provider marketplace target: six roles (`PLATFORM_OPERATOR`, `Provider`, `Client` and related) and flows WF1–WF4/MF1–MF5. **The current target has four roles** — `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER` — and flows MF1–MF4, per [Report 3](../report-3-software-requirement-specification/) and [business-flows.md](../../project-reference/business-flows.md) v4.0.
+>
+> The milestone table, role assignments, workload split and testing strategy below describe a baseline that no longer exists. They **must not** be presented as the current plan or as evidence of delivery. Two statements in particular are now false: the plan targets "four existing WF1–WF4 workflows, five current roles", and it treats MF1–MF5 as requiring new acceptance tests.
+>
+> **Before submission this plan must be regenerated** against the four-role target and reconciled with the implementation actually recorded in [Report 5](../report-5-test-report/). Current state: MF1-02–MF1-07 and MF3 are implemented and verified; MF1-01, MF1-08–MF1-14, MF2 and MF4 are not. [Report 1](../report-1-project-introduction/) shares this baseline.
 
 # report 2
 
@@ -30,6 +37,7 @@ Table of Contents
 | 14 Sep 2026 | M | Team | Version 1.4: organized WBS as software features/functions and completed layout QA. |
 | 14 Sep 2026 | M | Team | Version 1.5: aligned WBS and responsibilities one-to-one with FE-01 through FE-08. |
 | 21 Sep 2026 | M | Team | Version 1.6: added Client self-registration and separate post-service billing milestones. |
+| 21 Oct 2026 | M | Team | Version 1.7: integrated PayPal online payment for Enterprise SaaS subscription billing and aligned four-role governance model. |
 
 *A - Added M - Modified D - Deleted
 
@@ -39,7 +47,7 @@ Table of Contents
 
 ### 1.1 Scope & Estimation
 
-SmartDroneInspection's **implemented v1 baseline** is an inspection-and-maintenance service platform with five existing roles and separate post-service billing records; it does not have deployed multi-provider onboarding, the target direct-transfer settlement workflow (Payment Invoice, Provider receipt confirmation, commission invoicing), drone mission-planning workflow, or formal dispute management. The **approved target redesign** separates organization/provider/asset setup into a Supporting Flow (SF), then defines five transactional Main Flows. The drone-centric MF2 covers mission-specific GSD/overlap, shot planning and airspace clearance; commercial policy uses one uniform Platform-set commission accepted by every Provider. `PLATFORM_OPERATOR` configures and publishes commercial policies; `PLATFORM_ADMIN` remains responsible for technical settings. Policy versions and accepted values are snapshotted to each order so later policy changes apply prospectively. Settlement in the target is a direct bank transfer from Client to Provider with the Platform invoicing its commission separately; no payment-partner integration is planned or required. Platform supplies YOLO, data processing, MinIO, and LLM narrative assistance for Provider/Client use and bears those operating costs; Provider quotations do not separately charge Clients for that infrastructure. These are target-scope changes, **not work already delivered**. The existing WBS and 135 man-days below describe the earlier baseline and must be re-estimated before anyone claims the redesign is deliverable within it. Drone flight control, unlicensed deposit custody and legal arbitration by the Platform remain out of scope.
+SmartDroneInspection is an Enterprise, multi-tenant Software-as-a-Service (SaaS) platform engineered for infrastructure-owning enterprises to manage their physical infrastructure assets, drone fleet, workforce credentials, regulatory flight permits, inspection evidence, AI defect detection, certified reports, and maintenance remediation. The platform offers an ENTERPRISE subscription model supporting flexible billing intervals of 1, 6, or 12 months with integrated online payment processing via PayPal (Orders v2 API and webhook notifications for automated tenant subscription activation and quota unlocking). Internal maintenance and repair actuals remain an enterprise cost accounting register (operational expenditures), not an online e-commerce checkout. Drone flight control, autonomous aircraft piloting, and unlicensed deposit custody remain strictly out of scope.
 
 | # | WBS Item | Complexity | Est. Effort<br>(man-days) |
 | --- | --- | --- | --- |
@@ -90,7 +98,7 @@ Quality: 100% of Must requirements are linked to test evidence; all critical wor
 | --- | --- | --- | --- | --- | --- |
 | 1 | Reviewing | 100% baseline documents |  |  | Cross-review, traceability and feedback closure. |
 | 2 | Unit Test | >=80% branch coverage in core rule modules |  |  | Permissions, pricing, configuration and state transitions. |
-| 3 | Integration Test | 100% critical API contracts |  |  | PostgreSQL, MinIO, AI, and manual invoice/payment-status recording. |
+| 3 | Integration Test | 100% critical API contracts |  |  | PostgreSQL, MinIO, AI, PayPal online checkout/capture, and billing status recording. |
 | 4 | System Test | 100% critical end-to-end scenarios |  |  | No Critical/High defect; mainflows, failures and organization isolation. |
 | 5 | Acceptance Test | 100% agreed Must scenarios |  |  | No Critical/High defect; supervisor-reviewed demonstration evidence. |
 
@@ -145,7 +153,7 @@ Quality is managed through prevention, review and layered testing. Requirements,
 
 - Unit Testing: test permissions, pricing, scheduling and valid or invalid state transitions.
 
-- Integration Testing: verify web/mobile APIs, PostgreSQL, MinIO, AI services and manual invoice/payment-status recording. No online payment callback is in scope for the first release.
+- Integration Testing: verify web/mobile APIs, PostgreSQL, MinIO, AI services, PayPal REST API v2 checkout/capture transactions, and webhook signature verification.
 
 - System Testing: for the v1 baseline, execute its four existing WF1–WF4 workflows, five current roles, AI failure paths, report approval, maintenance and access isolation. MF1–MF5 and six proposed roles require new acceptance tests before they can be described as delivered.
 

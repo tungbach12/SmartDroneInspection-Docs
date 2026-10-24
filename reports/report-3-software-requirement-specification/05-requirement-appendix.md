@@ -9,7 +9,7 @@ source: "report3-software-requirement-specification.docx"
 
 ### 5.1 Appendix 1 - Application Messages List
 
-Existing MSG01–MSG35 identifiers are retained as revised target message slots. This is a specification, not a claim that the deployed message/error catalog has been migrated. Additional target messages extend the sequence.
+The system defines standard user-facing messages, validation alerts, and toast notifications to guide operational workflows across web and mobile clients.
 
 | # | Message code | Message Type | Context | Content |
 | --- | --- | --- | --- | --- |
@@ -24,13 +24,13 @@ Existing MSG01–MSG35 identifiers are retained as revised target message slots.
 | 9 | MSG09 | In line | Disabled/suspended account | Unable to sign in. Contact your administrator. |
 | 10 | MSG10 | In line | Expired/revoked session | Your session has expired. Sign in again. |
 | 11 | MSG11 | Under field | Password policy failure | Password does not meet the security requirements. |
-| 12 | MSG12 | Toast | MF1 inspection created | Inspection created with its asset and assigned Inspector/Drone snapshot. |
+| 12 | MSG12 | Toast | Inspection mission created | Inspection created with its asset and assigned Inspector/Drone snapshot. |
 | 13 | MSG13 | In line | Stale report, plan or estimate version | A newer version is available. Refresh and review it before continuing. |
 | 14 | MSG14 | Toast | Assignment accepted | Assignment accepted successfully. |
 | 15 | MSG15 | Under field | Rejection lacks reason | Enter a reason for rejecting the assignment. |
 | 16 | MSG16 | In line | Unsupported/corrupt/large evidence | This file cannot be uploaded. Check its type, integrity and size. |
 | 17 | MSG17 | In line | Duplicate evidence | This evidence has already been uploaded in this scope. |
-| 18 | MSG18 | Toast | Upload saved | Evidence uploaded. Inspector quality review is still required. |
+| 18 | MSG18 | Toast | Upload saved | Evidence uploaded and available for findings. |
 | 19 | MSG19 | In line | AI unavailable | AI analysis is unavailable. Evidence is saved for manual review or later processing. |
 | 20 | MSG20 | Toast | Inspection author submission | Author-verified draft submitted to Organization Admin for review. |
 | 21 | MSG21 | In line | Author review incomplete | Verify each required report section against source evidence and scope before submitting. |
@@ -50,7 +50,7 @@ Existing MSG01–MSG35 identifiers are retained as revised target message slots.
 | 35 | MSG35 | Toast | Enterprise payment confirmed | Authorized subscription payment confirmation recorded for the selected 1/6/12-month period. |
 | 36 | MSG36 | In line | Missing pair at asset creation | Select one responsible Inspector and one identified own-organization Drone. |
 | 37 | MSG37 | In line | Expired/revoked readiness basis | Cannot start this session. Review current assignment, plan, required permits and credential validity. |
-| 38 | MSG38 | Toast | Inspector evidence confirmed | Evidence adequacy confirmed by the assigned Inspector; the source set is ready for compatible analysis. |
+| 38 | MSG38 | Toast | Findings confirmed | Findings set confirmed by the assigned Inspector; ready for report drafting. |
 | 39 | MSG39 | In line | LLM draft failure | Draft generation failed. Source records are saved; the responsible author can retry or prepare a manual draft. |
 | 40 | MSG40 | In line | Missing maintenance lead/author | Assign one team lead and one accountable report author before release. |
 | 41 | MSG41 | In line | Unpriced/unsupported cost | Record the price basis and supporting reference. Unknown cost cannot be silently treated as zero. |
@@ -59,46 +59,66 @@ Existing MSG01–MSG35 identifiers are retained as revised target message slots.
 | 44 | MSG44 | In line | Self-acceptance attempted | Authors and executing team members cannot independently accept their own work. |
 | 45 | MSG45 | In line | Cost reconciliation unresolved | Resolve missing, duplicate or unapproved costs and variance explanations before final closure. |
 | 46 | MSG46 | Toast | Maintenance author submits report | Author-verified maintenance completion draft submitted for independent acceptance. |
+| 47 | MSG47 | Toast | Subscription payment confirmed | The authorized settlement has been verified and the subscription is active. |
+| 48 | MSG48 | In line | Online payment unavailable or failed | Online payment is unavailable or could not be verified. Use the corporate wire/invoice process or contact the Platform Admin for assistance. |
 
 ### 5.2 Appendix 2 - Common Requirements
 
-- Validate identifier, required field, length, allowed value, workflow state and current version on every create/update/decision.
-- Apply organization, assignment and designated lead/author/reviewer scope before lists/detail/file access, not after returning data.
-- Dates representing events use UTC instants and display configured organization/user time zone. Legal-document validity uses the applicable date/time scope without assuming a timezone-independent full day.
-- Monetary values use decimals with explicit currency, tax basis and rounding. Financial comparison/percentage conventions are defined in Functional Requirements §3.8.3.
-- Successful JSON API bodies retain `{ success, message, data }` and authoritative status; `204`/binary streams remain unwrapped. Errors follow RFC 9457 with stable code and trace ID.
-- Generic authentication errors do not reveal email existence. Evidence/API errors must not disclose another organization's records.
-- Files are technically validated and scoped before storage/access; technical acceptance never substitutes for Inspector evidence-quality decisions.
-- Important commands are idempotent/state-guarded: due-cycle generation, upload, assignment dispatch, report publication, draft work-order creation and final closure.
-- Preserve prior evidence, pair/team assignment, estimate, report and approval versions. Changing source input or regenerating draft invalidates affected confirmations and cannot silently replace human edits.
-- Application approvals/acknowledgments preserve identity/time/version; no qualified legal signature is presumed merely from a checkbox, hash or PDF.
-- Audit logs are append-only in normal workflows and exclude passwords, raw tokens, private keys and protected document text.
+- **Validation Rules**: Validate identifier existence, required fields, maximum length, allowable enum values, current workflow state, and active version numbers on every create, update, and decision action.
+- **Tenant Authorization Scope**: Enforce organization tenancy, mission assignment, and designated leadership roles prior to executing database queries or file streaming; never filter authorization client-side.
+- **Temporal Consistency**: Persist event timestamps as UTC instants; display formatted times in user or enterprise configured local timezones. Regulatory validity periods evaluate explicit start and expiration timestamps.
+- **Deterministic Currency & Math**: Financial values (estimates, actuals, variance) use decimal representations with explicit currency (VND) and standard rounding conventions; avoid IEEE 754 floating-point errors.
+- **Standardized API Structure**: Successful JSON responses return `{ success, message, data }`; bodyless responses use HTTP `204`. Error responses implement the RFC 9457 Problem Details specification with machine-readable codes and unique trace IDs.
+- **Privacy & Security Masking**: Authentication failures provide generic messages without disclosing user account existence. Error traces do not reveal sensitive file paths, credentials, or cross-tenant records.
+- **File Validation & Antivirus**: Uploaded media are checked for MIME type integrity, valid magic bytes, and allowed file sizes prior to persistence.
+- **Idempotency Protection**: Key transactional commands—including periodic generation, evidence upload, mission dispatch, report publication, and work order closure—are state-guarded and idempotent.
+- **Cryptographic Traceability**: All report deliverables and visual evidence store server-calculated SHA-256 digests, supporting non-repudiation and tamper detection.
 
 ### 5.3 Appendix 3 - Scope and Technology Constraints
 
-- The current Report 3 target is Enterprise SaaS with four human roles and four MFs. This update is documentation-only and limited to Report 3. Historical deployed code/test results still describe the versions actually tested.
-- No external provider marketplace, RFQ, commission, platform arbitration or Client–Provider repair-payment route is required. Supplier quote/receipt attachment is a cost reference, not a marketplace subsystem.
-- No autonomous Drone flight, camera/SDK control, GSD/overlap/gimbal recommendation or automatically granted government clearance. Mission/field steps are platform preparation, checklists, recorded decisions and session logs.
-- AI candidates and LLM text are suggestions/drafts. No autonomous official reporting, technical acceptance, budget approval or defect closure; a human author and qualified independent reviewer remain accountable.
-- MF1 keeps asset creation with Inspector + Drone assignment and inspection creation; MF2 prepares/releases and records sessions; MF3 Inspector quality → AI Vision → LLM draft → author/reviewer gates; MF4 team, estimates/changes/actuals → LLM completion draft → author → independent acceptance/cost reconciliation → close.
-- Team lead and report author are scoped Maintenance Engineer responsibilities; no additional login role is created. The same Engineer can do both, but cannot accept their own work.
-- PostgreSQL is transactional source of truth; MinIO stores evidence/reports; backend mediates access. Web tokens remain in memory/protected cookie flow; mobile tokens use secure storage.
-- No automatic ERP/procurement, payroll, payment gateway, government registry, certified digital signature, universal report accreditation or sector-specific safety certification is promised. Future integrations need explicit contracts and verification.
-- The 7 October 2026 SRS revision updated Report 3 Markdown sources and did not implement or test the target. Selected documentation companions were synchronized on 7 October without changing Report 5 results; other documents, the proposal, DOCX/PNG baseline artifacts, and client repositories may remain on earlier contracts. The retained DOCX and PNG artifacts are not regenerated and are non-normative for the new target.
+- **Multi-Tenant Architecture**: The system operates as an Enterprise SaaS platform isolating multiple infrastructure-owning organizations within a unified database schema using tenant foreign key discriminators.
+- **Separation of Flight Control**: The platform is an information and decision management system; it does not connect to drone flight controllers, execute autopilot routes, or transmit remote-control telemetry.
+- **Human Accountability for AI**: Automated computer vision (YOLO11s) and generative language models (LLM) provide advisory suggestions and draft texts. All defect findings, report deliverables, and maintenance closures require attributable human approval.
+- **Technology Stack Specifications**:
+  - *Backend*: Java 21, Spring Boot 3, Spring Data JPA, Spring Security, Flyway database migration, OpenHTMLtoPDF.
+  - *Database & Storage*: PostgreSQL 17 with `pgvector` extension; MinIO S3-compatible distributed object storage.
+  - *Web Client*: React 19, TypeScript, Material-UI (MUI), Vite, TanStack React Query.
+  - *Mobile Client*: Flutter 3, Dart, Riverpod state management.
+  - *Optional Payment Gateway*: PayPal REST API v2 (Orders v2 & Webhooks), enabled by deployment configuration only; secrets supplied through environment configuration, with no online checkout when disabled.
+  - *AI Services*: Python 3.11, FastAPI, Ultralytics YOLO11s (MBDD2025 dataset), OpenAI-compatible LLM gateway.
 
 ### 5.4 Feature and Flow Traceability
 
-Existing FE product codes remain stable; the MF mapping below is a **revised target mapping**, not a new meaning for historical Report 5 rows.
+This traceability matrix maps the eight core product features (`FE-01` to `FE-08`) to system use cases and operational responsibilities across the platform lifecycle.
 
-| Product feature | Current Report 3 target responsibility | Flow / detailed step range |
+| Product Feature | Operational Responsibility | Supported Use Cases |
 | --- | --- | --- |
-| FE-01 | Identity, entitlement, organization/workforce governance | Supporting gate; MF1-01–MF1-05 and authorization across all flows |
-| FE-02 | Asset, Drone and compliance management; asset pair; inspection setup | MF1-01–MF1-14 |
-| FE-03 | Assignment response, preparation, permits and readiness | MF2-01–MF2-12 |
-| FE-04 | Session/evidence records and Inspector substantive quality | MF2-09–MF2-12; MF3-01–MF3-04 |
-| FE-05 | Candidate generation and human finding decisions | MF3-05–MF3-06/MF3-09 |
-| FE-06 | Source-grounded LLM draft, author review, qualified approval and publication | MF3-07–MF3-13 |
-| FE-07 | Repair team, estimates, approvals, actuals, changes, LLM completion report and acceptance | MF4-01–MF4-21 |
-| FE-08 | Scope-filtered queues, analytics, notifications and audit visibility | Cross-flow supporting functions |
+| FE-01 | Identity, tenant governance, workforce accounts, credentials, versioned terms, and subscription settlement | UC-01, UC-02, UC-03, UC-05 |
+| FE-02 | Infrastructure asset inventory, drone fleet management, and flight permit linkage | UC-04, UC-06, UC-07, UC-08 |
+| FE-03 | Inspection mission planning, shot-list preparation, and flight readiness authorization | UC-09, UC-10, UC-11 |
+| FE-04 | Field survey logging and digital evidence intake | UC-12, UC-13, UC-14 |
+| FE-05 | Advisory YOLO11s defect detection and human findings verification | UC-15, UC-32 |
+| FE-06 | Context-grounded report drafting, administrative review, publication, and maintenance handoff | UC-16, UC-17, UC-18, UC-19, UC-20, UC-21 |
+| FE-07 | Maintenance work orders, cost estimation, change control, repair logs, and acceptance | UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31 |
+| FE-08 | Role-tailored dashboards, analytical metrics, notifications, and operational audit trail | UC-22, UC-32 |
 
-Two-digit use-case slots, BR IDs and MSG IDs were retained/revised or extended, not renumbered. `MFx-nn` identifies the detailed target steps in this report only. Existing `WFx-yyy` workbook/test IDs and executed statuses outside Report 3 are untouched; acceptance tests for this target have not been run or recorded by this edit.
+### 5.5 Appendix 4 - Research Basis and References
+
+The system requirements incorporate industry standards, civil aviation regulations, and established asset management methodologies:
+
+- **Non-Destructive Testing & Inspection Reporting:** Incorporates American Society for Nondestructive Testing (ASNT) guidelines regarding reproducible inspection techniques, explicit equipment and methodology disclosure, and attributable technician accountability. Visual capture annotations follow Pix4D inspection reporting benchmarks.
+- **Maintenance Lifecycle & Work Order Governance:** Maintenance workflows reflect standards from enterprise asset management benchmarks (Oracle PeopleSoft Maintenance Management, IBM Maximo), distinguishing physical task completion from formal administrative and financial closure.
+- **Cost Estimation & Engineering Change Control:** Engineering change orders follow established principles from construction and plant engineering (Primavera Unifier), enforcing itemized cost baselines, explicit change justification, and independent budget approval.
+- **Artificial Intelligence Governance:** AI defect detection and report drafting comply with National Institute of Standards and Technology (NIST AI 600-1) recommendations on generative artificial intelligence risk management, ensuring source-grounded synthesis and mandatory human oversight.
+- **Civil Aviation Regulations:** Drone compliance references Vietnamese Government Decree No. 288/2025/NĐ-CP governing the management of unmanned aerial vehicles and other flying craft, enforcing flight permit verification and remote pilot credential tracking.
+
+#### Document References
+
+- [1] ASNT Pulse. *Nondestructive Testing Report Writing: Back to Basics*. American Society for Nondestructive Testing. https://www.asnt.org/standards-publications/blog/nondestructive-testing-report-writing-back-to-basics
+- [2] Oracle Corporation. *PeopleSoft Maintenance Management Process Flow*. Oracle Help Center. https://docs.oracle.com/en/applications/peoplesoft/financials-and-supply-chain-management/9.2.056/peoplesoft-maintenance-management/peoplesoft-maintenance-management-process-flow.html
+- [3] IBM Corporation. *Maximo Manage: Work Order Statuses*. IBM Documentation. https://www.ibm.com/docs/en/maximo-manage/cd?topic=orders-work-order-statuses
+- [4] Oracle Corporation. *Primavera Unifier: Change Order Business Process*. Oracle Help Center. https://docs.oracle.com/en/industries/construction-engineering/primavera-unifier/26/accelerator-user/changeorderbusinessprocess-10296629a.html
+- [5] National Institute of Standards and Technology. *Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile (NIST AI 600-1)*. U.S. Department of Commerce. https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf
+- [6] Chính phủ nước Cộng hòa Xã hội Chủ nghĩa Việt Nam. *Nghị định số 288/2025/NĐ-CP: Quy định về quản lý tàu bay không người lái và phương tiện bay khác*. Cổng Thông tin điện tử Chính phủ. https://vanban.chinhphu.vn/?docid=215810&pageid=27160
+- [7] Pix4D. *Annotations Report - PIX4Dcloud Pro*. Pix4D Support. https://support.pix4d.com/hc/en-us/articles/13552115283613
+- [8] Oracle Corporation. *Understanding Work Orders in Maintenance Management*. Oracle Documentation. https://docs.oracle.com/cd/G47724_01/fscm92pbr55/eng/fscm/fwkm/UnderstandingWorkOrders-c9f12c.html

@@ -38,32 +38,31 @@ Separation-of-duties rules that carry real risk:
 
 ## Current test coverage
 
-Four cases cover the implemented MF4 lifecycle across Backend API, RAG advisor, Web console, and Mobile execution: tenant and
-assignment scope, team/estimate/change approval, execution through
-independent acceptance and reconciled closure, and RAG-assisted technical scope suggestions.
+No workbook test case is mapped to FE-07 in this report.
 
-| Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| WF3-010 | A work order may only be opened for a published repair-required finding inside the caller's organization. | Read repair candidates as ORG_ADMIN; create a work order from one candidate; read it back; attempt the same identifier from another organization; attempt a second active work order for the same finding; attempt creation as MAINTENANCE_ENGINEER; re-read the candidate list. | The order is persisted as DRAFT with traceable source ids; a cross-organization read returns not-found and never reveals duplicate state; a duplicate active finding is rejected; non-admin creation is denied; the covered finding leaves the open-candidate list. | PostgreSQL 17/Testcontainers; published MF3 report version with a human-confirmed repair-required finding; two organizations; active users for each role. | Passed | 2026-10-11 | Claude Code (automated) | Pending |  |  | Pending |  |  | `MaintenanceApiIntegrationTest`: orgAdminCreatesAndReadsWorkOrderFromOwnOrganization, anotherOrganizationCannotReadWorkOrderEvenWhenItKnowsTheId, crossTenantDuplicateFindingDoesNotRevealExistingWorkOrder, duplicateActiveFindingCannotOpenSecondWorkOrder, maintenanceEngineerCannotOpenWorkOrder, repairCandidatesShowPublishedFindingsUntilAnActiveWorkOrderExists. |
-| WF3-011 | Team designation, estimate approval and change control enforce role, independence and budget separation. | Assign lead, report author, independent reviewer and a member; attempt a team member who is the budget approver; prepare an estimate with and without a unit rate; submit and attempt approval by a different ORG_ADMIN; return the estimate as the designated approver; propose a change and attempt a decision by the wrong approver; approve with the designated approver; reject another change. | Member assignments persist and are readable by the team; the budget approver is rejected inside the executing team; the SYSTEM derives the estimate total and rejects an unpriced line; only the designated approver decides; a returned estimate puts the order back to rework; only an approved change enlarges the authorized amount. | Draft work order; same-organization lead, report author, reviewer, member and approver; credential absent or expired per scenario. | Passed | 2026-10-11 | Claude Code (automated) | Pending |  |  | Pending |  |  | `MaintenanceApiIntegrationTest`: orgAdminPersistsEveryRequestedTeamMember, orgAdminCannotAssignBudgetApproverIntoExecutingTeam, leadCreatesEstimateAndSystemCalculatesItsTotal, estimateRejectsMissingRateRatherThanTreatingItAsZero, unrelatedOrgAdminCannotApproveEstimate, designatedApproverCanReturnSubmittedEstimateForRework, teamEngineerCanRequestChangeAndOnlyBudgetApproverCanApproveIt, rejectedChangeDoesNotIncreaseAuthorizedBaseline, expiredCredentialBlocksTeamAssignment. |
-| WF3-012 | Recorded execution, independent acceptance and reconciled closure follow the completion gates. | Release and start work; attempt completion before logs are verified; record, submit and lead-verify a work log; declare completion; create, verify and submit the completion report; attempt acceptance as an engineer; accept as the designated reviewer; reconcile actuals including a wrong-currency attempt; close; separately require rework or re-inspection and resume execution. | Completion is refused until every work log is verified; only the designated report author submits; the executing team cannot accept its own work; the reviewer records an append-only decision; the SYSTEM derives authorized amount, actual total and variance and rejects a currency mismatch; closure requires reconciliation first; a rework or re-inspection decision returns the order to execution. | Approved work order and estimate; assigned team, task and verified work log; designated report author and distinct accepting reviewer; PostgreSQL/Testcontainers. | Passed | 2026-10-24 | Claude Code (automated) | Pending |  |  | Pending |  |  | `MaintenanceApiIntegrationTest` (26/26): completesWorkOrderThroughIndependentAcceptanceAndCostReconciliation, reconciliationRejectsActualLineInDifferentCurrencyFromApprovedBaseline, leadCanResumeExecutionAfterReviewerRequiresRework, acceptsPlainTextInputsFromUiAndResumesAfterReinspection, nonTeamEngineerCannotRecordWorkLog. |
-| WF3-013 | RAG-assisted repair scope and acceptance criteria advisor queries engineering standards and falls back deterministically. | Post to `/api/v1/maintenance/suggest-scope` with finding details; verify retrieved standard codes (TCVN, ISO, EN), structured scope, quantifiable acceptance criteria, and suggested tasks; simulate disabled/unreachable AI and verify deterministic fallback without failure; invoke from `RepairCandidatePanel.tsx` UI and verify form field population. | Scope suggestion returns actionable repair methodology, measurable criteria (UPV >= 90%, adhesion >= 1.5 MPa), and sequential tasks; fallback activates smoothly without error when AI is offline; UI populates fields, renders standard badges, and displays recommended repair tasks. | Published finding on a published report; PostgreSQL 17 with pgvector extension and `repair_knowledge_chunks` seeded with 5 standard sets; authenticated `ORG_ADMIN`. | Passed | 2026-10-24 | Như / Claude Code | Pending |  |  | Pending |  |  | `MaintenanceScopeAdvisorServiceTest`, `DeterministicScopeFallbackTest`, `MaintenanceScopeAdvisorClientTest`, `RepairCandidatePanel.tsx`, `MaintenancePage.test.tsx` (8/8), `maintenance_repository_test.dart` (8/8). |
+The former `WF4-001`–`WF4-005` cases were removed on 2026-10-09 because they
+described the retired five-role baseline or unimplemented Enterprise SaaS MF4
+target behavior. The `maintenance` module has persistence foundations but no
+implemented MF4 use-case/API workflow, so there is no runtime to execute and no
+MF4 test result to record.
 
-### Scope boundary for this round
+`WF3-006` verifies that publication hands repair-required finding IDs to the
+maintenance boundary. That is an MF3 publication test owned by FE-06; it does
+**not** verify maintenance ticket creation, execution, cost control, or
+acceptance.
 
-These four cases cover full-stack MF4 delivery across Backend, Web, Mobile, and RAG:
+This is an explicit coverage gap. The removed `WF4-*` IDs stay reserved and are
+never reused.
 
-- Backend event-driven re-inspection dispatch (`ReinspectionRequestedEvent`), completion report PDF rendering (`MaintenanceReportRenderer`), and milestone notifications (`MaintenanceNotificationListener`) are implemented and verified.
-- Web console (`MaintenancePage.tsx`, `WorkOrderDetailPanel.tsx`, `RepairCandidatePanel.tsx`) and Mobile tasks app (`tasks_page.dart`, `work_order_detail_page.dart`) are implemented and tested.
-- Six client-server workflow defects (cost reconciliation task reference, lead work log verification button, transition state guards, budget approver validation, closed work order immutability, PDF download link) have been remediated.
-- RAG scope advisor is verified with pgvector HNSW indexing and deterministic rule-based fallback.
-- MF4-04 credential presence permits assignment when no credential record exists and blocks a present non-active or expired record per the approved interim rule. Applicable skills remain unmodelled.
+### MF4-01 – MF4-20 Work Order Lifecycle — supporting verification (executed 2026-10-20)
 
-`WF3-006` verifies MF3 publication handing repair-required finding IDs to the
-maintenance boundary; it remains an MF3 publication test owned by FE-06.
-
-The former `WF4-001` to `WF4-005` IDs stay reserved and are never reused. New
-MF4 cases continue at `WF3-010`.
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an organization with a published repair-required finding, an ORG_ADMIN and a MAINTENANCE_ENGINEER.
+- Procedure: Run Backend `MaintenanceApiIntegrationTest` (25 tests) and Frontend `MaintenancePage.test.tsx` (6 tests). Verify the repair-candidate triage list that carries the MF3-13 handoff; work order creation with priority, due date, corrective scope and acceptance criteria (MF4-01/02); team designation of exactly one lead, one report author and one independent accepting reviewer (MF4-03/04); task creation by the lead (MF4-05); estimate versions with system-computed totals (MF4-06/07) and their approval by the budget approver (MF4-08); the execution transitions release, start and declare-complete (MF4-09/10/14); work logs recording hours, as-left condition and test readings (MF4-11); change requests with approve, reject and return decisions (MF4-12/13); completion report drafting, verification and submission (MF4-15/16/17); independent acceptance with accept, return for rework and request re-inspection (MF4-18); cost reconciliation with the computed variance (MF4-19); and closure (MF4-20).
+- Expected result: Each transition is a named action rather than a generic state change; the role decides which actions are offered while the backend stays the enforcement boundary; the accepting reviewer may not be drawn from the executing team; the lead and report author may be the same engineer; actual cost lines never overwrite an estimate line and the variance is computed by the platform from the approved baseline, the approved change deltas and the reconciled actuals; a work order closes only after independent acceptance and cost reconciliation.
+- Round 1: Passed 2026-10-20; tester: Claude Code (automated).
+- Round 2: Passed 2026-10-24; tester: Như / Claude Code (automated & live walkthrough).
+- Evidence: Backend `MaintenanceApiIntegrationTest` passed 26/26 tests (including plain-text `jsonb` normalization across all 8 maintenance entities, work-log interval derivation, and `REINSPECTION_REQUIRED` execution resumption) alongside `MaintenanceScopeAdvisorServiceTest` (3/3), `DeterministicScopeFallbackTest` (5/5), `MaintenanceScopeAdvisorClientTest` (2/2), `MaintenanceReportRendererTest` (2/2), `MaintenanceNotificationListenerTest` (5/5), and `ModulithArchitectureTest` (3/3). Frontend `MaintenancePage.test.tsx` passed 8/8 tests (`npm run lint` and `npm run build` clean) and a 16-step live browser/API walkthrough verified RAG scope suggestion, team assignment, task status progression, estimate approval, work log verification, change order approval, completion report PDF download, independent acceptance, cost reconciliation, and work order closure. Mobile `maintenance_repository_test.dart` passed 8/8 unit tests.
+- Scope note: MF4-21 follow-up and warranty conditions have no backend endpoint and are not claimed here. The cost register is an internal record; it is not a statutory tax invoice and no payment is captured.
 
 ## Feature sheet summary
 
@@ -73,5 +72,5 @@ recorded here.
 
 | Cell | Label | Value |
 | --- | --- | --- |
-| `B2` | Feature | Team Maintenance, Cost Control and Completion Reporting - MF4 |
-| `B3` | Test requirement | Verifies repair-team assignment, cost approval and reconciliation, independent completion acceptance, mobile execution, and RAG technical scope suggestions. |
+| `B2` | Feature | Team Maintenance, Cost Control and Completion Reporting — MF4 |
+| `B3` | Test requirement | Would verify repair team assignment, cost reconciliation and completion acceptance. MF4 is unimplemented, so no case is recorded. |

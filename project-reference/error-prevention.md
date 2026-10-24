@@ -6,7 +6,9 @@ weight: 30
 
 # Hướng dẫn tránh lỗi Capstone cho nhóm SmartDroneInspection
 
-> **Status — 7 October 2026:** This guide contains useful general quality principles, but its scenario-specific role, workflow, demo-script and review-question examples were written against earlier project baselines. Treat those examples as historical, not current product scope or implementation evidence. The current target has four roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`) and MF1–MF4; the backend reset has not implemented those workflow behaviors. Reconcile examples against current Report 3 and current runtime before using them in a demo or submission.
+> **Status — 10 October 2026:** This guide contains useful general quality principles, but its scenario-specific role, workflow, demo-script and review-question examples were written against earlier project baselines. Treat those examples as historical, not current product scope or implementation evidence. The current target has **four** roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`) and MF1–MF4.
+>
+> **Implementation update (10 Oct 2026):** MF1-02–MF1-07 are now implemented and verified on backend branch `integrate/mf1-resources`: subscription entitlement, ORG_ADMIN workforce provisioning, MF1-04/05 credential records, MF1-06 Drone inventory/documents and MF1-07 permit records. Verified by `./mvnw verify`, coverage gate met. **Still unimplemented: MF1-01, MF1-08–MF1-14, MF2 and MF4.** Any demo may show only the slices listed above.
 
 Tài liệu này chuyển các lưu ý trong *Cẩm nang tránh lỗi Capstone SE* thành checklist thực hành cho nhóm. Nguyên tắc quan trọng nhất: **tài liệu, mã nguồn, dữ liệu kiểm thử và nội dung demo phải mô tả cùng một hệ thống**. Không ghi một tính năng là đã hoàn thành nếu chưa có mã nguồn và bằng chứng kiểm thử tương ứng.
 
@@ -35,7 +37,7 @@ Tài liệu này chuyển các lưu ý trong *Cẩm nang tránh lỗi Capstone S
 
 ### Actor và quyền (mục tiêu hiện tại)
 
-Bốn role liệt kê dưới đây là mục tiêu ngày 7 October 2026. Các ví dụ phía sau nhắc Service Manager, Client, Provider Manager, quotation/order, peer-review, billing hoặc demo WF1–WF4 thuộc baseline lịch sử, không phải scope hiện tại hay bằng chứng triển khai. Backend reset chưa hiện thực workflow MF1–MF4; không dùng các ví dụ đó như quy trình có thể chạy hiện nay.
+Bốn role liệt kê dưới đây là mục tiêu ngày 7 October 2026. Các ví dụ phía sau nhắc Service Manager, Client, Provider Manager, quotation/order, peer-review, billing hoặc demo WF1–WF4 thuộc baseline lịch sử, không phải scope hiện tại hay bằng chứng triển khai. MF1-02–MF1-07 đã có runtime và bằng chứng chạy thật; MF1-01, MF1-08–MF1-14, MF2 và MF4 vẫn chưa hiện thực. Không dùng các ví dụ lịch sử đó như quy trình có thể chạy hiện nay.
 
 Bốn actor nghiệp vụ chính thức của dự án là:
 
@@ -57,7 +59,7 @@ Không dùng lại các tên role cũ như Viewer, Inspection Manager, Service M
 
 - ERD trong SRS nên là mô hình khái niệm hoặc mức cao; không trộn ký hiệu tùy ý hay biến nó thành bản dump database vật lý.
 - Mỗi quan hệ phải có cardinality hợp lý và phản ánh đúng workflow.
-- Architecture diagram phải thể hiện đúng target stack và phân biệt rõ phần nào đang chạy, phần nào còn planned; ghi rõ inspection/maintenance workflows chưa được implement trong backend reset branch.
+- Architecture diagram phải thể hiện đúng target stack và phân biệt rõ phần nào đang chạy, phần nào còn planned; ghi rõ rằng MF1-02–MF1-07 và MF3 đã có runtime, còn MF1-01, MF1-08–MF1-14, MF2 và MF4 chưa được implement.
 - Không tự thêm hệ thống hoặc tích hợp ngoài vào sơ đồ nếu workflow, code và phạm vi dự án không có. Ảnh kiểm tra hiện được tải lên từ SD card, máy tính hoặc thiết bị di động.
 
 ## 4. Business rule và luồng ngoại lệ
@@ -90,6 +92,8 @@ Các rule mục tiêu ngày 7 October 2026 dưới đây là yêu cầu cần tr
 - Enum chỉ dùng cho tập giá trị ổn định; dữ liệu nghiệp vụ thường xuyên thay đổi nên lưu trong database.
 - Mọi default quan trọng phải được ghi trong tài liệu triển khai và có thể override theo môi trường.
 
+Ghi chú: "có comment giải thích" **không** thoả điều kiện "có thể override". Một hằng số được document vẫn là hằng số hardcode cho tới khi nó đọc được từ cấu hình.
+
 ## 6. AI/YOLO: trình bày đúng và có kiểm soát
 
 - Ghi rõ model name/version, dataset, metric, ngưỡng confidence và ngày đánh giá.
@@ -103,7 +107,7 @@ Các rule mục tiêu ngày 7 October 2026 dưới đây là yêu cầu cần tr
 
 - Test case phải xuất phát từ functional requirement, business rule và exception flow; không chỉ kiểm thử UI happy path.
 - Lưu kết quả chạy test thực tế. Không dùng bảng test “Pass” nếu chưa chạy hoặc không có evidence.
-- Ưu tiên test các ranh giới quyền của target workflow: cross-organization, unassigned Inspector/Engineer, report-author verification, ORG_ADMIN authority và unauthorized transitions. Các mục này là test obligations; chúng chưa khẳng định reset branch đã cung cấp các API đó.
+- Ưu tiên test các ranh giới quyền của target workflow: cross-organization, unassigned Inspector/Engineer, report-author verification, ORG_ADMIN authority và unauthorized transitions. Cross-organization và ORG_ADMIN authority cho MF1-02–MF1-07 đã có test chạy thật; các ranh giới còn lại vẫn là test obligations chưa có API tương ứng.
 - Viết case idempotency/concurrency cho các target write paths; chỉ ghi kết quả khi implementation tồn tại và test thực sự chạy. Report 5 target cases remain Pending until then.
 - Ghi rõ khi test MinIO/AI adapters chưa chứng minh deployed integration hoặc workflow path.
 - Traceability tối thiểu nên nối: `Workflow → Use Case → Requirement → Business Rule → Test Case → Demo Step`.
@@ -118,7 +122,7 @@ Các rule mục tiêu ngày 7 October 2026 dưới đây là yêu cầu cần tr
 
 ## 9. Demo script — historical v1 example (not the current target)
 
-The sequence below describes the retired five-role WF1–WF4/marketplace baseline. It is not a current Enterprise SaaS demo script, and it must not be presented as an end-to-end run of the reset branch. Build a replacement only from workflow slices that actually exist and have recorded verification evidence.
+The sequence below describes the retired five-role WF1–WF4/marketplace baseline. It is not a current Enterprise SaaS demo script, and it must not be presented as an end-to-end run of the reset branch. A replacement demo script may cover only the slices that exist with recorded verification evidence: **MF1-02–MF1-07** (entitlement, workforce provisioning, credential records, Drone inventory/documents, permit records) and **MF3** (evidence, findings, report publication). MF1-01, MF1-08–MF1-14, MF2 and MF4 must not appear in a demo.
 
 1. Historical example: Admin manages an account and role.
 2. Historical example: Client registers an asset and recurring schedule (WF1).
@@ -163,7 +167,7 @@ Nếu chưa làm, trả lời thẳng: “Chưa có trong phiên bản hiện t�
 ### D-7
 
 - Hoàn tất chức năng đã thực sự triển khai trong release scope và chạy các integration test tương ứng.
-- Lập demo script chỉ cho các đường đi hiện có bằng chứng; không quảng bá MF1–MF4 target như một luồng end-to-end đã chạy khi workflow còn chưa được implement.
+- Lập demo script chỉ cho các đường đi hiện có bằng chứng; không quảng bá MF1-01, MF1-08–MF1-14, MF2 hoặc MF4 như một luồng end-to-end đã chạy khi workflow còn chưa được implement.
 - Đóng blocker đã xác minh và cập nhật sơ đồ/tài liệu theo trạng thái code hiện tại.
 
 ### D-3
@@ -186,8 +190,8 @@ Nếu chưa làm, trả lời thẳng: “Chưa có trong phiên bản hiện t�
 
 ## 14. Câu hỏi nhóm phải tự trả lời được
 
-- Tại sao hệ thống có đúng năm role này và quyền của từng role nằm ở đâu?
-- Bằng cách nào ngăn truy cập chéo organization, và bằng chứng nào ghi nhận Inspector tác giả đã xác minh/chỉnh sửa report draft trước khi Provider Manager phát hành?
+- Tại sao hệ thống có đúng **bốn** role này và quyền của từng role nằm ở đâu?
+- Bằng cách nào ngăn truy cập chéo organization, và bằng chứng nào ghi nhận Inspector tác giả đã xác minh/chỉnh sửa report draft trước khi ORG_ADMIN phát hành?
 - Nếu YOLO đưa kết quả sai hoặc ngừng hoạt động, workflow tiếp tục ra sao?
 - Requirement nào chứng minh một periodic request không bị tạo trùng?
 - Khi maintenance phát sinh ngoài quotation đã duyệt, ai duyệt và hệ thống chặn ở bước nào?
@@ -203,7 +207,7 @@ Chấm từng mục: `0 = chưa có`, `1 = có nhưng chưa đủ bằng chứng
 |---|---:|
 | Template, mục lục, caption và pagination đúng | |
 | Actor/role nhất quán ở docs, code và demo | |
-| WF1–WF4 có main/alternative/exception flows | |
+| MF1–MF4 có main/alternative/exception flows | |
 | Use case, ERD, architecture và UI không mâu thuẫn | |
 | Business rule có trace đến code và test | |
 | AI có metric/version/human verification/fallback | |

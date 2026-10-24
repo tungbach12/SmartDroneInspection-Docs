@@ -10,15 +10,17 @@ fixed: `No`, `Function Name`, `Sheet Name`, `Description`, `Pre-Condition`.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Test environment | Local/integration environment with PostgreSQL, backend API, and web client; integration suites use a real MinIO container for object storage, and S3Mock 5.2.3 covers the S3 API subset in the adapter test. |
-| Baseline | **Verified MF2-07 readiness decisions and the implemented MF3 slice.** Current roles: `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`. Other MF2 steps remain partial or unimplemented as documented in FE-03. |
+| Baseline | **Verified MF2-07 readiness decisions and the implemented MF3 slice.** Current roles: `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`. The MF3-12/13 post-publication corrective-outcome and handoff code exists and its backend paths executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full `verify` gate), but `WF3-012` remains Pending until its complete end-to-end procedure is executed. Other MF2 steps remain partial or unimplemented as documented in FE-03. |
 
 ## Reset and reconciliation scope (2026-10-09 to 2026-10-10)
 
 The earlier content mixed a retired five-role WF1–WF4 baseline with the current
 four-role Enterprise SaaS target. The 2026-10-09 reset removed obsolete and
-unsupported cases. Later reconciliations restored the three MF2 cases
-(`WF2-008`–`WF2-010`) and added the verified MF4 backend API slice
-(`WF3-010`–`WF3-012`); Web/Mobile MF4 behavior is not yet case evidence.
+unimplemented cases. The 2026-10-10 reconciliation restored the two MF2-07
+readiness cases backed by merged backend PR #64 and its CI evidence; `WF2-010`
+was added later for the scoped preparation-history listing. The current
+additional-session loop and MF2-12 completion have focused tests but no complete
+Report 5 end-to-end case yet.
 
 Removed during the reset, because they describe behavior that no longer exists
 or was never implemented:
@@ -35,16 +37,16 @@ or was never implemented:
 - `WF4-001`–`WF4-005`: MF4 maintenance, triage and cost reconciliation.
 
 Retained MF3 cases: `WF3-002`, `WF3-003`, `WF3-005`, `WF3-006`, and `WF3-009`.
-The removed IDs remain reserved. New MF3 cases continue from `WF3-010`.
+The removed IDs remain reserved. `WF3-010`, `WF3-011` and `WF3-012` are active; new MF3 cases continue from `WF3-013`.
 
-The 2026-10-10 merge of backend PR #64, frontend PR #37 and mobile PR #9 added
-MF2 runtime. `WF2-008`/`WF2-009` record MF2-07 readiness approval/return;
-`WF2-010` records preparation-listing scope. MF2-08 invalidation is partial and
-MF2-12 session-end handoff remains unimplemented. MF4 backend API behavior is
-covered by `WF3-010`–`WF3-012` under FE-07; mandatory qualification, maintenance
-artifacts, notifications, linked MF1 re-inspection and client behavior remain
-uncovered. FE-01 supporting verification remains outside the case index and
-functional-case statistics; see `03-features/fe-01-identity-access-governance.md`.
+The 2026-10-10 merge of backend PR #64 (`84fcc16`), frontend PR #37
+(`287d5a4`) and mobile PR #9 (`91092e6`) added MF2 runtime. `WF2-008` and
+`WF2-009` now record MF2-07 readiness approve/return verification only; they do
+not claim full MF2 completion. MF2-08 generic invalidation is partial, and
+MF2-12 normal session completion is implemented in code and has focused tests but no Report 5 case. MF1 and
+MF4 remain gaps. FE-01
+supporting verification remains outside the workbook case index and functional
+case statistics; see `03-features/fe-01-identity-access-governance.md`.
 
 ## Case index
 
@@ -57,29 +59,39 @@ stable business-flow test-case ID.
 | 1 | `[WF2-008]` FE-03 — MF2 readiness approval | Feature 3 | An independent qualified ORG_ADMIN approves current submitted preparation only when actor, organization, source attribution, validity, pair chronology, applicability, and permit gates pass; invalid paths do not persist a decision or state transition. | PostgreSQL 17/Testcontainers, V25/V28 schema, assigned Inspector, independent active ORG_ADMIN, current submitted preparation, and persisted permit/credential/document/pair records. |
 | 2 | `[WF2-009]` FE-03 — MF2 readiness return | Feature 3 | A qualified reviewer returns submitted preparation despite evidence gaps, preserving the reason and exact observed/unresolved source IDs with completeness false; invalid reviewer/scope or blank reason changes no state. | PostgreSQL 17/Testcontainers, active independent ORG_ADMIN with valid reviewer credential, and current submitted preparation. |
 | 2a | `[WF2-010]` FE-03 — MF2 preparation listing scope | Feature 3 | An authorized Inspector reads the preparation history of an inspection in their own organization with `200`; an Inspector in another organization is refused with `404` rather than a server error, because the read path takes no pessimistic lock. | Two organizations each with an `INSPECTOR`; one inspection in the first organization; PostgreSQL 17/Testcontainers. |
-| 3 | `[WF3-002]` FE-04 — MF3 evidence and traceability | Feature 4 | Assigned Inspector uploads supported evidence with a server-computed checksum and source metadata, retry-safe persistence, and scoped read access; type, size, empty and corrupt/undecodable input are refused with a corrective action; the Inspector records the substantive evidence-quality decision together with the shot-list comparison that supports it. | Assigned inspection past field work; valid image, PostgreSQL via Testcontainers, and MinIO via the shared test infrastructure initializer. |
-| 4 | `[WF3-003]` FE-05 — MF3 AI candidate and finding review | Feature 5 | Inspector reviews AI candidates or records a manual finding; pending/rejected detections stay non-official; a confirmed candidate creates an undecided finding that only a qualified ORG_ADMIN can make official under MF3-09. | Accepted evidence set; deterministic inference stub or manual fallback available. |
-| 5 | `[WF3-005]` FE-06 — MF3 human verification gates and section-scoped drafting | Feature 6 | Candidates and the report draft are verified by the author Inspector and approved by a qualified ORG_ADMIN before publication; automated drafting proposes section values without altering the reviewed findings, and a manual structured draft remains possible when drafting is unavailable. | Confirmed evidence set, an assigned Inspector, and a qualified reviewer in the same organization. |
-| 6 | `[WF3-006]` FE-06 — MF3 immutable approved report with PDF deliverable | Feature 6 | The approved report version is immutable and source-traceable, publication stores its PDF deliverable and records the checksum, and only repair-required findings are handed to MF4. | Published MF3 review artifacts exist. |
-| 7 | `[WF3-009]` FE-04 — MF3 scoped inspection and report collections | Feature 4 | A caller reaches MF3 through a server-paged, role-scoped list instead of a hand-entered identifier; the report review queue is the same collection filtered to inspections that carry a report. | Two organizations and fixtures for each of the four roles exist. |
-| 8 | `[WF3-010]` FE-07 — MF4 work-order source and tenant scope | Feature 7 | ORG_ADMIN reads published repair candidates and opens one draft work order; duplicate active finding is rejected, cross-tenant requests are not-found, and non-admin creation is denied. | PostgreSQL 17/Testcontainers; published MF3 report with a human-confirmed repair-required finding; two organizations and active users. |
-| 9 | `[WF3-011]` FE-07 — MF4 team, estimate and change control | Feature 7 | ORG_ADMIN assigns an independent team, the lead prepares a priced estimate whose total is SYSTEM-calculated, only the designated budget approver decides, invalid credentials are blocked, and a rejected change never enlarges the authorized budget. | Draft work order; same-organization engineers and ORG_ADMIN; credentials absent or expired per scenario. |
-| 10 | `[WF3-012]` FE-07 — MF4 execution, independent acceptance and reconciliation | Feature 7 | Team work logs are submitted and lead-verified before completion; the designated author submits the completion report; the independent reviewer accepts; currency-checked actual costs reconcile against the authorized baseline before closure; reviewer rework returns to execution. | Approved work order and estimate; team, task and verified work log; report author and distinct accepting reviewer; PostgreSQL/Testcontainers. |
-| 11 | `[WF3-013]` FE-07 — MF4 RAG-assisted scope and acceptance criteria advisor | Feature 7 | ORG_ADMIN or MAINTENANCE_ENGINEER requests repair scope and criteria suggestions for a finding; the system retrieves standard engineering specifications from pgvector (TCVN, ISO, EN) and generates structured methodology, quantifiable acceptance criteria, reference standards, and sequential tasks; when AI inference is disabled or unreachable, the system activates a deterministic rule-based fallback without failure. | Published repair-required finding; repair_knowledge_chunks table populated in PostgreSQL 17; pgvector extension; active ORG_ADMIN or MAINTENANCE_ENGINEER actor. |
+| 3 | `[WF3-002]` FE-04 — MF3 evidence intake | Feature 4 | Assigned Inspector uploads supported evidence with file metadata and scoped read access; type, size (10 MB per file / 20 MB per request), empty and corrupt/undecodable input are refused with a corrective action; no evidence-quality decision, checksum identity or shot-list comparison is required. | Assigned inspection past field work; valid image, PostgreSQL via Testcontainers, and MinIO via the shared test infrastructure initializer. |
+| 4 | `[WF3-003]` FE-05 — MF3 AI candidate and finding review | Feature 5 | Assigned Inspector invokes analysis on selected active evidence or records a manual finding; proposals remain advisory until resolved; the Inspector explicitly confirms the complete findings set, including acknowledgment when it is empty. No evidence-acceptance gate or automatic analysis applies. | Active evidence; deterministic inference stub or manual path available. |
+| 5 | `[WF3-005]` FE-06 — MF3 human verification gates and section-scoped drafting | Feature 6 | Inspector-confirmed findings and the report draft are verified by the author Inspector and approved by an independent ORG_ADMIN before publication; coverage/limitations are authored in the report, and AI drafting is invoked only when selected. Manual authoring remains available if drafting is unavailable. | Active evidence and confirmed findings set, assigned Inspector, and independent active ORG_ADMIN in the same organization. |
+| 6 | `[WF3-006]` FE-06 — MF3 immutable approved report with PDF deliverable | Feature 6 | The approved report version is immutable and source-traceable, publication stores its PDF deliverable and records the PDF checksum, and the evidence register shows linked finding/evidence location metadata. Per-finding forwarding occurs after publication (see `WF3-012`). | Published MF3 review artifacts exist; report preview fixtures include linked evidence and a confirmed finding with component/location. |
+| 7 | `[WF3-009]` FE-04 — MF3 scoped inspection and report collections | Feature 4 | A caller reaches MF3 through a server-paged, role-scoped list instead of a hand-entered identifier; the report review queue is the server-paged `/with-reports` collection shown as the inspections list's `?view=reports` filtered view, with saved `/reports` links redirecting to it. | Two organizations and fixtures for each of the four roles exist. |
+| 8 | `[WF3-010]` FE-05 — MF3 reviewed-candidate correction and rejection | Feature 5 | The assigned Inspector can correct their reviewed candidate and linked undecided finding before an ORG_ADMIN decision or downstream report lock; correction is refused after either lock. Rejecting the corrected candidate removes its linked undecided proposal, while final reviewer decisions remain immutable. | Reviewed candidate, linked finding, assigned Inspector, and report fixtures covering unlocked, submitted/locked and reviewer-decided states. |
+| 9 | `[WF3-011]` FE-06 — MF3 findings confirmation and separate draft choice | Feature 6 | Inspector resolves all AI proposals, confirms the complete findings set, and reaches Report without an implicit draft/version or AI call; empty scope requires acknowledgment. AI-assisted and manual draft choices remain separate; AI analysis is invoked explicitly and evidence quality is not a gate. | Assigned Inspector, completed inspection with active evidence, API/UI tests for pending proposal, zero findings, acknowledgment, confirmation, AI/manual paths and stale-source gates. |
+| 10 | `[WF3-012]` FE-06 — MF3 post-publication per-finding forwarding | Feature 6 | After the immutable PDF is published, the Organization Admin selects confirmed findings to forward to MF4; the System records `forwarded_to_maintenance_at` per selected finding and sets inspection status to `REPAIR_PENDING` or `COMPLETED`. No per-finding corrective rationale/priority/due date or inspection-level no-repair rationale/handoff actor/time is required; forwarding does not create an MF4 work order. Historical 2026-10-17 walkthrough exercised the superseded corrective-outcome flow and is not evidence for this target. Still Pending: per-finding selection/forwarding, no-selection completion and explicitly acknowledged empty-findings completion under the target contract. | Published MF3 report with confirmed findings plus no-selection and acknowledged-empty variants; active independent ORG_ADMIN; PostgreSQL via Testcontainers; target implementation. |
 
 ## Coverage gaps
 
 These are stated as gaps rather than filled with fabricated cases or statuses.
 
-- **MF1** (asset/schedule setup) remains unimplemented and has no cases.
-- **MF4** full lifecycle is covered by `WF3-010` to `WF3-013` across Backend, Web, Mobile, and RAG advisor. Applicable skills remain unmodelled; credential presence remains conditional per the approved interim rule.
+- **MF1** (asset/schedule setup) and **MF4** (maintenance, triage, cost
+  reconciliation) carry executed supporting verification recorded in FE-02 and FE-07
+  rather than as new workbook rows, so those sheets stay empty and the totals do
+  not move. MF1-01 to MF1-07 and the MF4-21 follow-up/warranty condition are
+  still not represented by Report 5 cases.
 - **MF2** is only partly covered: `WF2-008` and `WF2-009` test MF2-07 readiness
-  approval/return. Assignment response, preparation/compliance, source-change
-  invalidation, field-session start/postpone/abort and session-end handoff are not
-  represented by Report 5 cases. MF2-08 invalidation is partial in runtime;
-  MF2-12 session end/`FIELD_COMPLETED` remains unimplemented.
+  approval/return, while `WF2-010` covers the scoped preparation-history read.
+  Assignment response, preparation/compliance, source-change
+  invalidation, field-session start/postpone/abort/completion and the full
+  additional-session round trip are not represented by Report 5 cases. MF2-08
+  generic invalidation remains partial in runtime; MF2-12 completion is now implemented.
 - **FE-08** dashboard, analytics and notifications has no assigned case.
 
-The MF2-07 cases and the five MF3 cases have backend/web test evidence. The
-Report 5 case index does not claim mobile app verification for these cases; mobile
-checks are recorded separately in supporting statistics where run.
+The MF2-07 cases and five of the eight MF3 cases have executed backend/web test
+evidence. `WF3-010` is Pending until its correction/rejection/lock procedure
+executes; `WF3-011` is Pending until the aggregate gate, separate draft choices,
+stale-source and independent-review procedure executes; `WF3-012` is Pending
+until the all-no-action close and the empty-findings no-repair close of the
+post-publication corrective-outcome and handoff scenario execute against a green
+run; the remaining steps of that scenario ran 2026-10-17 through the web client and
+API. The case index does not
+claim mobile app verification for these cases; mobile checks are recorded
+separately in supporting statistics where run.

@@ -3,38 +3,44 @@
 **Project name:** SmartDroneInspection: AI-powered Infrastructure Inspection Management Platform  
 **Group:** FA26SE112  
 **Reporting period:** 14–20 September 2026  
-**Personal contribution recorded:** Trần Tùng Bách
+**Team members:** Trần Hoàng Trung Hiếu, Phùng Trung Quốc, Trần Tùng Bách, Trương Thái Như
 
-> Jira statuses are the snapshot retrieved on 9 October 2026; update timestamps are not assumed to be exact completion timestamps.
+> Week 2 focused on core workflow specifications (WF1–WF4), presentation slide decks, initial architecture baseline, and Spring Modulith capability definitions.
 
 ## I. Status Report
 
 | # | Project Task | In-charge | Status | Notes (Work Item in Details) |
 |---:|---|---|---|---|
-| 1 | Prepare a concise WF3 inspection and AI-verification presentation | Trần Tùng Bách | Done in Jira | [SCRUM-37](https://capstonefall26.atlassian.net/browse/SCRUM-37). Covered evidence capture/storage, advisory YOLO candidates, Inspector confirmation/modification/rejection, report review, and Client sign-off. Due and last updated 20 Sep. |
-| 2 | Reconcile the earlier WF1–WF3 presentation draft | Trần Tùng Bách | Done in Jira — deprecated task | [SCRUM-41](https://capstonefall26.atlassian.net/browse/SCRUM-41). Historical presentation work; explicitly Deprecated and not active scope. Due 19 Sep. |
-| 3 | Design and initialize the WF3 database schema baseline | Trần Tùng Bách | Done in Jira | [SCRUM-43](https://capstonefall26.atlassian.net/browse/SCRUM-43). Covered inspection sessions, evidence, AI candidates, verified findings, checklists, reports, and approvals. Jira due 28 Sep; last updated 20 Sep. |
-| 4 | Prepare project-context slides about infrastructure-inspection challenges | Trần Tùng Bách | Done in Jira | [SCRUM-47](https://capstonefall26.atlassian.net/browse/SCRUM-47). Presented manual-inspection limitations and the B2B inspection-service opportunity. Due and last updated 20 Sep. |
-| 5 | Finalize the WF3 field-inspection, AI-verification, and report-delivery flow | Trần Tùng Bách | Done in Jira | [SCRUM-52](https://capstonefall26.atlassian.net/browse/SCRUM-52). Clarified manual RC flight execution, media ingestion, advisory AI, Inspector review, report drafting, and Client sign-off. Due and last updated 20 Sep. |
+| 1 | Design WF1 workflow and presentation slides: Asset Registration & Periodic Scheduling | Trần Hoàng Trung Hiếu | Completed | [SCRUM-35](https://capstonefall26.atlassian.net/browse/SCRUM-35). Outlined asset catalog, component hierarchy, drone registration, and periodic schedule rules. |
+| 2 | Prepare presentation slides 1 & 5: Project Title, Team, Scope & End-to-End Lifecycle | Trần Hoàng Trung Hiếu | Completed | [SCRUM-39](https://capstonefall26.atlassian.net/browse/SCRUM-39). Visualized complete inspection lifecycle and platform actor interactions. |
+| 3 | Draft SRS Section 3.1 (MF1): Asset hierarchy, drone fleet catalog, and periodic scheduling | Trần Hoàng Trung Hiếu | Completed | Specified functional requirements for asset registration, drone model specifications, and maintenance thresholds. |
+| 4 | Design WF2 workflow and presentation slides: Inspection Request, Quotation & Assignment | Phùng Trung Quốc | Completed | [SCRUM-36](https://capstonefall26.atlassian.net/browse/SCRUM-36). Detailed request intake, quotation review, pilot credential check, and assignment. |
+| 5 | Prepare presentation slides 4, 8 & 9: System Actors, Tech Stack, Current vs. Proposed State | Phùng Trung Quốc | Completed | [SCRUM-40](https://capstonefall26.atlassian.net/browse/SCRUM-40), [SCRUM-48](https://capstonefall26.atlassian.net/browse/SCRUM-48). Outlined actors, technical stack (Spring/React/Flutter), and solution benefits. |
+| 6 | Draft SRS Section 3.2 (MF2): Inspection request review and readiness criteria | Phùng Trung Quốc | Completed | Specified request triage, flight permit checks, pilot availability, and safety checklist templates. |
+| 7 | Design WF3 workflow and presentation slides: Inspection Execution, AI Verification & Reports | Trần Tùng Bách | Completed | [SCRUM-37](https://capstonefall26.atlassian.net/browse/SCRUM-37), [SCRUM-47](https://capstonefall26.atlassian.net/browse/SCRUM-47), [SCRUM-52](https://capstonefall26.atlassian.net/browse/SCRUM-52). Detailed manual RC flight, evidence upload, advisory AI, and report sign-off. |
+| 8 | Design and initialize WF3 database schema baseline and physical workflow schema | Trần Tùng Bách | Completed | [SCRUM-43](https://capstonefall26.atlassian.net/browse/SCRUM-43). Defined relational schema baseline for inspections, evidence, findings, checklists, and reports. |
+| 9 | Establish Spring Modulith capability boundaries, feature-owned persistence, and role naming | Trần Tùng Bách | Completed | Scaffolded modular backend roots, aligned persistence structure, and standardized canonical roles in codebase. |
+| 10 | Design WF4 workflow and presentation slides: Maintenance Assessment & Defect Resolution | Trương Thái Như | Completed | [SCRUM-38](https://capstonefall26.atlassian.net/browse/SCRUM-38). Formulated post-inspection maintenance ticketing, work order dispatch, and sign-off. |
+| 11 | Prepare presentation slides 2 & 3: Context, Problem Statement, System Actors & Responsibilities | Trương Thái Như | Completed | [SCRUM-42](https://capstonefall26.atlassian.net/browse/SCRUM-42), [SCRUM-49](https://capstonefall26.atlassian.net/browse/SCRUM-49). Highlighted post-inspection defect remediation delays and safety risks. |
+| 12 | Draft SRS Section 3.4 (MF4): Defect-to-ticket conversion and contractor assignment | Trương Thái Như | Completed | Specified maintenance work order initiation from published findings, contractor assignment, and resolution verification. |
 
 ## II. Project Issues
 
 | # | Project Issue | Owner | Status | Notes (Solution, Suggestion, etc.) |
 |---:|---|---|---|---|
-| 1 | A deprecated slide task remains visible alongside the current WF3 presentation task | Trần Tùng Bách | Recorded | Retain SCRUM-41 as historical/deprecated and use SCRUM-37 for the current WF3 presentation. |
-| 2 | Presentation and schema work do not demonstrate an integrated end-to-end implementation | Trần Tùng Bách | Follow-up required | Track executable inspection, evidence, review, and report behavior separately from slide/schema deliverables. |
+| 1 | Deprecated slide drafts existed alongside active presentation tasks | Trần Tùng Bách | Resolved | Marked historical task SCRUM-41 deprecated; kept SCRUM-37 as the active presentation deliverable. |
+| 2 | Presentation and schema deliverables needed proof of runtime feasibility | Team | Addressed | Agreed to prioritize executable authentication, assignment fixtures, and Flyway migrations in Week 3. |
 
 ## III. Next Week Plan
 
 | # | Project Work Item | In-charge | Deadline | Notes (Task Details, etc.) |
 |---:|---|---|---|---|
-| 1 | Smoke-test existing authentication and database migrations | Trần Tùng Bách | 28 Sep 2026 | [SCRUM-58](https://capstonefall26.atlassian.net/browse/SCRUM-58). Verify clean startup, Flyway V1–V9, and role fixtures without default credentials. |
-| 2 | Create an accepted-assignment test fixture | Trần Tùng Bách | 28 Sep 2026 | [SCRUM-63](https://capstonefall26.atlassian.net/browse/SCRUM-63). Let WF3 tests start before the full WF2 runtime is ready while retaining real organization/role scope. |
-| 3 | Implement assignment-scoped inspection start and checklist responses | Trần Tùng Bách | 30 Sep 2026 | [SCRUM-83](https://capstonefall26.atlassian.net/browse/SCRUM-83). Only an accepted assignee can start/update; required checklist responses are enforced. |
-| 4 | Connect the mobile assigned-inspection list and start action | Trần Tùng Bách | 1 Oct 2026 | [SCRUM-84](https://capstonefall26.atlassian.net/browse/SCRUM-84). Show authorized assigned inspections and the corresponding start/resume action. |
+| 1 | Smoke-test authentication fixtures, Flyway migrations, and role boundaries | Trần Tùng Bách | 28 Sep 2026 | [SCRUM-58]. Ensure clean Spring Boot startup and PostgreSQL schema creation. |
+| 2 | Design relational database schemas for all four workflows in Report 4 (SDD) | All Members | 30 Sep 2026 | Map entities, foreign keys, and indexes for MF1–MF4. |
+| 3 | Implement assignment-scoped inspection start and checklist responses | Trần Tùng Bách & Phùng Trung Quốc | 30 Sep 2026 | [SCRUM-83]. Enforce assigned-pilot authorization rules. |
 
 ## IV. Other Project Matters/Suggestions
 
 | # | Project Matter/Suggestions | Raised By | Date | Notes |
 |---:|---|---|---|---|
-| 1 | Keep AI output advisory and Inspector verification explicit in presentation material | Trần Tùng Bách | 20 Sep 2026 | The workflow description does not imply autonomous defect approval or drone control. |
+| 1 | Maintain strict separation between advisory AI detections and official findings | Trần Tùng Bách | 20 Sep 2026 | Emphasized in presentations and requirements that AI detections require human Inspector verification. |

@@ -4,21 +4,26 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope (updated 2026-10-23):** This report records twelve executed cases for the
-four current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`):
-three MF2 cases, five MF3 cases, and four FE-07/MF4 cases (`WF3-010`–`WF3-013`). The earlier
-content mixed a retired five-role WF1–WF4 baseline with unsupported target cases;
-obsolete cases were removed during the 2026-10-09 reset. MF2-07 readiness cases
-`WF2-008`/`WF2-009` and the MF4 cases `WF3-010`–`WF3-013` are retained as
-separately recorded execution evidence. `WF2-010` records preparation-listing
-scope.
+**Scope (updated 2026-10-22):** This report indexes eleven cases for the four
+current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`): three
+MF2 cases and eight MF3 cases. Recorded statuses are eight `Passed`; `WF3-010`,
+`WF3-011` and `WF3-012` are `Pending`. The MF3 target changed on 2026-10-22;
+existing Passed outcomes remain historical and do not verify the simplified
+no-quality-gate, Inspector-invoked-analysis or per-finding-forwarding contract.
+The earlier content mixed a retired five-role WF1–WF4 baseline with
+unimplemented MF1–MF4 target cases; obsolete and unsupported cases were removed
+during the 2026-10-09 reset. The two MF2-07 decision cases were restored after
+backend/frontend/mobile PR integration; scoped preparation-history case
+`WF2-010` was added separately.
 
-This does not claim complete MF2 coverage. MF2-08 source-change
-invalidation is partial, and MF2-12 session end/`FIELD_COMPLETED` handoff remains
-unimplemented. MF4 full lifecycle is covered across Backend API (re-inspection
-dispatch, PDF completion report, milestone notifications), Web management console,
-Mobile tasks app, and RAG technical scope suggestions. Applicable skills remain
-unmodelled; credential presence remains conditional. FE-08 has no assigned case.
+This does not claim complete MF2 coverage. MF2-08 generic source-change invalidation remains
+partial (the additional-session return now appends INVALIDATED and session start checks the latest
+approval/preparation binding); MF2-12 normal session completion is implemented with focused tests, but a
+complete MF3-to-MF2 repeated-session case has not been executed. MF1, MF4 (including MF4
+work-order creation, which the MF3-13 handoff does not perform) and FE-08 remain
+gaps, and the MF3-12/13 corrective-outcome path is backed by executed green
+runs (81 targeted WF3 tests and the 650-test full `verify` gate on 2026-10-16)
+while its end-to-end case `WF3-012` remains Pending.
 The original workbook template remains unchanged; generated copies contain eight
 feature sheets as requested.
 
@@ -28,11 +33,10 @@ The supplied template has two feature sheets (`Feature 1`, `Feature 2`). Generat
 workbooks extend it to eight feature sheets (`Feature 1`–`Feature 8`), one per
 Report 3 feature. The original template remains unchanged. Sheet `Feature N`
 contains SRS feature `FE-0N`; these are separate naming layers, not synonyms.
-Feature 1 (supporting FE-01), Feature 2 (FE-02) and Feature 8 (FE-08) have no
-cases. Feature 3 (FE-03) contains `WF2-008`–`WF2-010`; Features 4–6 contain the
-five MF3 cases; Feature 7 (FE-07) contains `WF3-010`–`WF3-013` for the full-stack
-MF4 delivery. All eight sheets remain so the workbook mirrors the eight SRS
-features.
+Feature 1/2/7/8 have no cases. Feature 3 (FE-03) contains `WF2-008`–`WF2-010`;
+Features 4–6 contain eight MF3 cases, including pending `WF3-010`, `WF3-011` and
+`WF3-012`.
+All eight sheets remain so the workbook mirrors the eight SRS features.
 
 | Layer | Meaning | Example |
 | --- | --- | --- |
@@ -41,7 +45,7 @@ features.
 | WF test ID | Business-flow traceability ID | `WF3-005` |
 
 Do not rename the files or IDs to make the sheet number look like an SRS
-feature code. In the generated workbook, `WF2-008`/`WF2-009` sit on `Feature 3` (FE-03),
+feature code. In the generated workbook, `WF2-008`–`WF2-010` sit on `Feature 3` (FE-03),
 and MF3 cases sit on `Feature 4`, `Feature 5`, and `Feature 6` (FE-04–FE-06).
 The remaining four sheets have zero cases, preserving the one-sheet-per-SRS-
 feature mapping.
@@ -78,11 +82,11 @@ feature mapping.
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary. |
 | `03-features/fe-01-identity-access-governance.md` | Support evidence | FE-01 gates; not a workbook case. |
 | `03-features/fe-02-asset-registry-inspection-schedule.md` | Coverage gap | No current case; MF1 catalog workflow unimplemented. |
-| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 3` sheet | `WF2-008`, `WF2-009` (MF2-07 readiness approval/return); other MF2 steps remain gaps or partial. |
+| `03-features/fe-03-inspection-request-work-assignment.md` | `Feature 3` sheet | `WF2-008`, `WF2-009` (MF2-07 readiness approval/return), `WF2-010` (scoped preparation-history listing); other MF2 steps remain gaps or partial. |
 | `03-features/fe-04-inspection-execution-evidence-management.md` | `Feature 4` sheet | `WF3-002`, `WF3-009`. |
-| `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 5` sheet | `WF3-003`. |
-| `03-features/fe-06-inspection-report-approval.md` | `Feature 6` sheet | `WF3-005`, `WF3-006`. |
-| `03-features/fe-07-maintenance-defect-resolution.md` | `Feature 7` sheet | `WF3-010`–`WF3-012`; backend API slice only, broader MF4 gaps remain. |
+| `03-features/fe-05-yolo-defect-detection-verification.md` | `Feature 5` sheet | `WF3-003`, `WF3-010` (Pending). |
+| `03-features/fe-06-inspection-report-approval.md` | `Feature 6` sheet | `WF3-005`, `WF3-006`, `WF3-011` (Pending), `WF3-012` (Pending). |
+| `03-features/fe-07-maintenance-defect-resolution.md` | Coverage gap | No current case; MF4 unimplemented. |
 | `03-features/fe-08-dashboard-analytics-notifications.md` | Coverage gap | No assigned case; do not infer execution. |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
 | `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
@@ -94,7 +98,7 @@ The FE-xx codes and their Report 3 sections are:
 | FE-01 | 3.2 | Identity, Enterprise Subscription and Workforce Governance |
 | FE-02 | 3.3 | Asset, Drone, Workforce and Compliance Catalog — MF1 |
 | FE-03 | 3.4 | Mission Preparation, Assignment Response and Readiness — MF2 |
-| FE-04 | 3.5 | Field Records, Evidence and Inspector Quality Decision |
+| FE-04 | 3.5 | Field Records and Evidence |
 | FE-05 | 3.6 | AI Vision Candidates and Human Finding Decisions |
 | FE-06 | 3.7 | Inspection Report Drafting, Review and Publication — MF3 |
 | FE-07 | 3.8 | Team Maintenance, Cost Control and Completion Reporting — MF4 |
@@ -106,27 +110,28 @@ reviewer's bookmark for no reporting benefit.
 
 ## Current test scope
 
-All verification statuses below describe the current source after the MF2 PR integration; the dated change history records superseded earlier states.
+Recorded statuses and execution notes below preserve the historical MF2/MF3 results. The 22 October MF3 target update changes requirements and active case definitions but does not create fresh test evidence; Passed cases may describe superseded behavior.
 
 1. FE-01 — identity/access supporting gates. Recorded separately in the FE-01
    file; not a workbook case.
 2. FE-02 — asset registry and schedule. No case (see coverage gap).
-3. FE-03 — MF2 readiness (`WF2-008`–`WF2-010`); other MF2 implementation and
+3. FE-03 — MF2-07 readiness approval/return (`WF2-008`, `WF2-009`) and the
+   scoped preparation-history read (`WF2-010`); other MF2 implementation and
    case-coverage gaps remain documented.
-4. FE-04 — inspection evidence and the Inspector's quality decision
-   (`WF3-002`), and the scoped inspection/report collections (`WF3-009`).
-5. FE-05 — advisory detection and human finding verification (`WF3-003`).
-6. FE-06 — report review, publication, and immutability (`WF3-005`, `WF3-006`).
-7. FE-07 — maintenance and defect resolution (`WF3-010`–`WF3-012`), covering the
-   implemented backend API slice only; client and remaining MF4 coverage is open.
+4. FE-04 — inspection evidence intake without a separate quality-decision gate (`WF3-002`), and the scoped inspection/report collections (`WF3-009`).
+5. FE-05 — Inspector-invoked advisory detection and human finding verification (`WF3-003`); reviewed-candidate correction/rejection (`WF3-010`) is Pending.
+6. FE-06 — report review/publication (`WF3-005`, `WF3-006`), explicit findings
+   confirmation/draft choice (`WF3-011`, Pending) and post-publication per-finding
+   forwarding (`WF3-012`, Pending).
+7. FE-07 — maintenance and defect resolution. No case; MF4 unimplemented.
 8. FE-08 — dashboard, analytics, and notifications. No assigned case; explicit
    coverage gap.
 
-Totals: **11 cases, 11 `Passed`, 0 `Failed`, 0 `Pending`.** Coverage of 100% is
-only of these eleven recorded cases, not the SRS or complete MF2/MF4 workflows.
-The three MF4 cases verify backend API behavior, not Web/Mobile completion. Removed
-case IDs stay reserved and are never reused; MF4 backend cases continue after the
-MF3 collection case `WF3-009` with their existing stable IDs.
+Totals: **11 cases, 8 `Passed`, 0 `Failed`, 3 `Pending`.** Coverage and successful
+coverage are 72.73%; pending `WF3-010`, `WF3-011` and `WF3-012` remain in the denominator. These
+figures describe recorded cases only, not the SRS or the complete MF2/MF3
+workflows. Removed case IDs stay reserved; subsequent MF3 cases continue from
+`WF3-013`.
 
 MinIO/evidence storage is tracked under FE-04. Integration suites run against a
 real MinIO container through the same `MinioEvidenceObjectStore` adapter

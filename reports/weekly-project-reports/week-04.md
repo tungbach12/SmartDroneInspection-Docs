@@ -3,42 +3,49 @@
 **Project name:** SmartDroneInspection: AI-powered Infrastructure Inspection Management Platform  
 **Group:** FA26SE112  
 **Reporting period:** 28 September–4 October 2026  
-**Personal contribution recorded:** Trần Tùng Bách
+**Team members:** Trần Hoàng Trung Hiếu, Phùng Trung Quốc, Trần Tùng Bách, Trương Thái Như
 
-> The WF3 Jira backlog below is grouped here as planned work for the current delivery cycle. Statuses are the 9 October Jira snapshot, not a historical 4 October snapshot; these tasks are not represented as completed during this reporting period.
+> Week 4 delivered the drone-centric mainflow redesign (MF1–MF5), Docker containerization, periodic schedule proposals, and mobile field checklist prototypes.
 
 ## I. Status Report
 
 | # | Project Task | In-charge | Status | Notes (Work Item in Details) |
 |---:|---|---|---|---|
-| 1 | Validate inspection evidence, calculate checksums, prevent duplicate retries, and store files in MinIO | Trần Tùng Bách | To Do in Jira | [SCRUM-85](https://capstonefall26.atlassian.net/browse/SCRUM-85). Due 6 Oct. Still To Do on 9 Oct; confirm progress/blockers and update Jira. |
-| 2 | Ingest configured AI defect candidates with safe failure behavior | Trần Tùng Bách | To Do in Jira | [SCRUM-86](https://capstonefall26.atlassian.net/browse/SCRUM-86). Due 7 Oct. Still To Do on 9 Oct; confirm progress/blockers and update Jira. |
-| 3 | Add Inspector actions to confirm, modify, or reject AI candidates and create manual findings | Trần Tùng Bách | To Do in Jira | [SCRUM-87](https://capstonefall26.atlassian.net/browse/SCRUM-87). Due 8 Oct. Still To Do on 9 Oct; confirm progress/blockers and update Jira. |
-| 4 | Build inspection-report drafts and immutable version snapshots | Trần Tùng Bách | To Do in Jira | [SCRUM-88](https://capstonefall26.atlassian.net/browse/SCRUM-88). Due 13 Oct; revisions create versions and accepted versions cannot be overwritten. |
-| 5 | Enforce report author/peer-reviewer separation | Trần Tùng Bách | To Do in Jira | [SCRUM-89](https://capstonefall26.atlassian.net/browse/SCRUM-89). Due 14 Oct; deny self-review and record a change request or technical approval. |
-| 6 | Implement manager release and Client acceptance/revision actions | Trần Tùng Bách | To Do in Jira | [SCRUM-90](https://capstonefall26.atlassian.net/browse/SCRUM-90). Due 15 Oct; show Clients only released versions and provide the WF4/billing handoff upon acceptance. |
-| 7 | Connect web inspection/report screens to authorized lifecycle actions | Trần Tùng Bách | To Do in Jira | [SCRUM-91](https://capstonefall26.atlassian.net/browse/SCRUM-91). Due 20 Oct. |
-| 8 | Add mobile checklist and photo capture with failure/retry feedback | Trần Tùng Bách | To Do in Jira | [SCRUM-92](https://capstonefall26.atlassian.net/browse/SCRUM-92). Due 21 Oct. |
-| 9 | Run report, workflow-handoff, and authorization regression tests | Trần Tùng Bách | To Do in Jira | [SCRUM-93](https://capstonefall26.atlassian.net/browse/SCRUM-93). Due 23 Oct. The task cites a retired `docs/content/` path; use the current documentation structure instead. |
+| 1 | Rework WF1: Asset Registration & Periodic Scheduling aligned with drone-centric model | Trần Hoàng Trung Hiếu | Completed | [REWORK-WF1]. Realigned asset catalog, drone inventory, and periodic scheduling with configurable intervals. |
+| 2 | Synchronize SRS, business flows, data model, and test report for schedule proposals in docs | Trần Hoàng Trung Hiếu | Completed | Committed PR #25 across documentation repository to align schedule proposal lifecycle. |
+| 3 | Implement frontend screens for asset catalog, periodic schedule proposal creation, and review | Trần Hoàng Trung Hiếu | Completed | Delivered frontend PR #9 adding asset lists, schedule proposal modals, and catalog management. |
+| 4 | Author Report 5 test cases FE-01 (Asset Registration) and FE-02 (Periodic Scheduling) | Trần Hoàng Trung Hiếu | Completed | Documented test scenarios, preconditions, steps, and expected results for asset and schedule features. |
+| 5 | Rework WF2: Inspection Requests & Assignments with strict readiness checks | Phùng Trung Quốc | Completed | [REWORK-WF2]. Added pre-flight readiness checks: flight permits, pilot credentials, checklist templates. |
+| 6 | Document periodic inspection handoff and mission preparation state machine | Phùng Trung Quốc | Completed | Committed PR #26 and #27 aligning request creation from approved periodic proposals to pilot dispatch. |
+| 7 | Draft SDD Section 3: Sequence diagram for inspection request triage, quote review, and assignment | Phùng Trung Quốc | Completed | Modeled end-to-end interactions between Client, Org Admin, and Inspector in UML sequence diagrams. |
+| 8 | Scaffold Flutter mobile app: Implement inspection assignment card and preparation checklist | Phùng Trung Quốc | Completed | Built Flutter UI for assigned inspection card, permit summary view, and readiness checklist submission. |
+| 9 | Rework WF3: Field Inspection, AI-Assisted Verification & Reporting | Trần Tùng Bách | Completed | [REWORK-WF3]. Decoupled flight execution phase from post-flight evidence processing and report authoring. |
+| 10 | Containerize backend (Spring Boot 3) and frontend (Nginx SPA) with Docker Compose | Trần Tùng Bách | Completed | Added multi-stage Dockerfiles and `docker-compose.yml` for unified local and CI containerized deployment. |
+| 11 | Align project scope in docs: Drone-centric mainflows (MF1–MF5), canonical roles, author verification | Trần Tùng Bách | Completed | Updated SRS and PMP: unified PROVIDER_MANAGER role, removed peer review requirement, made author verify AI. |
+| 12 | Fix backend security-audit insert foreign key flush issue | Trần Tùng Bách | Completed | Resolved persistence order issue where user must be flushed before security audit records are written. |
+| 13 | Rework WF4: Maintenance Assessment & Defect Resolution from published findings | Trương Thái Như | Completed | [REWORK-WF4]. Modeled maintenance work order ingestion directly from confirmed report defect findings. |
+| 14 | Formalize Maintenance Work Order state machine in SRS Section 3.4 | Trương Thái Như | Completed | Defined lifecycle: NEW -> ESTIMATING -> APPROVED -> IN_PROGRESS -> RESOLVED -> CLOSED. |
+| 15 | Draft SDD Section 3: Sequence diagrams for maintenance contractor dispatch and client sign-off | Trương Thái Như | Completed | Modeled maintenance quotation review, contractor assignment, task execution, and client approval. |
+| 16 | Review Flyway schema migrations V10–V21 for maintenance ticket and defect linkages | Trương Thái Như | Completed | Verified foreign keys, check constraints, and DISPUTED status transitions in migration V21. |
 
 ## II. Project Issues
 
 | # | Project Issue | Owner | Status | Notes (Solution, Suggestion, etc.) |
 |---:|---|---|---|---|
-| 1 | SCRUM-85, SCRUM-86, and SCRUM-87 remained To Do in the 9 Oct Jira snapshot despite recorded due dates of 6–8 Oct | Trần Tùng Bách | Requires status/blocker confirmation | Confirm progress and blockers in Jira before treating the work as complete or dates as accepted; a stale status alone does not prove failure. |
-| 2 | SCRUM-93 points to a retired documentation path | Trần Tùng Bách | Mitigation identified | Keep documentation under the current repository structure; do not recreate `docs/content/`. |
+| 1 | SCRUM-85 to SCRUM-87 backlog items were planned for implementation in subsequent sprint | Trần Tùng Bách | Recorded | Carried over into Week 5 sprint for complete evidence storage, YOLO inference, and findings review. |
+| 2 | Documentation had references to retired `docs/content/` directory | Trần Tùng Bách | Resolved | Re-anchored all documentation paths to the active repository layout. |
 
 ## III. Next Week Plan
 
 | # | Project Work Item | In-charge | Deadline | Notes (Task Details, etc.) |
 |---:|---|---|---|---|
-| 1 | Confirm or complete evidence storage and validation | Trần Tùng Bách | Reconfirm in Jira | Carry over [SCRUM-85](https://capstonefall26.atlassian.net/browse/SCRUM-85) if still open; its due date has passed. |
-| 2 | Confirm or complete safe AI-candidate ingestion | Trần Tùng Bách | Reconfirm in Jira | Carry over [SCRUM-86](https://capstonefall26.atlassian.net/browse/SCRUM-86) if still open; evidence must remain usable when AI is unavailable. |
-| 3 | Confirm or complete Inspector finding-verification actions | Trần Tùng Bách | Reconfirm in Jira | Carry over [SCRUM-87](https://capstonefall26.atlassian.net/browse/SCRUM-87) if still open; unreviewed/rejected candidates remain unofficial. |
-| 4 | Begin report versioning, independent review, and release/Client acceptance | Trần Tùng Bách | 13–15 Oct 2026 | [SCRUM-88](https://capstonefall26.atlassian.net/browse/SCRUM-88), [SCRUM-89](https://capstonefall26.atlassian.net/browse/SCRUM-89), and [SCRUM-90](https://capstonefall26.atlassian.net/browse/SCRUM-90). Follow dependencies and keep Jira status current. |
+| 1 | Execute Enterprise SaaS architecture and role cutover (V22–V25) | Trần Tùng Bách | 11 Oct 2026 | Migrate to multi-tenant organization schema and canonical role model. |
+| 2 | Implement full MF1 resource management (drones, permits, workforce credentials) | Trần Hoàng Trung Hiếu | 11 Oct 2026 | Deliver backend entities and APIs for Org Admin resource operations. |
+| 3 | Implement mobile field session execution (MF2-09 to MF2-11) and readiness reviews | Phùng Trung Quốc | 11 Oct 2026 | Wire mobile field session routes with backend readiness checks. |
+| 4 | Implement maintenance work order aggregate and task items (MF4-01 to MF4-08) | Trương Thái Như | 11 Oct 2026 | Build backend domain models and repositories for maintenance execution. |
 
 ## IV. Other Project Matters/Suggestions
 
 | # | Project Matter/Suggestions | Raised By | Date | Notes |
 |---:|---|---|---|---|
-| 1 | Reconcile Jira status and due dates before the next progress review | Trần Tùng Bách | 9 Oct 2026 | The current status snapshot cannot establish when a task was started or completed. |
+| 1 | Maintain clean git history and pull request standards across all four repos | Trần Tùng Bách | 4 Oct 2026 | Enforce conventional commits and peer review for all merges into main. |

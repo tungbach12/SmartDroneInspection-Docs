@@ -16,7 +16,7 @@ The twelve MF2 steps divide into two halves:
 | Steps | Actor | What it does |
 | --- | --- | --- |
 | MF2-01 – MF2-08 | `INSPECTOR` + `ORG_ADMIN` | Assignment accept/reject with a reason; component shot-list and required evidence types; permit/credential linking; blocker validation; safety acknowledgments; qualified ORG_ADMIN readiness approval producing `READY_FOR_FLIGHT`; snapshot of the approved plan. Implementation is partial across this range: MF2-08 source-change invalidation is not produced. |
-| MF2-09 – MF2-12 | `INSPECTOR` + `SYSTEM` | Pre-flight checklist, Start request or postponement/interruption, recheck of entitlement and readiness version, `IN_PROGRESS` recording, session end, and `FIELD_COMPLETED`. Session end and `FIELD_COMPLETED` are not implemented. |
+| MF2-09 – MF2-12 | `INSPECTOR` + `SYSTEM` | Pre-flight checklist, Start request or postponement/interruption, recheck of entitlement and readiness version, `IN_PROGRESS` recording, reasoned session completion, and `FIELD_COMPLETED`. Session completion and readiness review after additional-session return are implemented; complete MF2 loop testing remains unrepresented by a Report 5 case. |
 
 Gates worth stating because they are easy to misread as satisfied:
 
@@ -56,10 +56,44 @@ recorded here.
 
 | WF2-010 | An authorized Inspector reads the preparation history of an inspection in their own organization, and an Inspector in another organization is refused. | Sign in as the assigned `INSPECTOR` and `GET /api/v1/inspections/{id}/preparation`; sign in as an `INSPECTOR` belonging to a different organization and repeat the same request. | The assigned Inspector receives `200` with the preparation history array; the out-of-scope Inspector receives `404 INSPECTION_NOT_FOUND` and never a `500`. The read path must not take a pessimistic write lock, because a locking query in a read-only transaction fails at the database before the organization check can deny the caller. | One organization holding an `INSPECTOR` and an inspection in `PREPARING` or later; a second organization with its own `INSPECTOR`; PostgreSQL via Testcontainers. | Passed | 2026-10-11 | Claude Code (automated) | Pending |  |  | Pending |  |  | Verified by `InspectionPreparationApiIntegrationTest` (9 tests), which ran on 2026-10-11 within the full backend suite of 362 passing tests (`./mvnw.cmd verify`). The listing previously called the locking `findWithLockByIdAndOrganizationId`, producing `SELECT ... FOR NO KEY UPDATE` inside a read-only transaction; PostgreSQL rejects it and every caller saw `500`. Re-verified against the docker compose stack on 2026-10-11: `GET /preparation` now returns `200` and the out-of-scope caller receives `404`. |
 
+## MF2-12 / additional-session regression evidence (2026-10-20)
+
+Targeted backend suites cover the new flow at focused boundaries; these are not a
+complete MF3-to-MF2 end-to-end case and no case status is promoted:
+
+- `InspectionEvidenceApiIntegrationTest` covers additional-session
+  return-to-preparation, new draft version, superseded prior preparation,
+  retained prior sessions/evidence, the completed-session/evidence association,
+  and refusal without a completed session, its evidence, or a latest approved
+  preparation.
+- `InspectionPreparationServiceTest` covers next-version draft
+  window update, including planned start/end response.
+- `InspectionFieldSessionApiIntegrationTest` covers normal completion,
+  required outcome notes and role/assignment denial.
+- `InspectionFieldSessionServiceTest` covers stale older-preparation
+  approval denial at start and successful normal completion;
+  `InspectionReadinessApiIntegrationTest` protects existing
+  approval/return API behavior. `InspectionReportDraftingApiIntegrationTest`
+  passes after its additional-session supersession fixture was corrected to use
+  legacy `LIMITED`, which does not initiate MF2 rework.
+
+Executed commands during this task: backend `./mvnw verify` — **684 tests**, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met before the final AI-suggestion rejection-path correction; final `./mvnw -DskipTests package` passed after that correction with tests skipped. Tests were not rerun after the correction. No live walkthrough was run in this task.
+
+This is implementation evidence, not a Report 5 functional case: no case status is promoted, and the repeated-session evidence set has not been re-assessed end to end in the product UI.
+
 ## Implemented and unverified boundaries
 
-Backend MF2-01/02 assignment response, MF2-03/06 preparation and compliance, MF2-07 approval/return, and MF2-09/11 field-session start/postpone/abort are implemented on the current `main` baseline. The web client supplies assignment, preparation and readiness-review panels; mobile supplies assignment inbox and field-session screens.
+Backend MF2-01/02 assignment response, MF2-03/06 preparation and compliance, MF2-07 approval/return, MF2-09/11 start/postpone/abort and MF2-12 normal completion are implemented. Session starts require a current approved decision bound to the latest READY preparation. An MF3 additional-session request marks the old readiness invalid, returns to PREPARING, creates a new versioned draft, and requires a new planned window before MF2 readiness review. The web client exposes the additional-session route and preparation-window fields; mobile now exposes preparation, session completion, and only the two supported evidence-quality choices.
 
-MF2-08 invalidation is partial: session start requires the newest readiness decision to be `APPROVED`; `INVALIDATED` exists as a decision type, but no source-change workflow appends it. MF2-12 session end and the `FIELD_COMPLETED` handoff remain unimplemented. These gaps are not covered by WF2-008/009. Field-session behavior has backend service/API tests but no Report 5 case yet.
+MF2-08 generic source-change invalidation remains partial: this slice appends INVALIDATED for the additional-session return specifically; there is still no general permit/pair/credential change workflow. MF2-12 and the repeated additional-session handoff are not represented by a complete Report 5 end-to-end case. The backend regressions (684-test `verify` in this task, run before the final rejection-path correction) are implementation evidence, not a full readiness approval/start/re-capture execution.
 
-The two cases verify readiness decision behavior. `InspectionReadinessApiIntegrationTest` adds HTTP coverage for approval/return scope and failure paths; it ran in the successful backend PR #64 CI suite. These results do not cover MF2-08 source-change invalidation or MF2-12 session end/`FIELD_COMPLETED`. They also say nothing about MF1 or MF4.
+The existing three cases verify readiness decision behavior and scoped history, not the full MF2 lifecycle. New focused regressions cover the additional-session mutation and session completion but do not cover one complete repeat visit with real readiness approval and second evidence assessment. Generic MF2-08 source-change invalidation remains partial. These results also say nothing about MF1 or MF4.
+
+### MF2-09 – MF2-12 Field Session — supporting verification (executed 2026-10-20)
+
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an inspection assigned to the signed-in Inspector with an approved readiness decision.
+- Procedure: Run Backend `InspectionFieldSessionServiceTest` (19 tests) and `InspectionFieldSessionApiIntegrationTest` (9 tests), and Frontend `FieldSessionPage.test.tsx` (6 tests). Verify the session listing scoped to the assigned Inspector; starting a session against the newest `APPROVED` readiness decision; the mandatory pre-flight checklist note; postponement with the Inspector's own reason keeping the inspection startable; abort with the Inspector's own reason ending the record; refusal to open a second concurrent session.
+- Expected result: A session starts only after the pre-flight note is recorded and readiness holds; the startedAt instant is the software's session start and not hardware flight time; a postponed session leaves the inspection startable while an aborted one does not resume under that record; a second concurrent session is refused.
+- Round 1: Passed 2026-10-20; tester: Claude Code (automated).
+- Evidence: The backend suites passed within the full `verify` run of 648 tests, 0 failures, 0 errors, JaCoCo and Modulith checks met. Frontend `FieldSessionPage.test.tsx` passed 6/6 tests and the full frontend suite passed 56 files / 361 tests. The web client previously had no field-session surface at all, so MF2-09 to MF2-11 were reachable only from mobile; the new `field-session` stage tab is the Inspector's on-site record.
+- Scope note: The session record is the software's agreement that the paperwork and pre-flight checklist were in order. It does not arm the aircraft, and the recorded start time is not hardware flight time. Normal session completion is implemented and tested as recorded above.
