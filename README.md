@@ -27,11 +27,12 @@ Repository-specific setup commands are documented in the `README.md` files of `b
 
 ## Current roles
 
-The Enterprise SaaS target has four roles (Report 3, 7 October 2026 revision):
+The Enterprise SaaS target has five human roles:
 
-- **`ADMIN`** - platform tenant/subscription administration, technical/security settings, and authorized support/audit.
-- **`ORG_ADMIN`** - organization users, credentials, drone fleet, permits, assets, inspection setup, readiness/report review, repair team and budget assignment, and independent acceptance.
-- **`INSPECTOR`** - assigned inspection preparation, field-session records, evidence upload, evidence-quality decisions, and inspection report author verification.
+- **`ADMIN`** - platform technical and account administration (`ADMIN`, `PLATFORM_MANAGER`, initial `ORG_MANAGER`), standard asset categories, security settings, and read-only support/audit/commercial views.
+- **`PLATFORM_MANAGER`** - platform commercial operations: enterprise subscription payment confirmation/activation, platform leasable drone pool (`platform_drones`), B2B drone lease contract settlement and provisioning (`drone_leases`), and leased drone reclaim.
+- **`ORG_MANAGER`** - organization users, credentials, owned and leased drone fleet, B2B drone lease requests, permits, assets, inspection setup, readiness/report review, repair team and budget assignment, and independent acceptance.
+- **`INSPECTOR`** - assigned inspection preparation, field-session records, evidence upload, findings confirmation, and inspection report author verification.
 - **`MAINTENANCE_ENGINEER`** - assigned repair tasks, work logs, actuals, evidence, and maintenance report author verification.
 
 The platform uses deny-by-default authorization. Resource ownership, organization scope, assignment scope, and separation-of-duties are enforced in application services in addition to role checks.
