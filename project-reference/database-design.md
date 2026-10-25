@@ -251,31 +251,29 @@ A readiness decision references the permit and snapshots its version/status. A p
 
 #### `asset_categories`, `checklist_templates`, `checklist_items`
 
-- `asset_categories`: platform categories plus optional organization-specific categories.
-- `checklist_templates`: versioned template, context (`MF2_FIELD`, `MF3_EVIDENCE`, `MF4_ACCEPTANCE`), active period and author.
-- `checklist_items`: typed item, order, required flag, evidence requirement and template FK.
+- `asset_categories` (**8 columns**: `id`, `code`, `name`, `description`, `active`, `created_at`, `updated_at`, `row_version`): platform categories classified by normalized `code`. Unused `organization_id` is dropped.
+- `checklist_templates` (**14 columns**: `id`, `template_key`, `version_number`, `asset_category_id`, `name`, `description`, `name_vi`, `description_vi`, `status`, `created_by_user_id`, `published_at`, `created_at`, `updated_at`, `row_version`): versioned template linked to an asset category, bilingual metadata, publication status and author. Unused `context`, `active_from`, and `active_until` are dropped.
+- `checklist_items` (**14 columns**: `id`, `template_id`, `item_code`, `section_name`, `prompt`, `response_type`, `required`, `display_order`, `guidance`, `section_name_vi`, `prompt_vi`, `guidance_vi`, `validation_config`, `created_at`): typed item, bilingual prompt/guidance, order, required flag, validation JSON and template FK. Unused `evidence_requirement` is dropped.
 
 A response references the exact template/item version used; later edits do not rewrite historical responses.
 
 #### `assets`
 
-Stores `organization_id`, unique organization-local code, category, name/type, location JSON, technical profile JSON, source documents and status (`ACTIVE`, `INACTIVE`, `RETIRED`).
+Stores **14 columns** (`id`, `organization_id`, `category_id`, `asset_code`, `name`, `description`, `location`, `latitude`, `longitude`, `technical_profile`, `status`, `created_at`, `updated_at`, `row_version`): `organization_id`, unique organization-local `asset_code`, `category_id`, name/description, location JSON, GPS coordinates, technical profile JSON and status (`ACTIVE`, `INACTIVE`, `RETIRED`). Redundant `asset_type` is dropped because classification is normalized via `category_id`.
 
 #### `asset_documents`
 
-Stores asset drawings, manuals and historical files: asset, type/version, object key/checksum/size/media type, uploader, status and timestamps. Published documents are not overwritten.
+Stores **11 columns** (`id`, `asset_id`, `uploaded_by_user_id`, `document_type`, `file_name`, `content_type`, `size_bytes`, `checksum_sha256`, `object_key`, `document_date`, `created_at`): asset drawings, manuals and historical files with object key/checksum/size/media type, uploader, document date and creation timestamp. Published documents are immutable; unused `document_version`, `status`, and `updated_at` are dropped.
 
 #### `asset_pair_assignments`
 
-The MF1 pair record stores `organization_id`, `asset_id`, `inspector_user_id`, `drone_id`, `valid_from`, `valid_until`, status (`DRAFT`, `ACTIVE`, `SUPERSEDED`, `SUSPENDED`), reason, assigned by/time and version.
+The MF1 pair record stores **16 columns**: `organization_id`, `asset_id`, `inspector_user_id`, `drone_id`, `valid_from`, `valid_until`, status (`DRAFT`, `ACTIVE`, `SUPERSEDED`, `SUSPENDED`), reason, assigned by/time, Inspector `assignment_response` (`ACCEPTED`, `REJECTED`), `responded_at` and mutable aggregate columns.
 
 The target invariant permits one current active default pair per asset and requires Inspector, Drone and asset to share the organization. A pair is a default operational assignment, not a permanent Drone reservation.
 
-#### `inspection_schedules` and `inspections`
+#### `inspections`
 
-`inspection_schedules` stores optional cadence, next due time, scope defaults and active status.
-
-`inspections` is the MF1 inspection aggregate: organization, asset, schedule/cycle key, objective, scope/component scope, acceptance criteria, planned dates, assignment snapshot (`asset_pair_assignment_id`, `inspector_id`, `drone_id`) and status:
+`inspections` (**18 columns**: `id`, `organization_id`, `asset_id`, `asset_pair_assignment_id`, `inspector_id`, `drone_id`, `objective`, `scope`, `component_scope`, `acceptance_criteria`, `planned_start_at`, `planned_end_at`, `status`, `findings_confirmed_at`, `findings_snapshot_hash`, `created_at`, `updated_at`, `row_version`) is the MF1 inspection aggregate: organization, asset, objective, scope/component scope, acceptance criteria, planned dates, assignment snapshot (`asset_pair_assignment_id`, `inspector_id`, `drone_id`), findings confirmation snapshot and status:
 
 ```text
 DRAFT -> ASSIGNED -> PREPARING -> READY_FOR_FLIGHT
@@ -285,9 +283,9 @@ DRAFT -> ASSIGNED -> PREPARING -> READY_FOR_FLIGHT
 
 `objective`, `scope`, `component_scope`, and `acceptance_criteria` are retained on the inspection as
 MF1-owned scope. They remain the source for inspection display, MF2 readiness review and readiness
-`source_hash` inputs; the report does not replace or migrate these scope fields.
+`source_hash` inputs; the report does not replace or migrate these scope fields. Legacy `schedule_id` and `due_cycle_key` columns from the retired `inspection_schedules` table are dropped.
 
-A due-cycle uniqueness key prevents duplicate generated inspections. Past snapshots never change when the asset default pair changes.
+Past snapshots never change when the asset default pair changes.
 
 ### 6.4 MF2 preparation and field records
 
