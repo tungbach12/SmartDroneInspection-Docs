@@ -6,7 +6,7 @@ schedule" wording; the filename is stable, the scope is Report 3's.
 
 ## Scope baseline
 
-MF1 retains the agreed asset-creation assignment: **ORG_ADMIN creates an asset
+MF1 retains the agreed asset-creation assignment: **ORG_MANAGER creates an asset
 together with one responsible Inspector and one specific Drone**, then creates
 inspections that inherit that pair. Re-inspecting an existing asset does not
 recreate the asset. This is MF1, the source of the MF2 assignment FE-03
@@ -16,10 +16,10 @@ The fourteen MF1 steps divide as:
 
 | Steps | Actor | What it does |
 | --- | --- | --- |
-| MF1-01 – MF1-05 | `ORG_ADMIN` + `SYSTEM` | Organization identity and authorized reviewers; subscription entitlement check; Inspector/Engineer provisioning; skills and credential records; document validation with expiry warnings. |
-| MF1-06 – MF1-07 | `ORG_ADMIN` | Drone registration by unique identifier, serviceability and documents; flight permits and compliance files with issuer, scope and conditions. |
-| MF1-08 – MF1-10 | `ORG_ADMIN` + `SYSTEM` | Asset profile, and in the **same workflow** selection of exactly one Inspector and one Drone; validation and audit that saves asset and pair together. |
-| MF1-11 – MF1-14 | `ORG_ADMIN` + `SYSTEM` | Create the inspection for that asset; inherit the current pair into a snapshot; confirm with a recorded reassignment reason; dispatch with document references. |
+| MF1-01 – MF1-05 | `ORG_MANAGER` + `SYSTEM` | Organization identity and authorized reviewers; subscription entitlement check; Inspector/Engineer provisioning; skills and credential records; document validation with expiry warnings. |
+| MF1-06 – MF1-07 | `ORG_MANAGER` + `PLATFORM_MANAGER` | Owned Drone registration by unique identifier, serviceability and documents, plus B2B Drone Leasing (`PLATFORM_MANAGER` pool management, `ORG_MANAGER` lease request/payment, automatic `LEASED` customer fleet provisioning with `lease_expires_at`, and manual reclaim); flight permits and compliance files with issuer, scope and conditions. |
+| MF1-08 – MF1-10 | `ORG_MANAGER` + `SYSTEM` | Asset profile, and in the **same workflow** selection of exactly one Inspector and one Drone; validation and audit that saves asset and pair together. |
+| MF1-11 – MF1-14 | `ORG_MANAGER` + `SYSTEM` | Create the inspection for that asset; inherit the current pair into a snapshot; confirm with a recorded reassignment reason; dispatch with document references. |
 
 Gates worth stating because they are easy to misread as satisfied:
 
@@ -33,7 +33,7 @@ Gates worth stating because they are easy to misread as satisfied:
 - An informational airspace warning **does not authorize flight** (MF1-08).
 - Machine validation of a document **is not government verification** (MF1-05).
 
-The four canonical roles are `ADMIN`, `ORG_ADMIN`, `INSPECTOR` and
+The five canonical roles are `ADMIN`, `PLATFORM_MANAGER`, `ORG_MANAGER`, `INSPECTOR` and
 `MAINTENANCE_ENGINEER`.
 
 ## Current test coverage
@@ -61,7 +61,7 @@ therefore remains a coverage gap.
 ### Backend pair-default API — supporting verification (integration Pending)
 
 - Preconditions: Backend branch `feat/quoc-mf1-mf4-e2e`; PostgreSQL and MinIO Testcontainers available; active subscription; own-organization active asset, active Inspector, and serviceable Drone; second organization and second same-organization Inspector for scope/supersession checks.
-- Procedure: Run `./mvnw.cmd '-Dtest=AssetPairAdminApiIntegrationTest' test`. Verify ORG_ADMIN can create a `DRAFT` default pair and list only own-asset history; wrong role is denied; foreign asset/Drone and foreign/suspended Inspector are rejected; unavailable Drone, invalid window, blank reason and future-effective activation are refused; an unentitled organization cannot create pairs; explicit activation requires a reason and supersedes the previous active default with audit while preserving its prior Inspector response.
+- Procedure: Run `./mvnw.cmd '-Dtest=AssetPairAdminApiIntegrationTest' test`. Verify ORG_MANAGER can create a `DRAFT` default pair and list only own-asset history; wrong role is denied; foreign asset/Drone and foreign/suspended Inspector are rejected; unavailable Drone, invalid window, blank reason and future-effective activation are refused; an unentitled organization cannot create pairs; explicit activation requires a reason and supersedes the previous active default with audit while preserving its prior Inspector response.
 - Expected result: Pair history remains tenant scoped, draft creation does not expose an active default, exactly one active default exists per asset, and supersession never erases historical response fields.
 - Round 1: Pending 2026-10-21; tester: Claude Code (automated test authored, execution blocked).
 - Evidence: `./mvnw.cmd '-Dtest=AssetPairAdminApiIntegrationTest' test` failed before Spring context initialization because Testcontainers could not find a Docker environment. Test compilation passed with `./mvnw.cmd '-DskipTests' test-compile`; separate domain tests passed, but do not substitute for this API integration procedure.
@@ -81,7 +81,7 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
 ### Frontend MF1-06 Drone inventory and documents — supporting verification (executed 2026-10-13)
 
 - Preconditions: Frontend `feat/mf1-org-admin-resources` based on current `origin/main`; Vitest/jsdom; synthetic API responses conforming to Backend Drone DTOs.
-- Procedure: Run `npx vitest run --pool=forks --maxWorkers=1 src/features/assets/api/assetsApi.test.ts src/features/assets/hooks/useDrones.test.tsx src/features/assets/pages/DroneInventoryPanel.test.tsx`. Verify Drone list/create/detail/selection/serviceability and document list/upload/status URLs; JSON-string `payloadMetadata`; multipart fields without client checksum; ORG_ADMIN create/serviceability/upload controls; loading/empty/retry, server 413/415 feedback, expired status, no flight-clearance wording; lazy detail queries; selected file not held in TanStack mutation variables and cleared after upload/close.
+- Procedure: Run `npx vitest run --pool=forks --maxWorkers=1 src/features/assets/api/assetsApi.test.ts src/features/assets/hooks/useDrones.test.tsx src/features/assets/pages/DroneInventoryPanel.test.tsx`. Verify Drone list/create/detail/selection/serviceability and document list/upload/status URLs; JSON-string `payloadMetadata`; multipart fields without client checksum; ORG_MANAGER create/serviceability/upload controls; loading/empty/retry, server 413/415 feedback, expired status, no flight-clearance wording; lazy detail queries; selected file not held in TanStack mutation variables and cleared after upload/close.
 - Expected result: The client follows the existing API contract, sends no organization field or checksum, tenant scope stays server-owned, detail queries run only while open, and serviceability is never described as flight permission/readiness.
 - Round 1: Passed 2026-10-13; tester: Claude Code (automated).
 - Evidence: focused command passed 3 files / 31 tests before final integration. Full suite on the clean release branch after `origin/main` merge: `npm test -- --maxWorkers=1` passed 51 files / 336 tests.
@@ -90,7 +90,7 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
 ### Frontend MF1-07 permit records and internal review — supporting verification (executed 2026-10-13)
 
 - Preconditions: Same Frontend release branch; synthetic fixtures matching `CreateFlightPermitRequest`, `ReviewFlightPermitRequest` and `FlightPermitResponse`.
-- Procedure: Run `npx vitest run --pool=forks --maxWorkers=1 src/features/assets/api/assetsApi.test.ts src/features/assets/hooks/useFlightPermits.test.tsx src/features/assets/pages/FlightPermitPanel.test.tsx src/features/assets/pages/AssetsPage.resources.test.tsx`. Verify list/create/review endpoints, no tenant field, JSON-string scope/conditions, optional raw asset/evidence IDs, six supported statuses, date-order and malformed JSON validation, required internal review reason, form reset after cancel, non-verification copy, ORG_ADMIN-only tabs/actions and list loading/empty/retry.
+- Procedure: Run `npx vitest run --pool=forks --maxWorkers=1 src/features/assets/api/assetsApi.test.ts src/features/assets/hooks/useFlightPermits.test.tsx src/features/assets/pages/FlightPermitPanel.test.tsx src/features/assets/pages/AssetsPage.resources.test.tsx`. Verify list/create/review endpoints, no tenant field, JSON-string scope/conditions, optional raw asset/evidence IDs, six supported statuses, date-order and malformed JSON validation, required internal review reason, form reset after cancel, non-verification copy, ORG_MANAGER-only tabs/actions and list loading/empty/retry.
 - Expected result: The UI mirrors backend DTOs; permit status is labeled organization-recorded; no authority/registry verification, legal clearance, or permission-to-fly claim is implied; there are no invented asset/evidence pickers; canceled drafts do not persist.
 - Round 1: Passed 2026-10-13; tester: Claude Code (automated).
 - Evidence: focused command passed 4 files / 33 tests; create-cancel reset regression passed in `FlightPermitPanel.test.tsx` (7/7). Final clean-branch regression passed 51 files / 336 tests.
@@ -99,16 +99,16 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
 
 ### Integrated Frontend role/access and verification — supporting evidence (executed 2026-10-13)
 
-- Preconditions: Frontend `feat/mf1-org-admin-resources`, current upstream main merged, canonical roles `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`.
+- Preconditions: Frontend `feat/mf1-org-admin-resources`, current upstream main merged, canonical roles `ADMIN`, `PLATFORM_MANAGER`, `ORG_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`.
 - Procedure: `npm test -- --maxWorkers=1`; `npm run build`; `npm run lint`; focused direct guards via `npx vitest run --pool=forks --maxWorkers=1 src/app/permissions/accessPolicy.test.ts src/app/router/router.test.ts src/features/auth/components/RequireAuth.resources.test.tsx src/features/assets/pages/AssetsPage.resources.test.tsx`; `git diff --check`.
-- Expected result: All automated tests pass; route guards permit ORG_ADMIN and direct guard tests redirect the other three roles to Forbidden; strict build passes; lint exits zero; whitespace check is clean.
+- Expected result: All automated tests pass; route guards permit ORG_MANAGER and direct guard tests redirect the other roles to Forbidden; strict build passes; lint exits zero; whitespace check is clean.
 - Round 1: Passed 2026-10-13; tester: Claude Code (automated).
 - Evidence: full suite 51 files / 336 tests; focused guard suite 9 files / 95 tests; `npm run build` passed; `npm run lint` exited 0 with six existing `react(only-export-components)` Fast Refresh warnings (in `Toast.tsx`, `main.tsx`, `ReportSectionForm.tsx`, and `router.tsx`); `git diff --check` passed. Manual browser verification was not run because the connected browser was `about:blank`.
 - Scope note: Role guards are navigation protection; backend authorization remains authoritative. No changes were made to backend APIs/schema in this Frontend task.
 
 ### MF1-08 – MF1-10 Asset Creation and Default Pair Assignment — supporting verification (executed 2026-10-20)
 
-- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; active ORG_ADMIN, Inspector and Drone within the same organization.
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; active ORG_MANAGER, Inspector and Drone within the same organization.
 - Procedure: Run Backend `AssetApiIntegrationTest` and Frontend `AssetsPage.pairing.test.tsx`. Verify asset creation with default Inspector and Drone pair; tenant-scoped validation rejecting foreign inspectors, foreign drones, or retired drones; pair persistence in `asset_pair_assignments` with `ACTIVE` status; active pair retrieval and reassignment with recorded reason; drawer pairing display and "New inspection" row trigger.
 - Expected result: Assets save atomically with their active default operational pair; cross-tenant references fail with 400 `INVALID_INSPECTOR` or `INVALID_DRONE`; reassignment supersedes the previous pair and creates a new active version; UI displays the assigned pair with inspector and drone details.
 - Round 1: Passed 2026-10-20; tester: Claude Code (automated).
@@ -117,7 +117,7 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
 ### MF1-11 – MF1-14 Inspection Creation and Pair Inheritance/Reassignment — supporting verification (executed 2026-10-20)
 
 - Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; active asset with assigned default pair.
-- Procedure: Run Backend `InspectionCreationApiIntegrationTest` and Frontend `CreateInspectionDialog.test.tsx`. Verify inspection creation inheriting asset default pair snapshot; date ordering and non-empty objective validation; schedule conflict check for overlapping active missions on the same Inspector or Drone (MF1-12); optional override of inspector or drone with mandatory reassignment reason; dispatch to `ASSIGNED` status; rejection of inspections on unpaired or foreign assets; ORG_ADMIN only creation authorization.
+- Procedure: Run Backend `InspectionCreationApiIntegrationTest` and Frontend `CreateInspectionDialog.test.tsx`. Verify inspection creation inheriting asset default pair snapshot; date ordering and non-empty objective validation; schedule conflict check for overlapping active missions on the same Inspector or Drone (MF1-12); optional override of inspector or drone with mandatory reassignment reason; dispatch to `ASSIGNED` status; rejection of inspections on unpaired or foreign assets; ORG_MANAGER only creation authorization.
 - Expected result: Inspections inherit the active operational pair snapshot without mutating asset defaults; planned dates, objective, and schedule conflicts are enforced; unauthorized roles receive 403; dispatched inspections are ready for MF2 inspector assignment response.
 - Round 1: Passed 2026-10-20; tester: Claude Code (automated).
 - Evidence: Backend `InspectionCreationApiIntegrationTest` passed 7/7 tests; full backend verify passed 644 tests, JaCoCo and Modulith checks; Frontend `CreateInspectionDialog.test.tsx` passed 3/3 tests; full frontend suite passed 53 files / 342 tests and build succeeded.
@@ -132,7 +132,7 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
 
 ### MF4-01 – MF4-20 Maintenance Work Order Lifecycle — supporting verification (executed 2026-10-20)
 
-- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an organization with a published repair-required finding and an ORG_ADMIN plus MAINTENANCE_ENGINEER.
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an organization with a published repair-required finding and an ORG_MANAGER plus MAINTENANCE_ENGINEER.
 - Procedure: Run Backend `MaintenanceApiIntegrationTest` (25 tests) and Frontend `MaintenancePage.test.tsx`. Verify the repair-candidate triage list (MF3-13 handoff), work order creation with priority, due date, corrective scope and acceptance criteria (MF4-01/02), team designation of exactly one lead, one report author and one independent accepting reviewer (MF4-03/04), task creation (MF4-05), estimate versions with system-computed totals and approval (MF4-06/07/08), the execution transitions release/start/declare-complete (MF4-09/10/14), work logs with hours and as-left condition (MF4-11), change requests and their decisions (MF4-12/13), completion report drafting, verification and submission (MF4-15/16/17), independent acceptance (MF4-18), cost reconciliation with the computed variance (MF4-19), and closure (MF4-20).
 - Expected result: Each transition is a named action rather than a generic state change; the role decides which actions are offered while the backend stays the enforcement boundary; the accepting reviewer may not be on the executing team; actual cost lines never overwrite an estimate line; the variance is computed by the platform; a work order closes only after independent acceptance and cost reconciliation.
 - Round 1: Passed 2026-10-20; tester: Claude Code (automated).
@@ -140,9 +140,9 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
 
 ### FE-01 Platform Account Administration — supporting verification (executed 2026-10-20)
 
-- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an active platform ADMIN and an organization-scoped ORG_ADMIN.
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an active platform ADMIN and an organization-scoped ORG_MANAGER.
 - Procedure: Run Backend `PlatformUserListApiIntegrationTest` and `AdminUserApiIntegrationTest`, and Frontend `PlatformUsersPage.test.tsx`. Verify the platform-wide account list with roles and actor zone; refusal of that list to a non-platform caller; password reset of another account with session revocation; the one-time temporary password shown once and never retrievable again; suspension through the named status change.
-- Expected result: The platform administrator manages the administrator-managed accounts only; a customer's own workforce is administered by that organization's ORG_ADMIN through a different contract; a password reset revokes the account's sessions and forces a new password at next sign-in; the temporary password is shown once.
+- Expected result: The platform administrator (`ADMIN`) manages the administrator-managed accounts only (`ADMIN`, `PLATFORM_MANAGER`, and initial `ORG_MANAGER`); a customer's own workforce is administered by that organization's ORG_MANAGER through a different contract; a password reset revokes the account's sessions and forces a new password at next sign-in; the temporary password is shown once.
 - Round 1: Passed 2026-10-20; tester: Claude Code (automated).
 - Evidence: Backend `PlatformUserListApiIntegrationTest` passed 3/3 tests and `AdminUserApiIntegrationTest` passed; Frontend `PlatformUsersPage.test.tsx` passed 4/4 tests. The `GET /api/v1/platform/users` listing was added by this work because the ADMIN portal had no way to read the accounts it manages.
 

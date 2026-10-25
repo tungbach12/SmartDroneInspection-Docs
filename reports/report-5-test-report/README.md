@@ -4,8 +4,8 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope (updated 2026-10-22):** This report indexes eleven cases for the four
-current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`): three
+**Scope (updated 2026-10-25):** This report indexes eleven cases for the five
+current roles (`ADMIN`, `PLATFORM_MANAGER`, `ORG_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`): three
 MF2 cases and eight MF3 cases. Recorded statuses are eight `Passed`; `WF3-010`,
 `WF3-011` and `WF3-012` are `Pending`. The MF3 target changed on 2026-10-22;
 existing Passed outcomes remain historical and do not verify the simplified

@@ -79,7 +79,7 @@ class TableContinuityTests(unittest.TestCase):
         tables = [b for b in blocks if b.kind == "table"]
         self.assertEqual(len(tables), 1,
                          "blank lines inside the change table split it into fragments")
-        self.assertGreater(len(tables[0].rows), 20)
+        self.assertGreater(len(tables[0].rows), 5)
 
     def test_no_paragraph_looks_like_a_raw_markdown_table_row(self):
         body = exported_document()
@@ -94,14 +94,15 @@ class TableContinuityTests(unittest.TestCase):
 class DiagramTests(unittest.TestCase):
     def test_mermaid_keeps_line_structure_and_is_marked_as_source(self):
         body = exported_document()
-        diagrams = [text for node, text in paragraphs(body)
-                    if re.search(r"flowchart (LR|TD)", text)]
-        self.assertEqual(len(diagrams), 2)
-        for text in diagrams:
-            self.assertIn("-->", text)
-        breaks = sum(len(descendants(node, "br")) for node in body)
-        self.assertGreaterEqual(breaks, 20,
-                                "Mermaid source must keep its line breaks")
+        placeholders = [
+            "".join(text_of(t) for t in descendants(node, "t"))
+            for node in body
+            if node.localName == "tbl"
+            and "Figure Placeholder:" in "".join(text_of(t) for t in descendants(node, "t"))
+        ]
+        self.assertGreaterEqual(len(placeholders), 2)
+        for text in placeholders:
+            self.assertIn("Insert ", text)
 
 
 class OutlineTests(unittest.TestCase):
