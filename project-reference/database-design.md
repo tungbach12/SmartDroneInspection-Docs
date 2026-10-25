@@ -151,8 +151,8 @@ erDiagram
     USERS ||--o{ MAINTENANCE_TEAM_MEMBERS : joins
     MAINTENANCE_WORK_ORDERS ||--o{ MAINTENANCE_ESTIMATE_VERSIONS : estimates
     MAINTENANCE_ESTIMATE_VERSIONS ||--o{ MAINTENANCE_COST_LINES : prices
+    MAINTENANCE_WORK_ORDERS ||--o{ MAINTENANCE_COST_LINES : reconciles
     MAINTENANCE_WORK_ORDERS ||--o{ MAINTENANCE_CHANGE_ORDERS : changes
-    MAINTENANCE_CHANGE_ORDERS ||--o{ MAINTENANCE_COST_LINES : adds
     MAINTENANCE_WORK_ORDERS ||--o{ MAINTENANCE_WORK_LOGS : logs
     MAINTENANCE_TASKS ||--o{ MAINTENANCE_WORK_LOGS : receives
     MAINTENANCE_WORK_ORDERS ||--o{ MAINTENANCE_REPORTS : reports
@@ -357,7 +357,8 @@ Read-only report-version context resolves tenant-scoped organization, asset/cate
 
 #### `maintenance_work_orders`
 
-Stores organization, published source report version, confirmed source finding, status, priority/due date, corrective scope, acceptance criteria, owner/budget approver, exactly one team lead, exactly one report author, one independent accepting reviewer and common columns.
+- **18 columns**: `id`, `organization_id`, `asset_id`, `source_report_version_id`, `source_finding_id`, `status`, `priority`, `due_at`, `corrective_scope`, `acceptance_criteria`, `owner_user_id`, `budget_approver_user_id`, `team_lead_user_id`, `report_author_user_id`, `accepting_reviewer_user_id`, `created_at`, `updated_at`, `row_version`.
+- Stores organization, asset, published source report version, confirmed source finding, status, priority/due date, corrective scope, acceptance criteria, non-null owner and budget approver, designated team lead, designated report author, independent accepting reviewer and common columns.
 
 Statuses:
 
@@ -370,21 +371,22 @@ IN_PROGRESS -> REWORK_REQUIRED -> IN_PROGRESS
 SUBMITTED_FOR_ACCEPTANCE -> REINSPECTION_REQUIRED -> linked inspection
 ```
 
-The source report must be published and the finding must be confirmed and forwarded from MF3. Active duplicate corrective scope requires an explicit follow-up reason. This table and its workflow are a target design: MF4 work-order creation and execution are not implemented, and the MF3-13 handoff does not create a work order. A handoff-eligible finding has `forwarded_to_maintenance_at` set.
+The source report must be published and the finding must be confirmed and forwarded from MF3 (`forwarded_to_maintenance_at IS NOT NULL`). Active duplicate corrective scope is prevented per finding while an active work order exists.
 
 #### `maintenance_tasks`
 
-Divides approved scope: work order, task number/name, method, Engineer assignee, planned dates, acceptance criteria, status (`PLANNED`, `READY`, `IN_PROGRESS`, `WORK_COMPLETED`, `REWORK_REQUIRED`, `ACCEPTED`, `CANCELLED`), completion notes and order. Unique `(work_order_id, task_number)`.
+- **13 columns**: `id`, `work_order_id`, `task_number`, `name`, `method`, `assigned_engineer_user_id`, `planned_start_at`, `planned_end_at`, `acceptance_criteria`, `status`, `created_at`, `updated_at`, `row_version`.
+- Divides approved scope: work order, sequential `task_number` (unique per `work_order_id`, also serving as display order), name, method, Engineer assignee, planned dates, acceptance criteria, status (`PLANNED`, `READY`, `IN_PROGRESS`, `WORK_COMPLETED`, `REWORK_REQUIRED`, `ACCEPTED`, `CANCELLED`), and mutable aggregate columns. Unused `completion_notes` and redundant `display_order` are dropped.
 
 #### `maintenance_team_members`
 
-Assignment history: work order, Engineer, member role (`LEAD`, `REPORT_AUTHOR`, `MEMBER`), effective dates, assigned by/reason and active flag. Application rules enforce exactly one active lead and report author and prevent self-acceptance.
+- **10 columns**: `id`, `work_order_id`, `engineer_user_id`, `member_role`, `effective_from`, `effective_until`, `assigned_by_user_id`, `reason`, `active`, `created_at`.
+- Assignment history: work order, Engineer, member role (`LEAD`, `REPORT_AUTHOR`, `MEMBER`), effective dates, assigned by/reason and active flag. Partial unique indexes and domain rules enforce at most one active lead and one active report author and prevent self-acceptance.
 
 #### `maintenance_estimate_versions` and `maintenance_cost_lines`
 
-`maintenance_estimate_versions` stores version, status (`DRAFT`, `SUBMITTED`, `APPROVED`, `REJECTED`, `SUPERSEDED`), preparer, approver/time, currency, tax basis, baseline total, assumptions and immutable snapshot.
-
-`maintenance_cost_lines` stores estimate/change/actual ownership, optional task, cost kind (`LABOR`, `MATERIAL`, `EQUIPMENT`, `EXTERNAL_SERVICE`, `OTHER`, `CONTINGENCY`), description, quantity, unit, unit rate, amount, currency, tax treatment, evidence/reference and entered by/time.
+- `maintenance_estimate_versions` (**12 columns**: `id`, `work_order_id`, `version_no`, `status`, `prepared_by_user_id`, `approved_by_user_id`, `approved_at`, `currency`, `baseline_total`, `assumptions`, `snapshot`, `created_at`) stores version, status (`DRAFT`, `SUBMITTED`, `APPROVED`, `REJECTED`, `SUPERSEDED`), preparer, approver/time, currency, baseline total, assumptions and immutable snapshot. Unused `tax_basis` is dropped.
+- `maintenance_cost_lines` (**14 columns**: `id`, `work_order_id`, `estimate_version_id`, `task_id`, `line_kind`, `state`, `description`, `quantity`, `unit`, `unit_rate`, `amount`, `currency`, `entered_by_user_id`, `created_at`) stores estimate/actual ownership (`state` in `ESTIMATE`, `ACTUAL`), optional estimate version and task FKs, cost kind (`LABOR`, `MATERIAL`, `EQUIPMENT`, `EXTERNAL_SERVICE`, `OTHER`, `CONTINGENCY`), description, quantity, unit, unit rate, derived amount, currency, entered by user and creation timestamp. Unmapped `change_order_id`, unused `tax_treatment` and `evidence_reference`, and duplicate `entered_at` are dropped.
 
 Authoritative values:
 
@@ -399,19 +401,23 @@ SYSTEM calculates totals with decimal arithmetic. Missing price is unknown, not 
 
 #### `maintenance_change_orders`
 
-Versioned scope/cost/time changes: work order, change number/version, reason, affected tasks, proposed delta, supporting evidence, proposed dates, status (`DRAFT`, `AWAITING_APPROVAL`, `APPROVED`, `REJECTED`, `RETURNED`, `SUPERSEDED`), requester and decision attribution. Additional work is unauthorized until approval; the initial baseline remains immutable.
+- **14 columns**: `id`, `work_order_id`, `change_number`, `reason`, `affected_tasks`, `proposed_delta`, `status`, `requested_by_user_id`, `decided_by_user_id`, `decided_at`, `decision_reason`, `created_at`, `updated_at`, `row_version`.
+- Versioned scope/cost changes: work order, change number, reason, affected tasks, proposed delta, status (`DRAFT`, `AWAITING_APPROVAL`, `APPROVED`, `REJECTED`, `RETURNED`, `SUPERSEDED`), requester and decision attribution. Unused `supporting_evidence`, `proposed_start_at`, and `proposed_end_at` are dropped. Additional work is unauthorized until approval; the initial baseline remains immutable.
 
 #### `maintenance_work_logs`
 
-Task-level execution records: work order/task, Engineer, start/end, narrative, hours, actual-cost references, as-left condition, tests/readings JSON, submitted time and status. `WORK_COMPLETED` is a team declaration, not acceptance. Evidence is decoupled from maintenance work logs; repair media and attachments are managed within maintenance execution.
+- **13 columns**: `id`, `work_order_id`, `task_id`, `engineer_user_id`, `started_at`, `ended_at`, `hours`, `as_left_condition`, `test_readings`, `status`, `created_at`, `updated_at`, `row_version`.
+- Task-level execution records: work order/task, Engineer, start/end, hours, as-left condition, tests/readings JSON, status (`IN_PROGRESS`, `PAUSED_FOR_CHANGE`, `SUBMITTED`, `VERIFIED`) and mutable aggregate columns. Unused `actual_cost_references` is dropped. `WORK_COMPLETED` is a team declaration, not acceptance.
 
 #### `maintenance_reports`
 
-Completion report versions store work order/version/status, designated Engineer author, author-verification time, LLM provider/model/template/prompt/generation metadata, approved scope/change/work-log/actual snapshot hashes, structured execution/as-left/residual/cost-variance data and rendered object key/checksum.
+- **10 columns**: `id`, `work_order_id`, `version_no`, `status`, `author_user_id`, `author_verified_at`, `content_snapshot`, `rendered_object_key`, `rendered_checksum_sha256`, `created_at`.
+- Completion report versions store work order, sequential `version_no`, status (`DRAFT`, `AUTHOR_VERIFIED`, `SUBMITTED`, `RETURNED`, `APPROVED`, `SUPERSEDED`), designated Engineer author, author-verification time, structured `content_snapshot`, and rendered PDF `rendered_object_key` and `rendered_checksum_sha256`. Unused LLM metadata (`llm_provider`, `llm_model`, `prompt_version`, `generated_at`) and unused snapshot hash columns (`approved_scope_hash`, `change_snapshot_hash`, `work_log_snapshot_hash`, `actual_cost_snapshot_hash`) are dropped.
 
 #### `maintenance_acceptance_decisions`
 
-Append-only decision: work order/report version, ORG_ADMIN reviewer, decision (`ACCEPTED`, `REWORK_REQUIRED`, `REINSPECTION_REQUIRED`, `REJECTED`), technical comments, acceptance checklist/test result, time and signature reference where a real signature service is used. The executing team cannot create final acceptance.
+- **9 columns**: `id`, `work_order_id`, `report_version_id`, `reviewer_user_id`, `decision`, `technical_comments`, `acceptance_checklist`, `test_result`, `decided_at`.
+- Append-only decision: work order/report version, independent ORG_ADMIN reviewer, decision (`ACCEPTED`, `REWORK_REQUIRED`, `REINSPECTION_REQUIRED`), technical comments, acceptance checklist, test result, and `decided_at`. Unused `signature_reference`, duplicate `created_at`, and unsupported `REJECTED` decision state are dropped. The executing team cannot create final acceptance.
 
 #### `repair_knowledge_chunks`
 
