@@ -7,6 +7,7 @@ weight: 10
 
 This folder is the editable source for the Report 5 workbook. The workbook
 template is kept unchanged under `template/`; the Markdown files are the
-working source for test cases, execution rounds, and statistics.
+working source for test cases, execution rounds, and statistics across the five
+current roles (`ADMIN`, `PLATFORM_MANAGER`, `ORG_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`).
 
 See [README.md](README.md) for the editing workflow.

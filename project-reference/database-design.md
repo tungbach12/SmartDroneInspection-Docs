@@ -6,7 +6,7 @@ weight: 25
 
 # SmartDroneInspection Database Design
 
-> **Scope:** This document is the database-design companion to the Report 3 SRS revision dated **7 October 2026**, with the MF3 pre-report simplification incorporated on **22 October 2026**. It specifies the Enterprise SaaS target with four human roles and four connected Main Flows; the 35-table count below is a target logical inventory, not a completed database inventory.
+> **Scope:** This document is the database-design companion to the Report 3 SRS revision dated **7 October 2026**, with the MF3 pre-report simplification incorporated on **22 October 2026** and the role restructuring (`ADMIN`, `PLATFORM_MANAGER`, `ORG_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`) and B2B Drone Leasing (`platform_drones`, `drone_leases`) incorporated on **25 October 2026**. It specifies the Enterprise SaaS target with five human roles and four connected Main Flows; the 36-table count below is a target logical inventory, not a completed database inventory.
 >
 > **Implementation status — 21 October 2026 (historical snapshot):** Backend V24 aligns identity vocabulary and performs a fail-closed role/zone migration; V25 is an additive bridge that creates the target tables. `V26__enterprise_saas_runtime_cutover.sql` completes the runtime cutover: it drops every non-target marketplace, old-client and MF5 table, tightens composite tenant foreign keys, and enforces the target status vocabularies. `V27__mf3_report_workflow.sql` then drops the removed `peer_reviews` table and replaces the retired report-status vocabulary with the MF3 one. `V30__mf3_corrective_action_and_decision_revision.sql` adds the MF3-12 corrective-action outcome columns on `findings` and the MF3-13 handoff columns on `inspections`. `V31__mf3_corrective_outcome_follows_publication.sql` then clears outcomes that predate the publication they would be attributed to. The `inspections` module has focused MF2 preparation/readiness/session and MF3 evidence/findings/report workflow slices; MF1 and MF4 workflow implementation remains incomplete. `V37__merge_findings_into_one_table.sql` consolidates detector suggestions and Inspector findings; rejected AI suggestions are excluded and are not retained as finding-level audit records, while explicitly removed Inspector findings retain deletion attribution. The dated test results and code/schema descriptions below record the prior implementation; this 22 October documentation change does not assert that the target MF3 schema or behavior has been implemented. No Report 5 case was promoted. See current source and migrations for executable detail.
 >
@@ -37,8 +37,9 @@ The system does **not** store or control:
 
 | Role | Data responsibilities |
 | --- | --- |
-| `ADMIN` | Platform tenant/subscription administration, technical/security settings and authorized support/audit. No default customer technical or repair acceptance authority. |
-| `ORG_ADMIN` | Organization users, credentials, Drone fleet, permits, assets, asset-pair assignment, inspection setup, readiness/report review, repair team/budget assignment and independent acceptance. |
+| `ADMIN` | Platform technical and account administration (`ADMIN`, `PLATFORM_MANAGER`, initial `ORG_MANAGER`), standard asset categories, security settings, and read-only support/audit/commercial views. No commercial settlement or customer technical/repair acceptance authority. |
+| `PLATFORM_MANAGER` | Platform commercial and equipment-leasing operations: enterprise subscription payment confirmation/activation, platform leasable drone pool (`platform_drones`), B2B drone lease contract settlement and provisioning (`drone_leases`), and leased drone reclaim. No platform user or asset category mutation authority. |
+| `ORG_MANAGER` | Organization users, credentials, owned and leased Drone fleet, B2B drone lease requests, permits, assets, asset-pair assignment, inspection setup, readiness/report review, repair team/budget assignment and independent acceptance. |
 | `INSPECTOR` | Assigned inspection preparation, field-session records, evidence upload, findings confirmation and inspection report authorship/submission. |
 | `MAINTENANCE_ENGINEER` | Assigned repair tasks, team lead/report-author responsibilities when designated, work logs, actuals, evidence and maintenance-report author verification. |
 
@@ -48,15 +49,15 @@ The system does **not** store or control:
 
 | Flow | Primary records | Handover |
 | --- | --- | --- |
-| MF1 — Resources, assets, pair assignment and inspection setup | `organizations`, `subscriptions`, `payment_transactions`, workforce credentials, Drones, permits, `assets`, `asset_pair_assignments`, `inspections` | Inspection ID, scope/dates, Inspector + Drone snapshot and compliance references → MF2 |
-| MF2 — Preparation, Compliance Gate and field-session records | `inspection_preparations`, `inspection_readiness_decisions`, `field_sessions`, `checklist_responses` | Ended field session, checklist, shot-list and readiness snapshot → MF3 |
+| MF1 — Resources, assets, pair assignment and inspection setup | `organizations`, `subscriptions`, `payment_transactions`, workforce credentials, `platform_drones`, `drone_leases`, Drones, permits, `assets`, `asset_pair_assignments`, `inspections` | Inspection ID, scope/dates, Inspector + Drone snapshot and compliance references → MF2 |
+| MF2 — Preparation, Compliance Gate and field-session records | `inspection_preparations`, `field_sessions`, `checklist_responses` | Ended field session, checklist, shot-list and readiness review outcome → MF3 |
 | MF3 — Evidence, AI Vision, LLM report and review | `evidence`, findings, report versions and source links | Published inspection report version + individually forwarded findings → MF4 |
 | MF4 — Team repair, cost control, LLM completion report and acceptance | Work orders/tasks/team assignments, estimate/change/actual cost lines, work logs, repair evidence, completion reports and acceptance | Accepted repair disposition, reconciled cost and updated asset history |
 
 ## 2. Design principles
 
 1. **Organization scope is explicit.** Every operational aggregate has `organization_id` directly or through a foreign-key chain that cannot cross organizations.
-2. **Assignment scope is explicit.** Inspection access requires the assigned Inspector or an authorized `ORG_ADMIN`; repair access requires work-order/team/task assignment.
+2. **Assignment scope is explicit.** Inspection access requires the assigned Inspector or an authorized `ORG_MANAGER`; repair access requires work-order/team/task assignment.
 3. **The asset pair is historical data.** An asset has a current/default Inspector + specific Drone pair, but each inspection snapshots the pair. Changing the default never rewrites past inspections.
 4. **Published records are append-only.** Inspection reports, maintenance reports, decisions, cost baselines and change decisions are versioned. Corrections create a linked version.
 5. **Evidence bytes stay in MinIO.** PostgreSQL stores object identity, capture metadata, ownership and workflow links; it does not store large image/video bytes. Inspection evidence does not carry a SHA-256 field; published report PDFs retain their own checksum.
@@ -68,14 +69,14 @@ The system does **not** store or control:
 
 ## 3. Right-sized logical schema
 
-The target design contains **35 application tables** plus optional framework infrastructure such as Spring Modulith `event_publication`. Table count is a design inventory, not an implementation claim.
+The target design contains **36 application tables** plus optional framework infrastructure such as Spring Modulith `event_publication`. Table count is a design inventory, not an implementation claim.
 
 | Area | Tables | Count |
 | --- | --- | ---: |
 | Tenant, subscription and access | `organizations`, `subscriptions`, `payment_transactions`, `users`, `auth_sessions` | 5 |
-| Workforce and compliance | `workforce_credentials`, `drones`, `drone_documents`, `flight_permits` | 4 |
+| Workforce, fleet, leasing and compliance | `workforce_credentials`, `platform_drones`, `drone_leases`, `drones`, `drone_documents`, `flight_permits` | 6 |
 | Asset and MF1 setup | `asset_categories`, `checklist_templates`, `checklist_items`, `assets`, `asset_documents`, `asset_pair_assignments`, `inspections` | 7 |
-| MF2 preparation and field | `inspection_preparations`, `inspection_readiness_decisions`, `field_sessions`, `checklist_responses` | 4 |
+| MF2 preparation and field | `inspection_preparations`, `field_sessions`, `checklist_responses` | 3 |
 | MF3 evidence, findings and reports | `evidence`, `findings`, `inspection_reports` | 3 |
 | MF4 repair and cost | `maintenance_work_orders`, `maintenance_tasks`, `maintenance_team_members`, `maintenance_estimate_versions`, `maintenance_cost_lines`, `maintenance_change_orders`, `maintenance_work_logs`, `maintenance_reports`, `maintenance_acceptance_decisions`, `repair_knowledge_chunks` | 10 |
 | Cross-cutting | `audit_events`, `notifications` | 2 |
@@ -118,6 +119,9 @@ erDiagram
     USERS ||--o{ WORKFORCE_CREDENTIALS : holds
     USERS ||--o{ AUTH_SESSIONS : opens
 
+    PLATFORM_DRONES ||--o{ DRONE_LEASES : leased_via
+    ORGANIZATIONS ||--o{ DRONE_LEASES : contracts
+    DRONE_LEASES ||--o| DRONES : provisions
     ORGANIZATIONS ||--o{ DRONES : owns
     DRONES ||--o{ DRONE_DOCUMENTS : documents
     ORGANIZATIONS ||--o{ FLIGHT_PERMITS : stores
@@ -132,9 +136,10 @@ erDiagram
 ```mermaid
 erDiagram
     INSPECTIONS ||--o{ INSPECTION_PREPARATIONS : prepares
-    INSPECTIONS ||--o{ INSPECTION_READINESS_DECISIONS : decides
+    INSPECTION_PREPARATIONS ||--o{ FIELD_SESSIONS : authorizes
     INSPECTIONS ||--o{ FIELD_SESSIONS : records
-    FIELD_SESSIONS ||--o{ CHECKLIST_RESPONSES : answers
+    INSPECTIONS ||--o{ CHECKLIST_RESPONSES : answers
+    CHECKLIST_ITEMS ||--o{ CHECKLIST_RESPONSES : answers
     FIELD_SESSIONS ||--o{ EVIDENCE : captures
     INSPECTIONS ||--o{ EVIDENCE : contains
     EVIDENCE ||--o{ FINDINGS : supports
@@ -175,7 +180,7 @@ When a definition below says **mutable aggregate columns**, it means `created_at
 | `registration_code` | `varchar(64)` | Unique platform organization code. |
 | `timezone` | `varchar(64)` | Organization display timezone. |
 | `status` | `varchar(24)` | `PENDING`, `ACTIVE`, `SUSPENDED`, `CLOSED`. |
-| `created_by_user_id` | `uuid` | Initial ORG_ADMIN after atomic creation. |
+| `created_by_user_id` | `uuid` | Initial ORG_MANAGER after atomic creation. |
 | common columns | — | Timestamps and optimistic version. |
 
 The organization is the tenant boundary. It is not a Provider organization and does not participate in marketplace quotation or commission settlement.
@@ -191,7 +196,7 @@ The organization is the tenant boundary. It is not a Provider organization and d
 | `status` | `varchar(24)` | `PENDING`, `ACTIVE`, `PAST_DUE`, `SUSPENDED`, `EXPIRED`, `CANCELLED`. |
 | `starts_at`, `ends_at` | `timestamptz` | Entitlement window. |
 | `external_reference` | `varchar(128)` | Administrative invoice/payment reference; not a payment token. |
-| `agreed_amount_usd` | `numeric(12,2)` | Optional platform-approved final amount; a customer proposal is stored only in `terms_snapshot` until the Platform Admin agrees it. |
+| `agreed_amount_usd` | `numeric(12,2)` | Optional platform-approved final amount; a customer proposal is stored only in `terms_snapshot` until the Platform Manager agrees it. |
 | `terms_snapshot` | `jsonb` | Immutable terms/version/actor snapshot, including any unapproved customer price proposal and negotiation notes. |
 | `confirmed_by_user_id`, `confirmed_at` | `uuid`, `timestamptz` | Activation decision attribution. |
 
@@ -216,14 +221,14 @@ When PayPal is explicitly enabled for a deployment, `payment_transactions` recor
 
 #### `users`, `user_roles`, `auth_sessions`, `refresh_tokens`
 
-- `users`: `id`, `organization_id` nullable only for platform `ADMIN`, normalized email, full name, status (`ACTIVE`, `SUSPENDED`, `DISABLED`), `auth_version`, password hash and timestamps.
-- `user_roles`: `user_id`, `role`; unique `(user_id, role)`. Allowed roles are exactly `ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`.
+- `users`: `id`, `organization_id` nullable only for platform-zone accounts (`ADMIN`, `PLATFORM_MANAGER`), normalized email, full name, status (`ACTIVE`, `SUSPENDED`, `DISABLED`), `roles` (enforced by `ck_users_roles` allowing `ADMIN`, `PLATFORM_MANAGER`, `ORG_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`), `auth_version`, password hash and timestamps.
+- `user_roles`: `user_id`, `role`; unique `(user_id, role)`. Allowed roles are `ADMIN`, `PLATFORM_MANAGER`, `ORG_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`.
 - `auth_sessions`: user, client type (`WEB`/`MOBILE`), expiry, revoked time/reason.
 - `refresh_tokens`: session, token hash, issued/expiry/revoked timestamps. Raw tokens are never stored.
 
-Every non-`ADMIN` user belongs to exactly one organization. Cross-table role/organization policies are also enforced in application services because PostgreSQL local checks cannot validate all authorization rules.
+Every customer-organization user (`ORG_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`) belongs to exactly one organization (`organization_id IS NOT NULL`), while platform-zone accounts (`ADMIN`, `PLATFORM_MANAGER`) have `organization_id IS NULL` and carry exactly one role (`ADMIN` XOR `PLATFORM_MANAGER`). Cross-table role/organization policies are also enforced in application services because PostgreSQL local checks cannot validate all authorization rules.
 
-### 6.2 Workforce and compliance
+### 6.2 Workforce, fleet, leasing and compliance
 
 #### `workforce_credentials`
 
@@ -235,11 +240,43 @@ Stores relevant qualifications, training, fitness/insurance documents where appl
 
 This records internal document management; it does not claim government registry verification or create a professional licence.
 
+#### `platform_drones` and `drone_leases`
+
+`platform_drones` stores the platform's serial-numbered leasable drone pool managed by `PLATFORM_MANAGER`:
+
+| Column | Type | Constraint/purpose |
+| --- | --- | --- |
+| `id` | `uuid` | PK. |
+| `serial_number` | `varchar(120)` | Unique hardware serial number across the platform pool. |
+| `model`, `manufacturer` | `varchar(160)` | Required aircraft model and manufacturer. |
+| `payload_metadata` | `jsonb` | Sensor/camera payload and technical specifications. |
+| `monthly_rate_usd` | `numeric(12,2)` | Positive monthly lease rate in USD. |
+| `status` | `varchar(24)` | `AVAILABLE`, `LEASED`, `MAINTENANCE`, `RETIRED`. |
+| `notes` | `varchar(2000)` | Optional pool maintenance/operational notes. |
+| common columns | — | `created_at`, `updated_at`, `row_version`. |
+
+`drone_leases` stores B2B drone lease contracts between the platform and a customer organization:
+
+| Column | Type | Constraint/purpose |
+| --- | --- | --- |
+| `id` | `uuid` | PK. |
+| `platform_drone_id` | `uuid` | FK `platform_drones`; RESTRICT. |
+| `organization_id` | `uuid` | FK `organizations`; RESTRICT. |
+| `customer_drone_id` | `uuid` nullable | FK `drones`; populated when lease payment is confirmed and the customer fleet entry is provisioned/reactivated. |
+| `lease_period_months` | `integer` | Lease duration in months (1–60). |
+| `monthly_rate_usd`, `agreed_amount_usd` | `numeric(12,2)` | Snapshotted monthly rate and total contract amount (`monthly_rate_usd * lease_period_months`). |
+| `status` | `varchar(24)` | `PENDING`, `ACTIVE`, `RECLAIMED`, `CANCELLED`. |
+| `starts_at`, `ends_at`, `reclaimed_at` | `timestamptz` | Active lease window and manual reclaim timestamp. |
+| `external_reference`, `paypal_order_id`, `paypal_capture_id` | `varchar` | Corporate wire transfer reference or PayPal Orders v2 checkout/capture identifiers. |
+| `confirmed_by_user_id`, `confirmed_at` | `uuid`, `timestamptz` | Settlement confirmation attribution (`PLATFORM_MANAGER` or verified PayPal capture). |
+| `notes` | `varchar(2000)` | Optional contract/settlement notes. |
+| common columns | — | `created_at`, `updated_at`, `row_version`. |
+
 #### `drones` and `drone_documents`
 
-`drones` stores organization-owned devices: `organization_id`, serial, model/manufacturer, payload metadata, serviceability (`ACTIVE`, `MAINTENANCE`, `SUSPENDED`, `RETIRED`), maintenance dates and notes. Unique `(organization_id, serial_number)` prevents duplicate devices in a tenant.
+`drones` stores organization fleet devices (both owned and platform-leased): `organization_id`, serial, model/manufacturer, payload metadata, serviceability (`ACTIVE`, `MAINTENANCE`, `SUSPENDED`, `RETIRED`), `ownership_type` (`varchar(24) NOT NULL DEFAULT 'OWNED'`, constrained by `ck_drones_ownership_type` in `OWNED`, `LEASED`), `lease_id` (`uuid` nullable FK to `drone_leases`), `lease_expires_at` (`timestamptz` nullable), maintenance dates and notes. Unique `(organization_id, serial_number)` prevents duplicate devices in a tenant; confirming a B2B lease payment provisions a new `drones` row or reactivates the existing row for `(organization_id, serial_number)` with `ownership_type = 'LEASED'`, `lease_id`, `lease_expires_at = ends_at`, and `serviceability = 'ACTIVE'`, while manual reclaim by `PLATFORM_MANAGER` transitions the customer `Drone` to `RETIRED` and returns the `PlatformDrone` to `AVAILABLE`.
 
-`drone_documents` stores registration/identification, technical, maintenance and insurance documents with issuer/reference, validity window, status, MinIO object key/checksum and ORG_ADMIN review attribution. A suspended/retired Drone or expired mandatory document cannot pass MF2 readiness.
+`drone_documents` stores registration/identification, technical, maintenance and insurance documents with issuer/reference, validity window, status, MinIO object key/checksum and ORG_MANAGER review attribution. A suspended/retired Drone or expired mandatory document cannot pass MF2 readiness.
 
 #### `flight_permits`
 
@@ -252,10 +289,10 @@ A readiness decision references the permit and snapshots its version/status. A p
 #### `asset_categories`, `checklist_templates`, `checklist_items`
 
 - `asset_categories` (**8 columns**: `id`, `code`, `name`, `description`, `active`, `created_at`, `updated_at`, `row_version`): platform categories classified by normalized `code`. Unused `organization_id` is dropped.
-- `checklist_templates` (**14 columns**: `id`, `template_key`, `version_number`, `asset_category_id`, `name`, `description`, `name_vi`, `description_vi`, `status`, `created_by_user_id`, `published_at`, `created_at`, `updated_at`, `row_version`): versioned template linked to an asset category, bilingual metadata, publication status and author. Unused `context`, `active_from`, and `active_until` are dropped.
-- `checklist_items` (**14 columns**: `id`, `template_id`, `item_code`, `section_name`, `prompt`, `response_type`, `required`, `display_order`, `guidance`, `section_name_vi`, `prompt_vi`, `guidance_vi`, `validation_config`, `created_at`): typed item, bilingual prompt/guidance, order, required flag, validation JSON and template FK. Unused `evidence_requirement` is dropped.
+- `checklist_templates` (**14 columns**: `id`, `template_key`, `version_number`, `asset_category_id`, `name`, `description`, `name_vi`, `description_vi`, `status`, `created_by_user_id`, `published_at`, `created_at`, `updated_at`, `row_version`): versioned template scoped to an optional asset category, localized name/description, publication status (`DRAFT`, `ACTIVE`, `RETIRED`), and author (unmapped `context`, `active_from`, and `active_until` are dropped).
+- `checklist_items` (**14 columns**: `id`, `template_id`, `item_code`, `section_name`, `prompt`, `response_type`, `required`, `display_order`, `guidance`, `section_name_vi`, `prompt_vi`, `guidance_vi`, `validation_config`, `created_at`): typed item (`PASS_FAIL`, `TEXT`, `NUMBER`, `BOOLEAN`, `CHOICE`), localized prompt/guidance, display order, required flag, validation config, and template FK (unmapped `evidence_requirement` is dropped).
 
-A response references the exact template/item version used; later edits do not rewrite historical responses.
+A response references the exact `checklist_item_id` used for an inspection; later template versions do not rewrite historical responses.
 
 #### `assets`
 
@@ -273,7 +310,7 @@ The target invariant permits one current active default pair per asset and requi
 
 #### `inspections`
 
-`inspections` (**18 columns**: `id`, `organization_id`, `asset_id`, `asset_pair_assignment_id`, `inspector_id`, `drone_id`, `objective`, `scope`, `component_scope`, `acceptance_criteria`, `planned_start_at`, `planned_end_at`, `status`, `findings_confirmed_at`, `findings_snapshot_hash`, `created_at`, `updated_at`, `row_version`) is the MF1 inspection aggregate: organization, asset, objective, scope/component scope, acceptance criteria, planned dates, assignment snapshot (`asset_pair_assignment_id`, `inspector_id`, `drone_id`), findings confirmation snapshot and status:
+`inspections` (**18 columns**: `id`, `organization_id`, `asset_id`, `status`, `objective`, `scope`, `component_scope`, `acceptance_criteria`, `planned_start_at`, `planned_end_at`, `asset_pair_assignment_id`, `inspector_id`, `drone_id`, `findings_confirmed_at`, `findings_snapshot_hash`, `created_at`, `updated_at`, `row_version`) is the MF1 inspection aggregate storing organization, asset, objective, scope/component scope, acceptance criteria, planned dates, assignment snapshot (`asset_pair_assignment_id`, `inspector_id`, `drone_id`), findings confirmation metadata, and status (orphaned `schedule_id` and `due_cycle_key` are dropped):
 
 ```text
 DRAFT -> ASSIGNED -> PREPARING -> READY_FOR_FLIGHT
@@ -282,28 +319,23 @@ DRAFT -> ASSIGNED -> PREPARING -> READY_FOR_FLIGHT
 ```
 
 `objective`, `scope`, `component_scope`, and `acceptance_criteria` are retained on the inspection as
-MF1-owned scope. They remain the source for inspection display, MF2 readiness review and readiness
-`source_hash` inputs; the report does not replace or migrate these scope fields. Legacy `schedule_id` and `due_cycle_key` columns from the retired `inspection_schedules` table are dropped.
-
-Past snapshots never change when the asset default pair changes.
+MF1-owned scope. They remain the source for inspection display and MF2 readiness review; the report
+does not replace or migrate these scope fields. Past assignment snapshots never change when the asset
+default pair changes.
 
 ### 6.4 MF2 preparation and field records
 
 #### `inspection_preparations`
 
-Versioned preparation records: inspection, Inspector, preparation version, component shot-list JSON, evidence types, access constraints, safety observations, permit/document references, submitted time and status (`DRAFT`, `SUBMITTED`, `RETURNED`, `READY`, `SUPERSEDED`). Inspection planned start/end remain on the inspection and are updated when the Inspector proposes the window for an additional-session preparation; each readiness decision snapshots the version and planned window it reviewed.
-
-#### `inspection_readiness_decisions`
-
-Append-only decisions: inspection, preparation version, decision (`APPROVED`, `RETURNED`, `INVALIDATED`), ORG_ADMIN reviewer, time/reason, permit/credential/Drone-document snapshot IDs and source hash. `APPROVED` is usable for `READY_FOR_FLIGHT` only when all applicable requirements pass.
+Versioned preparation and readiness review records (**16 columns**: `id`, `inspection_id`, `preparation_version`, `shot_list`, `evidence_types`, `access_constraints`, `safety_observations`, `permit_document_references`, `submitted_at`, `reviewed_by_user_id`, `reviewed_at`, `review_reason`, `status`, `created_at`, `updated_at`, `row_version`; transitive `inspector_user_id` is dropped and resolved via `inspection_id -> inspections.inspector_id`). Stores both the versioned preparation authored by the assigned `INSPECTOR` and the `ORG_MANAGER` readiness review decision (`reviewed_by_user_id`, `reviewed_at`, `review_reason`, `status` = `DRAFT | SUBMITTED | RETURNED | READY | SUPERSEDED`), eliminating the separate `inspection_readiness_decisions` table and matching how MF3 `inspection_reports` and MF4 `maintenance_estimate_versions` store review outcomes on the versioned row. `READY` is usable for `READY_FOR_FLIGHT` only when all applicable compliance, credential, drone-document, and permit requirements pass. Inspection planned start/end remain on `inspections` and are updated when the Inspector proposes the window for an additional-session preparation.
 
 #### `field_sessions`
 
-Records app-only sessions: inspection, organization, Inspector, assigned Drone snapshot, readiness version, status (`PLANNED`, `IN_PROGRESS`, `FIELD_COMPLETED`, `POSTPONED`, `ABORTED`), start/end, postponement/abort reason, normal-completion `outcome_notes`, checklist version and limitations. `V36__record_completed_field_session_outcome.sql` adds the outcome-notes field and `SUPERSEDED` preparation status. Normal completion records `FIELD_COMPLETED`; weather/site-safety postponement stays distinct. It does not require flight-control telemetry and does not imply the app piloted the aircraft.
+Records app-only sessions (**13 columns**: `id`, `inspection_id`, `preparation_id`, `status`, `started_at`, `ended_at`, `postponement_reason`, `abort_reason`, `pre_flight_checklist_note`, `outcome_notes`, `created_at`, `updated_at`, `row_version`): inspection, `preparation_id` FK to `inspection_preparations`, status (`PLANNED`, `IN_PROGRESS`, `FIELD_COMPLETED`, `POSTPONED`, `ABORTED`), start/end, postponement/abort reason, pre-flight checklist note, and normal-completion `outcome_notes` (dropping transitive `inspector_user_id` and `drone_id` resolved via `inspection_id -> inspections`, along with `organization_id`, `readiness_decision_id`, `checklist_template_id`, `readiness_version`, and `limitations`). Normal completion records `FIELD_COMPLETED`; weather/site-safety postponement stays distinct. It does not require flight-control telemetry and does not imply the app piloted the aircraft.
 
 #### `checklist_responses`
 
-Stores context, template/item version, responder, typed answer JSON, notes, evidence reference and timestamp. Revisions are preserved; current-answer uniqueness is enforced by the context/item/version key.
+Stores item-level checklist answers (**8 columns**: `id`, `inspection_id`, `checklist_item_id`, `response_value`, `notes`, `completed_at`, `created_at`, `updated_at`) scoped by unique `(inspection_id, checklist_item_id)`, dropping transitive `completed_by_user_id` (resolved via `inspection_id -> inspections.inspector_id`) and the 7 legacy V25 columns (`context`, `template_version`, `item_version`, `responder_user_id`, `answer`, `evidence_id`, `field_session_id`).
 
 ### 6.5 MF3 evidence, findings and reports
 
@@ -317,7 +349,7 @@ Metadata for digital captures collected during an inspection:
 - `upload_status` and `evidence_kind` are dropped. Binary ingestion is atomic.
 - Soft-delete uses the boolean flag `is_deleted` (default `false`), replacing `retired_at`. Retiring evidence sets `is_deleted = true`, preserving the row and stored MinIO bytes without separate retirement actor or reason columns.
 - Media bytes are stored in MinIO under `object_key`. Inspection evidence has no SHA-256 column or checksum-based deduplication key. A repeated sanitized filename within one inspection is treated as a duplicate; files with different contents but the same sanitized name therefore require renaming before both can be retained. AI analysis is Inspector-invoked and does not persist an analysis-completion timestamp/count on evidence.
-- `field_sessions.pre_flight_checklist_note` (V35) stores the Inspector-entered pre-flight note that the start request already required. It is not item-level checklist evidence or proof of flight. Report context may list persisted item-level answers only when a `checklist_responses` row is associated with the inspection and the item belongs to the session's recorded checklist template; no source response means no claim that checklist answers were supplied.
+- `field_sessions.pre_flight_checklist_note` (V35) stores the Inspector-entered pre-flight note that the start request already required. It is not item-level checklist evidence or proof of flight. Report context lists persisted item-level answers when `checklist_responses` rows exist for the inspection joined directly to `checklist_items` on `checklist_item_id`; no source response means no claim that checklist answers were supplied.
 - MF2 owns requests for additional field sessions and the independent readiness review; MF3 has no evidence-quality decision record or accepted-evidence gate. Inspector coverage and omissions are authored in the report sections.
 
 #### `findings`
@@ -415,7 +447,7 @@ SYSTEM calculates totals with decimal arithmetic. Missing price is unknown, not 
 #### `maintenance_acceptance_decisions`
 
 - **9 columns**: `id`, `work_order_id`, `report_version_id`, `reviewer_user_id`, `decision`, `technical_comments`, `acceptance_checklist`, `test_result`, `decided_at`.
-- Append-only decision: work order/report version, independent ORG_ADMIN reviewer, decision (`ACCEPTED`, `REWORK_REQUIRED`, `REINSPECTION_REQUIRED`), technical comments, acceptance checklist, test result, and `decided_at`. Unused `signature_reference`, duplicate `created_at`, and unsupported `REJECTED` decision state are dropped. The executing team cannot create final acceptance.
+- Append-only decision: work order/report version, independent ORG_MANAGER reviewer, decision (`ACCEPTED`, `REWORK_REQUIRED`, `REINSPECTION_REQUIRED`), technical comments, acceptance checklist, test result, and `decided_at`. Unused `signature_reference`, duplicate `created_at`, and unsupported `REJECTED` decision state are dropped. The executing team cannot create final acceptance.
 
 #### `repair_knowledge_chunks`
 
@@ -450,10 +482,10 @@ Scoped delivery record: recipient, organization, event type, aggregate reference
 | Asset code unique within tenant | Unique `(organization_id, asset_code)`. |
 | One current default pair per asset | Partial unique index over active `asset_pair_assignments`; pre-check populated data before migration. |
 | Asset pair members belong to the same tenant | Domain service plus explicit organization FKs/validation. |
-| Periodic inspection is idempotent | Unique `(schedule_id, due_cycle_key)` for generated inspections. |
+| Readiness review requires independent ORG_MANAGER | `inspection_preparations` readiness review (`reviewed_by_user_id`, `reviewed_at`, `review_reason`, `status` in `READY`, `RETURNED`) requires an active `ORG_MANAGER` distinct from the assigned Inspector. |
 | Inspection evidence duplicate policy | A repeated sanitized filename within one inspection is rejected; this policy does not provide content-based identity or deduplication. |
 | AI suggestion is not an official defect | Only `findings` confirmed by the assigned Inspector may enter approved report/work order links; pending rows are advisory, and rejected AI suggestions are removed rather than retained as findings. |
-| Report publication requires human gates | State transition requires Inspector author verification and independent ORG_ADMIN approval; MF3-13 records forwarding on each finding and uses `inspections.status` for the aggregate outcome. Reviewer professional qualification is a target condition, not a runtime credential check. |
+| Report publication requires human gates | State transition requires Inspector author verification and independent ORG_MANAGER approval; MF3-13 records forwarding on each finding and uses `inspections.status` for the aggregate outcome. Reviewer professional qualification is a target condition, not a runtime credential check. |
 | Work order source is valid | FK to published report version and confirmed repair-required finding. |
 | One lead/report author per work order | Partial unique active assignment indexes plus application validation. |
 | Repair team cannot self-accept | Domain authorization checks accepting reviewer against active team membership. |
@@ -461,7 +493,7 @@ Scoped delivery record: recipient, organization, event type, aggregate reference
 | Closure requires complete evidence and decisions | Transactional closure query plus workflow test. |
 | Cross-tenant access is denied | Organization-scoped repository queries, never in-memory filtering. |
 
-PostgreSQL `CHECK` constraints should cover local-column invariants only. Cross-table rules such as “reviewer is ORG_ADMIN and not a team member” belong in application policy and integration tests; PostgreSQL checks cannot safely use subqueries.
+PostgreSQL `CHECK` constraints should cover local-column invariants only. Cross-table rules such as “reviewer is ORG_MANAGER and not a team member” belong in application policy and integration tests; PostgreSQL checks cannot safely use subqueries.
 
 ## 8. Index strategy
 
@@ -487,7 +519,7 @@ Do not add indexes for every enum or boolean. Verify expensive queries with Post
 ## 9. Retention, privacy and deletion
 
 - Retain published reports, acceptance decisions, cost baselines, change history and audit events for the organization policy period; no universal period is hard-coded here.
-- Credential and permit files are visible only to authorized ORG_ADMIN, the subject where appropriate, assigned reviewers and the minimum workflow scope.
+- Credential and permit files are visible only to authorized ORG_MANAGER, the subject where appropriate, assigned reviewers and the minimum workflow scope.
 - Raw evidence is never public. MinIO access is issued only after backend organization/assignment/release checks.
 - Subscription expiry may restrict new work while preserving historical data according to published terms; it must not silently delete open inspections, reports or work orders.
 - Deletion requests must respect legal retention, report immutability and linked-work-order history. Prefer anonymization/retirement over deleting referenced records.
