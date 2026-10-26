@@ -8,11 +8,19 @@ when transferring values into the workbook.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Creator | *Enter team/member name* |
-| Issue Date | 2026-10-25 |
+| Issue Date | 2026-10-26 |
 | Document Code | *Enter document code* |
-| Version | 4.45 (Role restructuring with PLATFORM_MANAGER and ORG_MANAGER, and B2B Drone Leasing.) |
+| Version | 4.47 (Asset-specific recurring schedule creation, Inspector Calendar Board, and Work Detail Dialog; recurring inspection foundation across backend and web.) |
 
-## Current documentation update — Role restructuring and B2B Drone Leasing (2026-10-25)
+## Current documentation update — Asset-Specific Recurring Schedules & Inspector Calendar (2026-10-26)
+
+Asset-specific recurring schedule creation from active asset table rows and `AssetDetailDrawer` implemented; `AssetRecurringSchedulesSection` lists configured recurring inspection schedules per asset; `RecurringSchedulesPanel` supports asset filtering (`assetId`); Inspector Schedule Calendar Board (Month/Week/Agenda views, status filtering, unscheduled items banner) and `InspectionWorkDetailDialog` fully verified. Frontend Vitest full suite: 80 test files / 573 tests Passed (100%), `tsc -b && vite build` clean, `oxlint` clean. Backend recurrence foundation: 96 unit/architecture tests Passed. Docker-blocked integration verification remains Pending. Workbook case counts (11 cases: 8 Passed, 3 Pending) and coverage formulas remain unchanged.
+
+## Previous documentation update — Recurring inspection schedules & notifications (2026-10-26)
+
+96 backend recurrence and notification tests Passed; 200 frontend inspection and notification tests Passed; mobile notification inbox verified with 6 test suites. Backend Testcontainers integration verification remains Pending because Docker is unavailable in this environment. Workbook case counts (11 cases: 8 Passed, 3 Pending) and coverage formulas remain unchanged.
+
+## Previous documentation update — Role restructuring and B2B Drone Leasing (2026-10-25)
 
 Documentation synchronization for the five-role baseline (`ADMIN`, `PLATFORM_MANAGER`, `ORG_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`), renaming `ORG_ADMIN` to `ORG_MANAGER` (*Organization Manager*), and B2B Drone Leasing (`platform_drones`, `drone_leases`, and customer `drones` lease provisioning/reclaim). All test statistics and 11-case denominator preserved.
 
@@ -37,11 +45,13 @@ verification is supporting evidence, not an additional WFx case result.
 ## Record of change
 
 The workbook's change table uses these columns. Add one row for each approved
-revision; do not remove old entries. Current source version: **4.45**, last updated
-2026-10-25; see the record of changes below.
+revision; do not remove old entries. Current source version: **4.46**, last updated
+2026-10-26; see the record of changes below.
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 | 4.47 | Inspector Schedule Calendar Board and Work Detail Dialog | A | Implemented and verified Inspector Schedule Calendar Board (Month/Week/Agenda views with date navigation, status filtering, unscheduled item collapse) and InspectionWorkDetailDialog (objective, equipment, permits, component shot-list, acceptance criteria, and status-driven workflow navigation). Frontend Vitest full suite: 79 test files / 571 tests passed (100%), tsc -b and vite build clean, oxlint clean. | FE-03 supporting verification; InspectorScheduleCalendar.test.tsx; InspectionWorkDetailDialog.test.tsx; InspectionsPage.test.tsx |
+| 2026-10-26 | 4.46 | Recurring inspection foundation, incomplete | A | Recorded ten passing calendar/lifecycle domain tests and Docker-blocked full verify failure. API, persistence, generation, reminder delivery and client flows remain outstanding; no workbook IDs/statuses/totals changed. | FE-03 supporting verification; InspectionRecurrenceTest; RecurringInspectionScheduleTest |
 | 2026-09-22 | 0.1 | Report 5 working source | A | Created the editable test-case structure from the supplied workbook without changing the original template layout. | `template/Report5_Test Report.xlsx` |
 | 2026-09-22 | 0.2 | FE ownership alignment | M | Added FE-01 through FE-07 mapping, recorded the FE-01 W3 auth/migration gate, and split WF3 traceability across FE-04, FE-05, and FE-06 without changing test IDs or workbook sheets. | Jira SCRUM-56, SCRUM-58, SCRUM-106, SCRUM-107, SCRUM-108 |
 | 2026-09-22 | 0.3 | Week 3 automated verification | M | Recorded the passed FE-01 auth/migration smoke gate, separate MinIO infrastructure healthcheck, and FE-04 execution/checklist acceptance evidence; recalculated Round 1 statistics without changing template case IDs or layout. | `WorkflowBaselineTest`, `InspectionWorkflowTest`, `InspectionFixtureTest`, mobile inspection test, backend `mvnw verify` |

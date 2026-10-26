@@ -146,6 +146,22 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
 - Round 1: Passed 2026-10-20; tester: Claude Code (automated).
 - Evidence: Backend `PlatformUserListApiIntegrationTest` passed 3/3 tests and `AdminUserApiIntegrationTest` passed; Frontend `PlatformUsersPage.test.tsx` passed 4/4 tests. The `GET /api/v1/platform/users` listing was added by this work because the ADMIN portal had no way to read the accounts it manages.
 
+### Asset-Specific Recurring Inspection Schedule Creation and Lifecycle — supporting verification (executed 2026-10-26)
+
+- Preconditions: Active organization with registered assets, active default operational pair (Inspector and Drone), and an ORG_MANAGER account.
+- Procedure:
+  1. In `AssetsPage`, verify the "Recurring schedule" action button on each active asset row, preselecting the asset and opening `CreateInspectionDialog` directly in `RECURRING` mode.
+  2. In `AssetDetailDrawer`, verify the dedicated `AssetRecurringSchedulesSection` listing active/paused recurring schedules for that specific asset, displaying objective, cadence (e.g. Every 2 WEEK), assigned inspector, status chip, and direct modal inspection trigger.
+  3. In `RecurringSchedulesPanel`, verify the asset filter dropdown (`assetId`) filtering recurring schedules by individual asset.
+  4. Run `npx vitest run src/features/assets/pages/AssetsPage.recurringSchedules.test.tsx` and full assets suite `npx vitest run src/features/assets`.
+- Expected result:
+  - An ORG_MANAGER can initiate recurring inspection schedules directly per asset from both the table row action and the asset detail drawer.
+  - The dialog inherits the asset's active operational pair and locks the asset selection.
+  - The asset drawer displays existing recurring inspection schedules scoped to that asset, providing quick overview of recurrence frequency, inspector assignment, and status.
+  - The recurring schedules management panel filters schedules by asset identifier.
+- Round 1: Passed 2026-10-26; tester: Claude Code (automated).
+- Evidence: `AssetsPage.recurringSchedules.test.tsx` passed 2/2 tests; full `src/features/assets` suite passed 17 files / 83 tests (100%); `tsc -b && vite build` clean; `oxlint` clean.
+
 ## Feature sheet summary
 
 Values for the `Feature 2` summary block (`A2:E8` in the workbook).

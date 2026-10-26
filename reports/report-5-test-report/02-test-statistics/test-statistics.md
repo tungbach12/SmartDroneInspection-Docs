@@ -6,6 +6,8 @@ round.
 
 ## Project metadata
 
+2026-10-26 recurrence and notification foundation: 96 backend recurrence and notification tests Passed; 200 frontend inspection and notification tests Passed; 6 mobile test suites implemented. Full backend `verify` with Testcontainers remains Pending because Docker was unavailable. This supporting evidence adds no workbook row and changes none of the 11-case counts or coverage formulas.
+
 Supporting FE-01 subscription settlement/webhook and FE-02 asset-pair API
 tests include local unit/component verification; the Docker-backed subscription
 API/migration and live PayPal sandbox checks could not run. Those remain Pending

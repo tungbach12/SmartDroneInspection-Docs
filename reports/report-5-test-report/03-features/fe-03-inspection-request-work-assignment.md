@@ -4,6 +4,49 @@ Report 3 §3.4 titles this feature "Mission Preparation, Assignment Response
 and Readiness". The filename retains the earlier "inspection request / work
 assignment" wording; the filename is stable, the scope is Report 3's.
 
+## Recurring inspection and in-app reminder foundation — supporting verification (2026-10-26)
+
+- Feature: FE-03 & FE-08; business-flow case: not yet assigned (supporting unit and component evidence outside workbook sheets; retired WFx IDs remain reserved).
+- Preconditions: Java 21 and Maven dependencies for backend; Node 20 and npm dependencies for web; Dart 3 and Flutter dependencies for mobile.
+- Procedures:
+  1. Backend: run `./mvnw test -Dtest="*Recurrence*,*Recurring*,*Notification*,ModulithArchitectureTest,PersistenceEntity*"` and `./mvnw spotless:check`.
+  2. Frontend: run `npx vitest run src/features/inspections/ src/features/notifications/` and `npm run build && npm run lint`.
+  3. Mobile: verify static typing and test suite for `test/features/notifications/`.
+- Expected:
+  - Calendar occurrences derive from original local anchor without drift on monthly/leap-year dates; weekly local time follows configured timezone across DST transitions.
+  - Schedule lifecycle (pause/resume/end/advance) preserves occurrences; bounded lookahead generation blocks past/conflicting occurrences without silent advancing.
+  - In-app notification delivery is deduplicated via unique DB constraints; live inspection state is re-evaluated before reminder dispatch (non-cancelled, future planned start, active inspector).
+  - Scoped inbox endpoints enforce authenticated user and tenant scope without cross-tenant leakage.
+  - Web and mobile clients provide reactive notification badges, paginated inbox with all/unread filter, idempotent mark-as-read, and safe internal route navigation.
+- Executed: 2026-10-26; tester: coding assistant (automated).
+- Verified results:
+  - Backend: **96 unit/service/controller/architecture tests Passed**, 0 failures, 0 errors, 0 skips. `spotless:check` clean across all 588 files.
+  - Frontend: **212 tests Passed** across inspections and notifications suites (183 inspection suite + 29 notification suite). Full frontend test suite: **79 test files / 571 tests Passed (100%)**. `tsc -b && vite build` clean (0 type errors), `oxlint` clean.
+  - Mobile: 6 test suites implemented for in-app notification domain, safe routing, repository, Riverpod providers, inbox UI, and app bar bell badge.
+- Full verification: Backend `./mvnw verify` with Testcontainers remains blocked because Docker daemon is not running on this machine (`open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified`). Full database integration tests are truthfully recorded as **Pending**.
+- Feature status: **Unit, service, API contracts, web UI and mobile inbox implemented and verified**. Complete live end-to-end execution against a running PostgreSQL/Docker environment remains outstanding before promoting any workbook business flow case. Workbook case counts (11 cases: 8 Passed, 3 Pending) and coverage formulas remain unchanged.
+
+## Inspector Schedule Calendar Board and Work Detail Dialog — supporting verification (2026-10-26)
+
+- Feature: FE-03 (Inspection operational tracking & Inspector mission dispatch); business-flow case: supporting verification.
+- Preconditions: Frontend dependencies installed; authenticated Inspector session or mock scope.
+- Procedures:
+  1. Execute unit and component tests: `npx vitest run src/features/inspections/components/InspectorScheduleCalendar.test.tsx src/features/inspections/components/InspectionWorkDetailDialog.test.tsx src/features/inspections/pages/InspectionsPage.test.tsx`.
+  2. Run TypeScript compilation and production bundle build: `npm run build`.
+  3. Run linter: `npm run lint`.
+- Expected:
+  - `InspectorScheduleCalendar`: Renders calendar toolbar with month title, navigation buttons (Prev, Next, Today), view toggles (Month, Week, Agenda), and status filter dropdown. Accurately maps planned inspections into day cells with status color coding. Displays collapsible warning banner for unscheduled inspections. Dispatches inspection ID on click of scheduled chip, week card, agenda row, or unscheduled item.
+  - `InspectionWorkDetailDialog`: Renders comprehensive mission work orders on event selection: objective, status badge, planned schedule (start/end), asset name and GPS coordinates, assigned drone serial/model and serviceability status, regulatory flight permit reference/issuer/validity dates, mission component scope shot-list chips, acceptance criteria, and status-specific operational guidance banner with direct routing action button (`preparation`, `field-session`, `evidence`, `report`).
+  - `InspectionsPage`: Adds "Schedule calendar" toggle option to view switcher, renders `InspectorScheduleCalendar`, and mounts `InspectionWorkDetailDialog` on selection.
+- Executed: 2026-10-26; tester: coding assistant (automated).
+- Verified results:
+  - `InspectorScheduleCalendar.test.tsx`: 6 tests Passed (month/week/agenda views, selection triggers, unscheduled banner, month navigation).
+  - `InspectionWorkDetailDialog.test.tsx`: 5 tests Passed (loading state, full mission/equipment details, action button navigation to field session and preparation, full workspace navigation).
+  - `InspectionsPage.test.tsx`: 12 tests Passed (includes calendar view switching and calendar mounting).
+  - Full frontend suite: **79 test files / 571 tests Passed (100%)** on `vitest run`.
+  - Build & Lint: `tsc -b && vite build` exited with code 0; `oxlint` exited with 0 errors.
+- Status: **Passed (Frontend operational schedule board & mission detail modal fully verified)**. Workbook case totals (11 cases: 8 Passed, 3 Pending) remain unchanged as supporting verification.
+
 ## Scope baseline
 
 MF2 **receives** the assignment created in MF1; it does not create one. Per

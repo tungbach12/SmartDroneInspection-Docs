@@ -12,6 +12,10 @@ fixed: `No`, `Function Name`, `Sheet Name`, `Description`, `Pre-Condition`.
 | Test environment | Local/integration environment with PostgreSQL, backend API, and web client; integration suites use a real MinIO container for object storage, and S3Mock 5.2.3 covers the S3 API subset in the adapter test. |
 | Baseline | **Verified MF2-07 readiness decisions and the implemented MF3 slice.** Current roles: `ADMIN`, `PLATFORM_MANAGER`, `ORG_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`. The MF3-12/13 post-publication corrective-outcome and handoff code exists and its backend paths executed green on 2026-10-16 (81 targeted WF3 tests and the 650-test full `verify` gate), but `WF3-012` remains Pending until its complete end-to-end procedure is executed. Other MF2 steps remain partial or unimplemented as documented in FE-03. |
 
+## Recurring inspection and in-app notifications implementation (2026-10-26)
+
+FE-03 recurrence schedules and FE-08 in-app notification inbox have 96 passing backend unit/service/controller tests, 200 passing frontend tests, and 6 mobile test suites, recorded as supporting evidence in the FE-03 source. Full PostgreSQL/Docker integration tests remain Pending because Docker was unavailable. No reserved WFx ID is reused and no workbook case status or denominator changes.
+
 ## Reset and reconciliation scope (2026-10-09 to 2026-10-10)
 
 The earlier content mixed a retired five-role WF1–WF4 baseline with the current
