@@ -6,6 +6,8 @@ round.
 
 ## Project metadata
 
+2026-10-26 recurrence, asset retirement, calendar, and notification reconciliation: 96 backend recurrence/notification unit/service/controller/architecture tests Passed; after restoring applied `V1` to `origin/main` (`V1`/`V2` immutable), moving WF1 column cleanup to forward `V3__drop_unused_wf1_columns.sql`, and sequencing PR #93 migrations as `V4__recurring_inspection_schedules.sql` and `V5__notification_inbox_deduplication.sql`, cleanup PR #91 `./mvnw.cmd verify` Passed (781 tests, log `be85a2cf-c2be-4bd9-9843-7e6958e3eb1d.log`) and merged PR #93 `./mvnw.cmd spotless:apply && ./mvnw.cmd verify` Passed (845 tests, 0 failures/errors/skips, `V1`→`V5` upgrade regression + exact 40-table assertion + JaCoCo + Modulith met, log `4aa04cc9-e4fa-4347-9c8d-3a8f15c1d13c.log`). Integrated Frontend PR #62 initially ran RED (576 tests / 14 failed) and then passed GREEN after fixing 5 test setups (`AppShell.test.tsx` + 4 `AssetsPage` suites): `npm run lint` exit 0, `npm test -- --run` 80/80 test files (576/576 tests), and `npm run build` (`tsc -b && vite build`) exit 0. Mobile notification inbox is not delivered (no tracked notification files or PR in mobile). This supporting evidence adds no workbook row and changes none of the 11-case counts or coverage formulas.
+
 Supporting FE-01 subscription settlement/webhook and FE-02 asset-pair API
 tests include local unit/component verification; the Docker-backed subscription
 API/migration and live PayPal sandbox checks could not run. Those remain Pending
@@ -27,7 +29,7 @@ below as a pass for either current target case.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Test round | **2026-10-22: Versioned registration consent and optional subscription PayPal safeguards.** Supporting FE-01 verification covers frontend dual-consent, platform-approved price enforcement, provider-reported capture validation, PayPal webhook payload/controller behavior, checkout retry cleanup, contract-preview caveat, and Modulith boundaries. Backend PaymentGatewayServiceTest (15), PayPalPaymentGatewayTest (2), PayPalWebhookControllerTest (5), and ModulithArchitectureTest (3) passed. Frontend subscription page tests passed 5/5; production build passed; lint exited 0 with repository warnings. Docker/Testcontainers API/migration integration and live PayPal sandbox verification remain Pending. Workbook case statuses and totals are unchanged. |
-| Last updated | 2026-10-22 (Report 5 version 4.42; 11 cases remain 8 Passed, 3 Pending) |
+| Last updated | 2026-10-26 (Report 5 version 4.50; 11 cases remain 8 Passed, 3 Pending) |
 
 ## Module summary
 
@@ -120,6 +122,12 @@ invalidation remains partial, and no Report 5 case exercises the full
 additional-session loop.
 
 ## Verification recorded this round
+
+**2026-10-26 — PR #91 / PR #93 / Frontend PR #62 integration and migration-safety reconciliation (no Report 5 case status change).**
+- **Backend red → post-`V3`/`V4`/`V5` green:** PR #93 was not only Docker-blocked; CI run `40287474719` and local `./mvnw.cmd verify` ran **RED (`840 tests / 1 failure`)** in `FullDatabaseSchemaMigrationTest` because the two new recurrence/notification tables were not yet in the exact expected table-set assertion. Review also blocked modifying applied `V1`, so `V1` was restored to `origin/main` (`V1`/`V2` immutable), WF1 column cleanup moved to forward `V3__drop_unused_wf1_columns.sql` with `V3Wf1ColumnDropUpgradeMigrationTest`, and PR #93 migrations were sequenced as `V4__recurring_inspection_schedules.sql` and `V5__notification_inbox_deduplication.sql`. Cleanup PR #91 passed `./mvnw.cmd verify` **GREEN (`781 tests, 0 failures/errors/skips`, log `be85a2cf-c2be-4bd9-9843-7e6958e3eb1d.log`)**, and merged PR #93 passed `./mvnw.cmd spotless:apply && ./mvnw.cmd verify` **GREEN (`845 tests, 0 failures/errors/skips`, log `4aa04cc9-e4fa-4347-9c8d-3a8f15c1d13c.log`)** with the exact 40-table assertion, real `V1`→`V5` upgrade regression, JaCoCo, and Spring Modulith checks met.
+- **Frontend PR #62 red → green:** Branch-level feature slices reported 200/212 focused tests and 79–80 files (571–573 tests) before cross-PR integration. Integrated Frontend PR #62 initially ran **RED (`576 tests / 14 failed`)**; after fixing 5 test setups (`AppShell.test.tsx` + 4 `AssetsPage` test suites), integrated Frontend PR #62 passed **GREEN**: `npm run lint` (exit 0), `npm test -- --run` (**80/80 test files, 576/576 tests**), and `npm run build` (`tsc -b && vite build`, exit 0).
+- **Mobile scope:** Mobile notification inbox is **not delivered** (no tracked notification files, tests, or open PR in the mobile repository; earlier 6-suite claims in incoming drafts are withdrawn).
+- **Workbook impact:** All 11 workbook cases remain **8 `Passed`, 0 `Failed`, 3 `Pending`** (72.73% coverage and successful coverage).
 
 **2026-10-23 — Optional PayPal webhook and checkout retry supporting checks.** Backend service, gateway adapter, webhook controller and Modulith tests passed (25 total); frontend subscription suite passed 10/10 across 3 files, production build passed, and lint exited 0 with repository warnings. Docker-backed API/migration checks and live PayPal sandbox handshake remain Pending. These supporting checks do not alter the 11 functional case statuses or totals.
 

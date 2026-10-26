@@ -146,6 +146,61 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
 - Round 1: Passed 2026-10-20; tester: Claude Code (automated).
 - Evidence: Backend `PlatformUserListApiIntegrationTest` passed 3/3 tests and `AdminUserApiIntegrationTest` passed; Frontend `PlatformUsersPage.test.tsx` passed 4/4 tests. The `GET /api/v1/platform/users` listing was added by this work because the ADMIN portal had no way to read the accounts it manages.
 
+### Asset-Specific Recurring Inspection Schedule Creation and Lifecycle — supporting verification (executed 2026-10-26)
+
+- Preconditions: Active organization with registered assets, active default operational pair (Inspector and Drone), and an ORG_MANAGER account.
+- Procedure:
+  1. In `AssetsPage`, verify the "Recurring schedule" action button on each active asset row, preselecting the asset and opening `CreateInspectionDialog` directly in `RECURRING` mode.
+  2. In `AssetDetailDrawer`, verify the dedicated `AssetRecurringSchedulesSection` listing active/paused recurring schedules for that specific asset, displaying objective, cadence (e.g. Every 2 WEEK), assigned inspector, status chip, and direct modal inspection trigger.
+  3. In `RecurringSchedulesPanel`, verify the asset filter dropdown (`assetId`) filtering recurring schedules by individual asset.
+  4. Run `npx vitest run src/features/assets/pages/AssetsPage.recurringSchedules.test.tsx` and full assets suite `npx vitest run src/features/assets`.
+- Expected result:
+  - An ORG_MANAGER can initiate recurring inspection schedules directly per asset from both the table row action and the asset detail drawer.
+  - The dialog inherits the asset's active operational pair and locks the asset selection.
+  - The asset drawer displays existing recurring inspection schedules scoped to that asset, providing quick overview of recurrence frequency, inspector assignment, and status.
+  - The recurring schedules management panel filters schedules by asset identifier.
+- Round 1: Passed 2026-10-26; tester: Claude Code (automated).
+- Evidence: `AssetsPage.recurringSchedules.test.tsx` passed 2/2 tests; full `src/features/assets` suite passed 17 files / 83 tests; `tsc -b && vite build` clean; `oxlint` clean on the feature branch. Integrated Frontend PR #62 initially ran RED (`576 tests / 14 failed`) and then passed GREEN after fixing 5 test setups (`AppShell.test.tsx` + 4 `AssetsPage` test suites): `npm run lint` exit 0, `npm test -- --run` 80/80 test files (576/576 tests), and `npm run build` (`tsc -b && vite build`) exit 0.
+
+### Single Active Recurring Schedule per Asset & Free-text JSON Normalization — supporting verification (executed 2026-10-26)
+
+- Preconditions: Active organization with registered asset and default operational pair; existing active recurring inspection schedule.
+- Procedure:
+  1. Run Backend `RecurringInspectionScheduleServiceTest` and `InspectionCreationApiIntegrationTest`. Verify:
+     - Rejection of creating a second active recurring schedule on the same asset with `ACTIVE_SCHEDULE_EXISTS` (HTTP 409 Conflict).
+     - Automatic normalization of free-text strings (`scope`, `componentScope`, `acceptanceCriteria`) into valid JSON primitive strings in `Inspection` and `RecurringInspectionSchedule` domain entities, preventing PostgreSQL `jsonb` syntax errors.
+  2. In `CreateInspectionDialog`, verify:
+     - Warning alert rendered when attempting to configure a recurring schedule on an asset with an active schedule running.
+     - Form submit button disabled with guidance to end the existing schedule before creating a new one.
+     - `ensureJsonString` client-side formatting ensuring clean JSON transmission.
+  3. In `AssetRecurringSchedulesSection`, verify the "+ Add schedule" action is replaced with an "Active schedule running" status chip when an active schedule is present.
+- Expected result:
+  - An asset can only hold at most one `ACTIVE` recurring inspection schedule at any given time.
+  - Free-text inputs in inspection creation forms are safely sanitized into valid JSON for PostgreSQL `jsonb` columns.
+  - UI provides clear feedback and prevents duplicate active schedules.
+- Round 1: Passed 2026-10-26; tester: Claude Code (automated).
+- Evidence: Backend `RecurringInspectionScheduleServiceTest` passed 9/9 tests; `InspectionCreationApiIntegrationTest` passed 8/8 tests; post-`V3`/`V4`/`V5` merged backend `./mvnw.cmd verify` passed 845/845 tests (`4aa04cc9-e4fa-4347-9c8d-3a8f15c1d13c.log`); Frontend `CreateInspectionDialog.test.tsx` passed 7/7 tests; `AssetsPage.recurringSchedules.test.tsx` passed 4/4 tests; integrated Frontend PR #62 passed `npm run lint` (exit 0), `npm test -- --run` (80/80 test files, 576/576 tests), and `npm run build` (`tsc -b && vite build`, exit 0).
+
+### Asset Retirement & Contract Completion Archival — supporting verification (executed 2026-10-26)
+
+- Preconditions: Active organization with registered asset; active ORG_MANAGER account.
+- Procedure:
+  1. In Backend, run `AssetApiIntegrationTest`. Verify:
+     - `POST /api/v1/assets/{assetId}/retire` transitions asset status from `ACTIVE` to `RETIRED`.
+     - Retiring an already retired asset is rejected with 409 `INVALID_STATE`.
+     - Non-manager roles are forbidden from retiring assets (403 Forbidden).
+  2. In Frontend `AssetDetailDrawer`, verify:
+     - "Complete & Archive Asset" action button displayed for active assets under manager role.
+     - Confirmation modal requiring user approval to retire the asset and archive the contract.
+     - Retired assets render informational archival banner, hide new inspection creation triggers, while preserving full document repository and historical inspection logs.
+  3. Run `npx vitest run src/features/assets/pages/AssetsPage.recurringSchedules.test.tsx`.
+- Expected result:
+  - An asset can be safely closed/archived when the contract or project concludes.
+  - Retired assets cannot receive new inspection dispatches or edits.
+  - All historical inspections, reports, and technical documents remain permanently archived and referenceable.
+- Round 1: Passed 2026-10-26; tester: Claude Code (automated).
+- Evidence: Backend `AssetApiIntegrationTest` passed 13/13 tests and post-`V3`/`V4`/`V5` merged `./mvnw.cmd verify` passed 845/845 tests (`4aa04cc9-e4fa-4347-9c8d-3a8f15c1d13c.log`); Frontend `AssetsPage.recurringSchedules.test.tsx` passed 4/4 tests; integrated Frontend PR #62 passed 80/80 test files (576/576 tests), `npm run build` (`tsc -b && vite build`) exit 0, and `npm run lint` exit 0.
+
 ## Feature sheet summary
 
 Values for the `Feature 2` summary block (`A2:E8` in the workbook).

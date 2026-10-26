@@ -8,11 +8,35 @@ when transferring values into the workbook.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Creator | *Enter team/member name* |
-| Issue Date | 2026-10-25 |
+| Issue Date | 2026-10-26 |
 | Document Code | *Enter document code* |
-| Version | 4.45 (Role restructuring with PLATFORM_MANAGER and ORG_MANAGER, and B2B Drone Leasing.) |
+| Version | 4.50 (Integration verification and migration-safety reconciliation for FE-02/FE-03 recurring schedules, asset archival, calendar board, and FE-08 web notification inbox.) |
 
-## Current documentation update — Role restructuring and B2B Drone Leasing (2026-10-25)
+## Current documentation update — Integration verification & migration-safety reconciliation (2026-10-26)
+
+Reconciled incoming PR #68 supporting test evidence across backend, web, and mobile:
+- **Backend:** PR #93 was not only Docker-blocked; CI run `40287474719` and local `./mvnw.cmd verify` ran **RED (`840 tests / 1 failure`)** in `FullDatabaseSchemaMigrationTest` because the two new recurrence/notification tables were not yet in the exact expected table set. Review also blocked modifying applied `V1`, so `V1` was restored to `origin/main` (`V1`/`V2` immutable), column cleanup moved to forward `V3__drop_unused_wf1_columns.sql` with `V3Wf1ColumnDropUpgradeMigrationTest`, and the PR #93 migrations were sequenced as `V4__recurring_inspection_schedules.sql` and `V5__notification_inbox_deduplication.sql`. Post-correction `./mvnw.cmd spotless:apply && ./mvnw.cmd verify` passed **GREEN on PR #91 (`781 tests, 0 failures/errors/skips`, log `be85a2cf-c2be-4bd9-9843-7e6958e3eb1d.log`)** and **GREEN on merged PR #93 (`845 tests, 0 failures/errors/skips`, log `4aa04cc9-e4fa-4347-9c8d-3a8f15c1d13c.log`)**, including the exact 40-table assertion, real `V1`→`V5` upgrade regression, JaCoCo, and Modulith checks.
+- **Frontend:** Integrated Frontend PR #62 initially ran **RED (`576 tests / 14 failed`)** and then passed **GREEN** after fixing 5 test setups (`AppShell.test.tsx` + 4 `AssetsPage` test suites): `npm run lint` exit 0, `npm test -- --run` **80/80 test files (576/576 tests)**, and `npm run build` (`tsc -b && vite build`) exit 0.
+- **Mobile:** In-app notification inbox is **not delivered** on mobile (no tracked notification files, tests, or open PR in the mobile repository; earlier 6-suite claims in incoming drafts are withdrawn).
+- **Workbook totals:** Fixed 11-case workbook counts (**8 `Passed`, 0 `Failed`, 3 `Pending`**, 72.73% coverage) remain unchanged.
+
+## Previous documentation update — Asset Retirement & Contract Completion Archival (2026-10-26)
+
+Implemented and verified `POST /api/v1/assets/{assetId}/retire` transitioning asset status from `ACTIVE` to `RETIRED` upon contract completion; added "Complete & Archive Asset" action and confirmation dialog in `AssetDetailDrawer`; added archival banner for retired assets preserving historical records. Backend `AssetApiIntegrationTest`: 13/13 passed; Frontend `AssetsPage.recurringSchedules.test.tsx`: 4/4 passed; integrated Frontend PR #62 passed 80/80 files (576/576 tests), `tsc -b && vite build` clean, `npm run lint` clean. Workbook case counts (11 cases: 8 Passed, 3 Pending) and coverage formulas remain unchanged.
+
+## Previous documentation update — Single Active Recurring Schedule per Asset & JSON Normalization (2026-10-26)
+
+Enforced rule that each asset can only have at most one active recurring inspection schedule; rejected duplicate active schedules with 409 `ACTIVE_SCHEDULE_EXISTS`; added free-text JSON normalization in domain entities and frontend dialog; updated `CreateInspectionDialog` and `AssetDetailDrawer` with active schedule warning and disabled duplicate triggers. Backend `RecurringInspectionScheduleServiceTest` (9/9) and `InspectionCreationApiIntegrationTest` (8/8) passed; Frontend `CreateInspectionDialog.test.tsx` (7/7) and `AssetsPage.recurringSchedules.test.tsx` (2/2) passed; integrated Frontend PR #62 passed 80/80 files (576/576 tests). Workbook case counts (11 cases: 8 Passed, 3 Pending) and coverage formulas remain unchanged.
+
+## Previous documentation update — Asset-Specific Recurring Schedules & Inspector Calendar (2026-10-26)
+
+Asset-specific recurring schedule creation from active asset table rows and `AssetDetailDrawer` implemented; `AssetRecurringSchedulesSection` lists configured recurring inspection schedules per asset; `RecurringSchedulesPanel` supports asset filtering (`assetId`); Inspector Schedule Calendar Board (Month/Week/Agenda views, status filtering, unscheduled items banner) and `InspectionWorkDetailDialog` verified. Branch-level Vitest reported 80 test files / 573 tests before cross-PR integration; integrated Frontend PR #62 passed 80/80 test files / 576/576 tests after test-setup fixes. Backend recurrence foundation: 96 unit/architecture tests Passed; post-`V3`/`V4`/`V5` merged `./mvnw.cmd verify` passed 845/845 tests. Workbook case counts (11 cases: 8 Passed, 3 Pending) and coverage formulas remain unchanged.
+
+## Previous documentation update — Recurring inspection schedules & notifications (2026-10-26)
+
+96 backend recurrence and notification unit/service/controller/architecture tests Passed and post-`V3`/`V4`/`V5` full `./mvnw.cmd verify` passed 845/845 tests; 200–212 focused frontend inspection and notification tests Passed on the feature branch and 576/576 tests Passed on integrated Frontend PR #62; mobile notification inbox is **not delivered** (no tracked notification files or PR in mobile). Workbook case counts (11 cases: 8 Passed, 3 Pending) and coverage formulas remain unchanged.
+
+## Previous documentation update — Role restructuring and B2B Drone Leasing (2026-10-25)
 
 Documentation synchronization for the five-role baseline (`ADMIN`, `PLATFORM_MANAGER`, `ORG_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`), renaming `ORG_ADMIN` to `ORG_MANAGER` (*Organization Manager*), and B2B Drone Leasing (`platform_drones`, `drone_leases`, and customer `drones` lease provisioning/reclaim). All test statistics and 11-case denominator preserved.
 
@@ -37,11 +61,16 @@ verification is supporting evidence, not an additional WFx case result.
 ## Record of change
 
 The workbook's change table uses these columns. Add one row for each approved
-revision; do not remove old entries. Current source version: **4.45**, last updated
-2026-10-25; see the record of changes below.
+revision; do not remove old entries. Current source version: **4.50**, last updated
+2026-10-26; see the record of changes below.
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 | 4.50 | Integration verification and migration-safety reconciliation (PR #91, PR #93, Frontend PR #62) | M | Reconciled FE-02/FE-03/FE-08 supporting evidence: recorded PR #93 CI/local RED (840 tests / 1 failure in FullDatabaseSchemaMigrationTest), migration-safety correction (immutable V1/V2, forward V3__drop_unused_wf1_columns.sql, V4__recurring_inspection_schedules.sql, V5__notification_inbox_deduplication.sql), PR #91 GREEN (781 tests, log be85a2cf-c2be-4bd9-9843-7e6958e3eb1d.log), and merged PR #93 GREEN (845 tests, 0 failures/errors/skips, V1->V5 upgrade regression + exact 40-table assertion + JaCoCo + Modulith met, log 4aa04cc9-e4fa-4347-9c8d-3a8f15c1d13c.log); recorded integrated Frontend PR #62 RED (576/14 failed) to GREEN (80/80 files, 576/576 tests, lint/build exit 0); withdrew unimplemented mobile notification claims. 11 workbook cases (8 Passed, 3 Pending) unchanged. | FE-02/FE-03/FE-08 supporting verification; `test-statistics.md`; `test-case-list.md`; CI run 40287474719; logs `be85a2cf` & `4aa04cc9` |
+| 2026-10-26 | 4.49 | Asset Retirement and Contract Completion Archival | A | Implemented and verified POST /api/v1/assets/{assetId}/retire transitioning asset status to RETIRED upon contract completion; added "Complete & Archive Asset" action and confirmation dialog in AssetDetailDrawer; added archival banner for retired assets preserving historical records. Backend AssetApiIntegrationTest: 13/13 passed; Frontend AssetsPage.recurringSchedules.test.tsx: 4/4 passed. | FE-02 supporting verification; AssetApiIntegrationTest; AssetsPage.recurringSchedules.test.tsx |
+| 2026-10-26 | 4.48 | Single Active Recurring Schedule per Asset and JSON Normalization | M | Enforced rule that each asset can only have at most one active recurring inspection schedule; rejected duplicate active schedules with 409 ACTIVE_SCHEDULE_EXISTS; added free-text JSON normalization in domain entities and frontend dialog; updated CreateInspectionDialog and AssetDetailDrawer with active schedule warning and disabled duplicate triggers. Backend and branch-level frontend tests passed. | FE-02/FE-03 supporting verification; RecurringInspectionScheduleServiceTest; InspectionCreationApiIntegrationTest; CreateInspectionDialog.test.tsx |
+| 2026-10-26 | 4.47 | Inspector Schedule Calendar Board and Work Detail Dialog | A | Implemented and verified Inspector Schedule Calendar Board (Month/Week/Agenda views with date navigation, status filtering, unscheduled item collapse) and InspectionWorkDetailDialog (objective, equipment, permits, component shot-list, acceptance criteria, and status-driven workflow navigation). Branch-level Frontend Vitest suite: 79 test files / 571 tests passed, tsc -b and vite build clean, oxlint clean (reconciled in 4.50). | FE-03 supporting verification; InspectorScheduleCalendar.test.tsx; InspectionWorkDetailDialog.test.tsx; InspectionsPage.test.tsx |
+| 2026-10-26 | 4.46 | Recurring inspection foundation, incomplete | A | Recorded ten passing calendar/lifecycle domain tests and Docker-blocked full verify failure. API, persistence, generation, reminder delivery and client flows remain outstanding; no workbook IDs/statuses/totals changed. | FE-03 supporting verification; InspectionRecurrenceTest; RecurringInspectionScheduleTest |
 | 2026-09-22 | 0.1 | Report 5 working source | A | Created the editable test-case structure from the supplied workbook without changing the original template layout. | `template/Report5_Test Report.xlsx` |
 | 2026-09-22 | 0.2 | FE ownership alignment | M | Added FE-01 through FE-07 mapping, recorded the FE-01 W3 auth/migration gate, and split WF3 traceability across FE-04, FE-05, and FE-06 without changing test IDs or workbook sheets. | Jira SCRUM-56, SCRUM-58, SCRUM-106, SCRUM-107, SCRUM-108 |
 | 2026-09-22 | 0.3 | Week 3 automated verification | M | Recorded the passed FE-01 auth/migration smoke gate, separate MinIO infrastructure healthcheck, and FE-04 execution/checklist acceptance evidence; recalculated Round 1 statistics without changing template case IDs or layout. | `WorkflowBaselineTest`, `InspectionWorkflowTest`, `InspectionFixtureTest`, mobile inspection test, backend `mvnw verify` |

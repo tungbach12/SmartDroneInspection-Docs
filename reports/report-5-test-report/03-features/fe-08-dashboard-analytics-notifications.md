@@ -38,12 +38,26 @@ verified by `WF3-009`.
 ## Current test coverage
 
 The Report 5 baseline contains no WFx test case mapped to FE-08. **All of
-Report 3 §3.9 is unverified**, including the role-separation rules above.
+Report 3 §3.9 remains unverified at the workbook acceptance level**, including the
+role-separation rules above.
+
+Supporting verification for the 2026-10-26 in-app notification inbox slice
+(cross-referenced in `03-features/fe-03-inspection-request-work-assignment.md`)
+covers backend unit/service/controller/architecture checks (part of the 96-test
+recurrence/notification slice) and web inbox UI/routing checks (part of the
+212-test inspections/notifications subset and integrated Frontend PR #62
+`80/80` files / `576/576` tests). Mobile notification inbox delivery is **not
+delivered** in the mobile repository (no tracked notification files, tests, or
+open PR). On the backend, `V4__recurring_inspection_schedules.sql` and
+`V5__notification_inbox_deduplication.sql` follow immutable `V1`/`V2` and
+forward cleanup `V3__drop_unused_wf1_columns.sql`; post-`V3`/`V4`/`V5` full
+`./mvnw.cmd verify` and real `V1`→`V5` upgrade regression passed **845/845
+tests** (`4aa04cc9-e4fa-4347-9c8d-3a8f15c1d13c.log`).
 
 This file records the FE-08 scope without inventing a test-case ID or claiming
-execution. Dashboard, analytics and notification acceptance cases remain to be
-assigned and recorded before FE-08 can be reported as tested. This is an
-explicit, truthful coverage gap.
+workbook case execution. Dashboard, analytics and notification acceptance cases
+remain to be assigned and recorded before FE-08 can be reported as tested in the
+workbook. This remains an explicit, truthful coverage gap.
 
 ## Feature sheet summary
 

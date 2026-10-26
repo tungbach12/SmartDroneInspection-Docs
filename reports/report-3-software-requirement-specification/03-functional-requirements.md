@@ -324,6 +324,18 @@ erDiagram
   - *Processing*: Evaluates concurrent mission schedules; presents conflict alerts if overlapping bookings exist; creates inspection record in `ASSIGNED` status with pair snapshot.
   - *Outputs*: Dispatched inspection mission record, automated notification to assigned Inspector.
 
+#### 3.4.1a Organization-Managed Recurring Inspection Schedules
+
+The Organization Manager may create a recurring inspection schedule for an asset in their organization. Each occurrence creates a separate assigned inspection; recurrence never authorizes flight or bypasses assignment response, preparation, independent readiness review, field records or report approval.
+
+- **Inputs**: Asset, objective and scope, assigned Inspector/Drone (initially suggested from the asset default pair), original local start date/time, IANA timezone, positive interval with unit `WEEK`, `MONTH` or `YEAR`, inspection duration, optional inclusive schedule end, and reminder lead days (default 3).
+- **Calendar rule**: Each occurrence is calculated from the original local anchor, not the previous shortened month. Nonexistent month/leap days clamp to the month's final day without permanently shifting later occurrences. DST gaps move forward to the next valid time; overlaps use the earlier offset. The timezone and resulting planned instants are shown to the Manager.
+- **Authority and validation**: Only an active Organization Manager may manage schedules in their organization. Asset, Inspector, Drone, subscription entitlement and planned resource conflicts must be checked before dispatch; the background generator must not bypass these checks. Inspector visibility remains limited to assigned work.
+- **Generation**: Generate the first eligible occurrence and roll subsequent work into a bounded look-ahead window that covers its reminder lead time. A durable schedule/occurrence identity prevents duplicate inspections on retries, restarts or concurrent workers. A blocked occurrence remains visible with its reason; it is not silently skipped or repeatedly dispatched. Manager retry or skip decisions are attributable.
+- **Lifecycle**: Manager may pause, resume or end recurrence. Ending/pausing prevents future generation and never deletes already generated inspections or rewrites their historical assignment snapshots. Changes to schedule configuration apply only to occurrences not yet generated.
+- **Notifications**: The assigned Inspector receives an in-app assignment notice and an in-app reminder before the planned inspection (default 3 days). Delivery is deduplicated durably. Rescheduling, reassignment or cancellation must not leave stale reminders addressed to a former Inspector or an obsolete time. Notification delivery does not mark an inspection ready or started.
+- **Implementation status**: Requirements confirmed 2026-10-26; implementation is in progress. Only recurrence calendar and lifecycle domain tests have executed successfully so far. Persistence, scoped API, generation, notification delivery and client acceptance are not yet verified; Report 5 records the actual evidence.
+
 #### 3.4.2 Component Shot-List and Pre-Flight Checklist Planning
 - **Function Trigger**: Assigned Inspector opens mission detail and selects `Preparation` tab.
 - **Function Description**: Inspector accepts mission assignment and compiles structural component shot-lists, capture angles, required ground sampling distance (GSD), and site access notes.
@@ -489,3 +501,5 @@ The Inspector records coverage and limitations while authoring the report (§3.7
   - *Validations*: Recipient must have active account status and appropriate permission scope for the target entity.
   - *Processing*: Renders notification message with direct deep-link to target workspace screen; dispatches in-app notification via WebSockets/polling; sends email notification via SMTP gateway.
   - *Outputs*: Real-time notification badge increment, system notification record in user inbox, delivered email alert.
+
+**Recurring inspection delivery slice (§3.4.1a)**: Assignment and advance reminders are initially delivered through a paginated **in-app inbox** on web and mobile, with unread count and idempotent mark-as-read. Every read/write is scoped to the authenticated recipient and organization; clients cannot select another recipient. Only recognized internal inspection/work-order targets may be opened. Email/SMTP, WebSocket realtime delivery and operating-system push are not implemented or promised by this slice; polling requires the application to be open. A notification is informational and cannot bypass the target resource's server-side authorization. Runtime acceptance remains in progress as recorded in Report 5.
