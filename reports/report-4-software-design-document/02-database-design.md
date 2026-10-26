@@ -7,6 +7,8 @@ source: "report4-software-design-document.docx"
 
 ## 2. Database Design
 
+WF1 unused-column cleanup is applied by the forward migration `V3__drop_unused_wf1_columns.sql`. Existing `V1`/`V2` checksums remain unchanged; the column descriptions below describe the schema after this migration, not a rewritten baseline.
+
 The relational database architecture is implemented on PostgreSQL 17 with strict foreign key constraints, index-optimized tenant filtering, and cryptographic audit fields. The database schema encompasses 37 application tables (plus the `event_publication` transactional outbox) categorized across identity, assets and B2B drone leasing, inspection workflow, maintenance remediation, and cross-cutting infrastructure.
 
 ```mermaid

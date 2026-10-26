@@ -14,6 +14,8 @@ weight: 25
 
 ## 1. Target model and boundaries
 
+**WF1 cleanup migration:** `V3__drop_unused_wf1_columns.sql` removes the remaining unmapped category, asset and asset-document columns. The applied `V1__baseline.sql` and `V2__role_restructure_and_drone_leasing.sql` are unchanged; upgrade existing databases through Flyway rather than resetting data or repairing checksums.
+
 SmartDroneInspection is a multi-tenant SaaS workspace rented by infrastructure-owning organizations. The platform manages:
 
 ```text
