@@ -242,77 +242,73 @@ sequenceDiagram
 
 ---
 
-### 3.3 Flight Mission Planning and Readiness Authorization
+### 3.3 Flight Mission Planning and Self-Service Permit Authorization
 
 #### 3.3.1 Class Diagram
 
 ```mermaid
-%% title: Mission Planning and Readiness Class Diagram
+%% title: Mission Planning and Self-Service Permit Class Diagram
 classDiagram
   class InspectionController {
-    +createInspection(CreateInspectionRequest) ApiResponse~InspectionDto~
-    +submitPreparation(UUID id, PreparationRequest) ApiResponse~PreparationDto~
-    +reviewReadiness(UUID id, ReadinessRequest) ApiResponse~ReadinessDecisionDto~
+    +createInspection(CreateInspectionRequest) ApiResponse~InspectionResponse~
+    +uploadFlightPermit(UUID id, MultipartFile file) ApiResponse~InspectionResponse~
   }
   class InspectionService {
-    +dispatchInspection(InspectionInput) Inspection
-    +validateScheduleConflict(UUID droneId, UUID inspectorId, DateWindow) void
-  }
-  class ReadinessService {
-    +evaluateReadiness(UUID preparationId, ReadinessDecisionInput) ReadinessDecision
+    +createInspection(CreateInspectionRequest) Inspection
+    +uploadFlightPermit(UUID id, MultipartFile file) Inspection
+    +validateScheduleConflict(UUID droneId, UUID inspectorId, Instant start, Instant end) void
+    +validatePilotLicenseCurrency(UUID inspectorId, Instant plannedStart) void
   }
   class Inspection {
     -UUID id
     -InspectionStatus status
-    -LocalDate plannedStartDate
-    -LocalDate plannedEndDate
-    -User inspector
-    -Drone drone
+    -Instant plannedStartAt
+    -Instant plannedEndAt
+    -UUID inspectorId
+    -UUID droneId
+    -String flightPermitFileKey
+    -String flightPermitFileName
+    -Instant flightPermitUploadedAt
   }
   InspectionController --> InspectionService
-  InspectionController --> ReadinessService
   InspectionService --> Inspection
 ```
 
-- **InspectionController**: Handles mission scheduling, preparation submissions, and administrative readiness decisions.
-- **InspectionService**: Manages mission creation, validates scheduling conflicts across drone fleets, and tracks mission states.
-- **ReadinessService**: Evaluates flight clearances against valid permits, pilot credentials, and weather constraints.
+- **InspectionController**: Handles mission scheduling, direct inspector/drone assignment, and self-service flight permit document upload.
+- **InspectionService**: Manages mission creation, validates scheduling conflicts across active missions, verifies remote pilot license currency, and atomically transitions status from `ASSIGNED` to `READY_FOR_FLIGHT` upon flight permit upload.
 
-#### 3.3.2 Mission Dispatch and Readiness Authorization Sequence Diagram
+#### 3.3.2 Mission Dispatch and Self-Service Permit Upload Sequence Diagram
 
 ```mermaid
-%% title: Mission Dispatch and Readiness Authorization Sequence Diagram
+%% title: Mission Dispatch and Self-Service Permit Upload Sequence Diagram
 sequenceDiagram
   autonumber
-  actor Admin as Organization Admin
+  actor Admin as Organization Manager
   actor Inspector as Assigned Inspector
   participant Client as Web / Mobile Client
   participant InspCtrl as InspectionController
   participant InspSvc as InspectionService
-  participant ReadSvc as ReadinessService
+  participant MinIO as MinIO Object Storage
   participant DB as PostgreSQL Database
 
-  Admin->>Client: Dispatch Inspection Mission
+  Admin->>Client: Dispatch Inspection Mission (Select Asset, Inspector, Drone)
   Client->>InspCtrl: POST /api/v1/inspections
-  InspCtrl->>InspSvc: scheduleMission(input)
+  InspCtrl->>InspSvc: createInspection(input)
   InspSvc->>InspSvc: checkConflict(droneId, inspectorId, dates)
   InspSvc->>DB: saveInspection(status=ASSIGNED)
   DB-->>InspSvc: Saved Inspection
-  InspSvc-->>Client: 201 Created
+  InspSvc-->>Client: 201 Created (Inspection ID)
 
-  Inspector->>Client: Submit Component Shot-List & Safety Notes
-  Client->>InspCtrl: POST /api/v1/inspections/{id}/preparation
-  InspCtrl->>InspSvc: recordPreparation(shotList, compliance)
-  InspSvc->>DB: savePreparation(status=READY_FOR_REVIEW)
-  DB-->>InspSvc: Preparation Record
-
-  Admin->>Client: Evaluate Submitted Preparation
-  Client->>InspCtrl: POST /api/v1/inspections/{id}/readiness
-  InspCtrl->>ReadSvc: recordDecision(APPROVE)
-  ReadSvc->>DB: updateInspection(status=APPROVED_FOR_FLIGHT)
-  DB-->>ReadSvc: Updated Record
-  ReadSvc-->>Client: 200 OK (Readiness Decision)
-  Client-->>Inspector: Notify Mission Cleared for Flight
+  Inspector->>Client: Upload Aviation Flight Permit Document
+  Client->>InspCtrl: POST /api/v1/inspections/{id}/flight-permit (MultipartFile)
+  InspCtrl->>InspSvc: uploadFlightPermit(id, file)
+  InspSvc->>InspSvc: validatePilotLicenseCurrency(inspectorId, plannedStartAt)
+  InspSvc->>MinIO: putObject(permitsBucket, fileKey, bytes)
+  MinIO-->>InspSvc: Stored
+  InspSvc->>DB: updateInspection(flightPermitFileKey, status=READY_FOR_FLIGHT)
+  DB-->>InspSvc: Updated Inspection
+  InspSvc-->>Client: 200 OK (Mission Cleared for Flight)
+  Client-->>Inspector: Operational Readiness Cleared (READY_FOR_FLIGHT)
 ```
 
 ---
@@ -375,8 +371,8 @@ sequenceDiagram
 
   Inspector->>Mobile: Fill Pre-Flight Checklist Note & Press Start
   Mobile->>SessCtrl: POST /api/v1/inspections/{id}/field-sessions
-  SessCtrl->>DB: checkReadinessApproved(inspectionId)
-  DB-->>SessCtrl: Approved
+  SessCtrl->>DB: checkFlightPermitReady(inspectionId)
+  DB-->>SessCtrl: READY_FOR_FLIGHT
   SessCtrl->>DB: saveSession(status=IN_PROGRESS, preFlightNote)
   DB-->>SessCtrl: Active Session
   SessCtrl-->>Mobile: 201 Created (Session ID)
@@ -384,12 +380,11 @@ sequenceDiagram
   Inspector->>Mobile: Select Inspection Photographs & Upload
   Mobile->>EviCtrl: POST /api/v1/inspections/{id}/evidence (Binary Stream)
   EviCtrl->>EviSvc: ingestFile(bytes, filename)
-  EviSvc->>EviSvc: computeSha256(bytes)
-  EviSvc->>DB: checkDuplicateHash(sha256)
-  DB-->>EviSvc: Unique Hash
+  EviSvc->>DB: checkDuplicateFilename(filename)
+  DB-->>EviSvc: Unique Filename
   EviSvc->>MinIO: putObject(bucket, key, bytes)
   MinIO-->>EviSvc: Stored (ETag)
-  EviSvc->>DB: saveEvidence(objectKey, sha256, gpsCoordinates)
+  EviSvc->>DB: saveEvidence(objectKey, gpsCoordinates)
   DB-->>EviSvc: Evidence Record
   EviSvc-->>EviCtrl: EvidenceDto
   EviCtrl-->>Mobile: 200 OK

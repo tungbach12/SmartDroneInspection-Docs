@@ -106,9 +106,9 @@ flowchart TD
 | No | Package | Description |
 | :---: | :--- | :--- |
 | 01 | `com.smartdroneinspection.auth` | Manages authentication flows, Argon2id password hashing, access and refresh token issuance, session blacklisting, PayPal subscription checkout, and Spring Security filter chains. |
-| 02 | `com.smartdroneinspection.users` | Governs multi-tenant enterprise organizations, workforce provisioning (Inspectors, Maintenance Engineers), and professional credential verification. |
-| 03 | `com.smartdroneinspection.assets` | Manages physical infrastructure assets, drone hardware inventory, regulatory flight permits, and default Inspector-Drone operational pairings. |
-| 04 | `com.smartdroneinspection.inspections` | Handles inspection scheduling, conflict checking, flight preparations, readiness reviews, field session logging, evidence ingestion, and finding confirmations. |
+| 02 | `com.smartdroneinspection.users` | Governs multi-tenant enterprise organizations, workforce provisioning (Inspectors, Maintenance Engineers), and self-declared remote pilot license credentials. |
+| 03 | `com.smartdroneinspection.assets` | Manages physical infrastructure assets (with standardized inspection checkpoints), drone hardware inventory (with registration details), and B2B drone leasing. |
+| 04 | `com.smartdroneinspection.inspections` | Handles inspection scheduling, conflict checking, self-service flight permit upload, field session execution guided by asset checkpoints, evidence ingestion, and finding confirmations. |
 | 05 | `com.smartdroneinspection.ai` | Provides HTTP client adapters for the external YOLO11s computer vision microservice and LLM generative report drafting endpoints. |
 | 06 | `com.smartdroneinspection.reports` | Coordinates structured report authoring, administrative review workflows, OpenHTMLtoPDF rendering, SHA-256 fingerprinting, and MinIO archival. |
 | 07 | `com.smartdroneinspection.maintenance` | Governs corrective maintenance work orders, repair task decomposition, itemized cost estimation, change order control, daily work logs, and technical acceptance. |
