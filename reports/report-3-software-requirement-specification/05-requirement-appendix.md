@@ -32,10 +32,10 @@ The system defines standard user-facing messages, validation alerts, and toast n
 | 17 | MSG17 | In line | Duplicate evidence | This evidence has already been uploaded in this scope. |
 | 18 | MSG18 | Toast | Upload saved | Evidence uploaded and available for findings. |
 | 19 | MSG19 | In line | AI unavailable | AI analysis is unavailable. Evidence is saved for manual review or later processing. |
-| 20 | MSG20 | Toast | Inspection author submission | Author-verified draft submitted to Organization Admin for review. |
+| 20 | MSG20 | Toast | Inspection author submission | Author-verified draft submitted to Organization Manager for review. |
 | 21 | MSG21 | In line | Author review incomplete | Verify each required report section against source evidence and scope before submitting. |
 | 22 | MSG22 | Toast | Inspection report published | Approved inspection report version published successfully. |
-| 23 | MSG23 | Toast | Repair change submitted | Scope/cost/time change submitted to Organization Admin for approval. Affected additional work is not yet authorized. |
+| 23 | MSG23 | Toast | Repair change submitted | Scope/cost/time change submitted to Organization Manager for approval. Affected additional work is not yet authorized. |
 | 24 | MSG24 | In line | Unapproved additional work | Additional work requires an approved change. Recording actual spending does not approve it. |
 | 25 | MSG25 | Toast | Work order closed | Accepted and cost-reconciled work order closed; source inspection history is preserved. |
 | 26 | MSG26 | In line | Required credential/compliance missing | Provide and review the documents applicable to this activity. Internal approval cannot waive required legal authorization. |
@@ -60,7 +60,7 @@ The system defines standard user-facing messages, validation alerts, and toast n
 | 45 | MSG45 | In line | Cost reconciliation unresolved | Resolve missing, duplicate or unapproved costs and variance explanations before final closure. |
 | 46 | MSG46 | Toast | Maintenance author submits report | Author-verified maintenance completion draft submitted for independent acceptance. |
 | 47 | MSG47 | Toast | Subscription payment confirmed | The authorized settlement has been verified and the subscription is active. |
-| 48 | MSG48 | In line | Online payment unavailable or failed | Online payment is unavailable or could not be verified. Use the corporate wire/invoice process or contact the Platform Admin for assistance. |
+| 48 | MSG48 | In line | Online payment unavailable or failed | Online payment is unavailable or could not be verified. Use the corporate wire/invoice process or contact the Platform Manager for assistance. |
 
 ### 5.2 Appendix 2 - Common Requirements
 
@@ -94,7 +94,7 @@ This traceability matrix maps the eight core product features (`FE-01` to `FE-08
 | Product Feature | Operational Responsibility | Supported Use Cases |
 | --- | --- | --- |
 | FE-01 | Identity, tenant governance, workforce accounts, credentials, versioned terms, and subscription settlement | UC-01, UC-02, UC-03, UC-05 |
-| FE-02 | Infrastructure asset inventory, drone fleet management, and flight permit linkage | UC-04, UC-06, UC-07, UC-08 |
+| FE-02 | Infrastructure asset inventory, owned and B2B leased drone fleet management, and flight permit linkage | UC-04, UC-06, UC-07, UC-08 |
 | FE-03 | Inspection mission planning, shot-list preparation, and flight readiness authorization | UC-09, UC-10, UC-11 |
 | FE-04 | Field survey logging and digital evidence intake | UC-12, UC-13, UC-14 |
 | FE-05 | Advisory YOLO11s defect detection and human findings verification | UC-15, UC-32 |

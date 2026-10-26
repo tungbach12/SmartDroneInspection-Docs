@@ -9,13 +9,13 @@ source: "report3-software-requirement-specification.docx"
 
 ## 1. Status Report
 
-The SmartDroneInspection project develops an Enterprise SaaS platform designed for infrastructure asset management, automated UAV-assisted inspection, AI defect detection, and maintenance lifecycle coordination. The system establishes an end-to-end digital audit trail across four primary operational roles: `Platform Admin`, `Organization Admin`, `Inspector`, and `Maintenance Engineer`.
+The SmartDroneInspection project develops an Enterprise SaaS platform designed for infrastructure asset management, automated UAV-assisted inspection, AI defect detection, and maintenance lifecycle coordination. The system establishes an end-to-end digital audit trail across five primary operational roles: `Platform Admin`, `Platform Manager`, `Organization Manager`, `Inspector`, and `Maintenance Engineer`.
 
-The software requirements baseline is structured around the complete operational cycle: onboarding infrastructure assets and drone equipment, planning inspection missions, executing field flight surveys, detecting visual defects via computer vision (YOLO11s), synthesizing human-reviewed inspection reports, and handing over confirmed defects to maintenance remediation with cost estimation and independent acceptance.
+The software requirements baseline is structured around the complete operational cycle: onboarding infrastructure assets and owned or platform-leased drone equipment, planning inspection missions, executing field flight surveys, detecting visual defects via computer vision (YOLO11s), synthesizing human-reviewed inspection reports, and handing over confirmed defects to maintenance remediation with cost estimation and independent acceptance.
 
 | Area | Status | Evidence and next step |
 | --- | --- | --- |
-| Product scope | Baseline aligned | The platform manages the inspection-to-maintenance lifecycle. Hardware flight control and autonomous AI approval remain out of scope. Enterprise subscription settlement supports administrative wire/invoice reconciliation; optional PayPal Orders v2 is disabled by default and requires server-side provider verification when configured. |
+| Product scope | Baseline aligned | The platform manages the inspection-to-maintenance lifecycle. Hardware flight control and autonomous AI approval remain out of scope. Enterprise subscription and B2B drone lease settlement supports Platform Manager wire/invoice reconciliation; optional PayPal Orders v2 is disabled by default and requires server-side provider verification when configured. |
 | Requirements | Finalized | Report 3 defines system actors, use cases, functional requirements (FE-01 to FE-08), non-functional requirements, business rules, messages, and technology constraints. |
 | Software foundation | In progress | The system utilizes a multi-repository architecture comprising Spring Boot backend, React web portal, Flutter mobile application, and AI inference microservice. |
 | Verification | Ongoing | Continuous integration gates ensure multi-layer testing, code formatting, security analysis, and schema consistency across all client and server components. |

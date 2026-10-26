@@ -16,11 +16,11 @@ user role, bidding portal, accounting ledger or procurement integration.
 
 | Responsibility | Login role | Named by | What this person does |
 | --- | --- | --- | --- |
-| Work-order owner / budget approver | `ORG_ADMIN` | — | Selects corrective scope; names team, lead, report author and accepting reviewer; approves baseline and changes; records closure authorization. |
-| Repair team lead | `MAINTENANCE_ENGINEER` | ORG_ADMIN, exactly one per work order | Coordinates assessment, task allocation, method, estimate, resource readiness, consolidated completion and actuals. |
-| Team member / task assignee | `MAINTENANCE_ENGINEER` | ORG_ADMIN selects team; lead allocates tasks | Accepts tasks; records own work, consumption and time; uploads before/during/after proof. |
-| Accountable repair-report author | `MAINTENANCE_ENGINEER` | ORG_ADMIN, exactly one per work order | Collects the team's records, requests/verifies/edits the LLM completion report, submits it; remains the author even when the LLM drafted the text. |
-| Independent accepting reviewer | `ORG_ADMIN` | — | Not on the executing team and not the report author. Checks scope, evidence and residual issues; accepts or returns. Cost reconciliation is a **separate recorded decision**. |
+| Work-order owner / budget approver | `ORG_MANAGER` | — | Selects corrective scope; names team, lead, report author and accepting reviewer; approves baseline and changes; records closure authorization. |
+| Repair team lead | `MAINTENANCE_ENGINEER` | ORG_MANAGER, exactly one per work order | Coordinates assessment, task allocation, method, estimate, resource readiness, consolidated completion and actuals. |
+| Team member / task assignee | `MAINTENANCE_ENGINEER` | ORG_MANAGER selects team; lead allocates tasks | Accepts tasks; records own work, consumption and time; uploads before/during/after proof. |
+| Accountable repair-report author | `MAINTENANCE_ENGINEER` | ORG_MANAGER, exactly one per work order | Collects the team's records, requests/verifies/edits the LLM completion report, submits it; remains the author even when the LLM drafted the text. |
+| Independent accepting reviewer | `ORG_MANAGER` | — | Not on the executing team and not the report author. Checks scope, evidence and residual issues; accepts or returns. Cost reconciliation is a **separate recorded decision**. |
 | Re-inspection verifier, if required | `INSPECTOR` | Assigned through a linked MF1 inspection | Records independent evidence; **cannot stand in for a repair engineer's work log**. |
 | Automated assistant | `SYSTEM` / LLM | Authorized workflow | Validates references, computes totals, drafts narrative, publishes only after approval. |
 
@@ -29,11 +29,11 @@ Separation-of-duties rules that carry real risk:
 - Final acceptance **cannot** be performed by the repair-team lead/report author
   or by the executing team.
 - Budget approval and technical acceptance are **distinct actions**, even when
-  the same qualified non-executing `ORG_ADMIN` performs both under company
+  the same qualified non-executing `ORG_MANAGER` performs both under company
   policy.
 - If **no qualified independent reviewer exists, the work remains awaiting
   review**. The platform does not create a professional qualification.
-- Replacing the lead or report author is done by `ORG_ADMIN` with a recorded
+- Replacing the lead or report author is done by `ORG_MANAGER` with a recorded
   reason and handover; **old logs retain their authors**.
 
 ## Current test coverage
@@ -56,7 +56,7 @@ never reused.
 
 ### MF4-01 – MF4-20 Work Order Lifecycle — supporting verification (executed 2026-10-20)
 
-- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an organization with a published repair-required finding, an ORG_ADMIN and a MAINTENANCE_ENGINEER.
+- Preconditions: Backend `feat/mf1-backend-org-admin-resources` and Frontend `feat/mf1-org-admin-resources-hieu`; PostgreSQL 17/Testcontainers; an organization with a published repair-required finding, an ORG_MANAGER and a MAINTENANCE_ENGINEER.
 - Procedure: Run Backend `MaintenanceApiIntegrationTest` (25 tests) and Frontend `MaintenancePage.test.tsx` (6 tests). Verify the repair-candidate triage list that carries the MF3-13 handoff; work order creation with priority, due date, corrective scope and acceptance criteria (MF4-01/02); team designation of exactly one lead, one report author and one independent accepting reviewer (MF4-03/04); task creation by the lead (MF4-05); estimate versions with system-computed totals (MF4-06/07) and their approval by the budget approver (MF4-08); the execution transitions release, start and declare-complete (MF4-09/10/14); work logs recording hours, as-left condition and test readings (MF4-11); change requests with approve, reject and return decisions (MF4-12/13); completion report drafting, verification and submission (MF4-15/16/17); independent acceptance with accept, return for rework and request re-inspection (MF4-18); cost reconciliation with the computed variance (MF4-19); and closure (MF4-20).
 - Expected result: Each transition is a named action rather than a generic state change; the role decides which actions are offered while the backend stays the enforcement boundary; the accepting reviewer may not be drawn from the executing team; the lead and report author may be the same engineer; actual cost lines never overwrite an estimate line and the variance is computed by the platform from the approved baseline, the approved change deltas and the reconciled actuals; a work order closes only after independent acceptance and cost reconciliation.
 - Round 1: Passed 2026-10-20; tester: Claude Code (automated).

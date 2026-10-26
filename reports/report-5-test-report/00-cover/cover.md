@@ -8,13 +8,13 @@ when transferring values into the workbook.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Creator | *Enter team/member name* |
-| Issue Date | 2026-10-22 |
+| Issue Date | 2026-10-25 |
 | Document Code | *Enter document code* |
-| Version | 4.43 (Optional PayPal settlement, MF3 simplification, and 42-table B42 baseline.) |
+| Version | 4.45 (Role restructuring with PLATFORM_MANAGER and ORG_MANAGER, and B2B Drone Leasing.) |
 
-## Current documentation update — Optional PayPal settlement and MF3 simplification (2026-10-23)
+## Current documentation update — Role restructuring and B2B Drone Leasing (2026-10-25)
 
-Documentation synchronization for optional PayPal Orders v2 settlement (V41/V42) and MF3 pre-report simplification with B42 canonical baseline migration. All test statistics and 11-case denominator preserved.
+Documentation synchronization for the five-role baseline (`ADMIN`, `PLATFORM_MANAGER`, `ORG_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`), renaming `ORG_ADMIN` to `ORG_MANAGER` (*Organization Manager*), and B2B Drone Leasing (`platform_drones`, `drone_leases`, and customer `drones` lease provisioning/reclaim). All test statistics and 11-case denominator preserved.
 
 ## Export-tool verification (not workbook cases)
 
@@ -37,8 +37,8 @@ verification is supporting evidence, not an additional WFx case result.
 ## Record of change
 
 The workbook's change table uses these columns. Add one row for each approved
-revision; do not remove old entries. Current source version: **4.43**, last updated
-2026-10-22; see the record of changes below.
+revision; do not remove old entries. Current source version: **4.45**, last updated
+2026-10-25; see the record of changes below.
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |
 | --- | --- | --- | --- | --- | --- |
@@ -88,3 +88,4 @@ revision; do not remove old entries. Current source version: **4.43**, last upda
 | 2026-10-22 | 4.40 | FE-01 versioned Terms and Privacy Notice registration consent | M | Added supporting FE-01 test procedure for unchecked-by-default dual consent, active-version payload validation, and registration audit metadata. Frontend auth tests (19) and production build passed; backend test compilation passed. Docker/Testcontainers was unavailable before Spring context startup, so the backend API/audit integration procedure remains Pending and no workbook case/status/total changed. The policy copy is explicitly a draft pending legal/business review; audit evidence is not a certified digital signature. | `03-features/fe-01-identity-access-governance.md`; Report 3 §3.2.1; backend authentication docs; business flows; database design; frontend `RegisterPage.test.tsx`; backend `OrganizationRegistrationApiIntegrationTest` |
 | 2026-10-22 | 4.41 | FE-01 subscription proposal and optional verified PayPal safeguards | M | Added supporting verification for the server-side optional PayPal Orders v2 adapter, disabled-by-default wire-only behavior, platform-approved price gate, provider-reported capture validation and draft/non-signature contract preview. Backend PaymentGatewayServiceTest (14) and ModulithArchitectureTest (3) passed; frontend subscription tests (9), production build and lint exit 0. Docker/Testcontainers integration execution and live PayPal sandbox/provider verification remain Pending; no workbook case, status or total changed. Corrected customer proposals so they remain in terms snapshot and do not populate the platform-approved `agreed_amount_usd`. | FE-01 supporting verification; Report 3 §1.1/§1.2/§2.1–2.2/§3.2.3; business flows; database design; backend and frontend subscription payment changes |
 | 2026-10-22 | 4.42 | FE-01 PayPal webhook and checkout retry verification | M | Added standalone webhook payload/controller tests and subscription retry-state recovery. Backend PayPalPaymentGatewayTest (2), PayPalWebhookControllerTest (5), PaymentGatewayServiceTest (14), and ModulithArchitectureTest (3) passed; frontend ClientSubscriptionPage suite passed 5 tests, production build passed and lint exited 0 with existing warnings. Docker-backed API/migration checks and live sandbox handshake remain Pending; no WFx case, workbook status, total or coverage metric changed. | FE-01 supporting verification; `PayPalPaymentGatewayTest`, `PayPalWebhookControllerTest`, `ClientSubscriptionPage.test.tsx`; Report 3 §3.2.3; business flows; backend/frontend subscription sources |
+| 2026-10-25 | 4.45 | Role restructuring (`PLATFORM_MANAGER`, `ORG_MANAGER`) and B2B Drone Leasing synchronization | M | Synchronized Report 5 sources (`README.md`, `_index.md`, `test-case-list.md`, and `fe-01`/`fe-02`/`fe-03`/`fe-06`/`fe-07`) with the five-role baseline (`ADMIN`, `PLATFORM_MANAGER`, `ORG_MANAGER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`), renaming `ORG_ADMIN` to `ORG_MANAGER` (*Organization Manager*) and documenting `PLATFORM_MANAGER` commercial subscription settlement and B2B Drone Leasing (`platform_drones`, `drone_leases`, and customer `drones` lease provisioning/reclaim). All 11 functional workbook case IDs, statuses, and totals remain unchanged. | Report 3 SRS §§1.1–3.9; `project-reference/database-design.md`; `V2__role_restructure_and_drone_leasing.sql`; `fe-01-…md`, `fe-02-…md`, `fe-03-…md`, `fe-06-…md`, `fe-07-…md` |
