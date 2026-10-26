@@ -288,7 +288,7 @@ A readiness decision references the permit and snapshots its version/status. A p
 
 #### `asset_categories`, `checklist_templates`, `checklist_items`
 
-- `asset_categories`: platform categories plus optional organization-specific categories.
+- `asset_categories` (**8 columns**: `id`, `code`, `name`, `description`, `active`, `created_at`, `updated_at`, `row_version`): platform categories classified by normalized `code`. Unused `organization_id` is dropped.
 - `checklist_templates` (**14 columns**: `id`, `template_key`, `version_number`, `asset_category_id`, `name`, `description`, `name_vi`, `description_vi`, `status`, `created_by_user_id`, `published_at`, `created_at`, `updated_at`, `row_version`): versioned template scoped to an optional asset category, localized name/description, publication status (`DRAFT`, `ACTIVE`, `RETIRED`), and author (unmapped `context`, `active_from`, and `active_until` are dropped).
 - `checklist_items` (**14 columns**: `id`, `template_id`, `item_code`, `section_name`, `prompt`, `response_type`, `required`, `display_order`, `guidance`, `section_name_vi`, `prompt_vi`, `guidance_vi`, `validation_config`, `created_at`): typed item (`PASS_FAIL`, `TEXT`, `NUMBER`, `BOOLEAN`, `CHOICE`), localized prompt/guidance, display order, required flag, validation config, and template FK (unmapped `evidence_requirement` is dropped).
 
@@ -296,15 +296,15 @@ A response references the exact `checklist_item_id` used for an inspection; late
 
 #### `assets`
 
-Stores `organization_id`, unique organization-local code, category, name/type, location JSON, technical profile JSON, source documents and status (`ACTIVE`, `INACTIVE`, `RETIRED`).
+Stores **14 columns** (`id`, `organization_id`, `category_id`, `asset_code`, `name`, `description`, `location`, `latitude`, `longitude`, `technical_profile`, `status`, `created_at`, `updated_at`, `row_version`): `organization_id`, unique organization-local `asset_code`, `category_id`, name/description, location JSON, GPS coordinates, technical profile JSON and status (`ACTIVE`, `INACTIVE`, `RETIRED`). Redundant `asset_type` is dropped because classification is normalized via `category_id`.
 
 #### `asset_documents`
 
-Stores asset drawings, manuals and historical files: asset, type/version, object key/checksum/size/media type, uploader, status and timestamps. Published documents are not overwritten.
+Stores **11 columns** (`id`, `asset_id`, `uploaded_by_user_id`, `document_type`, `file_name`, `content_type`, `size_bytes`, `checksum_sha256`, `object_key`, `document_date`, `created_at`): asset drawings, manuals and historical files with object key/checksum/size/media type, uploader, document date and creation timestamp. Published documents are immutable; unused `document_version`, `status`, and `updated_at` are dropped.
 
 #### `asset_pair_assignments`
 
-The MF1 pair record stores `organization_id`, `asset_id`, `inspector_user_id`, `drone_id`, `valid_from`, `valid_until`, status (`DRAFT`, `ACTIVE`, `SUPERSEDED`, `SUSPENDED`), reason, assigned by/time and version.
+The MF1 pair record stores **16 columns**: `organization_id`, `asset_id`, `inspector_user_id`, `drone_id`, `valid_from`, `valid_until`, status (`DRAFT`, `ACTIVE`, `SUPERSEDED`, `SUSPENDED`), reason, assigned by/time, Inspector `assignment_response` (`ACCEPTED`, `REJECTED`), `responded_at` and mutable aggregate columns.
 
 The target invariant permits one current active default pair per asset and requires Inspector, Drone and asset to share the organization. A pair is a default operational assignment, not a permanent Drone reservation.
 
@@ -540,6 +540,7 @@ Applied migration files remain forward-only history. The backend reset has begun
 ## 11. Implementation status
 
 - This file is a **target database design aligned with Report 3**, not a full implementation report.
+- **26 October 2026 migration-safety and PR #91 / PR #93 rollout status:** Applied `V1` and `V2__role_restructure_and_drone_leasing.sql` remain immutable on `origin/main` (review blocked modifying applied `V1`). Unused-column cleanup is isolated in forward `V3__drop_unused_wf1_columns.sql`, and the unapplied PR #93 recurring-inspection and notification-deduplication migrations are sequenced as `V4__recurring_inspection_schedules.sql` and `V5__notification_inbox_deduplication.sql` (bringing the exact expected migration table count to **40 tables** in `FullDatabaseSchemaMigrationTest`; the separate local 28-table streamlined design is not part of these PR commits or deployed mainline). Post-correction `./mvnw.cmd spotless:apply && ./mvnw.cmd verify` passed **GREEN (`781 tests` on PR #91; `845 tests` on PR #93, 0 failures/errors/skips)** including `V3Wf1ColumnDropUpgradeMigrationTest` (`V1`→`V5` upgrade regression), JaCoCo, and Spring Modulith checks.
 - V24 aligns identity/role vocabulary, V25 adds the target schema, and V26 completes the runtime cutover to the then-current 41-table target inventory. Verified by `./mvnw clean verify` on 8 October 2026 (88 tests, exit 0), including empty-database migration, populated V1–V23 fail-closed migration tests and an exact-table-inventory assertion. V39 adds Vietnamese checklist columns, and V40 implements the MF3 target changes through a forward Flyway migration. B40 provides a single-step baseline migration for fresh databases. Both were executed on disposable PostgreSQL databases; local drifted V38 and deployed schemas were not changed or verified.
 - Historical backend status through 21 October: source code and migrations implemented MF2 assignment response, preparation/compliance, readiness approval/return, field-session start/postpone/abort and normal completion, plus the earlier MF3 evidence-quality decision and corrective-outcome flow. V40 is now present in the worktree as a forward migration removing those quality/legacy fields and applying the simplified MF3 entity contract; B40 provides a single complete schema migration for new databases. Both paths were executed against fresh disposable PostgreSQL schemas, including populated and fail-closed guard fixtures, not against the drifted local database or a deployed database. Source tests/compile and client checks have passed, while Docker-backed Spring integration remains blocked. MF2-08 source-change invalidation is partial. `V37` merges detector suggestions and Inspector findings into `findings`; rejected AI suggestions are excluded and are not retained as finding-level audit records. MF1 and MF4 work-order creation remain incomplete workflow areas.
 - Asset/catalog/scheduling and auth runtime remain in the reset branch, but they are partial capabilities and must be checked against current source and the corresponding backend guides.
@@ -564,6 +565,7 @@ Applied migration files remain forward-only history. The backend reset has begun
 - V41 custom subscription period and negotiated pricing: `backend/src/main/resources/db/migration/V41__custom_subscription_period_and_negotiated_pricing.sql` — allows custom billing periods and records agreed pricing
 - V42 PayPal payment transactions: `backend/src/main/resources/db/migration/V42__paypal_payment_transactions.sql` — stores PayPal Orders v2 transactions and capture status
 - B42 Complete baseline schema: `backend/src/main/resources/db/migration/B42__complete_schema.sql` — canonical 42-table schema snapshot for single-step instantiation on fresh databases
+- Post-squashed forward sequence (26 October 2026): immutable `V1` baseline and `V2__role_restructure_and_drone_leasing.sql`, forward column cleanup `V3__drop_unused_wf1_columns.sql` (PR #91, 781 tests green), and `V4__recurring_inspection_schedules.sql` + `V5__notification_inbox_deduplication.sql` (PR #93, 845 tests green including `V1`→`V5` upgrade regression)
 
 - [Report 3 Software Requirement Specification](../reports/report-3-software-requirement-specification/)
 - [Authentication and Access Control](../backend/authentication-and-authorization.md)

@@ -14,7 +14,7 @@ fixed: `No`, `Function Name`, `Sheet Name`, `Description`, `Pre-Condition`.
 
 ## Recurring inspection and in-app notifications implementation (2026-10-26)
 
-FE-03 recurrence schedules and FE-08 in-app notification inbox have 96 passing backend unit/service/controller tests, 200 passing frontend tests, and 6 mobile test suites, recorded as supporting evidence in the FE-03 source. Full PostgreSQL/Docker integration tests remain Pending because Docker was unavailable. No reserved WFx ID is reused and no workbook case status or denominator changes.
+FE-02/FE-03 recurrence schedules and FE-08 in-app notification inbox have 96 passing backend unit/service/controller/architecture tests, passing post-`V3`/`V4`/`V5` full backend verification (`./mvnw.cmd verify`: 781/781 tests on PR #91 and 845/845 tests on merged PR #93 including `V3Wf1ColumnDropUpgradeMigrationTest` and `FullDatabaseSchemaMigrationTest`), and passing integrated Frontend PR #62 verification (`npm run lint` exit 0, `npm test -- --run` 80/80 test files / 576/576 tests, `npm run build` exit 0), recorded as supporting evidence in the FE-02, FE-03, and FE-08 sources. Mobile notification inbox is **not delivered** (no tracked notification files or PR in the mobile repository). No reserved WFx ID is reused and no workbook case status or denominator changes.
 
 ## Reset and reconciliation scope (2026-10-09 to 2026-10-10)
 

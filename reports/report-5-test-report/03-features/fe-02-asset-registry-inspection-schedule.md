@@ -160,7 +160,7 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
   - The asset drawer displays existing recurring inspection schedules scoped to that asset, providing quick overview of recurrence frequency, inspector assignment, and status.
   - The recurring schedules management panel filters schedules by asset identifier.
 - Round 1: Passed 2026-10-26; tester: Claude Code (automated).
-- Evidence: `AssetsPage.recurringSchedules.test.tsx` passed 2/2 tests; full `src/features/assets` suite passed 17 files / 83 tests (100%); `tsc -b && vite build` clean; `oxlint` clean.
+- Evidence: `AssetsPage.recurringSchedules.test.tsx` passed 2/2 tests; full `src/features/assets` suite passed 17 files / 83 tests; `tsc -b && vite build` clean; `oxlint` clean on the feature branch. Integrated Frontend PR #62 initially ran RED (`576 tests / 14 failed`) and then passed GREEN after fixing 5 test setups (`AppShell.test.tsx` + 4 `AssetsPage` test suites): `npm run lint` exit 0, `npm test -- --run` 80/80 test files (576/576 tests), and `npm run build` (`tsc -b && vite build`) exit 0.
 
 ### Single Active Recurring Schedule per Asset & Free-text JSON Normalization — supporting verification (executed 2026-10-26)
 
@@ -179,7 +179,7 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
   - Free-text inputs in inspection creation forms are safely sanitized into valid JSON for PostgreSQL `jsonb` columns.
   - UI provides clear feedback and prevents duplicate active schedules.
 - Round 1: Passed 2026-10-26; tester: Claude Code (automated).
-- Evidence: Backend `RecurringInspectionScheduleServiceTest` passed 9/9 tests; `InspectionCreationApiIntegrationTest` passed 8/8 tests; Frontend `CreateInspectionDialog.test.tsx` passed 7/7 tests; `AssetsPage.recurringSchedules.test.tsx` passed 4/4 tests; `npm run build` and `npm run lint` clean.
+- Evidence: Backend `RecurringInspectionScheduleServiceTest` passed 9/9 tests; `InspectionCreationApiIntegrationTest` passed 8/8 tests; post-`V3`/`V4`/`V5` merged backend `./mvnw.cmd verify` passed 845/845 tests (`4aa04cc9-e4fa-4347-9c8d-3a8f15c1d13c.log`); Frontend `CreateInspectionDialog.test.tsx` passed 7/7 tests; `AssetsPage.recurringSchedules.test.tsx` passed 4/4 tests; integrated Frontend PR #62 passed `npm run lint` (exit 0), `npm test -- --run` (80/80 test files, 576/576 tests), and `npm run build` (`tsc -b && vite build`, exit 0).
 
 ### Asset Retirement & Contract Completion Archival — supporting verification (executed 2026-10-26)
 
@@ -199,7 +199,7 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
   - Retired assets cannot receive new inspection dispatches or edits.
   - All historical inspections, reports, and technical documents remain permanently archived and referenceable.
 - Round 1: Passed 2026-10-26; tester: Claude Code (automated).
-- Evidence: Backend `AssetApiIntegrationTest` passed 13/13 tests; Frontend `AssetsPage.recurringSchedules.test.tsx` passed 4/4 tests; `npm run build` clean; `oxlint` clean.
+- Evidence: Backend `AssetApiIntegrationTest` passed 13/13 tests and post-`V3`/`V4`/`V5` merged `./mvnw.cmd verify` passed 845/845 tests (`4aa04cc9-e4fa-4347-9c8d-3a8f15c1d13c.log`); Frontend `AssetsPage.recurringSchedules.test.tsx` passed 4/4 tests; integrated Frontend PR #62 passed 80/80 test files (576/576 tests), `npm run build` (`tsc -b && vite build`) exit 0, and `npm run lint` exit 0.
 
 ## Feature sheet summary
 
