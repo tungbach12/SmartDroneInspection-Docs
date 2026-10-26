@@ -162,6 +162,45 @@ The removed `WF1-*` case IDs stay reserved and are never reused.
 - Round 1: Passed 2026-10-26; tester: Claude Code (automated).
 - Evidence: `AssetsPage.recurringSchedules.test.tsx` passed 2/2 tests; full `src/features/assets` suite passed 17 files / 83 tests (100%); `tsc -b && vite build` clean; `oxlint` clean.
 
+### Single Active Recurring Schedule per Asset & Free-text JSON Normalization — supporting verification (executed 2026-10-26)
+
+- Preconditions: Active organization with registered asset and default operational pair; existing active recurring inspection schedule.
+- Procedure:
+  1. Run Backend `RecurringInspectionScheduleServiceTest` and `InspectionCreationApiIntegrationTest`. Verify:
+     - Rejection of creating a second active recurring schedule on the same asset with `ACTIVE_SCHEDULE_EXISTS` (HTTP 409 Conflict).
+     - Automatic normalization of free-text strings (`scope`, `componentScope`, `acceptanceCriteria`) into valid JSON primitive strings in `Inspection` and `RecurringInspectionSchedule` domain entities, preventing PostgreSQL `jsonb` syntax errors.
+  2. In `CreateInspectionDialog`, verify:
+     - Warning alert rendered when attempting to configure a recurring schedule on an asset with an active schedule running.
+     - Form submit button disabled with guidance to end the existing schedule before creating a new one.
+     - `ensureJsonString` client-side formatting ensuring clean JSON transmission.
+  3. In `AssetRecurringSchedulesSection`, verify the "+ Add schedule" action is replaced with an "Active schedule running" status chip when an active schedule is present.
+- Expected result:
+  - An asset can only hold at most one `ACTIVE` recurring inspection schedule at any given time.
+  - Free-text inputs in inspection creation forms are safely sanitized into valid JSON for PostgreSQL `jsonb` columns.
+  - UI provides clear feedback and prevents duplicate active schedules.
+- Round 1: Passed 2026-10-26; tester: Claude Code (automated).
+- Evidence: Backend `RecurringInspectionScheduleServiceTest` passed 9/9 tests; `InspectionCreationApiIntegrationTest` passed 8/8 tests; Frontend `CreateInspectionDialog.test.tsx` passed 7/7 tests; `AssetsPage.recurringSchedules.test.tsx` passed 4/4 tests; `npm run build` and `npm run lint` clean.
+
+### Asset Retirement & Contract Completion Archival — supporting verification (executed 2026-10-26)
+
+- Preconditions: Active organization with registered asset; active ORG_MANAGER account.
+- Procedure:
+  1. In Backend, run `AssetApiIntegrationTest`. Verify:
+     - `POST /api/v1/assets/{assetId}/retire` transitions asset status from `ACTIVE` to `RETIRED`.
+     - Retiring an already retired asset is rejected with 409 `INVALID_STATE`.
+     - Non-manager roles are forbidden from retiring assets (403 Forbidden).
+  2. In Frontend `AssetDetailDrawer`, verify:
+     - "Complete & Archive Asset" action button displayed for active assets under manager role.
+     - Confirmation modal requiring user approval to retire the asset and archive the contract.
+     - Retired assets render informational archival banner, hide new inspection creation triggers, while preserving full document repository and historical inspection logs.
+  3. Run `npx vitest run src/features/assets/pages/AssetsPage.recurringSchedules.test.tsx`.
+- Expected result:
+  - An asset can be safely closed/archived when the contract or project concludes.
+  - Retired assets cannot receive new inspection dispatches or edits.
+  - All historical inspections, reports, and technical documents remain permanently archived and referenceable.
+- Round 1: Passed 2026-10-26; tester: Claude Code (automated).
+- Evidence: Backend `AssetApiIntegrationTest` passed 13/13 tests; Frontend `AssetsPage.recurringSchedules.test.tsx` passed 4/4 tests; `npm run build` clean; `oxlint` clean.
+
 ## Feature sheet summary
 
 Values for the `Feature 2` summary block (`A2:E8` in the workbook).

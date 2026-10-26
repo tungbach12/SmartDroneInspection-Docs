@@ -12,7 +12,15 @@ when transferring values into the workbook.
 | Document Code | *Enter document code* |
 | Version | 4.47 (Asset-specific recurring schedule creation, Inspector Calendar Board, and Work Detail Dialog; recurring inspection foundation across backend and web.) |
 
-## Current documentation update — Asset-Specific Recurring Schedules & Inspector Calendar (2026-10-26)
+## Current documentation update — Asset Retirement & Contract Completion Archival (2026-10-26)
+
+Implemented and verified `POST /api/v1/assets/{assetId}/retire` transitioning asset status from `ACTIVE` to `RETIRED` upon contract completion; added "Complete & Archive Asset" action and confirmation dialog in `AssetDetailDrawer`; added archival banner for retired assets preserving historical records. Backend `AssetApiIntegrationTest`: 13/13 passed; Frontend `AssetsPage.recurringSchedules.test.tsx`: 4/4 passed; `tsc -b && vite build` clean, `oxlint` clean. Workbook case counts (11 cases: 8 Passed, 3 Pending) and coverage formulas remain unchanged.
+
+## Previous documentation update — Single Active Recurring Schedule per Asset & JSON Normalization (2026-10-26)
+
+Enforced rule that each asset can only have at most one active recurring inspection schedule; rejected duplicate active schedules with 409 `ACTIVE_SCHEDULE_EXISTS`; added free-text JSON normalization in domain entities and frontend dialog; updated `CreateInspectionDialog` and `AssetDetailDrawer` with active schedule warning and disabled duplicate triggers. Backend `RecurringInspectionScheduleServiceTest` (9/9) and `InspectionCreationApiIntegrationTest` (8/8) passed; Frontend `CreateInspectionDialog.test.tsx` (7/7) and `AssetsPage.recurringSchedules.test.tsx` (2/2) passed; `tsc -b && vite build` clean, `oxlint` clean. Workbook case counts (11 cases: 8 Passed, 3 Pending) and coverage formulas remain unchanged.
+
+## Previous documentation update — Asset-Specific Recurring Schedules & Inspector Calendar (2026-10-26)
 
 Asset-specific recurring schedule creation from active asset table rows and `AssetDetailDrawer` implemented; `AssetRecurringSchedulesSection` lists configured recurring inspection schedules per asset; `RecurringSchedulesPanel` supports asset filtering (`assetId`); Inspector Schedule Calendar Board (Month/Week/Agenda views, status filtering, unscheduled items banner) and `InspectionWorkDetailDialog` fully verified. Frontend Vitest full suite: 80 test files / 573 tests Passed (100%), `tsc -b && vite build` clean, `oxlint` clean. Backend recurrence foundation: 96 unit/architecture tests Passed. Docker-blocked integration verification remains Pending. Workbook case counts (11 cases: 8 Passed, 3 Pending) and coverage formulas remain unchanged.
 
