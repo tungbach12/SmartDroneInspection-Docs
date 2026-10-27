@@ -7,11 +7,13 @@ import sys
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import export_project_tracking
 import export_report1
 import export_report2
 import export_report3
 import export_report4
 import export_report5
+import export_report5_doc
 import export_weekly
 from export_common import (METADATA_SOURCE, input_hashes, original, parser,
                            project_metadata, validate_output_directory,
@@ -23,14 +25,14 @@ EXPORTERS = {
     "report3": export_report3,
     "report4": export_report4,
     "report5": export_report5,
+    "report5-documentation": export_report5_doc,
+    "project-tracking": export_project_tracking,
     "weekly": export_weekly,
 }
 MISSING_SOURCES = {
-    "report5-documentation": "Report5_Test Documentation.docx",
     "report5-unit": "Report5_Unit Test.xls",
     "report6": "Report6_Software User Guides.docx",
     "report7": "Report7_Final Project Report.docx",
-    "project-tracking": "Report3_Project Tracking.xlsx",
 }
 TEMPLATES = {key: module.TEMPLATE_NAME for key, module in EXPORTERS.items()} | MISSING_SOURCES
 

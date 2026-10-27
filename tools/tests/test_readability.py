@@ -79,7 +79,7 @@ class TableContinuityTests(unittest.TestCase):
         tables = [b for b in blocks if b.kind == "table"]
         self.assertEqual(len(tables), 1,
                          "blank lines inside the change table split it into fragments")
-        self.assertGreater(len(tables[0].rows), 5)
+        self.assertEqual(len(tables[0].rows), 7)
 
     def test_no_paragraph_looks_like_a_raw_markdown_table_row(self):
         body = exported_document()
@@ -100,9 +100,16 @@ class DiagramTests(unittest.TestCase):
             if node.localName == "tbl"
             and "Figure Placeholder:" in "".join(text_of(t) for t in descendants(node, "t"))
         ]
-        self.assertGreaterEqual(len(placeholders), 2)
-        for text in placeholders:
-            self.assertIn("Insert ", text)
+        embedded_drawings = [
+            node for node in body
+            if node.localName == "p" and descendants(node, "drawing")
+        ]
+        if placeholders:
+            self.assertGreaterEqual(len(placeholders), 2)
+            for text in placeholders:
+                self.assertIn("Insert ", text)
+        else:
+            self.assertGreaterEqual(len(embedded_drawings), 2)
 
 
 class OutlineTests(unittest.TestCase):
@@ -135,6 +142,32 @@ class OutlineTests(unittest.TestCase):
         ]
         self.assertIn("HeadingLv1", styled,
                       "header cells should keep the template's original style")
+
+    def test_toc_entries_preserve_dotted_leader_tabs_and_pageref_hyperlinks(self):
+        body = exported_document()
+        sdt = next(node for node in body if node.localName == "sdt")
+        toc_paras = [
+            p for p in descendants(sdt, "p")
+            if style(p) in {"TOC1", "TOC2", "TOC3"}
+        ]
+        self.assertGreaterEqual(len(toc_paras), 20)
+        for p in toc_paras:
+            tabs = descendants(p, "tab")
+            self.assertTrue(
+                any(
+                    t.getAttribute("w:val") == "right"
+                    and t.getAttribute("w:leader") == "dot"
+                    and t.getAttribute("w:pos") == "9040"
+                    for t in tabs
+                ),
+                "Every TOC entry must include right-aligned dotted leader tab at 9040",
+            )
+            self.assertTrue(descendants(p, "hyperlink"), "Every TOC entry must include hyperlink anchor")
+            self.assertTrue(
+                any("PAGEREF _Toc" in "".join(text_of(t) for t in descendants(r, "instrText"))
+                    for r in descendants(p, "r")),
+                "Every TOC entry must include PAGEREF field",
+            )
 
 
 if __name__ == "__main__":
