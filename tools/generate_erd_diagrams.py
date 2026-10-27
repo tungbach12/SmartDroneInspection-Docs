@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Generate the Full 31-Table Mermaid ERD (PK, FK, and all fields without SQL data types) for Report 3 and Report 4."""
+"""Generate the Full 31-Table Mermaid ERD with standard SQL data types (uuid, varchar, timestamptz, boolean, etc.), PK, and FK.
+Compatible with Mermaid 11 and Draw.io (no dummy '-' column)."""
 from __future__ import annotations
 
 import hashlib
@@ -13,18 +14,51 @@ BACKEND_MIGRATIONS = ROOT.parent / "SmartDroneInspection-backend" / "src" / "mai
 ERD_OUT_DIR = ROOT / "diagrams" / "erd"
 
 
+def simplify_type(raw: str) -> str:
+    raw = raw.strip().lower()
+    raw = re.sub(r"\[\]", "_array", raw)
+    raw = re.sub(r"\(.*?\)", "", raw).strip()
+    mapping = {
+        "uuid": "uuid",
+        "character varying": "varchar",
+        "varchar": "varchar",
+        "text": "text",
+        "timestamp with time zone": "timestamptz",
+        "timestamptz": "timestamptz",
+        "timestamp": "timestamp",
+        "date": "date",
+        "boolean": "boolean",
+        "bool": "boolean",
+        "integer": "integer",
+        "int": "integer",
+        "bigint": "bigint",
+        "numeric": "numeric",
+        "decimal": "numeric",
+        "double precision": "float8",
+        "jsonb": "jsonb",
+        "json": "json",
+        "vector": "vector",
+        "bytea": "bytea",
+    }
+    for k, v in mapping.items():
+        if raw.startswith(k):
+            return v
+    first = raw.split()[0] if raw else "varchar"
+    return first if re.fullmatch(r"[a-z0-9_]+", first) else "varchar"
+
+
 def parse_migrations(mig_dir: Path = BACKEND_MIGRATIONS):
     sql = "\n".join(p.read_text(encoding="utf-8") for p in sorted(mig_dir.glob("V*.sql")))
-    tables: dict[str, list[str]] = {}
+    tables: dict[str, list[tuple[str, str]]] = {}
     pk_map: dict[str, set[str]] = {}
     fk_map: dict[str, dict[str, str]] = {}
 
     for m in re.finditer(r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)\s*\((.*?)\);", sql, re.S | re.I):
         tname = m.group(1).lower()
         body = m.group(2)
-        cols = []
+        cols: list[tuple[str, str]] = []
         pks = {"id"}
-        fks = {}
+        fks: dict[str, str] = {}
         for raw_line in body.splitlines():
             line = raw_line.strip().rstrip(",")
             if not line or line.startswith("--"):
@@ -39,12 +73,12 @@ def parse_migrations(mig_dir: Path = BACKEND_MIGRATIONS):
                         if sc != "organization_id" or ref_tbl == "organizations":
                             fks[sc] = ref_tbl
                 continue
-            col_m = re.match(r"^(\w+)\s+(.+)$", line)
+            col_m = re.match(r"^(\w+)\s+([^,]+)", line)
             if col_m:
                 cname = col_m.group(1).lower()
-                rest = col_m.group(2)
-                cols.append(cname)
-                ref_m = re.search(r"REFERENCES\s+(\w+)", rest, re.I)
+                raw_type = col_m.group(2)
+                cols.append((cname, simplify_type(raw_type)))
+                ref_m = re.search(r"REFERENCES\s+(\w+)", raw_type, re.I)
                 if ref_m:
                     fks[cname] = ref_m.group(1).lower()
         tables[tname] = cols
@@ -58,14 +92,14 @@ def parse_migrations(mig_dir: Path = BACKEND_MIGRATIONS):
         ops = m.group(2)
         for drop_m in re.finditer(r"DROP\s+COLUMN\s+(?:IF\s+EXISTS\s+)?(\w+)", ops, re.I):
             dc = drop_m.group(1).lower()
-            if dc in tables[tname]:
-                tables[tname].remove(dc)
+            tables[tname] = [pair for pair in tables[tname] if pair[0] != dc]
             fk_map[tname].pop(dc, None)
         for add_m in re.finditer(r"ADD\s+COLUMN\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)\s+([^,\n]+)", ops, re.I):
             ac = add_m.group(1).lower()
             rest = add_m.group(2)
-            if ac not in tables[tname]:
-                tables[tname].append(ac)
+            c_type = simplify_type(rest)
+            if not any(pair[0] == ac for pair in tables[tname]):
+                tables[tname].append((ac, c_type))
             ref_m = re.search(r"REFERENCES\s+(\w+)", rest, re.I)
             if ref_m:
                 fk_map[tname][ac] = ref_m.group(1).lower()
@@ -76,16 +110,16 @@ def parse_migrations(mig_dir: Path = BACKEND_MIGRATIONS):
                 if sc != "organization_id" or ref_tbl == "organizations":
                     fk_map[tname][sc] = ref_tbl
 
-    ordered_cols: dict[str, list[tuple[str, str]]] = {}
+    ordered_cols: dict[str, list[tuple[str, str, str]]] = {}
     for tname, cols in tables.items():
-        pks = [c for c in cols if c in pk_map[tname]]
-        fks = [c for c in cols if c in fk_map[tname] and c not in pk_map[tname]]
-        regs = [c for c in cols if c not in pk_map[tname] and c not in fk_map[tname]]
-        ordered_cols[tname] = [(c, "PK") for c in pks] + [(c, "FK") for c in fks] + [(c, "") for c in regs]
+        pks = [(c, t, "PK") for c, t in cols if c in pk_map[tname]]
+        fks = [(c, t, "FK") for c, t in cols if c in fk_map[tname] and c not in pk_map[tname]]
+        regs = [(c, t, "") for c, t in cols if c not in pk_map[tname] and c not in fk_map[tname]]
+        ordered_cols[tname] = pks + fks + regs
     return ordered_cols, fk_map
 
 
-def build_mermaid_er_code(ordered_cols: dict[str, list[tuple[str, str]]]) -> str:
+def build_mermaid_er_code(ordered_cols: dict[str, list[tuple[str, str, str]]]) -> str:
     mermaid_lines = [
         "%% title: Database Entity Relationship Diagram (ERD)",
         "erDiagram",
@@ -147,9 +181,9 @@ def build_mermaid_er_code(ordered_cols: dict[str, list[tuple[str, str]]]) -> str
     ]
     for tname in all_31_order:
         mermaid_lines.append(f"  {tname} {{")
-        for cname, key_kind in ordered_cols[tname]:
+        for cname, ctype, key_kind in ordered_cols[tname]:
             suffix = f" {key_kind}" if key_kind else ""
-            mermaid_lines.append(f"    _ {cname}{suffix}")
+            mermaid_lines.append(f"    {ctype} {cname}{suffix}")
         mermaid_lines.append("  }")
     return "\n".join(mermaid_lines)
 
@@ -176,23 +210,6 @@ mermaid.initialize({{
 mermaid.render('erd_svg', code).then(({{ svg }}) => {{
   document.getElementById('c').innerHTML = svg;
   const svgEl = document.querySelector('#c svg');
-  svgEl.querySelectorAll('g.label.attribute-type').forEach(g => g.remove());
-  svgEl.querySelectorAll('g.node').forEach(node => {{
-    const divs = node.querySelectorAll('g.divider');
-    if (divs.length >= 2) divs[1].remove();
-    node.querySelectorAll('g.label.attribute-name').forEach(g => {{
-      const tf = g.getAttribute('transform') || '';
-      const m = tf.match(/translate\\(([-\\d.]+),\\s*([-\\d.]+)\\)/);
-      if (m) {{
-        const outer = node.querySelector('g.outer-path path');
-        const d = outer ? outer.getAttribute('d') : '';
-        const xm = d.match(/^M([-\\d.]+)/);
-        const leftX = xm ? parseFloat(xm[1]) + 12 : parseFloat(m[1]);
-        g.setAttribute('transform', 'translate(' + leftX + ', ' + m[2] + ')');
-      }}
-    }});
-  }});
-
   const cols = [
     ['organizations', 'users', 'auth_sessions', 'subscriptions', 'payment_transactions'],
     ['platform_drones', 'drone_leases', 'drones', 'asset_categories', 'asset_documents'],
@@ -209,14 +226,14 @@ mermaid.render('erd_svg', code).then(({{ svg }}) => {{
       const outer = n.querySelector('g.outer-path path');
       const d = outer ? outer.getAttribute('d') : '';
       const dm = d.match(/^M([-\\d.]+)\\s+([-\\d.]+)\\s+L([-\\d.]+)\\s+([-\\d.]+)\\s+L([-\\d.]+)\\s+([-\\d.]+)/);
-      const w = dm ? Math.abs(parseFloat(dm[3]) - parseFloat(dm[1])) : 280;
+      const w = dm ? Math.abs(parseFloat(dm[3]) - parseFloat(dm[1])) : 320;
       const h = dm ? Math.abs(parseFloat(dm[6]) - parseFloat(dm[2])) : 200;
       nodeMap[m[1]] = {{ el: n, w, h }};
     }}
   }});
   let curX = 32, colGap = 56, rowGap = 32, maxH = 0;
   cols.forEach((colTables, cIdx) => {{
-    const colW = Math.max(...colTables.map(t => nodeMap[t] ? nodeMap[t].w : 260));
+    const colW = Math.max(...colTables.map(t => nodeMap[t] ? nodeMap[t].w : 300));
     let curY = 32;
     colTables.forEach((t, rIdx) => {{
       const info = nodeMap[t];
@@ -295,7 +312,7 @@ def main():
 
     html_out = ERD_OUT_DIR / "render_mermaid_erd.html"
     html_out.write_text(build_renderer_html(code), encoding="utf-8")
-    print(f"Updated Report 3 & Report 4 with 31-table Mermaid ERD ({digest}) and wrote {html_out}")
+    print(f"Updated Report 3 & Report 4 with standard-typed Mermaid ERD ({digest}) and wrote {html_out}")
 
 
 if __name__ == "__main__":

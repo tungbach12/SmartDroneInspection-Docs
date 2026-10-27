@@ -182,481 +182,481 @@ erDiagram
   maintenance_work_orders ||--o{ maintenance_reports : delivers
   maintenance_reports ||--o{ maintenance_acceptance_decisions : accepts
   organizations {
-    _ id PK
-    _ created_by_user_id FK
-    _ created_at
-    _ updated_at
-    _ legal_name
-    _ display_name
-    _ registration_code
-    _ timezone
-    _ status
-    _ row_version
+    uuid id PK
+    uuid created_by_user_id FK
+    timestamptz created_at
+    timestamptz updated_at
+    varchar legal_name
+    varchar display_name
+    varchar registration_code
+    varchar timezone
+    varchar status
+    bigint row_version
   }
   users {
-    _ id PK
-    _ organization_id FK
-    _ email
-    _ normalized_email
-    _ full_name
-    _ password_hash
-    _ status
-    _ actor_zone
-    _ auth_version
-    _ failed_login_count
-    _ lockout_until
-    _ must_change_password
-    _ last_login_at
-    _ last_login_ip
-    _ created_at
-    _ updated_at
-    _ vision_fallback_enabled
-    _ phone_number
-    _ avatar_url
-    _ roles
-    _ pilot_license_number
-    _ pilot_license_class
-    _ pilot_license_expires_at
-    _ pilot_license_file_key
+    uuid id PK
+    uuid organization_id FK
+    varchar email
+    varchar normalized_email
+    varchar full_name
+    varchar password_hash
+    varchar status
+    varchar actor_zone
+    integer auth_version
+    integer failed_login_count
+    timestamptz lockout_until
+    boolean must_change_password
+    timestamptz last_login_at
+    varchar last_login_ip
+    timestamptz created_at
+    timestamptz updated_at
+    boolean vision_fallback_enabled
+    varchar phone_number
+    varchar avatar_url
+    varchar roles
+    varchar pilot_license_number
+    varchar pilot_license_class
+    timestamptz pilot_license_expires_at
+    varchar pilot_license_file_key
   }
   auth_sessions {
-    _ id PK
-    _ user_id FK
-    _ client_type
-    _ token_hash
-    _ previous_token_hash
-    _ issued_at
-    _ expires_at
-    _ revoked_at
-    _ revoked_reason
+    uuid id PK
+    uuid user_id FK
+    varchar client_type
+    varchar token_hash
+    varchar previous_token_hash
+    timestamptz issued_at
+    timestamptz expires_at
+    timestamptz revoked_at
+    varchar revoked_reason
   }
   subscriptions {
-    _ id PK
-    _ organization_id FK
-    _ confirmed_by_user_id FK
-    _ plan_code
-    _ billing_period_months
-    _ agreed_amount_usd
-    _ status
-    _ starts_at
-    _ ends_at
-    _ external_reference
-    _ terms_snapshot
-    _ confirmed_at
-    _ created_at
-    _ updated_at
-    _ row_version
+    uuid id PK
+    uuid organization_id FK
+    uuid confirmed_by_user_id FK
+    varchar plan_code
+    integer billing_period_months
+    numeric agreed_amount_usd
+    varchar status
+    timestamptz starts_at
+    timestamptz ends_at
+    varchar external_reference
+    jsonb terms_snapshot
+    timestamptz confirmed_at
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
   }
   payment_transactions {
-    _ id PK
-    _ subscription_id FK
-    _ paypal_order_id
-    _ paypal_capture_id
-    _ amount
-    _ currency
-    _ status
-    _ payer_email
-    _ captured_at
-    _ created_at
-    _ updated_at
-    _ row_version
+    uuid id PK
+    uuid subscription_id FK
+    varchar paypal_order_id
+    varchar paypal_capture_id
+    numeric amount
+    varchar currency
+    varchar status
+    varchar payer_email
+    timestamptz captured_at
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
   }
   platform_drones {
-    _ id PK
-    _ serial_number
-    _ model
-    _ manufacturer
-    _ payload_metadata
-    _ monthly_rate_usd
-    _ status
-    _ notes
-    _ created_at
-    _ updated_at
-    _ row_version
+    uuid id PK
+    varchar serial_number
+    varchar model
+    varchar manufacturer
+    jsonb payload_metadata
+    numeric monthly_rate_usd
+    varchar status
+    varchar notes
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
   }
   drone_leases {
-    _ id PK
-    _ platform_drone_id FK
-    _ organization_id FK
-    _ customer_drone_id FK
-    _ requested_by_user_id FK
-    _ confirmed_by_user_id FK
-    _ lease_period_months
-    _ monthly_rate_usd
-    _ agreed_amount_usd
-    _ status
-    _ starts_at
-    _ ends_at
-    _ reclaimed_at
-    _ external_reference
-    _ paypal_order_id
-    _ paypal_capture_id
-    _ confirmed_at
-    _ notes
-    _ created_at
-    _ updated_at
-    _ row_version
+    uuid id PK
+    uuid platform_drone_id FK
+    uuid organization_id FK
+    uuid customer_drone_id FK
+    uuid requested_by_user_id FK
+    uuid confirmed_by_user_id FK
+    integer lease_period_months
+    numeric monthly_rate_usd
+    numeric agreed_amount_usd
+    varchar status
+    timestamptz starts_at
+    timestamptz ends_at
+    timestamptz reclaimed_at
+    varchar external_reference
+    varchar paypal_order_id
+    varchar paypal_capture_id
+    timestamptz confirmed_at
+    varchar notes
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
   }
   drones {
-    _ id PK
-    _ organization_id FK
-    _ lease_id FK
-    _ serial_number
-    _ model
-    _ manufacturer
-    _ payload_metadata
-    _ serviceability
-    _ last_maintenance_at
-    _ next_maintenance_at
-    _ notes
-    _ registration_number
-    _ registration_file_key
-    _ registration_expires_at
-    _ created_at
-    _ updated_at
-    _ row_version
-    _ ownership_type
-    _ lease_expires_at
+    uuid id PK
+    uuid organization_id FK
+    uuid lease_id FK
+    varchar serial_number
+    varchar model
+    varchar manufacturer
+    jsonb payload_metadata
+    varchar serviceability
+    timestamptz last_maintenance_at
+    timestamptz next_maintenance_at
+    varchar notes
+    varchar registration_number
+    varchar registration_file_key
+    timestamptz registration_expires_at
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
+    varchar ownership_type
+    timestamptz lease_expires_at
   }
   asset_categories {
-    _ id PK
-    _ code
-    _ name
-    _ description
-    _ active
-    _ created_at
-    _ updated_at
-    _ row_version
+    uuid id PK
+    varchar code
+    varchar name
+    varchar description
+    boolean active
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
   }
   assets {
-    _ id PK
-    _ organization_id FK
-    _ category_id FK
-    _ name
-    _ description
-    _ latitude
-    _ longitude
-    _ status
-    _ created_at
-    _ updated_at
-    _ row_version
-    _ asset_code
-    _ location
-    _ technical_profile
-    _ inspection_items
+    uuid id PK
+    uuid organization_id FK
+    uuid category_id FK
+    varchar name
+    varchar description
+    numeric latitude
+    numeric longitude
+    varchar status
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
+    varchar asset_code
+    jsonb location
+    jsonb technical_profile
+    jsonb inspection_items
   }
   asset_documents {
-    _ id PK
-    _ asset_id FK
-    _ uploaded_by_user_id FK
-    _ document_type
-    _ file_name
-    _ content_type
-    _ size_bytes
-    _ checksum_sha256
-    _ object_key
-    _ document_date
-    _ created_at
+    uuid id PK
+    uuid asset_id FK
+    uuid uploaded_by_user_id FK
+    varchar document_type
+    varchar file_name
+    varchar content_type
+    bigint size_bytes
+    character checksum_sha256
+    varchar object_key
+    date document_date
+    timestamptz created_at
   }
   recurring_inspection_schedules {
-    _ id PK
-    _ organization_id FK
-    _ asset_id FK
-    _ created_by_user_id FK
-    _ inspector_id FK
-    _ drone_id FK
-    _ anchor_date
-    _ timezone
-    _ recurrence_unit
-    _ recurrence_interval
-    _ duration_seconds
-    _ reminder_days
-    _ ends_at
-    _ next_occurrence
-    _ status
-    _ created_at
-    _ updated_at
-    _ row_version
+    uuid id PK
+    uuid organization_id FK
+    uuid asset_id FK
+    uuid created_by_user_id FK
+    uuid inspector_id FK
+    uuid drone_id FK
+    timestamp anchor_date
+    varchar timezone
+    varchar recurrence_unit
+    integer recurrence_interval
+    bigint duration_seconds
+    integer reminder_days
+    timestamptz ends_at
+    bigint next_occurrence
+    varchar status
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
   }
   schedule_occurrences {
-    _ id PK
-    _ schedule_id FK
-    _ organization_id FK
-    _ inspection_id FK
-    _ occurrence_index
-    _ occurrence_key
-    _ planned_start_at
-    _ planned_end_at
-    _ status
-    _ blocked_reason
-    _ retry_count
-    _ reminder_sent_at
-    _ created_at
-    _ updated_at
-    _ row_version
+    uuid id PK
+    uuid schedule_id FK
+    uuid organization_id FK
+    uuid inspection_id FK
+    bigint occurrence_index
+    varchar occurrence_key
+    timestamptz planned_start_at
+    timestamptz planned_end_at
+    varchar status
+    varchar blocked_reason
+    integer retry_count
+    timestamptz reminder_sent_at
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
   }
   inspections {
-    _ id PK
-    _ asset_id FK
-    _ organization_id FK
-    _ inspector_id FK
-    _ drone_id FK
-    _ recurring_schedule_id FK
-    _ status
-    _ created_at
-    _ updated_at
-    _ row_version
-    _ planned_start_at
-    _ planned_end_at
-    _ flight_permit_file_key
-    _ flight_permit_file_name
-    _ flight_permit_uploaded_at
-    _ findings_confirmed_at
-    _ findings_snapshot_hash
+    uuid id PK
+    uuid asset_id FK
+    uuid organization_id FK
+    uuid inspector_id FK
+    uuid drone_id FK
+    uuid recurring_schedule_id FK
+    varchar status
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
+    timestamptz planned_start_at
+    timestamptz planned_end_at
+    varchar flight_permit_file_key
+    varchar flight_permit_file_name
+    timestamptz flight_permit_uploaded_at
+    timestamptz findings_confirmed_at
+    varchar findings_snapshot_hash
   }
   field_sessions {
-    _ id PK
-    _ inspection_id FK
-    _ status
-    _ started_at
-    _ ended_at
-    _ postponement_reason
-    _ abort_reason
-    _ created_at
-    _ updated_at
-    _ row_version
-    _ pre_flight_checklist_note
-    _ outcome_notes
+    uuid id PK
+    uuid inspection_id FK
+    varchar status
+    timestamptz started_at
+    timestamptz ended_at
+    varchar postponement_reason
+    varchar abort_reason
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
+    varchar pre_flight_checklist_note
+    varchar outcome_notes
   }
   evidence {
-    _ id PK
-    _ inspection_id FK
-    _ field_session_id FK
-    _ file_name
-    _ content_type
-    _ size_bytes
-    _ object_key
-    _ capture_time
-    _ latitude
-    _ longitude
-    _ location_description
-    _ is_deleted
-    _ created_at
+    uuid id PK
+    uuid inspection_id FK
+    uuid field_session_id FK
+    varchar file_name
+    varchar content_type
+    bigint size_bytes
+    varchar object_key
+    timestamptz capture_time
+    numeric latitude
+    numeric longitude
+    varchar location_description
+    boolean is_deleted
+    timestamptz created_at
   }
   findings {
-    _ id PK
-    _ inspection_id FK
-    _ evidence_id FK
-    _ finding_code
-    _ defect_label
-    _ severity
-    _ bounding_box
-    _ technical_notes
-    _ recommended_action
-    _ status
-    _ model_name
-    _ confidence
-    _ forwarded_to_maintenance_at
-    _ is_deleted
-    _ created_at
+    uuid id PK
+    uuid inspection_id FK
+    uuid evidence_id FK
+    varchar finding_code
+    varchar defect_label
+    varchar severity
+    jsonb bounding_box
+    varchar technical_notes
+    varchar recommended_action
+    varchar status
+    varchar model_name
+    numeric confidence
+    timestamptz forwarded_to_maintenance_at
+    boolean is_deleted
+    timestamptz created_at
   }
   inspection_reports {
-    _ id PK
-    _ inspection_id FK
-    _ reviewer_user_id FK
-    _ version_no
-    _ status
-    _ content_snapshot
-    _ submitted_at
-    _ reviewed_at
-    _ return_reason
-    _ rendered_object_key
-    _ rendered_checksum_sha256
-    _ published_at
-    _ created_at
+    uuid id PK
+    uuid inspection_id FK
+    uuid reviewer_user_id FK
+    integer version_no
+    varchar status
+    jsonb content_snapshot
+    timestamptz submitted_at
+    timestamptz reviewed_at
+    varchar return_reason
+    varchar rendered_object_key
+    character rendered_checksum_sha256
+    timestamptz published_at
+    timestamptz created_at
   }
   repair_knowledge_chunks {
-    _ id PK
-    _ standard_code
-    _ title
-    _ category
-    _ defect_patterns
-    _ content
-    _ reference_url
-    _ created_at
+    uuid id PK
+    varchar standard_code
+    varchar title
+    varchar category
+    varchar defect_patterns
+    text content
+    varchar reference_url
+    timestamptz created_at
   }
   notifications {
-    _ id PK
-    _ recipient_user_id FK
-    _ organization_id FK
-    _ event_type
-    _ channel
-    _ title
-    _ body
-    _ target_path
-    _ status
-    _ attempt_count
-    _ last_error_code
-    _ sent_at
-    _ read_at
-    _ created_at
-    _ aggregate_type
-    _ aggregate_id
-    _ deduplication_key
+    uuid id PK
+    uuid recipient_user_id FK
+    uuid organization_id FK
+    varchar event_type
+    varchar channel
+    varchar title
+    varchar body
+    varchar target_path
+    varchar status
+    integer attempt_count
+    varchar last_error_code
+    timestamptz sent_at
+    timestamptz read_at
+    timestamptz created_at
+    varchar aggregate_type
+    uuid aggregate_id
+    varchar deduplication_key
   }
   audit_events {
-    _ id PK
-    _ organization_id FK
-    _ actor_user_id FK
-    _ action
-    _ aggregate_type
-    _ aggregate_id
-    _ before_status
-    _ after_status
-    _ aggregate_version
-    _ reason
-    _ trace_id
-    _ safe_metadata
-    _ created_at
+    uuid id PK
+    uuid organization_id FK
+    uuid actor_user_id FK
+    varchar action
+    varchar aggregate_type
+    uuid aggregate_id
+    varchar before_status
+    varchar after_status
+    bigint aggregate_version
+    varchar reason
+    varchar trace_id
+    jsonb safe_metadata
+    timestamptz created_at
   }
   event_publication {
-    _ id PK
-    _ listener_id
-    _ event_type
-    _ serialized_event
-    _ publication_date
-    _ completion_date
-    _ status
-    _ completion_attempts
-    _ last_resubmission_date
+    uuid id PK
+    text listener_id
+    text event_type
+    text serialized_event
+    timestamptz publication_date
+    timestamptz completion_date
+    text status
+    integer completion_attempts
+    timestamptz last_resubmission_date
   }
   maintenance_work_orders {
-    _ id PK
-    _ organization_id FK
-    _ asset_id FK
-    _ source_report_version_id FK
-    _ source_finding_id FK
-    _ owner_user_id FK
-    _ budget_approver_user_id FK
-    _ team_lead_user_id FK
-    _ report_author_user_id FK
-    _ accepting_reviewer_user_id FK
-    _ status
-    _ priority
-    _ due_at
-    _ corrective_scope
-    _ acceptance_criteria
-    _ created_at
-    _ updated_at
-    _ row_version
+    uuid id PK
+    uuid organization_id FK
+    uuid asset_id FK
+    uuid source_report_version_id FK
+    uuid source_finding_id FK
+    uuid owner_user_id FK
+    uuid budget_approver_user_id FK
+    uuid team_lead_user_id FK
+    uuid report_author_user_id FK
+    uuid accepting_reviewer_user_id FK
+    varchar status
+    varchar priority
+    timestamptz due_at
+    varchar corrective_scope
+    varchar acceptance_criteria
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
   }
   maintenance_team_members {
-    _ id PK
-    _ work_order_id FK
-    _ engineer_user_id FK
-    _ assigned_by_user_id FK
-    _ member_role
-    _ effective_from
-    _ effective_until
-    _ reason
-    _ active
-    _ created_at
+    uuid id PK
+    uuid work_order_id FK
+    uuid engineer_user_id FK
+    uuid assigned_by_user_id FK
+    varchar member_role
+    timestamptz effective_from
+    timestamptz effective_until
+    varchar reason
+    boolean active
+    timestamptz created_at
   }
   maintenance_tasks {
-    _ id PK
-    _ work_order_id FK
-    _ assigned_engineer_user_id FK
-    _ task_number
-    _ name
-    _ method
-    _ planned_start_at
-    _ planned_end_at
-    _ acceptance_criteria
-    _ status
-    _ created_at
-    _ updated_at
-    _ row_version
+    uuid id PK
+    uuid work_order_id FK
+    uuid assigned_engineer_user_id FK
+    integer task_number
+    varchar name
+    varchar method
+    timestamptz planned_start_at
+    timestamptz planned_end_at
+    varchar acceptance_criteria
+    varchar status
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
   }
   maintenance_estimate_versions {
-    _ id PK
-    _ work_order_id FK
-    _ prepared_by_user_id FK
-    _ approved_by_user_id FK
-    _ version_no
-    _ status
-    _ approved_at
-    _ currency
-    _ baseline_total
-    _ assumptions
-    _ created_at
+    uuid id PK
+    uuid work_order_id FK
+    uuid prepared_by_user_id FK
+    uuid approved_by_user_id FK
+    integer version_no
+    varchar status
+    timestamptz approved_at
+    character currency
+    numeric baseline_total
+    varchar assumptions
+    timestamptz created_at
   }
   maintenance_cost_lines {
-    _ id PK
-    _ work_order_id FK
-    _ estimate_version_id FK
-    _ task_id FK
-    _ entered_by_user_id FK
-    _ line_kind
-    _ state
-    _ description
-    _ quantity
-    _ unit
-    _ unit_rate
-    _ amount
-    _ currency
-    _ created_at
+    uuid id PK
+    uuid work_order_id FK
+    uuid estimate_version_id FK
+    uuid task_id FK
+    uuid entered_by_user_id FK
+    varchar line_kind
+    varchar state
+    varchar description
+    numeric quantity
+    varchar unit
+    numeric unit_rate
+    numeric amount
+    character currency
+    timestamptz created_at
   }
   maintenance_change_orders {
-    _ id PK
-    _ work_order_id FK
-    _ requested_by_user_id FK
-    _ decided_by_user_id FK
-    _ change_number
-    _ reason
-    _ proposed_delta
-    _ status
-    _ decided_at
-    _ decision_reason
-    _ created_at
-    _ updated_at
-    _ row_version
+    uuid id PK
+    uuid work_order_id FK
+    uuid requested_by_user_id FK
+    uuid decided_by_user_id FK
+    integer change_number
+    varchar reason
+    numeric proposed_delta
+    varchar status
+    timestamptz decided_at
+    varchar decision_reason
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
   }
   maintenance_work_logs {
-    _ id PK
-    _ work_order_id FK
-    _ task_id FK
-    _ engineer_user_id FK
-    _ started_at
-    _ ended_at
-    _ hours
-    _ as_left_condition
-    _ test_readings
-    _ status
-    _ created_at
-    _ updated_at
-    _ row_version
+    uuid id PK
+    uuid work_order_id FK
+    uuid task_id FK
+    uuid engineer_user_id FK
+    timestamptz started_at
+    timestamptz ended_at
+    numeric hours
+    varchar as_left_condition
+    varchar test_readings
+    varchar status
+    timestamptz created_at
+    timestamptz updated_at
+    bigint row_version
   }
   maintenance_reports {
-    _ id PK
-    _ work_order_id FK
-    _ version_no
-    _ status
-    _ author_verified_at
-    _ content_snapshot
-    _ rendered_object_key
-    _ rendered_checksum_sha256
-    _ created_at
+    uuid id PK
+    uuid work_order_id FK
+    integer version_no
+    varchar status
+    timestamptz author_verified_at
+    text content_snapshot
+    varchar rendered_object_key
+    character rendered_checksum_sha256
+    timestamptz created_at
   }
   maintenance_acceptance_decisions {
-    _ id PK
-    _ work_order_id FK
-    _ report_version_id FK
-    _ reviewer_user_id FK
-    _ decision
-    _ technical_comments
-    _ acceptance_checklist
-    _ test_result
-    _ decided_at
+    uuid id PK
+    uuid work_order_id FK
+    uuid report_version_id FK
+    uuid reviewer_user_id FK
+    varchar decision
+    varchar technical_comments
+    varchar acceptance_checklist
+    varchar test_result
+    timestamptz decided_at
   }
 ```
 
