@@ -369,7 +369,7 @@ IN_PROGRESS -> REWORK_REQUIRED -> IN_PROGRESS
 SUBMITTED_FOR_ACCEPTANCE -> REINSPECTION_REQUIRED -> linked inspection
 ```
 
-The source report must be published and the finding must be confirmed and forwarded from MF3 (`forwarded_to_maintenance_at IS NOT NULL`). Active duplicate corrective scope is prevented per finding while an active work order exists.
+The source report must be published and the finding must be confirmed and forwarded from MF3 (`forwarded_to_maintenance_at IS NOT NULL`). Migration `V2__maintenance_concurrency_guards.sql` adds a partial unique index over `source_finding_id` for the live statuses above, preventing duplicate active work orders at the database layer while allowing a later order after the prior order reaches a non-live status. The existing service precheck remains; the index is the concurrent-insert backstop. This DB-only change does not add application-level translation for a raw unique-constraint violation, so concurrent duplicate creation may still surface as an unhandled server error until the service/error handler is implemented.
 
 #### `maintenance_tasks`
 
