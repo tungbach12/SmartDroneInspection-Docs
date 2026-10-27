@@ -367,7 +367,7 @@ The Organization Manager may create a recurring inspection schedule for an asset
 - **Function Details**:
   - *Inputs*: Supported image or document files, optional capture time and paired GPS coordinates.
   - *Validations*: Allowed content types and configured size limits; inspection, organization, and field-session scope; repeated sanitized filenames within the inspection are rejected.
-  - *Processing*: Stores original bytes in MinIO, extracts available EXIF capture time and GPS, and keeps retired evidence as a soft-deleted audit copy without removing its stored bytes. Evidence intake does not compute or expose a SHA-256 digest.
+  - *Processing*: Stores original bytes in MinIO, extracts available EXIF capture time and GPS, and keeps retired evidence as a soft-deleted audit copy without removing its stored bytes. Evidence intake does not compute or expose a SHA-256 digest. The assigned Inspector may edit evidence and findings while authoring or revising a report; edits refresh the current findings-set confirmation and make any earlier report draft stale. Source edits are locked while a report is submitted for review and remain available if the Inspector withdraws before reviewer action or the Organization Manager returns it for revision. Approved and published sources are immutable.
   - *Outputs*: Evidence register items with file and capture metadata; active evidence can support findings and report content without an `ACCEPTED` quality decision.
 
 The Inspector records coverage and limitations while authoring the report (§3.7.1), not as an evidence-set decision. If more field coverage is needed, the Inspector initiates an Additional Session directly in MF2 (§3.4.4).
@@ -391,7 +391,7 @@ The Inspector records coverage and limitations while authoring the report (§3.7
 - **Function Details**:
   - *Inputs*: Per-proposal decision (`CONFIRM`, `MODIFY`, `REJECT`); defect label, severity, technical notes, recommended action, linked active evidence, and any AI annotation.
   - *Validations*: Every pending proposal must be resolved before confirmation. A confirmed finding has supporting active evidence. An empty findings set is valid only after the Inspector explicitly acknowledges that no damage was observed within the inspection scope.
-  - *Processing*: Confirmed or modified proposals and manual observations are maintained as findings; rejecting an AI proposal removes that proposal from the retained findings. The Inspector confirms the resolved set; material evidence or finding changes require confirmation again. Finding location is taken from linked evidence metadata when available rather than a separate UI-only component/location field.
+  - *Processing*: Confirmed or modified proposals and manual observations are maintained as findings; rejecting an AI proposal removes that proposal from the retained findings. The Inspector confirms the resolved set; material evidence or finding changes while authoring a report refresh its confirmation, while unresolved AI proposals require another explicit confirmation before report drafting or submission. Finding location is taken from linked evidence metadata when available rather than a separate UI-only component/location field.
   - *Outputs*: A current, Inspector-confirmed findings set (which may be explicitly empty) that permits report drafting.
 
 ---
@@ -403,7 +403,7 @@ The Inspector records coverage and limitations while authoring the report (§3.7
 - **Function Description**: Creates a structured inspection report from the retained inspection scope, evidence, field-session records, Inspector-confirmed findings, and the Inspector's coverage and limitation assessment. Coverage disclosure belongs to the report, not a separate evidence-quality decision.
 - **Function Details**:
   - *Inputs*: Selected drafting method (`AI_ASSISTED` or `MANUAL`); authored sections including Executive Summary, Scope & Methodology, Weather & Site Observations, Component Findings Discussion, Recommendations, `inspectorCoverageAssessment`, and `omissionDisclosure`.
-  - *Validations*: The findings set must be confirmed, including explicit acknowledgment when empty; active evidence must exist for evidence-based claims. Generated draft sections must be reviewed and editable by the author before submission.
+  - *Validations*: The findings set must be currently confirmed, including explicit acknowledgment when empty; active evidence must exist for evidence-based claims. Generated draft sections must be reviewed and editable by the author before submission. A report version whose evidence/findings sources changed after its creation cannot be verified or submitted; the author must confirm the current set and create a fresh version.
   - *Processing*: AI-assisted drafting is invoked only when the Inspector selects it. The prompt uses retained inspection scope fields (`objective`, `scope`, `component_scope`, `acceptance_criteria`) and available authorized records; manual authoring remains available without invoking AI. The Inspector reviews and edits the sections before submission.
   - *Outputs*: An author-reviewed report version submitted to the Organization Manager review queue.
 
@@ -413,7 +413,7 @@ The Inspector records coverage and limitations while authoring the report (§3.7
 - **Function Details**:
   - *Inputs*: Review decision (`APPROVE` or `RETURN`), `return_reason` text (mandatory on return).
   - *Validations*: Reviewer must be an Organization Manager (`ORG_MANAGER`) distinct from the report author; all findings must be in an evaluated state.
-  - *Processing*: Submission records `submitted_at` on the report version. On approval, compiles report data into a formal A4 PDF, stores the deliverable in MinIO, calculates and records the PDF SHA-256 digest, marks the version `PUBLISHED`, and transitions the inspection to `REPORT_PUBLISHED`. On return, stores `return_reason`, marks the version `RETURNED`, and notifies the author; a subsequent review cycle may replace the current return reason.
+  - *Processing*: Submission records `submitted_at` on the report version and locks evidence/findings while the reviewer is deciding. The author may withdraw an unreviewed submission, which unlocks sources; a reviewer return stores `return_reason`, marks the version `RETURNED`, notifies the author and unlocks sources for revision. On approval, compiles report data into a formal A4 PDF, stores the deliverable in MinIO, calculates and records the PDF SHA-256 digest, marks the version `PUBLISHED`, and transitions the inspection to `REPORT_PUBLISHED`; approved/published sources are immutable. A subsequent review cycle may replace the current return reason.
   - *Outputs*: Published immutable PDF inspection report, its recorded PDF checksum, and an authorized download endpoint.
 
 #### 3.7.3 Per-Finding Corrective Handoff

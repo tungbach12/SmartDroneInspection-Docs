@@ -15,7 +15,11 @@ The simplified MF3 target stores scoped evidence with available capture metadata
 retains retired evidence as a soft-deleted audit copy, and exposes scoped evidence
 listing/streaming. It has no evidence-quality decision or `ACCEPTED` gate. The
 Inspector records coverage/limitations in the report, and requests any additional
-field session in MF2.
+field session in MF2. Evidence remains editable by the assigned Inspector in
+`FIELD_COMPLETED` and during `REPORT_DRAFT`; source edits refresh findings
+confirmation and stale any earlier report version. Evidence is locked while a
+report is `SUBMITTED` and unlocked after eligible withdrawal or reviewer return;
+approved/published sources are immutable.
 
 Normal field-session completion uses `POST /api/v1/inspections/{inspectionId}/field-sessions/{sessionId}/completion` with required outcome notes. It closes only the assigned Inspector's current in-progress session as `FIELD_COMPLETED`; it does not assert hardware telemetry, flight-control, or statutory incident reporting. Weather/site-safety postponement remains a separate MF2 action. Manual drone piloting remains outside the platform target.
 
@@ -65,6 +69,22 @@ remains a distinct MF2 path.
 The target Additional Session action belongs to the MF2 preparation/readiness flow, not the MF3 Evidence screen. It is available only after a completed session, active evidence for that visit, a latest READY preparation and matching APPROVED readiness decision. It appends an INVALIDATED readiness row, supersedes the prior preparation, creates the next draft and returns the inspection to PREPARING in one transaction. The new preparation requires a future window before submission; ORG_ADMIN review still gates Start. Prior sessions/evidence remain. The web Inspector action is in Preparation; mobile exposes it only where its Preparation screen supports the same guarded flow.
 
 Verification in this task: backend `./mvnw verify` passed **684 tests**, 0 failures/errors/skips, with Spotless, JaCoCo and Modulith checks met before the final AI-suggestion rejection-path correction; final `./mvnw -DskipTests package` passed after that correction without executing tests. Frontend `npm run build` passed; mobile code generation passed, but Android build was blocked by the missing Android SDK and the project has no web target. Docs `git diff --check` passed. Frontend/mobile tests and live walkthrough were not run in this task. The repeated visit was not re-assessed as a new evidence set in the product UI, so no case status is changed.
+
+### MF3 report-draft source editing and submission lock — 2026-10-27
+
+The Inspector can upload/retire captures and update shared evidence location while
+`FIELD_COMPLETED` or `REPORT_DRAFT`. If a report is already drafted, evidence edits
+reopen the findings gate so the Inspector confirms the current source set before
+creating a new version; prior versions remain stale and cannot be verified or
+submitted. `SUBMITTED` locks evidence changes; withdrawing before reviewer action
+or receiving a reviewer return unlocks the editable workflow. `APPROVED`,
+`PUBLISHED`, `REPAIR_PENDING` and `COMPLETED` remain immutable. The Evidence UI
+shows no `Reopen Findings` action during draft authoring; it shows a read-only
+message while submitted or final.
+
+Executed evidence for the affected evidence and report integration classes is
+recorded in FE-05/WF3-010; this subsection does not claim a complete Report 5 case
+pass.
 
 ### Capture retirement and bulk batch retirement — 2026-10-17
 
