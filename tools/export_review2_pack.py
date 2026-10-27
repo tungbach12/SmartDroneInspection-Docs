@@ -79,7 +79,14 @@ def export_pack(output_dir: Path, reports: Path = REPORTS, official: Path = OFFI
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    out = Path(sys.argv[1]) if len(sys.argv) > 1 else REPORTS / "generated" / "review-2-pack"
+    args = sys.argv[1:]
+    if "--output" in args:
+        idx = args.index("--output")
+        out = Path(args[idx + 1])
+    elif args:
+        out = Path(args[0])
+    else:
+        out = REPORTS / "generated" / "review-2-pack"
     results = export_pack(out)
     for r in results:
         print(f"{r['key']}: generated -> {r['docx']}")

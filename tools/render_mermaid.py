@@ -2,9 +2,13 @@
 """Extract Mermaid diagrams from report Markdown sources into .mmd files and manifest."""
 from __future__ import annotations
 
+import base64
 import json
 import re
+import struct
 import sys
+import urllib.request
+import zlib
 from pathlib import Path
 
 if __package__ in (None, ""):
@@ -15,6 +19,22 @@ from report_ooxml import parse_markdown, sha256
 ROOT = Path(__file__).resolve().parent.parent
 REPORTS_DIR = ROOT / "reports"
 MERMAID_SRC_DIR = ROOT / "diagrams" / "mermaid"
+
+
+def png_dims(data: bytes) -> tuple[int, int]:
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return struct.unpack(">II", data[16:24])
+    return 0, 0
+
+
+def render_via_mermaid_ink(code: str, width: int = 2000) -> bytes:
+    state = json.dumps({"code": code, "mermaid": {"theme": "default"}}, separators=(",", ":")).encode("utf-8")
+    compressed = zlib.compress(state, 9)
+    b64 = base64.urlsafe_b64encode(compressed).decode("ascii").rstrip("=")
+    url = f"https://mermaid.ink/img/pako:{b64}?type=png&width={width}"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        return resp.read()
 
 
 def infer_title(code: str) -> str:
@@ -86,10 +106,25 @@ def collect_mermaid_blocks() -> list[dict]:
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
+    do_render = "--render" in sys.argv
     items = collect_mermaid_blocks()
     print(f"Extracted {len(items)} Mermaid diagram(s) to {MERMAID_SRC_DIR}")
     for item in items:
-        exists = Path(item["png_path"]).is_file()
+        png_path = Path(item["png_path"])
+        exists = png_path.is_file()
+        if do_render and "Screen Layout Placeholder" not in item["title"]:
+            need = not exists
+            if exists:
+                w, _ = png_dims(png_path.read_bytes())
+                if w < 900:
+                    need = True
+            if need:
+                try:
+                    data = render_via_mermaid_ink(item["code"], width=2000)
+                    png_path.write_bytes(data)
+                    exists = True
+                except Exception as exc:
+                    print(f"  [WARN] Failed to render {png_path.name}: {exc}")
         print(f"  [{item['index']:02d}] {item['digest']} ({'PNG exists' if exists else 'needs PNG'}) - {item['title']} ({item['source_md']})")
 
 
