@@ -280,8 +280,11 @@ class WordDocument:
         samples = [p for p in normal if self.text(p).startswith("<<Sample:")]
         self.paragraph_prototype = (samples or normal or body_candidates)[0].cloneNode(True)
         for ppr in children(self.paragraph_prototype, "pPr"):
-            for rpr in children(ppr, "rPr"):
-                ppr.removeChild(rpr)
+            remove_children(ppr)
+            ppr.appendChild(element(self.doc, W, "w:spacing", {
+                "w:before": "80", "w:after": "120", "w:line": "276", "w:lineRule": "auto"
+            }))
+            ppr.appendChild(element(self.doc, W, "w:jc", {"w:val": "left"}))
         for r in children(self.paragraph_prototype, "r"):
             self.paragraph_prototype.removeChild(r)
         self.picture_prototype = next(
@@ -315,11 +318,11 @@ class WordDocument:
     def text(node):
         return "".join(text_of(t) for t in descendants(node, "t"))
 
-    def run(self, text, prototype=None, bold=False, italic=False):
+    def run(self, text, prototype=None, bold=False, italic=False, size=None):
         r = (prototype or self.run_prototype)
         r = r.cloneNode(True) if r is not None else element(self.doc, W, "w:r")
         remove_children(r, ("rPr",))
-        if bold or italic:
+        if bold or italic or size:
             rp = (children(r, "rPr") or [None])[0]
             if rp is None:
                 rp = element(self.doc, W, "w:rPr")
@@ -327,6 +330,11 @@ class WordDocument:
             for name, enabled in (("b", bold), ("i", italic)):
                 if enabled and not children(rp, name):
                     rp.appendChild(element(self.doc, W, "w:" + name))
+            if size:
+                for tag in ("sz", "szCs"):
+                    for old in children(rp, tag):
+                        rp.removeChild(old)
+                    rp.appendChild(element(self.doc, W, "w:" + tag, {"w:val": str(size)}))
         for index, line in enumerate(text.split("\n")):
             if index:
                 r.appendChild(element(self.doc, W, "w:br"))
@@ -335,7 +343,7 @@ class WordDocument:
             r.appendChild(t)
         return r
 
-    def fill_paragraph(self, p, text):
+    def fill_paragraph(self, p, text, size=None):
         runs = descendants(p, "r")
         prototype = runs[0].cloneNode(True) if runs else self.run_prototype
         remove_children(p, ("pPr",))
@@ -349,7 +357,8 @@ class WordDocument:
             trailing = "\n" if (visible and part.endswith("\n")) else (" " if visible and part[-1:].isspace() else "")
             p.appendChild(self.run(leading + visible + trailing, prototype,
                                   bold=part.startswith("**") and part.endswith("**"),
-                                  italic=part.startswith("*") and not part.startswith("**")))
+                                  italic=part.startswith("*") and not part.startswith("**"),
+                                  size=size))
         return p
 
     def list_paragraph(self, text, level=0):
@@ -419,22 +428,26 @@ class WordDocument:
         headers_match = len(wanted_headers & tpl_labels) >= max(2, len(rows[0]) // 2)
         if len(rows[0]) == 3 and wanted_headers <= {"#", "no", "no.", "package", "table", "entity", "actor", "description"}:
             widths = [650, 2450, max(4500, total - 3100)]
+        elif len(rows[0]) == 2:
+            widths = [int(total * 0.34), total - int(total * 0.34)]
         elif len(widths) != len(rows[0]) or not headers_match:
             col_weights = []
             for col_idx in range(len(rows[0])):
-                hdr_len = len(plain(rows[0][col_idx]).strip())
-                max_cell_len = max((len(plain(r[col_idx]).strip()) for r in rows[:15] if col_idx < len(r)), default=hdr_len)
-                hdr_lower = plain(rows[0][col_idx]).strip().lower()
-                if hdr_lower in {"#", "no", "no.", "id"} and max_cell_len <= 10:
-                    col_weights.append(8)
-                elif max_cell_len <= 16:
+                hdr_txt = plain(rows[0][col_idx]).strip()
+                hdr_lower = hdr_txt.lower()
+                col_cells = [plain(r[col_idx]).strip() for r in rows[:20] if col_idx < len(r)]
+                max_line_len = max((len(ln.strip()) for c in col_cells for ln in c.splitlines()), default=len(hdr_txt))
+                max_word_len = max((len(w) for c in col_cells for w in re.findall(r"\S+", c)), default=len(hdr_txt))
+                if hdr_lower in {"#", "no", "no.", "id"} and max_line_len <= 10:
+                    col_weights.append(7)
+                elif max_line_len <= 16 and max_word_len <= 14:
                     col_weights.append(14)
-                elif max_cell_len <= 35:
+                elif max_line_len <= 32 and max_word_len <= 20:
                     col_weights.append(22)
-                elif max_cell_len <= 65:
-                    col_weights.append(32)
+                elif max_line_len <= 55:
+                    col_weights.append(30)
                 else:
-                    col_weights.append(48)
+                    col_weights.append(42)
             weight_sum = sum(col_weights) or 1
             widths = [max(650, int(total * w / weight_sum)) for w in col_weights]
             widths[-1] = max(650, widths[-1] + (total - sum(widths)))
@@ -458,6 +471,14 @@ class WordDocument:
             else:
                 proto = prototypes[0] if index == 0 else prototypes[min(1, len(prototypes) - 1)]
             row = proto.cloneNode(True)
+            tr_pr = (children(row, "trPr") or [None])[0]
+            if tr_pr is None:
+                tr_pr = element(self.doc, W, "w:trPr")
+                row.insertBefore(tr_pr, row.firstChild)
+            if not children(tr_pr, "cantSplit"):
+                tr_pr.appendChild(element(self.doc, W, "w:cantSplit"))
+            if index == 0 and not children(tr_pr, "tblHeader"):
+                tr_pr.appendChild(element(self.doc, W, "w:tblHeader"))
             cells = children(proto, "tc")
             for cell in children(row, "tc"):
                 row.removeChild(cell)
@@ -472,15 +493,24 @@ class WordDocument:
                 ps = children(cell, "p")
                 cell_p = ps[0].cloneNode(True) if ps else self.paragraph_prototype.cloneNode(True)
                 if index > 0:
+                    hdr_lower = plain(rows[0][col]).strip().lower() if col < len(rows[0]) else ""
+                    jc_val = "center" if (col == 0 and hdr_lower in {"#", "no", "no.", "id"} and len(plain(value)) <= 8) else "left"
                     for ppr in children(cell_p, "pPr"):
                         for rpr in children(ppr, "rPr"):
                             ppr.removeChild(rpr)
                         for pstyle in children(ppr, "pStyle"):
-                            if pstyle.getAttribute("w:val") == "comment":
-                                ppr.removeChild(pstyle)
+                            ppr.removeChild(pstyle)
+                        for sp in children(ppr, "spacing"):
+                            ppr.removeChild(sp)
+                        for jc in children(ppr, "jc"):
+                            ppr.removeChild(jc)
+                        ppr.appendChild(element(self.doc, W, "w:spacing", {
+                            "w:before": "60", "w:after": "60", "w:line": "250", "w:lineRule": "auto"
+                        }))
+                        ppr.appendChild(element(self.doc, W, "w:jc", {"w:val": jc_val}))
                     for r in children(cell_p, "r"):
                         cell_p.removeChild(r)
-                p = self.fill_paragraph(cell_p, value)
+                p = self.fill_paragraph(cell_p, value, size=20 if index > 0 else None)
                 # Drop every inherited child, not just paragraphs: a cloned
                 # cell may carry a nested table or extra paragraph that would
                 # otherwise wrap the new text inside the original content.
