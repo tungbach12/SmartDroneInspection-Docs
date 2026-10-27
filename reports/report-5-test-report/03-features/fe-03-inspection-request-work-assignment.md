@@ -4,6 +4,25 @@ Report 3 §3.4 titles this feature "Mission Preparation, Assignment Response
 and Readiness". The filename retains the earlier "inspection request / work
 assignment" wording; the filename is stable, the scope is Report 3's.
 
+## Airspace & No-Fly Zone Map (Bản đồ Không phận & Vùng cấm bay) — supporting verification (2026-10-27)
+
+- Feature: FE-02 & FE-03; business-flow case: supporting verification (preserves 30-application-table baseline without adding new tables).
+- Preconditions: Java 21 / Maven for Backend; Node 20 / Vitest for Web Frontend; Flutter 3 / Dart for Mobile.
+- Procedures:
+  1. Backend: run `.\mvnw.cmd test -Dtest=AirspaceAdvisoryServiceTest`.
+  2. Frontend: run `npx vitest run src/shared/airspace/AirspaceNoFlyMap.test.tsx src/features/inspections/pages/FieldSessionPage.test.tsx src/features/assets/pages/AssetsPage.test.tsx` and `npm run build`.
+  3. Mobile: run `flutter analyze` and `flutter test test/features/inspections/`.
+- Expected:
+  - Backend `/api/v1/airspace/zones` and `/api/v1/airspace/evaluate` evaluate asset coordinates against Vietnam prohibited (`NO_FLY_ZONE`) and restricted (`RESTRICTED_ZONE`) zones under Decision 18/2020/QĐ-TTg, Law on People's Air Defence 2024, and Decree 288/2025/NĐ-CP, returning `MSG28` warnings and `https://cambay.mod.gov.vn` reference, and `InspectionResponse` exposes `assetLatitude` and `assetLongitude`.
+  - Web `AirspaceNoFlyMap` renders an interactive OpenStreetMap + SVG vector circle overlay on `FieldSessionPage` (MF2 Step 1) and `AssetsPage` (`CreateAssetDialog` with click-to-pick coordinates and `AssetDetailDrawer`), classifying coordinates into `NO_FLY_ZONE`, `RESTRICTED_ZONE`, or `CLEAR_ZONE` with `MSG28` alerts.
+  - Mobile `AirspaceAdvisoryCard` on `InspectionDetailPage` evaluates inspection coordinates and displays zone status, `MSG28` advisory text, and matching zones.
+- Executed: 2026-10-27; tester: Quốc / Claude Code (automated).
+- Verified results:
+  - Backend: `AirspaceAdvisoryServiceTest` **5/5 Passed** (`NO_FLY_ZONE`, `RESTRICTED_ZONE`, `CLEAR_ZONE`, zone catalog, and coordinate bounds validation).
+  - Frontend: **26/26 tests Passed** across 5 test files (`AirspaceNoFlyMap.test.tsx` 7/7, `FieldSessionPage.test.tsx` 7/7, `AssetsPage*.test.tsx` 12/12) and `npm run build` (`tsc -b && vite build`) exited 0.
+  - Mobile: `flutter analyze` **0 issues**; `flutter test test/features/inspections/` **14/14 Passed** (including `airspace_advisory_card_test.dart` 4/4).
+- Status: **Passed (Backend, Web Frontend, and Mobile Airspace & No-Fly Zone evaluation verified)**. Workbook case counts (11 cases: 8 Passed, 3 Pending) remain unchanged.
+
 ## Recurring inspection and in-app reminder foundation — supporting verification (2026-10-26)
 
 - Feature: FE-03 & FE-08; business-flow case: not yet assigned (supporting unit and component evidence outside workbook sheets; retired WFx IDs remain reserved).
