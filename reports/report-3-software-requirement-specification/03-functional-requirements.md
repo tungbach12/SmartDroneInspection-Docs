@@ -321,14 +321,14 @@ The Organization Manager may create a recurring inspection schedule for an asset
 - **Lifecycle**: Manager may pause, resume or end recurrence. Ending/pausing prevents future generation and never deletes already generated inspections or rewrites their historical assignment fields. Changes to schedule configuration apply only to occurrences not yet generated.
 - **Notifications**: The assigned Inspector receives an in-app assignment notice and an in-app reminder before the planned inspection (default 3 days). Delivery is deduplicated durably. Rescheduling, reassignment or cancellation must not leave stale reminders addressed to a former Inspector or an obsolete time. Notification delivery does not mark an inspection ready or started.
 
-#### 3.4.2 Self-Service Flight Permit Upload Gate
-- **Function Trigger**: Assigned Inspector opens mission detail and uploads the mission flight permit file.
-- **Function Description**: Self-service compliance gate enabling the assigned remote pilot to upload the official aviation flight permit. The system checks the pilot's license validity and automatically authorizes flight readiness.
+#### 3.4.2 Self-Service Flight Permit Upload Gate and Airspace Advisory Map
+- **Function Trigger**: Assigned Inspector opens mission detail (`Field Session` tab on Web or `Inspection Detail` on Mobile), reviews the Airspace & No-Fly Zone Map, and uploads the mission flight permit file.
+- **Function Description**: Self-service compliance gate and interactive OpenStreetMap airspace overlay (`GET /api/v1/airspace/zones`, `GET /api/v1/airspace/evaluate`) enabling Organization Managers (during asset registration/inspection) and assigned Inspectors (before flight permit upload and session start) to inspect asset coordinates against published Vietnam prohibited (`NO_FLY_ZONE`) and restricted (`RESTRICTED_ZONE`) airspace zones (Decision 18/2020/QĐ-TTg, Law on People's Air Defence 2024, Decree 288/2025/NĐ-CP, and `cambay.mod.gov.vn`), surfacing `MSG28` warnings without adding database tables. Upon permit upload, the system checks the pilot's license validity and automatically authorizes flight readiness.
 - **Function Details**:
-  - *Inputs*: Inspection ID, permit document file (PDF or image).
+  - *Inputs*: Inspection ID, permit document file (PDF or image); asset coordinates (`latitude`, `longitude`) for airspace evaluation.
   - *Validations*: Caller must be the assigned Inspector (`inspections.inspector_id == callerId`); Inspector's self-declared remote pilot license must be non-null and unexpired (`pilot_license_expires_at >= planned_start_at`); designated drone must be serviceable.
-  - *Processing*: Stores the permit file in MinIO under `evidence-object-store/{organizationId}/inspections/{inspectionId}/permits/`; sets `flight_permit_file_key`, `flight_permit_file_name`, and `flight_permit_uploaded_at` on `inspections`; atomically transitions the inspection status from `ASSIGNED` to `READY_FOR_FLIGHT`.
-  - *Outputs*: Flight-cleared inspection mission in `READY_FOR_FLIGHT` status, unlocking on-site field session execution.
+  - *Processing*: Evaluates Haversine distance against published prohibited/restricted zones (`NO_FLY_ZONE`, `RESTRICTED_ZONE`, `CLEAR_ZONE`) and displays `MSG28` advisory notices when applicable; stores the permit file in MinIO under `evidence-object-store/{organizationId}/inspections/{inspectionId}/permits/`; sets `flight_permit_file_key`, `flight_permit_file_name`, and `flight_permit_uploaded_at` on `inspections`; atomically transitions the inspection status from `ASSIGNED` to `READY_FOR_FLIGHT`.
+  - *Outputs*: Interactive airspace map classification (`NO_FLY_ZONE`, `RESTRICTED_ZONE`, `CLEAR_ZONE` with `cambay.mod.gov.vn` reference) and flight-cleared inspection mission in `READY_FOR_FLIGHT` status, unlocking on-site field session execution.
 
 #### 3.4.3 Automatic Flight Readiness and Operational Gate
 - **Function Trigger**: System transition upon successful flight permit upload.
