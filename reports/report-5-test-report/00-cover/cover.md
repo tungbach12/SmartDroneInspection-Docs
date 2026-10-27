@@ -8,11 +8,19 @@ when transferring values into the workbook.
 | Project Name | SmartDroneInspection |
 | Project Code | SEP490 — *confirm with project owner* |
 | Creator | *Enter team/member name* |
-| Issue Date | 2026-10-26 |
+| Issue Date | 2026-10-27 |
 | Document Code | *Enter document code* |
-| Version | 4.50 (Integration verification and migration-safety reconciliation for FE-02/FE-03 recurring schedules, asset archival, calendar board, and FE-08 web notification inbox.) |
+| Version | 4.51 (Airspace & No-Fly Zone Map supporting verification across Backend, Web Frontend, and Mobile for FE-02/FE-03.) |
 
-## Current documentation update — Integration verification & migration-safety reconciliation (2026-10-26)
+## Current documentation update — Airspace & No-Fly Zone Map verification (2026-10-27)
+
+Implemented and verified the interactive **Airspace & No-Fly Zone Map (Bản đồ Không phận & Vùng cấm bay)** across Backend (`/api/v1/airspace/zones`, `/api/v1/airspace/evaluate`, and `InspectionResponse` asset coordinates), Web Frontend (`AirspaceNoFlyMap` on `FieldSessionPage` and `AssetsPage`), and Mobile (`AirspaceAdvisoryCard` on `InspectionDetailPage`) while strictly preserving the 30-application-table schema:
+- **Backend:** `AirspaceAdvisoryServiceTest` passed **5/5 tests** (`NO_FLY_ZONE`, `RESTRICTED_ZONE`, `CLEAR_ZONE`, `MSG28` warning, and coordinate validation).
+- **Frontend:** `npx vitest run` passed **26/26 tests** across 5 files (`AirspaceNoFlyMap.test.tsx` 7/7, `FieldSessionPage.test.tsx` 7/7, `AssetsPage*.test.tsx` 12/12), and `npm run build` (`tsc -b && vite build`) exited 0.
+- **Mobile:** `flutter analyze` reported **0 issues**, and `flutter test test/features/inspections/` passed **14/14 tests** (including `airspace_advisory_card_test.dart` 4/4).
+- **Workbook totals:** Fixed 11-case workbook counts (**8 `Passed`, 0 `Failed`, 3 `Pending`**, 72.73% coverage) remain unchanged.
+
+## Previous documentation update — Integration verification & migration-safety reconciliation (2026-10-26)
 
 Reconciled incoming PR #68 supporting test evidence across backend, web, and mobile:
 - **Backend:** PR #93 was not only Docker-blocked; CI run `40287474719` and local `./mvnw.cmd verify` ran **RED (`840 tests / 1 failure`)** in `FullDatabaseSchemaMigrationTest` because the two new recurrence/notification tables were not yet in the exact expected table set. Review also blocked modifying applied `V1`, so `V1` was restored to `origin/main` (`V1`/`V2` immutable), column cleanup moved to forward `V3__drop_unused_wf1_columns.sql` with `V3Wf1ColumnDropUpgradeMigrationTest`, and the PR #93 migrations were sequenced as `V4__recurring_inspection_schedules.sql` and `V5__notification_inbox_deduplication.sql`. Post-correction `./mvnw.cmd spotless:apply && ./mvnw.cmd verify` passed **GREEN on PR #91 (`781 tests, 0 failures/errors/skips`, log `be85a2cf-c2be-4bd9-9843-7e6958e3eb1d.log`)** and **GREEN on merged PR #93 (`845 tests, 0 failures/errors/skips`, log `4aa04cc9-e4fa-4347-9c8d-3a8f15c1d13c.log`)**, including the exact 40-table assertion, real `V1`→`V5` upgrade regression, JaCoCo, and Modulith checks.
@@ -61,11 +69,12 @@ verification is supporting evidence, not an additional WFx case result.
 ## Record of change
 
 The workbook's change table uses these columns. Add one row for each approved
-revision; do not remove old entries. Current source version: **4.50**, last updated
-2026-10-26; see the record of changes below.
+revision; do not remove old entries. Current source version: **4.51**, last updated
+2026-10-27; see the record of changes below.
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-27 | 4.51 | Airspace & No-Fly Zone Map (FE-02/FE-03) | A | Implemented and verified interactive Airspace & No-Fly Zone Map across Backend (`/api/v1/airspace/zones`, `/api/v1/airspace/evaluate`, `AirspaceAdvisoryServiceTest` 5/5 passed), Web Frontend (`AirspaceNoFlyMap` on `FieldSessionPage` and `AssetsPage`, 26/26 tests passed, `npm run build` exit 0), and Mobile (`AirspaceAdvisoryCard` on `InspectionDetailPage`, 14/14 tests passed, `flutter analyze` clean) evaluating asset coordinates against Vietnam prohibited (`NO_FLY_ZONE`) and restricted (`RESTRICTED_ZONE`) airspace with `MSG28` warnings and `cambay.mod.gov.vn` reference while preserving the 30-application-table schema. 11 workbook cases (8 Passed, 3 Pending) unchanged. | FE-02/FE-03 supporting verification; `AirspaceAdvisoryServiceTest`; `AirspaceNoFlyMap.test.tsx`; `airspace_advisory_card_test.dart`; Report 3 §3.4.2 |
 | 2026-10-26 | 4.50 | Integration verification and migration-safety reconciliation (PR #91, PR #93, Frontend PR #62) | M | Reconciled FE-02/FE-03/FE-08 supporting evidence: recorded PR #93 CI/local RED (840 tests / 1 failure in FullDatabaseSchemaMigrationTest), migration-safety correction (immutable V1/V2, forward V3__drop_unused_wf1_columns.sql, V4__recurring_inspection_schedules.sql, V5__notification_inbox_deduplication.sql), PR #91 GREEN (781 tests, log be85a2cf-c2be-4bd9-9843-7e6958e3eb1d.log), and merged PR #93 GREEN (845 tests, 0 failures/errors/skips, V1->V5 upgrade regression + exact 40-table assertion + JaCoCo + Modulith met, log 4aa04cc9-e4fa-4347-9c8d-3a8f15c1d13c.log); recorded integrated Frontend PR #62 RED (576/14 failed) to GREEN (80/80 files, 576/576 tests, lint/build exit 0); withdrew unimplemented mobile notification claims. 11 workbook cases (8 Passed, 3 Pending) unchanged. | FE-02/FE-03/FE-08 supporting verification; `test-statistics.md`; `test-case-list.md`; CI run 40287474719; logs `be85a2cf` & `4aa04cc9` |
 | 2026-10-26 | 4.49 | Asset Retirement and Contract Completion Archival | A | Implemented and verified POST /api/v1/assets/{assetId}/retire transitioning asset status to RETIRED upon contract completion; added "Complete & Archive Asset" action and confirmation dialog in AssetDetailDrawer; added archival banner for retired assets preserving historical records. Backend AssetApiIntegrationTest: 13/13 passed; Frontend AssetsPage.recurringSchedules.test.tsx: 4/4 passed. | FE-02 supporting verification; AssetApiIntegrationTest; AssetsPage.recurringSchedules.test.tsx |
 | 2026-10-26 | 4.48 | Single Active Recurring Schedule per Asset and JSON Normalization | M | Enforced rule that each asset can only have at most one active recurring inspection schedule; rejected duplicate active schedules with 409 ACTIVE_SCHEDULE_EXISTS; added free-text JSON normalization in domain entities and frontend dialog; updated CreateInspectionDialog and AssetDetailDrawer with active schedule warning and disabled duplicate triggers. Backend and branch-level frontend tests passed. | FE-02/FE-03 supporting verification; RecurringInspectionScheduleServiceTest; InspectionCreationApiIntegrationTest; CreateInspectionDialog.test.tsx |
