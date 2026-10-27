@@ -51,7 +51,7 @@ repair recommendations"| LLM
 
 The platform supports five user roles across two management levels:
 - **Platform Admin**: Manages platform-level administrator accounts, initial customer organization accounts, standard infrastructure asset categories, and system audit logs.
-- **Platform Manager**: Manages commercial subscription requests, confirms bank transfer or online payments, manages the platform's leasable drone catalog, and approves or reclaims B2B drone leases.
+- **Platform Manager**: Manages commercial subscription requests, confirms bank transfer or online payments, manages the platform's leasable drone catalog, and approves or reclaims drone equipment lease.
 - **Organization Manager**: Manages a customer organization's workspace, workforce accounts, subscriptions, owned and leased drones, infrastructure assets, inspection schedules, report approvals, and maintenance budgets and acceptance.
 - **Inspector**: Manages remote pilot license details, checks airspace advisories, uploads mission flight permits, logs field flight sessions on Web or Mobile, uploads inspection photos, reviews AI-suggested defects, and writes inspection reports.
 - **Maintenance Engineer**: Plans and executes maintenance work orders as a Team Lead, Report Author, or Team Member, prepares repair cost estimates, logs repair work, and writes maintenance completion reports.

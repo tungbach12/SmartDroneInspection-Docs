@@ -176,7 +176,7 @@ sequenceDiagram
 #### 3.3.1 Class Diagram
 
 ```mermaid
-%% title: Asset, Drone Fleet and B2B Drone Leasing Class Diagram
+%% title: Asset, Drone Fleet and Drone Equipment Leasing Class Diagram
 classDiagram
   class AssetController {
     +createAsset(Jwt, CreateAssetRequest) ResponseEntity~ApiResponse~
@@ -243,12 +243,12 @@ classDiagram
 **Class Specifications**
 
 - **AssetController & AssetDocumentController**: Manage infrastructure assets (`assets`) with GPS coordinates and standardized `inspection_items` checkpoints, SHA-256 deduplicated documents in MinIO (`asset_documents`), and terminal asset retirement (`RETIRED`).
-- **DroneController, DroneLeaseController & PlatformDroneLeaseController**: Govern customer owned/leased drones (`drones`), platform leasable drone pool (`platform_drones`), and B2B lease contracts (`drone_leases`) with automatic customer fleet provisioning and reclaim.
+- **DroneController, DroneLeaseController & PlatformDroneLeaseController**: Govern customer owned/leased drones (`drones`), platform leasable drone pool (`platform_drones`), and drone equipment lease contracts (`drone_leases`) with automatic customer fleet provisioning and reclaim.
 
-#### 3.3.2 B2B Drone Leasing & Automatic Fleet Provisioning Sequence Diagram
+#### 3.3.2 Drone Equipment Leasing & Automatic Fleet Provisioning Sequence Diagram
 
 ```mermaid
-%% title: B2B Drone Leasing and Fleet Provisioning Sequence Diagram
+%% title: Drone Equipment Leasing and Fleet Provisioning Sequence Diagram
 sequenceDiagram
   autonumber
   actor OM as Organization Manager
@@ -351,12 +351,12 @@ sequenceDiagram
 #### 3.4.3 WF-01 Activity Diagram — Enterprise Onboarding, Leasing & Recurring Scheduling
 
 ```mermaid
-%% title: WF-01 Activity Diagram - Enterprise Onboarding, B2B Drone Leasing and Recurring Scheduling
+%% title: WF-01 Activity Diagram - Enterprise Onboarding, Drone Equipment Leasing and Recurring Scheduling
 flowchart TD
   subgraph OM1["Organization Manager (ORG_MANAGER)"]
     A1(["Start: Register Organization & ORG_MANAGER"])
     A2["Request Enterprise Subscription (1/6/12m) -> Subscription: PENDING"]
-    A4["Request B2B Drone Lease from Pool -> DroneLease: PENDING"]
+    A4["Request Drone Equipment Lease from Pool -> DroneLease: PENDING"]
     A6["Register Infrastructure Asset (Checkpoints) & Upload AssetDocument (SHA-256)"]
     A7["Create RecurringInspectionSchedule (WEEK/MONTH/YEAR) -> Schedule: ACTIVE"]
   end

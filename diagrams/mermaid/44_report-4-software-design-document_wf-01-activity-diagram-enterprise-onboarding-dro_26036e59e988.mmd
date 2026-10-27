@@ -1,9 +1,9 @@
-%% title: WF-01 Activity Diagram - Enterprise Onboarding, B2B Drone Leasing and Recurring Scheduling
+%% title: WF-01 Activity Diagram - Enterprise Onboarding, Drone Equipment Leasing and Recurring Scheduling
 flowchart TD
   subgraph OM1["Organization Manager (ORG_MANAGER)"]
     A1(["Start: Register Organization & ORG_MANAGER"])
     A2["Request Enterprise Subscription (1/6/12m) -> Subscription: PENDING"]
-    A4["Request B2B Drone Lease from Pool -> DroneLease: PENDING"]
+    A4["Request Drone Equipment Lease from Pool -> DroneLease: PENDING"]
     A6["Register Infrastructure Asset (Checkpoints) & Upload AssetDocument (SHA-256)"]
     A7["Create RecurringInspectionSchedule (WEEK/MONTH/YEAR) -> Schedule: ACTIVE"]
   end

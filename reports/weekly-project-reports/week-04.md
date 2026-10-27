@@ -39,7 +39,7 @@
 
 | # | Project Work Item | In-charge | Deadline | Notes (Task Details, etc.) |
 |---:|---|---|---|---|
-| 1 | Execute Enterprise SaaS architecture and role cutover (V22–V25) | Trần Tùng Bách | 11 Oct 2026 | Migrate to multi-tenant organization schema and canonical role model. |
+| 1 | Execute Enterprise Inspection architecture and role cutover (V22–V25) | Trần Tùng Bách | 11 Oct 2026 | Migrate to multi-tenant organization schema and canonical role model. |
 | 2 | Implement full MF1 resource management (drones, permits, workforce credentials) | Trần Hoàng Trung Hiếu | 11 Oct 2026 | Deliver backend entities and APIs for Org Admin resource operations. |
 | 3 | Implement mobile field session execution (MF2-09 to MF2-11) and readiness reviews | Phùng Trung Quốc | 11 Oct 2026 | Wire mobile field session routes with backend readiness checks. |
 | 4 | Implement maintenance work order aggregate and task items (MF4-01 to MF4-08) | Trương Thái Như | 11 Oct 2026 | Build backend domain models and repositories for maintenance execution. |

@@ -1,4 +1,4 @@
-%% title: Subscription and B2B Drone Lease State Machines
+%% title: Subscription and Drone Equipment Lease State Machines
 stateDiagram-v2
   direction LR
   state "Enterprise Subscription (subscriptions.status)" as SubSM {
@@ -15,7 +15,7 @@ stateDiagram-v2
     SUB_CANCELLED --> [*]
   }
 
-  state "B2B Drone Lease (drone_leases.status)" as LeaseSM {
+  state "Drone Equipment Lease (drone_leases.status)" as LeaseSM {
     [*] --> LEASE_PENDING : requestLease() [FR-05]
     LEASE_PENDING --> LEASE_ACTIVE : activateWire() / activatePayPal() [FR-05]
     LEASE_PENDING --> LEASE_CANCELLED : cancel() [FR-05]

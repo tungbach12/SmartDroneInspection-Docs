@@ -11,7 +11,7 @@ source_docx: report2-project-management-plan.docx
 | --- | --- | --- | --- |
 | 11 Sep 2026 | A | Team | Version 1.0: Initial Project Management Plan (PMP) content. |
 | 14 Sep 2026 | M | Team | Version 1.5: Organized WBS as software features/functions and responsibility matrix. |
-| 21 Oct 2026 | M | Team | Version 1.7: Integrated PayPal Orders v2 online payment for Enterprise SaaS subscription billing. |
+| 21 Oct 2026 | M | Team | Version 1.7: Integrated PayPal Orders v2 online payment for Enterprise Inspection subscription billing. |
 | 27 Oct 2026 | M | Team | Version 2.0: Synchronized WBS, effort estimation, risk register, responsibility matrix (RACI), and tool stack with the 12-Feature (FE-01 to FE-12, 24 functions) Review 2 baseline and Git-verified member ownership. |
 
 *A - Added M - Modified D - Deleted
@@ -22,7 +22,7 @@ source_docx: report2-project-management-plan.docx
 
 ### 1.1 Scope & Estimation
 
-SmartDroneInspection is a multi-tenant Enterprise Software-as-a-Service (SaaS) and B2B Drone Leasing platform engineered for infrastructure-owning organizations to govern their workforce, subscriptions, infrastructure assets, owned/leased drone fleets, recurring and one-off inspection missions, Vietnam airspace advisories, aviation flight permits, field flight sessions, YOLO11 defect detection, certified PDF reports, and RAG-assisted maintenance work orders. The Work Breakdown Structure (WBS) is decomposed into **12 high-level product features (`FE-01` to `FE-12`)** and **24 functional items (`3` features / `6` functions per team member)** totaling **135 man-days**:
+SmartDroneInspection is a multi-tenant Enterprise Enterprise System and Drone Equipment Leasing platform engineered for infrastructure-owning organizations to govern their workforce, subscriptions, infrastructure assets, owned/leased drone fleets, recurring and one-off inspection missions, Vietnam airspace advisories, aviation flight permits, field flight sessions, YOLO11 defect detection, certified PDF reports, and RAG-assisted maintenance work orders. The Work Breakdown Structure (WBS) is decomposed into **12 high-level product features (`FE-01` to `FE-12`)** and **24 functional items (`3` features / `6` functions per team member)** totaling **135 man-days**:
 
 | # | WBS Item | Complexity | Est. Effort<br>(man-days) |
 | --- | --- | --- | --- |
@@ -34,7 +34,7 @@ SmartDroneInspection is a multi-tenant Enterprise Software-as-a-Service (SaaS) a
 | 2.2 | Enterprise Subscription Billing (1–120m Wire & PayPal Orders v2 + Webhooks) | Complex | 6 |
 | 3 | FE-03 Asset & Drone Fleet Management (Owner: Trần Hoàng Trung Hiếu) |  | 12 |
 | 3.1 | Infrastructure Asset Catalog, Checkpoints, Reference Documents & Retirement | Complex | 6 |
-| 3.2 | Owned Drone Inventory & B2B Platform Drone Leasing (Pool, Lease, Reclaim) | Complex | 6 |
+| 3.2 | Owned Drone Inventory & Platform Drone Equipment Leasing (Pool, Lease, Reclaim) | Complex | 6 |
 | 4 | FE-04 Recurring Schedule & Notifications (Owner: Trần Hoàng Trung Hiếu) |  | 11 |
 | 4.1 | Timezone-Anchored Recurring Inspection Schedules & Rolling Occurrence Job | Complex | 6 |
 | 4.2 | Spring Modulith Outbox & Deduplicated In-App Notification Inbox | Medium | 5 |
@@ -66,7 +66,7 @@ SmartDroneInspection is a multi-tenant Enterprise Software-as-a-Service (SaaS) a
 
 ### 1.2 Project Objectives
 
-The objective is to deliver a production-grade, multi-tenant Enterprise SaaS and B2B Drone Leasing platform covering the complete four-stage lifecycle (`WF-01` to `WF-04`) across Web (`React 19`) and Mobile (`Flutter`), backed by `850` automated backend JUnit/Testcontainers tests, `602` frontend Vitest tests, `20` Flutter mobile tests, and `64` functional test cases across `Feature 1`–`Feature 12` in `Report5_Test Report.xlsx`.
+The objective is to deliver a production-grade, multi-tenant Enterprise Inspection and Drone Equipment Leasing platform covering the complete four-stage lifecycle (`WF-01` to `WF-04`) across Web (`React 19`) and Mobile (`Flutter`), backed by `850` automated backend JUnit/Testcontainers tests, `602` frontend Vitest tests, `20` Flutter mobile tests, and `64` functional test cases across `Feature 1`–`Feature 12` in `Report5_Test Report.xlsx`.
 
 Quality targets: 100% of mandatory features (`FE-01`–`FE-12`) are linked to automated and staging test evidence; `>= 90%` functional test pass rate (`93.75%` achieved at Review 2); `>= 80%` backend JaCoCo coverage; `0` Spring Modulith boundary violations; and `0` open Critical or High defects.
 
@@ -91,7 +91,7 @@ Allocated Effort (man-days): requirements and project management 18; architectur
 | 3 | LLM report draft contains unverified claims or drifts from confirmed findings after edits. | High | Medium | Lock confirmed findings snapshot before drafting; reject stale report drafts with 409 Report Snapshot Stale and require explicit author verification (Author Verified) + independent Organization Manager approval. |
 | 4 | Cross-tenant data leakage or privilege escalation across the 5 roles. | High | Low | Enforce composite tenant FKs (id, organization_id) in PostgreSQL 17, @PreAuthorize role guards, Platform Admin and Platform Manager single-role separation separation of duties, and independent reviewer checks. |
 | 5 | Month-end and leap-year date drift or resource double-booking in recurring schedules. | Medium | Medium | Implement original-anchor timezone arithmetic with month-end clamping in RecurringInspectionSchedule and record explicit Blocked occurrences on Inspector/Drone conflict. |
-| 6 | Client-side payment spoofing or replay on Enterprise subscriptions and B2B drone leases. | High | Low | Verify PayPal Orders v2 captures server-to-server, validate webhook signatures, enforce uq_payment_transactions_paypal_capture_id, and require Platform Manager confirmation for wire transfers. |
+| 6 | Client-side payment spoofing or replay on Enterprise subscriptions and drone equipment lease. | High | Low | Verify PayPal Orders v2 captures server-to-server, validate webhook signatures, enforce uq_payment_transactions_paypal_capture_id, and require Platform Manager confirmation for wire transfers. |
 | 7 | Corrupt or oversized image uploads degrade MinIO storage or YOLO11 inference. | Medium | Medium | Enforce 10 MB per-file limit, ImageIO decode validation (400 Evidence Invalid on corrupt bytes), and duplicate document detection on asset uploads. |
 | 8 | Concurrent CI/CD deployments from Backend and Frontend repositories collide on staging VPS. | Medium | Low | Serialize deployments in deploy.yml via flock -w 900 /tmp/sdi-deploy.lock and take automated pre-deploy pg_dump backups. |
 
@@ -118,7 +118,7 @@ Figure 1. Iterative development process.
 
 | Training Area | Participants | When, Duration | Waiver Criteria |
 | --- | --- | --- | --- |
-| Enterprise SaaS & B2B Drone Leasing Domain Flows (WF-01..WF-04) | All members | Week 1, 2 hours | Complete end-to-end workflow and state machine walkthrough. |
+| Enterprise Inspection & Drone Equipment Leasing Domain Flows (WF-01..WF-04) | All members | Week 1, 2 hours | Complete end-to-end workflow and state machine walkthrough. |
 | Spring Boot 4.1, Spring Modulith 2.1, PostgreSQL 17 (pgvector) & MinIO | Bách, Hiếu, Quốc, Như | Week 2, 2 hours | Implement a tenant-scoped endpoint with Testcontainers integration test. |
 | React 19, MUI v9, TanStack Query & Flutter Riverpod Mobile | All members | Week 2, 2 hours | Build and test a role-guarded web screen and mobile repository slice. |
 | FastAPI YOLO11 (MBDD2025), OpenHTMLtoPDF & pgvector RAG | Bách, Như | Week 3, 2 hours | Run container inference, server-side PDF rendering, and RAG retrieval. |
@@ -150,7 +150,7 @@ D~Do; R~Review; S~Support; I~Informed; <blank>- Omitted
 | 2.1 FE-02 Workforce Provisioning & Pilot License Profile (W7) | D | S | S | R | I |
 | 2.2 FE-02 Enterprise Subscription & Online Payment (W7) | D | S | S | R | R |
 | 3.1 FE-03 Infrastructure Asset & Document Management (W7) | D | R | S | S | I |
-| 3.2 FE-03 Drone Inventory & B2B Drone Leasing (W8) | D | R | S | S | R |
+| 3.2 FE-03 Drone Inventory & Drone Equipment Leasing (W8) | D | R | S | S | R |
 | 4.1 FE-04 Recurring Inspection Schedule Management (W8) | D | R | S | S | R |
 | 4.2 FE-04 Event-Driven In-App Notifications (W8) | D | S | S | R | I |
 | 5.1 FE-05 Inspection Mission Scheduling & Conflict Check (W7) | R | D | S | S | I |

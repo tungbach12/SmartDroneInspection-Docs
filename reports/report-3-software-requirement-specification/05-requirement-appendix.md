@@ -18,12 +18,12 @@ The system enforces 49 normative business rules across multi-tenant isolation, a
 | BR-03 | Workforce identities belong to a single enterprise tenant; no user account or operational role can bridge across organization boundaries. |
 | BR-04 | Inspectors and Maintenance Engineers can access and act only upon inspection missions, work orders, or repair tasks explicitly assigned to them. |
 | BR-05 | Active user accounts and unexpired self-declared pilot licenses are mandatory for flight readiness; expired pilot licenses automatically block the self-service flight permit gate. |
-| BR-06 | Enterprise tenant registration, identity management, subscription activation, and B2B drone leasing serve as supporting governance gates for the primary inspection and maintenance lifecycle. |
+| BR-06 | Enterprise tenant registration, identity management, subscription activation, and drone equipment leasing serve as supporting governance gates for the primary inspection and maintenance lifecycle. |
 | BR-07 | Flight session start requires an unexpired flight permit and a mandatory pre-flight safety checklist note confirming aircraft, battery, and environmental suitability. |
 | BR-08 | Self-service flight readiness verifies the uploaded flight permit and pilot license currency; software approvals do not grant governmental flight exemptions. |
 | BR-09 | Inspection scheduling directly specifies the active Inspector and Drone for the mission, checking for scheduling conflicts across active missions. |
 | BR-10 | ENTERPRISE subscriptions offer fixed standard pricing for 1-, 6-, and 12-month periods; custom 1–120-month durations and customer price proposals remain pending until a Platform Manager confirms a final amount and reconciled payment. Online PayPal checkout is used only for platform-approved subscription and lease amounts. |
-| BR-11 | Subscription and B2B drone lease requests preserve versioned terms and actor attribution; entitlement or leased drone provisioning begins only after authorized payment confirmation. Online PayPal payments are verified by the system before activating the subscription or drone lease, and duplicate payment notifications are ignored. |
+| BR-11 | Subscription and drone equipment lease requests preserve versioned terms and actor attribution; entitlement or leased drone provisioning begins only after authorized payment confirmation. Online PayPal payments are verified by the system before activating the subscription or drone lease, and duplicate payment notifications are ignored. |
 | BR-12 | Report drafts, cost estimate baselines, scope change requests, and approval decisions preserve complete version histories; published records cannot be modified in place. |
 | BR-13 | Subscription renewal, cancellation, and expiration follow transparent contractual terms; subscription expiration preserves historical business records and does not auto-complete open work. |
 | BR-14 | Remote pilots and Inspectors must record session postponement or abort whenever adverse weather or site conditions compromise flight safety. |
@@ -41,14 +41,14 @@ The system enforces 49 normative business rules across multi-tenant isolation, a
 | BR-26 | Published inspection report versions are immutable; subsequent corrections require creating a new linked revision with renewed administrative approval. |
 | BR-27 | System workflows require explicit, attributable human decisions; no automated timer-based or silence-based approval is permitted for report publication or maintenance acceptance. |
 | BR-28 | A returned inspection or maintenance report is directed back to its designated author with mandatory review comments while preserving prior version history. |
-| BR-29 | Platform Admin provides technical SaaS governance, platform user provisioning, and standard asset category maintenance, while Platform Manager governs commercial subscription and B2B drone lease settlements; neither holds authority over customer engineering assessments or repair budgets. |
+| BR-29 | Platform Admin provides technical Platform governance, platform user provisioning, and standard asset category maintenance, while Platform Manager governs commercial subscription and drone equipment lease settlements; neither holds authority over customer engineering assessments or repair budgets. |
 | BR-30 | Application workflow approvals represent auditable software authorizations and do not constitute certified statutory signatures or governmental safety warranties. |
 | BR-31 | Maintenance work orders must reference at least one confirmed defect requiring repair from a published inspection report within the same organization. |
 | BR-32 | The designated Maintenance Team Lead prepares itemized repair estimates; automated systems do not generate arbitrary labor rates, material quantities, or prices. |
 | BR-33 | Maintenance warranty and defect follow-up terms apply only when explicitly specified and contracted; no universal statutory warranty is presumed. |
 | BR-34 | Any increase in repair scope, cost, or delivery schedule requires an approved Change Request prior to executing the additional work; the initial baseline remains immutable. |
 | BR-35 | Maintenance completion reports require paired before-and-after photographic evidence and documented test results for each repaired defect. |
-| BR-36 | Repair cost is an internal tenant cost register, separate from software subscription and B2B drone lease billing; PayPal online payment processes SaaS platform subscriptions and drone leases, while internal repair actuals are operational expenditures. |
+| BR-36 | Repair cost is an internal tenant cost register, separate from software subscription and drone equipment lease billing; PayPal online payment processes Enterprise platform subscriptions and drone leases, while internal repair actuals are operational expenditures. |
 | BR-37 | A separate re-inspection creates a new linked inspection mission; additional field coverage required for an existing inspection can be initiated directly via an additional field session in MF2. |
 | BR-38 | All assignment, readiness, finding verification, report publication, budget approval, and acceptance actions are logged in an immutable audit trail. |
 | BR-39 | Direct URL access, notification links, and raw file paths confer no authority; backend multi-tenant boundary checks and role verifications remain mandatory on every request. |
@@ -143,7 +143,7 @@ This traceability matrix maps the twelve core product features (`FE-01` to `FE-1
 | :---: | --- | --- | --- |
 | `FE-01` | Authentication & Access Control | Organization self-registration, Web/Mobile sign-in, session security, and 5-role access control *(Trần Tùng Bách)* | UC-01, UC-02, UC-32 |
 | `FE-02` | Workforce & Subscription Management | Workforce account management, pilot license profile, and Enterprise Subscription billing via bank transfer & PayPal *(Trần Hoàng Trung Hiếu)* | UC-02, UC-03, UC-05 |
-| `FE-03` | Asset & Drone Fleet Management | Asset catalog, inspection checkpoints, reference documents, owned drones, and B2B Drone Leasing *(Trần Hoàng Trung Hiếu)* | UC-04, UC-06 |
+| `FE-03` | Asset & Drone Fleet Management | Asset catalog, inspection checkpoints, reference documents, owned drones, and Drone Equipment Leasing *(Trần Hoàng Trung Hiếu)* | UC-04, UC-06 |
 | `FE-04` | Recurring Schedule & Notifications | Timezone-anchored recurring inspection schedules, upcoming mission generation, and in-app notifications *(Trần Hoàng Trung Hiếu)* | UC-07, UC-22 |
 | `FE-05` | Mission Dispatch & Airspace Advisory | One-off mission scheduling, resource conflict checking, and interactive Vietnam Airspace & No-Fly Zone Map *(Phùng Trung Quốc)* | UC-07, UC-08, UC-12 |
 | `FE-06` | Flight Readiness & Field Execution | Self-service flight permit upload (`Ready for Flight`) and Web/Mobile on-site field flight sessions *(Phùng Trung Quốc)* | UC-09, UC-10, UC-11 |

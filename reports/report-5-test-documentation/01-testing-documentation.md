@@ -11,10 +11,10 @@ source: "Report5_Test Documentation.docx"
 
 **Features and Requirements in Scope**
 
-The testing scope encompasses the complete **SmartDroneInspection** multi-tenant Enterprise SaaS & B2B Drone Leasing platform across Web (`SmartDroneInspection-frontend`), Mobile (`SmartDroneInspection-mobile`), Backend Modular Monolith (`SmartDroneInspection-backend`), and Self-Hosted AI Computer Vision (`ai-inference`), covering **twelve product features (`FE-01` to `FE-12`)**:
+The testing scope encompasses the complete **SmartDroneInspection** multi-tenant Enterprise Inspection & Drone Equipment Leasing platform across Web (`SmartDroneInspection-frontend`), Mobile (`SmartDroneInspection-mobile`), Backend Modular Monolith (`SmartDroneInspection-backend`), and Self-Hosted AI Computer Vision (`ai-inference`), covering **twelve product features (`FE-01` to `FE-12`)**:
 - **`FE-01` — Authentication & Access Control** *(Owner: Trần Tùng Bách)*: Organization self-registration with active Terms/Privacy consent, Web/Mobile login, Argon2id password security, HS256 JWT + HmacSHA256 refresh rotation, CSRF & IP rate-limiting (`10 req/60s`), and 5-role RBAC separation of duties (Platform Admin and Platform Manager single-role separation).
 - **`FE-02` — Workforce & Subscription Management** *(Owner: Trần Hoàng Trung Hiếu)*: Platform user administration, customer workforce provisioning (`Inspector`, `Maintenance Engineer`), Inspector remote pilot license self-declaration, and Enterprise Subscription billing (`1..120` months via Corporate Wire & PayPal Orders v2 + signed Webhooks).
-- **`FE-03` — Asset & Drone Fleet Management** *(Owner: Trần Hoàng Trung Hiếu)*: Global asset categories, tenant assets with GPS coordinates and standardized inspection checkpoints (`inspection_items`), reference engineering documents in MinIO, asset retirement archival, owned drone inventory, and B2B Platform Drone Leasing (`platform_drones`, `drone_leases`).
+- **`FE-03` — Asset & Drone Fleet Management** *(Owner: Trần Hoàng Trung Hiếu)*: Global asset categories, tenant assets with GPS coordinates and standardized inspection checkpoints (`inspection_items`), reference engineering documents in MinIO, asset retirement archival, owned drone inventory, and Platform Drone Equipment Leasing (`platform_drones`, `drone_leases`).
 - **`FE-04` — Recurring Schedule & Notifications** *(Owner: Trần Hoàng Trung Hiếu)*: Timezone-anchored recurring inspection schedules (`Week`, `Month`, `Year`), rolling 14-day occurrence generator, `Blocked` occurrence retry/skip, 3-day advance reminder job, and deduplicated in-app notification inbox (`notifications` + `event_publication` outbox).
 - **`FE-05` — Mission Dispatch & Airspace Advisory** *(Owner: Phùng Trung Quốc)*: One-off inspection mission scheduling with direct Inspector + Drone conflict checking, and the interactive Vietnam Airspace & No-Fly Zone Map (`AirspaceNoFlyMap` on Web, `AirspaceAdvisoryCard` on Mobile, `/api/v1/airspace/zones` & `/evaluate` under Decree No. 288/2025/NĐ-CP).
 - **`FE-06` — Flight Readiness & Field Execution** *(Owner: Phùng Trung Quốc)*: Self-service aviation flight permit upload gate (`Assigned -> Ready for Flight` upon unexpired pilot license check) and Web/Flutter Mobile on-site field flight session execution (`Start`, `Postpone`, `Abort`, `Complete`, and Additional Sessions).
@@ -115,7 +115,7 @@ The testing scope encompasses the complete **SmartDroneInspection** multi-tenant
 | --- | --- | --- |
 | Milestone 1: Unit & Migration Foundation Gate (`V1`–`V5` Schema, Auth, RBAC, Modulith Boundaries) | `2026-09-15` | `2026-10-08` |
 | Milestone 2: Iteration 1 Feature & Integration Testing (`FE-01`–`FE-09`, MinIO, YOLO11, PayPal/Wire) | `2026-10-09` | `2026-10-22` |
-| Milestone 3: Review 2 Full 12-Feature & 64-Case Baseline (`FE-01`–`FE-12`, B2B Drone Leasing, Recurrence, Airspace Map, RAG MF4) | `2026-10-23` | `2026-10-27` |
+| Milestone 3: Review 2 Full 12-Feature & 64-Case Baseline (`FE-01`–`FE-12`, Drone Equipment Leasing, Recurrence, Airspace Map, RAG MF4) | `2026-10-23` | `2026-10-27` |
 | Milestone 4: Post-Review 2 Pending Case Closure & Staging Stress/NFR Verification | `2026-10-28` | `2026-11-15` |
 | Milestone 5: Defense 1.1 Full Regression & Live Demo Rehearsal (`100%` Workflows, `>= 90%` Pass Rate) | `2026-11-16` | `2026-11-30` |
 
