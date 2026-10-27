@@ -69,7 +69,7 @@ The system does **not** store or control:
 
 ## 3. Right-sized logical schema
 
-The target design contains **30 application tables** (26 in `V1__baseline.sql` + 2 leasing tables in `V2__role_restructure_and_drone_leasing.sql` + 2 recurring schedule tables in `V4__recurring_inspection_schedules.sql`, with forward WF1 column cleanup in `V3__drop_unused_wf1_columns.sql` and notification deduplication in `V5__notification_inbox_deduplication.sql`) plus optional framework infrastructure such as Spring Modulith `event_publication`.
+The target design contains **30 application tables** (26 in `V1__baseline.sql` + 2 leasing tables in `V2__role_restructure_and_drone_leasing.sql` + 2 recurring schedule tables in `V4__recurring_inspection_schedules.sql`, with forward WF1 column cleanup in `V3__drop_unused_wf1_columns.sql`, notification deduplication in `V5__notification_inbox_deduplication.sql`, and maintenance concurrency guards in `V6__maintenance_concurrency_guards.sql`) plus optional framework infrastructure such as Spring Modulith `event_publication`.
 
 | Area | Tables | Count |
 | --- | --- | ---: |
@@ -369,7 +369,7 @@ IN_PROGRESS -> REWORK_REQUIRED -> IN_PROGRESS
 SUBMITTED_FOR_ACCEPTANCE -> REINSPECTION_REQUIRED -> linked inspection
 ```
 
-The source report must be published and the finding must be confirmed and forwarded from MF3 (`forwarded_to_maintenance_at IS NOT NULL`). Migration `V2__maintenance_concurrency_guards.sql` adds a partial unique index over `source_finding_id` for the live statuses above, preventing duplicate active work orders at the database layer while allowing a later order after the prior order reaches a non-live status. The existing service precheck remains; the index is the concurrent-insert backstop. This DB-only change does not add application-level translation for a raw unique-constraint violation, so concurrent duplicate creation may still surface as an unhandled server error until the service/error handler is implemented.
+The source report must be published and the finding must be confirmed and forwarded from MF3 (`forwarded_to_maintenance_at IS NOT NULL`). Migration `V6__maintenance_concurrency_guards.sql` adds a partial unique index over `source_finding_id` for the live statuses above, preventing duplicate active work orders at the database layer while allowing a later order after the prior order reaches a non-live status. The existing service precheck remains; the index is the concurrent-insert backstop. This DB-only change does not add application-level translation for a raw unique-constraint violation, so concurrent duplicate creation may still surface as an unhandled server error until the service/error handler is implemented.
 
 #### `maintenance_tasks`
 
