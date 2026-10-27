@@ -1,0 +1,515 @@
+[
+  {
+    "index": 1,
+    "digest": "076430d8b186",
+    "title": "System Context Diagram",
+    "source_md": "reports/report-3-software-requirement-specification/01-overall-description.md",
+    "mmd_path": "diagrams/mermaid/01_report-3-software-requirement-specification_system-context-diagram_076430d8b186.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/076430d8b186.png",
+    "code": "%% title: System Context Diagram\nflowchart LR\n  PA[\"Platform Admin\"]\n  PM[\"Platform Manager\"]\n  OM[\"Organization Manager\"]\n  IN[\"Inspector\"]\n  ME[\"Maintenance Engineer\"]\n\n  SDI[[\"SmartDroneInspection Platform\n(Web Portal & Mobile Application)\"]]\n\n  PAYPAL[\"Online Payment Gateway\n(PayPal)\"]\n  YOLO[\"AI Defect Detection\nService (YOLO11)\"]\n  LLM[\"AI Report & Repair Scope\nAdvisory Service\"]\n\n  PA -->|\"Platform accounts, asset categories\n& audit logs\"| SDI\n  PM -->|\"Subscription & drone lease approvals,\nleasable drone pool\"| SDI\n  OM -->|\"Organization setup, assets, fleet, schedules,\nreport & budget approvals\"| SDI\n  IN -->|\"Pilot license, flight permits, field sessions,\nphotos, findings & report drafts\"| SDI\n  ME -->|\"Repair plans, cost estimates,\nwork logs & completion reports\"| SDI\n\n  SDI <-->|\"Online subscription &\nlease payments\"| PAYPAL\n  SDI <-->|\"Inspection photos ->\nsuggested defects\"| YOLO\n  SDI <-->|\"Report drafts &\nrepair recommendations\"| LLM"
+  },
+  {
+    "index": 2,
+    "digest": "f568970e5ba2",
+    "title": "Use Case Diagram",
+    "source_md": "reports/report-3-software-requirement-specification/02-user-requirements.md",
+    "mmd_path": "diagrams/mermaid/02_report-3-software-requirement-specification_use-case-diagram_f568970e5ba2.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/f568970e5ba2.png",
+    "code": "flowchart LR\n  PA[\"Platform Admin\"] --> UC_GOV[\"Manage Platform Users & Asset Categories\"]\n  PM[\"Platform Manager\"] --> UC_SUB[\"Manage Subscriptions & Drone Leases\"]\n  PP[\"Online Payment Gateway\"] --> UC_SUB\n  OM[\"Organization Manager\"] --> UC_SUB\n  OM --> UC_ASSET[\"Manage Assets & Drone Fleet\"]\n  OM --> UC_SCHED[\"Schedule One-Off & Recurring Inspections\"]\n  OM --> UC_REV[\"Review & Publish Inspection Reports\"]\n  OM --> UC_MAINT_GOV[\"Approve Maintenance Budgets & Accept Repairs\"]\n\n  IN[\"Inspector\"] --> UC_PERMIT[\"Upload Flight Permit & Check Airspace\"]\n  IN --> UC_EXEC[\"Log Field Sessions & Upload Photos\"]\n  IN --> UC_DEFECT[\"Review AI Defects & Confirm Findings\"]\n  IN --> UC_REP_AUTH[\"Draft & Submit Inspection Reports\"]\n\n  ME[\"Maintenance Engineer\"] --> UC_TASK[\"Execute Repair Tasks & Verify Work Logs\"]\n  ME --> UC_EST[\"Prepare Cost Estimates & Change Orders\"]\n  ME --> UC_COMP_AUTH[\"Prepare Maintenance Completion Reports\"]\n\n  SYS[\"Automated System / AI\"] --> UC_AI[\"Detect Candidate Defects (YOLO11)\"]\n  SYS --> UC_LLM[\"Generate Report & Repair Scope Suggestions\"]"
+  },
+  {
+    "index": 3,
+    "digest": "8f206d51b21a",
+    "title": "Screens Flow Diagram",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/03_report-3-software-requirement-specification_screens-flow-diagram_8f206d51b21a.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/8f206d51b21a.png",
+    "code": "%% title: Screens Flow Diagram\nflowchart TD\n  LOGIN[\"Login & Organization Registration\"] --> DASH[\"Operational Dashboard & Calendar\"]\n\n  DASH --> WORKFORCE[\"Workforce & Subscriptions\"]\n  DASH --> ASSETS[\"Assets, Checkpoints & Drone Fleet / B2B Leasing\"]\n  DASH --> SCHED[\"Inspections Queue & Recurring Schedules\"]\n\n  SCHED --> DISPATCH[\"Mission Dispatch & Airspace No-Fly Zone Map\"]\n  DISPATCH --> PERMIT[\"Self-Service Flight Permit Upload Gate\"]\n  PERMIT -->|\"Permit Uploaded (Ready for Flight)\"| FIELD[\"On-Site Field Session (Web & Mobile)\"]\n\n  FIELD --> EVIDENCE[\"Evidence Upload & Metadata Register\"]\n  EVIDENCE --> YOLO[\"AI Defect Detection (YOLO11) & Finding Verification\"]\n  YOLO --> REPORT_DRAFT[\"AI / Manual Report Drafting & Author Verification\"]\n\n  REPORT_DRAFT --> REPORT_REV[\"Independent Report Review & Immutable PDF Publication\"]\n  REPORT_REV --> HANDOFF[\"Per-Finding Corrective Handoff to Maintenance\"]\n\n  HANDOFF --> WO_PLAN[\"Work Order Creation, AI Scope Advisor & Team Assignment\"]\n  WO_PLAN --> WO_EST[\"Itemized Cost Estimation & Budget Approval\"]\n  WO_EST --> WO_EXEC[\"Field Repair Execution, Change Orders & Verified Work Logs\"]\n  WO_EXEC --> WO_CLOSE[\"Completion Report PDF, Independent Acceptance & Cost Closure\"]"
+  },
+  {
+    "index": 4,
+    "digest": "492eaf433045",
+    "title": "Entity Relationship Diagram (ERD)",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/04_report-3-software-requirement-specification_entity-relationship-diagram-erd_492eaf433045.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/492eaf433045.png",
+    "code": "%% title: Entity Relationship Diagram (ERD)\nerDiagram\n  ORGANIZATION ||--o{ USER : employs\n  ORGANIZATION ||--o{ SUBSCRIPTION : holds\n  SUBSCRIPTION ||--o{ PAYMENT_TRANSACTION : settles\n  ORGANIZATION ||--o{ DRONE : owns\n  ORGANIZATION ||--o{ DRONE_LEASE : contracts\n  PLATFORM_DRONE ||--o{ DRONE_LEASE : leased_via\n  DRONE_LEASE ||--o| DRONE : provisions\n  USER ||--o{ DRONE_LEASE : requests\n  ORGANIZATION ||--o{ ASSET : owns\n  ASSET_CATEGORY ||--o{ ASSET : categorizes\n  ASSET ||--o{ ASSET_DOCUMENT : attaches\n\n  ORGANIZATION ||--o{ AUDIT_EVENT : records\n  ORGANIZATION ||--o{ NOTIFICATION : receives\n  USER ||--o{ NOTIFICATION : receives\n\n  USER ||--o{ AUTH_SESSION : opens\n\n  ORGANIZATION ||--o{ INSPECTION : owns\n  ASSET ||--o{ INSPECTION : undergoes\n  USER ||--o{ INSPECTION : \"assigned inspector\"\n  DRONE ||--o{ INSPECTION : \"assigned drone\"\n  ORGANIZATION ||--o{ RECURRING_INSPECTION_SCHEDULE : schedules\n  ASSET ||--o{ RECURRING_INSPECTION_SCHEDULE : recurs_for\n  USER ||--o{ RECURRING_INSPECTION_SCHEDULE : \"default inspector\"\n  DRONE ||--o{ RECURRING_INSPECTION_SCHEDULE : \"default drone\"\n  RECURRING_INSPECTION_SCHEDULE ||--o{ SCHEDULE_OCCURRENCE : generates\n  ORGANIZATION ||--o{ SCHEDULE_OCCURRENCE : scopes\n  INSPECTION |o--o{ SCHEDULE_OCCURRENCE : fulfills\n  RECURRING_INSPECTION_SCHEDULE ||--o{ INSPECTION : dispatches\n\n  INSPECTION ||--o{ FIELD_SESSION : executes\n  INSPECTION ||--o{ EVIDENCE : contains\n  FIELD_SESSION ||--o{ EVIDENCE : captures\n  INSPECTION ||--o{ FINDING : records\n  EVIDENCE ||--o{ FINDING : locates\n\n  INSPECTION ||--o{ INSPECTION_REPORT : delivers\n\n  ORGANIZATION ||--o{ MAINTENANCE_WORK_ORDER : owns\n  ASSET ||--o{ MAINTENANCE_WORK_ORDER : remediates\n  USER ||--o{ MAINTENANCE_WORK_ORDER : governs\n  FINDING ||--o{ MAINTENANCE_WORK_ORDER : initiates\n  INSPECTION_REPORT ||--o{ MAINTENANCE_WORK_ORDER : references\n  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_TEAM_MEMBER : deploys\n  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_TASK : deconstructs\n  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_ESTIMATE_VERSION : projects\n  MAINTENANCE_ESTIMATE_VERSION ||--o{ MAINTENANCE_COST_LINE : itemizes\n  MAINTENANCE_TASK ||--o{ MAINTENANCE_COST_LINE : accrues\n  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_CHANGE_ORDER : requests\n  MAINTENANCE_TASK ||--o{ MAINTENANCE_WORK_LOG : tracks\n  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_REPORT : delivers\n  MAINTENANCE_REPORT ||--o{ MAINTENANCE_ACCEPTANCE_DECISION : accepts\n\n  REPAIR_KNOWLEDGE_CHUNK {\n    uuid id PK\n    varchar chunk_code UK\n    varchar standard_code\n    varchar defect_category\n    vector embedding\n  }\n  EVENT_PUBLICATION {\n    uuid id PK\n    varchar listener_id\n    varchar event_type\n    timestamptz publication_date\n    timestamptz completion_date\n  }"
+  },
+  {
+    "index": 5,
+    "digest": "4fbe1139f70d",
+    "title": "Screen Layout Placeholder - 3.2.1 Organization Registration & User Sign-In",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/05_report-3-software-requirement-specification_screen-layout-placeholder-3-2-1-organization-reg_4fbe1139f70d.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/4fbe1139f70d.png",
+    "code": "%% title: Screen Layout Placeholder - 3.2.1 Organization Registration & User Sign-In"
+  },
+  {
+    "index": 6,
+    "digest": "930c84eede0c",
+    "title": "Screen Layout Placeholder - 3.2.2 Session Management & Role-Based Access Control",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/06_report-3-software-requirement-specification_screen-layout-placeholder-3-2-2-session-manageme_930c84eede0c.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/930c84eede0c.png",
+    "code": "%% title: Screen Layout Placeholder - 3.2.2 Session Management & Role-Based Access Control"
+  },
+  {
+    "index": 7,
+    "digest": "4c1b11a5bb6d",
+    "title": "Screen Layout Placeholder - 3.3.1 Workforce Provisioning & Pilot License Profile",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/07_report-3-software-requirement-specification_screen-layout-placeholder-3-3-1-workforce-provis_4c1b11a5bb6d.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/4c1b11a5bb6d.png",
+    "code": "%% title: Screen Layout Placeholder - 3.3.1 Workforce Provisioning & Pilot License Profile"
+  },
+  {
+    "index": 8,
+    "digest": "889e55530c8f",
+    "title": "Screen Layout Placeholder - 3.3.2 Enterprise Subscription & Online Payment",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/08_report-3-software-requirement-specification_screen-layout-placeholder-3-3-2-enterprise-subsc_889e55530c8f.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/889e55530c8f.png",
+    "code": "%% title: Screen Layout Placeholder - 3.3.2 Enterprise Subscription & Online Payment"
+  },
+  {
+    "index": 9,
+    "digest": "0c56853d27b3",
+    "title": "Screen Layout Placeholder - 3.4.1 Infrastructure Asset & Document Management",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/09_report-3-software-requirement-specification_screen-layout-placeholder-3-4-1-infrastructure-a_0c56853d27b3.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/0c56853d27b3.png",
+    "code": "%% title: Screen Layout Placeholder - 3.4.1 Infrastructure Asset & Document Management"
+  },
+  {
+    "index": 10,
+    "digest": "fc87ce92db41",
+    "title": "Screen Layout Placeholder - 3.4.2 Drone Inventory & B2B Drone Leasing",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/10_report-3-software-requirement-specification_screen-layout-placeholder-3-4-2-drone-inventory-_fc87ce92db41.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/fc87ce92db41.png",
+    "code": "%% title: Screen Layout Placeholder - 3.4.2 Drone Inventory & B2B Drone Leasing"
+  },
+  {
+    "index": 11,
+    "digest": "bbf69206f00e",
+    "title": "Screen Layout Placeholder - 3.5.1 Recurring Inspection Schedule Management",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/11_report-3-software-requirement-specification_screen-layout-placeholder-3-5-1-recurring-inspec_bbf69206f00e.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/bbf69206f00e.png",
+    "code": "%% title: Screen Layout Placeholder - 3.5.1 Recurring Inspection Schedule Management"
+  },
+  {
+    "index": 12,
+    "digest": "b98043aeae02",
+    "title": "Screen Layout Placeholder - 3.5.2 Event-Driven In-App Notifications",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/12_report-3-software-requirement-specification_screen-layout-placeholder-3-5-2-event-driven-in-_b98043aeae02.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/b98043aeae02.png",
+    "code": "%% title: Screen Layout Placeholder - 3.5.2 Event-Driven In-App Notifications"
+  },
+  {
+    "index": 13,
+    "digest": "11bcfaa1bd68",
+    "title": "Screen Layout Placeholder - 3.6.1 Inspection Mission Scheduling & Conflict Check",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/13_report-3-software-requirement-specification_screen-layout-placeholder-3-6-1-inspection-missi_11bcfaa1bd68.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/11bcfaa1bd68.png",
+    "code": "%% title: Screen Layout Placeholder - 3.6.1 Inspection Mission Scheduling & Conflict Check"
+  },
+  {
+    "index": 14,
+    "digest": "a9a572ed9632",
+    "title": "Screen Layout Placeholder - 3.6.2 Interactive Airspace & No-Fly Zone Map",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/14_report-3-software-requirement-specification_screen-layout-placeholder-3-6-2-interactive-airs_a9a572ed9632.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/a9a572ed9632.png",
+    "code": "%% title: Screen Layout Placeholder - 3.6.2 Interactive Airspace & No-Fly Zone Map"
+  },
+  {
+    "index": 15,
+    "digest": "fb59336b9c1b",
+    "title": "Screen Layout Placeholder - 3.7.1 Flight Permit Upload & Readiness Gate",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/15_report-3-software-requirement-specification_screen-layout-placeholder-3-7-1-flight-permit-up_fb59336b9c1b.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/fb59336b9c1b.png",
+    "code": "%% title: Screen Layout Placeholder - 3.7.1 Flight Permit Upload & Readiness Gate"
+  },
+  {
+    "index": 16,
+    "digest": "117d370e5e95",
+    "title": "Screen Layout Placeholder - 3.7.2 On-Site Field Flight Session Logging",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/16_report-3-software-requirement-specification_screen-layout-placeholder-3-7-2-on-site-field-fl_117d370e5e95.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/117d370e5e95.png",
+    "code": "%% title: Screen Layout Placeholder - 3.7.2 On-Site Field Flight Session Logging"
+  },
+  {
+    "index": 17,
+    "digest": "6eae2c060818",
+    "title": "Screen Layout Placeholder - 3.8.1 Multi-Role Operational Analytics Dashboard",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/17_report-3-software-requirement-specification_screen-layout-placeholder-3-8-1-multi-role-opera_6eae2c060818.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/6eae2c060818.png",
+    "code": "%% title: Screen Layout Placeholder - 3.8.1 Multi-Role Operational Analytics Dashboard"
+  },
+  {
+    "index": 18,
+    "digest": "696d5861ac58",
+    "title": "Screen Layout Placeholder - 3.8.2 Inspector Schedule Calendar & Localization",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/18_report-3-software-requirement-specification_screen-layout-placeholder-3-8-2-inspector-schedu_696d5861ac58.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/696d5861ac58.png",
+    "code": "%% title: Screen Layout Placeholder - 3.8.2 Inspector Schedule Calendar & Localization"
+  },
+  {
+    "index": 19,
+    "digest": "80db669a2c0f",
+    "title": "Screen Layout Placeholder - 3.9.1 Inspection Evidence Upload & Metadata Management",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/19_report-3-software-requirement-specification_screen-layout-placeholder-3-9-1-inspection-evide_80db669a2c0f.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/80db669a2c0f.png",
+    "code": "%% title: Screen Layout Placeholder - 3.9.1 Inspection Evidence Upload & Metadata Management"
+  },
+  {
+    "index": 20,
+    "digest": "3f03f308a394",
+    "title": "Screen Layout Placeholder - 3.9.2 AI Defect Detection & Finding Verification",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/20_report-3-software-requirement-specification_screen-layout-placeholder-3-9-2-ai-defect-detect_3f03f308a394.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/3f03f308a394.png",
+    "code": "%% title: Screen Layout Placeholder - 3.9.2 AI Defect Detection & Finding Verification"
+  },
+  {
+    "index": 21,
+    "digest": "dfefd5269cfd",
+    "title": "Screen Layout Placeholder - 3.10.1 AI-Assisted & Manual Report Drafting",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/21_report-3-software-requirement-specification_screen-layout-placeholder-3-10-1-ai-assisted-man_dfefd5269cfd.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/dfefd5269cfd.png",
+    "code": "%% title: Screen Layout Placeholder - 3.10.1 AI-Assisted & Manual Report Drafting"
+  },
+  {
+    "index": 22,
+    "digest": "483f80b311a8",
+    "title": "Screen Layout Placeholder - 3.10.2 Report Review, PDF Publication & Maintenance Handoff",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/22_report-3-software-requirement-specification_screen-layout-placeholder-3-10-2-report-review-p_483f80b311a8.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/483f80b311a8.png",
+    "code": "%% title: Screen Layout Placeholder - 3.10.2 Report Review, PDF Publication & Maintenance Handoff"
+  },
+  {
+    "index": 23,
+    "digest": "2e9df4b61b8a",
+    "title": "Screen Layout Placeholder - 3.11.1 Work Order Creation & AI Repair Scope Advisory",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/23_report-3-software-requirement-specification_screen-layout-placeholder-3-11-1-work-order-crea_2e9df4b61b8a.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/2e9df4b61b8a.png",
+    "code": "%% title: Screen Layout Placeholder - 3.11.1 Work Order Creation & AI Repair Scope Advisory"
+  },
+  {
+    "index": 24,
+    "digest": "a8aea16c02a6",
+    "title": "Screen Layout Placeholder - 3.11.2 Maintenance Team & Task Assignment",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/24_report-3-software-requirement-specification_screen-layout-placeholder-3-11-2-maintenance-tea_a8aea16c02a6.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/a8aea16c02a6.png",
+    "code": "%% title: Screen Layout Placeholder - 3.11.2 Maintenance Team & Task Assignment"
+  },
+  {
+    "index": 25,
+    "digest": "d8d60c098b36",
+    "title": "Screen Layout Placeholder - 3.12.1 Cost Estimation, Budget Approval & Change Orders",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/25_report-3-software-requirement-specification_screen-layout-placeholder-3-12-1-cost-estimation_d8d60c098b36.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/d8d60c098b36.png",
+    "code": "%% title: Screen Layout Placeholder - 3.12.1 Cost Estimation, Budget Approval & Change Orders"
+  },
+  {
+    "index": 26,
+    "digest": "d36331f946d9",
+    "title": "Screen Layout Placeholder - 3.12.2 Field Repair Execution & Work Log Verification",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/26_report-3-software-requirement-specification_screen-layout-placeholder-3-12-2-field-repair-ex_d36331f946d9.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/d36331f946d9.png",
+    "code": "%% title: Screen Layout Placeholder - 3.12.2 Field Repair Execution & Work Log Verification"
+  },
+  {
+    "index": 27,
+    "digest": "020aa84e7e36",
+    "title": "Screen Layout Placeholder - 3.13.1 Maintenance Completion Reporting & Technical Acceptance",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/27_report-3-software-requirement-specification_screen-layout-placeholder-3-13-1-maintenance-com_020aa84e7e36.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/020aa84e7e36.png",
+    "code": "%% title: Screen Layout Placeholder - 3.13.1 Maintenance Completion Reporting & Technical Acceptance"
+  },
+  {
+    "index": 28,
+    "digest": "7e8a144ec6f4",
+    "title": "Screen Layout Placeholder - 3.13.2 Cost Reconciliation & Work Order Closure",
+    "source_md": "reports/report-3-software-requirement-specification/03-functional-requirements.md",
+    "mmd_path": "diagrams/mermaid/28_report-3-software-requirement-specification_screen-layout-placeholder-3-13-2-cost-reconcilia_7e8a144ec6f4.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-3-software-requirement-specification/assets/mermaid/7e8a144ec6f4.png",
+    "code": "%% title: Screen Layout Placeholder - 3.13.2 Cost Reconciliation & Work Order Closure"
+  },
+  {
+    "index": 29,
+    "digest": "e3dbdd664690",
+    "title": "System Architecture Diagram",
+    "source_md": "reports/report-4-software-design-document/01-system-design.md",
+    "mmd_path": "diagrams/mermaid/29_report-4-software-design-document_system-architecture-diagram_e3dbdd664690.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/e3dbdd664690.png",
+    "code": "%% title: System Architecture Diagram\nflowchart TD\n  subgraph Clients[\"Client Presentation Layer\"]\n    CLIENT_WEB[\"Web Portal SPA\\n(React 19.2.8 / TypeScript 6.0 / MUI 9.4 / Nginx)\"]\n    CLIENT_MOB[\"Mobile Field Client\\n(Flutter / Dart 3.13 / Riverpod 3.4)\"]\n  end\n\n  subgraph Backend[\"Spring Boot 4.1.0 & Spring Modulith 2.1.1 Application Server (Java 21)\"]\n    SEC_FILTER[\"Spring Security OAuth2 JWT + CSRF + AuthRateLimitFilter\"]\n    MOD_USERS[\"users & workforce\\n(Auth, RBAC, Pilot Licenses)\"]\n    MOD_SUBS[\"subscriptions\\n(Enterprise Plans & PayPal/Wire)\"]\n    MOD_ASSETS[\"assets\\n(Assets, Checkpoints, Drones & B2B Leasing)\"]\n    MOD_INSP[\"inspections\\n(Schedules, Permit Gate, Sessions, Evidence, Findings, Reports)\"]\n    MOD_MAINT[\"maintenance\\n(RAG Scope Advisor, Work Orders, Estimates, Logs, Acceptance)\"]\n    MOD_NOTIF[\"notifications & dashboard\\n(In-App Inbox, Outbox Listeners, Analytics)\"]\n    MOD_INFRA[\"infrastructure & shared\\n(MinIO, YOLO/LLM Clients, OpenHTMLtoPDF, Audit)\"]\n  end\n\n  subgraph DataAndStorage[\"Persistence & Object Storage Layer\"]\n    DB_PG[(\"PostgreSQL 17 + pgvector\\n(30 Domain Tables + event_publication)\")]\n    STORE_MINIO[(\"MinIO Object Storage\\n(inspection-evidence Bucket)\")]\n  end\n\n  subgraph ExternalAndAI[\"AI Microservice & External Gateways\"]\n    AI_SERVICE[\"Self-Hosted YOLO11 Service\\n(Python 3.11 / FastAPI / Ultralytics 8.3.55)\"]\n    LLM_GATEWAY[\"OpenAI-Compatible Gateway\\n(Vision Fallback, LLM Report Draft & RAG Scope Advisor)\"]\n    PAYPAL[\"PayPal REST API v2\\n(Orders v2 & Webhook Verification)\"]\n  end\n\n  CLIENT_WEB -->|\"HTTPS REST (/api/v1) + HttpOnly Cookie\"| SEC_FILTER\n  CLIENT_MOB -->|\"HTTPS REST (/api/v1/mobile/auth & /api/v1)\"| SEC_FILTER\n\n  SEC_FILTER --> MOD_USERS\n  SEC_FILTER --> MOD_SUBS\n  SEC_FILTER --> MOD_ASSETS\n  SEC_FILTER --> MOD_INSP\n  SEC_FILTER --> MOD_MAINT\n  SEC_FILTER --> MOD_NOTIF\n\n  MOD_SUBS --> MOD_INFRA\n  MOD_ASSETS --> MOD_INFRA\n  MOD_INSP --> MOD_INFRA\n  MOD_MAINT --> MOD_INFRA\n  MOD_NOTIF --> MOD_INFRA\n\n  MOD_INFRA -->|\"JDBC / JPA / Flyway\"| DB_PG\n  MOD_INFRA -->|\"S3 API (Documents, Permits, Evidence, PDFs)\"| STORE_MINIO\n  MOD_INFRA -->|\"POST /predict (Multipart Image)\"| AI_SERVICE\n  MOD_INFRA -->|\"POST /v1/chat/completions\"| LLM_GATEWAY\n  MOD_INFRA <-->|\"Orders v2 & Signed Webhooks\"| PAYPAL"
+  },
+  {
+    "index": 30,
+    "digest": "8093bc65a748",
+    "title": "Backend Subsystem Package Diagram",
+    "source_md": "reports/report-4-software-design-document/01-system-design.md",
+    "mmd_path": "diagrams/mermaid/30_report-4-software-design-document_backend-subsystem-package-diagram_8093bc65a748.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/8093bc65a748.png",
+    "code": "%% title: Backend Subsystem Package Diagram\nflowchart TD\n  subgraph com.smartdroneinspection[\"com.smartdroneinspection (Spring Modulith 2.1.1)\"]\n    USERS[\"users\\n(Auth, Sessions, Organizations, Platform Users)\"]\n    WORKFORCE[\"workforce\\n(Tenant Workforce Provisioning & Roles)\"]\n    SUBSCRIPTIONS[\"subscriptions\\n(Enterprise Subscriptions & PayPal/Wire)\"]\n    ASSETS[\"assets\\n(Categories, Assets, Documents, Drones & B2B Leasing)\"]\n    INSPECTIONS[\"inspections\\n(Missions, Schedules, Permit Gate, Sessions, Evidence, Findings, Reports)\"]\n    MAINTENANCE[\"maintenance\\n(Work Orders, RAG Advisor, Estimates, Change Orders, Logs, Acceptance)\"]\n    NOTIFICATIONS[\"notifications\\n(In-App Inbox & Event Listeners)\"]\n    DASHBOARD[\"dashboard\\n(Role-Scoped Operational Metrics)\"]\n    INFRASTRUCTURE[\"infrastructure\\n(Security, MinIO, AI/LLM/PayPal Clients, Audit)\"]\n    SHARED[\"shared\\n(ApiResponse, RFC 9457 Exceptions, Pagination, i18n)\"]\n  end\n\n  WORKFORCE --> USERS\n  WORKFORCE --> INFRASTRUCTURE\n  SUBSCRIPTIONS --> USERS\n  SUBSCRIPTIONS --> INFRASTRUCTURE\n  ASSETS --> USERS\n  ASSETS --> SUBSCRIPTIONS\n  ASSETS --> INFRASTRUCTURE\n  INSPECTIONS --> ASSETS\n  INSPECTIONS --> USERS\n  INSPECTIONS --> SUBSCRIPTIONS\n  INSPECTIONS --> INFRASTRUCTURE\n  MAINTENANCE --> INSPECTIONS\n  MAINTENANCE --> ASSETS\n  MAINTENANCE --> USERS\n  MAINTENANCE --> INFRASTRUCTURE\n  NOTIFICATIONS -.->|\"Domain Events\\n(event_publication)\"| INSPECTIONS\n  NOTIFICATIONS -.->|\"Domain Events\\n(event_publication)\"| MAINTENANCE\n  DASHBOARD --> ASSETS\n  DASHBOARD --> INSPECTIONS\n  DASHBOARD --> MAINTENANCE\n  USERS --> SHARED\n  ASSETS --> SHARED\n  INSPECTIONS --> SHARED\n  MAINTENANCE --> SHARED\n  NOTIFICATIONS --> SHARED"
+  },
+  {
+    "index": 31,
+    "digest": "b321d4a700c8",
+    "title": "Database Entity Relationship Diagram (ERD)",
+    "source_md": "reports/report-4-software-design-document/02-database-design.md",
+    "mmd_path": "diagrams/mermaid/31_report-4-software-design-document_database-entity-relationship-diagram-erd_b321d4a700c8.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/b321d4a700c8.png",
+    "code": "%% title: Database Entity Relationship Diagram (ERD)\nerDiagram\n  ORGANIZATION ||--o{ USER : employs\n  ORGANIZATION ||--o{ SUBSCRIPTION : holds\n  SUBSCRIPTION ||--o{ PAYMENT_TRANSACTION : settles\n  ORGANIZATION ||--o{ DRONE : owns\n  ORGANIZATION ||--o{ DRONE_LEASE : contracts\n  PLATFORM_DRONE ||--o{ DRONE_LEASE : leased_via\n  DRONE_LEASE ||--o| DRONE : provisions\n  USER ||--o{ DRONE_LEASE : requests\n  ORGANIZATION ||--o{ ASSET : owns\n  ASSET_CATEGORY ||--o{ ASSET : categorizes\n  ASSET ||--o{ ASSET_DOCUMENT : attaches\n\n  ORGANIZATION ||--o{ AUDIT_EVENT : records\n  ORGANIZATION ||--o{ NOTIFICATION : receives\n  USER ||--o{ NOTIFICATION : receives\n\n  USER ||--o{ AUTH_SESSION : opens\n\n  ORGANIZATION ||--o{ INSPECTION : owns\n  ASSET ||--o{ INSPECTION : undergoes\n  USER ||--o{ INSPECTION : \"assigned inspector\"\n  DRONE ||--o{ INSPECTION : \"assigned drone\"\n  ORGANIZATION ||--o{ RECURRING_INSPECTION_SCHEDULE : schedules\n  ASSET ||--o{ RECURRING_INSPECTION_SCHEDULE : recurs_for\n  USER ||--o{ RECURRING_INSPECTION_SCHEDULE : \"default inspector\"\n  DRONE ||--o{ RECURRING_INSPECTION_SCHEDULE : \"default drone\"\n  RECURRING_INSPECTION_SCHEDULE ||--o{ SCHEDULE_OCCURRENCE : generates\n  ORGANIZATION ||--o{ SCHEDULE_OCCURRENCE : scopes\n  INSPECTION |o--o{ SCHEDULE_OCCURRENCE : fulfills\n  RECURRING_INSPECTION_SCHEDULE ||--o{ INSPECTION : dispatches\n\n  INSPECTION ||--o{ FIELD_SESSION : executes\n  INSPECTION ||--o{ EVIDENCE : contains\n  FIELD_SESSION ||--o{ EVIDENCE : captures\n  INSPECTION ||--o{ FINDING : records\n  EVIDENCE ||--o{ FINDING : locates\n\n  INSPECTION ||--o{ INSPECTION_REPORT : delivers\n\n  ORGANIZATION ||--o{ MAINTENANCE_WORK_ORDER : owns\n  ASSET ||--o{ MAINTENANCE_WORK_ORDER : remediates\n  USER ||--o{ MAINTENANCE_WORK_ORDER : governs\n  FINDING ||--o{ MAINTENANCE_WORK_ORDER : initiates\n  INSPECTION_REPORT ||--o{ MAINTENANCE_WORK_ORDER : references\n  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_TEAM_MEMBER : deploys\n  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_TASK : deconstructs\n  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_ESTIMATE_VERSION : projects\n  MAINTENANCE_ESTIMATE_VERSION ||--o{ MAINTENANCE_COST_LINE : itemizes\n  MAINTENANCE_TASK ||--o{ MAINTENANCE_COST_LINE : accrues\n  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_CHANGE_ORDER : requests\n  MAINTENANCE_TASK ||--o{ MAINTENANCE_WORK_LOG : tracks\n  MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_REPORT : delivers\n  MAINTENANCE_REPORT ||--o{ MAINTENANCE_ACCEPTANCE_DECISION : accepts\n\n  REPAIR_KNOWLEDGE_CHUNK {\n    uuid id PK\n    varchar chunk_code UK\n    varchar standard_code\n    varchar defect_category\n    vector embedding\n  }\n  EVENT_PUBLICATION {\n    uuid id PK\n    varchar listener_id\n    varchar event_type\n    timestamptz publication_date\n    timestamptz completion_date\n  }"
+  },
+  {
+    "index": 32,
+    "digest": "8fb5e082496c",
+    "title": "Subscription and B2B Drone Lease State Machines",
+    "source_md": "reports/report-4-software-design-document/02-database-design.md",
+    "mmd_path": "diagrams/mermaid/32_report-4-software-design-document_subscription-and-b2b-drone-lease-state-machines_8fb5e082496c.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/8fb5e082496c.png",
+    "code": "%% title: Subscription and B2B Drone Lease State Machines\nstateDiagram-v2\n  direction LR\n  state \"Enterprise Subscription (subscriptions.status)\" as SubSM {\n    [*] --> SUB_PENDING : requestEnterprise() [FR-03]\n    SUB_PENDING --> SUB_ACTIVE : confirmPayment() / captureOrder() [FR-03]\n    SUB_PENDING --> SUB_CANCELLED : cancel() [FR-03]\n    SUB_ACTIVE --> SUB_PAST_DUE : markPastDue() [FR-03]\n    SUB_PAST_DUE --> SUB_ACTIVE : confirmPayment() [FR-03]\n    SUB_PAST_DUE --> SUB_SUSPENDED : suspend() [FR-03]\n    SUB_SUSPENDED --> SUB_ACTIVE : confirmPayment() [FR-03]\n    SUB_ACTIVE --> SUB_EXPIRED : expire() / superseded by renewal [FR-03]\n    SUB_ACTIVE --> SUB_CANCELLED : cancel() [FR-03]\n    SUB_EXPIRED --> [*]\n    SUB_CANCELLED --> [*]\n  }\n\n  state \"B2B Drone Lease (drone_leases.status)\" as LeaseSM {\n    [*] --> LEASE_PENDING : requestLease() [FR-05]\n    LEASE_PENDING --> LEASE_ACTIVE : activateWire() / activatePayPal() [FR-05]\n    LEASE_PENDING --> LEASE_CANCELLED : cancel() [FR-05]\n    LEASE_ACTIVE --> LEASE_RECLAIMED : reclaim() [FR-05]\n    LEASE_RECLAIMED --> [*]\n    LEASE_CANCELLED --> [*]\n  }"
+  },
+  {
+    "index": 33,
+    "digest": "53a33f372cdf",
+    "title": "Inspection, FieldSession and InspectionReport State Machine Diagram",
+    "source_md": "reports/report-4-software-design-document/02-database-design.md",
+    "mmd_path": "diagrams/mermaid/33_report-4-software-design-document_inspection-fieldsession-and-inspectionreport-sta_53a33f372cdf.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/53a33f372cdf.png",
+    "code": "%% title: Inspection, FieldSession and InspectionReport State Machine Diagram\nstateDiagram-v2\n  direction TB\n  [*] --> DRAFT : create draft [FR-06]\n  [*] --> ASSIGNED : createInspection(inspectorId, droneId) [FR-06, FR-07]\n  DRAFT --> ASSIGNED : dispatch(inspectorId, droneId) [FR-06]\n  ASSIGNED --> READY_FOR_FLIGHT : recordFlightPermit() [FR-08]\n  READY_FOR_FLIGHT --> IN_PROGRESS : startFieldSession(preFlightNote) [FR-09]\n  IN_PROGRESS --> READY_FOR_FLIGHT : postponeSession(reason) [FR-09]\n  IN_PROGRESS --> FIELD_COMPLETED : completeSession(outcomeNotes) [FR-09]\n  FIELD_COMPLETED --> IN_PROGRESS : startAdditionalSession() [FR-09]\n  FIELD_COMPLETED --> REPORT_DRAFT : confirmFindings(snapshotHash) [FR-12]\n  REPORT_DRAFT --> FIELD_COMPLETED : reopenFindings() / finding edited [FR-12]\n  REPORT_DRAFT --> REPORT_PUBLISHED : publishReport() (PDF + SHA-256) [FR-14]\n  REPORT_PUBLISHED --> REPAIR_PENDING : completeCorrectiveHandoff(findingIds != empty) [FR-14]\n  REPORT_PUBLISHED --> COMPLETED : completeCorrectiveHandoff(empty) [FR-14]\n  REPAIR_PENDING --> COMPLETED : all linked WorkOrders CLOSED [FR-16]\n  ASSIGNED --> CANCELLED : cancel() [FR-06]\n  READY_FOR_FLIGHT --> CANCELLED : cancel() [FR-06]\n  COMPLETED --> [*]\n  CANCELLED --> [*]"
+  },
+  {
+    "index": 34,
+    "digest": "4400d944dca4",
+    "title": "InspectionReport Version Lifecycle State Machine Diagram",
+    "source_md": "reports/report-4-software-design-document/02-database-design.md",
+    "mmd_path": "diagrams/mermaid/34_report-4-software-design-document_inspectionreport-version-lifecycle-state-machine_4400d944dca4.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/4400d944dca4.png",
+    "code": "%% title: InspectionReport Version Lifecycle State Machine Diagram\nstateDiagram-v2\n  direction LR\n  [*] --> RPT_DRAFT : createDraft (AI / Manual) [FR-13]\n  RPT_DRAFT --> AUTHOR_VERIFIED : verifyAsAuthor() [FR-13]\n  AUTHOR_VERIFIED --> SUBMITTED : submit() [FR-13]\n  SUBMITTED --> RPT_DRAFT : withdraw() (before review) [FR-13]\n  SUBMITTED --> RETURNED : reviewBy(approve=false, reason) [FR-14]\n  RETURNED --> AUTHOR_VERIFIED : verifyAsAuthor() (after edit) [FR-13]\n  SUBMITTED --> APPROVED : reviewBy(approve=true) [FR-14]\n  APPROVED --> PUBLISHED : publish() (renders PDF to MinIO) [FR-14]\n  PUBLISHED --> SUPERSEDED : newer version PUBLISHED [FR-14]\n  PUBLISHED --> [*]\n  SUPERSEDED --> [*]"
+  },
+  {
+    "index": 35,
+    "digest": "1750d55011cc",
+    "title": "MaintenanceWorkOrder 12-State Lifecycle Diagram",
+    "source_md": "reports/report-4-software-design-document/02-database-design.md",
+    "mmd_path": "diagrams/mermaid/35_report-4-software-design-document_maintenanceworkorder-12-state-lifecycle-diagram_1750d55011cc.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/1750d55011cc.png",
+    "code": "%% title: MaintenanceWorkOrder 12-State Lifecycle Diagram\nstateDiagram-v2\n  direction TB\n  [*] --> WO_DRAFT : createWorkOrder() [FR-15]\n  WO_DRAFT --> AWAITING_APPROVAL : submitEstimate() [FR-15]\n  AWAITING_APPROVAL --> APPROVED : approveEstimate() [FR-15]\n  AWAITING_APPROVAL --> REWORK_REQUIRED : rejectEstimate(reason) [FR-15]\n  REWORK_REQUIRED --> AWAITING_APPROVAL : submitEstimate() (revised) [FR-15]\n  APPROVED --> READY : release() [FR-15]\n  READY --> IN_PROGRESS : start() [FR-15]\n  IN_PROGRESS --> WORK_COMPLETED : declareComplete() (all logs VERIFIED) [FR-15]\n  WORK_COMPLETED --> SUBMITTED_FOR_ACCEPTANCE : submitCompletionReport() [FR-16]\n  SUBMITTED_FOR_ACCEPTANCE --> ACCEPTED : recordAcceptance(ACCEPTED) [FR-16]\n  SUBMITTED_FOR_ACCEPTANCE --> REWORK_REQUIRED : recordAcceptance(REWORK_REQUIRED) [FR-16]\n  SUBMITTED_FOR_ACCEPTANCE --> REINSPECTION_REQUIRED : recordAcceptance(REINSPECTION_REQUIRED) [FR-16]\n  REWORK_REQUIRED --> IN_PROGRESS : resumeAfterRework() [FR-15]\n  REINSPECTION_REQUIRED --> IN_PROGRESS : resumeAfterReinspection() [FR-15]\n  ACCEPTED --> COST_RECONCILED : reconcileCosts(actualLines) [FR-16]\n  COST_RECONCILED --> CLOSED : close() [FR-16]\n  CLOSED --> [*]"
+  },
+  {
+    "index": 36,
+    "digest": "b306a9c86f64",
+    "title": "Identity, Workforce and Subscription Class Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/36_report-4-software-design-document_identity-workforce-and-subscription-class-diagra_b306a9c86f64.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/b306a9c86f64.png",
+    "code": "%% title: Identity, Workforce and Subscription Class Diagram\nclassDiagram\n  class BrowserAuthController {\n    +csrf(CsrfToken) Map\n    +register(OrganizationRegistrationRequest) ResponseEntity~ApiResponse~\n    +login(LoginRequest, HttpServletRequest, HttpServletResponse) ResponseEntity~ApiResponse~\n    +setupInitialPassword(InitialPasswordSetupRequest) ResponseEntity~ApiResponse~\n    +refresh(HttpServletRequest, HttpServletResponse) ResponseEntity~ApiResponse~\n    +updatePilotLicense(Jwt, UpdatePilotLicenseRequest) ResponseEntity~ApiResponse~\n  }\n  class PlatformUserController {\n    +listUsers(int, int, String) ApiResponse~PagedResponse~\n    +createUser(Jwt, CreatePlatformUserRequest) ResponseEntity~ApiResponse~\n    +updateRoles(Jwt, UUID, UpdatePlatformUserRolesRequest) ApiResponse\n    +updateStatus(Jwt, UUID, UpdateUserStatusRequest) ApiResponse\n  }\n  class WorkforceController {\n    +createWorkforceUser(Jwt, CreateWorkforceUserRequest) ResponseEntity~ApiResponse~\n    +listWorkforceUsers(Jwt, int, int, String) ApiResponse~PagedResponse~\n    +updateRoles(Jwt, UUID, UpdateWorkforceRolesRequest) ApiResponse\n  }\n  class SubscriptionController {\n    +getCurrent(Jwt) ApiResponse~CurrentSubscriptionView~\n    +requestSubscription(Jwt, CreateSubscriptionRequest) ResponseEntity~ApiResponse~\n    +createPayPalOrder(Jwt, CreatePayPalOrderRequest) ApiResponse~PayPalOrderCreatedView~\n    +capturePayPalOrder(Jwt, CapturePayPalOrderRequest) ApiResponse~SubscriptionView~\n  }\n  class PlatformSubscriptionController {\n    +listSubscriptions(String, int, int) ApiResponse~PagedResponse~\n    +confirmPayment(Jwt, UUID, ConfirmSubscriptionPaymentRequest) ApiResponse~SubscriptionView~\n  }\n  class PayPalWebhookController {\n    +handleWebhook(String, Map) ResponseEntity~Void~\n  }\n  class User {\n    -UUID id\n    -UUID organizationId\n    -String normalizedEmail\n    -UserStatus status\n    -ActorZone actorZone\n    -String roles\n    -String pilotLicenseNumber\n    -Instant pilotLicenseExpiresAt\n  }\n  class Subscription {\n    -UUID id\n    -UUID organizationId\n    -Integer billingPeriodMonths\n    -BigDecimal agreedAmountUsd\n    -Status status\n    -Instant startsAt\n    -Instant endsAt\n  }\n  BrowserAuthController --> User\n  PlatformUserController --> User\n  WorkforceController --> User\n  SubscriptionController --> Subscription\n  PlatformSubscriptionController --> Subscription\n  PayPalWebhookController --> Subscription"
+  },
+  {
+    "index": 37,
+    "digest": "0a420defa049",
+    "title": "User Authentication Sequence Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/37_report-4-software-design-document_user-authentication-sequence-diagram_0a420defa049.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/0a420defa049.png",
+    "code": "%% title: User Authentication Sequence Diagram\nsequenceDiagram\n  autonumber\n  actor User as System User\n  participant Client as Web / Mobile Client\n  participant AuthCtrl as BrowserAuthController\n  participant AuthSvc as AuthService\n  participant JwtSvc as AccessTokenService\n  participant DB as PostgreSQL (users & auth_sessions)\n\n  User->>Client: Submit Email & Password\n  Client->>AuthCtrl: POST /api/v1/auth/login (with X-XSRF-TOKEN)\n  AuthCtrl->>AuthSvc: login(email, rawPassword, ip, userAgent)\n  AuthSvc->>DB: findByNormalizedEmail(email)\n  DB-->>AuthSvc: User (passwordHash, status, roles, failedLoginCount, lockoutUntil)\n  AuthSvc->>AuthSvc: verifyLockoutAndArgon2id(rawPassword, passwordHash)\n  AuthSvc->>JwtSvc: issueAccessToken(user, 15m TTL)\n  JwtSvc-->>AuthSvc: HS256 JWT AccessToken\n  AuthSvc->>DB: insertAuthSession(tokenHash=HmacSHA256(refreshToken), 7d TTL)\n  AuthSvc-->>AuthCtrl: LoginResult(accessToken, refreshTokenCookie, userView)\n  AuthCtrl-->>Client: 200 OK (sdi_refresh HttpOnly cookie + accessToken JSON)"
+  },
+  {
+    "index": 38,
+    "digest": "f01a93088565",
+    "title": "Workforce Provisioning and Pilot License Sequence Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/38_report-4-software-design-document_workforce-provisioning-and-pilot-license-sequenc_f01a93088565.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/f01a93088565.png",
+    "code": "%% title: Workforce Provisioning and Pilot License Sequence Diagram\nsequenceDiagram\n  autonumber\n  actor OM as Organization Manager\n  actor Insp as Inspector\n  participant Client as Web / Mobile Portal\n  participant WfCtrl as WorkforceController\n  participant AuthCtrl as BrowserAuthController\n  participant DB as PostgreSQL (users & audit_events)\n\n  OM->>Client: Provision Workforce Account (INSPECTOR)\n  Client->>WfCtrl: POST /api/v1/workforce/users\n  WfCtrl->>DB: insertUser(orgId, roles='INSPECTOR', mustChangePassword=true)\n  DB-->>WfCtrl: Created User + One-Time Password\n  WfCtrl-->>Client: 201 Created (WorkforceUserCreatedResponse)\n\n  Insp->>Client: Complete Password Setup & Enter Pilot License Details\n  Client->>AuthCtrl: PUT /api/v1/auth/me/pilot-license (number, class, expiresAt, fileKey)\n  AuthCtrl->>DB: updateUserPilotLicense(userId, licenseFields)\n  DB-->>AuthCtrl: Updated User Profile\n  AuthCtrl-->>Client: 200 OK (CurrentUserResponse)"
+  },
+  {
+    "index": 39,
+    "digest": "18cdcd15e4f4",
+    "title": "PayPal Subscription Payment and Webhook Capture Sequence Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/39_report-4-software-design-document_paypal-subscription-payment-and-webhook-capture-_18cdcd15e4f4.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/18cdcd15e4f4.png",
+    "code": "%% title: PayPal Subscription Payment and Webhook Capture Sequence Diagram\nsequenceDiagram\n  autonumber\n  actor OM as Organization Manager\n  participant Client as Web Portal\n  participant SubCtrl as SubscriptionController\n  participant SubSvc as SubscriptionService\n  participant PayPal as PayPal Orders v2 API\n  participant DB as PostgreSQL (subscriptions & payment_transactions)\n\n  OM->>Client: Request ENTERPRISE Plan (6 Months) & Click Pay with PayPal\n  Client->>SubCtrl: POST /api/v1/subscriptions/paypal/create-order\n  SubCtrl->>SubSvc: createPayPalOrder(orgId, subscriptionId)\n  SubSvc->>PayPal: POST /v2/checkout/orders (agreedAmountUsd, USD)\n  PayPal-->>SubSvc: OrderCreated (paypalOrderId, approveUrl)\n  SubSvc->>DB: savePaymentTransaction(status=PENDING, paypalOrderId)\n  SubSvc-->>Client: 200 OK (paypalOrderId, approveUrl)\n\n  OM->>PayPal: Approve Payment on PayPal Hosted Checkout\n  PayPal-->>Client: Redirect onApprove(paypalOrderId)\n  Client->>SubCtrl: POST /api/v1/subscriptions/paypal/capture-order\n  SubCtrl->>SubSvc: capturePayPalOrder(orgId, subscriptionId, paypalOrderId)\n  SubSvc->>PayPal: POST /v2/checkout/orders/{orderId}/capture\n  PayPal-->>SubSvc: CaptureResponse (status=COMPLETED, captureId, amount)\n  SubSvc->>DB: markTransactionCompleted & activateSubscription(status=ACTIVE)\n  SubSvc-->>Client: 200 OK (SubscriptionView status=ACTIVE)"
+  },
+  {
+    "index": 40,
+    "digest": "321a112b7fe8",
+    "title": "Asset, Drone Fleet and B2B Drone Leasing Class Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/40_report-4-software-design-document_asset-drone-fleet-and-b2b-drone-leasing-class-di_321a112b7fe8.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/321a112b7fe8.png",
+    "code": "%% title: Asset, Drone Fleet and B2B Drone Leasing Class Diagram\nclassDiagram\n  class AssetController {\n    +createAsset(Jwt, CreateAssetRequest) ResponseEntity~ApiResponse~\n    +listAssets(Jwt, int, int, String) ApiResponse~PagedResponse~\n    +updateAsset(Jwt, UUID, UpdateAssetRequest) ApiResponse~AssetView~\n    +retireAsset(Jwt, UUID) ApiResponse~AssetView~\n  }\n  class AssetDocumentController {\n    +uploadDocument(Jwt, UUID, MultipartFile, String, LocalDate) ResponseEntity~ApiResponse~\n    +downloadDocument(Jwt, UUID, UUID) ResponseEntity~byte[]~\n  }\n  class DroneController {\n    +createDrone(Jwt, CreateDroneRequest) ResponseEntity~ApiResponse~\n    +changeServiceability(Jwt, UUID, ChangeServiceabilityRequest) ApiResponse~DroneView~\n    +updateRegistration(Jwt, UUID, UpdateDroneRegistrationRequest) ApiResponse~DroneView~\n  }\n  class DroneLeaseController {\n    +listAvailablePoolDrones() ApiResponse~List~\n    +requestLease(Jwt, CreateDroneLeaseRequest) ResponseEntity~ApiResponse~\n    +createPayPalOrder(Jwt, UUID) ApiResponse~PayPalOrderCreatedView~\n    +capturePayPalOrder(Jwt, UUID, CaptureDroneLeasePayPalRequest) ApiResponse~DroneLeaseView~\n  }\n  class PlatformDroneLeaseController {\n    +addPoolDrone(Jwt, CreatePlatformDroneRequest) ResponseEntity~ApiResponse~\n    +confirmWirePayment(Jwt, UUID, ConfirmDroneLeasePaymentRequest) ApiResponse~DroneLeaseView~\n    +reclaimLease(Jwt, UUID) ApiResponse~DroneLeaseView~\n  }\n  class Asset {\n    -UUID id\n    -UUID organizationId\n    -String assetCode\n    -String inspectionItems\n    -AssetStatus status\n  }\n  class PlatformDrone {\n    -UUID id\n    -String serialNumber\n    -BigDecimal monthlyRateUsd\n    -PlatformDroneStatus status\n  }\n  class DroneLease {\n    -UUID id\n    -UUID platformDroneId\n    -UUID organizationId\n    -UUID customerDroneId\n    -DroneLeaseStatus status\n  }\n  class Drone {\n    -UUID id\n    -UUID organizationId\n    -String serialNumber\n    -DroneOwnershipType ownershipType\n    -DroneServiceability serviceability\n  }\n  AssetController --> Asset\n  AssetDocumentController --> Asset\n  DroneController --> Drone\n  DroneLeaseController --> DroneLease\n  PlatformDroneLeaseController --> PlatformDrone\n  PlatformDroneLeaseController --> DroneLease\n  DroneLease --> Drone"
+  },
+  {
+    "index": 41,
+    "digest": "15af55b7135a",
+    "title": "B2B Drone Leasing and Fleet Provisioning Sequence Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/41_report-4-software-design-document_b2b-drone-leasing-and-fleet-provisioning-sequenc_15af55b7135a.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/15af55b7135a.png",
+    "code": "%% title: B2B Drone Leasing and Fleet Provisioning Sequence Diagram\nsequenceDiagram\n  autonumber\n  actor OM as Organization Manager\n  actor PM as Platform Manager\n  participant Client as Web Portal\n  participant LeaseCtrl as DroneLeaseController\n  participant PlatCtrl as PlatformDroneLeaseController\n  participant LeaseSvc as DroneLeaseService\n  participant DB as PostgreSQL (platform_drones, drone_leases, drones)\n\n  OM->>Client: Select AVAILABLE PlatformDrone & Request Lease (12 Months)\n  Client->>LeaseCtrl: POST /api/v1/drone-leases (platformDroneId, leasePeriodMonths=12)\n  LeaseCtrl->>LeaseSvc: requestLease(orgId, userId, request)\n  LeaseSvc->>DB: verifyPlatformDroneAvailable & insertDroneLease(status=PENDING)\n  DB-->>LeaseSvc: Saved DroneLease (PENDING)\n  LeaseSvc-->>Client: 201 Created (DroneLeaseView)\n\n  PM->>Client: Verify Wire Settlement & Confirm Lease Payment\n  Client->>PlatCtrl: POST /api/v1/platform/drone-leases/{leaseId}/confirm-payment\n  PlatCtrl->>LeaseSvc: confirmWirePayment(pmUserId, leaseId, externalReference)\n  LeaseSvc->>DB: markPlatformDroneLeased(status=LEASED)\n  LeaseSvc->>DB: upsertCustomerDrone(ownershipType=LEASED, serviceability=ACTIVE, leaseExpiresAt)\n  LeaseSvc->>DB: activateDroneLease(status=ACTIVE, customerDroneId)\n  DB-->>LeaseSvc: Activated Lease & Provisioned Customer Drone\n  LeaseSvc-->>Client: 200 OK (DroneLeaseView status=ACTIVE)"
+  },
+  {
+    "index": 42,
+    "digest": "43ef662062fa",
+    "title": "Notification Inbox and Event Listeners Class Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/42_report-4-software-design-document_notification-inbox-and-event-listeners-class-dia_43ef662062fa.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/43ef662062fa.png",
+    "code": "%% title: Notification Inbox and Event Listeners Class Diagram\nclassDiagram\n  class NotificationController {\n    +listNotifications(Jwt, int, int, boolean) ApiResponse~PagedResponse~\n    +getUnreadCount(Jwt) ApiResponse~UnreadCountResponse~\n    +markRead(Jwt, UUID) ApiResponse~NotificationItemResponse~\n  }\n  class NotificationService {\n    +createInAppNotification(UUID orgId, UUID recipientId, String eventType, String title, String body, String targetPath, String deduplicationKey) void\n    +markAsRead(UUID orgId, UUID recipientId, UUID notificationId) Notification\n  }\n  class InspectionNotificationListener {\n    +onInspectionAssigned(InspectionAssignedEvent) void\n    +onInspectionReminderDue(InspectionReminderDueEvent) void\n  }\n  class MaintenanceNotificationListener {\n    +onWorkOrderAssigned(WorkOrderAssignedEvent) void\n    +onEstimateApproved(EstimateApprovedEvent) void\n    +onAcceptanceRecorded(AcceptanceRecordedEvent) void\n    +onWorkOrderClosed(WorkOrderClosedEvent) void\n  }\n  class Notification {\n    -UUID id\n    -UUID organizationId\n    -UUID recipientUserId\n    -NotificationStatus status\n    -String deduplicationKey\n    -String targetPath\n  }\n  NotificationController --> NotificationService\n  InspectionNotificationListener --> NotificationService\n  MaintenanceNotificationListener --> NotificationService\n  NotificationService --> Notification"
+  },
+  {
+    "index": 43,
+    "digest": "0e6cc48673be",
+    "title": "Event-Driven Transactional Outbox Notification Sequence Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/43_report-4-software-design-document_event-driven-transactional-outbox-notification-s_0e6cc48673be.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/0e6cc48673be.png",
+    "code": "%% title: Event-Driven Transactional Outbox Notification Sequence Diagram\nsequenceDiagram\n  autonumber\n  participant InspSvc as Inspection / Maintenance Service\n  participant Outbox as Spring Modulith Outbox (event_publication)\n  participant Listener as InspectionNotificationListener\n  participant NotifSvc as NotificationService\n  participant DB as PostgreSQL (notifications)\n  actor User as Recipient User (Web / Mobile)\n\n  InspSvc->>Outbox: publishEvent(InspectionAssignedEvent / WorkOrderAssignedEvent)\n  Outbox->>Listener: @ApplicationModuleListener invoke on commit\n  Listener->>NotifSvc: createInAppNotification(orgId, recipientId, deduplicationKey, targetPath)\n  NotifSvc->>DB: insertIgnoreOnConflict(deduplication_key, status=SENT)\n  DB-->>NotifSvc: Persisted Notification\n\n  User->>DB: GET /api/v1/notifications & GET /api/v1/notifications/unread-count\n  DB-->>User: Scoped Notifications + Unread Count\n  User->>DB: PATCH /api/v1/notifications/{id}/read\n  DB-->>User: 200 OK (status=READ, readAt=now)"
+  },
+  {
+    "index": 44,
+    "digest": "f89043b9aa0d",
+    "title": "WF-01 Activity Diagram - Enterprise Onboarding, B2B Drone Leasing and Recurring Scheduling",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/44_report-4-software-design-document_wf-01-activity-diagram-enterprise-onboarding-b2b_f89043b9aa0d.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/f89043b9aa0d.png",
+    "code": "%% title: WF-01 Activity Diagram - Enterprise Onboarding, B2B Drone Leasing and Recurring Scheduling\nflowchart TD\n  subgraph OM1[\"Organization Manager (ORG_MANAGER)\"]\n    A1([\"Start: Register Organization & ORG_MANAGER\"])\n    A2[\"Request Enterprise Subscription (1/6/12m) -> Subscription: PENDING\"]\n    A4[\"Request B2B Drone Lease from Pool -> DroneLease: PENDING\"]\n    A6[\"Register Infrastructure Asset (Checkpoints) & Upload AssetDocument (SHA-256)\"]\n    A7[\"Create RecurringInspectionSchedule (WEEK/MONTH/YEAR) -> Schedule: ACTIVE\"]\n  end\n\n  subgraph PM1[\"Platform Manager (PLATFORM_MANAGER) / PayPal\"]\n    A3[\"Confirm Subscription Wire / PayPal Capture -> Subscription: ACTIVE\"]\n    A5[\"Confirm Lease Payment -> DroneLease: ACTIVE, PlatformDrone: LEASED,\\nCustomer Drone Provisioned (LEASED, ACTIVE)\"]\n  end\n\n  subgraph SYS1[\"Automated System (RecurringInspectionSchedulerJob & Outbox)\"]\n    A8{\"Pre-Checks & Conflict\\nValidation Pass?\"}\n    A9[\"Create ScheduleOccurrence: GENERATED &\\nDispatched Inspection: ASSIGNED\"]\n    A10[\"Create ScheduleOccurrence: BLOCKED\\n(record blockedReason for retry/skip)\"]\n    A11([\"End: Emit InspectionAssignedEvent -> In-App Notification SENT\"])\n  end\n\n  A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> A7 --> A8\n  A8 -->|\"Yes\"| A9 --> A11\n  A8 -->|\"No (Conflict / Expired License)\"| A10"
+  },
+  {
+    "index": 45,
+    "digest": "e1af3b4245e9",
+    "title": "Inspection Mission, Recurring Schedule and Permit Gate Class Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/45_report-4-software-design-document_inspection-mission-recurring-schedule-and-permit_e1af3b4245e9.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/e1af3b4245e9.png",
+    "code": "%% title: Inspection Mission, Recurring Schedule and Permit Gate Class Diagram\nclassDiagram\n  class InspectionListController {\n    +createInspection(Jwt, CreateInspectionRequest) ResponseEntity~ApiResponse~\n    +getInspection(Jwt, UUID) ApiResponse~InspectionSummaryResponse~\n    +listInspections(Jwt, int, int) ApiResponse~PagedResponse~\n  }\n  class InspectionScheduleController {\n    +createSchedule(Jwt, CreateRecurringScheduleRequest) ResponseEntity~ApiResponse~\n    +pauseSchedule(Jwt, UUID) ApiResponse~RecurringScheduleResponse~\n    +resumeSchedule(Jwt, UUID) ApiResponse~RecurringScheduleResponse~\n    +endSchedule(Jwt, UUID) ApiResponse~RecurringScheduleResponse~\n    +retryOccurrence(Jwt, UUID, UUID) ApiResponse~ScheduleOccurrenceResponse~\n    +skipOccurrence(Jwt, UUID, UUID, SkipOccurrenceRequest) ApiResponse~ScheduleOccurrenceResponse~\n  }\n  class InspectionController {\n    +uploadFlightPermit(Jwt, UUID, MultipartFile) ApiResponse~FlightPermitResponse~\n  }\n  class RecurringInspectionScheduleService {\n    +createSchedule(UUID, UUID, CreateRecurringScheduleRequest) RecurringScheduleResponse\n    +generateDueOccurrences(Instant) int\n    +retryOccurrence(UUID, UUID, UUID) ScheduleOccurrenceResponse\n  }\n  class Inspection {\n    -UUID id\n    -UUID organizationId\n    -UUID assetId\n    -UUID inspectorId\n    -UUID droneId\n    -InspectionStatus status\n    -String flightPermitFileKey\n  }\n  class RecurringInspectionSchedule {\n    -UUID id\n    -RecurrenceUnit recurrenceUnit\n    -int recurrenceInterval\n    -Instant nextOccurrence\n    -RecurringScheduleStatus status\n  }\n  InspectionListController --> Inspection\n  InspectionController --> Inspection\n  InspectionScheduleController --> RecurringInspectionScheduleService\n  RecurringInspectionScheduleService --> RecurringInspectionSchedule\n  RecurringInspectionScheduleService --> Inspection"
+  },
+  {
+    "index": 46,
+    "digest": "4ec4bbad15f8",
+    "title": "Mission Dispatch and Self-Service Permit Upload Sequence Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/46_report-4-software-design-document_mission-dispatch-and-self-service-permit-upload-_4ec4bbad15f8.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/4ec4bbad15f8.png",
+    "code": "%% title: Mission Dispatch and Self-Service Permit Upload Sequence Diagram\nsequenceDiagram\n  autonumber\n  actor OM as Organization Manager\n  actor Inspector as Assigned Inspector\n  participant Client as Web / Mobile Client\n  participant ListCtrl as InspectionListController\n  participant InspCtrl as InspectionController\n  participant MinIO as MinIO Object Storage\n  participant DB as PostgreSQL (inspections, users)\n\n  OM->>Client: Dispatch Mission (Select Asset, Active Inspector, Serviceable Drone)\n  Client->>ListCtrl: POST /api/v1/inspections\n  ListCtrl->>DB: verifyNoScheduleOverlap & insertInspection(status=ASSIGNED)\n  DB-->>ListCtrl: Saved Inspection (ASSIGNED)\n  ListCtrl-->>Client: 201 Created (InspectionSummaryResponse)\n\n  Inspector->>Client: Upload Mission Flight Permit Document (PDF/Image)\n  Client->>InspCtrl: POST /api/v1/inspections/{id}/flight-permit (MultipartFile)\n  InspCtrl->>DB: checkCallerIsAssignedInspector & pilotLicenseExpiresAt >= plannedStartAt\n  InspCtrl->>MinIO: putObject(inspection-evidence, permitObjectKey, bytes)\n  MinIO-->>InspCtrl: Stored Object Key\n  InspCtrl->>DB: recordFlightPermit(permitKey, fileName) -> status=READY_FOR_FLIGHT\n  DB-->>InspCtrl: Updated Inspection (READY_FOR_FLIGHT)\n  InspCtrl-->>Client: 200 OK (FlightPermitResponse status=READY_FOR_FLIGHT)"
+  },
+  {
+    "index": 47,
+    "digest": "44ec52e3b942",
+    "title": "Field Session and Evidence Management Class Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/47_report-4-software-design-document_field-session-and-evidence-management-class-diag_44ec52e3b942.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/44ec52e3b942.png",
+    "code": "%% title: Field Session and Evidence Management Class Diagram\nclassDiagram\n  class InspectionFieldSessionController {\n    +listSessions(Jwt, UUID) ApiResponse~List~\n    +startSession(Jwt, UUID, StartFieldSessionRequest) ResponseEntity~ApiResponse~\n    +postponeSession(Jwt, UUID, UUID, SessionReasonRequest) ApiResponse~FieldSessionView~\n    +completeSession(Jwt, UUID, UUID, CompleteFieldSessionRequest) ApiResponse~FieldSessionView~\n    +abortSession(Jwt, UUID, UUID, SessionReasonRequest) ApiResponse~FieldSessionView~\n  }\n  class InspectionController {\n    +uploadEvidence(Jwt, UUID, MultipartFile, UUID, Instant, BigDecimal, BigDecimal, String) ResponseEntity~ApiResponse~\n    +queryEvidence(Jwt, UUID, String, String, String, int, int) ApiResponse~PagedResponse~\n    +retireEvidence(Jwt, UUID, UUID) ApiResponse~EvidenceItemResponse~\n    +streamEvidenceContent(Jwt, UUID, UUID) ResponseEntity~byte[]~\n  }\n  class ExifMetadataExtractor {\n    +extract(byte[] imageBytes) ExifMetadata\n  }\n  class FieldSession {\n    -UUID id\n    -UUID inspectionId\n    -String status\n    -String preFlightChecklistNote\n    -String outcomeNotes\n  }\n  class Evidence {\n    -UUID id\n    -UUID inspectionId\n    -UUID fieldSessionId\n    -String fileName\n    -String objectKey\n    -BigDecimal latitude\n    -BigDecimal longitude\n    -boolean isDeleted\n  }\n  InspectionFieldSessionController --> FieldSession\n  InspectionController --> Evidence\n  InspectionController --> ExifMetadataExtractor"
+  },
+  {
+    "index": 48,
+    "digest": "c480adaed363",
+    "title": "Field Flight Session and Evidence Upload Sequence Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/48_report-4-software-design-document_field-flight-session-and-evidence-upload-sequenc_c480adaed363.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/c480adaed363.png",
+    "code": "%% title: Field Flight Session and Evidence Upload Sequence Diagram\nsequenceDiagram\n  autonumber\n  actor Inspector as Assigned Inspector\n  participant Mobile as Flutter Mobile / Web Client\n  participant SessCtrl as InspectionFieldSessionController\n  participant InspCtrl as InspectionController\n  participant Exif as ExifMetadataExtractor\n  participant MinIO as MinIO Object Storage\n  participant DB as PostgreSQL (inspections, field_sessions, evidence)\n\n  Inspector->>Mobile: Enter Pre-Flight Checklist Note & Start Session\n  Mobile->>SessCtrl: POST /api/v1/inspections/{id}/field-sessions\n  SessCtrl->>DB: verifyInspectionReadyForFlight & insertFieldSession(status=IN_PROGRESS)\n  SessCtrl->>DB: updateInspectionStatus(IN_PROGRESS)\n  SessCtrl-->>Mobile: 201 Created (FieldSessionView status=IN_PROGRESS)\n\n  Inspector->>Mobile: Complete Survey Against Asset Checkpoints\n  Mobile->>SessCtrl: POST /api/v1/inspections/{id}/field-sessions/{sessionId}/completion\n  SessCtrl->>DB: completeSession(outcomeNotes) & updateInspectionStatus(FIELD_COMPLETED)\n  SessCtrl-->>Mobile: 200 OK (FieldSessionView status=FIELD_COMPLETED)\n\n  Inspector->>Mobile: Upload Aerial Evidence Image (JPEG/PNG)\n  Mobile->>InspCtrl: POST /api/v1/inspections/{id}/evidence (MultipartFile)\n  InspCtrl->>DB: verifyUniqueSanitizedFilenameInInspection(inspectionId, fileName)\n  InspCtrl->>Exif: extract(imageBytes) -> captureTime, latitude, longitude\n  InspCtrl->>MinIO: putObject(inspection-evidence, objectKey, imageBytes)\n  InspCtrl->>DB: insertEvidence(objectKey, captureTime, latitude, longitude)\n  InspCtrl-->>Mobile: 201 Created (EvidenceUploadResponse)"
+  },
+  {
+    "index": 49,
+    "digest": "b38950c713f6",
+    "title": "WF-02 Activity Diagram - Mission Dispatch, Flight Permit Gate and Field Execution",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/49_report-4-software-design-document_wf-02-activity-diagram-mission-dispatch-flight-p_b38950c713f6.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/b38950c713f6.png",
+    "code": "%% title: WF-02 Activity Diagram - Mission Dispatch, Flight Permit Gate and Field Execution\nflowchart TD\n  subgraph OM2[\"Organization Manager (ORG_MANAGER)\"]\n    B1([\"Start: Dispatch Inspection Mission (Asset, Inspector, Drone)\"])\n  end\n\n  subgraph IN2[\"Assigned Inspector (INSPECTOR - Web / Flutter Mobile)\"]\n    B3[\"Declare / Verify Unexpired Remote Pilot License\"]\n    B4[\"Upload Aviation Flight Permit Document (PDF/Image)\"]\n    B6[\"Start On-Site FieldSession with Pre-Flight Checklist Note\"]\n    B7{\"Field Weather &\\nCoverage Outcome?\"}\n    B8[\"Complete FieldSession with Outcome Notes\"]\n    B9[\"Postpone FieldSession with Reason\"]\n    B10[\"Upload Aerial Evidence Media (JPEG/PNG)\"]\n  end\n\n  subgraph SYS2[\"Automated System (InspectionService & ExifMetadataExtractor)\"]\n    B2[\"Validate Resource Overlap -> Inspection: ASSIGNED\"]\n    B5[\"Store Permit in MinIO & Validate License -> Inspection: READY_FOR_FLIGHT\"]\n    B11[\"Inspection: IN_PROGRESS & FieldSession: IN_PROGRESS\"]\n    B12[\"Inspection: FIELD_COMPLETED & FieldSession: FIELD_COMPLETED\"]\n    B13[\"Extract EXIF GPS/Timestamp, Reject Duplicate Filename & Store in MinIO\"]\n    B14([\"End: Evidence Register Ready for Defect Analysis\"])\n  end\n\n  B1 --> B2 --> B3 --> B4 --> B5 --> B6 --> B11 --> B7\n  B7 -->|\"Survey Completed\"| B8 --> B12 --> B10 --> B13 --> B14\n  B7 -->|\"Weather Postponed\"| B9 --> B5"
+  },
+  {
+    "index": 50,
+    "digest": "64eb1d90feeb",
+    "title": "YOLO11 Defect Detection and Finding Verification Class Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/50_report-4-software-design-document_yolo11-defect-detection-and-finding-verification_64eb1d90feeb.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/64eb1d90feeb.png",
+    "code": "%% title: YOLO11 Defect Detection and Finding Verification Class Diagram\nclassDiagram\n  class InspectionController {\n    +analyzeEvidence(Jwt, UUID, UUID, boolean) ApiResponse~EvidenceAnalysisResponse~\n    +createFinding(Jwt, UUID, CreateFindingRequest) ResponseEntity~ApiResponse~\n    +updateFinding(Jwt, UUID, UUID, UpdateFindingRequest) ApiResponse~FindingResponse~\n    +confirmFinding(Jwt, UUID, UUID) ApiResponse~FindingResponse~\n    +deleteFinding(Jwt, UUID, UUID) ResponseEntity~Void~\n    +confirmFindingsBaseline(Jwt, UUID, ConfirmFindingsRequest) ApiResponse~WorkflowStateResponse~\n  }\n  class PrimaryWithFallbackInference {\n    +analyze(byte[] imageBytes, String contentType, boolean allowFallback) InferenceResult\n  }\n  class YoloInferenceClient {\n    +predict(byte[] imageBytes, String contentType) List~DetectedBox~\n  }\n  class OpenAiCompatibleInferenceClient {\n    +predict(byte[] imageBytes, String contentType) List~DetectedBox~\n  }\n  class Finding {\n    -UUID id\n    -UUID inspectionId\n    -UUID evidenceId\n    -String findingCode\n    -String defectLabel\n    -FindingSeverity severity\n    -String boundingBox\n    -FindingStatus status\n    -String modelName\n    -BigDecimal confidence\n    -boolean isDeleted\n  }\n  InspectionController --> PrimaryWithFallbackInference\n  PrimaryWithFallbackInference --> YoloInferenceClient\n  PrimaryWithFallbackInference --> OpenAiCompatibleInferenceClient\n  InspectionController --> Finding"
+  },
+  {
+    "index": 51,
+    "digest": "436962a7b8b8",
+    "title": "YOLO11 Defect Detection and Verification Sequence Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/51_report-4-software-design-document_yolo11-defect-detection-and-verification-sequenc_436962a7b8b8.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/436962a7b8b8.png",
+    "code": "%% title: YOLO11 Defect Detection and Verification Sequence Diagram\nsequenceDiagram\n  autonumber\n  actor Inspector as Assigned Inspector\n  participant Client as Web Portal\n  participant InspCtrl as InspectionController\n  participant Infer as PrimaryWithFallbackInference\n  participant YoloSvc as FastAPI YOLO11 (/predict)\n  participant DB as PostgreSQL (findings, inspections)\n\n  Inspector->>Client: Select Active Evidence Image & Click Analyze\n  Client->>InspCtrl: POST /api/v1/inspections/{id}/evidence/{evidenceId}/analyze\n  InspCtrl->>Infer: analyze(imageBytes, contentType, visionFallbackEnabled)\n  Infer->>YoloSvc: POST /predict (multipart image)\n  YoloSvc-->>Infer: Detections (defectLabel, confidence, normalizedBoundingBox)\n  InspCtrl->>DB: insertFindings(status=PENDING, modelName='yolo11s', confidence, boundingBox)\n  DB-->>InspCtrl: Persisted PENDING Findings\n  InspCtrl-->>Client: 200 OK (EvidenceAnalysisResponse)\n\n  Inspector->>Client: Review Bounding Box, Edit Severity & Confirm Finding\n  Client->>InspCtrl: POST /api/v1/inspections/{id}/findings/{findingId}/confirmation\n  InspCtrl->>DB: confirmByInspector() -> status=CONFIRMED\n  InspCtrl-->>Client: 200 OK (FindingResponse status=CONFIRMED)\n\n  Inspector->>Client: Confirm Official Findings Set Baseline\n  Client->>InspCtrl: POST /api/v1/inspections/{id}/findings/confirm\n  InspCtrl->>DB: ensureNoUnresolvedPendingFindings & computeSnapshotHash -> status=REPORT_DRAFT\n  InspCtrl-->>Client: 200 OK (WorkflowStateResponse status=REPORT_DRAFT)"
+  },
+  {
+    "index": 52,
+    "digest": "e00807180de7",
+    "title": "Inspection Report Authoring, Review and PDF Publication Class Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/52_report-4-software-design-document_inspection-report-authoring-review-and-pdf-publi_e00807180de7.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/e00807180de7.png",
+    "code": "%% title: Inspection Report Authoring, Review and PDF Publication Class Diagram\nclassDiagram\n  class InspectionController {\n    +generateAiReportDraft(Jwt, UUID) ResponseEntity~ApiResponse~\n    +createManualReportDraft(Jwt, UUID) ResponseEntity~ApiResponse~\n    +updateReportSections(Jwt, UUID, UUID, UpdateReportSectionsRequest) ApiResponse~ReportVersionResponse~\n    +previewReportPdf(Jwt, UUID, UUID) ResponseEntity~byte[]~\n    +verifyReportAsAuthor(Jwt, UUID, UUID) ApiResponse~ReportVersionResponse~\n    +submitReportVersion(Jwt, UUID, UUID) ApiResponse~ReportVersionResponse~\n    +reviewReportVersion(Jwt, UUID, UUID, ReviewReportRequest) ApiResponse~ReportVersionResponse~\n    +publishReportVersion(Jwt, UUID, UUID) ApiResponse~ReportVersionResponse~\n    +completeCorrectiveHandoff(Jwt, UUID, CorrectiveHandoffRequest) ApiResponse~CorrectiveHandoffResponse~\n  }\n  class ReportDraftClient {\n    +generateDraftSections(GroundedReportPrompt prompt) DraftSections\n  }\n  class PdfReportRenderer {\n    +render(InspectionReportRenderModel model) byte[]\n  }\n  class InspectionReport {\n    -UUID id\n    -UUID inspectionId\n    -int versionNo\n    -ReportStatus status\n    -String contentSnapshot\n    -UUID reviewerUserId\n    -String renderedObjectKey\n    -String renderedChecksumSha256\n  }\n  InspectionController --> ReportDraftClient\n  InspectionController --> PdfReportRenderer\n  InspectionController --> InspectionReport"
+  },
+  {
+    "index": 53,
+    "digest": "2065932a94b4",
+    "title": "Report Synthesis, Review and Immutable Publication Sequence Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/53_report-4-software-design-document_report-synthesis-review-and-immutable-publicatio_2065932a94b4.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/2065932a94b4.png",
+    "code": "%% title: Report Synthesis, Review and Immutable Publication Sequence Diagram\nsequenceDiagram\n  autonumber\n  actor Inspector as Assigned Inspector (Author)\n  actor OM as Independent Organization Manager\n  participant Client as Web Portal\n  participant InspCtrl as InspectionController\n  participant LLM as ReportDraftClient (LLM)\n  participant Renderer as PdfReportRenderer\n  participant MinIO as MinIO Object Storage\n  participant DB as PostgreSQL (inspection_reports, inspections, findings)\n\n  Inspector->>Client: Generate Report Draft (AI-Assisted or Manual)\n  Client->>InspCtrl: POST /api/v1/inspections/{id}/report/draft\n  InspCtrl->>LLM: generateDraftSections(asset, checkpoints, confirmedFindings)\n  LLM-->>InspCtrl: Structured JSON Sections\n  InspCtrl->>DB: insertInspectionReport(versionNo, status=DRAFT, contentSnapshot)\n  InspCtrl-->>Client: 201 Created (ReportVersionResponse status=DRAFT)\n\n  Inspector->>Client: Edit Sections, Author-Verify & Submit for Review\n  Client->>InspCtrl: POST /api/v1/inspections/{id}/report/versions/{vId}/verify\n  InspCtrl->>DB: verifyAsAuthor() -> status=AUTHOR_VERIFIED\n  Client->>InspCtrl: POST /api/v1/inspections/{id}/report/versions/{vId}/submit\n  InspCtrl->>DB: submit() -> status=SUBMITTED (locks source findings/evidence)\n\n  OM->>Client: Approve & Publish Report Version\n  Client->>InspCtrl: POST /api/v1/inspections/{id}/report/versions/{vId}/review (approve=true)\n  InspCtrl->>DB: reviewBy(omUserId != inspectorId, approve=true) -> status=APPROVED\n  Client->>InspCtrl: POST /api/v1/inspections/{id}/report/versions/{vId}/publish\n  InspCtrl->>Renderer: render(reportContext) -> pdfBytes\n  InspCtrl->>MinIO: putObject(inspection-evidence, renderedObjectKey, pdfBytes)\n  InspCtrl->>DB: publish(renderedObjectKey, sha256) -> Report: PUBLISHED, Inspection: REPORT_PUBLISHED\n  InspCtrl-->>Client: 200 OK (Published PDF & SHA-256 Digest)"
+  },
+  {
+    "index": 54,
+    "digest": "c8f1710d6cb7",
+    "title": "WF-03 Activity Diagram - AI Defect Detection, Report Publication and Corrective Handoff",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/54_report-4-software-design-document_wf-03-activity-diagram-ai-defect-detection-repor_c8f1710d6cb7.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/c8f1710d6cb7.png",
+    "code": "%% title: WF-03 Activity Diagram - AI Defect Detection, Report Publication and Corrective Handoff\nflowchart TD\n  subgraph IN3[\"Assigned Inspector (INSPECTOR)\"]\n    C1([\"Start: Select Active Evidence Image & Click Analyze\"])\n    C3[\"Review Pending Proposals: Confirm / Modify / Soft-Delete / Add Manual\"]\n    C4[\"Confirm Findings Set Baseline -> Inspection: REPORT_DRAFT\"]\n    C5[\"Generate Report Draft (LLM / Manual) -> Report: DRAFT\"]\n    C6[\"Edit Sections, Preview PDF, Verify (AUTHOR_VERIFIED) & Submit (SUBMITTED)\"]\n  end\n\n  subgraph AI3[\"YOLO11 Service / LLM Gateway / PdfReportRenderer\"]\n    C2[\"Run YOLO11 (mbdd2025-v1) -> Save Findings: PENDING\"]\n    C9[\"Render Immutable A4 PDF + SHA-256 to MinIO ->\\nReport: PUBLISHED, Inspection: REPORT_PUBLISHED\"]\n  end\n\n  subgraph OM3[\"Independent Organization Manager (ORG_MANAGER)\"]\n    C7{\"Approve or Return\\nSubmitted Report?\"}\n    C8[\"Approve Report (APPROVED) & Trigger Publish\"]\n    C10[\"Return Report with Reason -> Report: RETURNED (Unlocks Edits)\"]\n    C11[\"Select Confirmed Findings for Corrective Handoff ->\\nInspection: REPAIR_PENDING (or COMPLETED)\"]\n    C12([\"End: Forwarded Findings Ready for MF4 Maintenance\"])\n  end\n\n  C1 --> C2 --> C3 --> C4 --> C5 --> C6 --> C7\n  C7 -->|\"Return\"| C10 --> C6\n  C7 -->|\"Approve\"| C8 --> C9 --> C11 --> C12"
+  },
+  {
+    "index": 55,
+    "digest": "8b41a0e47679",
+    "title": "Maintenance Work Order, RAG Advisor and Cost Control Class Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/55_report-4-software-design-document_maintenance-work-order-rag-advisor-and-cost-cont_8b41a0e47679.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/8b41a0e47679.png",
+    "code": "%% title: Maintenance Work Order, RAG Advisor and Cost Control Class Diagram\nclassDiagram\n  class MaintenanceController {\n    +suggestScope(Jwt, ScopeSuggestionRequest) ApiResponse~ScopeSuggestionResponse~\n    +createWorkOrder(Jwt, CreateWorkOrderRequest) ResponseEntity~ApiResponse~\n    +assignTeam(Jwt, UUID, AssignTeamRequest) ApiResponse~List~\n    +createTask(Jwt, UUID, CreateMaintenanceTaskRequest) ResponseEntity~ApiResponse~\n    +createEstimateVersion(Jwt, UUID, CreateEstimateVersionRequest) ResponseEntity~ApiResponse~\n    +submitEstimateVersion(Jwt, UUID, int) ApiResponse~EstimateVersionView~\n    +approveEstimateVersion(Jwt, UUID, int) ApiResponse~EstimateVersionView~\n  }\n  class MaintenanceExecutionController {\n    +releaseWorkOrder(Jwt, UUID) ApiResponse~WorkOrderView~\n    +startWorkOrder(Jwt, UUID) ApiResponse~WorkOrderView~\n    +createWorkLog(Jwt, UUID, CreateWorkLogRequest) ResponseEntity~ApiResponse~\n    +submitWorkLog(Jwt, UUID, UUID) ApiResponse~WorkLogView~\n    +verifyWorkLog(Jwt, UUID, UUID) ApiResponse~WorkLogView~\n    +declareComplete(Jwt, UUID) ApiResponse~WorkOrderView~\n    +createReportVersion(Jwt, UUID, CreateMaintenanceReportRequest) ResponseEntity~ApiResponse~\n    +verifyReportVersion(Jwt, UUID, int) ApiResponse~MaintenanceReportView~\n    +submitReportVersion(Jwt, UUID, int) ApiResponse~MaintenanceReportView~\n    +recordAcceptanceDecision(Jwt, UUID, RecordAcceptanceRequest) ResponseEntity~ApiResponse~\n    +reconcileCosts(Jwt, UUID, ReconcileCostsRequest) ApiResponse~CostReconciliationView~\n    +closeWorkOrder(Jwt, UUID) ApiResponse~WorkOrderView~\n  }\n  class MaintenanceScopeAdvisorService {\n    +suggestScope(ScopeSuggestionRequest) ScopeSuggestionResponse\n  }\n  class MaintenanceReportRenderer {\n    +render(MaintenanceReportRenderModel) byte[]\n  }\n  class MaintenanceWorkOrder {\n    -UUID id\n    -WorkOrderStatus status\n    -UUID budgetApproverUserId\n    -UUID teamLeadUserId\n    -UUID reportAuthorUserId\n    -UUID acceptingReviewerUserId\n  }\n  MaintenanceController --> MaintenanceScopeAdvisorService\n  MaintenanceController --> MaintenanceWorkOrder\n  MaintenanceExecutionController --> MaintenanceWorkOrder\n  MaintenanceExecutionController --> MaintenanceReportRenderer"
+  },
+  {
+    "index": 56,
+    "digest": "41624f3a8a59",
+    "title": "Work Order Planning, Cost Estimation and Technical Acceptance Sequence Diagram",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/56_report-4-software-design-document_work-order-planning-cost-estimation-and-technica_41624f3a8a59.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/41624f3a8a59.png",
+    "code": "%% title: Work Order Planning, Cost Estimation and Technical Acceptance Sequence Diagram\nsequenceDiagram\n  autonumber\n  actor OM as Organization Manager (Approver / Independent Reviewer)\n  actor Lead as Maintenance Engineer (LEAD & REPORT_AUTHOR)\n  participant Client as Web / Mobile Client\n  participant MaintCtrl as MaintenanceController\n  participant ExecCtrl as MaintenanceExecutionController\n  participant Advisor as MaintenanceScopeAdvisorService\n  participant DB as PostgreSQL (maintenance_* tables)\n  participant MinIO as MinIO Object Storage\n\n  OM->>Client: Create WorkOrder from Forwarded Finding & Assign Team\n  Client->>MaintCtrl: POST /api/v1/maintenance/work-orders & POST /team\n  MaintCtrl->>DB: insertWorkOrder(status=DRAFT) & saveTeam(LEAD, REPORT_AUTHOR, acceptingReviewerUserId)\n\n  Lead->>Client: Request RAG Scope Advice, Create Tasks & Submit Estimate\n  Client->>MaintCtrl: POST /api/v1/maintenance/suggest-scope\n  MaintCtrl->>Advisor: suggestScope(defectLabel, severity, category) -> TCVN/EN/ISO standards\n  Advisor-->>Client: CorrectiveScope, AcceptanceCriteria & SuggestedTasks\n  Client->>MaintCtrl: POST /estimate-versions & POST /estimate-versions/1/submit\n  MaintCtrl->>DB: saveEstimateLines(ESTIMATE) & updateWorkOrder(status=AWAITING_APPROVAL)\n\n  OM->>Client: Approve Estimate Baseline (omUserId != preparedByUserId)\n  Client->>MaintCtrl: POST /api/v1/maintenance/work-orders/{id}/estimate-versions/1/approve\n  MaintCtrl->>DB: approveEstimate() -> WorkOrder: APPROVED\n\n  Lead->>Client: Release (READY), Start (IN_PROGRESS), Log & Verify WorkLogs, Declare Complete\n  Client->>ExecCtrl: POST /release -> POST /start -> POST /work-logs -> POST /verify -> POST /declare-complete\n  ExecCtrl->>DB: verifyAllLogsVerified & updateWorkOrder(status=WORK_COMPLETED)\n\n  Lead->>Client: Author, Verify (AUTHOR_VERIFIED) & Submit Completion Report\n  Client->>ExecCtrl: POST /reports -> POST /reports/1/verify -> POST /reports/1/submit\n  ExecCtrl->>DB: updateWorkOrder(status=SUBMITTED_FOR_ACCEPTANCE)\n\n  OM->>Client: Record Independent Acceptance (ACCEPTED), Reconcile Actual Costs & Close\n  Client->>ExecCtrl: POST /acceptance-decisions (ACCEPTED) -> POST /cost-reconciliation -> POST /close\n  ExecCtrl->>MinIO: storeRenderedCompletionPdf(sha256)\n  ExecCtrl->>DB: updateWorkOrder(ACCEPTED -> COST_RECONCILED -> CLOSED)\n  ExecCtrl-->>Client: 200 OK (WorkOrderView status=CLOSED)"
+  },
+  {
+    "index": 57,
+    "digest": "12bbeb320003",
+    "title": "WF-04 Activity Diagram - Maintenance Work Order Lifecycle and Cost Reconciliation",
+    "source_md": "reports/report-4-software-design-document/03-detailed-design.md",
+    "mmd_path": "diagrams/mermaid/57_report-4-software-design-document_wf-04-activity-diagram-maintenance-work-order-li_12bbeb320003.mmd",
+    "png_path": "E:/Dev/Repos/Capstone/SmartDroneInspection-docs/reports/report-4-software-design-document/assets/mermaid/12bbeb320003.png",
+    "code": "%% title: WF-04 Activity Diagram - Maintenance Work Order Lifecycle and Cost Reconciliation\nflowchart TD\n  subgraph OM4[\"Organization Manager (Budget Approver & Independent Reviewer)\"]\n    D1([\"Start: Create WorkOrder from Forwarded Finding -> WorkOrder: DRAFT\"])\n    D2[\"Assign Team (LEAD, REPORT_AUTHOR, MEMBER) & Independent Reviewer\"]\n    D5{\"Approve Estimate\\nBaseline?\"}\n    D6[\"Approve Estimate -> Estimate: APPROVED, WorkOrder: APPROVED\"]\n    D10{\"Independent Technical\\nAcceptance Decision?\"}\n    D11[\"Record ACCEPTED -> Render Completion PDF + SHA-256 -> WorkOrder: ACCEPTED\"]\n    D12[\"Record REWORK_REQUIRED / REINSPECTION_REQUIRED\"]\n    D13[\"Reconcile Actual Cost Lines vs. Baseline + Change Deltas -> COST_RECONCILED\"]\n    D14([\"End: Close WorkOrder (CLOSED) & Update Inspection to COMPLETED\"])\n  end\n\n  subgraph ME4[\"Maintenance Engineer Team (LEAD, REPORT_AUTHOR, MEMBER)\"]\n    D3[\"Invoke RAG Scope Advisor (TCVN/EN/ISO), Plan Tasks & Submit Estimate -> AWAITING_APPROVAL\"]\n    D7[\"Release (READY) & Start (IN_PROGRESS) WorkOrder\"]\n    D8[\"Log Task WorkLogs (SUBMITTED), Lead Verifies (VERIFIED) & Declare Complete -> WORK_COMPLETED\"]\n    D9[\"Author, Verify (AUTHOR_VERIFIED) & Submit Completion Report -> SUBMITTED_FOR_ACCEPTANCE\"]\n  end\n\n  D1 --> D2 --> D3 --> D5\n  D5 -->|\"Reject\"| D3\n  D5 -->|\"Approve\"| D6 --> D7 --> D8 --> D9 --> D10\n  D10 -->|\"Rework / Reinspection\"| D12 --> D8\n  D10 -->|\"Accepted\"| D11 --> D13 --> D14"
+  }
+]

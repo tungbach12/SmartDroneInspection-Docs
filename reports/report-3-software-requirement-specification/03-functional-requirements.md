@@ -9,129 +9,125 @@ source: "report3-software-requirement-specification.docx"
 
 ### 3.1 System Functional Overview
 
-The SmartDroneInspection platform provides an integrated web and mobile software ecosystem supporting the full infrastructure inspection-to-maintenance lifecycle. The web application serves administrative, planning, analytical, and review functions for `Platform Admin`, `Platform Manager`, and `Organization Manager`, while offering inspection and maintenance workspaces for `Inspector` and `Maintenance Engineer`. The mobile application provides an on-site operational interface for remote pilots and inspectors to perform pre-flight checklists, track flight survey sessions, and record immediate field observations. Automated background services execute computer vision inference, structured report synthesis, data integrity hashing, and scheduled event notifications.
+The SmartDroneInspection platform provides a web portal and mobile application organized into **twelve product features (`FE-01` to `FE-12`)** that support the complete infrastructure inspection and maintenance workflow.
 
 #### 3.1.1 Screens Flow
 
 ```mermaid
+%% title: Screens Flow Diagram
 flowchart TD
-  LOGIN["Login & Workspace Selection"] --> DASH["Operational Dashboard"]
+  LOGIN["Login & Organization Registration"] --> DASH["Operational Dashboard & Calendar"]
 
-  DASH --> ASSETS["Asset & Fleet Management"]
-  ASSETS --> ASSET_NEW["Register Asset (with Inspection Items Checkpoints)"]
-  ASSETS --> FLEET["Drone Fleet Management (with Registration Info)"]
-  ASSETS --> PROFILE["Inspector Profile (Self-Declared Pilot License)"]
+  DASH --> WORKFORCE["Workforce & Subscriptions"]
+  DASH --> ASSETS["Assets, Checkpoints & Drone Fleet / B2B Leasing"]
+  DASH --> SCHED["Inspections Queue & Recurring Schedules"]
 
-  DASH --> INSP_LIST["Inspections Queue"]
-  INSP_LIST --> INSP_NEW["Create Inspection Mission (Direct Inspector + Drone Selection)"]
-  INSP_NEW --> INSP_DETAIL["Inspection Detail Workspace"]
+  SCHED --> DISPATCH["Mission Dispatch & Airspace No-Fly Zone Map"]
+  DISPATCH --> PERMIT["Self-Service Flight Permit Upload Gate"]
+  PERMIT -->|"Permit Uploaded (Ready for Flight)"| FIELD["On-Site Field Session (Web & Mobile)"]
 
-  INSP_DETAIL --> STAGE_PERMIT["Self-Service Flight Permit Upload Gate"]
-  STAGE_PERMIT -->|"Permit Uploaded (auto READY_FOR_FLIGHT)"| STAGE_FIELD["Stage: Field Session (Mobile / Web)"]
-  STAGE_FIELD --> PREFLIGHT["Pre-Flight Checklist Note"]
-  PREFLIGHT --> SESSION_RUN["Session Execution (Start / Postpone / Abort / Complete)\nguided by Asset Inspection Items"]
+  FIELD --> EVIDENCE["Evidence Upload & Metadata Register"]
+  EVIDENCE --> YOLO["AI Defect Detection (YOLO11) & Finding Verification"]
+  YOLO --> REPORT_DRAFT["AI / Manual Report Drafting & Author Verification"]
 
-  SESSION_RUN --> STAGE_EVI["Stage: Evidence Intake"]
-  SESSION_RUN -->|"Inspector opens another session"| STAGE_FIELD
-  STAGE_EVI --> UPLOAD["Evidence Upload and Metadata Review"]
-  UPLOAD --> STAGE_FIND["Stage: Inspector Findings"]
-  STAGE_FIND --> YOLO["Inspector-Invoked AI Detection on Selected Images"]
-  YOLO --> REVIEW_FIND["Human Inspector Finding Verification"]
-  REVIEW_FIND --> CONFIRM_FIND["Explicit Findings Set Confirmation\n(acknowledge no findings when empty)"]
+  REPORT_DRAFT --> REPORT_REV["Independent Report Review & Immutable PDF Publication"]
+  REPORT_REV --> HANDOFF["Per-Finding Corrective Handoff to Maintenance"]
 
-  CONFIRM_FIND --> STAGE_REP["Stage: Report Drafting & Publication\n(Inspector records coverage and limitations)"]
-  STAGE_REP --> DRAFT_GEN["Report Draft Synthesis (LLM / Manual)"]
-  DRAFT_GEN --> VERIFY_REP["Author Verification & Submission"]
-  VERIFY_REP --> ADMIN_REV["Organization Manager Report Review"]
-  ADMIN_REV -->|"Approved"| PUB_REP["Publish Immutable PDF Report"]
-
-  PUB_REP --> HANDOFF["Forward Selected Findings to Maintenance"]
-  HANDOFF --> MAINT_LIST["Maintenance Work Orders Queue"]
-  MAINT_LIST --> WO_CREATE["Create Maintenance Work Order"]
-  WO_CREATE --> WO_DETAIL["Work Order Detail Workspace"]
-
-  WO_DETAIL --> WO_PLAN["Task Deconstruction & Team Assignment"]
-  WO_PLAN --> WO_EST["Itemized Cost Estimation (Labor, Material, Equipment)"]
-  WO_EST --> WO_BUDGET_REV["Organization Manager Budget Approval"]
-
-  WO_BUDGET_REV -->|"Approved"| WO_EXEC["Repair Task Execution & Daily Logs"]
-  WO_EXEC --> WO_EVI["Before / After Photo Proof & Test Logs"]
-  WO_EXEC --> WO_CHANGE["Scope / Cost Change Request (if required)"]
-
-  WO_EVI --> WO_REPORT["Draft Maintenance Completion Report"]
-  WO_REPORT --> WO_ACCEPT["Independent Technical Acceptance"]
-  WO_ACCEPT --> WO_RECON["Cost Variance Reconciliation & Work Order Closure"]
+  HANDOFF --> WO_PLAN["Work Order Creation, AI Scope Advisor & Team Assignment"]
+  WO_PLAN --> WO_EST["Itemized Cost Estimation & Budget Approval"]
+  WO_EST --> WO_EXEC["Field Repair Execution, Change Orders & Verified Work Logs"]
+  WO_EXEC --> WO_CLOSE["Completion Report PDF, Independent Acceptance & Cost Closure"]
 ```
 
 #### 3.1.2 Screen Descriptions
 
 | # | Feature | Screen | Description |
 | --- | --- | --- | --- |
-| 1 | FE-01 | Sign In & Authentication | Secure login interface supporting credential verification, session management, and password recovery. |
-| 2 | FE-01 | Platform Administration & Subscriptions | Platform Admin (`ADMIN`) and Platform Manager (`PLATFORM_MANAGER`) portal for managing platform accounts, customer tenant workspaces, enterprise subscriptions, B2B drone leasing pool and contracts, offline payment reconciliation, and platform-wide configurations. |
-| 3 | FE-01 | User Profile & Pilot License | Profile management enabling Inspectors to self-declare UAV remote pilot license numbers, certification classes, expiration dates, and upload license certificate files. |
-| 4 | FE-02 | Asset Registry | Master inventory of infrastructure assets (bridges, towers, facilities) displaying specifications, location coordinates, and standardized inspection checkpoints (`inspectionItems`). |
-| 5 | FE-02 | Asset Detail & Documents | Detailed view of an asset showing engineering drawings, historical inspection records, and checkpoint configuration. |
-| 6 | FE-02 | Drone Fleet & B2B Leasing | Catalog of organization drone hardware (`OWNED` and `LEASED` with `leaseExpiresAt` badges), B2B drone leasing requests, serviceability statuses, maintenance logs, and direct registration data (`registrationNumber`, `registrationExpiresAt`). |
-| 7 | FE-03 | Inspection Mission Queue | Tabular overview of scheduled, active, and completed inspection missions with multi-criteria status, asset, and date filtering. |
-| 8 | FE-03 | Create Inspection Dialog | Dialog for creating inspection missions, defining scheduled windows, directly assigning an active Inspector and serviceable Drone, and detecting scheduling conflicts. |
-| 9 | FE-03 | Self-Service Flight Permit Upload Gate | Inspector interface to upload mission-specific aviation flight permits; system automatically verifies Inspector's active pilot license and transitions status from `ASSIGNED` to `READY_FOR_FLIGHT`. |
-| 10 | FE-04 | Field Session Stage (Web / Mobile) | On-site interface for recording mandatory pre-flight checklist notes, logging flight start/end times, and capturing postponement, abort, or completion notes based on `assets.inspection_items`. |
-| 11 | FE-04 | Evidence Intake Stage | Digital evidence management interface supporting multi-file uploads, progress tracking, and capture metadata inspection. |
-| 12 | FE-03 | Additional Field Session | Action for the assigned Inspector to initiate another field session directly while in `FIELD_COMPLETED` without needing preparation versions or separate approvals. |
-| 13 | FE-05 | Findings Verification Stage | Inspector-invoked AI suggestions, manual finding authoring, severity classification, resolution of every finding, and explicit confirmation of the findings set (including acknowledgment when no damage was observed). |
-| 14 | FE-06 | Report Drafting Stage | Authoring workspace to trigger AI-assisted section drafting or manual authoring, record coverage and limitations, edit narrative sections, and submit verified drafts for review. |
-| 15 | FE-06 | Report Review & Document View | Administrative review interface displaying formatted report preview, finding summaries, and controls to approve publication or return with a reason. |
-| 16 | FE-06 | Published Report & Corrective Handoff | View of the published immutable PDF deliverable and per-finding controls to forward selected findings to maintenance. |
-| 17 | FE-07 | Maintenance Work Orders Queue | Management queue of maintenance work orders displaying status, defect references, assigned leads, and cost variances. |
-| 18 | FE-07 | Work Order Detail & Planning | Workspace for breaking down defect remediation into tasks, appointing Team Lead and Report Author, and establishing acceptance criteria. |
-| 19 | FE-07 | Cost Estimate & Budget Panel | Form for compiling itemized repair estimates (labor, materials, equipment), viewing calculated baseline totals, and recording budget approval. |
-| 20 | FE-07 | Repair Execution & Work Logs | Interface for assigned Engineers to record daily task logs, consumed materials, equipment utilization, and upload before/after proof. |
-| 21 | FE-07 | Change Request Dialog | Interface to propose scope, cost, or schedule adjustments with justification; provides administrative approval or rejection controls. |
-| 22 | FE-07 | Maintenance Completion & Acceptance | Workspace to author completion reports, conduct independent technical acceptance, reconcile cost actuals against budget, and close work orders. |
-| 24 | FE-08 | Operational Dashboard | Role-specific dashboard displaying mission metrics, pending approvals, defect severity breakdowns, upcoming permit expiries, and alerts. |
+| 1 | FE-01 | Organization Registration & Sign In | Allows a new customer organization to register a workspace and allows users to sign in on Web or Mobile. |
+| 2 | FE-01 | Account Security & Session Control | Allows users to change their password, sign out of active devices, and switch between authorized portals. |
+| 3 | FE-02 | Platform Users & Workforce Management | Allows Platform Admins to manage platform accounts, Organization Managers to manage staff accounts, and Inspectors to record their pilot license details. |
+| 4 | FE-02 | Enterprise Subscriptions & Payment | Allows Organization Managers to request a subscription plan and pay online via PayPal, and allows Platform Managers to confirm bank transfer payments. |
+| 5 | FE-03 | Asset Registry & Reference Documents | Allows Organization Managers to register infrastructure assets with map coordinates, inspection checkpoints, and reference documents, or archive completed assets. |
+| 6 | FE-03 | Drone Fleet & Drone Leasing | Allows Organization Managers to manage owned drones and lease drones from the platform catalog, and allows Platform Managers to manage the leasable drone pool. |
+| 7 | FE-04 | Recurring Inspection Schedules | Allows Organization Managers to set up weekly, monthly, or yearly inspection schedules and manage paused or blocked occurrences. |
+| 8 | FE-04 | In-App Notification Inbox | Displays system alerts and reminders in a notification bell and inbox with unread counts and links to related records. |
+| 9 | FE-05 | Inspection Queue & Mission Dispatch | Displays the list of inspections and allows Organization Managers to schedule new missions with an available Inspector and Drone. |
+| 10 | FE-05 | Interactive Airspace & No-Fly Zone Map | Displays an interactive map on Web and Mobile showing Vietnam prohibited No-Fly Zones and Restricted Zones around asset and mission locations. |
+| 11 | FE-06 | Flight Permit Upload | Allows the assigned Inspector to upload the aviation flight permit for an inspection so the mission becomes `Ready for Flight`. |
+| 12 | FE-06 | Field Flight Session Workspace | Allows the assigned Inspector on Web or Mobile to record pre-flight safety notes and log the start, postponement, abort, or completion of a flight session. |
+| 13 | FE-07 | Operational Analytics Dashboard | Displays summary cards, charts, and work queues tailored to the signed-in user's role. |
+| 14 | FE-07 | Schedule Calendar & Preferences | Displays planned inspections on a Month, Week, or Agenda calendar and lets users switch between Light/Dark mode and English/Vietnamese. |
+| 15 | FE-08 | Inspection Photo Gallery & Upload | Allows Inspectors to upload inspection photos, view capture times and map locations, add location notes, and remove unusable photos. |
+| 16 | FE-08 | AI Defect Detection & Findings Review | Allows Inspectors to run `YOLO11` defect detection on photos, review suggested defects, add manual findings, and confirm the final findings list. |
+| 17 | FE-09 | Inspection Report Drafting & Preview | Allows Inspectors to generate an AI-assisted or manual report draft, edit report sections, preview the PDF, and submit the report for review. |
+| 18 | FE-09 | Report Review, Publication & Handoff | Allows an Organization Manager to approve or return a submitted report, publish the final PDF report, and forward defects that need repair to maintenance. |
+| 19 | FE-10 | Maintenance Work Orders & Repair Advisor | Allows Organization Managers and Maintenance Engineers to create work orders from forwarded defects, get AI repair suggestions, assign the repair team, and plan tasks. |
+| 20 | FE-11 | Cost Estimation & Change Orders | Allows Maintenance Engineers to submit itemized repair cost estimates and Change Orders, and allows Organization Managers to approve or reject them. |
+| 21 | FE-11 | Field Repair Execution & Work Logs | Allows Maintenance Engineers on Web or Mobile to start repair work, log daily task hours and test results, verify work logs as Team Lead, and mark repair work complete. |
+| 22 | FE-12 | Maintenance Acceptance & Cost Closure | Allows the Report Author to submit the completion report and allows an independent Organization Manager to accept the repair, record actual costs, and close the work order. |
 
 #### 3.1.3 Screen Authorization
 
 | Screen | Platform Admin | Platform Manager | Organization Manager | Inspector | Maintenance Engineer |
 | --- | :---: | :---: | :---: | :---: | :---: |
-| Sign In & Authentication | X | X | X | X | X |
-| Platform Administration & Subscriptions | X (Users/Categories; Read Commercial) | X (Subscription Settlement) | X (Client Subscription) | — | — |
-| B2B Drone Leasing & Pool Management | Read-Only | X (Pool & Lease Settlement) | X (Client Lease Request) | — | — |
-| Workforce & Credentials Management | — | — | X | — | — |
-| Asset Registry & Fleet Catalog | Read-Only | — | X | Read (Assigned) | Read (Assigned) |
-| Inspection Mission Creation & Scheduling | — | — | X | — | — |
-| Mission Preparation & Shot-List | — | — | Read | X (Assigned) | — |
-| Readiness Authorization Panel | — | — | X | — | — |
-| Field Session Logging (Web / Mobile) | — | — | Read | X (Assigned) | — |
-| Evidence Intake | — | — | Read | X (Assigned) | — |
-| Defect Verification & Findings Confirmation | — | — | Read | X (Assigned) | — |
-| Inspection Report Drafting | — | — | Read | X (Author) | — |
-| Inspection Report Administrative Review | — | — | X | — | — |
-| Published Report & Maintenance Handoff | Read-Only | — | X | Read (Assigned) | Read (Assigned) |
-| Maintenance Work Order Creation | — | — | X | — | — |
-| Work Order Task Planning & Estimation | — | — | Read | — | X (Team Lead) |
-| Work Order Budget & Change Approval | — | — | X | — | — |
-| Repair Execution & Work Logs | — | — | Read | — | X (Assigned) |
-| Maintenance Completion Report Authoring | — | — | Read | — | X (Report Author) |
-| Technical Acceptance & Cost Reconciliation | — | — | X | — | — |
-| Operational Dashboard & Notifications | X (Platform) | X (Platform) | X (Enterprise) | X (Assigned) | X (Assigned) |
+| **Organization Registration, Sign In & Session Control (FE-01)** | X | X | X | X | X |
+| - Sign In, Set Up Password & Manage Active Sessions | X | X | X | X | X |
+| - Manage Platform User Accounts | X |  |  |  |  |
+| **Workforce & Enterprise Subscriptions (FE-02)** | X | X | X | X |  |
+| - Create & Manage Workforce Accounts (Inspector, Maintenance Engineer) |  |  | X |  |  |
+| - Update Remote Pilot License Profile |  |  |  | X |  |
+| - View Platform Subscription List | X | X |  |  |  |
+| - Request Subscription & Pay Online via PayPal |  |  | X |  |  |
+| - Confirm Bank Transfer Payment & Activate Subscription |  | X |  |  |  |
+| **Asset Registry, Drone Fleet & Drone Leasing (FE-03)** | X | X | X | X | X |
+| - Manage Standard Asset Categories | X |  |  |  |  |
+| - Register, Edit, Attach Documents & Archive Organization Assets |  |  | X |  |  |
+| - Manage Platform Drone Pool, Approve Lease & Reclaim Drone |  | X |  |  |  |
+| - Request Drone Lease & Manage Customer Drone Fleet |  |  | X |  |  |
+| - View Assigned Asset & Drone Information | X | X | X | X | X |
+| **Recurring Schedules & Notification Inbox (FE-04)** | X | X | X | X | X |
+| - Create, Pause, Resume, End Schedules & Retry/Skip Occurrences |  |  | X |  |  |
+| - View Own Notification Inbox & Mark Notifications as Read | X | X | X | X | X |
+| **Mission Dispatch & Airspace Advisory Map (FE-05)** | X |  | X | X |  |
+| - Schedule One-Off Inspection & Assign Inspector and Drone |  |  | X |  |  |
+| - View Interactive Airspace & No-Fly Zone Map | X |  | X | X |  |
+| **Flight Permit Gate & Field Flight Sessions (FE-06)** |  |  | X | X |  |
+| - Upload Mission Flight Permit (`Assigned` to `Ready for Flight`) |  |  | X | X |  |
+| - Start, Postpone, Abort, Complete & Log Additional Field Sessions |  |  |  | X |  |
+| **Operational Dashboard & Schedule Calendar (FE-07)** | X | X | X | X | X |
+| - View Role-Scoped Operational Dashboard & Schedule Calendar | X | X | X | X | X |
+| **Evidence Intake & AI Defect Detection (FE-08)** |  |  | X | X |  |
+| - View Inspection Photo Gallery & Defect Findings |  |  | X | X |  |
+| - Upload/Remove Photos, Run AI Analysis & Confirm Findings |  |  |  | X |  |
+| **Inspection Report Authoring, Review & Handoff (FE-09)** | X |  | X | X | X |
+| - Generate Draft, Edit Sections, Verify & Submit Report |  |  |  | X |  |
+| - Approve/Return Report, Publish Final PDF & Forward Findings |  |  | X |  |  |
+| **Maintenance Planning, AI Advisor & Team Assignment (FE-10)** | X |  | X |  | X |
+| - Create Work Order & Assign Team / Independent Reviewer |  |  | X |  |  |
+| - Use AI Repair Scope Advisor & Plan Maintenance Tasks |  |  | X |  | X |
+| **Cost Estimation, Change Orders & Repair Execution (FE-11)** |  |  | X |  | X |
+| - Submit Cost Estimate, Request Change Order & Log/Verify Work |  |  |  |  | X |
+| - Approve or Reject Cost Estimate & Change Order |  |  | X |  |  |
+| **Maintenance Completion, Acceptance & Cost Closure (FE-12)** |  |  | X |  | X |
+| - Prepare, Verify & Submit Maintenance Completion Report |  |  |  |  | X |
+| - Record Independent Acceptance, Reconcile Costs & Close Order |  |  | X |  |  |
 
 #### 3.1.4 Non-Screen Functions
 
 | # | Feature | System Function | Description |
 | --- | --- | --- | --- |
-| 1 | FE-01 | Session Token Verification & Revocation | Validates JSON Web Tokens on API requests; automatically checks token expiration, blacklists revoked sessions, and enforces role boundaries. |
-| 2 | FE-02 | Resource Conflict Detection Engine | Evaluates scheduled time windows for Drones and Inspectors across concurrent missions to prevent overlapping assignments. |
-| 3 | FE-03 | Periodic Inspection Mission Generator | Automated scheduled job that inspects asset maintenance frequencies and generates draft inspection missions with inherited default pairs. |
-| 4 | FE-04 | Evidence Intake Validation | Validates uploaded files and inspection/session scope, stores original bytes, and rejects a repeated sanitized filename within the inspection; evidence-file SHA-256 hashing is not part of the intake contract. |
-| 5 | FE-04 | Image EXIF Metadata Extractor | Extracts embedded capture timestamps, camera parameters, and GPS coordinates from uploaded JPEG files to populate evidence records. |
-| 6 | FE-05 | Inspector-Invoked Advisory Defect Detection | Optional computer vision service proposes defects only when the assigned Inspector explicitly requests analysis of selected images. |
-| 7 | FE-06 | Context-Grounded Report Synthesis Engine | Assembles verified asset, mission, checklist, and defect data into targeted LLM prompts to generate cohesive, structured report section drafts. |
-| 8 | FE-06 | PDF Report Document Renderer | Compiles approved report sections, finding tables, attached evidence photos, and metadata into a publication-grade A4 PDF document with SHA-256 recording. |
-| 9 | FE-07 | Deterministic Cost Calculation Engine | Computes baseline estimate totals, approved change order deltas, actual expenditures, and variance metrics using exact decimal precision. |
-| 10 | FE-08 | Operational Event Notification Dispatcher | Event-driven notification worker delivering in-app alerts and email notifications for mission dispatches, readiness updates, and approval requests. |
-| 11 | FE-01 | Subscription & Lease Payment Capture and Reconciliation | When PayPal is explicitly configured, the server creates and captures provider orders for enterprise subscriptions and B2B drone leases, validates the provider-reported amount/currency and webhook signature before activation; otherwise online checkout fails closed and authorized `PLATFORM_MANAGER` confirms wire/invoice payment. |
+| 1 | FE-01 | Sign-In & Session Protection | Protects user sign-in, keeps active sessions signed in across page refreshes, and temporarily locks accounts after repeated failed password attempts. |
+| 2 | FE-02 / FE-03 | Online Payment Verification | Verifies completed PayPal payments before automatically activating a customer subscription or drone lease. |
+| 3 | FE-04 | Recurring Inspection Generator | Automatically creates upcoming inspection missions 14 days in advance based on active weekly, monthly, or yearly schedules. |
+| 4 | FE-04 | Upcoming Inspection Reminder | Automatically sends an in-app reminder 3 days before a scheduled inspection is due to start. |
+| 5 | FE-04 | In-App Notification Service | Sends alerts to users' notification inboxes whenever an inspection, report, estimate, or work order requires their attention. |
+| 6 | FE-05 | Schedule Conflict Checker | Checks Inspector and Drone schedules before creating or updating an inspection so the same person or drone is never double-booked. |
+| 7 | FE-05 | Airspace Zone Checker | Calculates the distance between an asset or mission location and published Vietnam No-Fly Zones and Restricted Zones to display safety warnings. |
+| 8 | FE-08 | Photo Validator & Location Reader | Checks that uploaded inspection photos are valid image files and reads the capture time and GPS location stored by the camera. |
+| 9 | FE-08 | AI Defect Detection Service | Runs the `YOLO11` visual detection model on selected inspection photos to highlight candidate structural defects for the Inspector to review. |
+| 10 | FE-09 | AI Report Drafting Service | Generates a draft inspection report from the asset's checkpoints, flight session notes, and confirmed defect findings. |
+| 11 | FE-09 / FE-12 | PDF Report Generator | Generates official, uneditable PDF files for approved inspection reports and accepted maintenance completion reports so users can view and download them. |
+| 12 | FE-10 / FE-12 | AI Repair Advisor & Re-Inspection Trigger | Suggests repair steps based on civil engineering standards when planning a work order, and automatically creates a follow-up inspection mission when a repair requires re-inspection. |
 
 #### 3.1.5 Entity Relationship Diagram
 
@@ -140,17 +136,19 @@ flowchart TD
 erDiagram
   ORGANIZATION ||--o{ USER : employs
   ORGANIZATION ||--o{ SUBSCRIPTION : holds
-  ORGANIZATION ||--o{ ASSET_CATEGORY : defines
+  SUBSCRIPTION ||--o{ PAYMENT_TRANSACTION : settles
   ORGANIZATION ||--o{ DRONE : owns
   ORGANIZATION ||--o{ DRONE_LEASE : contracts
   PLATFORM_DRONE ||--o{ DRONE_LEASE : leased_via
   DRONE_LEASE ||--o| DRONE : provisions
+  USER ||--o{ DRONE_LEASE : requests
   ORGANIZATION ||--o{ ASSET : owns
   ASSET_CATEGORY ||--o{ ASSET : categorizes
   ASSET ||--o{ ASSET_DOCUMENT : attaches
 
   ORGANIZATION ||--o{ AUDIT_EVENT : records
   ORGANIZATION ||--o{ NOTIFICATION : receives
+  USER ||--o{ NOTIFICATION : receives
 
   USER ||--o{ AUTH_SESSION : opens
 
@@ -160,7 +158,11 @@ erDiagram
   DRONE ||--o{ INSPECTION : "assigned drone"
   ORGANIZATION ||--o{ RECURRING_INSPECTION_SCHEDULE : schedules
   ASSET ||--o{ RECURRING_INSPECTION_SCHEDULE : recurs_for
+  USER ||--o{ RECURRING_INSPECTION_SCHEDULE : "default inspector"
+  DRONE ||--o{ RECURRING_INSPECTION_SCHEDULE : "default drone"
   RECURRING_INSPECTION_SCHEDULE ||--o{ SCHEDULE_OCCURRENCE : generates
+  ORGANIZATION ||--o{ SCHEDULE_OCCURRENCE : scopes
+  INSPECTION |o--o{ SCHEDULE_OCCURRENCE : fulfills
   RECURRING_INSPECTION_SCHEDULE ||--o{ INSPECTION : dispatches
 
   INSPECTION ||--o{ FIELD_SESSION : executes
@@ -171,320 +173,476 @@ erDiagram
 
   INSPECTION ||--o{ INSPECTION_REPORT : delivers
 
-  INSPECTION ||--o{ MAINTENANCE_WORK_ORDER : initiates
+  ORGANIZATION ||--o{ MAINTENANCE_WORK_ORDER : owns
+  ASSET ||--o{ MAINTENANCE_WORK_ORDER : remediates
+  USER ||--o{ MAINTENANCE_WORK_ORDER : governs
+  FINDING ||--o{ MAINTENANCE_WORK_ORDER : initiates
+  INSPECTION_REPORT ||--o{ MAINTENANCE_WORK_ORDER : references
   MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_TEAM_MEMBER : deploys
   MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_TASK : deconstructs
   MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_ESTIMATE_VERSION : projects
   MAINTENANCE_ESTIMATE_VERSION ||--o{ MAINTENANCE_COST_LINE : itemizes
+  MAINTENANCE_TASK ||--o{ MAINTENANCE_COST_LINE : accrues
   MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_CHANGE_ORDER : requests
   MAINTENANCE_TASK ||--o{ MAINTENANCE_WORK_LOG : tracks
   MAINTENANCE_WORK_ORDER ||--o{ MAINTENANCE_REPORT : delivers
   MAINTENANCE_REPORT ||--o{ MAINTENANCE_ACCEPTANCE_DECISION : accepts
+
+  REPAIR_KNOWLEDGE_CHUNK {
+    uuid id PK
+    varchar chunk_code UK
+    varchar standard_code
+    varchar defect_category
+    vector embedding
+  }
+  EVENT_PUBLICATION {
+    uuid id PK
+    varchar listener_id
+    varchar event_type
+    timestamptz publication_date
+    timestamptz completion_date
+  }
 ```
 
 **Entities Description**
 
-| # | Entity | Table Name | Description |
-| --- | --- | --- | --- |
-| 1 | Organization | `organizations` | Tenant enterprise customer company subscribing to the platform; isolates all workforce, asset, and operational records. |
-| 2 | User | `users` | System user account across Platform Admin (`ADMIN`), Platform Manager (`PLATFORM_MANAGER`), Organization Manager (`ORG_MANAGER`), Inspector (`INSPECTOR`), and Maintenance Engineer (`MAINTENANCE_ENGINEER`) roles (`roles`). Includes self-declared remote pilot license credentials (`pilot_license_number`, `pilot_license_class`, `pilot_license_expires_at`, `pilot_license_file_key`). |
-| 3 | Auth Session | `auth_sessions` | Tracks active login sessions, client type, hashed refresh tokens, and revocation state. |
-| 4 | Subscription | `subscriptions` | Tracks ENTERPRISE subscription contracts, periods (1, 6, 12 months), and billing/payment status. |
-| 5 | Payment Transaction | `payment_transactions` | Records optional PayPal Orders v2 checkout and capture transactions linked to subscriptions. |
-| 6 | Platform Drone | `platform_drones` | Platform-owned serial-numbered leasable drone inventory with model, manufacturer, payload metadata, monthly lease rate (`monthly_rate_usd`), and availability status (`AVAILABLE`, `LEASED`, `MAINTENANCE`, `RETIRED`). |
-| 7 | Drone Lease | `drone_leases` | B2B drone lease contracts between the platform and a customer organization tracking lease period, agreed amount, wire/PayPal settlement references, active window (`starts_at`, `ends_at`), provisioned customer drone reference (`customer_drone_id`), and reclaim status (`PENDING`, `ACTIVE`, `RECLAIMED`, `CANCELLED`). |
-| 8 | Drone | `drones` | Hardware aircraft asset in a customer fleet identified by model, serial number, MTOW, serviceability status, ownership type (`OWNED` or `LEASED`), optional active lease reference (`lease_id`), lease expiration (`lease_expires_at`), and direct registration data (`registration_number`, `registration_file_key`, `registration_expires_at`). |
-| 9 | Asset Category | `asset_categories` | Structural categorization for infrastructure assets (Bridges, Power Towers, Industrial Facilities). |
-| 10 | Asset | `assets` | Physical infrastructure asset (bridge, pylon, building, facility) managed by the organization. Includes `inspection_items` (`jsonb` array of inspection checkpoint items, e.g. "Mố cầu", "Trụ P1", "Dầm chính", "Khe co giãn"). |
-| 11 | Asset Document | `asset_documents` | Engineering schematics, structural drawings, and technical specifications attached to an asset. |
-| 12 | Inspection | `inspections` | Core inspection mission directly referencing assigned Inspector and Drone, optional `recurring_schedule_id`, scheduled window, flight permit document attributes (`flight_permit_file_key`, `flight_permit_file_name`, `flight_permit_uploaded_at`), and operational status (17 columns; self-service flight permit gate auto-transitions `ASSIGNED -> READY_FOR_FLIGHT`). |
-| 13 | Recurring Inspection Schedule | `recurring_inspection_schedules` | Periodic inspection recurrence rules per asset with timezone-anchored local cadence, assigned Inspector/Drone, duration, reminder lead days, and status (`ACTIVE`, `PAUSED`, `ENDED`). |
-| 14 | Schedule Occurrence | `schedule_occurrences` | Individual generated, blocked, or skipped recurring schedule occurrences linked to dispatched `inspections` with retry counts and blocked reasons. |
-| 15 | Field Session | `field_sessions` | Individual on-site flight survey session linked directly to `inspections(id)` without intermediate preparation entities, capturing mandatory pre-flight checklist notes and operational outcomes (`PLANNED`, `IN_PROGRESS`, `FIELD_COMPLETED`, `POSTPONED`, `ABORTED`; 12 columns). |
-| 16 | Evidence | `evidence` | Digital media captures collected during inspection field sessions with stored object references and GPS coordinates (13 columns; organization resolved via inspections; soft-delete via `is_deleted`). |
-| 17 | Finding | `findings` | Unified defect findings table managing AI defect candidates and Inspector-confirmed official findings (15 columns; confirmation via `status = CONFIRMED`; soft-delete via `is_deleted`). |
-| 18 | Inspection Report | `inspection_reports` | Versioned inspection report deliverables, review decisions, content snapshots, and rendered PDF keys (13 columns; author resolved via `inspections.inspector_id`; linear versioning via `version_no`). |
-| 19 | Maintenance Work Order | `maintenance_work_orders` | Remediation projects initiated from forwarded inspection findings, tracking repair scope, schedule, and state (18 columns). |
-| 20 | Maintenance Team Member | `maintenance_team_members` | Engineering team members allocated to a maintenance work order (10 columns). |
-| 21 | Maintenance Task | `maintenance_tasks` | Decomposed repair tasks with technical methods, criteria, and assigned engineers (13 columns). |
-| 22 | Maintenance Estimate Version | `maintenance_estimate_versions` | Versioned financial projection baselines for labor, materials, equipment, and services (11 columns). |
-| 23 | Maintenance Cost Line | `maintenance_cost_lines` | Individual itemized cost rows within an estimate baseline, change order, or actual expenditure (14 columns). |
-| 24 | Maintenance Change Order | `maintenance_change_orders` | Formal variance requests adjusting repair scope, budget ceiling, or completion schedule (13 columns). |
-| 25 | Maintenance Work Log | `maintenance_work_logs` | Daily execution entries logging labor hours, material consumption, and task milestone notes (13 columns). |
-| 26 | Maintenance Report | `maintenance_reports` | Versioned maintenance completion deliverables, verified by the author and accepted by the administrator (9 columns). |
-| 27 | Maintenance Acceptance Decision | `maintenance_acceptance_decisions` | Formal technical acceptance records evaluating repair completion and cost reconciliation (9 columns). |
-| 28 | Repair Knowledge Chunk | `repair_knowledge_chunks` | Civil/structural engineering repair standard chunks and embeddings supporting RAG scope suggestions (9 columns). |
-| 29 | Notification | `notifications` | Operational alerts and deduplicated in-app notifications delivered to system users (13 columns, including `deduplication_key`). |
-| 30 | Audit Event | `audit_events` | Append-only security audit trail recording consequential domain transitions and access events (13 columns). |
-| — | Event Publication | `event_publication` | Framework transactional outbox table for reliable asynchronous domain event delivery (Spring Modulith). |
+| # | Entity | Description |
+| --- | --- | --- |
+| 1 | Organization | Customer enterprise subscribing to the platform; groups and isolates all workforce, asset, fleet, inspection, and maintenance records. |
+| 2 | User | User account for a Platform Admin, Platform Manager, Organization Manager, Inspector, or Maintenance Engineer, including remote pilot license details for Inspectors. |
+| 3 | Authentication Session | Active sign-in session for a user across web and mobile devices. |
+| 4 | Subscription | Enterprise subscription contract tracking billing duration (1 to 120 months), agreed price, accepted terms, and status (`Pending`, `Active`, `Past Due`, `Suspended`, `Expired`, `Cancelled`). |
+| 5 | Payment Transaction | Online payment record linked to an enterprise subscription request. |
+| 6 | Platform Drone | Leasable drone in the platform catalog with model, serial number, monthly lease rate, and status (`Available`, `Leased`, `Maintenance`, `Retired`). |
+| 7 | Drone Lease | Drone lease contract between the platform and a customer organization tracking lease months, payment status, active dates, and return status. |
+| 8 | Drone | Drone in a customer organization's fleet (`Owned` or `Leased`), tracking serial number, model, aviation registration expiry, and serviceability (`Active`, `Maintenance`, `Suspended`, `Retired`). |
+| 9 | Asset Category | Standard infrastructure category (such as Bridge, Building, Power Tower, Wind Turbine, or Solar Facility) managed by the Platform Admin. |
+| 10 | Asset | Physical infrastructure asset owned by an organization, including map coordinates and a list of standard inspection checkpoints. |
+| 11 | Asset Document | Engineering drawing, specification, or reference document attached to an infrastructure asset. |
+| 12 | Inspection | Scheduled inspection mission linking an asset, assigned Inspector, assigned Drone, planned time window, uploaded flight permit, and mission status. |
+| 13 | Recurring Inspection Schedule | Repeating inspection rule (`Weekly`, `Monthly`, or `Yearly`) configured for an asset with a default Inspector and Drone. |
+| 14 | Schedule Occurrence | Individual upcoming inspection occurrence (`Generated`, `Blocked`, or `Skipped`) created by a recurring schedule. |
+| 15 | Field Session | On-site drone flight session logged for an inspection, recording pre-flight safety notes, start/end times, and session outcome (`Planned`, `In Progress`, `Field Completed`, `Postponed`, `Aborted`). |
+| 16 | Evidence | Aerial photograph uploaded for an inspection, storing capture time, GPS coordinates, structural location notes, and active/retired status. |
+| 17 | Finding | Defect record linked to an inspection photo, tracking AI-suggested candidates (`Pending`) and Inspector-confirmed defects (`Confirmed`) with severity and bounding box location. |
+| 18 | Inspection Report | Versioned inspection report containing structured report sections, author and reviewer decisions, and the final published PDF file. |
+| 19 | Maintenance Work Order | Repair project created from a forwarded inspection defect, tracking repair scope, acceptance criteria, assigned team roles, and work order status. |
+| 20 | Maintenance Team Member | Maintenance Engineer assigned to a work order as `Team Lead`, `Report Author`, or `Team Member`. |
+| 21 | Maintenance Task | Individual repair task within a work order specifying the repair method, target dates, assigned engineer, and task status. |
+| 22 | Maintenance Estimate Version | Versioned cost estimate (`Draft`, `Submitted`, `Approved`, `Rejected`, `Superseded`) summarizing the planned repair budget. |
+| 23 | Maintenance Cost Line | Itemized cost entry (`Labor`, `Material`, `Equipment`, `External Service`, `Other`, or `Contingency`) recorded as either an `Estimate` or `Actual` cost. |
+| 24 | Maintenance Change Order | Request to adjust the approved repair scope or budget (`Draft`, `Awaiting Approval`, `Approved`, `Rejected`, `Returned`, `Superseded`) during field execution. |
+| 25 | Maintenance Work Log | Daily repair log recording task hours, as-left structural condition, and test measurements, verified by the Team Lead. |
+| 26 | Maintenance Report | Versioned maintenance completion report prepared by the Report Author and compiled into a final PDF upon acceptance. |
+| 27 | Maintenance Acceptance Decision | Independent technical review decision (`Accepted`, `Rework Required`, or `Re-Inspection Required`) recorded by an Organization Manager. |
+| 28 | Repair Knowledge Chunk | Reference civil engineering repair standard (`TCVN`, `EN`, `ISO`) used by the AI Repair Scope Advisor to suggest repair methods. |
+| 29 | Notification | In-app alert delivered to a user's notification inbox (`Pending`, `Sent`, `Read`, `Failed`). |
+| 30 | Audit Event | Historical log entry recording important user and workflow actions across the system. |
+| 31 | Event Publication | Background system event record used to trigger reliable in-app notifications. |
 
 ---
 
-### 3.2 FE-01 Identity, Enterprise Subscription and Workforce Governance
+### 3.2 FE-01 Authentication & Access Control
 
-#### 3.2.1 Enterprise Registration and Tenant Management
-- **Function Trigger**: A first organization representative submits the public organization self-registration form, or a `Platform Admin` (`ADMIN`) provisions platform-level (`ADMIN` or `PLATFORM_MANAGER`) or initial customer workspace (`ORG_MANAGER`) accounts in `Platform Users`.
-- **Function Description**: Creates one active customer organization and its first active `ORG_MANAGER` account atomically; registration does not issue an authenticated session. The representative must separately affirm authority to represent the organization and acceptance of the active Terms of Service, and acknowledge/accept the active Privacy Notice before provisioning. Platform-level accounts (`ActorZone.PLATFORM`, `organizationId = null`) are provisioned exclusively by `Platform Admin` (`ADMIN`) with strict single-role separation of duties (`ADMIN` XOR `PLATFORM_MANAGER`).
-- **Function Details**:
-  - *Inputs*: Representative full name, business email, organization name and unique organization code, password, `termsAccepted` and `privacyNoticeAccepted` (both explicitly `true`), and the displayed `termsVersion` and `privacyNoticeVersion`.
-  - *Validations*: Enforces existing email/organization-code uniqueness, password policy, explicit true values for both consent flags, and exact matches against the server's active Terms and Privacy Notice versions. Missing, false, or stale consent/version values are rejected with HTTP 400 before organization/user persistence. Platform user mutations (`/api/v1/platform/users`) and standard asset category mutations (`POST/PUT /api/v1/asset-categories`) require `ADMIN` and reject `PLATFORM_MANAGER` with `403 Forbidden`.
-  - *Processing*: Creates the organization and first Organization Manager in one transaction, hashes the password (Argon2id), assigns only `ORG_MANAGER` in `CUSTOMER_ORGANIZATION`, and records the accepted policy versions and server timestamp with registration IP/user-agent in the append-only `ORGANIZATION_REGISTRATION` audit event's `safe_metadata` within the same transaction. Passwords and credentials are never included in consent metadata. The audit entry is technical evidence of the recorded application interaction; it is not a certified digital signature and does not by itself guarantee legal enforceability or statutory compliance.
-  - *Outputs*: Created organization and user profile; no access/refresh token or authenticated session is issued during registration.
-- **Policy content status**: The displayed Terms and Privacy Notice are versioned product drafts pending legal review. They must not be represented as approved legal advice, guaranteed SLA, invoice commitment, absolute liability exclusion, or a certified-signature instrument until authorized review and operational approval are complete.
+#### 3.2.1 Organization Registration & User Sign-In
+- **Function trigger**: A customer representative opens the **Organization Registration** page and submits the form, or a user opens the **Sign In** screen on Web or Mobile and enters their email and password.
+- **Function description**: Actors: All Roles (`Platform Admin`, `Platform Manager`, `Organization Manager`, `Inspector`, `Maintenance Engineer`). Allows a new customer organization to register a workspace with its first Organization Manager account after accepting the Terms of Service and Privacy Notice, and allows existing users to sign in to their assigned portal.
+- **Screen layout**: Mock-up prototype of the `Organization Registration & User Sign-In` screen:
 
-#### 3.2.2 Inspector Pilot License Self-Declaration and Workforce Provisioning
-- **Function Trigger**: Organization Manager navigates to `Workforce Management` and selects `Add User`, or an assigned Inspector navigates to `Account Security` / `Profile Settings` to self-declare pilot credentials.
-- **Function Description**: Provisions user accounts for Inspectors and Maintenance Engineers. Inspectors self-declare their remote pilot qualifications (UAV Remote Pilot License number, certification class, expiration date, and uploaded certificate file) directly in their profile (`PUT /api/v1/auth/me/pilot-license`), which the system validates automatically during flight permit upload.
-- **Function Details**:
-  - *Inputs*:
-    - Workforce Provisioning (`ORG_MANAGER`): Full name, corporate email, role selection (`INSPECTOR` or `MAINTENANCE_ENGINEER`), initial status.
-    - Pilot License Self-Declaration (`INSPECTOR`): Pilot license number (`pilotLicenseNumber`), license class (`pilotLicenseClass`, e.g. `CLASS_A`, `CLASS_B`), license expiration timestamp (`pilotLicenseExpiresAt`), certificate document (`pilotLicenseFileKey`).
-  - *Validations*: Ensures email uniqueness within tenant; validates pilot license expiration date is in the future.
-  - *Processing*: Persists workforce account; stores pilot license attributes directly on `users`; automatically verifies license validity whenever the Inspector uploads a mission flight permit.
-  - *Outputs*: Provisioned workforce account with self-declared pilot license credentials.
+```mermaid
+%% title: Screen Layout Placeholder - 3.2.1 Organization Registration & User Sign-In
+```
 
-#### 3.2.3 Subscription Entitlements, Contract Terms and Settlement
-- **Function Trigger**: Organization Manager requests or renews an ENTERPRISE subscription; Platform Manager reviews a pending request and reconciles cleared funds.
-- **Function Description**: Provides a versioned terms preview and fixed standard price schedule for 1, 6, and 12-month terms. An Organization Manager may request a custom duration of 1–120 months and submit a proposed price and negotiation notes; these are a proposal, not an approved contract amount. A Platform Manager (`PLATFORM_MANAGER`) confirms the final amount and subscription activation after reconciling a corporate wire/invoice reference (`Platform Admin` `ADMIN` retains read-only visibility and receives `403 Forbidden` on payment confirmation/activation mutations). If PayPal is explicitly enabled and configured for the deployment, an Organization Manager may use provider-hosted approval for a platform-approved amount. Online payment is disabled by default.
 - **Function Details**:
-  - *Inputs*:
-    - Subscription request: billing period (1–120 months), affirmative agreement to the displayed terms version, optional proposed price and negotiation notes.
-    - Platform settlement confirmation: subscription ID, cleared external wire/invoice reference, effective period, final agreed amount and Platform Manager attribution.
-    - Optional configured PayPal checkout: subscription ID to create an order; provider order ID to request server-side capture. Capture ID, amount, currency and payer details are obtained from PayPal, never asserted by the browser.
-  - *Validations*: The system validates term bounds, required terms agreement, tenant scope, authorization, and effective date ordering. A proposed price is not eligible for PayPal checkout until a platform-approved contract amount exists. For enabled PayPal checkout, the server requires provider capture status `COMPLETED`, exact order ownership, matching approved amount and supported currency, and an idempotently unique provider capture ID. Webhooks are signature-verified against the deployment's configured PayPal webhook ID and environment before a completion event can be applied. When PayPal is disabled or unconfigured, checkout fails closed and no payment transaction or subscription activation is created.
-  - *Processing*:
-    - Request: stores an immutable `terms_snapshot` containing the accepted terms version, actor, selected term, standard price estimate, and any customer price proposal/notes; the subscription remains `PENDING`.
-    - Wire/invoice settlement: an authorized Platform Manager (`PLATFORM_MANAGER`) records the cleared external reference and final agreed amount, closes any prior active term, attributes the confirmation, and activates the approved subscription.
-    - Optional PayPal settlement: server creates a provider order for the platform-approved contract amount, the payer approves on PayPal-hosted checkout, and the server captures and verifies the provider response before recording/completing `payment_transactions` and activating the subscription. A verified webhook is an idempotent reconciliation path. Payment-provider credentials are deployment secrets and are not stored in application tables.
-  - *Outputs*: Current and historical subscription state, immutable request terms snapshot, deterministic wire/invoice payment instructions, Platform Manager settlement attribution, and (only when configured and verified) a provider transaction record. Entitlement is granted only for an active subscription whose validity window covers the current time.
-- **Scope and legal status**: Standard rate values and provider integration configuration are deployment/application configuration, not a dynamic Platform Admin or Platform Manager pricing catalog. Customer proposals do not become accepted prices without platform confirmation. The printable terms view is a draft order/terms summary pending legal review; its recorded application acceptance is not a certified digital signature and does not itself guarantee legal enforceability.
+  - *Data & Validation*: Registration requires **Full Name**, **Work Email**, **Organization Name**, **Business Registration Code**, **Password**, and acceptance of the **Terms of Service** and **Privacy Notice**. Sign-in requires **Email** and **Password**.
+  - *Business Rules*: Enforces `BR-01`, `BR-06`, `BR-38`, and `BR-40`. Self-registration creates only a customer Organization and its initial Organization Manager account.
+  - *Normal Cases*: Valid registration creates the organization and manager account (`MSG05`) and redirects to the sign-in screen. Valid sign-in opens the user's home dashboard (or prompts for a new password if signing in with a temporary password for the first time).
+  - *Abnormal Cases*: Missing fields, unaccepted policy checkboxes, or weak passwords show an inline error (`MSG02`, `MSG11`). Duplicate emails or registration codes are rejected. Entering a wrong password 5 times locks the account for 15 minutes (`MSG08`, `MSG09`).
+
+#### 3.2.2 Session Management & Role-Based Access Control
+- **Function trigger**: A signed-in user navigates between screens, resumes using the app on Web or Mobile, or clicks **Sign Out** / **Sign Out All Devices**.
+- **Function description**: Actors: All Roles, `Automated System`. Keeps active users signed in while they work, signs them out when they choose **Sign Out** or when their password or role changes, and restricts every screen and record to the user's role and organization.
+- **Screen layout**: Mock-up prototype of the `Account Security & Multi-Portal Access Control` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.2.2 Session Management & Role-Based Access Control
+```
+
+- **Function Details**:
+  - *Data & Validation*: Checks the signed-in user's session status, assigned role, and organization before opening any screen or saving any change.
+  - *Business Rules*: Enforces `BR-01`, `BR-02`, `BR-03`, `BR-04`, `BR-29`, `BR-39`, and `BR-40`. Platform Admin and Platform Manager roles are kept separate, and customer users can access only their own organization's data.
+  - *Normal Cases*: Authorized users move smoothly between screens in their portal. Clicking **Sign Out** ends the current session (`MSG06`), and **Sign Out All Devices** signs out all active web and mobile sessions.
+  - *Abnormal Cases*: Expired sessions return the user to the sign-in screen (`MSG10`). Opening a page outside the user's role or organization shows an access-denied screen.
 
 ---
 
-### 3.3 FE-02 Infrastructure Asset, Equipment Fleet and Compliance Registry
+### 3.3 FE-02 Workforce & Subscription Management
 
-#### 3.3.1 Infrastructure Asset Catalog and Inspection Checkpoints
-- **Function Trigger**: Organization Manager navigates to `Assets` and selects `New Asset`.
-- **Function Description**: Registers physical infrastructure assets, records structural attributes and GPS coordinates, and configures a standardized checklist of structural inspection checkpoints (`inspectionItems`, e.g., "Mố cầu M1", "Trụ P1", "Dầm chính", "Gối cầu", "Khe co giãn").
-- **Function Details**:
-  - *Inputs*: Asset code, asset name, category (Bridge, Power Tower, Industrial Plant, Building), location coordinates, structural drawings, and an array of inspection checkpoint strings (`inspectionItems`).
-  - *Validations*: Asset code must be unique within organization; at least one checkpoint item is recommended.
-  - *Processing*: Persists asset master record along with its `inspection_items` JSON array; establishes asset condition history. Inspections dispatched for this asset automatically inherit these checkpoints for mobile field session guidance and technical report synthesis.
-  - *Outputs*: Active asset record with configured inspection checkpoints available for mission scheduling.
+#### 3.3.1 Workforce Provisioning & Pilot License Profile
+- **Function trigger**: A `Platform Admin` opens **Platform Users** to add a platform or organization manager, an `Organization Manager` opens **Workforce** and clicks **Add Member**, or an `Inspector` opens **Account & Pilot License** to save their pilot license details.
+- **Function description**: Actors: `Platform Admin`, `Organization Manager`, `Inspector`. Allows administrators to create and manage staff accounts with a temporary first-time password, and allows Inspectors to record their remote pilot license information for flight readiness checks.
+- **Screen layout**: Mock-up prototype of the `Workforce Provisioning & Pilot License Profile` screen:
 
-#### 3.3.2 Drone Fleet Management, B2B Drone Leasing and Registration Tracking
-- **Function Trigger**: Organization Manager navigates to `Drone Fleet` and selects `Register Drone` or `Drone Leasing`; Platform Manager navigates to `Platform Drone Leasing` to manage the leasable pool, confirm lease payments, or reclaim leased drones.
-- **Function Description**: Catalogs unmanned aerial vehicles (UAVs) in the customer fleet (`OWNED` or `LEASED`), tracks payload equipment, serviceability status, and hardware registration data (`registrationNumber`, `registrationExpiresAt`, `registrationFileKey`), and manages the B2B Drone Leasing lifecycle between the platform and customer organizations.
-- **Function Details**:
-  - *Inputs*:
-    - Customer Owned Drone Registration (`ORG_MANAGER`): Manufacturer, model, hardware serial number, maximum takeoff weight (MTOW), camera payload specifications, initial serviceability (`ACTIVE`, `MAINTENANCE`, `SUSPENDED`, `RETIRED`), registration number (`registrationNumber`), registration certificate file (`registrationFileKey`), and registration expiration date (`registrationExpiresAt`).
-    - Platform Leasable Drone Pool (`PLATFORM_MANAGER` writes; `ADMIN`, `PLATFORM_MANAGER`, `ORG_MANAGER` reads): Serial number (unique), model, manufacturer, `monthlyRateUsd`, `payloadMetadata` JSON, and status (`AVAILABLE`, `LEASED`, `MAINTENANCE`, `RETIRED`).
-    - B2B Lease Request & Settlement (`ORG_MANAGER` request/PayPal; `PLATFORM_MANAGER` wire confirmation & reclaim): Target `platformDroneId`, `leasePeriodMonths` (1–60 months), external wire transfer reference (`externalReference`) or PayPal order/capture IDs (`paypalOrderId`, `paypalCaptureId`).
-  - *Validations*: Hardware serial number must be unique across tenant fleet (`(organization_id, serial_number)`) and across the platform pool; weight, payload, and rate fields must be positive numeric values. Only `PLATFORM_MANAGER` may mutate the platform drone pool, confirm lease wire payments, or reclaim active leases (`ADMIN` receives `403 Forbidden` on commercial mutation endpoints while retaining read-only access). Confirming a lease payment requires the `PlatformDrone` to be `AVAILABLE` (returns `409 Conflict` if already leased). `ORG_MANAGER` is blocked from manually changing serviceability on a reclaimed/retired leased drone.
-  - *Processing*:
-    - Owned Fleet: Stores hardware profile with `ownership_type = 'OWNED'` and direct registration details; monitors flight hours logged from field sessions.
-    - Lease Request: Verifies `PlatformDrone` is `AVAILABLE`, computes `agreed_amount_usd = monthly_rate_usd * lease_period_months`, and creates a `PENDING` `drone_leases` contract.
-    - Lease Settlement & Automatic Fleet Provisioning: Upon wire payment confirmation by `PLATFORM_MANAGER` or verified PayPal Orders v2 capture, transitions `PlatformDrone` to `LEASED`, transitions `DroneLease` to `ACTIVE` (`starts_at`, `ends_at`), and automatically creates or reactivates the customer `Drone` in `drones` (`organization_id`, `serial_number`, `ownership_type = 'LEASED'`, `lease_id`, `lease_expires_at = ends_at`, `serviceability = 'ACTIVE'`).
-    - Lease Reclaim: When `PLATFORM_MANAGER` invokes `POST /api/v1/platform/drone-leases/{leaseId}/reclaim` on an active/expired lease, transitions `DroneLease` to `RECLAIMED`, marks the customer's `Drone` as `RETIRED`, and returns the `PlatformDrone` to `AVAILABLE`.
-  - *Outputs*: Registered or lease-provisioned drone hardware profile (`OWNED` or `LEASED` badge with `leaseExpiresAt` date) available for mission assignment, plus auditable B2B lease contract records.
+```mermaid
+%% title: Screen Layout Placeholder - 3.3.1 Workforce Provisioning & Pilot License Profile
+```
 
-#### 3.3.3 Mission Flight Clearance and Aviation Compliance
-- **Function Trigger**: Assigned Inspector uploads official flight clearance document on the inspection workspace.
-- **Function Description**: Aviation flight permits issued by relevant authorities (such as the Ministry of National Defence under Decree No. 288/2025/NĐ-CP) are mission-scoped and attached directly to the inspection via the Self-Service Flight Permit Gate (`flight_permit_file_key`, `flight_permit_file_name`, `flight_permit_uploaded_at`), satisfying regulatory compliance without maintaining an orphaned global permit repository.
 - **Function Details**:
-  - *Inputs*: Mission inspection ID, permit document file (PDF or scanned image).
-  - *Validations*: File must be a valid document format within configured size limits; uploading inspector must be the assigned inspector with an unexpired pilot license.
-  - *Processing*: Stores permit file in MinIO object storage, attributes upload timestamp, and automatically clears the mission for flight operations.
-  - *Outputs*: Verified mission flight clearance attached to the inspection and rendered in the published inspection report deliverable.
+  - *Data & Validation*: Staff creation requires **Full Name**, **Email**, and **Role** (`Inspector` or `Maintenance Engineer`). Pilot license profile requires **License Number**, **License Class**, **Expiration Date**, and **Certificate File**.
+  - *Business Rules*: Enforces `BR-02`, `BR-03`, `BR-05`, `BR-40`, and `BR-41`. Organization Managers can create only `Inspector` and `Maintenance Engineer` accounts within their own organization.
+  - *Normal Cases*: Adding a staff member creates an `Active` account with a one-time temporary password (`MSG05`). Saving pilot license details updates the Inspector's profile (`MSG06`, `MSG27`).
+  - *Abnormal Cases*: Duplicate emails within the same organization or attempts to assign administrative roles through the workforce screen are rejected.
+
+#### 3.3.2 Enterprise Subscription & Online Payment
+- **Function trigger**: An `Organization Manager` opens **Subscriptions** to request a subscription plan or pay via PayPal, or a `Platform Manager` opens **Subscriptions** in the Admin Portal and clicks **Confirm Payment**.
+- **Function description**: Actors: `Organization Manager`, `Platform Manager`, `Online Payment Gateway`. Manages customer subscription plans (1, 6, 12, or custom 1–120 months) and activates organization workspace access once bank transfer or online PayPal payment is confirmed.
+- **Screen layout**: Mock-up prototype of the `Enterprise Subscription & Online Payment` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.3.2 Enterprise Subscription & Online Payment
+```
+
+- **Function Details**:
+  - *Data & Validation*: Subscription request requires **Billing Period (1–120 months)**, **Terms Acceptance**, and optional **Proposed Price / Notes**. Bank transfer confirmation requires **Payment Reference** and **Confirmed Amount (USD)**.
+  - *Business Rules*: Enforces `BR-01`, `BR-06`, `BR-10`, `BR-11`, `BR-13`, and `BR-29`. Each organization has at most one `Active` subscription at a time; activating a renewal automatically marks the previous subscription `Expired`.
+  - *Normal Cases*: Requesting a plan creates a `Pending` subscription (`MSG29`). When the Platform Manager confirms bank transfer payment (or PayPal checkout completes), the subscription becomes `Active` (`MSG35`, `MSG47`).
+  - *Abnormal Cases*: Unverified online payments, duplicate payment references, or attempts by a Platform Admin to confirm payments are rejected (`MSG48`).
 
 ---
 
-### 3.4 FE-03 Flight Mission Planning and Readiness Authorization
+### 3.4 FE-03 Asset & Drone Fleet Management
 
-#### 3.4.1 Inspection Mission Scheduling and Direct Resource Assignment
-- **Function Trigger**: Organization Manager selects `Create Inspection` from asset row or inspections list.
-- **Function Description**: Schedules an inspection mission for an asset, establishes planned start/end dates, directly selects the responsible active Inspector and serviceable Drone, and performs automated resource conflict checks.
+#### 3.4.1 Infrastructure Asset & Document Management
+- **Function trigger**: An `Organization Manager` opens **Assets** and clicks **New Asset**, uploads a file under **Asset Documents**, or clicks **Complete & Archive Asset**.
+- **Function description**: Actors: `Organization Manager`, `Platform Admin` (manages asset categories). Maintains the organization's list of infrastructure assets (bridges, buildings, towers, solar/wind sites) with map coordinates, standard inspection checkpoints, and reference documents, and archives retired assets.
+- **Screen layout**: Mock-up prototype of the `Infrastructure Asset & Document Management` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.4.1 Infrastructure Asset & Document Management
+```
+
 - **Function Details**:
-  - *Inputs*: Asset ID, Inspector ID, Drone ID, planned inspection window (start date, end date).
-  - *Validations*: Planned end date must be on or after start date; designated Inspector and Drone must belong to the same tenant, be in `ACTIVE` status, and have no overlapping active missions within the planned window.
-  - *Processing*: Evaluates concurrent mission schedules; presents conflict alerts if overlapping bookings exist; creates inspection record in `ASSIGNED` status with direct inspector and drone foreign keys.
-  - *Outputs*: Dispatched inspection mission record in `ASSIGNED` status, automated notification to assigned Inspector.
+  - *Data & Validation*: Requires a unique **Asset Code**, **Asset Name**, **Category**, **Latitude / Longitude**, **Address**, and **Inspection Checkpoints** (components to inspect). Attached documents accept `PDF`, `PNG`, or `JPEG` files up to `10 MB`.
+  - *Business Rules*: Enforces `BR-02` and `BR-42`. Duplicate files on the same asset are prevented. Archiving an asset marks it `Retired` so no new edits or schedules can be added while keeping past inspection records readable.
+  - *Normal Cases*: Saving an asset registers it as `Active` (`MSG05`). Uploading a document attaches it for download. Archiving transitions the asset from `Active` to `Retired` (`MSG06`).
+  - *Abnormal Cases*: Duplicate asset codes, duplicate files on the same asset, or attempts to edit or schedule a `Retired` asset are rejected.
 
-#### 3.4.1a Organization-Managed Recurring Inspection Schedules
+#### 3.4.2 Drone Inventory & B2B Drone Leasing
+- **Function trigger**: An `Organization Manager` opens **Fleet & Drone Leasing** to add an owned drone or request a drone lease, or a `Platform Manager` opens **Drone Leasing** in the Admin Portal to add pool drones, confirm lease payment, or reclaim a leased drone.
+- **Function description**: Actors: `Organization Manager`, `Platform Manager`, `Online Payment Gateway`. Manages owned and leased drones in the customer's fleet, tracks serial numbers, registration expiry dates, and serviceability status (`Active`, `Maintenance`, `Suspended`, `Retired`), and handles B2B drone leasing from the platform catalog.
+- **Screen layout**: Mock-up prototype of the `Drone Inventory & B2B Drone Leasing` screen:
 
-The Organization Manager may create a recurring inspection schedule for an asset in their organization. Each occurrence creates a separate `ASSIGNED` inspection; recurrence never authorizes flight or bypasses the self-service flight permit upload gate, pilot license currency check, field records, or report approval.
+```mermaid
+%% title: Screen Layout Placeholder - 3.4.2 Drone Inventory & B2B Drone Leasing
+```
 
-- **Inputs**: Asset, schedule objective and scope metadata, directly selected active Inspector and serviceable Drone, original local start date/time, IANA timezone, positive interval with unit `WEEK`, `MONTH` or `YEAR`, inspection duration, optional inclusive schedule end, and reminder lead days (default 3).
-- **Calendar rule**: Each occurrence is calculated from the original local anchor, not the previous shortened month. Nonexistent month/leap days clamp to the month's final day without permanently shifting later occurrences. DST gaps move forward to the next valid time; overlaps use the earlier offset. The timezone and resulting planned instants are shown to the Manager.
-- **Authority and validation**: Only an active Organization Manager may manage schedules in their organization. Asset, Inspector, Drone, subscription entitlement and planned resource conflicts must be checked before dispatch; the background generator must not bypass these checks. Inspector visibility remains limited to assigned work.
-- **Generation**: Generate the first eligible occurrence and roll subsequent work into a bounded look-ahead window that covers its reminder lead time. A durable schedule/occurrence identity prevents duplicate inspections on retries, restarts or concurrent workers. A blocked occurrence remains visible with its reason; it is not silently skipped or repeatedly dispatched. Manager retry or skip decisions are attributable.
-- **Lifecycle**: Manager may pause, resume or end recurrence. Ending/pausing prevents future generation and never deletes already generated inspections or rewrites their historical assignment fields. Changes to schedule configuration apply only to occurrences not yet generated.
-- **Notifications**: The assigned Inspector receives an in-app assignment notice and an in-app reminder before the planned inspection (default 3 days). Delivery is deduplicated durably. Rescheduling, reassignment or cancellation must not leave stale reminders addressed to a former Inspector or an obsolete time. Notification delivery does not mark an inspection ready or started.
-
-#### 3.4.2 Self-Service Flight Permit Upload Gate
-- **Function Trigger**: Assigned Inspector opens mission detail and uploads the mission flight permit file.
-- **Function Description**: Self-service compliance gate enabling the assigned remote pilot to upload the official aviation flight permit. The system checks the pilot's license validity and automatically authorizes flight readiness.
 - **Function Details**:
-  - *Inputs*: Inspection ID, permit document file (PDF or image).
-  - *Validations*: Caller must be the assigned Inspector (`inspections.inspector_id == callerId`); Inspector's self-declared remote pilot license must be non-null and unexpired (`pilot_license_expires_at >= planned_start_at`); designated drone must be serviceable.
-  - *Processing*: Stores the permit file in MinIO under `evidence-object-store/{organizationId}/inspections/{inspectionId}/permits/`; sets `flight_permit_file_key`, `flight_permit_file_name`, and `flight_permit_uploaded_at` on `inspections`; atomically transitions the inspection status from `ASSIGNED` to `READY_FOR_FLIGHT`.
-  - *Outputs*: Flight-cleared inspection mission in `READY_FOR_FLIGHT` status, unlocking on-site field session execution.
-
-#### 3.4.3 Automatic Flight Readiness and Operational Gate
-- **Function Trigger**: System transition upon successful flight permit upload.
-- **Function Description**: Eliminates administrative readiness review bottlenecks (`inspection_preparations` and readiness review panels dropped) by automating flight readiness authorization directly upon verified permit upload and pilot license currency check.
-- **Function Details**:
-  - *Inputs*: Validated permit upload event.
-  - *Validations*: Enforces `hasFlightPermit()` precondition for field session execution.
-  - *Processing*: Emits `INSPECTION_READINESS_APPROVED` audit event; unlocks mobile/web field session controls.
-  - *Outputs*: Immediate operational readiness for on-site survey.
-
-#### 3.4.4 Additional Field Session Initiation
-- **Function Trigger**: After a field session ends, the assigned Inspector initiates an additional session if supplemental data collection is required.
-- **Function Description**: Allows the assigned Inspector to start an additional field session directly while the inspection is in `FIELD_COMPLETED` prior to report publication, without creating new preparation versions or awaiting administrative approval.
-- **Function Details**:
-  - *Inputs*: Inspection ID and pre-flight checklist note for the new session.
-  - *Validations*: Inspection must be in `FIELD_COMPLETED` status; designated drone must remain serviceable; no concurrent open session may exist.
-  - *Processing*: Creates a new `field_sessions` record in `IN_PROGRESS` and sets inspection status to `IN_PROGRESS`.
-  - *Outputs*: New active field flight session with previous captures preserved.
+  - *Data & Validation*: Owned drone registration requires **Serial Number**, **Model**, **Status**, and optional **Registration Number & Expiry Date**. Leasing requires selecting an **Available Pool Drone**, **Lease Duration (1–60 months)**, and **Terms Acceptance**.
+  - *Business Rules*: Enforces `BR-01`, `BR-11`, `BR-29`, and `BR-41`. Only `Available` platform drones can be leased, and only `Active` customer drones can be assigned to inspections.
+  - *Normal Cases*: Confirming payment on a `Pending` lease marks the lease `Active`, marks the platform drone `Leased`, and automatically adds the drone to the customer's fleet as an `Active` leased drone. Reclaiming a finished lease marks the lease `Reclaimed`, retires the customer drone record, and returns the platform drone to `Available`.
+  - *Abnormal Cases*: Requesting a drone that is already `Leased` or in `Maintenance`, or trying to reactivate a reclaimed leased drone, is rejected.
 
 ---
 
-### 3.5 FE-04 Field Records and Evidence
+### 3.5 FE-04 Recurring Schedule & Notifications
 
-#### 3.5.1 On-Site Pre-Flight Check and Field Session Logging
-- **Function Trigger**: Inspector opens mission on mobile app or web `Field Session` tab and selects `Start Session`.
-- **Function Description**: Displays structural checkpoints from `assets.inspection_items`, records mandatory on-site physical checklist notes, confirms airspace safety, logs flight start time, and manages session outcomes (completion, postponement, abort).
+#### 3.5.1 Recurring Inspection Schedule Management
+- **Function trigger**: An `Organization Manager` opens the **Recurring Schedules** tab and clicks **Create Recurring Schedule**, pauses/resumes/ends a schedule, or clicks **Retry** / **Skip** on a `Blocked` occurrence.
+- **Function description**: Actors: `Organization Manager`, `Automated System`. Sets up repeating weekly, monthly, or yearly inspection schedules for an asset and automatically creates upcoming inspection missions 14 days in advance.
+- **Screen layout**: Mock-up prototype of the `Recurring Inspection Schedule Management` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.5.1 Recurring Inspection Schedule Management
+```
+
 - **Function Details**:
-  - *Inputs*: Pre-flight checklist verification note (aircraft condition, battery levels, site weather, emergency landing area), session action (`START`, `POSTPONE`, `ABORT`, `COMPLETE`), outcome notes summarizing observations against checkpoints.
-  - *Validations*: Inspection must possess an active flight permit (`status` in `READY_FOR_FLIGHT` or `FIELD_COMPLETED`); pre-flight note cannot be blank; only one session can be in progress concurrently.
-  - *Processing*: `START` logs session start timestamp and transitions status to `IN_PROGRESS`. `POSTPONE` logs postponement reason and reverts inspection to `READY_FOR_FLIGHT`. `ABORT` logs abort reason and ends session as terminal `ABORTED`. `COMPLETE` records checkpoint outcome notes and transitions inspection to `FIELD_COMPLETED`.
-  - *Outputs*: Auditable field flight session record with exact timestamps and operational logs.
+  - *Data & Validation*: Requires **Asset**, **Default Inspector**, **Default Drone**, **Start Date & Time**, **Timezone**, **Recurrence Unit** (`Week`, `Month`, `Year`), **Interval (1–120)**, **Duration**, and **Reminder Lead Days (0–30)**.
+  - *Business Rules*: Enforces `BR-09`. Each asset can have at most one `Active` recurring schedule at a time.
+  - *Normal Cases*: Creating a schedule marks it `Active` (`MSG05`). When an upcoming date is within 14 days and the assigned Inspector and Drone are available, the system automatically creates an `Assigned` inspection and marks the occurrence `Generated`. The manager can **Pause**, **Resume**, or **End** the schedule at any time.
+  - *Abnormal Cases*: If the assigned Drone is in `Maintenance`, the Inspector's pilot license is expired, or a schedule conflict exists, the occurrence is marked `Blocked` with the reason shown so the manager can fix the issue and click **Retry** (or **Skip**).
 
-#### 3.5.2 Digital Evidence Intake and Retention
-- **Function Trigger**: Inspector opens `Evidence` tab and selects `Upload Evidence`.
-- **Function Description**: Stores inspection captures and their available metadata as evidence for findings and report preparation. Evidence quality is not a separate approval gate.
+#### 3.5.2 Event-Driven In-App Notifications
+- **Function trigger**: A workflow event occurs (such as a new inspection assignment, a 3-day upcoming inspection reminder, a budget approval, or a report decision), or a user clicks the **Notification Bell**.
+- **Function description**: Actors: All Roles, `Automated System`. Sends alerts to the user's in-app notification inbox with an unread badge count, mark-as-read action, and direct link to the relevant screen.
+- **Screen layout**: Mock-up prototype of the `Event-Driven In-App Notifications` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.5.2 Event-Driven In-App Notifications
+```
+
 - **Function Details**:
-  - *Inputs*: Supported image or document files, optional capture time and paired GPS coordinates.
-  - *Validations*: Allowed content types and configured size limits; inspection, organization, and field-session scope; repeated sanitized filenames within the inspection are rejected.
-  - *Processing*: Stores original bytes in MinIO, extracts available EXIF capture time and GPS, and keeps retired evidence as a soft-deleted audit copy without removing its stored bytes. Evidence intake does not compute or expose a SHA-256 digest. The assigned Inspector may edit evidence and findings while authoring or revising a report; edits refresh the current findings-set confirmation and make any earlier report draft stale. Source edits are locked while a report is submitted for review and remain available if the Inspector withdraws before reviewer action or the Organization Manager returns it for revision. Approved and published sources are immutable.
-  - *Outputs*: Evidence register items with file and capture metadata; active evidence can support findings and report content without an `ACCEPTED` quality decision.
-
-The Inspector records coverage and limitations while authoring the report (§3.7.1), not as an evidence-set decision. If more field coverage is needed, the Inspector initiates an Additional Session directly in MF2 (§3.4.4).
+  - *Data & Validation*: Shows **Title**, **Message**, **Category**, **Time**, and **Read / Unread** status, with an **Unread Only** filter.
+  - *Business Rules*: Enforces `BR-39`. Users can view and mark only their own notifications, and duplicate reminders for the same event are prevented.
+  - *Normal Cases*: Clicking a notification marks it `Read`, updates the unread counter, and opens the linked inspection, report, or work order screen.
+  - *Abnormal Cases*: If a user clicks an old notification for a record they no longer have permission to view, access is blocked (`BR-39`).
 
 ---
 
-### 3.6 FE-05 AI-Assisted Defect Detection and Inspector Verification
+### 3.6 FE-05 Mission Dispatch & Airspace Advisory
 
-#### 3.6.1 Inspector-Invoked Advisory Defect Detection
-- **Function Trigger**: The assigned Inspector explicitly selects `Analyze` for an eligible active image; analysis never starts automatically when evidence is uploaded or another workflow step completes.
-- **Function Description**: An optional computer-vision service proposes structural defect findings for human review. Its availability or omission does not prevent manual finding entry.
-- **Function Details**:
-  - *Inputs*: Selected active inspection image and the configured model confidence threshold.
-  - *Validations*: The image must belong to the assigned inspection and remain active. No evidence-quality decision or accepted-set status is required.
-  - *Processing*: Runs the configured detection model only on the Inspector's explicit request and records model provenance, defect label, confidence, and bounding box with each proposal. A repeated request returns existing proposals unless the Inspector explicitly requests a replacement run.
-  - *Outputs*: Pending advisory finding proposals linked to their source images; no proposal becomes an official finding without Inspector confirmation.
+#### 3.6.1 Inspection Mission Scheduling & Conflict Check
+- **Function trigger**: An `Organization Manager` clicks **Create Inspection** on the **Inspections** or **Assets** page, selects the asset, Inspector, Drone, and planned time window, and submits the form.
+- **Function description**: Actors: `Organization Manager`, `Automated System`. Creates a one-off inspection mission, assigns an active Inspector and Drone, checks that neither is already booked during that time window, and notifies the Inspector.
+- **Screen layout**: Mock-up prototype of the `Inspection Mission Scheduling & Conflict Check` screen:
 
-#### 3.6.2 Human Finding Verification and Findings-Set Confirmation
-- **Function Trigger**: The assigned Inspector opens `Findings` after evidence intake.
-- **Function Description**: The Inspector resolves advisory AI proposals, records or edits manual findings, and confirms the complete findings set before report drafting.
+```mermaid
+%% title: Screen Layout Placeholder - 3.6.1 Inspection Mission Scheduling & Conflict Check
+```
+
 - **Function Details**:
-  - *Inputs*: Per-proposal decision (`CONFIRM`, `MODIFY`, `REJECT`); defect label, severity, technical notes, recommended action, linked active evidence, and any AI annotation.
-  - *Validations*: Every pending proposal must be resolved before confirmation. A confirmed finding has supporting active evidence. An empty findings set is valid only after the Inspector explicitly acknowledges that no damage was observed within the inspection scope.
-  - *Processing*: Confirmed or modified proposals and manual observations are maintained as findings; rejecting an AI proposal removes that proposal from the retained findings. The Inspector confirms the resolved set; material evidence or finding changes while authoring a report refresh its confirmation, while unresolved AI proposals require another explicit confirmation before report drafting or submission. Finding location is taken from linked evidence metadata when available rather than a separate UI-only component/location field.
-  - *Outputs*: A current, Inspector-confirmed findings set (which may be explicitly empty) that permits report drafting.
+  - *Data & Validation*: Requires **Asset**, **Assigned Inspector**, **Assigned Drone**, **Planned Start Time**, and **Planned End Time**.
+  - *Business Rules*: Enforces `BR-02`, `BR-04`, `BR-09`, `BR-15`, and `BR-38`. Both the asset and drone must be `Active`.
+  - *Normal Cases*: Creates the inspection in `Assigned` status (`MSG12`), copies the asset's coordinates and inspection checkpoints to the mission, and sends an in-app notification to the assigned Inspector.
+  - *Abnormal Cases*: If the Inspector or Drone already has another overlapping inspection during the selected time window, the system rejects the booking and displays the conflict.
+
+#### 3.6.2 Interactive Airspace & No-Fly Zone Map
+- **Function trigger**: An `Organization Manager` or `Inspector` views the **Airspace & No-Fly Zone Map** while creating or viewing an asset or preparing an inspection mission on Web or Mobile.
+- **Function description**: Actors: `Organization Manager`, `Inspector`, `Automated System`. Displays an interactive map showing published Vietnam prohibited (`No-Fly Zone`) and restricted (`Restricted Zone`) airspace areas and checks how close the asset or mission location is to those zones.
+- **Screen layout**: Mock-up prototype of the `Interactive Airspace & No-Fly Zone Map` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.6.2 Interactive Airspace & No-Fly Zone Map
+```
+
+- **Function Details**:
+  - *Data & Validation*: Evaluates **Latitude** (`-90..90`) and **Longitude** (`-180..180`) from the asset or map pin.
+  - *Business Rules*: Enforces `BR-08` and `BR-41`. Shows whether the location is in a `No-Fly Zone`, `Restricted Zone`, or `Clear Airspace` along with warning `MSG28` and a reference link to `https://cambay.mod.gov.vn`.
+  - *Normal Cases*: Highlights prohibited zones in red and restricted buffer zones in amber on the map (and on the mobile airspace card) and lists the nearest zones by distance.
+  - *Abnormal Cases*: Coordinates outside valid geographic ranges show a validation error.
 
 ---
 
-### 3.7 FE-06 Inspection Report Drafting, Review and Publication
+### 3.7 FE-06 Flight Readiness & Field Execution
 
-#### 3.7.1 Structured Report Authoring and Context-Grounded LLM Drafting
-- **Function Trigger**: The assigned Inspector selects `Generate Report Draft` or `Manual Authoring` in the `Report` tab.
-- **Function Description**: Creates a structured inspection report from the retained inspection scope, evidence, field-session records, Inspector-confirmed findings, and the Inspector's coverage and limitation assessment. Coverage disclosure belongs to the report, not a separate evidence-quality decision.
-- **Function Details**:
-  - *Inputs*: Selected drafting method (`AI_ASSISTED` or `MANUAL`); authored sections including Executive Summary, Scope & Methodology, Weather & Site Observations, Component Findings Discussion, Recommendations, `inspectorCoverageAssessment`, and `omissionDisclosure`.
-  - *Validations*: The findings set must be currently confirmed, including explicit acknowledgment when empty; active evidence must exist for evidence-based claims. Generated draft sections must be reviewed and editable by the author before submission. A report version whose evidence/findings sources changed after its creation cannot be verified or submitted; the author must confirm the current set and create a fresh version.
-  - *Processing*: AI-assisted drafting is invoked only when the Inspector selects it. The prompt uses retained inspection scope fields (`objective`, `scope`, `component_scope`, `acceptance_criteria`) and available authorized records; manual authoring remains available without invoking AI. The Inspector reviews and edits the sections before submission.
-  - *Outputs*: An author-reviewed report version submitted to the Organization Manager review queue.
+#### 3.7.1 Flight Permit Upload & Readiness Gate
+- **Function trigger**: The assigned `Inspector` opens an `Assigned` inspection on Web or Mobile and uploads the aviation flight permit file.
+- **Function description**: Actors: `Inspector`, `Organization Manager`, `Automated System`. Checks that the assigned Inspector has a valid, unexpired remote pilot license, saves the uploaded flight permit document, and automatically updates the inspection status from `Assigned` to `Ready for Flight`.
+- **Screen layout**: Mock-up prototype of the `Flight Permit Upload & Readiness Gate` screen:
 
-#### 3.7.2 Administrative Review, Digital Publication and Immutable Archival
-- **Function Trigger**: Organization Manager opens submitted report in `Report Review` workspace.
-- **Function Description**: Independent administrative review of report narrative, component findings, and attached evidence. Approves report for formal publication or returns it to author with comments.
-- **Function Details**:
-  - *Inputs*: Review decision (`APPROVE` or `RETURN`), `return_reason` text (mandatory on return).
-  - *Validations*: Reviewer must be an Organization Manager (`ORG_MANAGER`) distinct from the report author; all findings must be in an evaluated state.
-  - *Processing*: Submission records `submitted_at` on the report version and locks evidence/findings while the reviewer is deciding. The author may withdraw an unreviewed submission, which unlocks sources; a reviewer return stores `return_reason`, marks the version `RETURNED`, notifies the author and unlocks sources for revision. On approval, compiles report data into a formal A4 PDF, stores the deliverable in MinIO, calculates and records the PDF SHA-256 digest, marks the version `PUBLISHED`, and transitions the inspection to `REPORT_PUBLISHED`; approved/published sources are immutable. A subsequent review cycle may replace the current return reason.
-  - *Outputs*: Published immutable PDF inspection report, its recorded PDF checksum, and an authorized download endpoint.
+```mermaid
+%% title: Screen Layout Placeholder - 3.7.1 Flight Permit Upload & Readiness Gate
+```
 
-#### 3.7.3 Per-Finding Corrective Handoff
-- **Function Trigger**: An Organization Manager opens `Send to Maintenance` for a published inspection.
-- **Function Description**: The Organization Manager selects which Inspector-confirmed findings to forward to MF4. Each finding records its forwarding timestamp; the consequential reviewer decision and selected IDs are retained in the append-only audit event stream, not duplicated as handoff columns on the inspection.
 - **Function Details**:
-  - *Inputs*: The published inspection and the IDs of confirmed findings selected for forwarding.
-  - *Validations*: The report must be published and the inspection not already `COMPLETED`; each selected finding must belong to the inspection, be confirmed, and not already have a `forwarded_to_maintenance_at` value.
-  - *Processing*: Sets `forwarded_to_maintenance_at` for each selected finding and records the reviewer, report version, selected IDs and before/after inspection status in an append-only audit event. If one or more findings are forwarded, the inspection status becomes `REPAIR_PENDING`; if none are forwarded on a newly published inspection (including an explicitly confirmed empty findings set), its status becomes `COMPLETED`. A completed inspection cannot change its maintenance disposition afterward; the UI requires explicit confirmation before completing without forwarding. No no-repair rationale or duplicate handoff columns are stored on `inspections`.
-  - *Outputs*: Individually traceable forwarded findings for MF4, an audit event for the Organization Manager's selected IDs and an inspection status carrying the overall outcome. Findings and evidence are associated with the inspection directly. Forwarding does not create a maintenance work order.
+  - *Data & Validation*: Requires a **Flight Permit File** (`PDF`, `PNG`, or `JPEG`, up to `10 MB`).
+  - *Business Rules*: Enforces `BR-04`, `BR-05`, `BR-08`, `BR-15`, `BR-38`, and `BR-41`. The Inspector's pilot license must not be expired on the planned flight date, and the assigned drone must be `Active`.
+  - *Normal Cases*: Saves the permit file and transitions the inspection from `Assigned` to `Ready for Flight` (`MSG27`), unlocking the field session screen.
+  - *Abnormal Cases*: If the Inspector's pilot license is missing or expired, the upload is blocked (`MSG26`, `MSG37`) and the mission stays `Assigned`.
+
+#### 3.7.2 On-Site Field Flight Session Logging
+- **Function trigger**: The assigned `Inspector` opens the **Field Session** screen on Mobile or Web and clicks **Start Session**, **Postpone Session**, **Abort Session**, **Complete Session**, or **Start Additional Session**.
+- **Function description**: Actors: `Inspector`. Displays the asset's inspection checkpoints, records pre-flight safety notes, and logs the start, postponement, abort, or completion of on-site flight sessions.
+- **Screen layout**: Mock-up prototype of the `On-Site Field Flight Session Logging` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.7.2 On-Site Field Flight Session Logging
+```
+
+- **Function Details**:
+  - *Data & Validation*: Starting requires a **Pre-Flight Safety Checklist Note**. Completing requires **Outcome Notes**. Postponing or aborting requires a **Reason**.
+  - *Business Rules*: Enforces `BR-04`, `BR-07`, `BR-14`, `BR-16`, `BR-37`, and `BR-42`. Only one session can be `In Progress` at a time for an inspection.
+  - *Normal Cases*: **Start Session** moves the inspection from `Ready for Flight` to `In Progress`. **Complete Session** moves the session and inspection to `Field Completed`. **Postpone Session** returns the inspection to `Ready for Flight` to resume later. An Inspector can also start an additional session from `Field Completed` if more photos are needed.
+  - *Abnormal Cases*: Starting a session without an uploaded flight permit (`MSG37`) or without a pre-flight safety note (`MSG02`, `MSG32`) is blocked.
 
 ---
 
-### 3.8 FE-07 Maintenance Remediation, Cost Control and Acceptance
+### 3.8 FE-07 Operational Dashboard & Schedule Calendar
 
-#### 3.8.1 Maintenance Work Order Planning and Team Allocation
-- **Function Trigger**: Organization Manager navigates to `Maintenance` and selects `Create Work Order`.
-- **Function Description**: Initiates a formal maintenance work order linking forwarded defect candidates, decomposes corrective scope into tasks (with optional RAG-assisted engineering standard scope and acceptance-criteria suggestions from `repair_knowledge_chunks` and deterministic fallback), and appoints the engineering team.
+#### 3.8.1 Multi-Role Operational Analytics Dashboard
+- **Function trigger**: A signed-in user opens the **Dashboard** or the **Inspections / Reports** list in their portal.
+- **Function description**: Actors: All Roles. Displays role-specific summary cards, charts (asset health, mission status, confirmed defect severity, maintenance budget), and paginated work queues.
+- **Screen layout**: Mock-up prototype of the `Multi-Role Operational Analytics Dashboard` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.8.1 Multi-Role Operational Analytics Dashboard
+```
+
 - **Function Details**:
-  - *Inputs*: Source inspection ID, selected defect candidate IDs, work order title, priority, target completion date, assigned engineering team members, designated Team Lead, designated Report Author.
-  - *Validations*: Must reference valid forwarded defect candidates; designated Team Lead and Report Author must belong to the approved team; neither may serve as independent reviewer.
-  - *Processing*: Creates work order in `PLANNING` status; links defects to work order scope; initializes task inventory.
-  - *Outputs*: Created work order with appointed team, ready for technical estimation.
+  - *Data & Validation*: Supports keyword search, status filters, and page navigation.
+  - *Business Rules*: Enforces `BR-01`, `BR-02`, `BR-04`, and `BR-21`. Unconfirmed (`Pending`) AI defect suggestions are excluded from official defect totals.
+  - *Normal Cases*: Shows platform-wide metrics for Platform Admins and Platform Managers, organization-wide metrics for Organization Managers, and assigned work queues for Inspectors and Maintenance Engineers.
+  - *Abnormal Cases*: Searches with no matching records display `MSG01`.
 
-#### 3.8.2 Itemized Cost Estimation and Change Order Governance
-- **Function Trigger**: Maintenance Team Lead compiles estimate; Organization Manager reviews budget.
-- **Function Description**: Compiles detailed itemized cost estimates across labor, replacement materials, equipment rentals, and specialized services. Supports formal Change Requests for emergent site conditions.
+#### 3.8.2 Inspector Schedule Calendar & Localization
+- **Function trigger**: A user opens the **Schedule Calendar** view (`Month`, `Week`, or `Agenda`), clicks a scheduled inspection on the calendar, or switches the **Language (`EN` / `VI`)** or **Theme (`Light` / `Dark`)** toggle.
+- **Function description**: Actors: `Inspector`, `Organization Manager`, All Roles. Displays scheduled inspections on an interactive calendar with a quick-detail popup, and allows users to switch between Light/Dark mode and English/Vietnamese interface languages.
+- **Screen layout**: Mock-up prototype of the `Inspector Schedule Calendar & Localization` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.8.2 Inspector Schedule Calendar & Localization
+```
+
 - **Function Details**:
-  - *Inputs*: Line items (category, description, quantity, unit price, currency), change request justification, delta cost, delta schedule days.
-  - *Validations*: Quantities and unit prices must be positive decimal numbers; budget approval requires Organization Manager role (`ORG_MANAGER`).
-  - *Processing*: Calculates exact decimal baseline budget totals; on approval, freezes estimate baseline (`APPROVED`). Change requests require administrative review; approved changes calculate revised budget ceiling.
-  - *Outputs*: Approved initial cost baseline, approved change order records, auditable financial ceiling.
-
-#### 3.8.3 Repair Execution Logging and Before/After Evidence Documentation
-- **Function Trigger**: Assigned Maintenance Engineers select task in `Work Order Execution`.
-- **Function Description**: Records daily task execution logs, material consumption, labor hours, and uploads photographic proof demonstrating structural defect rectification.
-- **Function Details*:
-  - *Inputs*: Task ID, labor hours worked, materials consumed, equipment hours, task progress percentage, before-repair photos, during-repair photos, after-repair photos, test certificates.
-  - *Validations*: Log entry restricted to assigned team members; completion of repair task requires mandatory after-repair photographic proof.
-  - *Processing*: Persists chronological work logs; updates real-time task progress; stores repair evidence with SHA-256 integrity hashing; updates work order status to `IN_PROGRESS`.
-  - *Outputs*: Documented repair logs and verifiable before/after evidence register.
-
-#### 3.8.4 Completion Reporting, Independent Acceptance and Cost Reconciliation
-- **Function Trigger**: Designated Report Author compiles report; Organization Manager performs acceptance.
-- **Function Description**: Compiles maintenance completion report from task logs, test records, and financial actuals. Independent Organization Manager conducts technical acceptance and reconciles final costs against approved budget before closing work order.
-- **Function Details**:
-  - *Inputs*: Completion narrative, final acceptance test results, variance explanations, acceptance decision (`ACCEPT` or `REJECT`), final cost reconciliation sign-off.
-  - *Validations*: Reviewing Organization Manager must be independent (not Team Lead or Report Author); all tasks must be completed with attached proof; cost variance must be documented.
-  - *Processing*: Calculates financial variance (Budget vs. Actuals); on acceptance, marks work order `CLOSED`, publishes completion report deliverable, and updates asset maintenance history.
-  - *Outputs*: Closed maintenance work order, reconciled financial statement, and updated asset structural health record.
+  - *Data & Validation*: Calendar view (`Month`, `Week`, `Agenda`), date navigation (`Previous`, `Today`, `Next`), status filter, language (`EN` / `VI`), and theme (`Light` / `Dark`).
+  - *Business Rules*: Enforces `BR-02` and `BR-04`. Switching language translates menus, buttons, and system messages while keeping user-written notes unchanged.
+  - *Normal Cases*: Renders planned inspections on their scheduled dates and opens the mission summary dialog when clicked.
 
 ---
 
-### 3.9 FE-08 Operational Dashboard and System Notifications
+### 3.9 FE-08 Evidence Management & AI Defect Detection
 
-#### 3.9.1 Multi-Role Operational Dashboards and Analytics
-- **Function Trigger**: User signs in or navigates to `Dashboard`.
-- **Function Description**: Delivers role-customized operational metrics, status summaries, defect distribution charts, and workload queues.
+#### 3.9.1 Inspection Evidence Upload & Metadata Management
+- **Function trigger**: The assigned `Inspector` opens the **Evidence** screen on Web or Mobile and uploads inspection photos, edits location notes, filters the gallery, or removes unusable photos.
+- **Function description**: Actors: `Inspector` (upload and manage), `Organization Manager` (view). Stores inspection photographs, reads capture time and GPS coordinates from the photo, prevents duplicate filenames in the same inspection, and allows retiring blurry or unusable photos.
+- **Screen layout**: Mock-up prototype of the `Inspection Evidence Upload & Metadata Management` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.9.1 Inspection Evidence Upload & Metadata Management
+```
+
 - **Function Details**:
-  - *Platform Admin & Platform Manager*: Tenant count, active enterprise subscriptions, B2B drone pool & active lease metrics, total managed assets, system storage utilization.
-  - *Organization Manager*: Asset condition summaries, active vs. completed inspection missions, defect severity distribution (Critical, Severe, Moderate, Minor), pending readiness reviews, maintenance budget variances.
-  - *Inspector*: Assigned upcoming missions, pending pre-flight checklists, open field sessions, unreviewed AI defect queues.
-  - *Maintenance Engineer*: Assigned repair tasks, work order deadlines, pending work log submissions.
+  - *Data & Validation*: Accepts `JPEG` and `PNG` image files (up to `10 MB` per photo / `20 MB` per upload) with optional **Field Session**, **Latitude / Longitude**, and **Component Location Note**.
+  - *Business Rules*: Enforces `BR-17`, `BR-18`, `BR-19`, and `BR-43`. Photos cannot be added, edited, or removed while the inspection report is `Submitted` or `Published`.
+  - *Normal Cases*: Valid photos are saved and shown in the gallery with their capture time and GPS coordinates (`MSG18`). Retiring a photo moves it to the `Retired` tab while keeping it in history.
+  - *Abnormal Cases*: Corrupt or oversized files (`MSG16`), duplicate filenames in the same inspection (`MSG17`), or attempts to retire a photo currently used by an active finding are rejected.
 
-#### 3.9.2 Automated Event-Driven Operational Notifications
-- **Function Trigger**: System domain events (Mission Dispatched, Readiness Decision Recorded, Evidence Uploaded, Report Submitted, Work Order Budget Approved, Work Order Closed).
-- **Function Description**: Dispatches real-time in-app alerts and asynchronous email notifications to relevant stakeholders, informing them of required workflow actions.
+#### 3.9.2 AI Defect Detection & Finding Verification
+- **Function trigger**: The assigned `Inspector` opens the **Findings** screen, clicks **AI Analyze** on selected photos, reviews the suggested defects (`Confirm`, `Edit`, `Remove`), adds manual findings, and clicks **Confirm Findings Set**.
+- **Function description**: Actors: `Inspector`, `Automated System` (`YOLO11` AI Service). Runs `YOLO11` visual detection on selected photos to suggest structural defects (`crack`, `leakage`, `abscission`, `corrosion`, `bulge`) with bounding boxes, requires the Inspector to review and confirm every suggestion, and locks the confirmed findings list for report drafting.
+- **Screen layout**: Mock-up prototype of the `AI Defect Detection & Finding Verification` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.9.2 AI Defect Detection & Finding Verification
+```
+
 - **Function Details**:
-  - *Inputs*: Domain event payload, recipient user IDs, notification template.
-  - *Validations*: Recipient must have active account status and appropriate permission scope for the target entity.
-  - *Processing*: Renders notification message with direct deep-link to target workspace screen; dispatches in-app notification via WebSockets/polling; sends email notification via SMTP gateway.
-  - *Outputs*: Real-time notification badge increment, system notification record in user inbox, delivered email alert.
+  - *Data & Validation*: Each finding includes **Photo Reference**, **Defect Type**, **Severity** (`Low`, `Medium`, `High`, `Critical`), **Bounding Box**, **Technical Notes**, and **Recommended Action**. If no defects are found, the Inspector must check **Acknowledge Zero Defects**.
+  - *Business Rules*: Enforces `BR-20`, `BR-21`, `BR-22`, and `BR-44`. AI suggestions start as `Pending` and must be confirmed or removed by the Inspector before the findings set can be finalized.
+  - *Normal Cases*: **AI Analyze** displays `Pending` defect boxes on the photo. The Inspector confirms valid defects (`Pending` -> `Confirmed`) or adds manual findings, then clicks **Confirm Findings Set** (`MSG38`) to move the inspection from `Field Completed` to `Report Draft`.
+  - *Abnormal Cases*: Finalizing the findings set while any `Pending` AI suggestion remains unreviewed is blocked. If the AI service is offline, `MSG19` is shown and the Inspector can enter findings manually.
 
-**Recurring inspection delivery slice (§3.4.1a)**: Assignment and advance reminders are initially delivered through a paginated **in-app inbox** on web (and exposed via `/api/v1/notifications` for client consumers), with unread count and idempotent mark-as-read. Every read/write is scoped to the authenticated recipient and organization; clients cannot select another recipient. Only recognized internal inspection/work-order targets may be opened. Email/SMTP, WebSocket realtime delivery and operating-system push are not implemented or promised by this slice; polling requires the application to be open. A notification is informational and cannot bypass the target resource's server-side authorization. Runtime acceptance remains in progress as recorded in Report 5.
+---
+
+### 3.10 FE-09 Inspection Reporting & Publication
+
+#### 3.10.1 AI-Assisted & Manual Report Drafting
+- **Function trigger**: The assigned `Inspector` opens the **Report** screen on a `Report Draft` inspection and clicks **Generate AI Draft** or **Create Manual Draft**, edits the report sections, previews the PDF, clicks **Verify Draft**, and clicks **Submit for Review**.
+- **Function description**: Actors: `Inspector` (Report Author), `Automated System`. Creates a structured inspection report draft from the confirmed findings (using AI assistance or a manual template), provides a live PDF preview, and lets the Inspector verify and submit the report to an Organization Manager.
+- **Screen layout**: Mock-up prototype of the `AI-Assisted & Manual Report Drafting` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.10.1 AI-Assisted & Manual Report Drafting
+```
+
+- **Function Details**:
+  - *Data & Validation*: Report sections include **Executive Summary**, **Methodology & Equipment**, **Conclusions & Recommendations**, **Overall Asset Condition**, **Coverage Assessment**, and **Limitations / Omissions**.
+  - *Business Rules*: Enforces `BR-12`, `BR-23`, `BR-25`, `BR-44`, and `BR-48`. If the Inspector changes the findings after creating a draft, the old draft is marked outdated and must be refreshed before submission.
+  - *Normal Cases*: **Verify Draft** moves the report from `Draft` to `Author Verified`, and **Submit for Review** moves it to `Submitted` (`MSG20`). The Inspector can also click **Withdraw** before manager review to make further edits.
+  - *Abnormal Cases*: Submitting an outdated draft after findings were changed is blocked (`MSG13`, `MSG33`). If AI drafting is unavailable, `MSG39` is shown and manual drafting remains available.
+
+#### 3.10.2 Report Review, PDF Publication & Maintenance Handoff
+- **Function trigger**: An independent `Organization Manager` opens a `Submitted` report to click **Approve** or **Return**, clicks **Publish PDF**, and then selects which defects to send to maintenance in the **Maintenance Handoff** panel.
+- **Function description**: Actors: `Organization Manager` (Independent Reviewer), `Automated System`. Requires an Organization Manager who did not write the report to review and approve it, generates the final uneditable PDF report, and forwards repair-required defects to maintenance (`Repair Pending`) or closes the inspection (`Completed`).
+- **Screen layout**: Mock-up prototype of the `Report Review, PDF Publication & Maintenance Handoff` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.10.2 Report Review, PDF Publication & Maintenance Handoff
+```
+
+- **Function Details**:
+  - *Data & Validation*: Review requires **Approve** or **Return** (with a **Return Reason**). Maintenance handoff requires selecting the **Confirmed Defects** that need repair (or confirming that no repair is needed).
+  - *Business Rules*: Enforces `BR-12`, `BR-24`, `BR-26`, `BR-27`, `BR-28`, `BR-31`, and `BR-38`. Published PDF reports cannot be edited; if an amendment is published later, the earlier published version is marked `Superseded` and kept in history.
+  - *Normal Cases*: **Return** sends the report back to the Inspector (`Returned`, `MSG30`). **Approve** and **Publish PDF** generate the final PDF and mark the report `Published` (`MSG22`) and the inspection `Report Published`. Completing **Maintenance Handoff** moves the inspection to `Repair Pending` (if defects are forwarded) or `Completed` (if no repairs are needed).
+  - *Abnormal Cases*: Returning a report without a reason (`MSG02`) or attempting to approve one's own report (`BR-24`) is blocked.
+
+---
+
+### 3.11 FE-10 Maintenance Planning & AI Scope Advisory
+
+#### 3.11.1 Work Order Creation & AI Repair Scope Advisory
+- **Function trigger**: An `Organization Manager` or `Maintenance Engineer` opens **Maintenance Work Orders**, selects a forwarded defect, clicks **Suggest Repair Scope**, and submits the **Create Work Order** form.
+- **Function description**: Actors: `Organization Manager`, `Maintenance Engineer`, `Automated System`. Suggests recommended repair methods, acceptance criteria, and repair tasks based on civil engineering standards (`TCVN`, `EN`, `ISO`), and creates a new Maintenance Work Order linked to the defect and published inspection report.
+- **Screen layout**: Mock-up prototype of the `Work Order Creation & AI Repair Scope Advisory` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.11.1 Work Order Creation & AI Repair Scope Advisory
+```
+
+- **Function Details**:
+  - *Data & Validation*: Requires **Forwarded Defect**, **Published Report Version**, **Priority** (`Low`, `Normal`, `High`, `Urgent`), **Due Date**, **Repair Scope**, and **Acceptance Criteria**.
+  - *Business Rules*: Enforces `BR-31` and `BR-45`. Work orders can be created only from confirmed defects that were forwarded from a `Published` inspection report.
+  - *Normal Cases*: **Suggest Repair Scope** fills in recommended repair steps and acceptance criteria from engineering standards. Submitting the form creates the work order in `Draft` status (`MSG05`).
+  - *Abnormal Cases*: Creating a work order without required scope fields or from an unforwarded finding is rejected (`MSG02`).
+
+#### 3.11.2 Maintenance Team & Task Assignment
+- **Function trigger**: An `Organization Manager` opens a work order to assign the **Maintenance Team & Reviewer**, and the `Team Lead` adds repair tasks under the **Tasks** tab.
+- **Function description**: Actors: `Organization Manager`, `Maintenance Engineer` (`Team Lead`). Assigns the repair team (`Team Lead`, `Report Author`, `Team Members`) and an independent `Accepting Reviewer` (`Organization Manager`), and breaks the repair scope down into planned tasks.
+- **Screen layout**: Mock-up prototype of the `Maintenance Team & Task Assignment` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.11.2 Maintenance Team & Task Assignment
+```
+
+- **Function Details**:
+  - *Data & Validation*: Team assignment requires one **Team Lead**, one **Report Author**, **Team Members**, and one independent **Accepting Reviewer**. Each task requires **Task Name**, **Repair Method**, **Acceptance Criteria**, **Planned Dates**, and **Assigned Engineer**.
+  - *Business Rules*: Enforces `BR-45` and `BR-46`. The Accepting Reviewer must not be a member of the executing repair team.
+  - *Normal Cases*: Saving the team notifies the assigned engineers (`MSG06`), and adding tasks creates them in `Planned` status.
+  - *Abnormal Cases*: Selecting an Accepting Reviewer who is part of the repair team is rejected (`MSG31`, `MSG44`).
+
+---
+
+### 3.12 FE-11 Cost Estimation & Repair Execution
+
+#### 3.12.1 Cost Estimation, Budget Approval & Change Orders
+- **Function trigger**: A `Maintenance Engineer` submits a **Cost Estimate** or **Change Order** on a work order, and an `Organization Manager` clicks **Approve**, **Reject**, or **Return**.
+- **Function description**: Actors: `Maintenance Engineer`, `Organization Manager`. Manages itemized repair cost estimates (`Labor`, `Material`, `Equipment`, `Service`), requires Organization Manager approval of the repair budget before work begins, and handles Change Orders when additional work or budget is needed.
+- **Screen layout**: Mock-up prototype of the `Cost Estimation, Budget Approval & Change Orders` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.12.1 Cost Estimation, Budget Approval & Change Orders
+```
+
+- **Function Details**:
+  - *Data & Validation*: Each cost line requires **Category**, **Description**, **Quantity (`>= 0`)**, **Unit**, **Unit Price (`>= 0`)**, and **Currency**. Each Change Order requires **Reason** and **Proposed Budget Change**.
+  - *Business Rules*: Enforces `BR-12`, `BR-32`, `BR-34`, `BR-36`, and `BR-47`. Approved Change Orders update the authorized budget ceiling while keeping the original approved estimate in history.
+  - *Normal Cases*: Submitting an estimate moves the work order from `Draft` to `Awaiting Approval`. Manager approval moves it to `Approved` (`MSG34`) (or `Rework Required` if rejected). Submitting a Change Order places it in `Awaiting Approval` (`MSG23`) until the manager decides.
+  - *Abnormal Cases*: Negative quantities or prices (`MSG41`) or attempts by an engineer to approve their own estimate are rejected.
+
+#### 3.12.2 Field Repair Execution & Work Log Verification
+- **Function trigger**: A `Maintenance Engineer` opens an `Approved` work order on Web or Mobile, clicks **Release**, **Start Work**, and submits **Work Logs**; the `Team Lead` clicks **Verify Work Log** and **Declare Work Completed**.
+- **Function description**: Actors: `Maintenance Engineer`, `Team Lead`. Tracks field repair progress from `Approved` -> `Ready` -> `In Progress` -> `Work Completed`, recording daily task hours, as-left conditions, and test readings verified by the Team Lead.
+- **Screen layout**: Mock-up prototype of the `Field Repair Execution & Work Log Verification` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.12.2 Field Repair Execution & Work Log Verification
+```
+
+- **Function Details**:
+  - *Data & Validation*: Each work log requires **Task**, **Start / End Time**, **Hours Worked (`>= 0`)**, **As-Left Condition**, and **Test Readings**.
+  - *Business Rules*: Enforces `BR-04`, `BR-16`, `BR-35`, and `BR-46`. Every submitted work log must be `Verified` by the Team Lead before the work order can be marked `Work Completed`.
+  - *Normal Cases*: **Release** moves the work order to `Ready`, and **Start Work** moves it to `In Progress`. Engineers submit work logs (`Submitted`), the Team Lead verifies them (`Verified`), and **Declare Work Completed** moves the work order to `Work Completed` (`MSG42`).
+  - *Abnormal Cases*: Marking the work order complete while any work log is still unverified is blocked (`MSG43`).
+
+---
+
+### 3.13 FE-12 Maintenance Acceptance & Cost Closure
+
+#### 3.13.1 Maintenance Completion Reporting & Technical Acceptance
+- **Function trigger**: The `Report Author` (`Maintenance Engineer`) verifies and submits the **Maintenance Completion Report**, and the independent `Organization Manager` (`Accepting Reviewer`) records the **Acceptance Decision** (`Accepted`, `Rework Required`, or `Re-Inspection Required`).
+- **Function description**: Actors: `Maintenance Engineer` (`Report Author`), `Organization Manager` (`Accepting Reviewer`), `Automated System`. Submits the maintenance completion report for independent review, generates the final completion report PDF when accepted, or triggers rework or a follow-up drone re-inspection when needed.
+- **Screen layout**: Mock-up prototype of the `Maintenance Completion Reporting & Technical Acceptance` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.13.1 Maintenance Completion Reporting & Technical Acceptance
+```
+
+- **Function Details**:
+  - *Data & Validation*: Requires **Completion Summary & Test Results**, **Acceptance Decision** (`Accepted`, `Rework Required`, `Re-Inspection Required`), **Review Comments**, and **Checklist Confirmation**.
+  - *Business Rules*: Enforces `BR-27`, `BR-28`, `BR-35`, `BR-37`, `BR-45`, and `BR-49`. Members of the repair team cannot accept their own work order (`MSG44`).
+  - *Normal Cases*: Submitting the report moves the work order from `Work Completed` to `Submitted for Acceptance` (`MSG46`). Choosing `Accepted` generates the final PDF and moves the work order to `Accepted`. Choosing `Rework Required` returns the report (`MSG30`) so the team can resume work (`In Progress`). Choosing `Re-Inspection Required` automatically creates a linked follow-up inspection mission.
+  - *Abnormal Cases*: Any attempt by a repair team member to accept the work order is rejected (`MSG44`).
+
+#### 3.13.2 Cost Reconciliation & Work Order Closure
+- **Function trigger**: An `Organization Manager` opens an `Accepted` work order, enters the **Actual Cost Lines**, clicks **Reconcile Costs**, and clicks **Close Work Order**.
+- **Function description**: Actors: `Organization Manager`. Records the actual labor, material, equipment, and service costs spent on the repair, compares actual spending against the approved budget, and closes the work order and parent inspection.
+- **Screen layout**: Mock-up prototype of the `Cost Reconciliation & Work Order Closure` screen:
+
+```mermaid
+%% title: Screen Layout Placeholder - 3.13.2 Cost Reconciliation & Work Order Closure
+```
+
+- **Function Details**:
+  - *Data & Validation*: Requires itemized **Actual Cost Lines** (`Category`, `Description`, `Quantity >= 0`, `Unit`, `Unit Price >= 0`, `Currency`).
+  - *Business Rules*: Enforces `BR-12`, `BR-36`, `BR-38`, and `BR-47`. A work order can be closed only after technical acceptance (`Accepted`) and cost reconciliation (`Cost Reconciled`) are both completed.
+  - *Normal Cases*: Saving actual costs calculates the budget variance and moves the work order from `Accepted` to `Cost Reconciled`. Clicking **Close Work Order** moves the work order to `Closed` (`MSG25`) and marks the parent inspection `Completed`.
+  - *Abnormal Cases*: Attempting to close a work order before reconciling actual costs is blocked (`MSG45`).

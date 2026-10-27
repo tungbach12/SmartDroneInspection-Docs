@@ -41,7 +41,7 @@
 |---:|---|---|---|---|
 | 1 | Frontend Org Admin resource management: user management, drone fleet, and permits UI | Trần Hoàng Trung Hiếu | 18 Oct 2026 | Build UI for managing organization fleet, permits, and credential reviews. |
 | 2 | Serialize VPS deployment script with file lock to prevent race conditions | Phùng Trung Quốc | 18 Oct 2026 | Add deployment locking in GitHub Actions deployment workflow. |
-| 3 | Implement finding verification CRUD, evidence retirement with audit reasons, and YOLO11s detection | Trần Tùng Bách | 18 Oct 2026 | Build findings review interface and integrate advisory defect detection service. |
+| 3 | Implement finding verification CRUD, evidence retirement with audit reasons, and YOLO11 detection | Trần Tùng Bách | 18 Oct 2026 | Build findings review interface and integrate advisory defect detection service. |
 | 4 | Implement maintenance estimation and cost tracking services | Trương Thái Như | 18 Oct 2026 | Deliver business logic for recording repair estimates and material cost lines. |
 
 ## IV. Other Project Matters/Suggestions

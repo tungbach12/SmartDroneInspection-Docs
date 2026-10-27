@@ -5,7 +5,7 @@
 **Reporting period:** 19–25 October 2026  
 **Team members:** Trần Hoàng Trung Hiếu, Phùng Trung Quốc, Trần Tùng Bách, Trương Thái Như
 
-> Week 7 delivered the Additional Session loop (MF2-MF3), Reviewer workspace redesign, PayPal subscription payment integration, YOLO11s MBDD2025 model retraining, and Report 4 Word exporter for Review 2.
+> Week 7 delivered the Additional Session loop (MF2-MF3), Reviewer workspace redesign, PayPal subscription payment integration, YOLO11 MBDD2025 model retraining, and Report 4 Word exporter for Review 2.
 
 ## I. Status Report
 
@@ -21,7 +21,7 @@
 | 8 | Report 5 Section 3: Execute integration test pass for MF2 readiness decision invalidation | Phùng Trung Quốc | Completed | Verified that expiration of flight permits or pilot credentials automatically invalidates prior readiness approvals. |
 | 9 | Backend MF2/MF3: Implement Additional Session loop and merge findings into unified table with tombstones | Trần Tùng Bách | Completed | Delivered PR #77: `requestAdditionalSession`, readiness invalidation, migration V37 (unified `findings` table with restore). |
 | 10 | Frontend MF3: Redesign Reviewer workspace around decision phases (Readiness, Report Review, Corrective) | Trần Tùng Bách | Completed | Delivered PR #51: created dedicated review tabs, pendingAction server computation, and findings review page. |
-| 11 | AI / Model Retraining: Clean Kaggle YOLO11s retraining pipeline on MBDD2025 UAV defect dataset | Trần Tùng Bách | In Progress | Fixed out-of-bounds XML boxes, bypassed Ray Tune callback issue, and launched GPU T4 training on Kaggle. |
+| 11 | AI / Model Retraining: Clean Kaggle YOLO11 retraining pipeline on MBDD2025 UAV defect dataset | Trần Tùng Bách | In Progress | Fixed out-of-bounds XML boxes, bypassed Ray Tune callback issue, and launched GPU T4 training on Kaggle. |
 | 12 | Docs & Reports (Review 2 Package): Integrate PayPal subscription payment into Reports 1–4 and build SDD Word exporter | Trần Tùng Bách | Completed | Integrated PayPal billing, documented `payment_transactions`, aligned 41-table ERD, and built docx exporter with diagrams. |
 | 13 | Backend MF4: Finalize maintenance ticket closeout validation and handoff to billing/client notification | Trương Thái Như | Completed | Completed maintenance lifecycle validation: verified work order completion triggers client sign-off and report closure. |
 | 14 | Report 4 Section 2 & 3: Verify the 41-table ERD maintenance tables and draft detailed data dictionary | Trương Thái Như | Completed | Verified maintenance tables (`maintenance_tickets`, `work_orders`, `cost_lines`) and documented field constraints. |
@@ -41,7 +41,7 @@
 |---:|---|---|---|---|
 | 1 | Finalize Milestone Review 2 presentation and deliverable document exports (Word & PDF) | All Members | 28 Oct 2026 | Export Reports 1–5 using the automated document generator tools. |
 | 2 | Conduct end-to-end rehearsal across web, mobile, and AI inference services | All Members | 29 Oct 2026 | Walk through asset registration, request triage, mobile field session, defect review, and maintenance. |
-| 3 | Evaluate candidate YOLO11s defect detector on real inspection evidence and hold-out test set | Trần Tùng Bách | 30 Oct 2026 | Compare retrained candidate metrics against deployed baseline. |
+| 3 | Evaluate candidate YOLO11 defect detector on real inspection evidence and hold-out test set | Trần Tùng Bách | 30 Oct 2026 | Compare retrained candidate metrics against deployed baseline. |
 
 ## IV. Other Project Matters/Suggestions
 
