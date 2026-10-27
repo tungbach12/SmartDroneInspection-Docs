@@ -43,4 +43,4 @@
 
 | # | Project Matter/Suggestions | Raised By | Date | Notes |
 |---:|---|---|---|---|
-| 1 | Keep the reports aligned with the B2B infrastructure-inspection service model | Trần Tùng Bách | 13 Sep 2026 | Preserve standard report templates and English technical deliverables. |
+| 1 | Keep the reports aligned with the enterprise infrastructure-inspection service model | Trần Tùng Bách | 13 Sep 2026 | Preserve standard report templates and English technical deliverables. |

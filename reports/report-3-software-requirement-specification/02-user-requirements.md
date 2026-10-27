@@ -56,7 +56,7 @@ flowchart LR
 | UC-03 | Request Subscription & Confirm Payment | Organization Manager, Platform Manager, Payment Gateway | Request a 1- to 120-month enterprise subscription and activate it via bank transfer confirmation or online PayPal payment. |
 | UC-04 | Register Infrastructure Asset & Documents | Organization Manager | Register infrastructure assets with map coordinates, standard inspection checkpoints, and reference engineering documents, or archive completed assets. |
 | UC-05 | Manage Workforce & Pilot License Profile | Organization Manager, Inspector | Create Inspector and Maintenance Engineer accounts and allow Inspectors to record their remote pilot license details. |
-| UC-06 | Manage Drone Fleet & B2B Drone Leasing | Organization Manager, Platform Manager, Payment Gateway | Register owned drones, lease drones from the platform catalog, and return leased drones when a contract ends. |
+| UC-06 | Manage Drone Fleet & Drone Equipment Leasing | Organization Manager, Platform Manager, Payment Gateway | Register owned drones, lease drones from the platform catalog, and return leased drones when a contract ends. |
 | UC-07 | Schedule One-Off or Recurring Inspection | Organization Manager, System | Schedule a one-off inspection or set up a weekly, monthly, or yearly recurring inspection schedule with automatic conflict checking. |
 | UC-08 | Reassign Inspection Resources | Organization Manager | Change the assigned Inspector or Drone for a scheduled inspection after checking availability. |
 | UC-09 | Upload Flight Permit | Inspector, Organization Manager | Upload the aviation flight permit for an assigned inspection to mark the mission `Ready for Flight`. |

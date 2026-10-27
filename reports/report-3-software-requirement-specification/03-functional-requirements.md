@@ -19,7 +19,7 @@ flowchart TD
   LOGIN["Login & Organization Registration"] --> DASH["Operational Dashboard & Calendar"]
 
   DASH --> WORKFORCE["Workforce & Subscriptions"]
-  DASH --> ASSETS["Assets, Checkpoints & Drone Fleet / B2B Leasing"]
+  DASH --> ASSETS["Assets, Checkpoints & Drone Fleet / Enterprise Leasing"]
   DASH --> SCHED["Inspections Queue & Recurring Schedules"]
 
   SCHED --> DISPATCH["Mission Dispatch & Airspace No-Fly Zone Map"]
@@ -783,13 +783,13 @@ erDiagram
   - *Normal Cases*: Saving an asset registers it as `Active` (`MSG05`). Uploading a document attaches it for download. Archiving transitions the asset from `Active` to `Retired` (`MSG06`).
   - *Abnormal Cases*: Duplicate asset codes, duplicate files on the same asset, or attempts to edit or schedule a `Retired` asset are rejected.
 
-#### 3.4.2 Drone Inventory & B2B Drone Leasing
+#### 3.4.2 Drone Inventory & Drone Equipment Leasing
 - **Function trigger**: An `Organization Manager` opens **Fleet & Drone Leasing** to add an owned drone or request a drone lease, or a `Platform Manager` opens **Drone Leasing** in the Admin Portal to add pool drones, confirm lease payment, or reclaim a leased drone.
-- **Function description**: Actors: `Organization Manager`, `Platform Manager`, `Online Payment Gateway`. Manages owned and leased drones in the customer's fleet, tracks serial numbers, registration expiry dates, and serviceability status (`Active`, `Maintenance`, `Suspended`, `Retired`), and handles B2B drone leasing from the platform catalog.
-- **Screen layout**: Mock-up prototype of the `Drone Inventory & B2B Drone Leasing` screen:
+- **Function description**: Actors: `Organization Manager`, `Platform Manager`, `Online Payment Gateway`. Manages owned and leased drones in the customer's fleet, tracks serial numbers, registration expiry dates, and serviceability status (`Active`, `Maintenance`, `Suspended`, `Retired`), and handles drone equipment leasing from the platform catalog.
+- **Screen layout**: Mock-up prototype of the `Drone Inventory & Drone Equipment Leasing` screen:
 
 ```mermaid
-%% title: Screen Layout Placeholder - 3.4.2 Drone Inventory & B2B Drone Leasing
+%% title: Screen Layout Placeholder - 3.4.2 Drone Inventory & Drone Equipment Leasing
 ```
 
 - **Function Details**:

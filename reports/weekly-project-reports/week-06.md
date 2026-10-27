@@ -40,7 +40,7 @@
 | # | Project Work Item | In-charge | Deadline | Notes (Task Details, etc.) |
 |---:|---|---|---|---|
 | 1 | Implement Additional Session loop connecting MF3 evidence decisions with MF2 preparation | Trần Tùng Bách & Phùng Trung Quốc | 25 Oct 2026 | Allow Inspector to flag incomplete coverage and trigger a new field session preparation. |
-| 2 | Integrate PayPal online subscription payment into Report 3 and Report 4 for Review 2 | Trần Tùng Bách | 25 Oct 2026 | Document `payment_transactions` table and Enterprise SaaS subscription billing. |
+| 2 | Integrate PayPal online subscription payment into Report 3 and Report 4 for Review 2 | Trần Tùng Bách | 25 Oct 2026 | Document `payment_transactions` table and Enterprise Inspection subscription billing. |
 | 3 | Add assigned asset-drone pair column, status filter, and schedule conflict alert | Trần Hoàng Trung Hiếu | 25 Oct 2026 | Enhance Org Admin asset scheduling catalog UI. |
 | 4 | Finalize maintenance work order closeout and client acceptance verification | Trương Thái Như | 25 Oct 2026 | Complete maintenance lifecycle verification for Report 5. |
 

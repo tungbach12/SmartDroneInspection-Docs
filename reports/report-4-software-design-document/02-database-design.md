@@ -7,7 +7,7 @@ source: "report4-software-design-document.docx"
 
 ## 2. Database Design
 
-The relational database architecture is implemented on PostgreSQL 17 with strict foreign key constraints, index-optimized tenant filtering, and cryptographic audit fields. The database schema encompasses 30 application tables (plus the `event_publication` transactional outbox) categorized across identity, assets and B2B drone leasing, inspection workflow, maintenance remediation, and cross-cutting infrastructure.
+The relational database architecture is implemented on PostgreSQL 17 with strict foreign key constraints, index-optimized tenant filtering, and cryptographic audit fields. The database schema encompasses 30 application tables (plus the `event_publication` transactional outbox) categorized across identity, assets and drone equipment leasing, inspection workflow, maintenance remediation, and cross-cutting infrastructure.
 
 ```mermaid
 %% title: Database Entity Relationship Diagram (ERD)
@@ -548,7 +548,7 @@ erDiagram
 | 04 | `subscriptions` | Tracks ENTERPRISE subscription contracts, billing periods (`1..120` months), agreed USD amounts, immutable contract terms snapshots, and lifecycle status (`PENDING`, `ACTIVE`, `PAST_DUE`, `SUSPENDED`, `EXPIRED`, `CANCELLED`). (`15` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `confirmed_by_user_id` references `users(id)`, `organization_id` references `organizations(id)`|
 | 05 | `payment_transactions` | Records PayPal Orders v2 checkout and capture transactions linked to enterprise subscriptions (`PENDING`, `COMPLETED`, `FAILED`, `REFUNDED`). (`12` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `subscription_id` references `subscriptions(id)`|
 | 06 | `platform_drones` | Platform-owned serial-numbered leasable drone pool managed by `PLATFORM_MANAGER` (`AVAILABLE`, `LEASED`, `MAINTENANCE`, `RETIRED`). (`11` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: None|
-| 07 | `drone_leases` | B2B drone lease contracts between the platform and a customer organization (`PENDING`, `ACTIVE`, `RECLAIMED`, `CANCELLED`) with wire/PayPal settlement and customer fleet provisioning. (`21` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `platform_drone_id` references `platform_drones(id)`, `organization_id` references `organizations(id)`, `customer_drone_id` references `drones(id)`, `requested_by_user_id` references `users(id)`, `confirmed_by_user_id` references `users(id)`|
+| 07 | `drone_leases` | drone equipment lease contracts between the platform and a customer organization (`PENDING`, `ACTIVE`, `RECLAIMED`, `CANCELLED`) with wire/PayPal settlement and customer fleet provisioning. (`21` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `platform_drone_id` references `platform_drones(id)`, `organization_id` references `organizations(id)`, `customer_drone_id` references `drones(id)`, `requested_by_user_id` references `users(id)`, `confirmed_by_user_id` references `users(id)`|
 | 08 | `drones` | Catalogs customer organization drone aircraft (`OWNED` or `LEASED`), hardware serial numbers, payload metadata, serviceability status (`ACTIVE`, `MAINTENANCE`, `SUSPENDED`, `RETIRED`), and CAAV registration metadata. (`19` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `organization_id` references `organizations(id)`, `lease_id` references `drone_leases(id)`|
 | 09 | `asset_categories` | Global structural categorization catalog for infrastructure assets managed by `ADMIN`. (`8` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: None|
 | 10 | `assets` | Manages physical infrastructure assets (`ACTIVE`, `INACTIVE`, `RETIRED`), GPS coordinates, and `inspection_items` (`jsonb` array of standardized structural checkpoints). (`15` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `category_id` references `asset_categories(id)`, `organization_id` references `organizations(id)`|
@@ -581,10 +581,10 @@ erDiagram
 
 Every lifecycle entity in `SmartDroneInspection-backend` is governed by an explicit state machine with guarded domain methods.
 
-**1. Enterprise Subscription & B2B Drone Lease State Machines**
+**1. Enterprise Subscription & Drone Equipment Lease State Machines**
 
 ```mermaid
-%% title: Subscription and B2B Drone Lease State Machines
+%% title: Subscription and Drone Equipment Lease State Machines
 stateDiagram-v2
   direction LR
   state "Enterprise Subscription (subscriptions.status)" as SubSM {
@@ -601,7 +601,7 @@ stateDiagram-v2
     SUB_CANCELLED --> [*]
   }
 
-  state "B2B Drone Lease (drone_leases.status)" as LeaseSM {
+  state "Drone Equipment Lease (drone_leases.status)" as LeaseSM {
     [*] --> LEASE_PENDING : requestLease() [FR-05]
     LEASE_PENDING --> LEASE_ACTIVE : activateWire() / activatePayPal() [FR-05]
     LEASE_PENDING --> LEASE_CANCELLED : cancel() [FR-05]
@@ -614,7 +614,7 @@ stateDiagram-v2
 | Domain Entity | Lifecycle States & Key Transitions | Business Rule Guards |
 | --- | --- | --- |
 | **Enterprise Subscription**<br>(`Subscription.Status`) | - **States**: `PENDING`, `ACTIVE`, `PAST_DUE`, `SUSPENDED`, `EXPIRED`, `CANCELLED`<br>- **Request**: `POST /subscriptions` (`-> PENDING`)<br>- **Activate**: Wire confirmation or PayPal capture (`-> ACTIVE`)<br>- **Renew / End**: Prior active term transitions to `EXPIRED` | - Enforces at most one `ACTIVE` subscription per organization (unique active subscription index). |
-| **B2B Drone Lease & Pool**<br>(`DroneLeaseStatus`) | - **Lease States**: `PENDING`, `ACTIVE`, `RECLAIMED`, `CANCELLED`<br>- **Pool States**: `AVAILABLE`, `LEASED`, `MAINTENANCE`, `RETIRED`<br>- **Activate / Reclaim**: `/confirm-payment` (`-> ACTIVE`), `/reclaim` (`-> RECLAIMED`) | - Auto-provisions customer `Drone` (`LEASED`, `ACTIVE`) on activation.<br>- Retires customer `Drone` (`RETIRED`) on reclaim. |
+| **Drone Equipment Lease & Pool**<br>(`DroneLeaseStatus`) | - **Lease States**: `PENDING`, `ACTIVE`, `RECLAIMED`, `CANCELLED`<br>- **Pool States**: `AVAILABLE`, `LEASED`, `MAINTENANCE`, `RETIRED`<br>- **Activate / Reclaim**: `/confirm-payment` (`-> ACTIVE`), `/reclaim` (`-> RECLAIMED`) | - Auto-provisions customer `Drone` (`LEASED`, `ACTIVE`) on activation.<br>- Retires customer `Drone` (`RETIRED`) on reclaim. |
 | **Asset & Drone Fleet**<br>(`AssetStatus`, `DroneStatus`) | - **Asset States**: `ACTIVE`, `INACTIVE`, `RETIRED`<br>- **Drone States**: `ACTIVE`, `MAINTENANCE`, `SUSPENDED`, `RETIRED`<br>- **Transitions**: `/retire` (`-> RETIRED`), `/serviceability` | - `RETIRED` is terminal and blocks new edits or schedules.<br>- Only `ACTIVE` assets and `ACTIVE` drones can be scheduled. |
 | **Recurring Schedule & Inbox**<br>(`ScheduleStatus`) | - **Schedule**: `ACTIVE`, `PAUSED`, `ENDED` (`/pause`, `/resume`, `/end`)<br>- **Occurrence**: `GENERATED`, `BLOCKED`, `SKIPPED` (`/retry`, `/skip`)<br>- **Notification**: `PENDING`, `SENT`, `READ`, `FAILED` | - At most one `ACTIVE` schedule per asset.<br>- `GENERATED` occurrence links to a dispatched `ASSIGNED` inspection. |
 

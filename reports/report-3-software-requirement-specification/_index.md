@@ -6,9 +6,9 @@ weight: 10
 
 # Report 3 - Software Requirement Specification
 
-This folder is the team-maintained Markdown source of Report 3. **Current target revision: 7 October 2026 — Enterprise SaaS, four roles and four connected Main Flows.** The authoritative detailed actor-by-step flows, MF3 inspection report and MF4 team/cost/completion report requirements are in [Functional Requirements](03-functional-requirements/).
+This folder is the team-maintained Markdown source of Report 3. **Current target revision: 7 October 2026 — Enterprise Inspection, four roles and four connected Main Flows.** The authoritative detailed actor-by-step flows, MF3 inspection report and MF4 team/cost/completion report requirements are in [Functional Requirements](03-functional-requirements/).
 
-**Revision boundary:** The 7 October 2026 change defined the Enterprise SaaS requirements in Report 3 and was not implementation or runtime-test evidence. A separate backend reset has since completed its runtime schema cutover. On 7 October, selected documentation companions (database status, backend runtime caveats, and Report 5 scope) were reconciled without changing historical test evidence. This index does not claim all references, proposals, or frontend/mobile contracts are synchronized.
+**Revision boundary:** The 7 October 2026 change defined the Enterprise Inspection requirements in Report 3 and was not implementation or runtime-test evidence. A separate backend reset has since completed its runtime schema cutover. On 7 October, selected documentation companions (database status, backend runtime caveats, and Report 5 scope) were reconciled without changing historical test evidence. This index does not claim all references, proposals, or frontend/mobile contracts are synchronized.
 
 The retained [Report 3 DOCX](report3-software-requirement-specification.docx) and `assets/*.png` diagrams are earlier baseline artifacts, **not regenerated or authoritative for this revision**. Use the Markdown sections and current embedded Mermaid diagrams for the new target; DOCX/diagram regeneration is a separate deliverable.
 
