@@ -14,6 +14,10 @@ fixed: `No`, `Function Name`, `Sheet Name`, `Description`, `Pre-Condition`.
 
 ## Case index
 
+The Review 2 baseline contains 64 cases (60 Passed, 0 Failed, 4 Pending).
+The additional implementation-specific case WF3-017 is Pending and is not
+included in the Review 2 baseline totals.
+
 | No | Function Name | Sheet Name | Description | Pre-Condition |
 | ---: | --- | --- | --- | --- |
 | 1 | [WF1-001] FE-01 — FE-01 Organization registration happy path | Feature 1 | Organization representative registers a new tenant and initial Organization Manager with active Terms and Privacy consent. | Clean PostgreSQL 17 Testcontainers database with V1-V5 migrations applied. |
@@ -58,6 +62,7 @@ fixed: `No`, `Function Name`, `Sheet Name`, `Description`, `Pre-Condition`.
 | 40 | [WF3-001] FE-08 — FE-08 Explicit re-analysis (?replace=true) & unresolved Pending guard | Feature 8 | Re-running detection with replace=true swaps unreviewed Pending proposals while preserving Confirmed findings, and unresolved Pending proposals block baseline confirmation. | Evidence image with mixed Pending and Confirmed findings. |
 | 41 | [WF3-004] FE-08 — FE-08 Unauthorized AI analysis & finding mutation refusal | Feature 8 | Only the assigned Inspector can invoke AI defect detection, mutate findings, or confirm the findings set baseline. | Inspection assigned to Inspector A, probed by Inspector B, Organization Manager, and MAINTENANCE_ENGINEER. |
 | 42 | [WF3-007] FE-08 — NFR-02 YOLO11 single-image inference latency & vision fallback | Feature 8 | FastAPI YOLO11 (MBDD2025) completes single-image inference within <= 5,000 ms and routes to fallback or manual entry when offline. | FastAPI YOLO11 container (best.pt) and PrimaryWithFallbackInference. |
+| 65 | [WF3-017] FE-08 — YOLO empty-result vision fallback through report model | Feature 8 | When YOLO returns no detections, the shared report-drafting vision model analyzes the same image before the Inspector receives the result. | YOLO-enabled backend, configured vision-capable report-drafting model, image evidence, and assigned Inspector. |
 | 43 | [WF3-010] FE-08 — FE-08 Source-edit refresh in Report Draft & lock during SUBMITTED/PUBLISHED | Feature 8 | Editing findings/evidence in Report Draft refreshes confirmation and stales earlier report drafts; edits are locked during Submitted and immutable after PUBLISHED. | Inspection with active evidence, findings, and report versions across Draft, Submitted, Returned, and PUBLISHED. |
 | 44 | [WF3-005] FE-09 — FE-09 Context-grounded LLM & manual report drafting and author verification | Feature 9 | Inspector-confirmed findings and the report draft are verified by the author Inspector and approved by an independent Organization Manager before publication; manual authoring remains available. | Inspection in Report Draft with confirmed findings set, assigned Inspector, and independent ORG_MANAGER. |
 | 45 | [WF3-006] FE-09 — FE-09 Independent approval, return & immutable PDF publication | Feature 9 | Independent Organization Manager reviews submitted report (return with reason or approve) and publishes an immutable A4 PDF in MinIO. | Submitted report version (Submitted) and independent active ORG_MANAGER. |

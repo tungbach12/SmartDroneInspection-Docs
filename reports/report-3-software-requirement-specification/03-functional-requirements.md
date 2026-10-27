@@ -954,7 +954,7 @@ erDiagram
 
 #### 3.9.2 AI Defect Detection & Finding Verification
 - **Function trigger**: The assigned `Inspector` opens the **Findings** screen, clicks **AI Analyze** on selected photos, reviews the suggested defects (`Confirm`, `Edit`, `Remove`), adds manual findings, and clicks **Confirm Findings Set**.
-- **Function description**: Actors: `Inspector`, `Automated System` (`YOLO11` AI Service). Runs `YOLO11` visual detection on selected photos to suggest structural defects (`crack`, `leakage`, `abscission`, `corrosion`, `bulge`) with bounding boxes, requires the Inspector to review and confirm every suggestion, and locks the confirmed findings list for report drafting.
+- **Function description**: Actors: `Inspector`, `Automated System` (`YOLO11` AI Service and configured vision-capable LLM). Runs `YOLO11` visual detection on selected photos to suggest structural defects (`crack`, `leakage`, `abscission`, `corrosion`, `bulge`) with bounding boxes; if YOLO returns no detections, the configured vision-capable LLM used for report drafting analyzes the same photo as a fallback. The Inspector must review and confirm every suggestion, and the confirmed findings list is locked for report drafting.
 - **Screen layout**: Mock-up prototype of the `AI Defect Detection & Finding Verification` screen:
 
 ```mermaid
@@ -965,7 +965,7 @@ erDiagram
   - *Data & Validation*: Each finding includes **Photo Reference**, **Defect Type**, **Severity** (`Low`, `Medium`, `High`, `Critical`), **Bounding Box**, **Technical Notes**, and **Recommended Action**. If no defects are found, the Inspector must check **Acknowledge Zero Defects**.
   - *Business Rules*: Enforces `BR-20`, `BR-21`, `BR-22`, and `BR-44`. AI suggestions start as `Pending` and must be confirmed or removed by the Inspector before the findings set can be finalized.
   - *Normal Cases*: **AI Analyze** displays `Pending` defect boxes on the photo. The Inspector confirms valid defects (`Pending` -> `Confirmed`) or adds manual findings, then clicks **Confirm Findings Set** (`MSG38`) to move the inspection from `Field Completed` to `Report Draft`.
-  - *Abnormal Cases*: Finalizing the findings set while any `Pending` AI suggestion remains unreviewed is blocked. If the AI service is offline, `MSG19` is shown and the Inspector can enter findings manually.
+  - *Abnormal Cases*: Finalizing the findings set while any `Pending` AI suggestion remains unreviewed is blocked. If both YOLO and the configured vision fallback are unavailable, `MSG19` is shown and the Inspector can enter findings manually.
 
 ---
 

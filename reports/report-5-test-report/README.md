@@ -4,11 +4,14 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope (updated 2026-10-25):** This report indexes eleven cases for the five
-current roles (`Platform Admin`, `Platform Manager`, `Organization Manager`, `Inspector`, `Maintenance Engineer`): three
-MF2 cases and eight MF3 cases. Recorded statuses are eight `Passed`; `WF3-010`,
-`WF3-011` and `WF3-012` are `Pending`. The MF3 target changed on 2026-10-22;
-existing Passed outcomes remain historical and do not verify the simplified
+**Scope (updated 2026-10-27):** The Review 2 baseline tracks 64 cases across
+12 features (60 `Passed`, 0 `Failed`, and 4 `Pending`). This folder
+also indexes twelve implementation-specific cases for the five current roles
+(`Platform Admin`, `Platform Manager`, `Organization Manager`, `Inspector`,
+`Maintenance Engineer`); three MF2 cases and eight MF3 cases are historical
+coverage. `WF3-017` is a new implementation-specific pending case outside the
+baseline totals. Existing Passed outcomes remain historical and do not by
+themselves verify the current simplified
 no-quality-gate, Inspector-invoked-analysis or per-finding-forwarding contract.
 The earlier content mixed a retired five-role WF1–WF4 baseline with
 unimplemented MF1–MF4 target cases; obsolete and unsupported cases were removed
@@ -34,8 +37,8 @@ workbooks extend it to eight feature sheets (`Feature 1`–`Feature 8`), one per
 Report 3 feature. The original template remains unchanged. Sheet `Feature N`
 contains SRS feature `FE-0N`; these are separate naming layers, not synonyms.
 Feature 1/2/7/8 have no cases. Feature 3 (FE-03) contains `WF2-008`–`WF2-010`;
-Features 4–6 contain eight MF3 cases, including pending `WF3-010`, `WF3-011` and
-`WF3-012`.
+Features 4–6 contain eight historical MF3 cases, including pending `WF3-010`,
+`WF3-011` and `WF3-012`; pending `WF3-017` also maps to Feature 8 (FE-08).
 All eight sheets remain so the workbook mirrors the eight SRS features.
 
 | Layer | Meaning | Example |
@@ -126,12 +129,15 @@ Recorded statuses and execution notes below preserve the historical MF2/MF3 resu
    evidence/findings, stale drafts, submission lock, withdrawal/return unlock and final immutability.
 7. FE-07 — maintenance and defect resolution. No case; MF4 unimplemented.
 8. FE-08 — dashboard, analytics, and notifications. No assigned case; explicit
-   coverage gap.
+   coverage gap. The pending `WF3-017` is the separate MF3 vision fallback case
+   filed in Feature 8 (FE-08), rather than a dashboard case.
 
-Totals: **11 cases, 8 `Passed`, 0 `Failed`, 3 `Pending`.** Coverage and successful
-coverage are 72.73%; pending `WF3-010`, `WF3-011` and `WF3-012` remain in the denominator. These
-figures describe recorded cases only, not the SRS or the complete MF2/MF3
-workflows. Removed case IDs stay reserved; subsequent MF3 cases continue from
+The implementation-specific index contains twelve cases: seven `Passed`, zero
+`Failed`, and five `Pending`, including new `WF3-017`. The Review 2 baseline
+remains separate at **64 cases, 60 `Passed`, 0 `Failed`, 4 `Pending`** (93.75%
+coverage); `WF3-017` is not included in official baseline statistics. These
+figures describe recorded cases only, not the SRS or complete MF2/MF3 workflows.
+Removed case IDs stay reserved; subsequent MF3 cases continue from
 `WF3-013`.
 
 MinIO/evidence storage is tracked under FE-04. Integration suites run against a
