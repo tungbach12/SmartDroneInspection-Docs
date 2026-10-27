@@ -194,7 +194,7 @@ def parse_markdown(path, strict_tables=True):
     i = 0
     while i < len(lines):
         line = lines[i]
-        if not line.strip():
+        if not line.strip() or re.fullmatch(r"-{3,}|\*{3,}|_{3,}", line.strip()):
             i += 1
             continue
         heading = re.match(r"^(#{1,6})\s+(.+)$", line)
@@ -279,10 +279,18 @@ class WordDocument:
             and self.text(p) not in {"…", ">>"}]
         samples = [p for p in normal if self.text(p).startswith("<<Sample:")]
         self.paragraph_prototype = (samples or normal or body_candidates)[0].cloneNode(True)
+        for ppr in children(self.paragraph_prototype, "pPr"):
+            remove_children(ppr)
+            ppr.appendChild(element(self.doc, W, "w:spacing", {
+                "w:before": "80", "w:after": "120", "w:line": "276", "w:lineRule": "auto"
+            }))
+            ppr.appendChild(element(self.doc, W, "w:jc", {"w:val": "left"}))
+        for r in children(self.paragraph_prototype, "r"):
+            self.paragraph_prototype.removeChild(r)
         self.picture_prototype = next(
             p.cloneNode(True) for p in original
             if p.localName == "p" and descendants(p, "drawing"))
-        self.run_prototype = (descendants(self.paragraph_prototype, "r") or [None])[0]
+        self.run_prototype = element(self.doc, W, "w:r")
         # Reuse a real template list paragraph so bullets, indents and the
         # numbering definition stay the originals instead of being invented.
         self.list_prototype = next(
@@ -310,11 +318,11 @@ class WordDocument:
     def text(node):
         return "".join(text_of(t) for t in descendants(node, "t"))
 
-    def run(self, text, prototype=None, bold=False, italic=False):
+    def run(self, text, prototype=None, bold=False, italic=False, size=None):
         r = (prototype or self.run_prototype)
         r = r.cloneNode(True) if r is not None else element(self.doc, W, "w:r")
         remove_children(r, ("rPr",))
-        if bold or italic:
+        if bold or italic or size:
             rp = (children(r, "rPr") or [None])[0]
             if rp is None:
                 rp = element(self.doc, W, "w:rPr")
@@ -322,6 +330,11 @@ class WordDocument:
             for name, enabled in (("b", bold), ("i", italic)):
                 if enabled and not children(rp, name):
                     rp.appendChild(element(self.doc, W, "w:" + name))
+            if size:
+                for tag in ("sz", "szCs"):
+                    for old in children(rp, tag):
+                        rp.removeChild(old)
+                    rp.appendChild(element(self.doc, W, "w:" + tag, {"w:val": str(size)}))
         for index, line in enumerate(text.split("\n")):
             if index:
                 r.appendChild(element(self.doc, W, "w:br"))
@@ -330,21 +343,22 @@ class WordDocument:
             r.appendChild(t)
         return r
 
-    def fill_paragraph(self, p, text):
+    def fill_paragraph(self, p, text, size=None):
         runs = descendants(p, "r")
         prototype = runs[0].cloneNode(True) if runs else self.run_prototype
         remove_children(p, ("pPr",))
         text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
-        parts = re.split(r"(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))", text)
+        parts = re.split(r"(\*\*[^*\n]+\*\*|`[^`\n]+`|\[[^\]]+\]\([^)]+\))", text)
         for part in parts:
             if not part:
                 continue
             visible = plain(part)
-            leading = " " if part[:1].isspace() else ""
-            trailing = " " if visible and part[-1:].isspace() else ""
+            leading = "\n" if part.startswith("\n") else (" " if part[:1].isspace() else "")
+            trailing = "\n" if (visible and part.endswith("\n")) else (" " if visible and part[-1:].isspace() else "")
             p.appendChild(self.run(leading + visible + trailing, prototype,
                                   bold=part.startswith("**") and part.endswith("**"),
-                                  italic=part.startswith("*") and not part.startswith("**")))
+                                  italic=part.startswith("*") and not part.startswith("**"),
+                                  size=size))
         return p
 
     def list_paragraph(self, text, level=0):
@@ -364,6 +378,8 @@ class WordDocument:
                 num_pr.appendChild(element(self.doc, W, "w:numId",
                                            {"w:val": self.list_num_id}))
                 properties.insertBefore(num_pr, properties.firstChild)
+        for r in children(p, "r"):
+            p.removeChild(r)
         p = self.fill_paragraph(p, text)
         return p
 
@@ -385,22 +401,56 @@ class WordDocument:
     def choose_table(self, header):
         wanted = {plain(x).lower() for x in header}
         def score(table):
-            row = children(table, "tr")[0]
-            labels = {self.text(c).strip().lower() for c in children(row, "tc")}
-            return (len(wanted & labels), len(children(row, "tc")) == len(header))
+            trs = children(table, "tr")
+            header_trs = trs[:2] if len(trs) >= 3 and descendants(trs[0], "gridSpan") else trs[:1]
+            labels = {self.text(c).strip().lower() for r in header_trs for c in children(r, "tc") if self.text(c).strip()}
+            data_row = trs[2] if len(trs) >= 3 and descendants(trs[0], "gridSpan") else trs[0]
+            return (len(wanted & labels), len(children(data_row, "tc")) == len(header))
         return max(self.table_prototypes, key=score)
 
     def table(self, rows):
         template = self.choose_table(rows[0])
         table = template.cloneNode(True)
         prototypes = children(template, "tr")
+        has_two_row_merged_header = (
+            len(prototypes) >= 3
+            and bool(descendants(prototypes[0], "gridSpan"))
+            and bool(descendants(prototypes[1], "vMerge"))
+            and len(children(prototypes[2], "tc")) == len(rows[0])
+        )
         old_grid = children(template, "tblGrid")
         widths = [int(c.getAttribute("w:w") or 1000)
                   for c in children(old_grid[0], "gridCol")] if old_grid else []
         total = sum(widths) or 9000
-        if len(widths) != len(rows[0]):
-            widths = [total // len(rows[0])] * len(rows[0])
-            widths[-1] += total - sum(widths)
+        wanted_headers = {plain(x).strip().lower() for x in rows[0] if plain(x).strip()}
+        tpl_hdr_trs = prototypes[:2] if len(prototypes) >= 3 and descendants(prototypes[0], "gridSpan") else prototypes[:1]
+        tpl_labels = {self.text(c).strip().lower() for r in tpl_hdr_trs for c in children(r, "tc") if self.text(c).strip()}
+        headers_match = len(wanted_headers & tpl_labels) >= max(2, len(rows[0]) // 2)
+        if len(rows[0]) == 3 and wanted_headers <= {"#", "no", "no.", "package", "table", "entity", "actor", "description"}:
+            widths = [650, 2450, max(4500, total - 3100)]
+        elif len(rows[0]) == 2:
+            widths = [int(total * 0.34), total - int(total * 0.34)]
+        elif len(widths) != len(rows[0]) or not headers_match:
+            col_weights = []
+            for col_idx in range(len(rows[0])):
+                hdr_txt = plain(rows[0][col_idx]).strip()
+                hdr_lower = hdr_txt.lower()
+                col_cells = [plain(r[col_idx]).strip() for r in rows[:20] if col_idx < len(r)]
+                max_line_len = max((len(ln.strip()) for c in col_cells for ln in c.splitlines()), default=len(hdr_txt))
+                max_word_len = max((len(w) for c in col_cells for w in re.findall(r"\S+", c)), default=len(hdr_txt))
+                if hdr_lower in {"#", "no", "no.", "id"} and max_line_len <= 10:
+                    col_weights.append(7)
+                elif max_line_len <= 16 and max_word_len <= 14:
+                    col_weights.append(14)
+                elif max_line_len <= 32 and max_word_len <= 20:
+                    col_weights.append(22)
+                elif max_line_len <= 55:
+                    col_weights.append(30)
+                else:
+                    col_weights.append(42)
+            weight_sum = sum(col_weights) or 1
+            widths = [max(650, int(total * w / weight_sum)) for w in col_weights]
+            widths[-1] = max(650, widths[-1] + (total - sum(widths)))
         for row in children(table, "tr"):
             table.removeChild(row)
         grid = (children(table, "tblGrid") or [None])[0]
@@ -410,9 +460,25 @@ class WordDocument:
         remove_children(grid)
         for width in widths:
             grid.appendChild(element(self.doc, W, "w:gridCol", {"w:w": width}))
-        for index, values in enumerate(rows):
-            proto = prototypes[0] if index == 0 else prototypes[min(1, len(prototypes) - 1)]
+        start_index = 0
+        if has_two_row_merged_header:
+            table.appendChild(prototypes[0].cloneNode(True))
+            table.appendChild(prototypes[1].cloneNode(True))
+            start_index = 1
+        for index, values in enumerate(rows[start_index:], start_index):
+            if has_two_row_merged_header:
+                proto = prototypes[2]
+            else:
+                proto = prototypes[0] if index == 0 else prototypes[min(1, len(prototypes) - 1)]
             row = proto.cloneNode(True)
+            tr_pr = (children(row, "trPr") or [None])[0]
+            if tr_pr is None:
+                tr_pr = element(self.doc, W, "w:trPr")
+                row.insertBefore(tr_pr, row.firstChild)
+            if not children(tr_pr, "cantSplit"):
+                tr_pr.appendChild(element(self.doc, W, "w:cantSplit"))
+            if index == 0 and not children(tr_pr, "tblHeader"):
+                tr_pr.appendChild(element(self.doc, W, "w:tblHeader"))
             cells = children(proto, "tc")
             for cell in children(row, "tc"):
                 row.removeChild(cell)
@@ -425,8 +491,26 @@ class WordDocument:
                     for width in children(properties, "tcW"):
                         width.setAttributeNS(W, "w:w", str(widths[col]))
                 ps = children(cell, "p")
-                p = self.fill_paragraph(ps[0].cloneNode(True) if ps else
-                                        self.paragraph_prototype.cloneNode(True), value)
+                cell_p = ps[0].cloneNode(True) if ps else self.paragraph_prototype.cloneNode(True)
+                if index > 0:
+                    hdr_lower = plain(rows[0][col]).strip().lower() if col < len(rows[0]) else ""
+                    jc_val = "center" if (col == 0 and hdr_lower in {"#", "no", "no.", "id"} and len(plain(value)) <= 8) else "left"
+                    for ppr in children(cell_p, "pPr"):
+                        for rpr in children(ppr, "rPr"):
+                            ppr.removeChild(rpr)
+                        for pstyle in children(ppr, "pStyle"):
+                            ppr.removeChild(pstyle)
+                        for sp in children(ppr, "spacing"):
+                            ppr.removeChild(sp)
+                        for jc in children(ppr, "jc"):
+                            ppr.removeChild(jc)
+                        ppr.appendChild(element(self.doc, W, "w:spacing", {
+                            "w:before": "60", "w:after": "60", "w:line": "250", "w:lineRule": "auto"
+                        }))
+                        ppr.appendChild(element(self.doc, W, "w:jc", {"w:val": jc_val}))
+                    for r in children(cell_p, "r"):
+                        cell_p.removeChild(r)
+                p = self.fill_paragraph(cell_p, value, size=20 if index > 0 else None)
                 # Drop every inherited child, not just paragraphs: a cloned
                 # cell may carry a nested table or extra paragraph that would
                 # otherwise wrap the new text inside the original content.
@@ -459,6 +543,10 @@ class WordDocument:
         p = self.picture_prototype.cloneNode(True)
         size_x = 5_500_000
         size_y = round(size_x * height / width)
+        max_y = 6_800_000
+        if size_y > max_y:
+            size_x = round(max_y * width / height)
+            size_y = max_y
         for extent in descendants(p, "extent") + descendants(p, "ext"):
             if extent.hasAttribute("cx"):
                 extent.setAttribute("cx", str(size_x))
@@ -503,9 +591,20 @@ class WordDocument:
                 if block.level == 1 and current_page > 3:
                     current_page += 1
                     page_lines = 0
+                hp = self.paragraph(block.text, block.level)
                 if block.level in (1, 2, 3):
-                    toc_entries.append((block.level, block.text, current_page))
-                self.body.appendChild(self.paragraph(block.text, block.level))
+                    bm_id = str(900000 + len(toc_entries) + 1)
+                    anchor = f"_Toc{bm_id}"
+                    bm_start = element(self.doc, W, "w:bookmarkStart", {"w:id": bm_id, "w:name": anchor})
+                    bm_end = element(self.doc, W, "w:bookmarkEnd", {"w:id": bm_id})
+                    first_run = next((c for c in children(hp) if c.localName != "pPr"), None)
+                    if first_run is not None:
+                        hp.insertBefore(bm_start, first_run)
+                    else:
+                        hp.appendChild(bm_start)
+                    hp.appendChild(bm_end)
+                    toc_entries.append((block.level, plain(block.text), current_page, anchor))
+                self.body.appendChild(hp)
                 self.heading_count += 1
                 page_lines += 2
             elif block.kind == "table":
@@ -516,7 +615,6 @@ class WordDocument:
                 page_lines += 15
             elif block.kind == "code":
                 if block.language == "mermaid":
-                    self.warnings.append(f"Mermaid diagram placeholder rendered: {block.source.name}")
                     title = "System Diagram"
                     match = re.search(r"%%\s*title:\s*(.+)$", block.text, re.M | re.I)
                     if match:
@@ -527,6 +625,8 @@ class WordDocument:
                             title = "Sequence Diagram"
                         elif "classdiagram" in text_lower:
                             title = "Class Diagram"
+                        elif "statediagram" in text_lower:
+                            title = "State Machine Diagram"
                         elif "package" in text_lower:
                             title = "Package Diagram"
                         elif "architecture" in text_lower:
@@ -537,12 +637,21 @@ class WordDocument:
                             title = "Use Case Diagram"
                         elif "screens flow" in text_lower or "flowchart td" in text_lower:
                             title = "Screens Flow Diagram"
-                    placeholder_content = (
-                        f"**[ Figure Placeholder: {title} ]**\n\n\n\n\n"
-                        f"*(Insert {title} image / screenshot here)*\n\n\n\n"
-                    )
-                    self.body.appendChild(self.table([[placeholder_content]]))
-                    page_lines += 12
+                    digest = sha256(block.text.strip().encode("utf-8"))[:12]
+                    png_path = (block.source.parent / "assets" / "mermaid" / f"{digest}.png") if block.source else None
+                    if png_path is not None and png_path.is_file():
+                        self.warnings.append(f"Mermaid diagram embedded ({png_path.name}): {block.source.name}")
+                        self.body.appendChild(self.image(png_path, title))
+                        self.body.appendChild(self.paragraph(f"**Figure: {title}**"))
+                        page_lines += 16
+                    else:
+                        self.warnings.append(f"Mermaid diagram placeholder rendered: {block.source.name}")
+                        placeholder_content = (
+                            f"**[ Figure Placeholder: {title} ]**\n\n\n\n\n"
+                            f"*(Insert {title} image / screenshot here)*\n\n\n\n"
+                        )
+                        self.body.appendChild(self.table([[placeholder_content]]))
+                        page_lines += 12
                 else:
                     self.body.appendChild(self.paragraph(block.text))
                     page_lines += max(1, len(block.text) // 80)
@@ -575,12 +684,20 @@ class WordDocument:
                     field.appendChild(r)
                 self.toc_content.appendChild(field)
             else:
-                for i, (lvl, text, pg) in enumerate(toc_entries):
+                for i, (lvl, text, pg, anchor) in enumerate(toc_entries):
                     p = element(self.doc, W, "w:p")
                     pPr = element(self.doc, W, "w:pPr")
                     pPr.appendChild(element(self.doc, W, "w:pStyle", {"w:val": f"TOC{lvl}"}))
                     tabs = element(self.doc, W, "w:tabs")
                     tabs.appendChild(element(self.doc, W, "w:tab", {"w:val": "right", "w:leader": "dot", "w:pos": "9040"}))
+                    pPr.appendChild(tabs)
+                    p_rpr = element(self.doc, W, "w:rPr")
+                    p_rpr.appendChild(element(self.doc, W, "w:rFonts", {"w:eastAsiaTheme": "minorEastAsia"}))
+                    p_rpr.appendChild(element(self.doc, W, "w:noProof"))
+                    p_rpr.appendChild(element(self.doc, W, "w:sz", {"w:val": "24"}))
+                    p_rpr.appendChild(element(self.doc, W, "w:szCs", {"w:val": "24"}))
+                    p_rpr.appendChild(element(self.doc, W, "w:lang", {"w:eastAsia": "en-GB"}))
+                    pPr.appendChild(p_rpr)
                     p.appendChild(pPr)
 
                     if i == 0:
@@ -598,26 +715,48 @@ class WordDocument:
                         r_sep.appendChild(element(self.doc, W, "w:fldChar", {"w:fldCharType": "separate"}))
                         p.appendChild(r_sep)
 
+                    hl = element(self.doc, W, "w:hyperlink", {"w:anchor": anchor, "w:history": "1"})
+
                     r_text = element(self.doc, W, "w:r")
+                    r_text_pr = element(self.doc, W, "w:rPr")
+                    r_text_pr.appendChild(element(self.doc, W, "w:rStyle", {"w:val": "Hyperlink"}))
+                    r_text_pr.appendChild(element(self.doc, W, "w:noProof"))
+                    r_text.appendChild(r_text_pr)
                     t = element(self.doc, W, "w:t")
                     t.appendChild(self.doc.createTextNode(text))
                     r_text.appendChild(t)
-                    p.appendChild(r_text)
+                    hl.appendChild(r_text)
 
-                    r_tab = element(self.doc, W, "w:r")
-                    r_tab.appendChild(element(self.doc, W, "w:tab"))
-                    p.appendChild(r_tab)
+                    def hidden_run(child_node):
+                        rr = element(self.doc, W, "w:r")
+                        rr_pr = element(self.doc, W, "w:rPr")
+                        rr_pr.appendChild(element(self.doc, W, "w:noProof"))
+                        rr_pr.appendChild(element(self.doc, W, "w:webHidden"))
+                        rr.appendChild(rr_pr)
+                        rr.appendChild(child_node)
+                        return rr
 
-                    r_page = element(self.doc, W, "w:r")
+                    hl.appendChild(hidden_run(element(self.doc, W, "w:tab")))
+                    hl.appendChild(hidden_run(element(self.doc, W, "w:fldChar", {"w:fldCharType": "begin"})))
+                    p_instr = element(self.doc, W, "w:instrText", {"xml:space": "preserve"})
+                    p_instr.appendChild(self.doc.createTextNode(f" PAGEREF {anchor} \\h "))
+                    hl.appendChild(hidden_run(p_instr))
+                    hl.appendChild(hidden_run(element(self.doc, W, "w:fldChar", {"w:fldCharType": "separate"})))
                     t_page = element(self.doc, W, "w:t")
                     t_page.appendChild(self.doc.createTextNode(str(pg)))
-                    r_page.appendChild(t_page)
-                    p.appendChild(r_page)
+                    hl.appendChild(hidden_run(t_page))
+                    hl.appendChild(hidden_run(element(self.doc, W, "w:fldChar", {"w:fldCharType": "end"})))
 
+                    p.appendChild(hl)
                     self.toc_content.appendChild(p)
 
                 p_end = element(self.doc, W, "w:p")
                 r_end = element(self.doc, W, "w:r")
+                r_end_pr = element(self.doc, W, "w:rPr")
+                r_end_pr.appendChild(element(self.doc, W, "w:b"))
+                r_end_pr.appendChild(element(self.doc, W, "w:bCs"))
+                r_end_pr.appendChild(element(self.doc, W, "w:noProof"))
+                r_end.appendChild(r_end_pr)
                 r_end.appendChild(element(self.doc, W, "w:fldChar", {"w:fldCharType": "end"}))
                 p_end.appendChild(r_end)
                 self.toc_content.appendChild(p_end)

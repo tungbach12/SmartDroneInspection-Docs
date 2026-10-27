@@ -5,7 +5,7 @@
 **Reporting period:** 12–18 October 2026  
 **Team members:** Trần Hoàng Trung Hiếu, Phùng Trung Quốc, Trần Tùng Bách, Trương Thái Như
 
-> Week 6 focused on Org Admin resource management UI, CI/CD deploy serialization, finding verification CRUD with audit retirement, YOLO11s advisory detection, and maintenance cost estimation.
+> Week 6 focused on Org Admin resource management UI, CI/CD deploy serialization, finding verification CRUD with audit retirement, YOLO11 advisory detection, and maintenance cost estimation.
 
 ## I. Status Report
 
@@ -20,7 +20,7 @@
 | 7 | Report 4 Section 3: Document detailed API endpoint specifications for inspection readiness and field sessions | Phùng Trung Quốc | Completed | Documented HTTP endpoints, request bodies, query filters, and response status codes for MF2. |
 | 8 | Report 5 Section 3: Author and execute test cases FE-03 (Request Triage) and FE-04 (Field Session) | Phùng Trung Quốc | Completed | Documented verification steps, assertions, and outcomes for inspection request approval and field visits. |
 | 9 | Backend MF3: Implement finding confirmation, rejection, and manual finding CRUD (`FindingService`) | Trần Tùng Bách | Completed | Delivered finding verification service: Inspector confirms/rejects AI candidates and creates manual findings. |
-| 10 | Backend MF3: Implement evidence retirement with shared audit reason, author withdrawal, and YOLO11s detection | Trần Tùng Bách | Completed | Added bulk evidence retirement, author report withdrawal, and advisory YOLO11s defect detection client. |
+| 10 | Backend MF3: Implement evidence retirement with shared audit reason, author withdrawal, and YOLO11 detection | Trần Tùng Bách | Completed | Added bulk evidence retirement, author report withdrawal, and advisory YOLO11 defect detection client. |
 | 11 | Frontend MF3: Add bulk evidence retirement toolbar, register filter tabs, and staged reviewer workspace | Trần Tùng Bách | Completed | Built evidence management UI with bulk retire dialog, filter tabs, and redesigned reviewer workflow stages. |
 | 12 | Docs / Report 5: Sync Report 3 SRS, Report 4 database design, and Report 5 test report (v4.11) for MF3 | Trần Tùng Bách | Completed | Documented findings lifecycle, evidence retirement audit rules, and test verification evidence. |
 | 13 | Backend MF4: Implement maintenance work order estimation and cost-calculation services | Trương Thái Như | Completed | Delivered service logic: `recordTaskEstimate`, `addCostLine`, and automated total cost computation. |
@@ -40,7 +40,7 @@
 | # | Project Work Item | In-charge | Deadline | Notes (Task Details, etc.) |
 |---:|---|---|---|---|
 | 1 | Implement Additional Session loop connecting MF3 evidence decisions with MF2 preparation | Trần Tùng Bách & Phùng Trung Quốc | 25 Oct 2026 | Allow Inspector to flag incomplete coverage and trigger a new field session preparation. |
-| 2 | Integrate PayPal online subscription payment into Report 3 and Report 4 for Review 2 | Trần Tùng Bách | 25 Oct 2026 | Document `payment_transactions` table and Enterprise SaaS subscription billing. |
+| 2 | Integrate PayPal online subscription payment into Report 3 and Report 4 for Review 2 | Trần Tùng Bách | 25 Oct 2026 | Document `payment_transactions` table and Enterprise Inspection subscription billing. |
 | 3 | Add assigned asset-drone pair column, status filter, and schedule conflict alert | Trần Hoàng Trung Hiếu | 25 Oct 2026 | Enhance Org Admin asset scheduling catalog UI. |
 | 4 | Finalize maintenance work order closeout and client acceptance verification | Trương Thái Như | 25 Oct 2026 | Complete maintenance lifecycle verification for Report 5. |
 

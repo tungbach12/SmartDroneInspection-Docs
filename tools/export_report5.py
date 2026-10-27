@@ -14,10 +14,10 @@ from report_ooxml import Spreadsheet, descendants, find_table, key_values, parse
 TEMPLATE_NAME = "Report5_Test Report.xlsx"
 SOURCES = ["report-5-test-report"]
 STATUS = {"Passed", "Failed", "Pending", "N/A"}
-# Report 3 defines eight product features (FE-01..FE-08, sections 3.2-3.9).
+# Report 3 defines twelve product features (FE-01..FE-12, sections 3.2-3.13).
 # The supplied template ships two feature sheets; the generated workbook gives
 # each Report 3 feature its own sheet, so sheet N tests FE-0N.
-FEATURE_SHEETS = [f"Feature {n}" for n in range(1, 9)]
+FEATURE_SHEETS = [f"Feature {n}" for n in range(1, 13)]
 CASE_HEADER = ["Test Case ID", "Test Case Description", "Test Case Procedure",
                "Expected Results", "Pre-conditions", "Round 1", "Test date", "Tester",
                "Round 2", "Test date", "Tester", "Round 3", "Test date", "Tester", "Note"]
@@ -46,8 +46,8 @@ def validate_cases(report_dir):
     cases = {sheet: [] for sheet in FEATURE_SHEETS}
     ids, summaries = set(), {}
     feature_files = sorted((report_dir / "03-features").glob("fe-*.md"))
-    if len(feature_files) != 8:
-        raise ValueError("Report 5 must have exactly eight FE-specific sources")
+    if len(feature_files) != len(FEATURE_SHEETS):
+        raise ValueError(f"Report 5 must have exactly {len(FEATURE_SHEETS)} FE-specific sources")
     for path in feature_files:
         text = path.read_text(encoding="utf-8")
         heading = re.search(r"^# (FE-\d{2}):", text, re.M)
@@ -222,7 +222,13 @@ def export(template, reports, output):
     }.items():
         book.put("Test Statistics", coord, value)
     # Test Statistics layout for N modules: header row 10, modules rows
-    # 11..10+N, blank, Sub total, blank, coverage, successful coverage.
+    # 11..10+N, Sub total, blank, coverage, successful coverage.
+    module_proto = book.row_template("Test Statistics", 12)
+    subtotal_proto = book.row_template("Test Statistics", 14)
+    spacer = book.row_template("Test Statistics", BLANK_SPACER_ROW)
+    coverage_proto = book.row_template("Test Statistics", 16)
+    success_proto = book.row_template("Test Statistics", 17)
+    book.clear_rows("Test Statistics", 11)
     first_module_row = 11
     last_module_row = first_module_row + len(FEATURE_SHEETS) - 1
     subtotal_row = last_module_row + 1
@@ -231,6 +237,7 @@ def export(template, reports, output):
     totals, total_cases = Counter(), 0
     for offset, sheet in enumerate(FEATURE_SHEETS):
         stat_row = first_module_row + offset
+        book.clone_row("Test Statistics", stat_row, module_proto)
         counts = summary_counts[sheet][0]
         totals.update(counts)
         total_cases += len(cases[sheet])
@@ -240,12 +247,14 @@ def export(template, reports, output):
         for target_col, source_col, status in zip("DEFG", "BCDE", ("Passed", "Failed", "Pending", "N/A")):
             book.put("Test Statistics", f"{target_col}{stat_row}", counts[status], f"'{sheet}'!{source_col}6")
         book.put("Test Statistics", f"H{stat_row}", len(cases[sheet]), f"'{sheet}'!B4")
+    book.clone_row("Test Statistics", subtotal_row, subtotal_proto)
     book.put("Test Statistics", f"C{subtotal_row}", "Sub total")
     # Materialise the blank spacer row so the sheet's rows stay contiguous;
-    # Excel rejects a sheet whose rows jump (19 -> 21). The template's own
-    # blank row carries the spacing, so clone that rather than inventing one.
-    spacer = book.row_template("Test Statistics", BLANK_SPACER_ROW)
+    # Excel rejects a sheet whose rows jump. The template's own blank row
+    # carries the spacing, so clone that rather than inventing one.
     book.clone_row("Test Statistics", coverage_row - 1, spacer)
+    book.clone_row("Test Statistics", coverage_row, coverage_proto)
+    book.clone_row("Test Statistics", success_row, success_proto)
     for column, status in zip("DEFG", ("Passed", "Failed", "Pending", "N/A")):
         book.put("Test Statistics", f"{column}{subtotal_row}", totals[status],
                  f"SUM({column}9:{column}{last_module_row})")

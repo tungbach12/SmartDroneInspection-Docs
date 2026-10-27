@@ -1,13 +1,79 @@
 ---
-title: "Report 3 - Other Requirements"
+title: "Report 3 - Requirement Appendix"
 document_type: report3-srs-section
 weight: 55
 source: "report3-software-requirement-specification.docx"
 ---
 
-## 5. Other Requirements
+## 5. Requirement Appendix
 
-### 5.1 Appendix 1 - Application Messages List
+### 5.1 Business Rules
+
+The system enforces 49 normative business rules across multi-tenant isolation, aviation compliance, advisory AI oversight, report immutability, and maintenance cost control:
+
+| ID | Rule Definition |
+| --- | --- |
+| BR-01 | Platform Admin and Platform Manager accounts are platform-scoped (platform-scoped) and enforce strict single-role separation of duties (Platform Admin and Platform Manager are mutually exclusive); Organization Manager, Inspector, and Maintenance Engineer accounts are scoped strictly to their respective enterprise tenant. |
+| BR-02 | An Organization Manager can access and manage only the assets, resources, inspections, reports, and maintenance records belonging to their own enterprise organization. |
+| BR-03 | Workforce identities belong to a single enterprise tenant; no user account or operational role can bridge across organization boundaries. |
+| BR-04 | Inspectors and Maintenance Engineers can access and act only upon inspection missions, work orders, or repair tasks explicitly assigned to them. |
+| BR-05 | Active user accounts and unexpired self-declared pilot licenses are mandatory for flight readiness; expired pilot licenses automatically block the self-service flight permit gate. |
+| BR-06 | Enterprise tenant registration, identity management, subscription activation, and drone equipment leasing serve as supporting governance gates for the primary inspection and maintenance lifecycle. |
+| BR-07 | Flight session start requires an unexpired flight permit and a mandatory pre-flight safety checklist note confirming aircraft, battery, and environmental suitability. |
+| BR-08 | Self-service flight readiness verifies the uploaded flight permit and pilot license currency; software approvals do not grant governmental flight exemptions. |
+| BR-09 | Inspection scheduling directly specifies the active Inspector and Drone for the mission, checking for scheduling conflicts across active missions. |
+| BR-10 | ENTERPRISE subscriptions offer fixed standard pricing for 1-, 6-, and 12-month periods; custom 1–120-month durations and customer price proposals remain pending until a Platform Manager confirms a final amount and reconciled payment. Online PayPal checkout is used only for platform-approved subscription and lease amounts. |
+| BR-11 | Subscription and drone equipment lease requests preserve versioned terms and actor attribution; entitlement or leased drone provisioning begins only after authorized payment confirmation. Online PayPal payments are verified by the system before activating the subscription or drone lease, and duplicate payment notifications are ignored. |
+| BR-12 | Report drafts, cost estimate baselines, scope change requests, and approval decisions preserve complete version histories; published records cannot be modified in place. |
+| BR-13 | Subscription renewal, cancellation, and expiration follow transparent contractual terms; subscription expiration preserves historical business records and does not auto-complete open work. |
+| BR-14 | Remote pilots and Inspectors must record session postponement or abort whenever adverse weather or site conditions compromise flight safety. |
+| BR-15 | Inspections are dispatched directly to the designated Inspector and transition to `Ready for Flight` upon the Inspector's flight permit upload. |
+| BR-16 | Aircraft flight operation and physical structural repair are real-world technical actions; system Start and End commands represent software session logging, not hardware actuation. |
+| BR-17 | Uploaded digital evidence retains an upload timestamp, file identity, and original capture metadata; missing telemetry is explicitly noted. |
+| BR-18 | Duplicate evidence files within the same inspection scope are rejected based on sanitized filename matching. |
+| BR-19 | Absence of GPS coordinates or camera telemetry is recorded as missing metadata and does not automatically invalidate otherwise suitable visual evidence. |
+| BR-20 | AI vision detections remain unconfirmed candidates until reviewed by a qualified Inspector; only human-verified findings enter the official inspection record. |
+| BR-21 | Rejected AI defect suggestions are excluded from official defect metrics, inspection report deliverables, and maintenance repair scopes. |
+| BR-22 | Inspectors may record manual defect findings backed by capture evidence; unavailability of AI services does not prevent manual inspection reporting. |
+| BR-23 | The assigned Inspector is responsible for reviewing evidence coverage, authoring coverage/limitation disclosures, and verifying every authored section of the inspection report before submission. |
+| BR-24 | An Organization Manager distinct from the report author reviews findings and approves report publication; lack of independent review blocks publication. |
+| BR-25 | Draft, returned, and unverified inspection content remains restricted to assigned authors and reviewers, strictly separated from published documents. |
+| BR-26 | Published inspection report versions are immutable; subsequent corrections require creating a new linked revision with renewed administrative approval. |
+| BR-27 | System workflows require explicit, attributable human decisions; no automated timer-based or silence-based approval is permitted for report publication or maintenance acceptance. |
+| BR-28 | A returned inspection or maintenance report is directed back to its designated author with mandatory review comments while preserving prior version history. |
+| BR-29 | Platform Admin provides technical Platform governance, platform user provisioning, and standard asset category maintenance, while Platform Manager governs commercial subscription and drone equipment lease settlements; neither holds authority over customer engineering assessments or repair budgets. |
+| BR-30 | Application workflow approvals represent auditable software authorizations and do not constitute certified statutory signatures or governmental safety warranties. |
+| BR-31 | Maintenance work orders must reference at least one confirmed defect requiring repair from a published inspection report within the same organization. |
+| BR-32 | The designated Maintenance Team Lead prepares itemized repair estimates; automated systems do not generate arbitrary labor rates, material quantities, or prices. |
+| BR-33 | Maintenance warranty and defect follow-up terms apply only when explicitly specified and contracted; no universal statutory warranty is presumed. |
+| BR-34 | Any increase in repair scope, cost, or delivery schedule requires an approved Change Request prior to executing the additional work; the initial baseline remains immutable. |
+| BR-35 | Maintenance completion reports require paired before-and-after photographic evidence and documented test results for each repaired defect. |
+| BR-36 | Repair cost is an internal tenant cost register, separate from software subscription and drone equipment lease billing; PayPal online payment processes Enterprise platform subscriptions and drone leases, while internal repair actuals are operational expenditures. |
+| BR-37 | A separate re-inspection creates a new linked inspection mission; additional field coverage required for an existing inspection can be initiated directly via an additional field session in MF2. |
+| BR-38 | All assignment, readiness, finding verification, report publication, budget approval, and acceptance actions are logged in an immutable audit trail. |
+| BR-39 | Direct URL access, notification links, and raw file paths confer no authority; backend multi-tenant boundary checks and role verifications remain mandatory on every request. |
+| BR-40 | Password resets, role modifications, and session revocations immediately invalidate active tokens; user reassignment terminates future permissions without altering past audit logs. |
+| BR-41 | Owned and leased drone equipment records include government registration numbers and expiration dates. Pilot licenses are self-declared in inspector user profiles. Mission flight permits are uploaded per inspection. |
+| BR-42 | Asset registration defines standardized structural inspection checkpoints  inherited across inspections for on-site field survey guidance and technical reporting. |
+| BR-43 | The assigned Inspector holds sole authority to evaluate evidence completeness and quality; automated technical upload checks do not replace human quality review. |
+| BR-44 | The inspection workflow follows a strict sequential gate: Evidence Intake → AI Defect Detection → Findings Confirmation → Report Draft Synthesis → Author Verification → Organization Manager Approval → Publication. |
+| BR-45 | Each maintenance work order designates an approved engineering team, exactly one Team Lead, and one Report Author; neither may perform final acceptance on their team's work. |
+| BR-46 | Every repair task is allocated to an approved team member; the Team Lead manages task assignments within approved membership, with all changes audited. |
+| BR-47 | Financial totals for budgets, change orders, and actual expenditures are calculated using exact decimal precision; missing item costs cannot default to zero. |
+| BR-48 | Automated language models synthesize report drafts exclusively from verified source records, preserving uncertainty disclosures and preventing fabricated assertions. |
+| BR-49 | The designated Report Author verifies and submits the maintenance completion report; an independent Organization Manager performs final technical acceptance. |
+
+### 5.2 Common Requirements
+
+- **Form Validation**: All input forms validate required fields, text length limits, numeric bounds, valid date ranges, and current workflow status before saving changes.
+- **Organization & Role Access Checks**: Every screen and action verifies the signed-in user's role, organization membership, and mission/task assignment on the server.
+- **Date, Time & Timezone Display**: Dates and times are stored consistently and displayed in the organization's or user's local timezone.
+- **Currency & Cost Precision**: All subscription prices, drone lease rates, repair estimates, change orders, and actual costs are calculated to two decimal places with explicit currency labels (`USD` or `VND`).
+- **File Upload Limits**: Uploaded images and PDF documents are checked for valid file format and size (up to `10 MB` per file and `20 MB` per upload batch).
+- **Duplicate Prevention**: Repeated clicks or network retries on schedule generation, file upload, payment confirmation, or notification delivery are safely deduplicated so duplicate records are never created.
+- **Document Integrity**: Published PDF inspection reports, maintenance completion reports, and asset engineering documents are locked upon publication so they cannot be altered in place.
+
+### 5.3 Application Messages List
 
 The system defines standard user-facing messages, validation alerts, and toast notifications to guide operational workflows across web and mobile clients.
 
@@ -32,10 +98,10 @@ The system defines standard user-facing messages, validation alerts, and toast n
 | 17 | MSG17 | In line | Duplicate evidence | This evidence has already been uploaded in this scope. |
 | 18 | MSG18 | Toast | Upload saved | Evidence uploaded and available for findings. |
 | 19 | MSG19 | In line | AI unavailable | AI analysis is unavailable. Evidence is saved for manual review or later processing. |
-| 20 | MSG20 | Toast | Inspection author submission | Author-verified draft submitted to Organization Admin for review. |
+| 20 | MSG20 | Toast | Inspection author submission | Author-verified draft submitted to Organization Manager for review. |
 | 21 | MSG21 | In line | Author review incomplete | Verify each required report section against source evidence and scope before submitting. |
 | 22 | MSG22 | Toast | Inspection report published | Approved inspection report version published successfully. |
-| 23 | MSG23 | Toast | Repair change submitted | Scope/cost/time change submitted to Organization Admin for approval. Affected additional work is not yet authorized. |
+| 23 | MSG23 | Toast | Repair change submitted | Scope/cost/time change submitted to Organization Manager for approval. Affected additional work is not yet authorized. |
 | 24 | MSG24 | In line | Unapproved additional work | Additional work requires an approved change. Recording actual spending does not approve it. |
 | 25 | MSG25 | Toast | Work order closed | Accepted and cost-reconciled work order closed; source inspection history is preserved. |
 | 26 | MSG26 | In line | Required credential/compliance missing | Provide and review the documents applicable to this activity. Internal approval cannot waive required legal authorization. |
@@ -60,59 +126,41 @@ The system defines standard user-facing messages, validation alerts, and toast n
 | 45 | MSG45 | In line | Cost reconciliation unresolved | Resolve missing, duplicate or unapproved costs and variance explanations before final closure. |
 | 46 | MSG46 | Toast | Maintenance author submits report | Author-verified maintenance completion draft submitted for independent acceptance. |
 | 47 | MSG47 | Toast | Subscription payment confirmed | The authorized settlement has been verified and the subscription is active. |
-| 48 | MSG48 | In line | Online payment unavailable or failed | Online payment is unavailable or could not be verified. Use the corporate wire/invoice process or contact the Platform Admin for assistance. |
+| 48 | MSG48 | In line | Online payment unavailable or failed | Online payment is unavailable or could not be verified. Use the corporate wire/invoice process or contact the Platform Manager for assistance. |
 
-### 5.2 Appendix 2 - Common Requirements
+### 5.4 Other Requirements
 
-- **Validation Rules**: Validate identifier existence, required fields, maximum length, allowable enum values, current workflow state, and active version numbers on every create, update, and decision action.
-- **Tenant Authorization Scope**: Enforce organization tenancy, mission assignment, and designated leadership roles prior to executing database queries or file streaming; never filter authorization client-side.
-- **Temporal Consistency**: Persist event timestamps as UTC instants; display formatted times in user or enterprise configured local timezones. Regulatory validity periods evaluate explicit start and expiration timestamps.
-- **Deterministic Currency & Math**: Financial values (estimates, actuals, variance) use decimal representations with explicit currency (VND) and standard rounding conventions; avoid IEEE 754 floating-point errors.
-- **Standardized API Structure**: Successful JSON responses return `{ success, message, data }`; bodyless responses use HTTP `204`. Error responses implement the RFC 9457 Problem Details specification with machine-readable codes and unique trace IDs.
-- **Privacy & Security Masking**: Authentication failures provide generic messages without disclosing user account existence. Error traces do not reveal sensitive file paths, credentials, or cross-tenant records.
-- **File Validation & Antivirus**: Uploaded media are checked for MIME type integrity, valid magic bytes, and allowed file sizes prior to persistence.
-- **Idempotency Protection**: Key transactional commands—including periodic generation, evidence upload, mission dispatch, report publication, and work order closure—are state-guarded and idempotent.
-- **Cryptographic Traceability**: All report deliverables and visual evidence store server-calculated SHA-256 digests, supporting non-repudiation and tamper detection.
+#### 5.4.1 Scope and Operational Constraints
+- **Multi-Tenant Workspace Isolation**: Each customer organization operates in an isolated workspace where its users, assets, drones, inspections, reports, and maintenance work orders are separated from all other organizations.
+- **No Direct Drone Flight Control**: The platform manages planning, compliance documents, field logs, photos, reports, and maintenance workflows; physical drone piloting is performed by licensed pilots using their aircraft flight controllers.
+- **Human-in-the-Loop AI Governance**: AI defect detection (`YOLO11`), AI report drafting, and AI repair scope suggestions are decision-support tools. Every finding, report, and maintenance budget requires explicit human review and approval.
 
-### 5.3 Appendix 3 - Scope and Technology Constraints
+#### 5.4.2 Feature and Flow Traceability
 
-- **Multi-Tenant Architecture**: The system operates as an Enterprise SaaS platform isolating multiple infrastructure-owning organizations within a unified database schema using tenant foreign key discriminators.
-- **Separation of Flight Control**: The platform is an information and decision management system; it does not connect to drone flight controllers, execute autopilot routes, or transmit remote-control telemetry.
-- **Human Accountability for AI**: Automated computer vision (YOLO11s) and generative language models (LLM) provide advisory suggestions and draft texts. All defect findings, report deliverables, and maintenance closures require attributable human approval.
-- **Technology Stack Specifications**:
-  - *Backend*: Java 21, Spring Boot 3, Spring Data JPA, Spring Security, Flyway database migration, OpenHTMLtoPDF.
-  - *Database & Storage*: PostgreSQL 17 with `pgvector` extension; MinIO S3-compatible distributed object storage.
-  - *Web Client*: React 19, TypeScript, Material-UI (MUI), Vite, TanStack React Query.
-  - *Mobile Client*: Flutter 3, Dart, Riverpod state management.
-  - *Optional Payment Gateway*: PayPal REST API v2 (Orders v2 & Webhooks), enabled by deployment configuration only; secrets supplied through environment configuration, with no online checkout when disabled.
-  - *AI Services*: Python 3.11, FastAPI, Ultralytics YOLO11s (MBDD2025 dataset), OpenAI-compatible LLM gateway.
+This traceability matrix maps the twelve core product features (`FE-01` to `FE-12`) to system use cases and operational responsibilities across the platform lifecycle.
 
-### 5.4 Feature and Flow Traceability
+| Product Feature | Feature Name | Operational Responsibility & Owner | Supported Use Cases |
+| :---: | --- | --- | --- |
+| `FE-01` | Authentication & Access Control | Organization self-registration, Web/Mobile sign-in, session security, and 5-role access control *(Trần Tùng Bách)* | UC-01, UC-02, UC-32 |
+| `FE-02` | Workforce & Subscription Management | Workforce account management, pilot license profile, and Enterprise Subscription billing via bank transfer & PayPal *(Trần Hoàng Trung Hiếu)* | UC-02, UC-03, UC-05 |
+| `FE-03` | Asset & Drone Fleet Management | Asset catalog, inspection checkpoints, reference documents, owned drones, and Drone Equipment Leasing *(Trần Hoàng Trung Hiếu)* | UC-04, UC-06 |
+| `FE-04` | Recurring Schedule & Notifications | Timezone-anchored recurring inspection schedules, upcoming mission generation, and in-app notifications *(Trần Hoàng Trung Hiếu)* | UC-07, UC-22 |
+| `FE-05` | Mission Dispatch & Airspace Advisory | One-off mission scheduling, resource conflict checking, and interactive Vietnam Airspace & No-Fly Zone Map *(Phùng Trung Quốc)* | UC-07, UC-08, UC-12 |
+| `FE-06` | Flight Readiness & Field Execution | Self-service flight permit upload (`Ready for Flight`) and Web/Mobile on-site field flight sessions *(Phùng Trung Quốc)* | UC-09, UC-10, UC-11 |
+| `FE-07` | Operational Dashboard & Schedule Calendar | Multi-role operational analytics dashboards, Inspector Schedule Calendar, dark mode, and EN/VI localization *(Phùng Trung Quốc)* | UC-22, UC-32 |
+| `FE-08` | Evidence Management & AI Defect Detection | Inspection photo upload, camera time/GPS reading, `YOLO11` visual defect detection, and human finding confirmation *(Trần Tùng Bách)* | UC-13, UC-14, UC-15 |
+| `FE-09` | Inspection Reporting & Publication | AI-assisted & manual report drafting, independent review, official PDF report publication, and maintenance handoff *(Trần Tùng Bách)* | UC-16, UC-17, UC-18, UC-19, UC-20, UC-21 |
+| `FE-10` | Maintenance Planning & AI Scope Advisory | Forwarded defect triage, standards-based AI Repair Scope Advisor (`TCVN`/`EN`/`ISO`), and team/task assignment *(Trương Thái Như)* | UC-23, UC-24, UC-26 |
+| `FE-11` | Cost Estimation & Repair Execution | Itemized cost estimation, independent budget approval, Change Orders, and Web/Mobile field repair work log verification *(Trương Thái Như)* | UC-25, UC-26, UC-27, UC-28, UC-29 |
+| `FE-12` | Maintenance Acceptance & Cost Closure | Author-verified completion report PDF, independent technical acceptance, actual cost reconciliation, and work order closure *(Trương Thái Như)* | UC-30, UC-31, UC-32 |
 
-This traceability matrix maps the eight core product features (`FE-01` to `FE-08`) to system use cases and operational responsibilities across the platform lifecycle.
-
-| Product Feature | Operational Responsibility | Supported Use Cases |
-| --- | --- | --- |
-| FE-01 | Identity, tenant governance, workforce accounts, credentials, versioned terms, and subscription settlement | UC-01, UC-02, UC-03, UC-05 |
-| FE-02 | Infrastructure asset inventory, drone fleet management, and flight permit linkage | UC-04, UC-06, UC-07, UC-08 |
-| FE-03 | Inspection mission planning, shot-list preparation, and flight readiness authorization | UC-09, UC-10, UC-11 |
-| FE-04 | Field survey logging and digital evidence intake | UC-12, UC-13, UC-14 |
-| FE-05 | Advisory YOLO11s defect detection and human findings verification | UC-15, UC-32 |
-| FE-06 | Context-grounded report drafting, administrative review, publication, and maintenance handoff | UC-16, UC-17, UC-18, UC-19, UC-20, UC-21 |
-| FE-07 | Maintenance work orders, cost estimation, change control, repair logs, and acceptance | UC-23, UC-24, UC-25, UC-26, UC-27, UC-28, UC-29, UC-30, UC-31 |
-| FE-08 | Role-tailored dashboards, analytical metrics, notifications, and operational audit trail | UC-22, UC-32 |
-
-### 5.5 Appendix 4 - Research Basis and References
-
-The system requirements incorporate industry standards, civil aviation regulations, and established asset management methodologies:
+#### 5.4.3 Research Basis and References
 
 - **Non-Destructive Testing & Inspection Reporting:** Incorporates American Society for Nondestructive Testing (ASNT) guidelines regarding reproducible inspection techniques, explicit equipment and methodology disclosure, and attributable technician accountability. Visual capture annotations follow Pix4D inspection reporting benchmarks.
 - **Maintenance Lifecycle & Work Order Governance:** Maintenance workflows reflect standards from enterprise asset management benchmarks (Oracle PeopleSoft Maintenance Management, IBM Maximo), distinguishing physical task completion from formal administrative and financial closure.
 - **Cost Estimation & Engineering Change Control:** Engineering change orders follow established principles from construction and plant engineering (Primavera Unifier), enforcing itemized cost baselines, explicit change justification, and independent budget approval.
 - **Artificial Intelligence Governance:** AI defect detection and report drafting comply with National Institute of Standards and Technology (NIST AI 600-1) recommendations on generative artificial intelligence risk management, ensuring source-grounded synthesis and mandatory human oversight.
 - **Civil Aviation Regulations:** Drone compliance references Vietnamese Government Decree No. 288/2025/NĐ-CP governing the management of unmanned aerial vehicles and other flying craft, enforcing flight permit verification and remote pilot credential tracking.
-
-#### Document References
 
 - [1] ASNT Pulse. *Nondestructive Testing Report Writing: Back to Basics*. American Society for Nondestructive Testing. https://www.asnt.org/standards-publications/blog/nondestructive-testing-report-writing-back-to-basics
 - [2] Oracle Corporation. *PeopleSoft Maintenance Management Process Flow*. Oracle Help Center. https://docs.oracle.com/en/applications/peoplesoft/financials-and-supply-chain-management/9.2.056/peoplesoft-maintenance-management/peoplesoft-maintenance-management-process-flow.html

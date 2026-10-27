@@ -52,7 +52,7 @@ class CommonTests(unittest.TestCase):
     def test_missing_source_is_not_exported_as_a_completed_report(self):
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / "output"
-            result = build(REPORTS, OFFICIAL, output, {"report4"})
+            result = build(REPORTS, OFFICIAL, output, {"report6"})
             self.assertEqual(result["artifacts"][0]["status"], "missing_source")
             self.assertEqual([p.name for p in output.iterdir()], ["manifest.json"])
 

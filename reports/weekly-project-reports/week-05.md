@@ -5,7 +5,7 @@
 **Reporting period:** 5–11 October 2026  
 **Team members:** Trần Hoàng Trung Hiếu, Phùng Trung Quốc, Trần Tùng Bách, Trương Thái Như
 
-> Week 5 delivered the Enterprise SaaS architecture cutover, full MF1 resource/credential management, MF2 mobile field sessions, MF4 work orders, and MF3 report authoring with landing page.
+> Week 5 delivered the Enterprise Inspection architecture cutover, full MF1 resource/credential management, MF2 mobile field sessions, MF4 work orders, and MF3 report authoring with landing page.
 
 ## I. Status Report
 
@@ -19,9 +19,9 @@
 | 6 | Backend MF2: Implement `InspectionReadinessDecision` entity with snapshot hashing and pre-flight re-check | Phùng Trung Quốc | Completed | Persisted immutable readiness decisions with snapshot hashes and re-validated readiness at session start. |
 | 7 | Backend MF2: Expose HTTP endpoints for readiness review sources, decisions, and field sessions | Phùng Trung Quốc | Completed | Delivered backend PR #64: endpoints for preparation review, readiness decisions, and session lifecycle. |
 | 8 | Frontend MF2: Implement mission preparation panel (`MF2-03`–`06`) and readiness review panel (`MF2-07`) | Phùng Trung Quốc | Completed | Delivered frontend PR #37: preparation forms, permit links, shot lists, and admin readiness approval panel. |
-| 9 | Architecture & CI: Execute Enterprise SaaS role/schema cutover; set up automated VPS2 deploy via Tailscale | Trần Tùng Bách | Completed | Applied V22–V25 migrations, updated security filters, and configured automated CI deployment to VPS2. |
+| 9 | Architecture & CI: Execute Enterprise Inspection role/schema cutover; set up automated VPS2 deploy via Tailscale | Trần Tùng Bách | Completed | Applied V22–V25 migrations, updated security filters, and configured automated CI deployment to VPS2. |
 | 10 | Backend MF3: Implement multi-section report drafting, immutable PDF deliverable, MinIO test infra | Trần Tùng Bách | Completed | Delivered section-scoped report authoring, PDF rendering with defect photos, and standalone MinIO test setup. |
-| 11 | Frontend MF3 & UI: Build responsive B2B landing page, role dashboards, and section-by-section report editor | Trần Tùng Bách | Completed | Delivered landing page (dark tech theme, animejs), auth styling, role dashboards, and multi-section report UI. |
+| 11 | Frontend MF3 & UI: Build responsive commercial landing page, role dashboards, and section-by-section report editor | Trần Tùng Bách | Completed | Delivered landing page (dark tech theme, animejs), auth styling, role dashboards, and multi-section report UI. |
 | 12 | Mobile MF3: Implement mobile evidence quality decisions repository and wire session hydration | Trần Tùng Bách | Completed | Delivered mobile PR #8: evidence quality decision model, repository, and auth state persistence. |
 | 13 | Update business flows to v3.2 and author summary documents in docs repository | Trương Thái Như | Completed | Committed PR #33: updated business flow documentation to v3.2 and added executive summary briefs. |
 | 14 | Backend MF4: Implement `MaintenanceWorkOrder` aggregate, tasks, estimates, and cost lines (MF4-01–08) | Trương Thái Như | Completed | Implemented work order aggregate root, itemized repair tasks, cost lines, and estimation entities. |
@@ -41,7 +41,7 @@
 |---:|---|---|---|---|
 | 1 | Frontend Org Admin resource management: user management, drone fleet, and permits UI | Trần Hoàng Trung Hiếu | 18 Oct 2026 | Build UI for managing organization fleet, permits, and credential reviews. |
 | 2 | Serialize VPS deployment script with file lock to prevent race conditions | Phùng Trung Quốc | 18 Oct 2026 | Add deployment locking in GitHub Actions deployment workflow. |
-| 3 | Implement finding verification CRUD, evidence retirement with audit reasons, and YOLO11s detection | Trần Tùng Bách | 18 Oct 2026 | Build findings review interface and integrate advisory defect detection service. |
+| 3 | Implement finding verification CRUD, evidence retirement with audit reasons, and YOLO11 detection | Trần Tùng Bách | 18 Oct 2026 | Build findings review interface and integrate advisory defect detection service. |
 | 4 | Implement maintenance estimation and cost tracking services | Trương Thái Như | 18 Oct 2026 | Deliver business logic for recording repair estimates and material cost lines. |
 
 ## IV. Other Project Matters/Suggestions

@@ -7,47 +7,49 @@ source: "report3-software-requirement-specification.docx"
 
 ## 4. Non-Functional Requirements
 
-This section specifies the non-functional requirements and quality attributes for the SmartDroneInspection platform, defining the architectural performance, reliability, security, maintainability, and external interface standards necessary for enterprise-grade operation across cloud and mobile environments.
-
 ### 4.1 External Interfaces
 
-- **Web Browser Client:** The responsive web application (React, TypeScript, Material-UI) communicates over secure HTTPS with strict TLS 1.3 encryption. Supports current evergreen versions of Google Chrome, Microsoft Edge, Mozilla Firefox, and Apple Safari across desktop and tablet viewports.
-- **Mobile Client:** The field inspection mobile application (Flutter, Dart) operates on modern Android (API 28+) and iOS (15+) devices. Mobile authentication utilizes secure on-device credential storage (Android Keystore, iOS Keychain) with encrypted biometric/PIN session unlock.
-- **RESTful Application Programming Interface:** Backend microservices expose versioned REST APIs under `/api/v1`. Successful API responses follow a standardized JSON envelope (`{ success, message, data }`) while preserving HTTP semantic statuses (200, 201, 204). Error responses adhere to the RFC 9457 Problem Details standard, supplying machine-readable error codes and unique request trace IDs.
-- **Database & Object Storage:** Relational and spatial data are persisted in PostgreSQL 17 with `pgvector` extensions for embeddings. High-resolution imagery, video captures, and generated PDF reports are persisted in S3-compatible object storage (MinIO) with pre-signed URL access controls.
-- **AI Computer Vision & Language Services:** Dedicated microservices communicate via REST. The YOLO11s computer vision microservice ingests image bytes and returns structured bounding boxes and defect classifications. The LLM drafting service synthesizes structured Markdown report narratives from grounded database prompts.
-- **Optional Payment Gateway (PayPal):** When enabled by deployment configuration and supplied with valid environment-specific credentials, the backend uses PayPal REST API v2 over HTTPS to create and server-capture an approved subscription order. The payer approves on PayPal-hosted checkout. A `PAYMENT.CAPTURE.COMPLETED` notification is applied only after PayPal webhook-signature verification against the configured webhook ID. When the channel is disabled or unconfigured, online checkout fails closed; the wire/invoice reconciliation path remains available. This requirement does not claim that a live provider integration or any external compliance certification has been verified by this release.
-- **Aviation & Geospatial Interfaces:** Integrates geospatial mapping layers (OpenStreetMap / Leaflet) and public aviation advisory sources (e.g., Civil Aviation Authority / Ministry of National Defence airspace portals) for visual flight planning.
+- **Web Portal Interface**: Responsive web application accessible on modern desktop and tablet browsers (Google Chrome, Microsoft Edge, Mozilla Firefox, Apple Safari) over secure HTTPS connections, supporting both Light and Dark themes and English/Vietnamese languages.
+- **Mobile Application Interface**: Cross-platform mobile application (Android and iOS) designed for field Inspectors and Maintenance Engineers to check airspace warnings, upload flight permits, log flight sessions, upload photos, and record repair work logs on site.
+- **AI Defect Detection & Advisory Services**: Internal service interfaces that analyze inspection photographs (`YOLO11`) to suggest defect bounding boxes and assist users in drafting inspection reports and standard-based maintenance repair scopes.
+- **Online Payment & Mapping Interfaces**: Optional integration with PayPal for online subscription and drone lease checkout (alongside standard bank transfer confirmation), and integration with OpenStreetMap layers for displaying infrastructure assets and Vietnam restricted airspace zones.
 
 ### 4.2 Quality Attributes
 
 #### 4.2.1 Usability
 
-- **Intuitive Workflow Guidance:** Operational screens guide users through logical sequence steps (Preparation → Flight Session → Evidence → Findings → Report → Maintenance). Complex multi-step actions feature progress steppers and contextual validation hints.
-- **High-Contrast Outdoor Readability:** The mobile application provides high-contrast typography, large touch targets (minimum 48x48 dp), and outdoor-optimized color schemes suitable for direct sunlight field conditions.
-- **Clear AI Delineation:** Machine-generated defect candidates and draft texts are visually distinguished from human-verified findings using distinctive badges, ensuring reviewers clearly perceive automated suggestions versus official data.
-- **Accessibility Standards:** Web interfaces comply with Web Content Accessibility Guidelines (WCAG 2.1) Level AA, ensuring full keyboard navigation, aria-labels for screen readers, and high text contrast ratios (minimum 4.5:1).
+- **Step-by-Step Workflow Guidance**: Screens guide users clearly through each stage of the workflow (Schedule -> Flight Permit -> Field Session -> Evidence -> Findings -> Report -> Maintenance) with clear status badges and validation hints.
+- **Field-Ready Mobile Design**: The mobile interface uses high-contrast text and clear action buttons suitable for outdoor field use.
+- **Clear AI Labeling**: AI-suggested defects and AI-drafted text are clearly badged as `Pending` or `Draft` so users can easily distinguish automated suggestions from human-verified records.
+- **Bilingual Support**: Users can switch between English (`EN`) and Vietnamese (`VI`) at any time without losing entered data.
 
-#### 4.2.2 Reliability and Record Integrity
+#### 4.2.2 Reliability
 
-- **Transactional Atomicity:** Multi-entity operations (e.g., asset creation with default pair, inspection creation with pair snapshot, report publication with PDF archival) execute within atomic database transactions to prevent partial or orphaned records.
-- **Idempotent Operations:** File uploads, due-cycle mission generations, and report publication requests are fully idempotent; duplicate submissions with identical SHA-256 digests or parameters are safely deduplicated without creating duplicate state.
-- **Cryptographic Evidence Integrity:** All uploaded inspection photographs and documents are fingerprinted using server-calculated SHA-256 cryptographic hashes immediately upon ingestion, guaranteeing proof of tamper-free storage.
-- **Graceful Degradation:** If automated AI defect detection or LLM drafting services become temporarily unreachable, the system allows inspectors to proceed with full manual defect recording and structured report authoring without loss of data.
-- **Deterministic Financial Computation:** Financial calculations for budgets, itemized estimates, approved change orders, and actual costs use fixed-precision decimal arithmetic to prevent floating-point rounding discrepancies.
+- **Service Availability**: Target system availability is at least `99.5%` during standard operating hours (`06:00–22:00 ICT`).
+- **Recovery & Backup**: Automated daily database backups allow the system to recover within `30 minutes` (`MTTR <= 30 minutes`) in the event of a server failure.
+- **Manual Fallback When AI or Payment Services Are Offline**: If the AI detection service, AI report drafting service, or online payment gateway is temporarily unavailable, users can still record manual findings, write manual reports, use built-in repair templates, and confirm bank transfer payments without interruption.
+- **Accurate Financial & Document Records**: All subscription, lease, estimate, and actual repair costs are calculated to two decimal places without rounding drift, and published PDF reports are locked against modification.
 
 #### 4.2.3 Performance
 
-- **API Response Latency:** Under standard enterprise workload, 95% of standard JSON API requests complete within 2.0 seconds (excluding large binary file upload/download transfer times).
-- **Efficient Data Pagination:** All tabular data queries across assets, missions, evidence items, findings, and work orders utilize server-side indexed pagination with stable sorting, ensuring rapid rendering regardless of catalog size.
-- **Asynchronous Processing:** Long-running operations such as deep learning defect inference, PDF document rendering, and batch email dispatch execute asynchronously in background task queues without blocking user interface responsiveness.
-- **Scalable Image Optimization:** The system automatically generates optimized responsive image thumbnails upon upload to enable rapid gallery rendering while preserving original full-resolution files for detailed inspection.
+- **Screen & Action Response Time**: At least `95%` of standard user actions, searches, and list loads complete within `2.0 seconds` under normal concurrent usage (`50` active users).
+- **AI Defect Detection Time**: Single-image AI defect analysis completes within `5.0 seconds` for standard inspection photographs up to `10 MB`.
+- **Paginated Lists**: Large tables (assets, inspections, photos, findings, reports, work orders, notifications) load in pages so screens remain fast as data grows.
 
-#### 4.2.4 Security, Privacy and Maintainability
+#### 4.2.4 Security and Maintainability
 
-- **Strict Multi-Tenant Isolation:** Complete logical tenant data isolation is enforced at the database and application levels. Every query and command strictly verifies the authenticated user's organization tenancy.
-- **Role-Based and Attribute-Based Access Control:** All endpoints enforce granular RBAC/ABAC permissions. Sensitive actions (e.g., report approval, budget release, technical acceptance) enforce mandatory separation of duties (authors cannot approve their own work).
-- **Secure Authentication & Token Management:** Passwords are encrypted using Argon2id with per-user salt. Web clients store ephemeral access tokens in memory and use HttpOnly, Secure, SameSite=Strict cookies for refresh tokens to prevent cross-site scripting (XSS) and CSRF attacks.
-- **Payment Security:** The application must not accept browser-supplied capture IDs, settled amounts, or payer identity as proof of payment. The backend creates/captures provider orders for the platform-approved amount, checks provider-reported completion, order ownership, amount and currency, and rejects duplicate capture IDs. Webhook events are signature-verified using the environment's configured webhook ID before settlement is applied. Provider credentials are deployment secrets, not database values. Any PCI-DSS scope or compliance claim requires separate qualified assessment and is not established by this application requirement.
-- **Data Protection and Privacy:** Sensitive personal data (pilot health certificates, identity credentials) are restricted to authorized administrators and excluded from general staff views and external AI prompts.
-- **Comprehensive Audit Logging:** Security-critical events—including login attempts, permission changes, flight readiness decisions, report publication, and financial approvals—are recorded in immutable, append-only audit logs with user identity, timestamp, and IP address.
+- **Strict Organization Isolation**: Every customer organization can view and modify only its own workforce, assets, drones, inspections, reports, and maintenance work orders.
+- **Role-Based Permissions & Separation of Duties**: Each screen and action is restricted to authorized roles. Authors and executing team members cannot approve or accept their own inspection reports, cost estimates, or maintenance work.
+- **Account & Session Protection**: Passwords are stored in encrypted form, accounts are temporarily locked for `15 minutes` after `5` consecutive failed sign-in attempts, and sessions are automatically invalidated when a user's password, role, or account status changes.
+- **Audit Trail**: Important actions — including registration, user creation, payment confirmation, flight readiness, report publication, budget approval, and work order closure — are recorded in an uneditable audit history.
+
+**Summary of Quantified Non-Functional Requirements (`NFR-01` to `NFR-06`)**
+
+| NFR ID | Category | Requirement Statement | Metric | Target Threshold | Verification Method |
+| :---: | --- | --- | --- | --- | --- |
+| `NFR-01` | Performance (System Response) | Standard list views, searches, and workflow actions must respond quickly under multi-user load. | 95th percentile (`p95`) response time and error rate. | `p95 <= 2.0 seconds` and `0%` server errors under `50` concurrent users. | Automated concurrent load test on the staging environment (`WF2-016`). |
+| `NFR-02` | Performance (AI Detection) | On-demand `YOLO11` defect detection on a single inspection photograph must complete within interactive limits. | Processing time per image (up to `10 MB` JPEG/PNG). | `<= 5.0 seconds` per image (with automatic fallback or manual entry if offline). | Automated AI inference timing test (`WF3-007`). |
+| `NFR-03` | Security (Multi-Tenant & Role Isolation) | Users must be blocked from accessing screens or records belonging to another organization or an unauthorized role. | Rejection rate for unauthorized role or cross-organization requests. | `100%` of unauthorized or cross-organization requests blocked (`0` data leaks). | Automated role-matrix and cross-organization security test suite (`WF1-005`). |
+| `NFR-04` | Security (Sign-In Protection) | Sign-in screens must block brute-force password guessing and expired sessions. | Failed sign-in lockout threshold and rate limit per network address. | Account locks for `15 minutes` after `5` failed attempts; `> 10` sign-in requests per minute blocked. | Automated authentication and rate-limit security test (`WF1-004`). |
+| `NFR-05` | Reliability (Document & PDF Integrity) | Uploaded asset documents and published PDF reports must remain intact and uneditable after publication. | File integrity match rate and post-publish edit rejection rate. | `100%` file integrity verification; `100%` of edits to published reports blocked. | Automated PDF publication and file integrity test (`WF3-016`). |
+| `NFR-06` | Maintainability (Automated Testing) | Core business rules and workflows must be continuously verified by automated tests. | Automated unit/integration coverage and functional test automation rate. | `>= 80%` backend test coverage and `>= 50%` of functional test cases automated. | Continuous integration test pipeline execution (`WF4-005`). |

@@ -11,7 +11,7 @@ from report_ooxml import parse_markdown
 
 TEMPLATE_NAME = "Report3_Software Requirement Specification.docx"
 SOURCES = ["report-3-software-requirement-specification/" + name + ".md" for name in (
-    "00-record-of-changes", "00-project-report", "01-overall-description",
+    "00-record-of-changes", "01-overall-description",
     "02-user-requirements", "03-functional-requirements", "04-non-functional-requirements",
     "05-requirement-appendix")]
 

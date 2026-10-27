@@ -4,8 +4,8 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope (updated 2026-10-22):** This report indexes eleven cases for the four
-current roles (`ADMIN`, `ORG_ADMIN`, `INSPECTOR`, `MAINTENANCE_ENGINEER`): three
+**Scope (updated 2026-10-25):** This report indexes eleven cases for the five
+current roles (`Platform Admin`, `Platform Manager`, `Organization Manager`, `Inspector`, `Maintenance Engineer`): three
 MF2 cases and eight MF3 cases. Recorded statuses are eight `Passed`; `WF3-010`,
 `WF3-011` and `WF3-012` are `Pending`. The MF3 target changed on 2026-10-22;
 existing Passed outcomes remain historical and do not verify the simplified
@@ -122,7 +122,8 @@ Recorded statuses and execution notes below preserve the historical MF2/MF3 resu
 5. FE-05 — Inspector-invoked advisory detection and human finding verification (`WF3-003`); reviewed-candidate correction/rejection (`WF3-010`) is Pending.
 6. FE-06 — report review/publication (`WF3-005`, `WF3-006`), explicit findings
    confirmation/draft choice (`WF3-011`, Pending) and post-publication per-finding
-   forwarding (`WF3-012`, Pending).
+   forwarding (`WF3-012`, Pending). `WF3-010` (Pending) covers editable pre-submission
+   evidence/findings, stale drafts, submission lock, withdrawal/return unlock and final immutability.
 7. FE-07 — maintenance and defect resolution. No case; MF4 unimplemented.
 8. FE-08 — dashboard, analytics, and notifications. No assigned case; explicit
    coverage gap.

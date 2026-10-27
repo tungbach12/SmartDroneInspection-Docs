@@ -9,6 +9,11 @@ source: "report4-software-design-document.docx"
 
 | Date | A* M, D | In charge | Change Description |
 | --- | --- | --- | --- |
-| 21 Sep 2026 | A | Project Team | Initial SmartDroneInspection Software Design Document baseline. |
-| 21 Oct 2026 | M | Project Team | Finalized Software Design Document specifying system architecture, Spring Modulith packages, PostgreSQL database schema, class specifications, and sequence diagrams for all core features. |
+| 27 Oct 2026 | A | Project Team | Version 1.0: Initial release of the Software Design Document (SDD) for SmartDroneInspection. |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+
 *A - Added M - Modified D - Deleted

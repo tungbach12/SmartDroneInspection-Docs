@@ -7,18 +7,17 @@ source: "report3-software-requirement-specification.docx"
 
 ## 2. User Requirements
 
-### 2.1 System Actors
-
-The platform defines four primary human roles across platform governance and enterprise operations, alongside automated system processing components.
+### 2.1 Actors
 
 | # | Actor | Description |
 | --- | --- | --- |
-| 1 | Platform Admin (`ADMIN`) | Governs multi-tenant platform operations, creates and manages enterprise customer workspaces, activates and renews enterprise subscriptions, configures system-wide security policies, and monitors audit logs. Does not participate in customer engineering reviews or maintenance budgeting. |
-| 2 | Organization Admin (`ORG_ADMIN`) | Manages the enterprise workspace. Responsible for workforce accounts, credential verification, drone fleet management, flight permit compliance, infrastructure asset registration, and inspection scheduling. Authorizes flight readiness, approves inspection reports for publication, forwards confirmed defects to maintenance, approves repair budgets, and performs final technical acceptance. |
-| 3 | Inspector (`INSPECTOR`) | Qualified remote pilot and inspection specialist. Accepts assigned inspection missions, defines component shot-lists, completes pre-flight safety checklists, logs field survey sessions, uploads raw image evidence, verifies AI defect candidates, authors manual findings, authors coverage disclosures, verifies report drafts, and submits reports for administrative review. |
-| 4 | Maintenance Engineer (`MAINTENANCE_ENGINEER`) | Infrastructure maintenance technician. Executes assigned repair tasks, logs labor hours, material consumption, and equipment utilization, uploads before/after repair evidence, and records completion declarations. When designated, serves as Maintenance Team Lead (planning tasks and cost estimates) or Report Author (synthesizing completion reports). |
-| — | Automated System (`SYSTEM` / AI Engine) | Automated backend services including YOLO11s defect detection microservice, LLM report drafting engine, cryptographic hashing workers, and scheduled due-cycle generators. Operates under strict human oversight and carries no autonomous approval authority. |
-| — | PayPal Payment Gateway (Optional External Service) | When configured for a deployment, creates and captures approved subscription orders through PayPal Orders v2 and provides signed webhook notifications; it has no platform role or authority and cannot set contract prices. |
+| 1 | Platform Admin | Manages platform-level user accounts, initial customer workspace accounts, standard infrastructure asset categories, and system-wide audit logs. Does not approve commercial payments, customer inspection reports, or maintenance budgets. |
+| 2 | Platform Manager | Manages commercial subscription requests, confirms bank transfer and online payments, maintains the platform's leasable drone catalog, and approves or reclaims drone leases for customer organizations. |
+| 3 | Organization Manager | Manages a customer organization's workspace, including subscriptions, drone leases, workforce accounts, owned and leased drones, infrastructure assets, inspection schedules, report publication, and maintenance budget and acceptance decisions. |
+| 4 | Inspector | Licensed drone pilot and inspection specialist who updates pilot license details, uploads flight permits, logs field flight sessions, uploads inspection photos, reviews AI defect suggestions, and drafts inspection reports. |
+| 5 | Maintenance Engineer | Engineering technician who plans repair tasks, prepares cost estimates, executes field repairs, records work logs, and prepares maintenance completion reports. |
+| 6 | Automated System (AI & Background Services) | System services that generate recurring inspection missions, send reminder notifications, detect candidate defects on photos (`YOLO11`), and draft report or repair scope suggestions under human supervision. |
+| 7 | Online Payment Gateway (PayPal) | Optional external payment service that processes online checkout for enterprise subscriptions and drone leases. |
 
 ### 2.2 Use Cases
 
@@ -26,62 +25,61 @@ The platform defines four primary human roles across platform governance and ent
 
 ```mermaid
 flowchart LR
-  PA["Platform Admin"] --> UC_SUB["Subscription & Tenant Governance"]
-  PP["Optional PayPal Gateway"] --> UC_SUB
-  OA["Organization Admin"] --> UC_ASSET["Asset & Fleet Management"]
-  OA --> UC_SCHED["Inspection Mission Scheduling"]
-  OA --> UC_AUTH["Flight Readiness Authorization"]
-  OA --> UC_REV["Report Approval & Publication"]
-  OA --> UC_MAINT_GOV["Work Order Governance & Acceptance"]
+  PA["Platform Admin"] --> UC_GOV["Manage Platform Users & Asset Categories"]
+  PM["Platform Manager"] --> UC_SUB["Manage Subscriptions & Drone Leases"]
+  PP["Online Payment Gateway"] --> UC_SUB
+  OM["Organization Manager"] --> UC_SUB
+  OM --> UC_ASSET["Manage Assets & Drone Fleet"]
+  OM --> UC_SCHED["Schedule One-Off & Recurring Inspections"]
+  OM --> UC_REV["Review & Publish Inspection Reports"]
+  OM --> UC_MAINT_GOV["Approve Maintenance Budgets & Accept Repairs"]
 
-  IN["Inspector"] --> UC_PREP["Mission Planning & Safety Checklists"]
-  IN --> UC_EXEC["Field Flight Logging & Evidence Intake"]
-  IN --> UC_DEFECT["Defect Verification & Findings Confirmation"]
-  IN --> UC_REP_AUTH["Inspection Report Drafting"]
+  IN["Inspector"] --> UC_PERMIT["Upload Flight Permit & Check Airspace"]
+  IN --> UC_EXEC["Log Field Sessions & Upload Photos"]
+  IN --> UC_DEFECT["Review AI Defects & Confirm Findings"]
+  IN --> UC_REP_AUTH["Draft & Submit Inspection Reports"]
 
-  ME["Maintenance Engineer"] --> UC_TASK["Repair Task Execution & Work Logs"]
-  ME --> UC_EST["Cost Estimation & Change Proposals"]
-  ME --> UC_COMP_AUTH["Maintenance Report Authoring"]
+  ME["Maintenance Engineer"] --> UC_TASK["Execute Repair Tasks & Verify Work Logs"]
+  ME --> UC_EST["Prepare Cost Estimates & Change Orders"]
+  ME --> UC_COMP_AUTH["Prepare Maintenance Completion Reports"]
 
-  SYS["Automated System / AI"] --> UC_AI["YOLO11s Defect Detection"]
-  SYS --> UC_LLM["LLM Report Draft Synthesis"]
+  SYS["Automated System / AI"] --> UC_AI["Detect Candidate Defects (YOLO11)"]
+  SYS --> UC_LLM["Generate Report & Repair Scope Suggestions"]
 ```
 
 #### 2.2.2 Descriptions
 
-The system defines 32 primary use cases covering the complete operational lifecycle from tenant governance to maintenance closeout.
-
 | ID | Use Case | Actors | Use Case Description |
 | --- | --- | --- | --- |
-| UC-01 | Authenticate User | All Roles, System | User signs in using verified email and password; system validates credentials, issues access/refresh tokens, enforces role-based permissions, and supports session logout. |
-| UC-02 | Manage Platform Settings & Subscription Terms | Platform Admin | Configure system-wide technical parameters and review tenant subscription requests, proposed commercial terms, and settlement records. Standard subscription pricing is application configuration, not a dynamic plan catalog; provider credentials are deployment secrets, not editable through this use case. |
-| UC-03 | Request Enterprise Subscription & Reconcile Payment | Organization Admin, Platform Admin, System, optional PayPal Gateway | Review versioned terms and standard pricing; request a standard/custom term with an optional price proposal; settle by corporate wire/invoice with Platform Admin reconciliation, or use optional configured PayPal checkout only for a platform-approved contract amount. Activate entitlement only after authorized, verified settlement. |
-| UC-04 | Register Infrastructure Asset | Organization Admin, System | Register physical infrastructure assets (bridges, towers, facilities), specify asset specifications, upload engineering drawings, and assign a default responsible Inspector and Drone. |
-| UC-05 | Manage Workforce Credentials | Organization Admin, System | Provision Inspector and Maintenance Engineer accounts; record professional pilot licenses, safety certifications, and track document expiration dates. |
-| UC-06 | Manage Drone Fleet & Permits | Organization Admin, System | Register drone hardware (model, serial number, serviceability status); link government-issued flight permits and legal authorizations. |
-| UC-07 | Schedule Inspection Mission | Organization Admin, System | Create scheduled or ad-hoc inspection missions, define inspection scope and time windows, inherit default Inspector and Drone assignments, and detect resource scheduling conflicts. |
-| UC-08 | Reassign Inspection Pair | Organization Admin, System | Reassign the designated Inspector or Drone for an inspection mission with mandatory justification; revalidate availability and invalidate outdated readiness approvals. |
-| UC-09 | Respond to Mission Assignment | Inspector, System | Assigned Inspector reviews mission parameters and accepts or rejects the assignment; rejection requires a mandatory reason and returns the mission to the administrator. |
-| UC-10 | Authorize Flight Readiness | Organization Admin, Inspector, System | Review submitted mission preparation, verify valid flight permits, remote pilot credentials, and weather parameters; issue formal readiness approval or return for revision. |
-| UC-11 | Prepare Inspection Shot-List | Inspector | Define required structural component shot-lists, capture angles, ground sampling distance (GSD) requirements, and complete safety acknowledgments. |
-| UC-12 | Log Field Flight Session | Inspector, System | Verify pre-flight checklist on site; start field session against active readiness approval; record session completion, pause, postponement, or abort with field notes. |
-| UC-13 | Review Evidence Coverage | Inspector, System | Review captured visual media against planned shot-lists; disclose coverage and limitations in the report, or request supplementary field sessions in MF2. |
-| UC-14 | Ingest Digital Evidence | Inspector, Maintenance Engineer, System | Upload high-resolution aerial photographs and telemetry; system extracts EXIF/GPS metadata and rejects duplicate filenames within inspection scope. |
-| UC-15 | Verify Defect Findings | Inspector, System | Review AI defect candidate suggestions; confirm, modify, or reject candidates; record manual defect observations; confirm official findings inventory. |
-| UC-16 | Select Report Drafting Method | Inspector, System / LLM | Following findings confirmation, select automated LLM-assisted section drafting or manual structured authoring; system enforces input consistency. |
-| UC-17 | Verify Inspection Report Draft | Inspector | Review and edit synthesized report sections (Executive Summary, Scope, Methodology, Finding Discussions); ensure factual alignment with verified evidence; submit for review. |
-| UC-18 | Approve Inspection Report | Organization Admin, System | Independent administrator reviews submitted report draft and confirmed defect findings; approves report for formal release or returns to author with comments. |
-| UC-19 | Publish Inspection Report | System, Organization Admin | Compile approved report into an immutable, structured PDF deliverable; record cryptographic SHA-256 hash and archive publication record. |
-| UC-20 | Forward Defects to Maintenance | Organization Admin, System | Review confirmed findings from published report; select repair-required defects in batch and hand them over as candidates for maintenance remediation. |
-| UC-21 | Publish Report Correction | Report Author, Organization Admin, System | Issue an amended inspection report version to rectify administrative errors; link to original report while preserving complete historical revision trail. |
-| UC-22 | Monitor Operations Dashboard | All Roles, System | Access role-tailored dashboards displaying active missions, pending approvals, defect severities, maintenance tasks, and compliance alerts. |
-| UC-23 | Create Maintenance Work Order | Organization Admin, System | Create formal maintenance work order referencing confirmed defect candidates; establish corrective scope, priority level, and target completion deadlines. |
-| UC-24 | Formulate Repair Scope | Maintenance Team Lead | Assess physical defects, determine engineering repair methods, decompose work into specific tasks, and define technical acceptance criteria. |
-| UC-25 | Prepare Cost Estimate | Maintenance Team Lead, System | Formulate itemized repair estimates covering labor hours, replacement materials, equipment rentals, and specialized services; calculate exact decimal baseline totals. |
-| UC-26 | Approve Repair Budget & Team | Organization Admin, System | Designate engineering team members, appoint Team Lead and Report Author; review itemized estimate and formally approve scope and budget baseline. |
-| UC-27 | Log Repair Execution | Assigned Maintenance Engineers, Team Lead | Log daily work execution, labor hours, material consumption, and task completion notes; update real-time task progress. |
-| UC-28 | Submit Repair Evidence | Assigned Maintenance Engineers, Report Author | Upload before-and-after photographs, material test certificates, and structural inspection logs demonstrating defect rectification. |
-| UC-29 | Manage Scope & Cost Changes | Maintenance Team Lead, Organization Admin, System | Submit formal Change Requests for unexpected site conditions requiring additional labor or materials; administrator approves or rejects proposed variance. |
-| UC-30 | Author Maintenance Report | Designated Report Author, System / LLM | Synthesize maintenance completion report from task logs, repair evidence, and financial actuals; verify technical accuracy and submit for acceptance. |
-| UC-31 | Accept Work & Close Order | Independent Organization Admin, System | Conduct independent technical review of repaired assets; verify test results and before/after proof; reconcile actual costs against budget; formally close work order. |
-| UC-32 | Audit Inspection & Repair Trail | Authorized Roles, System | Query end-to-end audit logs tracking asset condition history, flight authorizations, evidence provenance, reviewer decisions, and maintenance expenditures. |
+| UC-01 | Sign In & Manage Session | All Roles | Sign in with email and password, set up a new password on first login, and sign out across web and mobile devices. |
+| UC-02 | Manage Platform Accounts & Asset Categories | Platform Admin | Create and manage platform accounts, initial customer manager accounts, and standard infrastructure asset categories. |
+| UC-03 | Request Subscription & Confirm Payment | Organization Manager, Platform Manager, Payment Gateway | Request a 1- to 120-month enterprise subscription and activate it via bank transfer confirmation or online PayPal payment. |
+| UC-04 | Register Infrastructure Asset & Documents | Organization Manager | Register infrastructure assets with map coordinates, standard inspection checkpoints, and reference engineering documents, or archive completed assets. |
+| UC-05 | Manage Workforce & Pilot License Profile | Organization Manager, Inspector | Create Inspector and Maintenance Engineer accounts and allow Inspectors to record their remote pilot license details. |
+| UC-06 | Manage Drone Fleet & Drone Equipment Leasing | Organization Manager, Platform Manager, Payment Gateway | Register owned drones, lease drones from the platform catalog, and return leased drones when a contract ends. |
+| UC-07 | Schedule One-Off or Recurring Inspection | Organization Manager, System | Schedule a one-off inspection or set up a weekly, monthly, or yearly recurring inspection schedule with automatic conflict checking. |
+| UC-08 | Reassign Inspection Resources | Organization Manager | Change the assigned Inspector or Drone for a scheduled inspection after checking availability. |
+| UC-09 | Upload Flight Permit | Inspector, Organization Manager | Upload the aviation flight permit for an assigned inspection to mark the mission `Ready for Flight`. |
+| UC-10 | Log Field Flight Session | Inspector | Record pre-flight safety notes and log the start, postponement, abort, or completion of an on-site drone flight session. |
+| UC-11 | Start Additional Field Session | Inspector | Start an additional flight session when extra aerial photos are needed before finalizing the findings. |
+| UC-12 | Check Airspace & No-Fly Zones | Organization Manager, Inspector | View the interactive Vietnam airspace map to check whether asset or mission coordinates fall inside a No-Fly Zone or Restricted Zone. |
+| UC-13 | Upload & Manage Inspection Photos | Inspector, Organization Manager | Upload inspection photos, view capture time and GPS location, tag structural locations, and retire unusable photos. |
+| UC-14 | Run AI Defect Detection | Inspector, System | Run `YOLO11` visual detection on selected inspection photos to highlight candidate structural defects. |
+| UC-15 | Verify & Confirm Defect Findings | Inspector | Confirm, edit, or remove AI-suggested defects, add manual findings, and lock the final findings list for reporting. |
+| UC-16 | Generate AI or Manual Report Draft | Inspector, System | Create a structured inspection report draft using AI assistance or a manual template based on the confirmed findings. |
+| UC-17 | Verify & Submit Inspection Report | Inspector | Edit report sections, preview the formatted PDF, verify accuracy, and submit the report to an Organization Manager. |
+| UC-18 | Review Inspection Report | Organization Manager | Review a submitted inspection report and either approve it for publication or return it to the author with comments. |
+| UC-19 | Publish Official PDF Report | Organization Manager, System | Generate and lock the final A4 PDF inspection report for viewing and download. |
+| UC-20 | Forward Defects to Maintenance | Organization Manager | Select confirmed defects from a published report that require physical repair and hand them off to maintenance. |
+| UC-21 | Publish Amended Inspection Report | Inspector, Organization Manager | Create and publish a new report version when corrections are needed while keeping previous published versions in history. |
+| UC-22 | View Dashboard, Calendar & Notifications | All Roles | View role-specific dashboards, check the Inspector Schedule Calendar, and read in-app notifications. |
+| UC-23 | Create Maintenance Work Order | Organization Manager | Create a maintenance work order from a forwarded defect with priority, due date, repair scope, and acceptance criteria. |
+| UC-24 | Use AI Repair Scope Advisor & Plan Tasks | Maintenance Engineer, Organization Manager, System | Generate suggested repair steps from civil engineering standards and break the work order down into repair tasks. |
+| UC-25 | Prepare Repair Cost Estimate | Maintenance Engineer | Create an itemized cost estimate covering labor, materials, equipment, and services for a work order. |
+| UC-26 | Assign Maintenance Team & Approve Budget | Organization Manager | Assign the Team Lead, Report Author, Team Members, and independent Accepting Reviewer, and approve or reject the cost estimate. |
+| UC-27 | Log & Verify Field Repair Work | Maintenance Engineer, Team Lead | Release and start repair work, log task hours and test readings, verify work logs as Team Lead, and mark repair work complete. |
+| UC-28 | Upload Repair Evidence | Maintenance Engineer | Record before-and-after repair conditions and field test measurements for completed tasks. |
+| UC-29 | Request & Approve Change Order | Maintenance Engineer, Organization Manager | Submit and review a Change Order when unexpected site conditions require budget or scope adjustments. |
+| UC-30 | Submit Maintenance Completion Report | Maintenance Engineer (Report Author) | Prepare, verify, and submit the maintenance completion report once physical repair tasks are finished. |
+| UC-31 | Accept Maintenance Work & Close Work Order | Organization Manager | Perform independent technical acceptance (accept, request rework, or request re-inspection), record actual costs, and close the work order. |
+| UC-32 | View Activity & Audit History | Authorized Roles | Review the history of account actions, approvals, published reports, and closed work orders. |
