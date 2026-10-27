@@ -122,7 +122,8 @@ Recorded statuses and execution notes below preserve the historical MF2/MF3 resu
 5. FE-05 — Inspector-invoked advisory detection and human finding verification (`WF3-003`); reviewed-candidate correction/rejection (`WF3-010`) is Pending.
 6. FE-06 — report review/publication (`WF3-005`, `WF3-006`), explicit findings
    confirmation/draft choice (`WF3-011`, Pending) and post-publication per-finding
-   forwarding (`WF3-012`, Pending).
+   forwarding (`WF3-012`, Pending). `WF3-010` (Pending) covers editable pre-submission
+   evidence/findings, stale drafts, submission lock, withdrawal/return unlock and final immutability.
 7. FE-07 — maintenance and defect resolution. No case; MF4 unimplemented.
 8. FE-08 — dashboard, analytics, and notifications. No assigned case; explicit
    coverage gap.
