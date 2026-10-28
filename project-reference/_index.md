@@ -11,8 +11,6 @@ This section holds the stable references that implementation and reports are che
 
 - [Business flows](business-flows.md): current four-role Enterprise SaaS flows MF1-MF4 with
   actor-labelled steps. Requirements, not implementation.
-- [Database design](database-design.md): the 40-table target PostgreSQL schema, constraints,
-  indexes and authorization invariants.
 - [Error-prevention guide](error-prevention.md): practical documentation, testing and demo checks.
 
 ## Retained history
