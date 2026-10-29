@@ -921,33 +921,40 @@ Refer to `MaintenanceExecutionController` and `MaintenanceReportRenderer` in **S
 
 Refer to Steps 6–7 of the Sequence Diagram in **Section 3.10.2**.
 
-#### 3.12.3 WF-04 Activity Diagram — Maintenance Work Order Lifecycle & Cost Reconciliation
+#### 3.12.3 WF-04 Activity Diagram — Customer-Driven Maintenance, Reinspection & Cost Reconciliation
 
 ```mermaid
-%% title: WF-04 Activity Diagram - Maintenance Work Order Lifecycle and Cost Reconciliation
+%% title: WF-04 Activity Diagram - Customer-Driven Maintenance, Reinspection and Cost Reconciliation
 flowchart TD
-  subgraph OM4["Organization Manager (Budget Approver & Independent Reviewer)"]
-    D1(["Start: Create WorkOrder from Forwarded Finding -> WorkOrder: DRAFT"])
-    D2["Assign Team (LEAD, REPORT_AUTHOR, MEMBER) & Independent Reviewer"]
+  subgraph C4["Customer (CUSTOMER)"]
+    D1(["Start: Create WorkOrder from Published Finding -> WorkOrder: DRAFT"])
+    D2["Assign Team (LEAD, REPORT_AUTHOR, MEMBER)"]
     D5{"Approve Estimate\nBaseline?"}
     D6["Approve Estimate -> Estimate: APPROVED, WorkOrder: APPROVED"]
-    D10{"Independent Technical\nAcceptance Decision?"}
-    D11["Record ACCEPTED -> Render Completion PDF + SHA-256 -> WorkOrder: ACCEPTED"]
-    D12["Record REWORK_REQUIRED / REINSPECTION_REQUIRED"]
-    D13["Reconcile Actual Cost Lines vs. Baseline + Change Deltas -> COST_RECONCILED"]
-    D14(["End: Close WorkOrder (CLOSED) & Update Inspection to COMPLETED"])
+    D10["Forward Versioned Maintenance Report + Defects to Manager -> AWAITING_REINSPECTION"]
+    D13{"Customer Decision on\nPublished Reinspection Report?"}
+    D14["Record ACCEPTED -> WorkOrder: ACCEPTED"]
+    D15["Record REPAIR_REQUIRED -> WorkOrder: REPAIR_SUPPLEMENT_REQUIRED"]
+    D16["Reconcile Actual Cost Lines vs. Baseline + Change Deltas -> COST_RECONCILED"]
+    D17(["End: Close WorkOrder (CLOSED)"])
   end
 
   subgraph ME4["Maintenance Engineer Team (LEAD, REPORT_AUTHOR, MEMBER)"]
     D3["Invoke RAG Scope Advisor (TCVN/EN/ISO), Plan Tasks & Submit Estimate -> AWAITING_APPROVAL"]
     D7["Release (READY) & Start (IN_PROGRESS) WorkOrder"]
     D8["Log Task WorkLogs (SUBMITTED), Lead Verifies (VERIFIED) & Declare Complete -> WORK_COMPLETED"]
-    D9["Author, Verify (AUTHOR_VERIFIED) & Submit Completion Report -> SUBMITTED_FOR_ACCEPTANCE"]
+    D9["Author, Verify (AUTHOR_VERIFIED) & Submit Maintenance Report -> AWAITING_CUSTOMER_ACCEPTANCE"]
+    D18["Resume Supplement Work -> IN_PROGRESS"]
+  end
+
+  subgraph M4["Manager (MANAGER) & Inspector (INSPECTOR) via MF3"]
+    D11["Manager Assigns New Linked Inspection -> REINSPECTION_IN_PROGRESS"]
+    D12["Inspector Executes MF3 & Manager Publishes Reinspection Report -> AWAITING_CUSTOMER_ACCEPTANCE"]
   end
 
   D1 --> D2 --> D3 --> D5
   D5 -->|"Reject"| D3
-  D5 -->|"Approve"| D6 --> D7 --> D8 --> D9 --> D10
-  D10 -->|"Rework / Reinspection"| D12 --> D8
-  D10 -->|"Accepted"| D11 --> D13 --> D14
+  D5 -->|"Approve"| D6 --> D7 --> D8 --> D9 --> D10 --> D11 --> D12 --> D13
+  D13 -->|"Repair Required"| D15 --> D18 --> D8
+  D13 -->|"Accepted"| D14 --> D16 --> D17
 ```

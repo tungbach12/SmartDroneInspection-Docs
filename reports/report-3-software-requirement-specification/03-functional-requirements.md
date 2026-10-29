@@ -1006,8 +1006,8 @@ erDiagram
 ### 3.11 FE-10 Maintenance Planning & AI Scope Advisory
 
 #### 3.11.1 Work Order Creation & AI Repair Scope Advisory
-- **Function trigger**: An `Organization Manager` or `Maintenance Engineer` opens **Maintenance Work Orders**, selects a forwarded defect, clicks **Suggest Repair Scope**, and submits the **Create Work Order** form.
-- **Function description**: Actors: `Organization Manager`, `Maintenance Engineer`, `Automated System`. Suggests recommended repair methods, acceptance criteria, and repair tasks based on civil engineering standards (`TCVN`, `EN`, `ISO`), and creates a new Maintenance Work Order linked to the defect and published inspection report.
+- **Function trigger**: A `Customer` opens **Maintenance Work Orders**, selects a confirmed defect from a published Inspection Report, optionally clicks **Suggest Repair Scope**, and submits the **Create Work Order** form.
+- **Function description**: Actors: `Customer`, `Maintenance Engineer`, `Automated System`. Suggests recommended repair methods, acceptance criteria, and repair tasks based on civil engineering standards (`TCVN`, `EN`, `ISO`), and creates a new Maintenance Work Order linked to the defect and published inspection report.
 - **Screen layout**: Mock-up prototype of the `Work Order Creation & AI Repair Scope Advisory` screen:
 
 ```mermaid
@@ -1016,13 +1016,13 @@ erDiagram
 
 - **Function Details**:
   - *Data & Validation*: Requires **Forwarded Defect**, **Published Report Version**, **Priority** (`Low`, `Normal`, `High`, `Urgent`), **Due Date**, **Repair Scope**, and **Acceptance Criteria**.
-  - *Business Rules*: Enforces `BR-31` and `BR-45`. Work orders can be created only from confirmed defects that were forwarded from a `Published` inspection report.
+  - *Business Rules*: Enforces `BR-31` and `BR-45`. Work orders can be created only by the Asset's `Customer` from confirmed defects that were published in an inspection report.
   - *Normal Cases*: **Suggest Repair Scope** fills in recommended repair steps and acceptance criteria from engineering standards. Submitting the form creates the work order in `Draft` status (`MSG05`).
-  - *Abnormal Cases*: Creating a work order without required scope fields or from an unforwarded finding is rejected (`MSG02`).
+  - *Abnormal Cases*: Creating a work order without required scope fields or from an unpublished finding is rejected (`MSG02`).
 
 #### 3.11.2 Maintenance Team & Task Assignment
-- **Function trigger**: An `Organization Manager` opens a work order to assign the **Maintenance Team & Reviewer**, and the `Team Lead` adds repair tasks under the **Tasks** tab.
-- **Function description**: Actors: `Organization Manager`, `Maintenance Engineer` (`Team Lead`). Assigns the repair team (`Team Lead`, `Report Author`, `Team Members`) and an independent `Accepting Reviewer` (`Organization Manager`), and breaks the repair scope down into planned tasks.
+- **Function trigger**: A `Customer` opens a work order to assign the **Maintenance Team**, and the `Team Lead` adds repair tasks under the **Tasks** tab.
+- **Function description**: Actors: `Customer`, `Maintenance Engineer` (`Team Lead`). Assigns the repair team (`Team Lead`, `Report Author`, `Team Members`), and breaks the repair scope down into planned tasks.
 - **Screen layout**: Mock-up prototype of the `Maintenance Team & Task Assignment` screen:
 
 ```mermaid
@@ -1030,18 +1030,18 @@ erDiagram
 ```
 
 - **Function Details**:
-  - *Data & Validation*: Team assignment requires one **Team Lead**, one **Report Author**, **Team Members**, and one independent **Accepting Reviewer**. Each task requires **Task Name**, **Repair Method**, **Acceptance Criteria**, **Planned Dates**, and **Assigned Engineer**.
-  - *Business Rules*: Enforces `BR-45` and `BR-46`. The Accepting Reviewer must not be a member of the executing repair team.
+  - *Data & Validation*: Team assignment requires one **Team Lead**, one **Report Author**, and optional **Team Members**. Each task requires **Task Name**, **Repair Method**, **Acceptance Criteria**, **Planned Dates**, and **Assigned Engineer**.
+  - *Business Rules*: Enforces `BR-45` and `BR-46`. The executing repair team members cannot approve their own estimates or make final customer acceptance decisions.
   - *Normal Cases*: Saving the team notifies the assigned engineers (`MSG06`), and adding tasks creates them in `Planned` status.
-  - *Abnormal Cases*: Selecting an Accepting Reviewer who is part of the repair team is rejected (`MSG31`, `MSG44`).
+  - *Abnormal Cases*: Assigning engineers outside the Customer's organization scope is rejected (`MSG31`, `MSG44`).
 
 ---
 
 ### 3.12 FE-11 Cost Estimation & Repair Execution
 
 #### 3.12.1 Cost Estimation, Budget Approval & Change Orders
-- **Function trigger**: A `Maintenance Engineer` submits a **Cost Estimate** or **Change Order** on a work order, and an `Organization Manager` clicks **Approve**, **Reject**, or **Return**.
-- **Function description**: Actors: `Maintenance Engineer`, `Organization Manager`. Manages itemized repair cost estimates (`Labor`, `Material`, `Equipment`, `Service`), requires Organization Manager approval of the repair budget before work begins, and handles Change Orders when additional work or budget is needed.
+- **Function trigger**: A `Maintenance Engineer` submits a **Cost Estimate** or **Change Order** on a work order, and the `Customer` clicks **Approve**, **Reject**, or **Return**.
+- **Function description**: Actors: `Maintenance Engineer`, `Customer`. Manages itemized repair cost estimates (`Labor`, `Material`, `Equipment`, `Service`), requires Customer approval of the repair budget before work begins, and handles Change Orders when additional work or budget is needed.
 - **Screen layout**: Mock-up prototype of the `Cost Estimation, Budget Approval & Change Orders` screen:
 
 ```mermaid
@@ -1051,7 +1051,7 @@ erDiagram
 - **Function Details**:
   - *Data & Validation*: Each cost line requires **Category**, **Description**, **Quantity (`>= 0`)**, **Unit**, **Unit Price (`>= 0`)**, and **Currency**. Each Change Order requires **Reason** and **Proposed Budget Change**.
   - *Business Rules*: Enforces `BR-12`, `BR-32`, `BR-34`, `BR-36`, and `BR-47`. Approved Change Orders update the authorized budget ceiling while keeping the original approved estimate in history.
-  - *Normal Cases*: Submitting an estimate moves the work order from `Draft` to `Awaiting Approval`. Manager approval moves it to `Approved` (`MSG34`) (or `Rework Required` if rejected). Submitting a Change Order places it in `Awaiting Approval` (`MSG23`) until the manager decides.
+  - *Normal Cases*: Submitting an estimate moves the work order from `Draft` to `Awaiting Approval`. Customer approval moves it to `Approved` (`MSG34`) (or `Rework Required` if rejected). Submitting a Change Order places it in `Awaiting Approval` (`MSG23`) until the Customer decides.
   - *Abnormal Cases*: Negative quantities or prices (`MSG41`) or attempts by an engineer to approve their own estimate are rejected.
 
 #### 3.12.2 Field Repair Execution & Work Log Verification
@@ -1073,9 +1073,9 @@ erDiagram
 
 ### 3.13 FE-12 Maintenance Acceptance & Cost Closure
 
-#### 3.13.1 Maintenance Completion Reporting & Technical Acceptance
-- **Function trigger**: The `Report Author` (`Maintenance Engineer`) verifies and submits the **Maintenance Completion Report**, and the independent `Organization Manager` (`Accepting Reviewer`) records the **Acceptance Decision** (`Accepted`, `Rework Required`, or `Re-Inspection Required`).
-- **Function description**: Actors: `Maintenance Engineer` (`Report Author`), `Organization Manager` (`Accepting Reviewer`), `Automated System`. Submits the maintenance completion report for independent review, generates the final completion report PDF when accepted, or triggers rework or a follow-up drone re-inspection when needed.
+#### 3.13.1 Maintenance Completion Reporting, Reinspection & Technical Acceptance
+- **Function trigger**: The `Report Author` (`Maintenance Engineer`) verifies and submits the **Maintenance Completion Report** to the `Customer`. The `Customer` either accepts the repair, returns it for repair/supplement, or forwards a versioned report with selected defects to the `Manager` for a new reinspection mission.
+- **Function description**: Actors: `Maintenance Engineer` (`Report Author`), `Customer`, `Manager`, `Inspector`. Submits the maintenance completion report for customer review. When reinspection is required, the Customer submits an explicit request to the platform Manager; the Manager assigns an Inspector and drone to execute an MF3 inspection; the Manager reviews and publishes the reinspection report; and the Customer makes an independent acceptance decision on the published result.
 - **Screen layout**: Mock-up prototype of the `Maintenance Completion Reporting & Technical Acceptance` screen:
 
 ```mermaid
@@ -1083,22 +1083,22 @@ erDiagram
 ```
 
 - **Function Details**:
-  - *Data & Validation*: Requires **Completion Summary & Test Results**, **Acceptance Decision** (`Accepted`, `Rework Required`, `Re-Inspection Required`), **Review Comments**, and **Checklist Confirmation**.
-  - *Business Rules*: Enforces `BR-27`, `BR-28`, `BR-35`, `BR-37`, `BR-45`, and `BR-49`. Members of the repair team cannot accept their own work order (`MSG44`).
-  - *Normal Cases*: Submitting the report moves the work order from `Work Completed` to `Submitted for Acceptance` (`MSG46`). Choosing `Accepted` generates the final PDF and moves the work order to `Accepted`. Choosing `Rework Required` returns the report (`MSG30`) so the team can resume work (`In Progress`). Choosing `Re-Inspection Required` automatically creates a linked follow-up inspection mission.
-  - *Abnormal Cases*: Any attempt by a repair team member to accept the work order is rejected (`MSG44`).
+  - *Data & Validation*: Requires **Maintenance Report Version**, **Selected Defects to Verify**, **Customer Decision** (`Accepted`, `Repair Required`), **Comments**, and independent inspection report publication.
+  - *Business Rules*: Enforces `BR-27`, `BR-28`, `BR-35`, `BR-37`, `BR-45`, and `BR-49`. Reinspection never auto-creates an inspection mission from an acceptance rejection; it requires an explicit Customer-to-Manager request and Manager assignment. If reinspection defects remain unresolved, the Customer returns the order to repair/supplement.
+  - *Normal Cases*: Submitting the report moves the work order from `Work Completed` to `Awaiting Customer Acceptance`. Customer forwarding moves it to `Awaiting Reinspection`; Manager assignment moves it to `Reinspection in Progress`; MF3 publication moves it to `Awaiting Customer Acceptance`. If the Customer records `Accepted`, the order moves to `Accepted`. If the Customer records `Repair Required`, the order moves to `Repair Supplement Required` so engineers can resume work.
+  - *Abnormal Cases*: Any attempt to reconcile costs or close a work order before published reinspection result and Customer acceptance is blocked (`MSG44`, `MSG45`).
 
 #### 3.13.2 Cost Reconciliation & Work Order Closure
-- **Function trigger**: An `Organization Manager` opens an `Accepted` work order, enters the **Actual Cost Lines**, clicks **Reconcile Costs**, and clicks **Close Work Order**.
-- **Function description**: Actors: `Organization Manager`. Records the actual labor, material, equipment, and service costs spent on the repair, compares actual spending against the approved budget, and closes the work order and parent inspection.
+- **Function trigger**: A `Customer` opens an `Accepted` work order, enters the **Actual Cost Lines**, clicks **Reconcile Costs**, and clicks **Close Work Order**.
+- **Function description**: Actors: `Customer`. Records the actual labor, material, equipment, and service costs spent on the repair, compares actual spending against the approved budget, and closes the work order.
 - **Screen layout**: Mock-up prototype of the `Cost Reconciliation & Work Order Closure` screen:
 
 ```mermaid
 %% title: Screen Layout Placeholder - 3.13.2 Cost Reconciliation & Work Order Closure
 ```
 
-- **Function Details**:
+- **Function Details*:
   - *Data & Validation*: Requires itemized **Actual Cost Lines** (`Category`, `Description`, `Quantity >= 0`, `Unit`, `Unit Price >= 0`, `Currency`).
-  - *Business Rules*: Enforces `BR-12`, `BR-36`, `BR-38`, and `BR-47`. A work order can be closed only after technical acceptance (`Accepted`) and cost reconciliation (`Cost Reconciled`) are both completed.
-  - *Normal Cases*: Saving actual costs calculates the budget variance and moves the work order from `Accepted` to `Cost Reconciled`. Clicking **Close Work Order** moves the work order to `Closed` (`MSG25`) and marks the parent inspection `Completed`.
+  - *Business Rules*: Enforces `BR-12`, `BR-36`, `BR-38`, and `BR-47`. A work order can be closed only after customer technical acceptance (`Accepted`) and cost reconciliation (`Cost Reconciled`) are both completed.
+  - *Normal Cases*: Saving actual costs calculates the budget variance and moves the work order from `Accepted` to `Cost Reconciled`. Clicking **Close Work Order** moves the work order to `Closed` (`MSG25`).
   - *Abnormal Cases*: Attempting to close a work order before reconciling actual costs is blocked (`MSG45`).

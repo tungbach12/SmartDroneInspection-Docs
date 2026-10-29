@@ -10,8 +10,8 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | GFA26SE139 |
-| Test round | 2026-10-27 Review 2 Full 64-Case Baseline across 12 Features FE-01 to FE-12 (3 features / 16 test cases per team member). Backed by 850 passing backend JUnit/Testcontainers tests, 602 passing frontend Vitest tests, and 20 passing Flutter mobile tests. |
-| Last updated | 2026-10-27 (Report 5 version 5.00; 64 cases: 60 Passed, 0 Failed, 4 Pending, 93.75% coverage) |
+| Test round | 2026-10-29 WF4 customer-driven reinspection change; impacted FE-12 cases reset pending; baseline execution history retained where unchanged. |
+| Last updated | 2026-10-29 (65 tracked cases: 55 Passed, 0 Failed, 10 Pending; 84.62% executed coverage) |
 
 ## Module summary
 
@@ -28,7 +28,7 @@ round.
 | 9 | Inspection Reporting & Publication | 4 | 0 | 1 | 0 | 5 |
 | 10 | Maintenance Planning & AI Scope Advisory | 5 | 0 | 0 | 0 | 5 |
 | 11 | Cost Estimation & Repair Execution | 5 | 0 | 1 | 0 | 6 |
-| 12 | Maintenance Acceptance & Cost Closure | 5 | 0 | 0 | 0 | 5 |
-| **Subtotal** |  | **60** | **0** | **5** | **0** | **65** |
-| **Review 2 baseline** |  | **60** | **0** | **4** | **0** | **64** |
+| 12 | Maintenance Acceptance & Cost Closure | 0 | 0 | 5 | 0 | 5 |
+| **Subtotal** |  | **55** | **0** | **10** | **0** | **65** |
+| **Review 2 baseline** |  | **55** | **0** | **9** | **0** | **64** |
 | **Implementation-specific pending** |  | **0** | **0** | **1** | **0** | **1** |
