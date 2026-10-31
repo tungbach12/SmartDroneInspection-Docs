@@ -559,7 +559,7 @@ erDiagram
 | 15 | `field_sessions` | Records individual on-site flight survey sessions, pre-flight safety checklist notes, and operational outcomes (`PLANNED`, `IN_PROGRESS`, `FIELD_COMPLETED`, `POSTPONED`, `ABORTED`). (`12` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `inspection_id` references `inspections(id)`|
 | 16 | `evidence` | Digital media captures collected during inspection field sessions with MinIO object keys, EXIF capture timestamps, GPS coordinates, location descriptions, and soft-delete flag (`is_deleted`). (`13` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `field_session_id` references `field_sessions(id)`, `inspection_id` references `inspections(id)`|
 | 17 | `findings` | Unified defect findings table managing YOLO11 AI defect candidates (`PENDING`) and human-verified official findings (`CONFIRMED`) with bounding boxes and maintenance forwarding timestamps. (`15` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `evidence_id` references `evidence(id)`, `inspection_id` references `inspections(id)`|
-| 18 | `inspection_reports` | Versioned inspection report deliverables (`DRAFT`, `AUTHOR_VERIFIED`, `SUBMITTED`, `RETURNED`, `APPROVED`, `PUBLISHED`, `SUPERSEDED`), review gates, rendered PDF object keys, and SHA-256 checksums. (`13` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `reviewer_user_id` references `users(id)`, `inspection_id` references `inspections(id)`|
+| 18 | `inspection_reports` | Versioned inspection report deliverables (`SUBMITTED`, `RETURNED`, `APPROVED`, `PUBLISHED`, `SUPERSEDED`), review gates, rendered PDF object keys, and SHA-256 checksums. (`13` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `reviewer_user_id` references `users(id)`, `inspection_id` references `inspections(id)`|
 | 19 | `maintenance_work_orders` | Remediation projects initiated from confirmed inspection findings, tracking corrective scope, acceptance criteria, team role assignments, and 12-state lifecycle status. (`18` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `asset_id` references `assets(id)`, `accepting_reviewer_user_id` references `users(id)`, `budget_approver_user_id` references `users(id)`, `organization_id` references `organizations(id)`, `owner_user_id` references `users(id)`, `report_author_user_id` references `users(id)`, `source_finding_id` references `findings(id)`, `source_report_version_id` references `inspection_reports(id)`, `team_lead_user_id` references `users(id)`|
 | 20 | `maintenance_team_members` | Engineering team members allocated to a maintenance work order (`LEAD`, `REPORT_AUTHOR`, `MEMBER`) with partial unique indexes on active leadership roles. (`10` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `assigned_by_user_id` references `users(id)`, `engineer_user_id` references `users(id)`, `work_order_id` references `maintenance_work_orders(id)`|
 | 21 | `maintenance_tasks` | Decomposed repair tasks (`PLANNED`, `READY`, `IN_PROGRESS`, `PAUSED_FOR_CHANGE`, `WORK_COMPLETED`, `REWORK_REQUIRED`, `ACCEPTED`, `CANCELLED`) with technical methods and assigned engineers. (`13` columns).<br>- Primary keys: `id` (UUID)<br>- Foreign keys: `assigned_engineer_user_id` references `users(id)`, `work_order_id` references `maintenance_work_orders(id)`|
@@ -642,12 +642,10 @@ stateDiagram-v2
 %% title: InspectionReport Version Lifecycle State Machine Diagram
 stateDiagram-v2
   direction LR
-  [*] --> RPT_DRAFT : createDraft (AI / Manual) [FR-13]
-  RPT_DRAFT --> AUTHOR_VERIFIED : verifyAsAuthor() [FR-13]
-  AUTHOR_VERIFIED --> SUBMITTED : submit() [FR-13]
-  SUBMITTED --> RPT_DRAFT : withdraw() (before review) [FR-13]
+  [*] --> SUBMITTED : submitReport (auto-compiled from confirmed findings) [FR-13]
   SUBMITTED --> RETURNED : reviewBy(approve=false, reason) [FR-14]
-  RETURNED --> AUTHOR_VERIFIED : verifyAsAuthor() (after edit) [FR-13]
+  SUBMITTED --> RETURNED : withdraw() (before review decision) [FR-13]
+  RETURNED --> SUBMITTED : submit() (after re-confirming findings) [FR-13]
   SUBMITTED --> APPROVED : reviewBy(approve=true) [FR-14]
   APPROVED --> PUBLISHED : publish() (renders PDF to MinIO) [FR-14]
   PUBLISHED --> SUPERSEDED : newer version PUBLISHED [FR-14]
@@ -657,10 +655,10 @@ stateDiagram-v2
 
 | Domain Entity | Lifecycle States & Key Transitions | Business Rule Guards |
 | --- | --- | --- |
-| **Inspection Mission**<br>(`InspectionStatus`) | - **States**: `SCHEDULED`, `IN_PROGRESS`, `FIELD_COMPLETED`, `UNDER_REVIEW`, `COMPLETED`, `CANCELLED`<br>- **Key Steps**: Create (`-> SCHEDULED`), Field Session (`-> IN_PROGRESS -> FIELD_COMPLETED`), Submit Report (`-> UNDER_REVIEW`), Publish / Close (`-> COMPLETED`) | - Flight readiness verified via permit on file (`hasFlightPermit()`) and active pilot licensing.<br>- Findings confirmation and report drafting occur within `FIELD_COMPLETED`; publication moves directly to `COMPLETED`. |
+| **Inspection Mission**<br>(`InspectionStatus`) | - **States**: `SCHEDULED`, `IN_PROGRESS`, `FIELD_COMPLETED`, `UNDER_REVIEW`, `COMPLETED`, `CANCELLED`<br>- **Key Steps**: Create (`-> SCHEDULED`), Field Session (`-> IN_PROGRESS -> FIELD_COMPLETED`), Submit Report (`-> UNDER_REVIEW`), Publish / Close (`-> COMPLETED`) | - Flight readiness verified via permit on file (`hasFlightPermit()`) and active pilot licensing.<br>- Findings confirmation and report submission occur within `FIELD_COMPLETED`; publication moves directly to `COMPLETED`. |
 | **Field Session**<br>(`FieldSessionStatus`) | - **States**: `PLANNED`, `IN_PROGRESS`, `FIELD_COMPLETED`, `ABORTED` (historical `POSTPONED` retained for read-only history)<br>- **Transitions**: Start (`/field-sessions`), Abort (`/abort`), Complete (`/completion`) | - Requires non-blank `preFlightChecklistNote` on start and `outcomeNotes` on completion.<br>- Aborting a session returns the inspection to `SCHEDULED` and emits an alert to managers for rescheduling, reassignment, or cancellation.<br>- At most one `IN_PROGRESS` session per mission. |
 | **Defect Finding**<br>(`FindingStatus`) | - **States**: `PENDING`, `CONFIRMED`, plus soft-delete (`is_deleted`)<br>- **Transitions**: AI/Manual create (`-> PENDING`), Confirm (`/confirmation -> CONFIRMED`), Retire (`DELETE`), Restore (`/restore`) | - Every `PENDING` AI candidate must be confirmed or soft-deleted before `POST /findings/confirm`. |
-| **Inspection Report**<br>(`ReportStatus`) | - **States**: `DRAFT`, `AUTHOR_VERIFIED`, `SUBMITTED`, `RETURNED`, `APPROVED`, `PUBLISHED`, `SUPERSEDED`<br>- **Transitions**: Author (`/draft`, `/verify`, `/submit`), Review (`/review`), Publish (`/publish`) | - Independent `ORG_MANAGER` reviewer must not equal the author `Inspector`.<br>- Evidence and findings are locked during `SUBMITTED` and `PUBLISHED`. |
+| **Inspection Report**<br>(`ReportStatus`) | - **States**: `SUBMITTED`, `RETURNED`, `APPROVED`, `PUBLISHED`, `SUPERSEDED`<br>- **Transitions**: Submit (`/report/draft`), Review (`/review`), Publish (`/publish`), Withdraw (`/withdraw`) | - Independent reviewer must not equal the author `Inspector`.<br>- Evidence and findings are locked during `SUBMITTED`, `APPROVED`, and `PUBLISHED`, and editable when `RETURNED`. |
 
 **3. Maintenance Work Order & Sub-Entity State Machines**
 
