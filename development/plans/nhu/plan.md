@@ -5,7 +5,7 @@
 **Jira Epic**: `SCRUM-57`
 **Capacity**: 20 planned days + 0 reserve days
 
-## Current status — 15 Oct 2026
+## Current status — 31 Oct 2026
 
 The original WF4 task list below describes a retired five-role marketplace/billing
 baseline and is historical only. The current Enterprise SaaS MF4 requirements
@@ -103,7 +103,7 @@ product scope.
      - Automatically populates `correctiveScope` and `acceptanceCriteria`, while rendering reference
        standard chips (e.g., `[TCVN 9343:2012]`, `[ISO 12944-5]`) for engineering traceability.
 
-- **WF4 End-to-End Defect Remediation & Verification (23 Oct 2026)**:
+- **WF4 End-to-End Defect Remediation & Verification (23–24 Oct 2026)**:
   1. **Fixed Cost Reconciliation Task Reference**: Corrected `CostsTab` in `WorkOrderDetailPanel.tsx`
      to bind actual cost lines to planned tasks (`taskId`) rather than finding ID, resolving the
      `400 COST_LINE_TASK_UNKNOWN` error and unblocking `markCostsReconciled` and work order closure.
@@ -120,7 +120,36 @@ product scope.
   6. **Formal PDF Artifact Download**: Integrated PDF report download link in `WorkOrderDetailPanel.tsx`
      pointing to `GET /api/v1/maintenance/work-orders/{id}/reports/{versionNo}/pdf`.
 
-Full end-to-end WF4 implementation is now complete and hardened across Backend, Web, and Mobile.
+- **Frontend Optimization, Impeccable Audit & Production Hardening (25–31 Oct 2026)**:
+  1. **Vite Bundle Optimization (>80% Reduction)**: Configured Rollup `manualChunks` in `vite.config.ts`
+     to split third-party vendor libraries (`vendor-react`, `vendor-mui`, `vendor-query`), reducing
+     the initial `index.js` bundle from 532 kB down to 95 kB.
+  2. **Cleaned Unused Legacy SaaS UI**: Purged obsolete SaaS menu items (`subscriptions`, `drone-leasing`)
+     and unused icon imports in `AppShell.tsx`, strictly aligning navigation with the 4 Main Flows.
+  3. **Vietnamese Currency (VND) Integration**: Extended contract quote API and contracts page to display
+     native Vietnamese currency chips (`pricePerOccurrenceVnd: 11.000.000 VND / đợt`).
+  4. **Impeccable Quality & Accessibility (WCAG 2.1 AA) Remediation**:
+     - *Dark Mode Contrast*: Replaced hardcoded dark hex codes (`#101828`, `#475467`, `#667085`, `#ffffff`, `#eaecf0`)
+       with MUI theme tokens (`text.primary`, `text.secondary`, `background.paper`, `divider`) in `ReportDetailPage.tsx`.
+     - *Broken Image Detector Antipattern*: Removed empty `<img src="" style={{ display: 'none' }} />` fallback in
+       `AuthenticatedImage.tsx` that violated web accessibility and triggered detector warnings.
+     - *React 19 State Synchronization*: Eliminated cascading re-render warnings by refactoring synchronous `setState`
+       in `useEffect` across `AuthenticatedMedia.tsx` and `AirspaceNoFlyMap.tsx`.
+     - *Table Pagination*: Fixed off-by-one page index bug in `InspectionListTable.tsx` where 1-based API page was
+       passed directly to MUI 0-based `TablePagination`.
+     - *Responsive Layout*: Fixed 440px horizontal viewport overflow on 375px mobile screens in `LandingPage.tsx`.
+  5. **Backend Multi-Organization Asset Scoping**: Resolved HTTP 400 `Actor has no organization scope` error loop
+     on `/admin/assets` by updating `AssetService.list` and `AssetRepository.searchAll` to allow Platform Managers
+     and Admins to view assets platform-wide across organizations.
+  6. **1-Click Work Order Provisioning & Operations**:
+     - Added support for `initialTasks` in `POST /api/v1/maintenance/work-orders` to auto-provision RAG-suggested tasks.
+     - Added `POST /api/v1/maintenance/work-orders/{id}/work-logs/batch-verify` for 1-click team lead approval.
+     - Added `GET /api/v1/maintenance/work-orders/{id}/reports/auto-draft` to auto-generate completion narratives from logs.
+  7. **Full-Stack Live Testing on Localhost**: Successfully booted native PostgreSQL 17 on port 5432, Spring Boot 4.1
+     on port 8080, Vite on port 3000, and verified complete end-to-end customer/engineer workflows via Playwright
+     automation using enterprise test fixture `CAU-BA-SON` (Saigon Bridge Corp).
+
+Full end-to-end WF4 implementation is now complete, hardened, and verified in production-like environments.
 
 ---
 
@@ -135,6 +164,7 @@ Full end-to-end WF4 implementation is now complete and hardened across Backend, 
 | **Tuần 5: Lập trình Backend API Slice** | 10/10 – 15/10/2026 | • Xây dựng Backend API slice: Khởi tạo work order từ repair candidates, phân công team, lập task, lập & duyệt dự toán (Estimate), đề xuất thay đổi (Change Order), nghiệm thu và quyết toán.<br>• Soạn thảo tài liệu thiết kế giao diện Web & Mobile (`2026-10-10-mf4-web-mobile-design.md`). | `T034`–`T041`<br>[SCRUM-57](https://capstonefall26.atlassian.net/browse/SCRUM-57) | ✅ Hoàn thành 100% |
 | **Tuần 6: Hoàn thiện Web, Mobile & Test Suites** | 16/10 – 18/10/2026 | • **Backend:** Triển khai cơ chế Event Modulith tái kiểm định (`ReinspectionRequestedEvent`), xuất báo cáo PDF (`MaintenanceReportRenderer`), lắng nghe thông báo (`MaintenanceNotificationListener`).<br>• **Web:** Xây dựng toàn bộ giao diện `MaintenancePage.tsx` và `WorkOrderDetailPanel.tsx` với TanStack Query và Material UI.<br>• **Mobile:** Xây dựng màn hình nhiệm vụ Flutter (`tasks_page.dart`, `work_order_detail_page.dart`, `record_work_log_sheet.dart`) với Riverpod.<br>• **Testing:** Xây dựng 25 bài test tích hợp `MaintenanceApiIntegrationTest.java` (đạt 25/25 Passed). | `T042`–`T045`<br>`WF3-010`–`WF3-012` | ✅ Hoàn thành 100% |
 | **Tuần 7: Tích hợp RAG AI & Vá lỗi toàn diện** | 19/10 – 23/10/2026 | • **RAG Maintenance Scope Advisor:** Tạo migration `V29__repair_knowledge_base.sql`, chỉ mục `pgvector` HNSW, SPI `MaintenanceScopeAdvisorPort`, Client gọi OpenAI API, bộ sinh quy tắc `DeterministicScopeFallback` và nút bấm **✨ AI Suggest Scope & Criteria** trên Web.<br>• **Vá lỗi luồng WF4:** Sửa triệt để 6 bugs (lỗi task cost reconciliation, nút verify work log cho Lead, status guards chống lỗi 409, validate budget approver, immutability closed order, tải file PDF).<br>• **Hồ sơ báo cáo:** Soạn thảo 3 tài liệu kỹ thuật chuyên sâu (`mf4-rag-scope-advisor-design.md`, `mf4-api-and-contracts.md`, `mf4-verification-and-bug-fixes.md`). | [SCRUM-57](https://capstonefall26.atlassian.net/browse/SCRUM-57)<br>FE-07 / MF4 | ✅ Hoàn thành 100% |
+| **Tuần 8: Tối ưu hiệu năng, Tăng tốc WF4 & Mở rộng RAG Chuyên sâu** | 24/10 – 31/10/2026 | • **Tối ưu Frontend:** Cấu hình Rollup `manualChunks` tách vendor chunks, giảm bundle ban đầu từ 532 kB xuống 95 kB (>80% reduction). Dọn dẹp menu legacy SaaS và chuẩn hóa hiển thị tiền tệ VND.<br>• **Impeccable & A11y Audit:** Sửa lỗi tương phản Dark mode (`ReportDetailPage`), xóa thẻ broken image antipattern (`AuthenticatedImage`), đồng bộ state React 19 (`AuthenticatedMedia`, `AirspaceNoFlyMap`), sửa phân trang bảng (`InspectionListTable`), xử lý responsive mobile 375px (`LandingPage`).<br>• **Backend Platform Scope:** Sửa lỗi HTTP 400 truy vấn tài sản toàn hệ thống cho Platform Manager/Admin (`AssetService`).<br>• **Tăng tốc vận hành WF4:** Hỗ trợ khởi tạo nhanh `initialTasks`, duyệt hàng loạt `batch-verify` work logs, tự động tổng hợp `auto-draft` nội dung báo cáo hoàn thành, kế thừa dự toán vào quyết toán chi phí.<br>• **Mở rộng RAG chuyên sâu:** Tích hợp RAG tính định mức dự toán chi phí (`suggest-estimate`), RAG thẩm tra nghiệm thu kỹ thuật độc lập (`acceptance-compliance`), viết báo cáo kỹ thuật toàn diện `2026-10-31-wf4-speed-and-rag-enhancements-report.md`.<br>• **Kiểm thử trực tiếp (Live Run):** Chạy thực tế full-stack cục bộ với PostgreSQL 17 (port 5432), Spring Boot 4.1 (port 8080), Vite (port 3000) và kiểm thử tự động trình duyệt với bộ dữ liệu cầu Ba Sơn (`CAU-BA-SON`). | [SCRUM-57](https://capstonefall26.atlassian.net/browse/SCRUM-57)<br>FE-10, FE-11, FE-12 | ✅ Hoàn thành 100% |
 
 ---
 
