@@ -80,13 +80,14 @@ All routes reside under `/api/v1/maintenance`:
 - `POST /suggest-scope`: RAG-assisted technical scope and acceptance criteria advisor.
 - `GET /work-orders`: List organization work orders (server-paged, assignment-scoped for engineers).
 - `GET /work-orders/{id}`: Detailed work order header.
-- `POST /work-orders`: Open a new work order from a verified candidate.
+- `POST /work-orders`: Open a new work order from a verified candidate (supports optional `initialTasks` for 1-click provisioning).
 - `GET /work-orders/{id}/team`: List designated team roster and active statuses.
 - `POST /work-orders/{id}/team`: Designate lead, author, reviewer, and members.
 
 ### Task & Cost Baseline
 - `GET /work-orders/{id}/tasks`: List planned tasks and execution statuses.
 - `POST /work-orders/{id}/tasks`: Add a task (Lead only).
+- `POST /work-orders/{id}/suggest-estimate`: RAG-assisted technical norm and cost estimation advisor.
 - `GET /work-orders/{id}/estimate-versions`: List cost estimate baseline history.
 - `POST /work-orders/{id}/estimate-versions`: Prepare an estimate version with priced lines (Lead only).
 - `POST /work-orders/{id}/estimate-versions/{v}/submit`: Submit estimate for approval.
@@ -100,6 +101,7 @@ All routes reside under `/api/v1/maintenance`:
 - `POST /work-orders/{id}/work-logs`: Record progress on a planned task.
 - `POST /work-orders/{id}/work-logs/{logId}/submit`: Submit work log for verification.
 - `POST /work-orders/{id}/work-logs/{logId}/verify`: Verify work log (Team Lead).
+- `POST /work-orders/{id}/work-logs/batch-verify`: Verify all submitted work logs for this work order at once (Team Lead).
 - `GET /work-orders/{id}/changes`: List scope/cost change requests.
 - `POST /work-orders/{id}/changes`: Propose a change request with delta cost and evidence.
 - `POST /work-orders/{id}/changes/{no}/approve`: Approve change delta (Budget Approver).
@@ -108,11 +110,13 @@ All routes reside under `/api/v1/maintenance`:
 
 ### Reporting, Acceptance & Closure
 - `GET /work-orders/{id}/reports`: List completion report versions.
+- `GET /work-orders/{id}/reports/auto-draft`: Auto-populate completion report draft narrative from verified tasks and logs.
 - `POST /work-orders/{id}/reports`: Draft completion report snapshot (Report Author).
 - `POST /work-orders/{id}/reports/{v}/verify`: Verify report against sources (Report Author).
 - `POST /work-orders/{id}/reports/{v}/submit`: Submit report for independent review (Report Author).
 - `GET /work-orders/{id}/reports/{v}/pdf`: Download rendered completion report PDF deliverable.
 - `GET /work-orders/{id}/acceptance-decisions`: List technical acceptance review records.
+- `GET /work-orders/{id}/acceptance-compliance`: RAG-assisted technical acceptance compliance audit against TCVN standards.
 - `POST /work-orders/{id}/acceptance-decisions`: Record acceptance, rework, or re-inspection.
 - `POST /work-orders/{id}/resume-after-rework`: Resume execution after rework.
 - `GET /work-orders/{id}/cost-reconciliation`: View baseline, changes, actuals, and variance.

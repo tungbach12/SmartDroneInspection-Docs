@@ -84,3 +84,49 @@ During comprehensive end-to-end workflow verification, 6 integration defects wer
 - **Defect:** `WorkOrderDetailPanel.tsx` called `/api/v1/workforce/users` for `MAINTENANCE_ENGINEER` (returning `403 Forbidden`), and `MaintenanceExecutionService.buildRenderContext` passed hardcoded placeholder strings for `correctiveScope` and `acceptanceCriteria` into the PDF template.
 - **Impact:** Engineers could not select task assignees from the team, and downloaded PDFs showed generic boilerplate instead of the work order's actual corrective scope and acceptance criteria.
 - **Fix:** Gated `useWorkforceUsers(isOrgAdmin)`, populated task assignee options from `useTeam(workOrder.id)`, and passed `order.getCorrectiveScope()` and `order.getAcceptanceCriteria()` into `MaintenanceReportRenderContext`.
+
+---
+
+## 3. Frontend Optimization, Impeccable Audit & Production Hardening (25–31 October 2026)
+
+### 13. Platform Manager / Admin Global Asset Scope Bug (HTTP 400 Bad Request Loop)
+- **Defect:** Navigating to `/admin/assets` as Platform Manager or Administrator triggered a loop of HTTP 400 `VALIDATION_FAILED: Actor has no organization scope` because `AssetService.requireOrganization(actor)` assumed every authenticated user is bound to an organization. Platform managers have global visibility rather than a single organization tenant.
+- **Impact:** Platform managers and administrators could not view, search, or triage assets across customer organizations.
+- **Fix:** Updated `AssetService.list` to check if `actor.hasRole("ADMIN") || actor.hasRole("MANAGER")`. If so, and `actor.organizationId()` is null, queries global assets using `assets.findAll(pageRequest)` or `assets.searchAll(search.trim(), pageRequest)`. Added `searchAll` query method in `AssetRepository`.
+
+### 14. Dark Mode Contrast Failures on Inspection & Work Order Report Details (WCAG 2.1 AA)
+- **Defect:** In `ReportDetailPage.tsx`, stat card backgrounds, borders, and typography used hardcoded dark hex color tokens (`#101828`, `#475467`, `#667085`, `#ffffff`, `#eaecf0`). When dark mode was toggled, text (#101828) blended into dark backgrounds, causing contrast ratios to plummet below 1.5:1.
+- **Impact:** Severe accessibility failure and illegible inspection reports and finding details in dark mode.
+- **Fix:** Refactored all hardcoded color literals to MUI semantic theme tokens (`color: 'text.primary'`, `color: 'text.secondary'`, `bgcolor: 'background.paper'`, `borderColor: 'divider'`), ensuring 4.5:1+ contrast compliance across both light and dark themes.
+
+### 15. Broken Image Detector Antipattern in AuthenticatedImage
+- **Defect:** `AuthenticatedImage.tsx` rendered an empty `<img src="" style={{ display: 'none' }} />` in its error fallback block.
+- **Impact:** Detected by `/impeccable critique` as a broken-image accessibility antipattern that triggers unnecessary browser network aborts.
+- **Fix:** Removed the empty `<img>` element and replaced it with a clean Material UI `BrokenImageIcon` and placeholder text.
+
+### 16. React 19 State Synchronization & Cascading Re-renders
+- **Defect:** In `AuthenticatedMedia.tsx` and `AirspaceNoFlyMap.tsx`, calling `setState` synchronously inside `useEffect` during prop changes triggered React 19 console warnings and cascading re-renders.
+- **Impact:** Unnecessary component reconciliation cycles and warnings in the development console.
+- **Fix:** Synchronized previous state (`prevSrc`) during render phase in `AuthenticatedMedia.tsx`, and memoized airspace filter predicates with `useMemo` in `AirspaceNoFlyMap.tsx`.
+
+### 17. Inspection Table Pagination Index Mismatch
+- **Defect:** In `InspectionListTable.tsx`, the 1-based API page number was passed directly to Material UI `TablePagination.page` (which expects 0-based indexing).
+- **Impact:** The table pagination UI displayed page 2 when on page 1, and advancing pages triggered off-by-one query bounds.
+- **Fix:** Subtracted 1 when passing `page` to `TablePagination` (`page={page - 1}`) and added 1 on `onPageChange` (`onPageChange={(_, newPage) => setPage(newPage + 1)}`).
+
+### 18. Frontend Bundle Chunk Splitting (>80% Reduction)
+- **Defect:** Initial production build emitted a single large `index.js` chunk of 532 kB, exceeding Vite's recommended 500 kB chunk threshold and slowing initial page load times.
+- **Impact:** Slower First Contentful Paint (FCP) and Time to Interactive (TTI) for users on field networks.
+- **Fix:** Configured `manualChunks` in `vite.config.ts` to cleanly isolate `vendor-react` (React, React Router), `vendor-mui` (MUI, Emotion), and `vendor-query` (TanStack Query). The main application entry bundle dropped from 532 kB to 95 kB (>80% reduction).
+
+### 19. 1-Click Work Order Provisioning & Operations
+- **Enhancement:** Enhanced work order creation to accept `initialTasks` from RAG scope suggestions, allowing instant work breakdown creation in a single transaction. Added `batch-verify` endpoint (`POST /work-orders/{id}/work-logs/batch-verify`) and auto-draft endpoint (`GET /work-orders/{id}/reports/auto-draft`) to streamline field operations.
+- **Verification:** Verified in `MaintenanceApiIntegrationTest` and live frontend testing.
+
+### 20. End-to-End Live Environment Verification on Localhost
+- **Verification:** Booted the full native stack locally:
+  - PostgreSQL 17 on port 5432 with Flyway migrations V1–V29.
+  - Spring Boot 4.1 backend on port 8080.
+  - Vite dev server on port 3000.
+  - Executed automated browser walkthroughs with Playwright using Saigon Bridge Corp (`CAU-BA-SON`) inspection finding data.
+- **Outcome:** Verified complete workflow from repair candidate selection, RAG scope generation, work order creation, task execution, work log submission and verification, to cost reconciliation and closure.
