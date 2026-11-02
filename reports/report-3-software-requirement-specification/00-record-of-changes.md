@@ -15,7 +15,5 @@ source: "report3-software-requirement-specification.docx"
 | 01 Nov 2026 | M | Project Team | Version 2.1: Aligned functional requirements with V25 implementation: Platform-provisioned Inspectors with separate `inspector_profiles` replace persisted Inspector applications; `otp_challenges` consolidates OTP purposes; recurring requests use `service_request_occurrences` while the separate internal recurring-schedule engine is retired; service-request quotes use VND persistence. Preserved historical requirements separately from verified implementation evidence. |
 | 02 Nov 2026 | M | Project Team | Version 2.2: Added real VNPay (v2.1.0 HMAC-SHA512) online payment gateway integration alongside PayOS VietQR for FE-06 published report acceptance and settlement (`POST /vnpay/create-payment-url`, `GET /api/v1/webhooks/vnpay/ipn`, `GET /api/v1/webhooks/vnpay/return`). |
 |  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
 
 *A - Added M - Modified D - Deleted
