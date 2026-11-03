@@ -1,0 +1,28 @@
+%% title: FE-06 Report Compilation, Publication and Online Payment Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Insp as Inspector
+  actor Mgr as Manager
+  actor Cust as Customer
+  participant RepSvc as ReportService
+  participant ContractSvc as ContractWorkflowService
+  participant PayGW as PayOS / VNPay Gateway
+  participant DB as Database
+
+  Insp->>RepSvc: Generate AI executive summary and submit Inspection Report
+  RepSvc->>DB: Save SUBMITTED InspectionReport and transition Inspection to UNDER_REVIEW
+
+  alt Manager Returns Report for Revision
+    Mgr->>RepSvc: Return report with revision feedback (approve = false)
+    RepSvc->>DB: Mark report RETURNED and revert Inspection to FIELD_COMPLETED
+  else Manager Approves and Publishes Report
+    Mgr->>RepSvc: Approve and publish official report (approve = true)
+    RepSvc->>DB: Mark report PUBLISHED (superseding prior published version) and Inspection COMPLETED
+  end
+
+  Cust->>ContractSvc: Review published report and click Accept Report
+  ContractSvc->>DB: Transition ServiceRequestOccurrence paymentStatus to PAYMENT_DUE
+  Cust->>ContractSvc: Initiate online payment (PayOS VietQR or VNPay v2.1.0)
+  ContractSvc->>PayGW: Create signed VND payment order and return checkout URL
+  PayGW-->>ContractSvc: Deliver signed payment webhook (HMAC-SHA256 / HMAC-SHA512)
+  ContractSvc->>DB: Mark occurrence PAID and set partner payoutStatus to ELIGIBLE

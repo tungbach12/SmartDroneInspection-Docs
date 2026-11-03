@@ -1,0 +1,51 @@
+%% title: FE-03 Recurring Occurrences and Notification Inbox Class Diagram
+classDiagram
+  class ContractWorkflowService {
+    +acceptQuote(actorId, reqId, versionNo) ServiceRequestResponse
+    +uploadSignedContract(actorId, reqId, file) ServiceRequestResponse
+    +assignOccurrence(actorId, reqId, occId, assignReq) ServiceRequestResponse
+  }
+  class ServiceRequestOccurrence {
+    -UUID id
+    -UUID requestId
+    -int occurrenceIndex
+    -Instant plannedStartAt
+    -Instant plannedEndAt
+    -OccurrenceStatus status
+  }
+  class NotificationController {
+    +listNotifications(page, size, unreadOnly) NotificationPageResponse
+    +getUnreadCount() NotificationUnreadCountResponse
+    +markRead(notificationId) NotificationResponse
+  }
+  class NotificationService {
+    +list(userId, page, pageSize, unreadOnly) NotificationPageResponse
+    +unreadCount(userId) NotificationUnreadCountResponse
+    +markAsRead(userId, notificationId) NotificationResponse
+  }
+  class InspectionNotificationListener {
+    +onInspectionAssigned(event) void
+    +onInspectionReminderDue(event) void
+    +onFieldSessionAborted(event) void
+  }
+  class MaintenanceNotificationListener {
+    +onWorkOrderAssigned(event) void
+    +onEstimateApproved(event) void
+    +onChangeOrderApproved(event) void
+    +onAcceptanceRecorded(event) void
+    +onWorkOrderClosed(event) void
+  }
+  class Notification {
+    -UUID id
+    -UUID organizationId
+    -UUID recipientUserId
+    -String eventType
+    -String title
+    -NotificationStatus status
+    -String deduplicationKey
+  }
+  ContractWorkflowService --> ServiceRequestOccurrence
+  NotificationController --> NotificationService
+  InspectionNotificationListener --> Notification
+  MaintenanceNotificationListener --> Notification
+  NotificationService --> Notification

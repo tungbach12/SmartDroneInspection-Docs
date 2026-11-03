@@ -1,0 +1,26 @@
+%% title: FE-03 Recurring Occurrences and Notification Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Cust as Customer
+  actor Mgr as Manager
+  actor Insp as Inspector
+  participant ContractSvc as ContractWorkflowService
+  participant AssignPort as Mf2InspectionAssignmentAdapter
+  participant Listener as InspectionNotificationListener
+  participant NotifSvc as NotificationService
+  participant DB as Database
+
+  Cust->>ContractSvc: Accept latest quotation for recurring service request
+  ContractSvc->>DB: Materialize planned ServiceRequestOccurrence rows (anchored to cadence)
+  Mgr->>ContractSvc: Upload signed contract and assign occurrence to Inspector & Drone
+  ContractSvc->>AssignPort: assign(orgId, assetId, inspectorId, droneId, startAt, endAt)
+  AssignPort->>DB: Create scheduled Inspection and publish InspectionAssignedEvent
+  AssignPort-->>Listener: Handle InspectionAssignedEvent via Spring Modulith outbox
+  Listener->>DB: Insert deduplicated Notification (uq_notifications_deduplication_key)
+
+  Insp->>NotifSvc: Open notification inbox (GET /api/v1/notifications)
+  NotifSvc->>DB: Query recipient notifications and unread count
+  DB-->>Insp: Return paginated notifications and unread count
+
+  Insp->>NotifSvc: Mark notification as read (PATCH /api/v1/notifications/{id}/read)
+  NotifSvc->>DB: Transition NotificationStatus SENT -> READ idempotently

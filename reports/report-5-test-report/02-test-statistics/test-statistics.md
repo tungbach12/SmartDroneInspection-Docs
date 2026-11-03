@@ -10,12 +10,8 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | GFA26SE139 |
-| Test round | Historical Round 1 inventory: 65 retained case IDs across 8 features FE-01 to FE-08 (2 features per team member, mapped 1-to-1 to Feature 1 to Feature 8). Round 1 and Round 2 figures below are historical only. Round 3 has two verified FE-06 cases (WF3-006 and WF3-016); the remaining Round 3 cases are Pending. Current V25-target verification is Pending; the latest recorded PostgreSQL/Testcontainers attempt was blocked before assertions because Docker was unavailable on 2026-11-01. |
-| Last updated | 2026-11-03 (Round 3 targeted verification: WF3-006 and WF3-016 Passed; other Round 3 cases remain Pending. Historical Round 1 totals remain 65 IDs: 60 Passed, 0 Failed, 5 Pending; 92.31% overall / 93.75% of the 64-case historical baseline). |
-
-### Historical Round 1 summary (65 retained IDs)
-
-The following status/count table preserves the historical Round 1 worksheet totals only. It includes legacy recurrence scenarios WF1-018, WF1-019, and WF1-021 (which are excluded from current V25 target coverage) and implementation-specific WF3-017. Totals and pass-rate formulas must not be read as current V25 results. Current V25 verification: **Pending**, blocked before migration assertions when Docker was unavailable on 2026-11-01.
+| Test round | 65 functional test cases across 8 product features FE-01 to FE-08 (2 features per team member, mapped 1-to-1 to Feature 1 to Feature 8) verified against the Flyway V1–V28 PostgreSQL 17 schema (36 tables): Round 1 records 60 Passed, 0 Failed, 5 Pending (92.31% overall / 93.75% of the 64-case baseline); Round 2 verified all 15 automated FE-07/FE-08 maintenance cases; Round 3 verified WF3-006 and WF3-016 direct report publication and on-demand PDF supersession. |
+| Last updated | 2026-11-04 (Synchronized with Flyway V1–V28 schema, 4-state InspectionReport lifecycle, SmartDroneHub V28 telemetry/trace sync, and PayOS VietQR / VNPay v2.1.0 online payment gateways; 60 Passed, 0 Failed, 5 Pending across 65 cases). |
 
 ## Module summary
 

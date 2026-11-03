@@ -1,0 +1,29 @@
+%% title: FE-05 Flight Permit and Field Inspection Execution Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Insp as Inspector
+  actor Mgr as Manager
+  participant Svc as Inspection & FieldSession Service
+  participant Hub as SmartDroneHub Service
+  participant DB as Database
+
+  Insp->>Svc: Upload flight permit document
+  Svc->>DB: Verify pilot license validity at upload and save flight permit key
+
+  Insp->>Svc: Start field session with pre-flight safety note
+  Svc->>DB: Verify hasFlightPermit(), create IN_PROGRESS session, and mark mission IN_PROGRESS
+  Insp->>Hub: Connect SmartDroneHub telemetry and sync flight report / MP4 video
+  Hub-->>Svc: Return flight telemetry, GPS flight trace, and mission MP4 video
+  Svc->>DB: Persist flight report metrics, flight_trace_json, and video Evidence
+
+  alt Field Session Aborted (Weather or Safety Issue)
+    Insp->>Svc: Abort field session with reason
+    Svc->>DB: Record ABORTED session and reopen mission to SCHEDULED
+    Svc-->>Mgr: Publish FieldSessionAbortedEvent notification to Manager
+    Mgr->>Svc: Reschedule, reassign, or cancel inspection
+    Svc->>DB: Update inspection schedule or assignment
+  else Field Session Completed Normally
+    Insp->>Svc: Complete field session with outcome notes
+    Svc->>DB: Record FIELD_COMPLETED session and mark mission FIELD_COMPLETED
+    Svc-->>Insp: Confirm completion and unlock Evidence & Findings review
+  end
