@@ -1,0 +1,35 @@
+%% title: FE-01 Customer Organization and Initial Asset Registration Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Cust as Prospective Customer
+  participant Web as Web Portal (RegisterPage)
+  participant Ctrl as BrowserAuthController
+  participant OtpSvc as RegistrationOtpService
+  participant RegSvc as OrganizationRegistrationService
+  participant Airspace as CustomerAirspacePolicyAdapter
+  participant DB as PostgreSQL
+
+  Cust->>Web: Enter email and request registration OTP
+  Web->>Ctrl: POST /api/v1/auth/register/otp
+  Ctrl->>OtpSvc: sendRegistrationOtp(email, clientIp)
+  OtpSvc->>DB: Save REGISTRATION OtpChallenge (otp_challenges)
+  OtpSvc-->>Web: Return challengeId and masked destination
+
+  Cust->>Web: Submit organization details, OTP code, and initial asset coordinates
+  Web->>Ctrl: POST /api/v1/auth/register
+  Ctrl->>OtpSvc: verifyAndConsume(challengeId, email, otpCode)
+  OtpSvc->>DB: Mark OtpChallenge consumed
+  Ctrl->>RegSvc: register(request)
+  RegSvc->>Airspace: evaluateFirstAsset(latitude, longitude)
+  alt Prohibited No-Fly Zone (NO_FLY_ZONE)
+    Airspace-->>RegSvc: Prohibited zone detected
+    RegSvc-->>Web: Reject registration (403 Forbidden)
+  else Restricted Zone (RESTRICTED_ZONE)
+    Airspace-->>RegSvc: Restricted zone requires review
+    RegSvc->>DB: Save PENDING ProspectiveCustomerRegistration and User
+    RegSvc-->>Web: Return 201 Created (pending platform review)
+  else Clear Zone (CLEAR_ZONE)
+    Airspace-->>RegSvc: Clear zone approved
+    RegSvc->>DB: Save ACTIVE Organization, CUSTOMER User, initial Asset, and AuditEvent
+    RegSvc-->>Web: Return 201 Created (account active)
+  end

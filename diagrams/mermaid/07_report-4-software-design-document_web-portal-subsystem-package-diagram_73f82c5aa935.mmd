@@ -1,0 +1,34 @@
+%% title: Web Portal Subsystem Package Diagram
+flowchart TD
+  subgraph WebRoot["SmartDroneInspection-frontend/src"]
+    APP["app\n(AppShell, Router, Role AccessPolicy & Theme)"]
+    FEAT_AUTH["features/auth\n(Login, Register, OTP, OAuthCallback & RequireAuth)"]
+    FEAT_ADMIN["features/admin\n(Platform Users, Airspace/Drone Reviews & Finance Settings)"]
+    FEAT_WORKFORCE["features/workforce\n(Customer Maintenance Engineer Management)"]
+    FEAT_ASSETS["features/assets\n(Asset Catalog, Asset Documents & Owned Drones)"]
+    FEAT_CONTRACTS["features/contracts\n(Service Requests, Order Chat, VND Quotes & Agreements)"]
+    FEAT_INSP["features/inspections\n(Schedule Calendar, Field Sessions, SmartDroneHub & Findings)"]
+    FEAT_REPORTS["features/reports\n(Report Review, PDF Export & PayOS/VNPay Checkout)"]
+    FEAT_MAINT["features/maintenance\n(Work Orders, RAG Advisor, Work Logs & Acceptance)"]
+    FEAT_NOTIF["features/notifications & dashboard & landing\n(NotificationBell, 5-Role Dashboard & Landing Portal)"]
+    WEB_SHARED["shared\n(Axios Client, AirspaceNoFlyMap, LocaleProvider & UI Components)"]
+  end
+
+  APP --> FEAT_AUTH
+  APP --> FEAT_ADMIN
+  APP --> FEAT_WORKFORCE
+  APP --> FEAT_ASSETS
+  APP --> FEAT_CONTRACTS
+  APP --> FEAT_INSP
+  APP --> FEAT_REPORTS
+  APP --> FEAT_MAINT
+  APP --> FEAT_NOTIF
+  FEAT_AUTH --> WEB_SHARED
+  FEAT_ADMIN --> WEB_SHARED
+  FEAT_WORKFORCE --> WEB_SHARED
+  FEAT_ASSETS --> WEB_SHARED
+  FEAT_CONTRACTS --> WEB_SHARED
+  FEAT_INSP --> WEB_SHARED
+  FEAT_REPORTS --> WEB_SHARED
+  FEAT_MAINT --> WEB_SHARED
+  FEAT_NOTIF --> WEB_SHARED

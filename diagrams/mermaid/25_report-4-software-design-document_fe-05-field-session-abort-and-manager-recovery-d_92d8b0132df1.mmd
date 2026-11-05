@@ -1,0 +1,29 @@
+%% title: FE-05 Field Session Abort and Manager Recovery Dispatch Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Insp as Assigned Inspector
+  actor Mgr as Manager
+  participant SessCtrl as InspectionFieldSessionController
+  participant InspCtrl as InspectionController
+  participant SessSvc as InspectionFieldSessionService
+  participant CreateSvc as InspectionCreationService
+  participant DB as PostgreSQL
+
+  Insp->>SessCtrl: POST /api/v1/inspections/{id}/field-sessions/{sessId}/abort (abortReason)
+  SessCtrl->>SessSvc: abort(inspectorId, inspectionId, sessId, abortReason)
+  SessSvc->>DB: Mark FieldSession ABORTED, reopen Inspection to SCHEDULED, and publish FieldSessionAbortedEvent
+  SessSvc-->>Mgr: Deliver in-app abort alert notification
+
+  alt Reschedule Inspection Window
+    Mgr->>InspCtrl: PUT /api/v1/inspections/{id}/schedule (plannedStartAt, plannedEndAt)
+    InspCtrl->>CreateSvc: reschedule(managerId, inspectionId, startAt, endAt)
+    CreateSvc->>DB: Check partner schedule conflicts and update planned window
+  else Reassign Inspector and Owned Drone
+    Mgr->>InspCtrl: PUT /api/v1/inspections/{id}/assignment (inspectorId, droneId)
+    InspCtrl->>CreateSvc: reassign(managerId, inspectionId, inspectorId, droneId)
+    CreateSvc->>DB: Validate pilot license, drone ownership, and schedule availability, then update assignment
+  else Cancel Inspection Mission
+    Mgr->>InspCtrl: POST /api/v1/inspections/{id}/cancellation (reason)
+    InspCtrl->>CreateSvc: cancel(managerId, inspectionId, reason)
+    CreateSvc->>DB: Transition Inspection to CANCELLED
+  end

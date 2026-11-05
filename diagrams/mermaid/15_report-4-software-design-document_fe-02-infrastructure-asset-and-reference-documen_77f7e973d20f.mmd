@@ -1,0 +1,28 @@
+%% title: FE-02 Infrastructure Asset and Reference Document Registration Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Cust as Customer
+  participant AssetCtrl as AssetController / AssetDocumentController
+  participant AssetSvc as AssetService / AssetDocumentService
+  participant Airspace as AirspaceAdvisoryService
+  participant Store as MinioEvidenceObjectStore
+  participant DB as PostgreSQL
+
+  Cust->>AssetCtrl: POST /api/v1/assets (assetCode, coordinates, inspectionItems)
+  AssetCtrl->>AssetSvc: createAsset(actorId, request)
+  AssetSvc->>Airspace: evaluate(latitude, longitude, maxAltitudeMeters)
+  alt Coordinates inside Prohibited No-Fly Zone
+    Airspace-->>AssetSvc: NO_FLY_ZONE classification
+    AssetSvc-->>Cust: Return 403 Forbidden (ASSET_IN_NO_FLY_ZONE)
+  else Clear or Restricted Zone
+    Airspace-->>AssetSvc: CLEAR_ZONE or RESTRICTED_ZONE
+    AssetSvc->>DB: Verify unique (organization_id, asset_code) and save ACTIVE Asset
+    AssetSvc-->>Cust: Return created Asset with inspection_items JSONB (201 Created)
+  end
+
+  Cust->>AssetCtrl: POST /api/v1/assets/{assetId}/documents (MultipartFile)
+  AssetCtrl->>AssetSvc: uploadDocument(actorId, assetId, docType, file)
+  AssetSvc->>AssetSvc: Compute SHA-256 checksum and check duplicate on asset
+  AssetSvc->>Store: put(objectKey, contentType, sizeBytes, stream)
+  AssetSvc->>DB: Insert AssetDocument (asset_documents)
+  AssetSvc-->>Cust: Return AssetDocumentResponse (201 Created)

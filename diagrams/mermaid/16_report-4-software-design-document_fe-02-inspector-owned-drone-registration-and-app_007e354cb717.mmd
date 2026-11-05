@@ -1,0 +1,24 @@
+%% title: FE-02 Inspector-Owned Drone Registration and Approval Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Insp as Inspector
+  actor Mgr as Admin or Manager
+  participant Ctrl as DroneRegistrationApplicationController
+  participant Svc as DroneRegistrationApplicationService
+  participant Store as MinioEvidenceObjectStore
+  participant DB as PostgreSQL
+
+  Insp->>Ctrl: POST /api/v1/drones/registrations/evidence (REGISTRATION, OWNERSHIP, INSPECTION)
+  Ctrl->>Svc: uploadEvidence(inspectorId, docType, file)
+  Svc->>Store: Store 3 supporting document files in MinIO
+  Store-->>Svc: Return registrationFileKey, ownershipFileKey, inspectionFileKey
+
+  Insp->>Ctrl: POST /api/v1/drones/registrations (serialNumber, model, 3 file keys)
+  Ctrl->>Svc: submit(inspectorId, request)
+  Svc->>DB: Verify all 3 document keys present, unique serialNumber, and save PENDING application
+  DB-->>Insp: Confirm application submitted (201 Created)
+
+  Mgr->>Ctrl: POST /api/v1/platform/drone-registrations/{id}/approve
+  Ctrl->>Svc: approve(reviewerId, applicationId, request)
+  Svc->>DB: Create ACTIVE Drone (inspector_owner_id = inspectorId) and mark application APPROVED
+  DB-->>Mgr: Return approved DroneRegistrationResponse (200 OK)

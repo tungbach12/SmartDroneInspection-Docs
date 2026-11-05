@@ -1,0 +1,28 @@
+%% title: FE-04 Service Request, Order Chat and VND Quotation Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Cust as Customer
+  actor Mgr as Manager
+  participant Ctrl as ContractWorkflowController
+  participant Svc as ContractWorkflowService
+  participant Partner as PartnerRegistryService
+  participant FinSvc as InspectionFinanceSettingsService
+  participant DB as PostgreSQL
+
+  Cust->>Ctrl: POST /api/v1/contracts/requests
+  Ctrl->>Svc: create(customerId, request)
+  Svc->>DB: Verify active Asset in Customer organization and save OPEN ServiceRequest
+
+  Cust->>Ctrl: POST /api/v1/contracts/requests/{id}/messages
+  Ctrl->>Svc: postMessage(customerId, requestId, body)
+  Svc->>DB: Save ServiceRequestMessage
+
+  Mgr->>Ctrl: POST /api/v1/contracts/requests/{id}/quotes
+  Ctrl->>Svc: issueQuote(managerId, requestId, quoteInput)
+  Svc->>Partner: isEligibleInspector(inspectorId, startAt) & isEligibleDrone(droneId, inspectorId)
+  Svc->>FinSvc: requireConfiguredRates()
+  Svc->>DB: Save immutable ServiceRequestQuote version (VND) and mark request QUOTED
+
+  Cust->>Ctrl: POST /api/v1/contracts/requests/{id}/accept?versionNo=v
+  Ctrl->>Svc: acceptQuote(customerId, requestId, versionNo)
+  Svc->>DB: Verify versionNo is latest, materialize occurrences, and mark request ACCEPTED

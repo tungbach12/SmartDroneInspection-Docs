@@ -1,0 +1,29 @@
+%% title: FE-05 Flight Permit Gate, Field Session Execution and SmartDroneHub Sync Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Insp as Assigned Inspector
+  participant Ctrl as InspectionController / InspectionFieldSessionController
+  participant Svc as InspectionCreationService / InspectionFieldSessionService
+  participant HubSvc as InspectionDroneHubService
+  participant Hub as SmartDroneHubClient
+  participant DB as PostgreSQL & MinIO
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/flight-permit (MultipartFile)
+  Ctrl->>Svc: uploadFlightPermit(inspectorId, inspectionId, file)
+  Svc->>DB: Verify Inspector pilot license is unexpired, store permit in MinIO, and save flight_permit_file_key
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/field-sessions (preFlightChecklistNote)
+  Ctrl->>Svc: start(inspectorId, inspectionId, preFlightChecklistNote)
+  Svc->>DB: Verify hasFlightPermit() == true, create IN_PROGRESS FieldSession, and mark Inspection IN_PROGRESS
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/field-sessions/{sessId}/drone-hub/connect
+  Ctrl->>HubSvc: connect(inspectorId, inspectionId, sessId, request)
+  HubSvc->>Hub: startMission(missionPayload)
+  Insp->>Ctrl: GET /flight-report & POST /sync-video
+  Ctrl->>HubSvc: getFlightReport(...) & syncFlightVideo(...)
+  HubSvc->>Hub: Fetch telemetry metrics, GPS trace, and recorded MP4 video
+  HubSvc->>DB: Persist flight_trace_json on field_sessions and MP4 Evidence in MinIO
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/field-sessions/{sessId}/completion (outcomeNotes)
+  Ctrl->>Svc: complete(inspectorId, inspectionId, sessId, outcomeNotes)
+  Svc->>DB: Transition FieldSession and Inspection to FIELD_COMPLETED

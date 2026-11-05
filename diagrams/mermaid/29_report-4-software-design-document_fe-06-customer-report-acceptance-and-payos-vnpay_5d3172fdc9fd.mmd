@@ -1,0 +1,31 @@
+%% title: FE-06 Customer Report Acceptance and PayOS / VNPay Online Payment Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Cust as Customer
+  participant Ctrl as InspectionController / ContractWorkflowController
+  participant Webhooks as PayOSWebhookController / VnPayWebhookController
+  participant ContractSvc as ContractWorkflowService
+  participant PayGW as PayOSPaymentGateway / VnPayPaymentGateway
+  participant DB as PostgreSQL
+
+  Cust->>Ctrl: POST /api/v1/inspections/{id}/report/versions/{verId}/accept
+  Ctrl->>ContractSvc: customerAcceptReport(customerId, requestId, occurrenceId, versionId)
+  ContractSvc->>DB: Verify report is PUBLISHED and transition occurrence paymentStatus to PAYMENT_DUE
+
+  alt PayOS VietQR Checkout
+    Cust->>Ctrl: POST /api/v1/contracts/requests/{reqId}/occurrences/{occId}/payos/checkout
+    Ctrl->>ContractSvc: createOccurrencePayOSCheckout(customerId, reqId, occId, req)
+    ContractSvc->>PayGW: createPaymentLink(orderCode, amountVnd, description)
+    PayGW-->>Cust: Return VietQR checkoutUrl and QR payload
+    PayGW->>Webhooks: POST /api/v1/webhooks/payos (HMAC-SHA256 signed payload)
+    Webhooks->>ContractSvc: handlePayOSWebhook(payload)
+  else VNPay v2.1.0 Checkout
+    Cust->>Ctrl: POST /api/v1/contracts/requests/{reqId}/occurrences/{occId}/vnpay/checkout
+    Ctrl->>ContractSvc: createOccurrenceVnPayCheckout(customerId, reqId, occId, req, clientIp)
+    ContractSvc->>PayGW: createPaymentUrl(txnRef, amountVnd, clientIp)
+    PayGW-->>Cust: Return signed VNPay v2.1.0 paymentUrl
+    PayGW->>Webhooks: GET /api/v1/webhooks/vnpay/ipn (HMAC-SHA512 signed query params)
+    Webhooks->>ContractSvc: handleVnPayWebhook(params)
+  end
+
+  ContractSvc->>DB: Transition occurrence paymentStatus to PAID and partner payoutStatus to ELIGIBLE/PAID
