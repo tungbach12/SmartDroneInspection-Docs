@@ -24,6 +24,8 @@ CASE_HEADER = ["Test Case ID", "Test Case Description", "Test Case Procedure",
 # Row 15 is the template's own empty spacer between the Sub total and the
 # coverage rows; cloning it keeps the original vertical spacing.
 BLANK_SPACER_ROW = 15
+V29_ROUND3_CASE_IDS = {"WF3-018", "WF3-019"}
+V29_ROUND3_CASE_IDS = {"WF3-018", "WF3-019"}
 
 
 def validate_cases(report_dir):
@@ -93,14 +95,76 @@ def validate_cases(report_dir):
     for name in cases:
         if name not in summaries:
             raise ValueError(f"Missing summary source for {name}")
-    counts = Counter(row[5] for group in cases.values() for _, row, _ in group)
+    round1_counts = Counter(
+        row[5] for group in cases.values() for _, row, _ in group if row[5] in STATUS
+    )
+    historical_round1_counts = Counter(
+        row[5]
+        for group in cases.values()
+        for _, row, _ in group
+        if row[0] not in V29_ROUND3_CASE_IDS and row[5] in STATUS
+    )
+    round3_executed_counts = Counter(
+        row[11]
+        for group in cases.values()
+        for _, row, _ in group
+        if row[11] in {"Passed", "Failed"}
+    )
+    v29_round3_counts = Counter(
+        row[11]
+        for group in cases.values()
+        for _, row, _ in group
+        if row[0] in V29_ROUND3_CASE_IDS and row[11] in STATUS
+    )
     stats = find_table(report_dir / "02-test-statistics/test-statistics.md", "No")
-    subtotal = next(row for row in stats[1:] if plain(row[0]).lower().replace(" ", "") == "subtotal")
+    current_round1 = next(
+        row for row in stats[1:] if plain(row[0]).lower().replace(" ", "") == "currentround1subtotal"
+    )
+    subtotal = next(
+        row for row in stats[1:] if plain(row[0]).lower().replace(" ", "") == "historicalround1subtotal"
+    )
+    current = next(
+        row for row in stats[1:] if plain(row[0]).lower().replace(" ", "") == "currentinventory"
+    )
+    round3_executed = next(
+        row for row in stats[1:] if plain(row[0]).lower().replace(" ", "") == "round3executedcases"
+    )
+    round3 = next(row for row in stats[1:] if plain(row[0]).lower().replace(" ", "") == "v29round3cases")
+    current_round1_recorded = [int(plain(value)) for value in current_round1[2:]]
+    current_round1_expected = [round1_counts[s] for s in ("Passed", "Failed", "Pending", "N/A")] + [len(ids)]
+    if current_round1_recorded != current_round1_expected:
+        raise ValueError(f"Recorded current Round 1 statistics {current_round1_recorded} differ from source statuses {current_round1_expected}")
     recorded = [int(plain(value)) for value in subtotal[2:]]
-    expected = [counts[s] for s in ("Passed", "Failed", "Pending", "N/A")] + [len(ids)]
+    expected = [historical_round1_counts[s] for s in ("Passed", "Failed", "Pending", "N/A")] + [len(ids) - len(V29_ROUND3_CASE_IDS)]
     if recorded != expected:
-        raise ValueError(f"Recorded statistics {recorded} differ from cases {expected}")
-    return cases, index, summaries
+        raise ValueError(f"Recorded historical Round 1 statistics {recorded} differ from source statuses {expected}")
+    current_cases = int(plain(current[-1]))
+    if current_cases != len(ids):
+        raise ValueError(f"Current inventory {current_cases} differs from case index {len(ids)}")
+    round3_executed_recorded = [int(plain(value)) for value in round3_executed[2:]]
+    round3_executed_expected = [round3_executed_counts[s] for s in ("Passed", "Failed", "Pending", "N/A")] + [
+        sum(round3_executed_counts.values())
+    ]
+    if round3_executed_recorded != round3_executed_expected:
+        raise ValueError(f"Recorded Round 3 executed statistics {round3_executed_recorded} differ from cases {round3_executed_expected}")
+    round3_recorded = [int(plain(value)) for value in round3[2:]]
+    round3_expected = [v29_round3_counts[s] for s in ("Passed", "Failed", "Pending", "N/A")] + [
+        sum(v29_round3_counts.values())
+    ]
+    if round3_recorded != round3_expected:
+        raise ValueError(f"Recorded V29 Round 3 statistics {round3_recorded} differ from cases {round3_expected}")
+    v29_cases = {
+        row[0]: row
+        for group in cases.values()
+        for _, row, _ in group
+        if row[0] in V29_ROUND3_CASE_IDS
+    }
+    if set(v29_cases) != V29_ROUND3_CASE_IDS:
+        raise ValueError(f"Missing V29 Round 3 cases: {V29_ROUND3_CASE_IDS - set(v29_cases)}")
+    for case_id, row in v29_cases.items():
+        if row[5] != "N/A" or row[8] != "N/A":
+            raise ValueError(f"V29 case {case_id} must be N/A in Rounds 1 and 2")
+    return cases, index, summaries, historical_round1_counts
 
 
 def discard_stale_calculation_chain(book):
@@ -125,7 +189,19 @@ def discard_stale_calculation_chain(book):
 
 def export(template, reports, output):
     report = reports / SOURCES[0]
-    cases, index, summaries = validate_cases(report)
+    cases, index, summaries, historical_round1_counts = validate_cases(report)
+    round3_executed_counts = Counter(
+        row[11]
+        for group in cases.values()
+        for _, row, _ in group
+        if row[11] in {"Passed", "Failed"}
+    )
+    v29_round3_counts = Counter(
+        row[11]
+        for group in cases.values()
+        for _, row, _ in group
+        if row[0] in V29_ROUND3_CASE_IDS and row[11] in STATUS
+    )
     cover = key_values(report / "00-cover/cover.md")
     stats_meta = key_values(report / "02-test-statistics/test-statistics.md")
     index_meta = key_values(report / "01-test-cases/test-case-list.md")
@@ -189,7 +265,11 @@ def export(template, reports, output):
         summary_counts[sheet] = []
         for round_no, status_col in enumerate(("F", "I", "L"), 6):
             source_index = {"F": 5, "I": 8, "L": 11}[status_col]
-            counts = Counter(row[source_index] for _, row, _ in cases[sheet])
+            counts = Counter(
+                row[source_index]
+                for _, row, _ in cases[sheet]
+                if row[source_index] in STATUS
+            )
             summary_counts[sheet].append(counts)
             for column, status in zip("BCDE", ("Passed", "Failed", "Pending", "N/A")):
                 book.put(sheet, f"{column}{round_no}", counts[status],
@@ -221,8 +301,8 @@ def export(template, reports, output):
         "H5": date, "C6": stats_meta.get("Test round", "MF3-only executed slice"),
     }.items():
         book.put("Test Statistics", coord, value)
-    # Test Statistics layout for N modules: header row 10, modules rows
-    # 11..10+N, Sub total, blank, coverage, successful coverage.
+    # Test Statistics layout for N modules: header row 10, module rows,
+    # current/historical Round 1 subtotals, Round 3 totals/subset, spacer, coverage.
     module_proto = book.row_template("Test Statistics", 12)
     subtotal_proto = book.row_template("Test Statistics", 14)
     spacer = book.row_template("Test Statistics", BLANK_SPACER_ROW)
@@ -232,8 +312,11 @@ def export(template, reports, output):
     first_module_row = 11
     last_module_row = first_module_row + len(FEATURE_SHEETS) - 1
     subtotal_row = last_module_row + 1
-    coverage_row = subtotal_row + 2
-    success_row = subtotal_row + 3
+    historical_row = subtotal_row + 1
+    round3_row = historical_row + 1
+    v29_round3_row = round3_row + 1
+    coverage_row = v29_round3_row + 2
+    success_row = coverage_row + 1
     totals, total_cases = Counter(), 0
     for offset, sheet in enumerate(FEATURE_SHEETS):
         stat_row = first_module_row + offset
@@ -249,9 +332,22 @@ def export(template, reports, output):
         book.put("Test Statistics", f"H{stat_row}", len(cases[sheet]), f"'{sheet}'!B4")
     book.clone_row("Test Statistics", subtotal_row, subtotal_proto)
     book.put("Test Statistics", f"C{subtotal_row}", "Sub total")
-    # Materialise the blank spacer row so the sheet's rows stay contiguous;
-    # Excel rejects a sheet whose rows jump. The template's own blank row
-    # carries the spacing, so clone that rather than inventing one.
+    book.clone_row("Test Statistics", historical_row, subtotal_proto)
+    book.put("Test Statistics", f"C{historical_row}", "Historical Round 1")
+    for column, status in zip("DEFG", ("Passed", "Failed", "Pending", "N/A")):
+        book.put("Test Statistics", f"{column}{historical_row}", historical_round1_counts[status])
+    book.put("Test Statistics", f"H{historical_row}", sum(historical_round1_counts.values()))
+    book.clone_row("Test Statistics", round3_row, subtotal_proto)
+    book.put("Test Statistics", f"C{round3_row}", "Round 3 executed")
+    for column, status in zip("DEFG", ("Passed", "Failed", "Pending", "N/A")):
+        book.put("Test Statistics", f"{column}{round3_row}", round3_executed_counts[status])
+    book.put("Test Statistics", f"H{round3_row}", sum(round3_executed_counts.values()))
+    book.clone_row("Test Statistics", v29_round3_row, subtotal_proto)
+    book.put("Test Statistics", f"C{v29_round3_row}", "V29 Round 3")
+    for column, status in zip("DEFG", ("Passed", "Failed", "Pending", "N/A")):
+        book.put("Test Statistics", f"{column}{v29_round3_row}", v29_round3_counts[status])
+    book.put("Test Statistics", f"H{v29_round3_row}", sum(v29_round3_counts.values()))
+    # Keep the template's spacer immediately before the coverage rows.
     book.clone_row("Test Statistics", coverage_row - 1, spacer)
     book.clone_row("Test Statistics", coverage_row, coverage_proto)
     book.clone_row("Test Statistics", success_row, success_proto)

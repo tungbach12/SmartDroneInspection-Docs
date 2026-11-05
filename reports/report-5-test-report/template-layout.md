@@ -81,9 +81,18 @@ computed from it at rows 21–22:
 - `Test coverage` = `(Passed + Failed) * 100 / (Number of TCs - N/A)`
 - `Test successful coverage` = `Passed * 100 / (Number of TCs - N/A)`
 
-With 65 cases (`60 Passed`, `5 Pending`, `0 Failed`, `0 N/A`), both formulas
-evaluate to `92.31%`; pending cases remain in the denominator. Keep workbook
-formulas; change underlying statuses in the feature Markdown files.
+With the current 67-case inventory, Round 1 has `60 Passed`, `0 Failed`, `5
+Pending`, and `2 N/A`; the two N/A cases were added for V29 after Round 1. The
+historical Round 1 subtotal remains 65 cases (`60 Passed`, `5 Pending`, `0
+Failed`, `0 N/A`), so the historical coverage remains `92.31%`; pending cases
+remain in the denominator. Keep workbook formulas; change underlying statuses
+in the feature Markdown files.
+
+The generated statistics sheet places the current Round 1 subtotal at row 19,
+the historical Round 1 subtotal at row 20, Round 3 executed cases at row 21,
+the V29 Round 3 subset at row 22, the spacer at row 23, and coverage at rows
+24–25. Round 3 executed totals include only Passed/Failed cases: four in total,
+including WF3-018/019 as the two-case V29 subset.
 
 ## Feature sheets (supplied template and generated workbook)
 
@@ -141,12 +150,12 @@ the `Feature sheet summary` table in each matching `fe-0N-…md` file. Populate
 | FE-03 Recurring Service Requests, Contract Occurrences & Outbox Notifications (§3.4) | `Feature 3` | WF1-017 to WF1-021 (5 cases) |
 | FE-04 Service Requests, Quotations, Contracts, Dispatch & Airspace Map (§3.5) | `Feature 4` | WF2-001 to WF2-005 (5 cases) |
 | FE-05 Flight Permit Gate, Field Execution, Dashboard & Calendar (§3.6) | `Feature 5` | WF2-008, WF2-009, WF2-011, WF2-012, WF2-015 to WF2-020, WF3-009 (11 cases) |
-| FE-06 Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS (§3.7) | `Feature 6` | WF3-001 to WF3-008, WF3-010, WF3-012, WF3-016, WF3-017 (12 cases) |
+| FE-06 Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS (§3.7) | `Feature 6` | WF3-001 to WF3-008, WF3-010, WF3-012, WF3-016 to WF3-019 (14 cases) |
 | FE-07 Maintenance Work Orders, RAG Scope/Norms Advisor & Repair Execution (§3.8) | `Feature 7` | WF4-001 to WF4-011 (11 cases) |
 | FE-08 Completion Report, 3-Way Re-inspection Verification & Cost Closure (§3.9) | `Feature 8` | WF4-012 to WF4-016 (5 cases) |
 
-All 65 cases are distributed across `Feature 1` through `Feature 8`
-(`5 + 11 + 5 + 5 + 11 + 12 + 11 + 5 = 65`):
+All 67 current cases are distributed across `Feature 1` through `Feature 8`
+(`5 + 11 + 5 + 5 + 11 + 14 + 11 + 5 = 67`):
 
 | Workbook sheet | Included SRS feature | Included WF IDs |
 | --- | --- | --- |
@@ -155,7 +164,7 @@ All 65 cases are distributed across `Feature 1` through `Feature 8`
 | `Feature 3` | FE-03 — Recurring Service Requests, Contract Occurrences & Outbox Notifications | WF1-017 to WF1-021 |
 | `Feature 4` | FE-04 — Service Requests, Quotations, Contracts, Dispatch & Airspace Map | WF2-001 to WF2-005 |
 | `Feature 5` | FE-05 — Flight Permit Gate, Field Execution, Dashboard & Calendar | WF2-008, WF2-009, WF2-011, WF2-012, WF2-015 to WF2-020, WF3-009 |
-| `Feature 6` | FE-06 — Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS | WF3-001 to WF3-008, WF3-010, WF3-012, WF3-016, WF3-017 |
+| `Feature 6` | FE-06 — Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS | WF3-001 to WF3-008, WF3-010, WF3-012, WF3-016 to WF3-019 |
 | `Feature 7` | FE-07 — Maintenance Work Orders, RAG Scope/Norms Advisor & Repair Execution | WF4-001 to WF4-011 |
 | `Feature 8` | FE-08 — Completion Report, 3-Way Re-inspection Verification & Cost Closure | WF4-012 to WF4-016 |
 

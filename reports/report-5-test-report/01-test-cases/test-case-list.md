@@ -9,12 +9,12 @@ fixed: `No`, `Function Name`, `Sheet Name`, `Description`, `Pre-Condition`.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | GFA26SE139 |
-| Test environment | Cloud Staging (https://smartdroneinspection.duckdns.org) and local Docker/Testcontainers environment with PostgreSQL 17 (pgvector:pg17, Flyway V1–V28, 36 tables), MinIO S3 Object Storage, FastAPI Ultralytics YOLO11 (MBDD2025) + OpenAI-Compatible Vision/RAG Gateway, SmartDroneHub Telemetry Service, PayOS VietQR & VNPay v2.1.0, Spring Boot 4.1.0 (Java 21), React 19.2.8, and Flutter 3.13.2. |
-| Baseline | 65 functional test cases across Feature 1 to Feature 8 (mapped 1-to-1 to FE-01 to FE-08, 2 features per team member): 60 Passed, 0 Failed, 5 Pending in Round 1 (92.31% overall / 93.75% of the 64-case baseline), plus Round 2 and Round 3 targeted regression verifications. |
+| Test environment | Cloud Staging (https://smartdroneinspection.duckdns.org) and local Docker/Testcontainers environment with PostgreSQL 17 (pgvector:pg17, Flyway V1–V29, 39 application tables), MinIO S3 Object Storage, FastAPI Ultralytics YOLO11 (MBDD2025) + OpenAI-Compatible Vision/RAG Gateway, SmartDroneHub Telemetry Service, PayOS VietQR & VNPay v2.1.0, Spring Boot 4.1.0 (Java 21), React 19.2.8, and Flutter 3.13.2. |
+| Baseline | Current inventory: 67 cases across Feature 1 to Feature 8. Current Round 1 totals: 60 Passed, 0 Failed, 5 Pending, and 2 N/A for cases added later; the historical Round 1 subtotal remains 65 cases (60 Passed, 0 Failed, 5 Pending; 92.31% overall / 93.75% of the 64-case baseline). Round 3 has four Passed cases: WF3-006, WF3-016, WF3-018, WF3-019. Focused V29 migration, persistence, finance lifecycle, PayOS and VNPay tests passed on 2026-11-05; non-payment target coverage remains incomplete. |
 
 ## Case index
 
-This table lists all 65 functional test cases across `Feature 1` through `Feature 8` (`FE-01` to `FE-08`).
+This table lists all 67 functional test cases across `Feature 1` through `Feature 8` (`FE-01` to `FE-08`), including two V29 finance cases added after the historical baseline.
 
 | No | Function Name | Sheet Name | Description | Pre-Condition |
 | ---: | --- | --- | --- | --- |
@@ -83,3 +83,5 @@ This table lists all 65 functional test cases across `Feature 1` through `Featur
 | 62 | [WF4-014] FE-08 — FE-08 3-step/3-way Re-inspection verification loop & report reinstatement | Feature 8 | Customer recording `REINSPECTION_REQUIRED` triggers a linked `RE_INSPECTION` mission, 3-way defect verification (`reinspection_defect_verifications`), and automatic work-order reinstatement to `SUBMITTED_FOR_ACCEPTANCE` upon publication. | `SUBMITTED_FOR_ACCEPTANCE` `MaintenanceWorkOrder` fixture with verified work logs and repair proof. |
 | 63 | [WF4-015] FE-08 — FE-08 Baseline-to-actual cost inheritance & variance reconciliation | Feature 8 | Customer inherits baseline cost lines and reconciles actual cost variance against baseline + approved Change Orders (`ACCEPTED -> COST_RECONCILED`). | `ACCEPTED` `MaintenanceWorkOrder` with approved baseline and change order. |
 | 64 | [WF4-016] FE-08 — WF-04 End-to-end maintenance remediation, 3-way reinspection & closure | Feature 8 | Complete WF-04 lifecycle from work order creation through RAG norms estimation, batch-verified repair, 3-way re-inspection verification, Customer acceptance, cost reconciliation, and closure (`CLOSED`). | Full containerized backend + PostgreSQL 17 + MinIO stack. |
+| 66 | [WF3-018] FE-06 — V29 invoice/payment/payout schema migration and persistence | Feature 6 | Flyway V29 creates the three finance tables, migrates occurrence finance data, removes finance columns from `service_request_occurrences`, and persists each payout's Inspector recipient. | Docker/Testcontainers PostgreSQL 17; service request, Customer, Inspector, drone, and inspection fixtures. |
+| 67 | [WF3-019] FE-06 — Invoice/payment/payout lifecycle and gateway integration | Feature 6 | Report acceptance, manual payment confirmation, PayOS/VNPay settlement, and Inspector payout update their dedicated rows; legacy flat response fields remain and nested summaries enforce role-based masking. | Docker/Testcontainers PostgreSQL 17; published report and occurrence; Customer, assigned Inspector, Manager, PayOS mock, and valid VNPay signature. |
