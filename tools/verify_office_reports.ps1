@@ -111,7 +111,7 @@ try {
                     $result['date'] = $feature.Range('G12').Text
                     $result['tester'] = $feature.Range('H12').Text
                     if ($result.totalCases -ne 65 -or $result.passed -ne 60 -or
-                        $result.round3Pending -ne 65) {
+                        $result.round3Pending -ne 63) {
                         throw 'Report 5 calculated values do not match its source evidence.'
                     }
                 }

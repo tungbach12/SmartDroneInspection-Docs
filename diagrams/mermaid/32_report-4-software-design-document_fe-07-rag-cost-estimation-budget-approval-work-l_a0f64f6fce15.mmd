@@ -1,0 +1,27 @@
+%% title: FE-07 RAG Cost Estimation, Budget Approval, Work Logs and Batch Verification Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Lead as Maintenance Engineer (Team Lead)
+  actor Cust as Customer (Budget Approver)
+  participant Ctrl as MaintenanceController / MaintenanceExecutionController
+  participant Advisor as MaintenanceScopeAdvisorService
+  participant Svc as WorkOrderService / MaintenanceExecutionService
+  participant DB as PostgreSQL
+
+  Lead->>Ctrl: POST /api/v1/maintenance/work-orders/{id}/suggest-estimate
+  Ctrl->>Advisor: suggestEstimate(engineerId, workOrderId)
+  Advisor-->>Lead: Return standard norm cost lines (LABOR, MATERIAL, EQUIPMENT, CONTINGENCY)
+
+  Lead->>Ctrl: POST /estimate-versions & POST /estimate-versions/{verNo}/submit
+  Ctrl->>Svc: createEstimateVersion(...) & submitEstimateVersion(...)
+  Svc->>DB: Save MaintenanceEstimateVersion + MaintenanceCostLine rows and move WorkOrder to AWAITING_APPROVAL
+
+  Cust->>Ctrl: POST /api/v1/maintenance/work-orders/{id}/estimate-versions/{verNo}/approve
+  Ctrl->>Svc: approveEstimateVersion(customerId, workOrderId, verNo)
+  Svc->>DB: Verify caller is not an executing engineer, mark Estimate and WorkOrder APPROVED
+
+  Lead->>Ctrl: POST /release, POST /start, POST /work-logs, and POST /work-logs/{logId}/submit
+  Ctrl->>Svc: Transition WorkOrder APPROVED -> READY -> IN_PROGRESS and save SUBMITTED work logs
+  Lead->>Ctrl: POST /api/v1/maintenance/work-orders/{id}/work-logs/batch-verify & POST /declare-complete
+  Ctrl->>Svc: batchVerifyWorkLogs(leadId, workOrderId) & declareComplete(leadId, workOrderId)
+  Svc->>DB: Mark all submitted logs VERIFIED, verify zero pending ChangeOrders, and mark WorkOrder WORK_COMPLETED

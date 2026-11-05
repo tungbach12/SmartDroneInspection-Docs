@@ -1,0 +1,35 @@
+%% title: FE-01 User Sign-In, OTP Verification and Google OAuth 2.0 Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor User as System User
+  participant App as Web Portal / Mobile App
+  participant Ctrl as BrowserAuthController / OAuth2Controller
+  participant Auth as AuthService
+  participant Otp as LoginOtpService
+  participant DB as PostgreSQL
+
+  alt Email & Password Sign-In
+    User->>App: Enter email and password
+    App->>Ctrl: POST /api/v1/auth/login (or /api/v1/mobile/auth/login)
+    Ctrl->>Auth: login(email, password, clientIp, userAgent)
+    Auth->>DB: Verify Argon2id password hash and lockout status (users)
+    alt OTP Challenge Required
+      Auth->>Otp: createLoginChallenge(user, clientIp)
+      Otp->>DB: Save LOGIN OtpChallenge (otp_challenges)
+      Auth-->>App: Return otpRequired = true and challengeId
+      User->>App: Enter 6-digit OTP code
+      App->>Ctrl: POST /api/v1/auth/login/otp/verify
+      Ctrl->>Otp: verifyChallenge(challengeId, otpCode)
+      Otp->>DB: Mark OtpChallenge consumed and set user.otp_verified = true
+    end
+    Auth->>DB: Create active AuthSession (auth_sessions) and AuditEvent
+    Auth-->>App: Return HS256 JWT access token and refresh credential
+  else Google OAuth 2.0 Sign-In
+    User->>App: Click Sign in with Google
+    App->>Ctrl: GET /api/v1/auth/oauth2/google?client=web|mobile
+    Ctrl-->>User: Redirect to Google OAuth 2.0 consent screen
+    User->>Ctrl: GET /api/v1/auth/oauth2/google/callback?code=...&state=...
+    Ctrl->>Auth: loginWithGoogle(googleProfile, clientType)
+    Auth->>DB: Match active User and create AuthSession (auth_sessions)
+    Ctrl-->>App: Redirect to Web callback or Mobile smartdrone://auth deep link
+  end

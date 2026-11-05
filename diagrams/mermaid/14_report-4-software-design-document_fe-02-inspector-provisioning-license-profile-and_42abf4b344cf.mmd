@@ -1,0 +1,27 @@
+%% title: FE-02 Inspector Provisioning, License Profile and Customer Workforce Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Admin as Admin or Manager
+  actor Cust as Customer
+  actor Insp as Inspector
+  participant PlatCtrl as PlatformUserController / InspectorProfileController
+  participant WorkCtrl as WorkforceController
+  participant UserSvc as AdminUserService / InspectorProfileService / WorkforceService
+  participant DB as PostgreSQL & MinIO
+
+  Admin->>PlatCtrl: POST /api/v1/platform/users (role = INSPECTOR)
+  PlatCtrl->>UserSvc: createUser(request)
+  UserSvc->>DB: Insert User (actor_zone = INSPECTOR_PARTNER) and InspectorProfile
+  DB-->>Admin: Return provisioned Inspector account (201 Created)
+
+  Admin->>PlatCtrl: PUT /api/v1/platform/inspectors/{id} & POST /license-scan
+  PlatCtrl->>UserSvc: updateProfile(userId, req) & uploadLicenseScan(userId, file)
+  UserSvc->>DB: Store license scan in MinIO and update inspector_profiles
+  Insp->>PlatCtrl: GET /api/v1/platform/inspectors/{id}/flight-logs
+  PlatCtrl->>UserSvc: listFlightLogs(userId)
+  UserSvc->>DB: Query inspector_flight_logs
+
+  Cust->>WorkCtrl: POST /api/v1/workforce/users (role = MAINTENANCE_ENGINEER)
+  WorkCtrl->>UserSvc: createWorkforceUser(customerActorId, request)
+  UserSvc->>DB: Verify same-tenant email uniqueness and insert User (must_change_password = true)
+  DB-->>Cust: Return temporary credentials for Maintenance Engineer (201 Created)

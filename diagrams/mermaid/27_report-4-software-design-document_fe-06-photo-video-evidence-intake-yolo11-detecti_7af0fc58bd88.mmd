@@ -1,0 +1,28 @@
+%% title: FE-06 Photo/Video Evidence Intake, YOLO11 Detection and Findings Confirmation Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Insp as Assigned Inspector
+  participant Ctrl as InspectionController
+  participant EvidSvc as EvidenceService
+  participant FindSvc as FindingService
+  participant AI as PrimaryWithFallbackInference
+  participant DB as PostgreSQL & MinIO
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/evidence (photo or video/mp4)
+  Ctrl->>EvidSvc: upload(inspectorId, inspectionId, file)
+  EvidSvc->>DB: Validate MIME/size, extract EXIF GPS, store object in MinIO, and save Evidence
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/evidence/{evidId}/analyze (or /analyze-video)
+  Ctrl->>FindSvc: analyzeEvidence(inspectorId, inspectionId, evidId, replace)
+  FindSvc->>AI: predict(imageBytes, contentType)
+  AI-->>FindSvc: Return YOLO11 bounding boxes (or Vision LLM fallback boxes if empty/offline)
+  FindSvc->>DB: Save PENDING Finding rows
+  FindSvc-->>Insp: Return candidate Findings with bounding boxes and confidence scores
+
+  Insp->>Ctrl: POST /findings/{findingId}/confirmation & PUT /findings/{findingId}
+  Ctrl->>FindSvc: review(inspectorId, inspectionId, findingId, decision)
+  FindSvc->>DB: Update Finding status to CONFIRMED (or soft-delete rejected candidate)
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/findings/confirm
+  Ctrl->>FindSvc: confirmFindings(inspectorId, inspectionId, acknowledgeNoFindings)
+  FindSvc->>DB: Verify zero PENDING findings remain and set inspections.findings_confirmed_at
