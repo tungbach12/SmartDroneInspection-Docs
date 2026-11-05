@@ -10,12 +10,12 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | GFA26SE139 |
-| Test round | Current case inventory: 67 IDs across 8 features FE-01 to FE-08, including two Round 3 V29 finance cases. Historical Round 1/2 figures below are retained as originally recorded. Round 3 includes two earlier FE-06 cases (WF3-006, WF3-016) plus the V29 cases WF3-018/019. V29 schema, persistence inventory, finance lifecycle, PayOS, and VNPay tests passed with Docker/Testcontainers on 2026-11-05; other feature suites were not run. |
-| Last updated | 2026-11-05 (V29 schema, finance lifecycle, PayOS/VNPay integrations Passed; non-payment feature suites not run. Historical Round 1 totals remain 65 IDs: 60 Passed, 0 Failed, 5 Pending; 92.31% overall / 93.75% of the 64-case historical baseline). |
+| Test round | Current case inventory: 67 IDs across eight features FE-01 to FE-08. Current Round 1 records 60 Passed, 0 Failed, 5 Pending, and two V29 cases marked N/A because they were added after that round. Historical Round 1 remains 65 cases (60 Passed, 0 Failed, 5 Pending; 92.31% overall / 93.75% of the 64-case baseline). Round 3 has four Passed executions: WF3-006, WF3-016, WF3-018 and WF3-019. The two V29 finance cases were verified against Flyway V1–V29 on PostgreSQL 17 with Docker/Testcontainers on 2026-11-05; other feature suites were not run. |
+| Last updated | 2026-11-05 (V29 migration, finance persistence, PayOS and VNPay tests passed; non-payment feature suites were not run). |
 
-### Round 1 and Round 3 summaries
+### Round scope
 
-Feature rows and the current Round 1 subtotal reflect all 67 current case IDs; the two V29 cases added later are `N/A` in Round 1. The separate historical Round 1 subtotal preserves the original 65-case results. Historical counts include legacy recurrence scenarios WF1-018, WF1-019, and WF1-021 (excluded from current target coverage) and implementation-specific WF3-017. Historical totals and pass-rate formulas must not be read as current V1–V29 results. The Round 3 executed subtotal counts cases with an executed `Passed` or `Failed` result; the V29 row is a subset of that subtotal. Specifically, WF3-006, WF3-016, WF3-018, and WF3-019 were Passed. Focused V29 schema, payment lifecycle, PayOS, and VNPay verification passed on 2026-11-05; non-payment feature verification was not run in this change.
+Historical counts include legacy recurrence scenarios WF1-018, WF1-019, and WF1-021 (excluded from the current target) and implementation-specific WF3-017. The current Round 1 subtotal includes all current case IDs, with later V29 additions marked N/A; the separate historical subtotal preserves the original 65-case results. Round 3 executed counts include only cases with Passed or Failed results, and the V29 subtotal is included within that count.
 
 ## Module summary
 

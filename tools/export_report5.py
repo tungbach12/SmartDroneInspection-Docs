@@ -25,6 +25,7 @@ CASE_HEADER = ["Test Case ID", "Test Case Description", "Test Case Procedure",
 # coverage rows; cloning it keeps the original vertical spacing.
 BLANK_SPACER_ROW = 15
 V29_ROUND3_CASE_IDS = {"WF3-018", "WF3-019"}
+V29_ROUND3_CASE_IDS = {"WF3-018", "WF3-019"}
 
 
 def validate_cases(report_dir):
@@ -300,8 +301,8 @@ def export(template, reports, output):
         "H5": date, "C6": stats_meta.get("Test round", "MF3-only executed slice"),
     }.items():
         book.put("Test Statistics", coord, value)
-    # Test Statistics layout for N modules: header row 10, modules rows
-    # 11..10+N, current Round 1 subtotal, blank, coverage, successful coverage.
+    # Test Statistics layout for N modules: header row 10, module rows,
+    # current/historical Round 1 subtotals, Round 3 totals/subset, spacer, coverage.
     module_proto = book.row_template("Test Statistics", 12)
     subtotal_proto = book.row_template("Test Statistics", 14)
     spacer = book.row_template("Test Statistics", BLANK_SPACER_ROW)

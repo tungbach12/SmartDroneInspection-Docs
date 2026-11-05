@@ -4,13 +4,10 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope and status (audit updated 2026-11-05):** The current Report 5 inventory has **67 case IDs** (65 historical cases plus 2 V29 finance cases) across 8 product features (`FE-01`–`FE-08`, mapped 1-to-1 to `Feature 1`–`Feature 8`). Current Round 1 columns include all 67 cases: **60 `Passed`**, **0 `Failed`**, **5 `Pending`**, and **2 `N/A`** for the V29 cases added after that round. The separate historical Round 1 subtotal remains **65 cases** (`60 Passed`, `0 Failed`, `5 Pending`; `92.31%` overall / `93.75%` baseline pass rate). Round 3 has four passed executions (WF3-006, WF3-016, WF3-018, WF3-019), of which two are the new V29 cases. These results do not represent full current V1–V29 target verification. The inventory includes legacy recurrence-scheduler and partner-application scenarios explicitly marked historical-only or superseded; their statuses do not count as current target coverage. The target schema is Flyway V1–V29 (V29 adds dedicated service invoice, customer payment, and Inspector payout tables). Focused V29 migration/schema and contract-workflow tests passed on 2026-11-05 with Docker/Testcontainers. Payment lifecycle, PayOS, and VNPay integration tests passed after fixture and endpoint updates; the full target suite is not yet verified. The last recorded frontend test note mentions failures in `WorkforcePage.test.tsx` and `RegisterPage.test.tsx`; its execution date and exact failure count are not recorded here, and no current full-suite result is asserted.
+**Scope and status (updated 2026-11-05):** The current Report 5 inventory contains **67 test cases** across 8 product features (`FE-01`–`FE-08`, mapped 1-to-1 to `Feature 1`–`Feature 8`) aligned with Flyway `V1`–`V29` and 39 application tables. Current Round 1 columns show 60 `Passed`, 0 `Failed`, 5 `Pending`, and two V29 additions marked `N/A`; the historical Round 1 subtotal remains **65 cases** (60 Passed, 0 Failed, 5 Pending; `92.31%` overall / `93.75%` of the 64-case baseline). Round 3 includes four Passed cases (`WF3-006`, `WF3-016`, `WF3-018`, `WF3-019`); the last two are the V29 subset. V29 schema, persistence, payment lifecycle, PayOS, and VNPay tests passed on 2026-11-05; non-payment target suites were not run in that change.
 
 The original workbook template remains unchanged; generated copies contain eight
-feature sheets (`Feature 1`–`Feature 8`). The current Round 1 subtotal covers all 67
-case IDs, with the two V29 cases marked `N/A`; the historical Round 1 subtotal
-continues to cover only the original 65 cases. Round 3 executed results are
-summarized separately from the two-case V29 subset.
+feature sheets (`Feature 1`–`Feature 8`).
 
 ## Naming layers and mapping
 
@@ -42,7 +39,7 @@ Report 3 feature (`FE-01`–`FE-08`). Sheet `Feature N` contains SRS feature `FE
 | Folder/file | Workbook area | Purpose |
 | --- | --- | --- |
 | `00-cover/` | `Cover` | Project metadata and record of changes. |
-| `01-test-cases/` | `Test Cases` | The 67-ID inventory (65 historical cases plus 2 V29 finance cases), annotated to distinguish legacy-only scenarios from current V1–V29 target coverage. |
+| `01-test-cases/` | `Test Cases` | Complete index of all 67 current test cases across `Feature 1`–`Feature 8` (65 historical cases plus two V29 additions). |
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary across `Feature 1`–`Feature 8`. |
 | `03-features/fe-01-authentication-access-control.md` | `Feature 1` sheet | `FE-01` (`WF1-001`–`WF1-005`: 5 cases, Owner: Trần Hoàng Trung Hiếu). |
 | `03-features/fe-02-workforce-subscription-management.md` | `Feature 2` sheet | `FE-02` (`WF1-006`–`WF1-016`: 11 cases, Owner: Trần Hoàng Trung Hiếu). |
@@ -80,10 +77,10 @@ original wording and are left alone so existing links remain stable.
    Use only `Passed`, `Failed`, `Pending`, or `N/A`.
 5. Update the corresponding module row and totals in
    `02-test-statistics/test-statistics.md`. `Module code` must match the
-   feature sheet's `Feature` name (`B2`). Keep the current Round 1 subtotal,
-   historical Round 1 subtotal, and Round 3 executed subtotal distinct; verify
-   all three using the exporter tests.
-6. Before exporting, check that the number of cases, IDs, statuses, dates, and
+   feature sheet's `Feature` name (`B2`).
+6. Keep the current Round 1 subtotal, historical Round 1 subtotal, Round 3
+   executed subtotal, and V29 subset distinct in `test-statistics.md`.
+7. Before exporting, check that the number of cases, IDs, statuses, dates, and
    testers agree across all Markdown files and the workbook.
 
 ## Generate and verify a workbook copy

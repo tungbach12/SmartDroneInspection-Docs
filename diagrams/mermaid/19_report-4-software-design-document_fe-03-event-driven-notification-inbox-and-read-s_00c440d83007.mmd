@@ -1,0 +1,25 @@
+%% title: FE-03 Event-Driven Notification Inbox and Read Status Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Mgr as Manager or Customer
+  actor User as Recipient User
+  participant DomainSvc as Inspection / Maintenance Service
+  participant Outbox as Spring Modulith Outbox (event_publication)
+  participant Listener as Inspection / Maintenance NotificationListener
+  participant NotifCtrl as NotificationController
+  participant NotifSvc as NotificationService
+  participant DB as PostgreSQL
+
+  Mgr->>DomainSvc: Execute domain action (e.g., assign inspection, abort session, approve estimate)
+  DomainSvc->>Outbox: Publish domain event within transaction
+  Outbox->>Listener: Deliver event asynchronously to @ApplicationModuleListener
+  Listener->>DB: Insert Notification (status = SENT) guarded by uq_notifications_deduplication_key
+
+  User->>NotifCtrl: GET /api/v1/notifications & GET /api/v1/notifications/unread-count
+  NotifCtrl->>NotifSvc: list(userId, page, pageSize, unreadOnly) & unreadCount(userId)
+  NotifSvc->>DB: Query recipient-scoped notifications and unread count
+  DB-->>User: Return NotificationPageResponse and unread count
+
+  User->>NotifCtrl: PATCH /api/v1/notifications/{id}/read
+  NotifCtrl->>NotifSvc: markAsRead(userId, notificationId)
+  NotifSvc->>DB: Update Notification status SENT -> READ and set read_at timestamp

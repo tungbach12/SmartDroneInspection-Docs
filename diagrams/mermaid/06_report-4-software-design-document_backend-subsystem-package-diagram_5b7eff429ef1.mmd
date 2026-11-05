@@ -1,0 +1,37 @@
+%% title: Backend Subsystem Package Diagram
+flowchart TD
+  subgraph RootPkg["com.smartdroneinspection"]
+    USERS["users\n(Authentication, Sessions, Profiles, Rate Limit & Audit)"]
+    WORKFORCE["workforce\n(Customer Maintenance Engineer Provisioning)"]
+    CONTRACTS["contracts\n(Service Requests, VND Quotes, Agreements & PayOS/VNPay)"]
+    ASSETS["assets\n(Asset Catalog, Customer Assets, Airspace & Owned Drones)"]
+    INSPECTIONS["inspections\n(Inspections, Field Sessions, SmartDroneHub, Evidence, Findings & PDF Reports)"]
+    MAINTENANCE["maintenance\n(Work Orders, RAG Advisor, Tasks, Work Logs, Acceptance & PDF Reports)"]
+    NOTIFICATIONS["notifications\n(In-App Notification Inbox & Event Listeners)"]
+    DASHBOARD["dashboard\n(Role-Scoped Operational Metrics)"]
+    INFRASTRUCTURE["infrastructure\n(MinIO, YOLO11/LLM Clients, SmartDroneHub & Payment Gateways)"]
+    SHARED["shared\n(SecurityConfig, Responses, Roles, Ports, Validation & Exceptions)"]
+  end
+
+  WORKFORCE --> USERS
+  CONTRACTS --> ASSETS
+  CONTRACTS --> USERS
+  CONTRACTS --> INSPECTIONS
+  ASSETS --> USERS
+  INSPECTIONS --> ASSETS
+  INSPECTIONS --> USERS
+  MAINTENANCE --> INSPECTIONS
+  MAINTENANCE --> USERS
+  NOTIFICATIONS -.->|"Domain Events"| INSPECTIONS
+  NOTIFICATIONS -.->|"Domain Events"| MAINTENANCE
+  INSPECTIONS <-->|"Re-inspection Events & SPI"| MAINTENANCE
+  DASHBOARD --> ASSETS
+  DASHBOARD --> INSPECTIONS
+  DASHBOARD --> MAINTENANCE
+  USERS --> SHARED
+  CONTRACTS --> SHARED
+  ASSETS --> SHARED
+  INSPECTIONS --> SHARED
+  MAINTENANCE --> SHARED
+  NOTIFICATIONS --> SHARED
+  INFRASTRUCTURE --> SHARED

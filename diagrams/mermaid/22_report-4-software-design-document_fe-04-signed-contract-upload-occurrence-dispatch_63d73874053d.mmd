@@ -1,0 +1,25 @@
+%% title: FE-04 Signed Contract Upload, Occurrence Dispatch and Airspace Check Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Mgr as Manager
+  participant Ctrl as ContractWorkflowController / AirspaceController
+  participant Svc as ContractWorkflowService / AirspaceAdvisoryService
+  participant AssignPort as Mf2InspectionAssignmentAdapter
+  participant Store as MinioEvidenceObjectStore
+  participant DB as PostgreSQL
+
+  Mgr->>Ctrl: GET /api/v1/airspace/evaluate?latitude=...&longitude=...
+  Ctrl->>Svc: evaluate(latitude, longitude, maxAltitudeMeters)
+  Svc-->>Mgr: Return AirspaceEvaluationResult (CLEAR_ZONE, RESTRICTED_ZONE, or NO_FLY_ZONE)
+
+  Mgr->>Ctrl: POST /api/v1/contracts/requests/{id}/signed-contract (PDF/DOCX/JPEG/PNG)
+  Ctrl->>Svc: uploadSignedContract(managerId, requestId, file)
+  Svc->>Store: Store agreement file in MinIO
+  Svc->>DB: Record contract_object_key and transition request to CONTRACT_SIGNED
+
+  Mgr->>Ctrl: POST /api/v1/contracts/requests/{id}/occurrences/{occId}/assign
+  Ctrl->>Svc: assignOccurrence(managerId, requestId, occId, assignInput)
+  Svc->>DB: Check hasScheduleConflict(inspectorId, droneId, startAt, endAt)
+  Svc->>AssignPort: assign(orgId, assetId, inspectorId, droneId, startAt, endAt, managerId)
+  AssignPort->>DB: Create SCHEDULED Inspection and publish InspectionAssignedEvent
+  Svc->>DB: Link inspectionId on ServiceRequestOccurrence and mark request ASSIGNED

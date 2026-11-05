@@ -1,0 +1,28 @@
+%% title: FE-06 Report Submission, Manager Direct Publication and On-Demand PDF Export Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Insp as Assigned Inspector
+  actor Mgr as Independent Manager
+  actor Caller as Authorized User
+  participant Ctrl as InspectionController
+  participant RepSvc as ReportService
+  participant Pdf as PdfReportRenderer
+  participant DB as PostgreSQL & MinIO
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/report/ai-summary & POST /report/draft
+  Ctrl->>RepSvc: generateAiSummary(...) & generateDraft(inspectorId, inspectionId)
+  RepSvc->>DB: Create InspectionReport (status = SUBMITTED) and move Inspection to UNDER_REVIEW
+
+  alt Manager Returns Report with Feedback
+    Mgr->>Ctrl: POST /api/v1/inspections/{id}/report/versions/{verId}/review (approve = false, reason)
+    Ctrl->>RepSvc: reviewVersion(managerId, inspectionId, verId, false, reason)
+    RepSvc->>DB: Mark InspectionReport RETURNED and revert Inspection to FIELD_COMPLETED
+  else Manager Approves and Directly Publishes Report
+    Mgr->>Ctrl: POST /api/v1/inspections/{id}/report/versions/{verId}/review (approve = true)
+    Ctrl->>RepSvc: reviewVersion(managerId, inspectionId, verId, true, null)
+    RepSvc->>DB: Mark prior published version SUPERSEDED, set current version PUBLISHED, and Inspection COMPLETED
+  end
+
+  Caller->>Ctrl: GET /api/v1/inspections/{id}/report/versions/{verId}/document
+  Ctrl->>RepSvc: downloadArtefact(actorId, inspectionId, verId, locale)
+  RepSvc->>Pdf: Render A4 PDF on demand if not cached, store at reports/{verId}.pdf in MinIO, and stream bytes
