@@ -4,10 +4,13 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope and status (audit updated 2026-11-02):** The retained Report 5 inventory has **65 case IDs** across 8 product features (`FE-01`–`FE-08`, mapped 1-to-1 to `Feature 1`–`Feature 8`). This is a historical inventory: Round 1 recorded **60 `Passed`**, **0 `Failed`**, and **5 `Pending`** (`92.31%` overall / `93.75%` baseline pass rate). Those totals are preserved as historical results, not current V25 verification. The inventory includes legacy recurrence-scheduler and partner-application test scenarios that are explicitly marked historical-only or superseded; their recorded statuses do not count as V25 target coverage. The V25 target schema is Flyway V1–V25. The latest recorded migration/Testcontainers attempt was blocked before assertions on 2026-11-01 because Docker was unavailable (see WF4-005); current V25 verification is therefore **Pending**. This documentation audit did not run tests. The last recorded frontend test note mentions failures in `WorkforcePage.test.tsx` and `RegisterPage.test.tsx`; its execution date and exact failure count are not recorded here, and no current full-suite result is asserted.
+**Scope and status (audit updated 2026-11-05):** The current Report 5 inventory has **67 case IDs** (65 historical cases plus 2 V29 finance cases) across 8 product features (`FE-01`–`FE-08`, mapped 1-to-1 to `Feature 1`–`Feature 8`). Current Round 1 columns include all 67 cases: **60 `Passed`**, **0 `Failed`**, **5 `Pending`**, and **2 `N/A`** for the V29 cases added after that round. The separate historical Round 1 subtotal remains **65 cases** (`60 Passed`, `0 Failed`, `5 Pending`; `92.31%` overall / `93.75%` baseline pass rate). Round 3 has four passed executions (WF3-006, WF3-016, WF3-018, WF3-019), of which two are the new V29 cases. These results do not represent full current V1–V29 target verification. The inventory includes legacy recurrence-scheduler and partner-application scenarios explicitly marked historical-only or superseded; their statuses do not count as current target coverage. The target schema is Flyway V1–V29 (V29 adds dedicated service invoice, customer payment, and Inspector payout tables). Focused V29 migration/schema and contract-workflow tests passed on 2026-11-05 with Docker/Testcontainers. Payment lifecycle, PayOS, and VNPay integration tests passed after fixture and endpoint updates; the full target suite is not yet verified. The last recorded frontend test note mentions failures in `WorkforcePage.test.tsx` and `RegisterPage.test.tsx`; its execution date and exact failure count are not recorded here, and no current full-suite result is asserted.
 
 The original workbook template remains unchanged; generated copies contain eight
-feature sheets (`Feature 1`–`Feature 8`).
+feature sheets (`Feature 1`–`Feature 8`). The current Round 1 subtotal covers all 67
+case IDs, with the two V29 cases marked `N/A`; the historical Round 1 subtotal
+continues to cover only the original 65 cases. Round 3 executed results are
+summarized separately from the two-case V29 subset.
 
 ## Naming layers and mapping
 
@@ -39,14 +42,14 @@ Report 3 feature (`FE-01`–`FE-08`). Sheet `Feature N` contains SRS feature `FE
 | Folder/file | Workbook area | Purpose |
 | --- | --- | --- |
 | `00-cover/` | `Cover` | Project metadata and record of changes. |
-| `01-test-cases/` | `Test Cases` | The retained historical inventory of 65 IDs, annotated to distinguish legacy-only scenarios from current V25 target coverage. |
+| `01-test-cases/` | `Test Cases` | The 67-ID inventory (65 historical cases plus 2 V29 finance cases), annotated to distinguish legacy-only scenarios from current V1–V29 target coverage. |
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary across `Feature 1`–`Feature 8`. |
 | `03-features/fe-01-authentication-access-control.md` | `Feature 1` sheet | `FE-01` (`WF1-001`–`WF1-005`: 5 cases, Owner: Trần Hoàng Trung Hiếu). |
 | `03-features/fe-02-workforce-subscription-management.md` | `Feature 2` sheet | `FE-02` (`WF1-006`–`WF1-016`: 11 cases, Owner: Trần Hoàng Trung Hiếu). |
 | `03-features/fe-03-asset-drone-fleet-management.md` | `Feature 3` sheet | `FE-03` (`WF1-017`–`WF1-021`: 5 cases, Owner: Phùng Trung Quốc). |
 | `03-features/fe-04-recurring-schedule-notifications.md` | `Feature 4` sheet | `FE-04` (`WF2-001`–`WF2-005`: 5 cases, Owner: Phùng Trung Quốc). |
 | `03-features/fe-05-mission-dispatch-airspace-advisory.md` | `Feature 5` sheet | `FE-05` (`WF2-008`–`009`, `011`–`012`, `015`–`020`, `WF3-009`: 11 cases, Owner: Trần Tùng Bách). |
-| `03-features/fe-06-flight-readiness-field-execution.md` | `Feature 6` sheet | `FE-06` (`WF3-001`–`008`, `WF3-010`, `012`, `016`, `017`: 12 cases, Owner: Trần Tùng Bách). |
+| `03-features/fe-06-flight-readiness-field-execution.md` | `Feature 6` sheet | `FE-06` (`WF3-001`–`008`, `WF3-010`, `012`, `016`–`019`: 14 cases, Owner: Trần Tùng Bách). |
 | `03-features/fe-07-operational-dashboard-schedule-calendar.md` | `Feature 7` sheet | `FE-07` (`WF4-001`–`WF4-011`: 11 cases, Owner: Trương Thái Như). |
 | `03-features/fe-08-evidence-ai-defect-detection.md` | `Feature 8` sheet | `FE-08` (`WF4-012`–`WF4-016`: 5 cases, Owner: Trương Thái Như). |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
@@ -77,7 +80,9 @@ original wording and are left alone so existing links remain stable.
    Use only `Passed`, `Failed`, `Pending`, or `N/A`.
 5. Update the corresponding module row and totals in
    `02-test-statistics/test-statistics.md`. `Module code` must match the
-   feature sheet's `Feature` name (`B2`).
+   feature sheet's `Feature` name (`B2`). Keep the current Round 1 subtotal,
+   historical Round 1 subtotal, and Round 3 executed subtotal distinct; verify
+   all three using the exporter tests.
 6. Before exporting, check that the number of cases, IDs, statuses, dates, and
    testers agree across all Markdown files and the workbook.
 

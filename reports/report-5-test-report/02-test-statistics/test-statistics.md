@@ -10,12 +10,12 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | GFA26SE139 |
-| Test round | Historical Round 1 inventory: 65 retained case IDs across 8 features FE-01 to FE-08 (2 features per team member, mapped 1-to-1 to Feature 1 to Feature 8). Round 1 and Round 2 figures below are historical only. Round 3 has two verified FE-06 cases (WF3-006 and WF3-016); the remaining Round 3 cases are Pending. Current V25-target verification is Pending; the latest recorded PostgreSQL/Testcontainers attempt was blocked before assertions because Docker was unavailable on 2026-11-01. |
-| Last updated | 2026-11-03 (Round 3 targeted verification: WF3-006 and WF3-016 Passed; other Round 3 cases remain Pending. Historical Round 1 totals remain 65 IDs: 60 Passed, 0 Failed, 5 Pending; 92.31% overall / 93.75% of the 64-case historical baseline). |
+| Test round | Current case inventory: 67 IDs across 8 features FE-01 to FE-08, including two Round 3 V29 finance cases. Historical Round 1/2 figures below are retained as originally recorded. Round 3 includes two earlier FE-06 cases (WF3-006, WF3-016) plus the V29 cases WF3-018/019. V29 schema, persistence inventory, finance lifecycle, PayOS, and VNPay tests passed with Docker/Testcontainers on 2026-11-05; other feature suites were not run. |
+| Last updated | 2026-11-05 (V29 schema, finance lifecycle, PayOS/VNPay integrations Passed; non-payment feature suites not run. Historical Round 1 totals remain 65 IDs: 60 Passed, 0 Failed, 5 Pending; 92.31% overall / 93.75% of the 64-case historical baseline). |
 
-### Historical Round 1 summary (65 retained IDs)
+### Round 1 and Round 3 summaries
 
-The following status/count table preserves the historical Round 1 worksheet totals only. It includes legacy recurrence scenarios WF1-018, WF1-019, and WF1-021 (which are excluded from current V25 target coverage) and implementation-specific WF3-017. Totals and pass-rate formulas must not be read as current V25 results. Current V25 verification: **Pending**, blocked before migration assertions when Docker was unavailable on 2026-11-01.
+Feature rows and the current Round 1 subtotal reflect all 67 current case IDs; the two V29 cases added later are `N/A` in Round 1. The separate historical Round 1 subtotal preserves the original 65-case results. Historical counts include legacy recurrence scenarios WF1-018, WF1-019, and WF1-021 (excluded from current target coverage) and implementation-specific WF3-017. Historical totals and pass-rate formulas must not be read as current V1–V29 results. The Round 3 executed subtotal counts cases with an executed `Passed` or `Failed` result; the V29 row is a subset of that subtotal. Specifically, WF3-006, WF3-016, WF3-018, and WF3-019 were Passed. Focused V29 schema, payment lifecycle, PayOS, and VNPay verification passed on 2026-11-05; non-payment feature verification was not run in this change.
 
 ## Module summary
 
@@ -26,9 +26,13 @@ The following status/count table preserves the historical Round 1 worksheet tota
 | 3 | Recurring Service Requests, Contract Occurrences & Outbox Notifications | 5 | 0 | 0 | 0 | 5 |
 | 4 | Service Requests, Quotations, Contracts, Dispatch & Airspace Map | 5 | 0 | 0 | 0 | 5 |
 | 5 | Flight Permit Gate, Field Execution, Dashboard & Calendar | 10 | 0 | 1 | 0 | 11 |
-| 6 | Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS | 10 | 0 | 2 | 0 | 12 |
+| 6 | Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS | 10 | 0 | 2 | 2 | 14 |
 | 7 | Maintenance Work Orders, RAG Scope/Norms Advisor & Repair Execution | 10 | 0 | 1 | 0 | 11 |
 | 8 | Completion Report, 3-Way Re-inspection Verification & Cost Closure | 5 | 0 | 0 | 0 | 5 |
-| **Subtotal** |  | **60** | **0** | **5** | **0** | **65** |
-| **Review 2 baseline** |  | **60** | **0** | **4** | **0** | **64** |
-| **Implementation-specific pending** |  | **0** | **0** | **1** | **0** | **1** |
+| **Current Round 1 subtotal** |  | **60** | **0** | **5** | **2** | **67** |
+| **Historical Round 1 subtotal** |  | **60** | **0** | **5** | **0** | **65** |
+| **Historical Review 2 baseline** |  | **60** | **0** | **4** | **0** | **64** |
+| **Historical implementation-specific pending** |  | **0** | **0** | **1** | **0** | **1** |
+| **Round 3 executed cases** |  | **4** | **0** | **0** | **0** | **4** |
+| **V29 Round 3 cases** |  | **2** | **0** | **0** | **0** | **2** |
+| **Current inventory** |  |  |  |  |  | **67** |

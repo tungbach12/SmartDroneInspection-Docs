@@ -10,7 +10,8 @@ from report_ooxml import Spreadsheet, sha256
 
 class Report5Tests(unittest.TestCase):
     def test_repeated_round_fields_remain_positional(self):
-        cases, _, summaries = validate_cases(REPORTS / "report-5-test-report")
+        cases, _, summaries, round1_counts = validate_cases(REPORTS / "report-5-test-report")
+        self.assertEqual(dict(round1_counts), {"Passed": 60, "Pending": 5})
         # WF3-002 is FE-06, so it lands on the sheet for feature 6.
         row = next(row for _, row, _ in cases["Feature 6"] if row[0] == "WF3-002")
         self.assertEqual(len(row), 15)
@@ -30,7 +31,7 @@ class Report5Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / TEMPLATE_NAME
             result = export(template, REPORTS, output)
-            self.assertEqual(result["cases"], 65)
+            self.assertEqual(result["cases"], 67)
             self.assertTrue(result["format_parts_preserved"])
             book, source = Spreadsheet(output), Spreadsheet(template)
             self.assertEqual(list(book.sheets)[:5],
@@ -39,7 +40,7 @@ class Report5Tests(unittest.TestCase):
                              "Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS")
             for coord, expected in {"G12": "2026-10-11", "H12": "Claude Code (automated)",
                                     "J12": "", "K12": "", "M12": "", "N12": "",
-                                    "B4": "12", "B6": "10", "B7": "0", "D7": "12", "D8": "10"}.items():
+                                    "B4": "14", "B6": "10", "B7": "0", "D7": "12", "D8": "10"}.items():
                 self.assertEqual(book.value("Feature 6", coord), expected, coord)
             self.assertTrue(book.value("Feature 6", "A11").startswith("FE-06"))
             self.assertEqual(book.value("Feature 6", "A12"), "WF3-002")
@@ -48,9 +49,25 @@ class Report5Tests(unittest.TestCase):
             self.assertEqual(book.value("Feature 6", "I17"), "Pending")
             self.assertEqual(book.value("Feature 6", "L17"), "Pending")
             self.assertEqual(book.value("Feature 6", "A19"), "WF3-005")
-            self.assertEqual(book.value("Test Statistics", "H19"), "65")
-            self.assertAlmostEqual(float(book.value("Test Statistics", "E21")), 92.31, places=2)
-            self.assertAlmostEqual(float(book.value("Test Statistics", "E22")), 92.31, places=2)
+            self.assertEqual(book.value("Feature 6", "A24"), "WF3-018")
+            self.assertEqual(book.value("Feature 6", "F24"), "N/A")
+            self.assertEqual(book.value("Feature 6", "A25"), "WF3-019")
+            self.assertEqual(book.value("Feature 6", "F25"), "N/A")
+            self.assertEqual(book.value("Feature 6", "L24"), "Passed")
+            self.assertEqual(book.value("Feature 6", "L25"), "Passed")
+            self.assertEqual(book.value("Test Statistics", "H19"), "67")
+            self.assertEqual(book.value("Test Statistics", "D19"), "60")
+            self.assertEqual(book.value("Test Statistics", "F19"), "5")
+            self.assertEqual(book.value("Test Statistics", "G19"), "2")
+            self.assertEqual(book.value("Test Statistics", "H20"), "65")
+            self.assertEqual(book.value("Test Statistics", "D20"), "60")
+            self.assertEqual(book.value("Test Statistics", "F20"), "5")
+            self.assertEqual(book.value("Test Statistics", "H21"), "4")
+            self.assertEqual(book.value("Test Statistics", "D21"), "4")
+            self.assertEqual(book.value("Test Statistics", "H22"), "2")
+            self.assertEqual(book.value("Test Statistics", "D22"), "2")
+            self.assertAlmostEqual(float(book.value("Test Statistics", "E24")), 92.31, places=2)
+            self.assertAlmostEqual(float(book.value("Test Statistics", "E25")), 92.31, places=2)
             self.assertEqual(book.value("Cover", "E4"), "Creator")
             self.assertEqual(book.value("Test Statistics", "C3"), "SmartDroneInspection")
             self.assertNotIn("<List enviroment", book.value("Test Cases", "D5"))
