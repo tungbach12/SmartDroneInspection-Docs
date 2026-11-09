@@ -283,7 +283,7 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
     if len(body_ps) >= 2:
         set_paragraph_body_text(
             body_ps[1],
-            "Customers register assets, accept quotes, and pay via PayOS. Inspectors register drones, execute checklist-gated flights with SmartDroneHub telemetry, confirm DroneVisionAI (YOLO11) defects, and submit reports for Manager publication (Report 4 SDD §1.1).",
+            "Customers register assets, accept quotes, and complete online payment. Inspectors register drones, execute checklist-gated flights with SmartDroneHub telemetry, confirm DroneVisionAI (YOLO11) defects, and submit reports for Manager publication (Report 4 SDD §1.1).",
         )
 
     # TBL 3: 3. Key Design Decisions
@@ -339,7 +339,7 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
         [
             [
                 "R1",
-                "External service outage (SmartDroneHub, AI, PayOS)",
+                "External service outage (SmartDroneHub, AI, Payment Gateway)",
                 "Blocks telemetry sync, defect detection, or payment webhook.",
                 "Use 5 s timeouts, manual finding fallback, and idempotent webhook retry.",
                 "Trần Tùng Bách",
@@ -454,9 +454,9 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
             ],
             [
                 "F-08",
-                "Customer Acceptance & PayOS Settlement",
+                "Customer Acceptance & Payment Settlement",
                 "Customer, Manager, Inspector",
-                "Customer accepts published report and pays via PayOS (VietQR); system marks PAID and calculates net payout.",
+                "Customer accepts published report and completes online payment; system marks PAID and calculates net payout.",
                 "WF3-011..017, WF4-009..016",
                 "In progress",
             ],
@@ -533,7 +533,7 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
             [
                 "Trương Thái Như (SE180082)",
                 "Member",
-                "F-07 (Report & Review), F-08 (Acceptance & PayOS)",
+                "F-07 (Report & Review), F-08 (Acceptance & Payment)",
                 "WF-04 — Report Review & Payment Settlement",
                 "D5 / PR #86, #87",
             ],
@@ -577,9 +577,9 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
             [
                 "WF-04",
                 "Report Review & Payment Settlement",
-                "Inspector, Manager, Customer, PayOS",
+                "Inspector, Manager, Customer, System",
                 "Field inspection reaches FIELD_COMPLETED.",
-                "Report published, accepted, paid via PayOS, and settled.",
+                "Report published, accepted, paid online, and settled.",
                 "F-07, F-08",
                 "Report: DRAFT -> SUBMITTED -> PUBLISHED; Invoice: UNPAID -> PAID; Payout: -> SETTLED",
                 "Trương Thái Như",
@@ -650,7 +650,7 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
                 "WF-04",
                 "Main",
                 "FIELD_COMPLETED mission with locked findings.",
-                "1. System auto-compiles DRAFT report with AI summary.\n2. Inspector reviews and submits report (SUBMITTED).\n3. Independent Manager reviews report.\n4. Manager approves & publishes PDF (PUBLISHED).\n5. Customer clicks Accept Report.\n6. Customer pays via PayOS -> PAID & Payout SETTLED.",
+                "1. System auto-compiles DRAFT report with AI summary.\n2. Inspector reviews and submits report (SUBMITTED).\n3. Independent Manager reviews report.\n4. Manager approves & publishes PDF (PUBLISHED).\n5. Customer clicks Accept Report.\n6. Customer completes online payment -> PAID & Payout SETTLED.",
                 "Report -> PUBLISHED; Invoice -> PAID; Payout -> SETTLED.",
                 "Trương Thái Như",
             ],
@@ -1019,9 +1019,9 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
             ],
             [
                 "F-08",
-                "Customer Acceptance & PayOS Settlement",
+                "Customer Acceptance & Payment Settlement",
                 "Customer, Manager, Inspector",
-                "Customer accepts published report and pays via PayOS; system marks PAID and settles payout.",
+                "Customer accepts published report and completes online payment; system marks PAID and settles payout.",
                 "WF-04",
                 "Trương Thái Như",
             ],
@@ -1228,22 +1228,22 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "WF-04 · Report Review & Payment Settlement",
                 "Trương Thái Như (SE180082)",
                 "Trần Tùng Bách (SE180220)",
-                "Inspector, Manager, Customer, PayOS",
+                "Inspector, Manager, Customer, System",
                 "Inspection reaches FIELD_COMPLETED with locked findings.",
-                "Report published, accepted, paid via PayOS, and settled to Inspector.",
+                "Report published, accepted, paid online, and settled to Inspector.",
                 "Report: DRAFT -> SUBMITTED -> PUBLISHED; Invoice: UNPAID -> PAID; Payout: -> SETTLED",
                 "Report 4 SDD §3.7.3",
             ],
             "features": [
                 ["F-07", "Auto-Compiled Report & Manager Review", "Draft report with AI summary; Manager publishes PDF or returns with reason.", "WF3-010, WF4-001..008"],
-                ["F-08", "Customer Acceptance & PayOS Settlement", "Customer accepts report, pays via PayOS, and triggers net payout.", "WF3-011..016, WF4-009..016"],
+                ["F-08", "Customer Acceptance & Payment Settlement", "Customer accepts report, completes online payment, and triggers net payout.", "WF3-011..016, WF4-009..016"],
             ],
             "demos": [
                 [
                     "DS-04a",
                     "Main",
                     "FIELD_COMPLETED mission with locked findings.",
-                    "1. System auto-compiles DRAFT report with AI summary.\n2. Inspector reviews and submits report (SUBMITTED).\n3. Independent Manager reviews report.\n4. Manager approves & publishes PDF (PUBLISHED).\n5. Customer clicks Accept Report.\n6. Customer pays via PayOS -> PAID & Payout SETTLED.",
+                    "1. System auto-compiles DRAFT report with AI summary.\n2. Inspector reviews and submits report (SUBMITTED).\n3. Independent Manager reviews report.\n4. Manager approves & publishes PDF (PUBLISHED).\n5. Customer clicks Accept Report.\n6. Customer completes online payment -> PAID & Payout SETTLED.",
                     "Report -> PUBLISHED; Invoice -> PAID; Payout -> SETTLED.",
                     "Trương Thái Như",
                 ],
@@ -1332,7 +1332,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
             "info": ["Trương Thái Như", "SE180082", "Member"],
             "ownership": [
                 ["Main workflow(s) owned", "WF-04", "Report Review & Payment Settlement"],
-                ["Mandatory features owned", "F-07, F-08", "Report Review & PayOS Settlement"],
+                ["Mandatory features owned", "F-07, F-08", "Report Review & Payment Settlement"],
                 ["Modules / entities owned", "reports, settlement", "InspectionReport, ServiceInvoice, Payout"],
                 ["Design decisions owned (D-IDs)", "D5", "Human-in-the-loop report governance"],
                 ["NFRs responsible", "NFR-05", "SHA-256 PDF immutability"],
@@ -1409,7 +1409,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
             ["FX-01", "Map SDD §2.2 state-transition IDs to F-01..F-08.", "WF-01..04", "Trần Hoàng Trung Hiếu", "12/11/2026"],
             ["FX-02", "Complete staging walkthrough for partner drone approval (WF1-010).", "WF-01", "Trần Hoàng Trung Hiếu", "15/11/2026"],
             ["FX-03", "Complete staging walkthrough for session abort & reschedule (WF2-015).", "WF-02, WF-03", "Phùng Trung Quốc", "15/11/2026"],
-            ["FX-04", "Complete staging walkthroughs for PayOS & Vision fallback (WF3-012, 017).", "WF-03, WF-04", "Trần Tùng Bách", "15/11/2026"],
+            ["FX-04", "Complete staging walkthroughs for online payment & Vision fallback (WF3-012, 017).", "WF-03, WF-04", "Trần Tùng Bách", "15/11/2026"],
             ["FX-05", "Remove legacy Maintenance references from SRS/SDD (SR-01).", "WF-04", "Trương Thái Như", "12/11/2026"],
         ],
     )
