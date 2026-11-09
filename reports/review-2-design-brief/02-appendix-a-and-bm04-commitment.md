@@ -1,72 +1,93 @@
 ---
-title: "SWP490 Review 2 - BM01 Appendix A (Defense 1.1 Targets) & BM04 Review 2 Commitment"
+title: "SWP490 Review 2 - BM01 Appendix A & BM04 Review 2 Commitment"
 document_type: review2-appendix-a-bm04
-version: "2.0"
-date: "2026-11-01"
+version: "3.0"
+date: "2026-11-09"
 project_code: "GFA26SE139"
 group_name: "FA26SE112"
 ---
 
-# II. Appendix A – Defense 1.1 Targets (Synchronized v2.0) & BM04 Commitment Baseline
+# SWP490 – BM01 Appendix A & Review 2 Commitment (BM04)
 
-## 9.1 Main Workflows (4 Workflows = 1 per Team Member, Covering All 8 Features)
+## 1. Project Information
 
-Every Main Workflow spans `>= 2` human/system actors, exercises its owner's **2 mandatory features (`FE-01` to `FE-08`)**, drives end-to-end state transitions across main domain entities, and traces 1-to-1 to an Activity Diagram in **Report 4 SDD (§3.3.3, §3.5.3, §3.6.3, §3.8.3)**:
-
-| ID | Workflow Name & SDD Trace | Actors Involved | Business Outcome | Mandatory Features (2 / Member) | Entity State Transitions | Owner |
-| :---: | --- | --- | --- | :---: | --- | --- |
-| **`WF-01`** | **Inspector Onboarding, Customer Airspace Asset Setup, 3-Doc Drone Review & Recurring Schedule Generation** *(SDD §3.3.3)* | `Customer`, `Inspector`, `Platform Manager`, `System` | Inspector is approved with pilot license and offline contract key (`no drone required at signup`), registers an owned drone with 3 documents (`REGISTRATION`, `OWNERSHIP`, `INSPECTION`), Customer registers an airspace-cleared asset with checkpoints and Maintenance Engineers, and recurring schedules/occurrences generate deduplicated outbox notifications. | `FE-02`, `FE-03` | `InspectorPartnerApplication`: `PENDING -> APPROVED`<br>`DroneRegistrationApplication`: `PENDING -> APPROVED`<br>`Drone`: `-> ACTIVE (inspector_owner_id)`<br>`Asset`: `-> ACTIVE`<br>`RecurringInspectionSchedule`: `-> ACTIVE`<br>`ServiceRequestOccurrence`: `-> PENDING_ASSIGNMENT`<br>`Notification`: `-> SENT (Unread)` | **Trần Hoàng Trung Hiếu** (`SE184212`) |
-| **`WF-02`** | **Service Request, VND/USD Quotation, Signed Contract, Partner Dispatch, Flight Permit Gate & Field Session Execution** *(SDD §3.5.3)* | `Customer`, `Platform Manager`, `Inspector` (Web & Mobile) | Customer submits Service Request (`ONE_TIME`/`RECURRING`), negotiates via Order Chat, accepts VND/USD Quote, Manager uploads signed paper contract (`CONTRACT_SIGNED`) and dispatches Inspector/Drone with cross-org conflict check (`SCHEDULED`), Inspector uploads flight permit and completes or aborts on-site field session (`Complete` / `Abort` re-dispatch). | `FE-04`, `FE-05` | `ServiceRequest`: `OPEN -> QUOTED -> ACCEPTED -> CONTRACT_SIGNED -> ASSIGNED`<br>`ServiceRequestOccurrence`: `PENDING_ASSIGNMENT -> ASSIGNED`<br>`Inspection`: `-> SCHEDULED -> IN_PROGRESS -> FIELD_COMPLETED` (or `ABORTED -> SCHEDULED`)<br>`FieldSession`: `PLANNED -> IN_PROGRESS -> FIELD_COMPLETED / ABORTED` | **Phùng Trung Quốc** (`SE170027`) |
-| **`WF-03`** | **Photo/MP4 Evidence Intake, YOLO11 + Vision Fallback Detection, Auto-Compiled Report, Manager Publish & PayOS VietQR Settlement** *(SDD §3.6.3)* | `Inspector`, `YOLO11 / Vision LLM`, `Platform Manager`, `Customer`, `PayOS` | Field photo and streaming `video/mp4` evidence is analyzed by `YOLO11` (with Vision LLM fallback), Inspector confirms findings baseline and visits Report tab to auto-compile `SUBMITTED` report with AI Executive Summary, independent `MANAGER` publishes immutable SHA-256 PDF (`PUBLISHED`), and `CUSTOMER` accepts report and pays via **PayOS (VietQR)** (`PAID`). | `FE-01`, `FE-06` | `Finding`: `PENDING -> CONFIRMED`<br>`Inspection`: `FIELD_COMPLETED -> UNDER_REVIEW -> COMPLETED`<br>`InspectionReport`: `SUBMITTED -> APPROVED -> PUBLISHED`<br>`InspectionPaymentStatus`: `UNPAID -> PAYMENT_DUE -> PAID`<br>`PartnerPayoutStatus`: `NOT_ELIGIBLE -> ELIGIBLE` | **Trần Tùng Bách** (`SE180220`) |
-| **`WF-04`** | **Maintenance Work Order, RAG Scope/Norms Advisor, Batch-Verified Repair, 3-Way Re-inspection Verification & Cost Closure** *(SDD §3.8.3)* | `Customer`, `Maintenance Engineer` (`Team Lead`, `Author`), `Inspector`, `Platform Manager` | Forwarded defect is triaged into a Work Order with 1-click `pgvector` RAG initial tasks (`TCVN`/`EN`/`ISO`), RAG cost norms estimate (`suggest-estimate`) is approved by `CUSTOMER`, work logs are 1-click batch-verified (`batch-verify`), smart `auto-draft` completion report is audited by RAG `acceptance-compliance`, verified via the 3-step/3-way Re-inspection loop (`Prior Defect` vs `Repair Proof` vs `Drone Re-capture`), accepted by `CUSTOMER`, cost-reconciled, and closed. | `FE-07`, `FE-08` | `MaintenanceWorkOrder`: `DRAFT -> AWAITING_APPROVAL -> APPROVED -> READY -> IN_PROGRESS -> WORK_COMPLETED -> SUBMITTED_FOR_ACCEPTANCE -> REINSPECTION_REQUIRED -> SUBMITTED_FOR_ACCEPTANCE -> ACCEPTED -> COST_RECONCILED -> CLOSED`<br>`ReinspectionDefectVerification`: `PENDING -> RESOLVED`<br>`MaintenanceReportVersion`: `SUBMITTED -> APPROVED` | **Trương Thái Như** (`SE180082`) |
-
----
-
-## 9.2 Demo Scenarios on Staging (`https://smartdroneinspection.duckdns.org`)
-
-All demo scenarios run on the cloud staging environment declared in Report 4 (`§1.3.4`). Each workflow has **1 Main (Happy Path)** and **1 Exception / Business Rule Enforcement** scenario:
-
-| ID | Workflow | Type | Pre-Conditions & Seed Data | Main Execution Steps | Expected Result (Pass Criteria) |
-| :---: | :---: | :---: | --- | --- | --- |
-| **`DS-01a`** | `WF-01` | **Main (Happy Path)** | Staging DB with `Platform Manager`, partner `Inspector` applicant (valid pilot license + contract key), and `Customer` organization in `CLEAR_ZONE`. | 1. `Platform Manager` approves partner `Inspector` application (`no drone required at signup`).<br>2. `Inspector` submits owned drone `DJI-M350-PARTNER-01` with 3 documents (`REGISTRATION`, `OWNERSHIP`, `INSPECTION`) and `MANAGER` approves.<br>3. `Customer` registers `Bridge Pier B-01` with 4 checkpoints and creates a monthly `RecurringInspectionSchedule`. | Partner `Inspector` is `ACTIVE` (`INSPECTOR_PARTNER`); owned `Drone` is `ACTIVE` (`inspector_owner_id`); asset & checkpoints are stored; recurring schedule & occurrences generate deduplicated in-app notifications. |
-| **`DS-01b`** | `WF-01` | **Exception / Guard** | Public registration with `firstAsset` inside Tan Son Nhat `NO_FLY_ZONE`; partner drone application missing `INSPECTION` document; duplicate recurring schedule on `Bridge Pier B-01`. | 1. Anonymous user submits `POST /api/v1/auth/register` with `firstAsset` inside `NO_FLY_ZONE`.<br>2. `Inspector` submits drone registration with only 2 documents.<br>3. `Customer` attempts to create a second active recurring schedule on `Bridge Pier B-01`. | Step 1 rejected with `403 ASSET_IN_NO_FLY_ZONE` (`BR-29`); Step 2 rejected with `400 Bad Request` (requires all 3 documents `BR-30`); Step 3 rejected with `409 Active Schedule Exists` (`BR-13`). |
-| **`DS-02a`** | `WF-02` | **Main (Happy Path)** | Active `Customer` asset, approved partner `Inspector` (valid license through `2027-12-31`), and approved owned `Drone` with free window `09:00–11:00`. | 1. `Customer` creates `ServiceRequest`, negotiates in Order Chat, and accepts `MANAGER`'s VND quote (`ACCEPTED`).<br>2. `MANAGER` uploads signed paper contract PDF (`CONTRACT_SIGNED`) and assigns occurrence to partner `Inspector` & owned `Drone` (`SCHEDULED`).<br>3. `Inspector` uploads `Permit-288-NDCP.pdf`, starts field session (`IN_PROGRESS`) on Web/Mobile, and completes session (`FIELD_COMPLETED`). | `ServiceRequest` transitions `OPEN -> QUOTED -> ACCEPTED -> CONTRACT_SIGNED -> ASSIGNED`; `Inspection` transitions `SCHEDULED -> IN_PROGRESS -> FIELD_COMPLETED`; Customer 5-Stage Progress Tracker advances in real time. |
-| **`DS-02b`** | `WF-02` | **Exception / Guard** | Partner `Inspector` already booked `09:00–11:00` for another customer org; mission without uploaded flight permit; active field session aborted due to weather. | 1. `MANAGER` attempts to assign the same partner `Inspector` to an overlapping mission `10:00–12:00` in another organization.<br>2. `Inspector` attempts `POST /field-sessions` before uploading a flight permit.<br>3. `Inspector` clicks `Abort Session` on an active session and `MANAGER` clicks `Reschedule`. | Step 1 rejected with `409 Conflict` (`hasPlatformPartnerScheduleConflict` `BR-14`); Step 2 rejected with `409 Flight Permit Required` (`BR-17`); Step 3 transitions session to `ABORTED`, reverts inspection to `SCHEDULED`, and alerts `MANAGER` for re-dispatch. |
-| **`DS-03a`** | `WF-03` | **Main (Happy Path)** | Inspection in `FIELD_COMPLETED`, assigned `Inspector`, `Platform Manager`, and `Customer`. | 1. `Inspector` uploads defect photos and `video/mp4` clip -> `YOLO11 (MBDD2025)` (with Vision fallback) returns `PENDING` findings; preview chips appear under each media card.<br>2. `Inspector` confirms findings (`CONFIRMED`), confirms baseline, and opens the **Report** tab -> report auto-compiles (`SUBMITTED`, inspection `UNDER_REVIEW`) with an **AI Executive Summary**.<br>3. Independent `MANAGER` approves and publishes immutable SHA-256 PDF (`PUBLISHED`, inspection `COMPLETED`).<br>4. `Customer` clicks `Accept Report` (`PAYMENT_DUE`) and completes **PayOS (VietQR)** payment (`PAID`) to download the PDF. | Findings transition `PENDING -> CONFIRMED`; report auto-compiles to `SUBMITTED` without manual notes; `MANAGER` publishes immutable PDF; PayOS webhook marks `PAID` & `payout_status = ELIGIBLE` and unlocks Customer PDF download. |
-| **`DS-03b`** | `WF-03` | **Exception / Guard** | Inspection in `UNDER_REVIEW` (report not yet `PUBLISHED`); published report with `payment_status = PAYMENT_DUE` (unpaid); author `Inspector` attempting report publication. | 1. `Customer` attempts `GET /inspections/{id}/report` while status is `UNDER_REVIEW`.<br>2. `Customer` attempts `GET /report/versions/{vId}/pdf` before PayOS payment settlement.<br>3. Author `Inspector` attempts `POST /report/versions/{vId}/publish`. | Step 1 rejected with `403 REPORT_NOT_PUBLISHED` (`BR-34`); Step 2 rejected with `402 Payment Required` (`BR-33`); Step 3 rejected with `403 Forbidden` (only independent `MANAGER` can publish `BR-24`). |
-| **`DS-04a`** | `WF-04` | **Main (Happy Path)** | Published report with confirmed crack finding; `Customer`, `Maintenance Engineer` (`Team Lead` & `Author`), partner `Inspector`, and `Platform Manager`. | 1. `Customer` creates `MaintenanceWorkOrder` with 1-click `pgvector` RAG `initialTasks` (`TCVN 9343:2012`) and assigns team.<br>2. `Team Lead` runs RAG Cost Norms (`suggest-estimate`), submits estimate, and `Customer` approves (`APPROVED`).<br>3. `Team Lead` starts execution (`IN_PROGRESS`), submits work logs with repair proof, 1-click batch-verifies logs (`batch-verify`), and submits smart `auto-draft` completion report (`SUBMITTED_FOR_ACCEPTANCE`).<br>4. `Customer` reviews RAG `acceptance-compliance` score, triggers `REINSPECTION_REQUIRED` -> `Inspector` executes 3-step/3-way verification (`RESOLVED`) -> `MANAGER` publishes Re-inspection Report -> `Customer` records `ACCEPTED`, reconciles costs (`COST_RECONCILED`), and closes (`CLOSED`). | RAG provisions initial tasks & cost norms; batch-verify approves all team logs; 3-way verification compares Prior Defect vs Repair Proof vs Drone Re-capture; published Re-inspection Report reinstates completion report; work order closes (`CLOSED`). |
-| **`DS-04b`** | `WF-04` | **Exception / Guard** | `IN_PROGRESS` work order with unverified work logs; `Team Lead` attempting self-acceptance; `Customer` attempting premature close before cost reconciliation. | 1. `Team Lead` attempts `POST /declare-complete` while a work log is not yet `VERIFIED`.<br>2. `Team Lead` attempts `POST /acceptance-decisions` (`ACCEPTED`) on their own team's work.<br>3. `Customer` attempts `POST /close` when status is `ACCEPTED` (before `COST_RECONCILED`). | Step 1 rejected with `400/409` (unverified work log `BR-43`); Step 2 rejected with `403 Forbidden` (`MSG44` self-acceptance blocked `BR-44`); Step 3 rejected with `409 Conflict` (`MSG45` cost reconciliation required `BR-46`). |
+| Field | Value |
+| --- | --- |
+| **Project code** | `GFA26SE139` |
+| **Project name** | SmartDroneInspection: AI-powered Infrastructure Inspection Management Platform |
+| **Group / Team members** | `FA26SE112` — Trần Hoàng Trung Hiếu (`SE184212`), Phùng Trung Quốc (`SE170027`), Trương Thái Như (`SE180082`), Trần Tùng Bách (`SE180220`) |
+| **Supervisor(s)** | Phạm Minh Trí; Đặng Ngọc Minh Đức |
+| **Review 2 date** | `09/11/2026` |
+| **Document version** | `3.0` |
 
 ---
 
-## 9.3 Functional Test Case Commitment & Formula Breakdown (`65` Test Cases across 8 Feature Sheets)
+## 2. Main Workflows (`WF-01` – `WF-04`, No Maintenance)
 
-The functional test suite in **Report 5 (`Report5_Test Report.xlsx`)** is organized across **8 Feature sheets (`Feature 1` through `Feature 8`, mapped 1-to-1 to `FE-01` through `FE-08`, 2 features per team member)** with **65 total test cases** (`60 Passed`, `0 Failed`, `5 Pending`, `92.31%` overall pass rate — exceeding the `>= 90%` threshold):
-
-- **Baseline Commitment Formula**: **64 Core Test Cases + 1 Vision Fallback Case (`WF3-017`) = 65 Test Cases** across `Feature 1`–`Feature 8`.
+| ID | Workflow | Actors | Trigger | Business outcome | Features | Entity states | Owner |
+| :---: | --- | --- | --- | --- | :---: | --- | --- |
+| **`WF-01`** | Partner Drone Registration & Review | Inspector, Manager, System | Inspector submits drone with 3 legal docs. | Drone is verified and activated for dispatch. | `F-01`, `F-02` | `DroneRegistration`: `PENDING → APPROVED / REJECTED`; `Drone`: `→ ACTIVE` | Trần Hoàng Trung Hiếu |
+| **`WF-02`** | Quotation, Contract & Dispatch | Customer, Manager, Inspector | Customer registers asset and submits request. | Quote accepted, contract uploaded, mission scheduled. | `F-03`, `F-04` | `ServiceRequest`: `SUBMITTED → QUOTED → QUOTE_ACCEPTED → DISPATCHED`; `Inspection`: `→ SCHEDULED` | Phùng Trung Quốc |
+| **`WF-03`** | Field Inspection & AI Defect Check | Inspector, Manager, DroneVisionAI | Inspector uploads permit and starts session. | Checklists, building items, evidence & AI findings locked. | `F-05`, `F-06` | `Inspection`: `SCHEDULED → IN_PROGRESS → FIELD_COMPLETED`; `Finding`: `CANDIDATE → CONFIRMED` | Trần Tùng Bách |
+| **`WF-04`** | Report Review & Payment Settlement | Inspector, Manager, Customer, PayOS | Field inspection reaches `FIELD_COMPLETED`. | Report published, accepted, paid via PayOS, and settled. | `F-07`, `F-08` | `Report`: `DRAFT → SUBMITTED → PUBLISHED`; `Invoice`: `UNPAID → PAID`; `Payout`: `→ SETTLED` | Trương Thái Như |
 
 ---
 
-## 9.4 BM04 – Review 2 Commitment Cross-Reconciliation Tables (By Workflow vs. By Member)
+## 3. Demo Scenarios (`DS-01a` – `DS-04b`)
 
-Every feature (`FE-01`–`FE-08`), every test case (`65` total), and every demo scenario (`8` total) is assigned to **exactly one workflow and one team member**, producing identical totals across both dimensions:
+| ID | Workflow | Type | Preconditions and data | Main steps | Expected result | Presenter |
+| :---: | :---: | :---: | --- | --- | --- | --- |
+| **`DS-01a`** | `WF-01` | Main | Active Inspector; 3 valid drone PDFs. | 1. Submit drone & 3 docs.<br>2. Manager approves. | Status → `APPROVED`; Drone is `ACTIVE`. | Trần Hoàng Trung Hiếu |
+| **`DS-01b`** | `WF-01` | Exception | Duplicate serial; reject without reason. | 1. Submit duplicate serial.<br>2. Reject with empty reason. | Blocked with `400/409` (`BR-01`, `BR-02`). | Trần Hoàng Trung Hiếu |
+| **`DS-02a`** | `WF-02` | Main | Customer in `CLEAR_ZONE`; free Inspector+Drone. | 1. Create asset & request.<br>2. Accept quote.<br>3. Upload contract & dispatch. | Request → `DISPATCHED`; Inspection → `SCHEDULED`. | Phùng Trung Quốc |
+| **`DS-02b`** | `WF-02` | Exception | Asset in `NO_FLY_ZONE`; busy Inspector. | 1. Create asset in NFZ.<br>2. Dispatch busy Inspector. | Blocked with `403 NFZ` (`BR-03`) & `409 Conflict` (`BR-05`). | Phùng Trung Quốc |
+| **`DS-03a`** | `WF-03` | Main | `SCHEDULED` mission; permit & media ready. | 1. Upload permit & pre-flight check → Start.<br>2. Check building items & post-flight.<br>3. Upload media & confirm AI findings. | Findings locked; Inspection → `FIELD_COMPLETED`. | Trần Tùng Bách |
+| **`DS-03b`** | `WF-03` | Exception | Missing permit; unchecked item without reason; abort. | 1. Start without permit.<br>2. Complete with missing reason.<br>3. Abort session. | Steps 1–2 blocked; Step 3 sets `ABORTED` for reschedule. | Trần Tùng Bách |
+| **`DS-04a`** | `WF-04` | Main | `FIELD_COMPLETED` mission with locked findings. | 1. Submit auto-compiled report.<br>2. Manager publishes PDF.<br>3. Customer accepts & pays via PayOS. | Report → `PUBLISHED`; Invoice → `PAID`; Payout → `SETTLED`. | Trương Thái Như |
+| **`DS-04b`** | `WF-04` | Exception | Self-approval; return without reason; early pay. | 1. Author tries to publish.<br>2. Return without reason.<br>3. Pay before publish. | Blocked with `403/400` (`BR-09`, `BR-10`). | Trương Thái Như |
 
-### Table A: Commitment Aggregated by Main Workflow (`WF-01` to `WF-04`)
+---
 
-| Workflow ID | Owner | Mandatory Features (2 Features / Member) | Workflow E2E TC (`x1`) | State Transition TCs | Locked NFR TCs | Total Committed TCs | Current Passed / Pending | Automated / Manual TCs | Demo Scenarios | Planned Action Items |
-| :---: | --- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **`WF-01`** | **Trần Hoàng Trung Hiếu** (`SE184212`) | `FE-02` (`Feature 2`: `11` TCs), `FE-03` (`Feature 3`: `5` TCs) | `1` (`WF1-021`) | `6` (`WF1-009`, `010`, `013`, `016`, `019`, `020`) | `0` | **`16`** | `15 Passed` / `1 Pending` (`93.75%`) | `14 Auto` / `2 Manual` | `DS-01a`, `DS-01b` | `1` (`WF1-010` partner/drone staging walkthrough) |
-| **`WF-02`** | **Phùng Trung Quốc** (`SE170027`) | `FE-04` (`Feature 4`: `5` TCs), `FE-05` (`Feature 5`: `11` TCs) | `1` (`WF2-016`) | `5` (`WF2-008`, `009`, `011`, `012`, `015`) | `1` (`WF2-016` `NFR-01`) | **`16`** | `15 Passed` / `1 Pending` (`93.75%`) | `14 Auto` / `2 Manual` | `DS-02a`, `DS-02b` | `1` (`WF2-015` mobile field session & abort walkthrough) |
-| **`WF-03`** | **Trần Tùng Bách** (`SE180220`) | `FE-01` (`Feature 1`: `5` TCs), `FE-06` (`Feature 6`: `12` TCs) | `1` (`WF3-008`) | `2` (`WF3-010`, `WF3-012`) | `4` (`WF1-004` `NFR-04`, `WF1-005` `NFR-03`, `WF3-007` `NFR-02`, `WF3-016` `NFR-05`) | **`17`** | `15 Passed` / `2 Pending` (`88.24%`) | `14 Auto` / `3 Manual` | `DS-03a`, `DS-03b` | `2` (`WF3-012` & `WF3-017` staging walkthroughs) |
-| **`WF-04`** | **Trương Thái Như** (`SE180082`) | `FE-07` (`Feature 7`: `11` TCs), `FE-08` (`Feature 8`: `5` TCs) | `1` (`WF4-016`) | `5` (`WF4-008`, `009`, `010`, `011`, `014`) | `1` (`WF4-005` `NFR-06`) | **`16`** | `15 Passed` / `1 Pending` (`93.75%`) | `14 Auto` / `2 Manual` | `DS-04a`, `DS-04b` | `1` (`WF4-011` mobile maintenance & 3-way reinspection walkthrough) |
-| **Total** | **4 Members** | **`8` Features (`FE-01`–`FE-08`)** | **`4` TCs** | **`18` TCs** | **`6` TCs** | **`65` TCs** | **`60 Passed` / `5 Pending` (`92.31%`)** | **`56 Auto` (`86.15%`) / `9 Manual`** | **`8` Scenarios** | **`5` Action Items** |
+## 4. Functional Test Case Target (`65` Total, `56` Automated in CI)
 
-### Table B: Commitment Aggregated by Team Member (1-to-1 Cross-Check)
+| Source | Count | Minimum per item | Subtotal |
+| --- | :---: | :---: | :---: |
+| Mandatory features (`F-01`..`F-08`) | 8 | 3 | 42 |
+| Main workflows (end-to-end) | 4 | 1 | 4 |
+| State transitions of main entities | 14 | 1 | 14 |
+| Agreed NFRs (`NFR-01`..`NFR-05`) | 5 | 1 | 5 |
+| **Committed total** | **—** | **—** | **65 (56 Automated = 86.15%)** |
 
-| Member Name & Student Code | Owned Report 5 Sheets (`2` Sheets / Member) & Case IDs | Total Committed TCs | Automated TCs in CI | Demo Scenarios Owned | Planned Action Items & Deadlines | Ownership Verification Status |
-| --- | --- | :---: | :---: | :---: | --- | :---: |
-| **Trần Hoàng Trung Hiếu** (`SE184212` — Leader) | `Feature 2` (`FE-02`: `WF1-006`–`016` — `11` TCs)<br>`Feature 3` (`FE-03`: `WF1-017`–`021` — `5` TCs) | **`16`** | **`14`** | `DS-01a`, `DS-01b` (`WF-01`) | 1. Execute `WF1-010` Inspector & 3-doc owned-drone approval walkthrough on staging (due `2026-11-15`) | Ready for Verification |
-| **Phùng Trung Quốc** (`SE170027` — Member) | `Feature 4` (`FE-04`: `WF2-001`–`005` — `5` TCs)<br>`Feature 5` (`FE-05`: `WF2-008`, `009`, `011`, `012`, `015`–`020`, `WF3-009` — `11` TCs) | **`16`** | **`14`** | `DS-02a`, `DS-02b` (`WF-02`) | 1. Execute `WF2-015` Flutter mobile field session & abort re-dispatch walkthrough on staging (due `2026-11-15`) | Ready for Verification |
-| **Trần Tùng Bách** (`SE180220` — Member) | `Feature 1` (`FE-01`: `WF1-001`–`005` — `5` TCs)<br>`Feature 6` (`FE-06`: `WF3-001`–`008`, `WF3-010`, `012`, `016`, `017` — `12` TCs) | **`17`** | **`14`** | `DS-03a`, `DS-03b` (`WF-03`) | 1. Execute `WF3-012` PayOS VietQR payment & report acceptance staging walkthrough (due `2026-11-15`)<br>2. Execute `WF3-017` Vision LLM fallback staging verification (due `2026-11-15`) | Ready for Verification |
-| **Trương Thái Như** (`SE180082` — Member) | `Feature 7` (`FE-07`: `WF4-001`–`011` — `11` TCs)<br>`Feature 8` (`FE-08`: `WF4-012`–`016` — `5` TCs) | **`16`** | **`14`** | `DS-04a`, `DS-04b` (`WF-04`) | 1. Execute `WF4-011` 3-step/3-way Re-inspection & batch work-log verification staging walkthrough (due `2026-11-15`) | Ready for Verification |
-| **Total (Reconciled)** | **`Feature 1` to `Feature 8` (`65` unique IDs)** | **`65` TCs** | **`56` Auto** | **`8` Scenarios** | **`5` Action Items (100% Mapped)** | **100% Reconciled** |
+---
+
+## 5. Summary and Cross-Check (`BM04` §8)
+
+### 5.1 By Workflow
+
+| Workflow | Owner | Features | Demo scenarios (main / exception) | Test cases | Automated |
+| :---: | --- | :---: | :---: | :---: | :---: |
+| `WF-01` | Trần Hoàng Trung Hiếu | `F-01`, `F-02` | 2 (1 Main / 1 Exc) | 16 | 14 |
+| `WF-02` | Phùng Trung Quốc | `F-03`, `F-04` | 2 (1 Main / 1 Exc) | 16 | 14 |
+| `WF-03` | Trần Tùng Bách | `F-05`, `F-06` | 2 (1 Main / 1 Exc) | 17 | 14 |
+| `WF-04` | Trương Thái Như | `F-07`, `F-08` | 2 (1 Main / 1 Exc) | 16 | 14 |
+| **Total** | **4 Members** | **8 Features** | **8 (4 Main / 4 Exc)** | **65** | **56 (86.15%)** |
+
+### 5.2 By Member
+
+| Member | Workflows owned | Features | Test cases | Automated | Demo scenarios | Review 2 verification |
+| --- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Trần Hoàng Trung Hiếu | `WF-01` | `F-01`, `F-02` | 16 | 14 | `DS-01a`, `DS-01b` | Pending |
+| Phùng Trung Quốc | `WF-02` | `F-03`, `F-04` | 16 | 14 | `DS-02a`, `DS-02b` | Pending |
+| Trần Tùng Bách | `WF-03` | `F-05`, `F-06` | 17 | 14 | `DS-03a`, `DS-03b` | Pending |
+| Trương Thái Như | `WF-04` | `F-07`, `F-08` | 16 | 14 | `DS-04a`, `DS-04b` | Pending |
+| **Total** | **4 Workflows** | **8 Features** | **65** | **56 (86.15%)** | **8 Scenarios** | **—** |
+
+### 5.3 Required Fixes (`BM04` §9)
+
+| ID | Item | Related workflow | Owner | Due |
+| :---: | --- | --- | --- | --- |
+| `FX-01` | Map SDD §2.2 state-transition IDs to `F-01`..`F-08`. | `WF-01`..`04` | Trần Hoàng Trung Hiếu | `12/11/2026` |
+| `FX-02` | Complete staging walkthrough for 3-doc drone approval (`WF1-010`). | `WF-01` | Trần Hoàng Trung Hiếu | `15/11/2026` |
+| `FX-03` | Complete staging walkthrough for session abort & reschedule (`WF2-015`). | `WF-02`, `WF-03` | Phùng Trung Quốc | `15/11/2026` |
+| `FX-04` | Complete staging walkthroughs for PayOS & Vision fallback (`WF3-012`, `017`). | `WF-03`, `WF-04` | Trần Tùng Bách | `15/11/2026` |
+| `FX-05` | Remove legacy Maintenance references from SRS/SDD (`SR-01`). | `WF-04` | Trương Thái Như | `12/11/2026` |
