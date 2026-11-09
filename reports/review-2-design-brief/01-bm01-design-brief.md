@@ -1,5 +1,5 @@
 ---
-title: "SWP490 Review 2 - BM01 Design Brief"
+title: "SEP490 Review 2 - BM01 Design Brief"
 document_type: review2-bm01
 version: "3.0"
 date: "2026-11-09"
@@ -7,7 +7,7 @@ project_code: "GFA26SE139"
 group_name: "FA26SE112"
 ---
 
-# SWP490 – Review 2 Design Brief (BM01)
+# SEP490 – Review 2 Design Brief (BM01)
 
 ## 0. Header
 

@@ -153,9 +153,19 @@ def save_modified_docx(src_path: Path, dst_paths: list[Path], xml_root: ET.Eleme
         if col_el is not None and col_el.attrib.get(w_tag("val")) == "666666":
             rPr.remove(col_el)
 
+    # Replace any remaining SWP490 text in document.xml (such as Heading 1 titles) with SEP490
+    for t_el in xml_root.findall(".//w:t", NS):
+        if t_el.text and "SWP490" in t_el.text:
+            t_el.text = t_el.text.replace("SWP490", "SEP490")
+
     xml_bytes = ET.tostring(xml_root, encoding="utf-8", xml_declaration=True)
     with zipfile.ZipFile(src_path, "r") as zin:
-        items = [(info, zin.read(info.filename)) for info in zin.infolist()]
+        items = []
+        for info in zin.infolist():
+            raw = zin.read(info.filename)
+            if info.filename.endswith(".xml") and info.filename != "word/document.xml":
+                raw = raw.replace(b"SWP490", b"SEP490")
+            items.append((info, raw))
 
     for dst in dst_paths:
         dst.parent.mkdir(parents=True, exist_ok=True)
@@ -953,7 +963,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
         [
             "v2.0 (09/11/2026)",
             "Yes (Pending committee sign-off)",
-            "SWP490_GFA26SE139_R2_Registration.pdf",
+            "SEP490_GFA26SE139_R2_Registration.pdf",
         ],
     )
 
@@ -1444,10 +1454,10 @@ def main() -> int:
         / "review-2-pack"
     )
 
-    bm01_path = repo_out / "SWP490_R2_BM01_Design_Brief.docx"
-    bm02_path = repo_out / "SWP490_R2_BM02_Self_Review_Report.docx"
-    bm03_path = repo_out / "SWP490_R2_BM03_Record_of_Changes.docx"
-    bm04_path = repo_out / "SWP490_R2_BM04_Review2_Commitment.docx"
+    bm01_path = repo_out / "SEP490_R2_BM01_Design_Brief.docx"
+    bm02_path = repo_out / "SEP490_R2_BM02_Self_Review_Report.docx"
+    bm03_path = repo_out / "SEP490_R2_BM03_Record_of_Changes.docx"
+    bm04_path = repo_out / "SEP490_R2_BM04_Review2_Commitment.docx"
 
     build_bm01(bm01_path, [bm01_path])
     print("Populated concise BM01 ->", bm01_path)

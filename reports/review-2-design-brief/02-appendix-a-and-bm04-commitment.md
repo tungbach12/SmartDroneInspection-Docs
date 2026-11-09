@@ -1,5 +1,5 @@
 ---
-title: "SWP490 Review 2 - BM01 Appendix A & BM04 Review 2 Commitment"
+title: "SEP490 Review 2 - BM01 Appendix A & BM04 Review 2 Commitment"
 document_type: review2-appendix-a-bm04
 version: "3.0"
 date: "2026-11-09"
@@ -7,7 +7,7 @@ project_code: "GFA26SE139"
 group_name: "FA26SE112"
 ---
 
-# SWP490 – BM01 Appendix A & Review 2 Commitment (BM04)
+# SEP490 – BM01 Appendix A & Review 2 Commitment (BM04)
 
 ## 1. Project Information
 
