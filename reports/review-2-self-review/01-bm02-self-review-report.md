@@ -1,5 +1,5 @@
 ---
-title: "SWP490 Review 2 - BM02 SRS/SDD Self-Review Report"
+title: "SEP490 Review 2 - BM02 SRS/SDD Self-Review Report"
 document_type: review2-bm02
 version: "3.0"
 date: "2026-11-09"
@@ -7,7 +7,7 @@ project_code: "GFA26SE139"
 group_name: "FA26SE112"
 ---
 
-# SWP490 – SRS/SDD Self-Review Report (BM02)
+# SEP490 – SRS/SDD Self-Review Report (BM02)
 
 ## 1. Run Information
 

@@ -1,5 +1,5 @@
 ---
-title: "SWP490 Review 2 - BM03 Record of Changes for Registration Form"
+title: "SEP490 Review 2 - BM03 Record of Changes for Registration Form"
 document_type: review2-bm03
 version: "3.0"
 date: "2026-11-09"
@@ -7,7 +7,7 @@ project_code: "GFA26SE139"
 group_name: "FA26SE112"
 ---
 
-# SWP490 – Registration Form Record of Changes (BM03)
+# SEP490 – Registration Form Record of Changes (BM03)
 
 ## 1. Project Information
 
