@@ -1437,7 +1437,6 @@ def main() -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
 
-    downloads = Path(r"C:\Users\trant\Downloads")
     repo_out = (
         Path(__file__).resolve().parent.parent
         / "reports"
@@ -1445,46 +1444,22 @@ def main() -> int:
         / "review-2-pack"
     )
 
-    bm01_src = downloads / "SWP490_R2_BM01_Design_Brief_1.docx"
-    bm02_src = downloads / "SWP490_R2_BM02_Self_Review_Report_1.docx"
-    bm03_src = downloads / "SWP490_R2_BM03_Record_of_Changes_1.docx"
-    bm04_src = downloads / "SWP490_R2_BM04_Review2_Commitment_1.docx"
+    bm01_path = repo_out / "SWP490_R2_BM01_Design_Brief.docx"
+    bm02_path = repo_out / "SWP490_R2_BM02_Self_Review_Report.docx"
+    bm03_path = repo_out / "SWP490_R2_BM03_Record_of_Changes.docx"
+    bm04_path = repo_out / "SWP490_R2_BM04_Review2_Commitment.docx"
 
-    build_bm01(
-        bm01_src,
-        [
-            bm01_src,
-            repo_out / "SWP490_GFA26SE139_R2_DesignBrief.docx",
-        ],
-    )
-    print("Populated concise BM01 ->", bm01_src)
+    build_bm01(bm01_path, [bm01_path])
+    print("Populated concise BM01 ->", bm01_path)
 
-    build_bm02(
-        bm02_src,
-        [
-            bm02_src,
-            repo_out / "SWP490_GFA26SE139_R2_SelfReview.docx",
-        ],
-    )
-    print("Populated concise BM02 ->", bm02_src)
+    build_bm02(bm02_path, [bm02_path])
+    print("Populated concise BM02 ->", bm02_path)
 
-    build_bm03(
-        bm03_src,
-        [
-            bm03_src,
-            repo_out / "SWP490_GFA26SE139_R2_Record_of_Changes.docx",
-        ],
-    )
-    print("Populated concise BM03 ->", bm03_src)
+    build_bm03(bm03_path, [bm03_path])
+    print("Populated concise BM03 ->", bm03_path)
 
-    build_bm04(
-        bm04_src,
-        [
-            bm04_src,
-            repo_out / "SWP490_GFA26SE139_R2_Commitment.docx",
-        ],
-    )
-    print("Populated concise BM04 ->", bm04_src)
+    build_bm04(bm04_path, [bm04_path])
+    print("Populated concise BM04 ->", bm04_path)
     return 0
 
 
