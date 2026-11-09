@@ -49,7 +49,7 @@ group_name: "FA26SE112"
 
 SmartDroneInspection is a centralized platform connecting Customers with Partner Drone Inspectors to inspect infrastructure assets (bridges, buildings, power towers) safely and consistently.
 
-Customers register assets, accept quotes, and pay via PayOS. Inspectors register drones, execute checklist-gated flights with SmartDroneHub telemetry, confirm `DroneVisionAI` (`YOLO11`) defects, and submit reports for Manager publication (Report 4 SDD §1.1).
+Customers register assets, accept quotes, and complete online payment. Inspectors register drones, execute checklist-gated flights with SmartDroneHub telemetry, confirm `DroneVisionAI` (`YOLO11`) defects, and submit reports for Manager publication (Report 4 SDD §1.1).
 
 ---
 
@@ -69,7 +69,7 @@ Customers register assets, accept quotes, and pay via PayOS. Inspectors register
 
 | ID | Risk | Impact | How we verify or mitigate | Owner |
 | :---: | --- | --- | --- | --- |
-| `R1` | External service outage (SmartDroneHub, AI, PayOS) | Blocks telemetry sync, defect detection, or payment webhook. | Use 5 s timeouts, manual finding fallback, and idempotent webhook retry. | Trần Tùng Bách |
+| `R1` | External service outage (SmartDroneHub, AI, Payment Gateway) | Blocks telemetry sync, defect detection, or payment webhook. | Use 5 s timeouts, manual finding fallback, and idempotent webhook retry. | Trần Tùng Bách |
 | `R2` | Cross-role data leak or self-approval | Customer sees internal fees or Inspector approves own report. | Enforce backend role/org guards and block author self-publication (`BR-09`). | Trần Hoàng Trung Hiếu |
 | `R3` | Incomplete field check or weather abort | Missing building items or aborted flight delays inspection. | Require reason for unchecked items and support Manager reschedule on abort. | Phùng Trung Quốc |
 
@@ -96,7 +96,7 @@ Customers register assets, accept quotes, and pay via PayOS. Inspectors register
 | `F-05` | Permit Gate, Checklists & Field Session | Inspector, Manager | Requires Permit & Pre-flight check to start; records MAVLink log, Building Items & Post-flight check on complete. | `WF2-010..020` | Done |
 | `F-06` | Evidence Upload & AI Defect Confirmation | Inspector, DroneVisionAI | Photo/MP4 upload triggers `YOLO11` candidates; Inspector confirms/rejects findings and locks baseline. | `WF3-001..010` | Done |
 | `F-07` | Auto-Compiled Report & Manager Review | Inspector, Manager | Compiles draft report with AI summary; independent Manager publishes immutable PDF or returns with reason. | `WF4-001..008` | Done |
-| `F-08` | Customer Acceptance & PayOS Settlement | Customer, Manager, Inspector | Customer accepts published report and pays via PayOS (VietQR); system marks `PAID` and calculates net payout. | `WF3-011..017`, `WF4-009..016` | In progress |
+| `F-08` | Customer Acceptance & Payment Settlement | Customer, Manager, Inspector | Customer accepts published report and completes online payment; system marks `PAID` and calculates net payout. | `WF3-011..017`, `WF4-009..016` | In progress |
 
 ---
 
@@ -119,4 +119,4 @@ Customers register assets, accept quotes, and pay via PayOS. Inspectors register
 | Trần Hoàng Trung Hiếu (`SE184212`) | Leader | `F-01` (Auth/RBAC), `F-02` (Drone Registration & Review) | `WF-01` — Partner Drone Registration & Review | `D1`, `R2` / PR #84, #88 |
 | Phùng Trung Quốc (`SE170027`) | Member | `F-03` (Asset & Items), `F-04` (Quote & Dispatch) | `WF-02` — Quotation, Contract & Dispatch | `D2`, `R3` / PR #82, #83 |
 | Trần Tùng Bách (`SE180220`) | Member | `F-05` (Permit, Checklists & Flight), `F-06` (Evidence & AI) | `WF-03` — Field Inspection & AI Defect Check | `D3`, `D4`, `R1` / PR #85, #89 |
-| Trương Thái Như (`SE180082`) | Member | `F-07` (Report & Review), `F-08` (Acceptance & PayOS) | `WF-04` — Report Review & Payment Settlement | `D5` / PR #86, #87 |
+| Trương Thái Như (`SE180082`) | Member | `F-07` (Report & Review), `F-08` (Acceptance & Payment) | `WF-04` — Report Review & Payment Settlement | `D5` / PR #86, #87 |
