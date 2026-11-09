@@ -950,8 +950,8 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
             "FA26SE112 — Trần Hoàng Trung Hiếu (SE184212), Phùng Trung Quốc (SE170027), Trương Thái Như (SE180082), Trần Tùng Bách (SE180220)",
             "Phạm Minh Trí; Đặng Ngọc Minh Đức",
             "09/11/2026",
-            "Reviewer 1",
-            "Reviewer 2",
+            "VuLNS",
+            "MinhTTH5",
             "3.0",
             "09/11/2026",
         ],
@@ -1428,8 +1428,8 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
     populate_data_table(
         tables[54],
         [
-            ["Reviewer 1", "", "", ""],
-            ["Reviewer 2", "", "", ""],
+            ["Reviewer 1", "VuLNS", "", ""],
+            ["Reviewer 2", "MinhTTH5", "", ""],
             ["Supervisor", "Phạm Minh Trí / Đặng Ngọc Minh Đức", "", ""],
             ["Team leader", "Trần Hoàng Trung Hiếu (SE184212)", "", "09/11/2026"],
         ],
