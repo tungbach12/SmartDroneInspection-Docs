@@ -11,7 +11,8 @@ Thumbs.db
 .superpowers/
 
 # Reproducible local report exports and Python caches
-/reports/generated/
+/reports/generated/*
+!/reports/generated/review-2-pack/
 __pycache__/
 *.pyc
 node_modules/
