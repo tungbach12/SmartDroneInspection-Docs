@@ -90,7 +90,7 @@ Customers register assets, accept quotes, and pay via PayOS. Inspectors register
 | ID | Feature | Actor | Acceptance criteria (testable) | Test | Status |
 | :---: | --- | --- | --- | --- | --- |
 | `F-01` | Auth, 4-Role RBAC & Partner Profiles | Admin, Manager, Customer, Inspector | JWT/OAuth2 login works by role; 5 failed logins lock for 15 min; unauthorized access returns 403. | `WF1-001..005` | Done |
-| `F-02` | Drone 3-Document Registration & Review | Inspector, Manager | Requires 3 valid docs (Registration, Ownership, Inspection) & unique serial; Manager approves or rejects with reason. | `WF1-006..016` | Done |
+| `F-02` | Drone Registration & Safety Review | Inspector, Manager | Requires valid legal documents & unique serial; Manager approves or rejects with reason. | `WF1-006..016` | Done |
 | `F-03` | Asset Airspace Gate & Inspection Items | Customer, Manager | Blocks assets in `NO_FLY_ZONE` (403); saves valid GPS asset and target `Inspection Items`. | `WF1-017..021` | Done |
 | `F-04` | Service Request, Quote, Contract & Dispatch | Customer, Manager | Customer accepts quote; Manager uploads signed contract and dispatches conflict-free Inspector & Drone. | `WF2-001..009` | Done |
 | `F-05` | Permit Gate, Checklists & Field Session | Inspector, Manager | Requires Permit & Pre-flight check to start; records MAVLink log, Building Items & Post-flight check on complete. | `WF2-010..020` | Done |
@@ -116,7 +116,7 @@ Customers register assets, accept quotes, and pay via PayOS. Inspectors register
 
 | Member | Role | Owned parts (2–3) | Main workflow owned | Key decisions / PRs |
 | --- | --- | --- | --- | --- |
-| Trần Hoàng Trung Hiếu (`SE184212`) | Leader | `F-01` (Auth/RBAC), `F-02` (Drone 3-Doc Review) | `WF-01` — Partner Drone Registration & Review | `D1`, `R2` / PR #84, #88 |
+| Trần Hoàng Trung Hiếu (`SE184212`) | Leader | `F-01` (Auth/RBAC), `F-02` (Drone Registration & Review) | `WF-01` — Partner Drone Registration & Review | `D1`, `R2` / PR #84, #88 |
 | Phùng Trung Quốc (`SE170027`) | Member | `F-03` (Asset & Items), `F-04` (Quote & Dispatch) | `WF-02` — Quotation, Contract & Dispatch | `D2`, `R3` / PR #82, #83 |
 | Trần Tùng Bách (`SE180220`) | Member | `F-05` (Permit, Checklists & Flight), `F-06` (Evidence & AI) | `WF-03` — Field Inspection & AI Defect Check | `D3`, `D4`, `R1` / PR #85, #89 |
 | Trương Thái Như (`SE180082`) | Member | `F-07` (Report & Review), `F-08` (Acceptance & PayOS) | `WF-04` — Report Review & Payment Settlement | `D5` / PR #86, #87 |

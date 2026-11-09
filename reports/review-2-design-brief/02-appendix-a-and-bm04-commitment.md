@@ -26,7 +26,7 @@ group_name: "FA26SE112"
 
 | ID | Workflow | Actors | Trigger | Business outcome | Features | Entity states | Owner |
 | :---: | --- | --- | --- | --- | :---: | --- | --- |
-| **`WF-01`** | Partner Drone Registration & Review | Inspector, Manager, System | Inspector submits drone with 3 legal docs. | Drone is verified and activated for dispatch. | `F-01`, `F-02` | `DroneRegistration`: `PENDING → APPROVED / REJECTED`; `Drone`: `→ ACTIVE` | Trần Hoàng Trung Hiếu |
+| **`WF-01`** | Partner Drone Registration & Review | Inspector, Manager, System | Inspector submits drone with legal documents. | Drone is verified and activated for dispatch. | `F-01`, `F-02` | `DroneRegistration`: `PENDING → APPROVED / REJECTED`; `Drone`: `→ ACTIVE` | Trần Hoàng Trung Hiếu |
 | **`WF-02`** | Quotation, Contract & Dispatch | Customer, Manager, Inspector | Customer registers asset and submits request. | Quote accepted, contract uploaded, mission scheduled. | `F-03`, `F-04` | `ServiceRequest`: `SUBMITTED → QUOTED → QUOTE_ACCEPTED → DISPATCHED`; `Inspection`: `→ SCHEDULED` | Phùng Trung Quốc |
 | **`WF-03`** | Field Inspection & AI Defect Check | Inspector, Manager, DroneVisionAI | Inspector uploads permit and starts session. | Checklists, building items, evidence & AI findings locked. | `F-05`, `F-06` | `Inspection`: `SCHEDULED → IN_PROGRESS → FIELD_COMPLETED`; `Finding`: `CANDIDATE → CONFIRMED` | Trần Tùng Bách |
 | **`WF-04`** | Report Review & Payment Settlement | Inspector, Manager, Customer, PayOS | Field inspection reaches `FIELD_COMPLETED`. | Report published, accepted, paid via PayOS, and settled. | `F-07`, `F-08` | `Report`: `DRAFT → SUBMITTED → PUBLISHED`; `Invoice`: `UNPAID → PAID`; `Payout`: `→ SETTLED` | Trương Thái Như |
@@ -37,7 +37,7 @@ group_name: "FA26SE112"
 
 | ID | Workflow | Type | Preconditions and data | Main steps | Expected result | Presenter |
 | :---: | :---: | :---: | --- | --- | --- | --- |
-| **`DS-01a`** | `WF-01` | Main | Active Inspector; 3 valid drone PDFs. | 1. Submit drone & 3 docs.<br>2. Manager approves. | Status → `APPROVED`; Drone is `ACTIVE`. | Trần Hoàng Trung Hiếu |
+| **`DS-01a`** | `WF-01` | Main | Active Inspector; valid drone legal documents. | 1. Submit drone & legal docs.<br>2. Manager approves. | Status → `APPROVED`; Drone is `ACTIVE`. | Trần Hoàng Trung Hiếu |
 | **`DS-01b`** | `WF-01` | Exception | Duplicate serial; reject without reason. | 1. Submit duplicate serial.<br>2. Reject with empty reason. | Blocked with `400/409` (`BR-01`, `BR-02`). | Trần Hoàng Trung Hiếu |
 | **`DS-02a`** | `WF-02` | Main | Customer in `CLEAR_ZONE`; free Inspector+Drone. | 1. Create asset & request.<br>2. Accept quote.<br>3. Upload contract & dispatch. | Request → `DISPATCHED`; Inspection → `SCHEDULED`. | Phùng Trung Quốc |
 | **`DS-02b`** | `WF-02` | Exception | Asset in `NO_FLY_ZONE`; busy Inspector. | 1. Create asset in NFZ.<br>2. Dispatch busy Inspector. | Blocked with `403 NFZ` (`BR-03`) & `409 Conflict` (`BR-05`). | Phùng Trung Quốc |
@@ -87,7 +87,7 @@ group_name: "FA26SE112"
 | ID | Item | Related workflow | Owner | Due |
 | :---: | --- | --- | --- | --- |
 | `FX-01` | Map SDD §2.2 state-transition IDs to `F-01`..`F-08`. | `WF-01`..`04` | Trần Hoàng Trung Hiếu | `12/11/2026` |
-| `FX-02` | Complete staging walkthrough for 3-doc drone approval (`WF1-010`). | `WF-01` | Trần Hoàng Trung Hiếu | `15/11/2026` |
+| `FX-02` | Complete staging walkthrough for partner drone approval (`WF1-010`). | `WF-01` | Trần Hoàng Trung Hiếu | `15/11/2026` |
 | `FX-03` | Complete staging walkthrough for session abort & reschedule (`WF2-015`). | `WF-02`, `WF-03` | Phùng Trung Quốc | `15/11/2026` |
 | `FX-04` | Complete staging walkthroughs for PayOS & Vision fallback (`WF3-012`, `017`). | `WF-03`, `WF-04` | Trần Tùng Bách | `15/11/2026` |
 | `FX-05` | Remove legacy Maintenance references from SRS/SDD (`SR-01`). | `WF-04` | Trương Thái Như | `12/11/2026` |
