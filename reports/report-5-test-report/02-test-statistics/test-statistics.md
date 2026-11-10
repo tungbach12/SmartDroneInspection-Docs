@@ -10,8 +10,8 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | GFA26SE139 |
-| Test round | Current case inventory: 67 IDs across eight features FE-01 to FE-08. Current Round 1 records 60 Passed, 0 Failed, 5 Pending, and two V29 cases marked N/A because they were added after that round. Historical Round 1 remains 65 cases (60 Passed, 0 Failed, 5 Pending; 92.31% overall / 93.75% of the 64-case baseline). Round 3 has four Passed executions: WF3-006, WF3-016, WF3-018 and WF3-019. The two V29 finance cases were verified against Flyway V1–V29 on PostgreSQL 17 with Docker/Testcontainers on 2026-11-05; other feature suites were not run. |
-| Last updated | 2026-11-05 (V29 migration, finance persistence, PayOS and VNPay tests passed; non-payment feature suites were not run). |
+| Test round | Current case inventory: 67 IDs across eight features FE-01 to FE-08. Current Round 1 records 60 Passed, 0 Failed, 5 Pending, and two V29 cases marked N/A because they were added after that round. Historical Round 1 remains 65 cases (60 Passed, 0 Failed, 5 Pending; 92.31% overall / 93.75% of the 64-case baseline). Round 3 has four Passed executions: WF3-006, WF3-016, WF3-018 and WF3-019. The two V29 finance cases were verified against Flyway V1–V29 on PostgreSQL 17 with Docker/Testcontainers on 2026-11-05, and WF4-014 re-inspection verification/compliance unit suites were re-verified on 2026-11-08. |
+| Last updated | 2026-11-08 (WF4-014 re-inspection compliance/workflow unit suites and frontend inspection/maintenance Vitest suites passed). |
 
 ### Round scope
 

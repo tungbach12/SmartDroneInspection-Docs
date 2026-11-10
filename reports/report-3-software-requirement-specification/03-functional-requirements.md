@@ -177,6 +177,7 @@ The target business record set includes customer organizations and users; Inspec
   - Asset creation is blocked for a location identified as prohibited airspace; a location requiring review follows the applicable human review process.
   - An Inspector drone registration includes its identifying details, registration evidence, ownership evidence, and technical inspection evidence. The three required document categories are `REGISTRATION`, `OWNERSHIP`, and `INSPECTION`.
   - `ADMIN` or `MANAGER` reviews the drone registration and records an attributable decision. Only a drone accepted for service may be considered for assignment to its owning Inspector.
+  - Drone records are classified by Maximum Take-Off Weight (MTOW) into the 5 categories of Article 4 of Decree 288/2025/ND-CP; airframes with MTOW >= 2.0 kg (Category 3+) require the assigned Inspector to hold a Class B pilot license (Article 27 of Decree 288/2025/ND-CP) during quotation, mission dispatch, reassignment, and flight-permit verification.
 - **Normal cases**: A Customer maintains eligible assets; an Inspector submits all required drone documents for review and, after approval, the drone may be considered for partner assignments.
 - **Abnormal cases**: Prohibited locations cannot be registered as eligible assets; missing drone documents or an unresolved drone review prevents the drone from being used for an inspection.
 
@@ -337,11 +338,13 @@ The target business record set includes customer organizations and users; Inspec
 - **Actors**: `CUSTOMER`, `MANAGER`, `INSPECTOR`.
 - **Function description**: Verify the repair outcome against the original defect and repair evidence, then complete independent acceptance and financial closeout.
 - **Requirements**:
-  - A `REINSPECTION_REQUIRED` decision links the verification work to the source work order, published inspection report, and target findings.
-  - For each target defect, the Inspector reviews the original finding, the Engineer's repair evidence, and new inspection evidence, and records `RESOLVED`, `UNRESOLVED`, or `INCONCLUSIVE` with supporting notes.
-  - `MANAGER` independently reviews and publishes the re-inspection report. A factual report must not conceal an unresolved or inconclusive outcome.
-  - The Customer reviews the published verification report and records the maintenance acceptance decision independently of the repair team. If defects remain unresolved, the Customer may require rework.
+  - A `REINSPECTION_REQUIRED` decision links the verification work to the source work order, published inspection report (`sourceReportVersionId`), and target findings, creating a `RE_INSPECTION` mission in `SCHEDULED` status without inheriting prior mission flight permits.
+  - Before recording defect verifications, the assigned Inspector must hold a non-expired pilot license (`BR-05`), upload the mission flight permit (`BR-07`), and complete the on-site field session (`FIELD_COMPLETED`).
+  - For each target defect, the Inspector reviews the original finding, the Engineer's repair evidence, and new inspection evidence, and records `RESOLVED` (which requires a fresh re-inspection evidence capture `newEvidenceId`), `UNRESOLVED`, or `INCONCLUSIVE` with supporting notes.
+  - `MANAGER` independently reviews and publishes the re-inspection report only after all target defect verifications have been evaluated. A factual report must not conceal an unresolved or inconclusive outcome.
+  - While a linked `RE_INSPECTION` verification report is pending publication, the executing maintenance team cannot bypass the Customer's re-inspection decision by resuming execution (`BR-45`, `BR-49`).
+  - The Customer reviews the published verification report and records the maintenance acceptance decision independently of the repair team. If defects remain unresolved, the work order transitions to `REWORK_REQUIRED`.
   - Actual costs are reconciled against the approved estimate and Customer-approved changes. The original estimate and subsequent approved changes remain attributable.
   - A work order may be closed only after independent Customer acceptance and cost reconciliation (`COST_RECONCILED`).
-- **Normal cases**: Re-inspection evidence is reviewed and published; the Customer records acceptance, reconciles actual costs, and closes the work order when all conditions are met.
-- **Abnormal cases**: An unresolved or inconclusive finding remains visible for Customer action. A work order cannot be closed without the required independent acceptance and completed cost reconciliation.
+- **Normal cases**: Re-inspection field work is completed with a valid mission permit, 3-way verification evidence is reviewed and published, and the Customer records acceptance, reconciles actual costs, and closes the work order when all conditions are met.
+- **Abnormal cases**: Recording defect verifications before field-session completion, marking a defect `RESOLVED` without fresh re-inspection evidence, publishing a report with unevaluated target defects, or attempting to resume maintenance while re-inspection is pending is rejected. A work order cannot be closed without independent acceptance and completed cost reconciliation.

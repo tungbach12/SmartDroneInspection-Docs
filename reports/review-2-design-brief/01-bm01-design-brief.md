@@ -29,10 +29,10 @@ group_name: "FA26SE112"
 
 | Section | Current | Proposed | Reason |
 | --- | --- | --- | --- |
-| `§3.2.b` Actors | 5 actors (`Admin`, `Manager`, `Inspector`, `Maintenance Engineer`, `Viewer`). | 4 roles: `Admin`, `Manager`, `Customer`, `Inspector`. | Replaces passive `Viewer` with `Customer` and drops `Maintenance Engineer`. |
-| `§3.2.b/c` Maintenance | Includes Maintenance Ticket / Work Order module. | Removed from scope; focuses on 4 drone inspection workflows. | Avoids construction ERP complexity to focus on drone inspection. |
-| `§3.2.c` Service & Payment Flow | Basic request creation without quote or payment. | Adds Quotation, Contract, Report acceptance & online payment. | Completes the end-to-end inspection service workflow. |
-| `§3.2.d/e` Tech Stack | ASP.NET Core, EF Core, SignalR, PostgreSQL. | Java 21, Spring Boot 4.1, Spring Modulith, PostgreSQL 17, MinIO. | Matches team expertise and modular monolith design. |
+| `3.2.b` Actors | 5 actors (`Admin`, `Manager`, `Inspector`, `Maintenance Engineer`, `Viewer`). | 4 roles: `Admin`, `Manager`, `Customer`, `Inspector`. | Replaces passive `Viewer` with `Customer` and drops `Maintenance Engineer`. |
+| `3.2.b/c` Maintenance | Includes Maintenance Ticket / Work Order module. | Removed from scope; focuses on 4 drone inspection workflows. | Avoids construction ERP complexity to focus on drone inspection. |
+| `3.2.c` Service & Payment Flow | Basic request creation without quote or payment. | Adds Quotation, Contract, Report acceptance & online payment. | Completes the end-to-end inspection service workflow. |
+| `3.2.d/e` Tech Stack | ASP.NET Core, EF Core, SignalR, PostgreSQL. | Java 21, Spring Boot 4.1, Spring Modulith, PostgreSQL 17, MinIO. | Matches team expertise and modular monolith design. |
 
 ### 1.2 Out of Scope
 
@@ -49,7 +49,7 @@ group_name: "FA26SE112"
 
 SmartDroneInspection is a centralized platform connecting Customers with Partner Drone Inspectors to inspect infrastructure assets (bridges, buildings, power towers) safely and consistently.
 
-Customers register assets, accept quotes, and complete online payment. Inspectors register drones, execute checklist-gated flights with SmartDroneHub telemetry, confirm `DroneVisionAI` (`YOLO11`) defects, and submit reports for Manager publication (Report 4 SDD §1.1).
+Customers register assets, accept quotes, and complete online payment. Inspectors register drones, execute checklist-gated flights with SmartDroneHub telemetry, confirm `DroneVisionAI` (`YOLO11`) defects, and submit reports for Manager publication (Report 4 SDD Section 1.1).
 
 ---
 
@@ -57,11 +57,11 @@ Customers register assets, accept quotes, and complete online payment. Inspector
 
 | ID | Decision | Options considered | Chosen option and rationale | Owner | Related FR / diagram |
 | :---: | --- | --- | --- | --- | --- |
-| `D1` | Backend architecture | Microservices vs. Modular monolith | Spring Modulith monolith: clear module boundaries and simple deployment. | Trần Hoàng Trung Hiếu | `F-01`, `F-02` / SDD §1.2 |
-| `D2` | Flight integration | Built-in flight control vs. SmartDroneHub API | Consume SmartDroneHub telemetry/logs to isolate flight safety from business logic. | Phùng Trung Quốc | `F-04`, `F-05` / SDD §3.5 |
-| `D3` | Field workflow | Single form vs. Step-by-step gated flow | 7-step gated flow (`Permit` → `Pre-flight` → `Flight` → `Post-flight & Items` → `Evidence` → `Findings` → `Report`). | Trần Tùng Bách | `F-05`, `F-06` / SDD §3.6 |
-| `D4` | Media storage | DB BLOBs vs. Object storage | MinIO stores photos, MP4 videos, and PDFs; PostgreSQL stores metadata and hashes. | Trần Tùng Bách | `F-02`, `F-06` / SDD §2.2 |
-| `D5` | AI & Report review | Auto-publish vs. Human review | Inspector confirms AI findings baseline; independent Manager approves and publishes PDF. | Trương Thái Như | `F-07`, `F-08` / SDD §3.7 |
+| `D1` | Backend architecture | Microservices vs. Modular monolith | Spring Modulith monolith: clear module boundaries and simple deployment. | Trần Hoàng Trung Hiếu | `F-01`, `F-02` / SDD Section 1.2 |
+| `D2` | Flight integration | Built-in flight control vs. SmartDroneHub API | Consume SmartDroneHub telemetry/logs to isolate flight safety from business logic. | Phùng Trung Quốc | `F-04`, `F-05` / SDD Section 3.5 |
+| `D3` | Field workflow | Single form vs. Step-by-step gated flow | 7-step gated flow (`Permit` → `Pre-flight` → `Flight` → `Post-flight & Items` → `Evidence` → `Findings` → `Report`). | Trần Tùng Bách | `F-05`, `F-06` / SDD Section 3.6 |
+| `D4` | Media storage | DB BLOBs vs. Object storage | MinIO stores photos, MP4 videos, and PDFs; PostgreSQL stores metadata and hashes. | Trần Tùng Bách | `F-02`, `F-06` / SDD Section 2.2 |
+| `D5` | AI & Report review | Auto-publish vs. Human review | Inspector confirms AI findings baseline; independent Manager approves and publishes PDF. | Trương Thái Như | `F-07`, `F-08` / SDD Section 3.7 |
 
 ---
 
@@ -79,8 +79,8 @@ Customers register assets, accept quotes, and complete online payment. Inspector
 
 | ID | Gap | Location | Plan | Owner | Due |
 | :---: | --- | --- | --- | --- | --- |
-| `G1` | Legacy Maintenance references in early docs | SRS §3, SDD §2–3 | Remove Maintenance from SRS/SDD to match 4-workflow scope. | Trương Thái Như | `12/11/2026` |
-| `G2` | SDD state transition IDs not mapped to `F-01`..`F-08` | Report 4 SDD §2.2 | Update transition labels to match `F-01`..`F-08` and `BR-01`..`BR-10`. | Trần Hoàng Trung Hiếu | `12/11/2026` |
+| `G1` | Legacy Maintenance references in early docs | SRS Section 3, SDD Sections 2–3 | Remove Maintenance from SRS/SDD to match 4-workflow scope. | Trương Thái Như | `12/11/2026` |
+| `G2` | SDD state transition IDs not mapped to `F-01`..`F-08` | Report 4 SDD Section 2.2 | Update transition labels to match `F-01`..`F-08` and `BR-01`..`BR-10`. | Trần Hoàng Trung Hiếu | `12/11/2026` |
 | `G3` | 5 staging walkthrough test cases still Pending | Report 5 Test Report | Run remaining 5 staging walkthroughs before Defense 1.1. | Trần Tùng Bách | `15/11/2026` |
 
 ---
