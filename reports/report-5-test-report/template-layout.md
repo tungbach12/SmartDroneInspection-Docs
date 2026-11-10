@@ -81,8 +81,8 @@ computed from it at rows 21–22:
 - `Test coverage` = `(Passed + Failed) * 100 / (Number of TCs - N/A)`
 - `Test successful coverage` = `Passed * 100 / (Number of TCs - N/A)`
 
-With the current 67-case inventory, Round 1 has `60 Passed`, `0 Failed`, `5
-Pending`, and `2 N/A`; the two N/A cases were added for V29 after Round 1. The
+With the current 68-case inventory, Round 1 has `60 Passed`, `0 Failed`, `5
+Pending`, and `3 N/A`; these cases were added after Round 1. The
 historical Round 1 subtotal remains 65 cases (`60 Passed`, `5 Pending`, `0
 Failed`, `0 N/A`), so the historical coverage remains `92.31%`; pending cases
 remain in the denominator. Keep workbook formulas; change underlying statuses

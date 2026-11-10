@@ -25,7 +25,7 @@ CASE_HEADER = ["Test Case ID", "Test Case Description", "Test Case Procedure",
 # coverage rows; cloning it keeps the original vertical spacing.
 BLANK_SPACER_ROW = 15
 V29_ROUND3_CASE_IDS = {"WF3-018", "WF3-019"}
-V29_ROUND3_CASE_IDS = {"WF3-018", "WF3-019"}
+POST_ROUND1_CASE_IDS = V29_ROUND3_CASE_IDS | {"WF3-020"}
 
 
 def validate_cases(report_dir):
@@ -102,7 +102,7 @@ def validate_cases(report_dir):
         row[5]
         for group in cases.values()
         for _, row, _ in group
-        if row[0] not in V29_ROUND3_CASE_IDS and row[5] in STATUS
+        if row[0] not in POST_ROUND1_CASE_IDS and row[5] in STATUS
     )
     round3_executed_counts = Counter(
         row[11]
@@ -135,7 +135,7 @@ def validate_cases(report_dir):
     if current_round1_recorded != current_round1_expected:
         raise ValueError(f"Recorded current Round 1 statistics {current_round1_recorded} differ from source statuses {current_round1_expected}")
     recorded = [int(plain(value)) for value in subtotal[2:]]
-    expected = [historical_round1_counts[s] for s in ("Passed", "Failed", "Pending", "N/A")] + [len(ids) - len(V29_ROUND3_CASE_IDS)]
+    expected = [historical_round1_counts[s] for s in ("Passed", "Failed", "Pending", "N/A")] + [len(ids) - len(POST_ROUND1_CASE_IDS)]
     if recorded != expected:
         raise ValueError(f"Recorded historical Round 1 statistics {recorded} differ from source statuses {expected}")
     current_cases = int(plain(current[-1]))
