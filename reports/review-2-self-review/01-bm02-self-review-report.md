@@ -49,14 +49,14 @@ If something cannot be verified from the repository, say so; do not guess.
 
 | ID | Category | Location | Finding | Severity | Evidence | Team response (Fixed / Kept / Planned) |
 | :---: | --- | --- | --- | :---: | --- | --- |
-| `SR-01` | Scope | Registration §3.2; SRS §3 | Maintenance Work Order module adds extra complexity outside core drone inspection. | High | SRS §§3.8–3.9 vs. 4-workflow scope | **Fixed** – Removed Maintenance module from scope. |
-| `SR-02` | Requirements | SRS §3; SDD §2.2 | SDD state transitions use legacy FR IDs instead of `F-01`..`F-08`. | High | SDD §2.2 state tables | **Planned** – Trần Hoàng Trung Hiếu, due `12/11/2026`. |
+| `SR-01` | Scope | Registration 3.2; SRS Section 3 | Maintenance Work Order module adds extra complexity outside core drone inspection. | High | SRS Sections 3.8–3.9 vs. 4-workflow scope | **Fixed** – Removed Maintenance module from scope. |
+| `SR-02` | Requirements | SRS Section 3; SDD Section 2.2 | SDD state transitions use legacy FR IDs instead of `F-01`..`F-08`. | High | SDD Section 2.2 state tables | **Planned** – Trần Hoàng Trung Hiếu, due `12/11/2026`. |
 | `SR-03` | Flows | Report 5 Test Suite | 5 of 65 test cases (staging walkthroughs) are still Pending. | High | `WF1-010`, `WF2-015`, `WF3-012`, `WF3-017`, `WF4-011` | **Planned** – Trần Tùng Bách, due `15/11/2026`. |
-| `SR-04` | Scope | SRS §3.6 | SRS adds Flight Permit gate, Pre/Post-flight checklists, and Building Items check. | Medium | `FieldSessionPage` & SRS §3.6 | **Kept** – Required for flight safety and field coverage. |
-| `SR-05` | Architecture | Registration §3.2.b; SRS §3.7 | Registration uses `DroneVisionAI` while SRS/code also name `YOLO11`. | Medium | `YoloInferenceClient.java` & SRS §3.7 | **Kept** – `DroneVisionAI` is the module; `YOLO11` is the model. |
-| `SR-06` | States | `Inspection.java`; SDD §2.2 | State transition preconditions are enforced in service layer rather than entity setter. | Medium | `InspectionWorkflowService.java` | **Fixed** – Verified by service state-transition tests. |
-| `SR-07` | Flows | SDD §3.5.3 Activity Diagram | Activity diagram omitted the `ABORTED` session reschedule branch. | Low | SDD §3.5.3 vs. `/abort` API | **Fixed** – Added `ABORTED` → Reschedule branch to diagram. |
-| `SR-08` | Requirements | SRS §4.2 NFR prose | General availability prose lacked a test method, unlike table `NFR-01`..`NFR-05`. | Low | SRS §4.2 | **Fixed** – Standardized on `NFR-01`..`NFR-05` table. |
+| `SR-04` | Scope | SRS Section 3.6 | SRS adds Flight Permit gate, Pre/Post-flight checklists, and Building Items check. | Medium | `FieldSessionPage` & SRS Section 3.6 | **Kept** – Required for flight safety and field coverage. |
+| `SR-05` | Architecture | Registration 3.2.b; SRS Section 3.7 | Registration uses `DroneVisionAI` while SRS/code also name `YOLO11`. | Medium | `YoloInferenceClient.java` & SRS Section 3.7 | **Kept** – `DroneVisionAI` is the module; `YOLO11` is the model. |
+| `SR-06` | States | `Inspection.java`; SDD Section 2.2 | State transition preconditions are enforced in service layer rather than entity setter. | Medium | `InspectionWorkflowService.java` | **Fixed** – Verified by service state-transition tests. |
+| `SR-07` | Flows | SDD Section 3.5.3 Activity Diagram | Activity diagram omitted the `ABORTED` session reschedule branch. | Low | SDD Section 3.5.3 vs. `/abort` API | **Fixed** – Added `ABORTED` → Reschedule branch to diagram. |
+| `SR-08` | Requirements | SRS Section 4.2 NFR prose | General availability prose lacked a test method, unlike table `NFR-01`..`NFR-05`. | Low | SRS Section 4.2 | **Fixed** – Standardized on `NFR-01`..`NFR-05` table. |
 
 ---
 
@@ -65,7 +65,7 @@ If something cannot be verified from the repository, say so; do not guess.
 | # | Finding ID | Summary |
 | :---: | :---: | --- |
 | 1 | `SR-01` | Remove Maintenance module to focus 100% on the 4 Drone Inspection workflows (`WF-01`..`WF-04`). |
-| 2 | `SR-02` | Align SDD §2.2 state transition IDs with SRS feature IDs (`F-01`..`F-08`). |
+| 2 | `SR-02` | Align SDD Section 2.2 state transition IDs with SRS feature IDs (`F-01`..`F-08`). |
 | 3 | `SR-03` | Complete the remaining 5 staging walkthrough test cases before Defense 1.1. |
 | 4 | `SR-04` | Keep Flight Permit gate, Pre/Post-flight checklists, and Building Items check in `WF-03`. |
 | 5 | `SR-05` | Clarify `DroneVisionAI` (subsystem) vs. `YOLO11` (model) naming across docs. |

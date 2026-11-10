@@ -216,25 +216,25 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
         tables[1],
         [
             [
-                "§3.2.b Actors",
+                "3.2.b Actors",
                 "5 actors (Admin, Manager, Inspector, Maintenance Engineer, Viewer).",
                 "4 roles: Admin, Manager, Customer, Inspector.",
                 "Replaces passive Viewer with Customer and drops Maintenance Engineer.",
             ],
             [
-                "§3.2.b/c Maintenance",
+                "3.2.b/c Maintenance",
                 "Includes Maintenance Ticket / Work Order module.",
                 "Removed from scope; focuses on 4 drone inspection workflows.",
                 "Avoids construction ERP complexity to focus on drone inspection.",
             ],
             [
-                "§3.2.c Service & Payment Flow",
+                "3.2.c Service & Payment Flow",
                 "Basic request creation without quote or payment.",
                 "Adds Quotation, Contract, Report acceptance & online payment.",
                 "Completes the end-to-end inspection service workflow.",
             ],
             [
-                "§3.2.d/e Tech Stack",
+                "3.2.d/e Tech Stack",
                 "ASP.NET Core, EF Core, SignalR, PostgreSQL.",
                 "Java 21, Spring Boot 4.1, Spring Modulith, PostgreSQL 17, MinIO.",
                 "Matches team expertise and modular monolith design.",
@@ -293,7 +293,7 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
     if len(body_ps) >= 2:
         set_paragraph_body_text(
             body_ps[1],
-            "Customers register assets, accept quotes, and complete online payment. Inspectors register drones, execute checklist-gated flights with SmartDroneHub telemetry, confirm DroneVisionAI (YOLO11) defects, and submit reports for Manager publication (Report 4 SDD §1.1).",
+            "Customers register assets, accept quotes, and complete online payment. Inspectors register drones, execute checklist-gated flights with SmartDroneHub telemetry, confirm DroneVisionAI (YOLO11) defects, and submit reports for Manager publication (Report 4 SDD Section 1.1).",
         )
 
     # TBL 3: 3. Key Design Decisions
@@ -306,7 +306,7 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
                 "Microservices vs. Modular monolith",
                 "Spring Modulith monolith: clear module boundaries and simple deployment.",
                 "Trần Hoàng Trung Hiếu",
-                "F-01, F-02 / SDD §1.2",
+                "F-01, F-02 / SDD Section 1.2",
             ],
             [
                 "D2",
@@ -314,7 +314,7 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
                 "Built-in flight control vs. SmartDroneHub API",
                 "Consume SmartDroneHub telemetry/logs to isolate flight safety from business logic.",
                 "Phùng Trung Quốc",
-                "F-04, F-05 / SDD §3.5",
+                "F-04, F-05 / SDD Section 3.5",
             ],
             [
                 "D3",
@@ -322,7 +322,7 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
                 "Single form vs. Step-by-step gated flow",
                 "7-step gated flow (Permit -> Pre-flight -> Flight -> Post-flight & Items -> Evidence -> Findings -> Report).",
                 "Trần Tùng Bách",
-                "F-05, F-06 / SDD §3.6",
+                "F-05, F-06 / SDD Section 3.6",
             ],
             [
                 "D4",
@@ -330,7 +330,7 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
                 "DB BLOBs vs. Object storage",
                 "MinIO stores photos, MP4 videos, and PDFs; PostgreSQL stores metadata and hashes.",
                 "Trần Tùng Bách",
-                "F-02, F-06 / SDD §2.2",
+                "F-02, F-06 / SDD Section 2.2",
             ],
             [
                 "D5",
@@ -338,7 +338,7 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
                 "Auto-publish vs. Human review",
                 "Inspector confirms AI findings baseline; independent Manager approves and publishes PDF.",
                 "Trương Thái Như",
-                "F-07, F-08 / SDD §3.7",
+                "F-07, F-08 / SDD Section 3.7",
             ],
         ],
     )
@@ -378,7 +378,7 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
             [
                 "G1",
                 "Legacy Maintenance references in early docs",
-                "SRS §3, SDD §2–3",
+                "SRS Section 3, SDD Sections 2–3",
                 "Remove Maintenance from SRS/SDD to match 4-workflow scope.",
                 "Trương Thái Như",
                 "12/11/2026",
@@ -386,7 +386,7 @@ def build_bm01(src_docx: Path, dst_paths: list[Path]) -> None:
             [
                 "G2",
                 "SDD state transition IDs not mapped to F-01..F-08",
-                "Report 4 SDD §2.2",
+                "Report 4 SDD Section 2.2",
                 "Update transition labels to match F-01..F-08 and BR-01..BR-10.",
                 "Trần Hoàng Trung Hiếu",
                 "12/11/2026",
@@ -727,19 +727,19 @@ def build_bm02(src_docx: Path, dst_paths: list[Path]) -> None:
         [
             "SR-01",
             "Scope",
-            "Registration §3.2; SRS §3",
+            "Registration 3.2; SRS Section 3",
             "Maintenance Work Order module adds extra complexity outside core drone inspection.",
             "High",
-            "SRS §§3.8–3.9 vs. 4-workflow scope",
+            "SRS Sections 3.8–3.9 vs. 4-workflow scope",
             "Fixed – Removed Maintenance module from scope.",
         ],
         [
             "SR-02",
             "Requirements",
-            "SRS §3; SDD §2.2",
+            "SRS Section 3; SDD Section 2.2",
             "SDD state transitions use legacy FR IDs instead of F-01..F-08.",
             "High",
-            "SDD §2.2 state tables",
+            "SDD Section 2.2 state tables",
             "Planned – Trần Hoàng Trung Hiếu, due 12/11/2026.",
         ],
         [
@@ -754,25 +754,25 @@ def build_bm02(src_docx: Path, dst_paths: list[Path]) -> None:
         [
             "SR-04",
             "Scope",
-            "SRS §3.6",
+            "SRS Section 3.6",
             "SRS adds Flight Permit gate, Pre/Post-flight checklists, and Building Items check.",
             "Medium",
-            "FieldSessionPage & SRS §3.6",
+            "FieldSessionPage & SRS Section 3.6",
             "Kept – Required for flight safety and field coverage.",
         ],
         [
             "SR-05",
             "Architecture",
-            "Registration §3.2.b; SRS §3.7",
+            "Registration 3.2.b; SRS Section 3.7",
             "Registration uses DroneVisionAI while SRS/code also name YOLO11.",
             "Medium",
-            "YoloInferenceClient.java & SRS §3.7",
+            "YoloInferenceClient.java & SRS Section 3.7",
             "Kept – DroneVisionAI is the module; YOLO11 is the model.",
         ],
         [
             "SR-06",
             "States",
-            "Inspection.java; SDD §2.2",
+            "Inspection.java; SDD Section 2.2",
             "State transition preconditions are enforced in service layer rather than entity setter.",
             "Medium",
             "InspectionWorkflowService.java",
@@ -781,19 +781,19 @@ def build_bm02(src_docx: Path, dst_paths: list[Path]) -> None:
         [
             "SR-07",
             "Flows",
-            "SDD §3.5.3 Activity Diagram",
+            "SDD Section 3.5.3 Activity Diagram",
             "Activity diagram omitted the ABORTED session reschedule branch.",
             "Low",
-            "SDD §3.5.3 vs. /abort API",
+            "SDD Section 3.5.3 vs. /abort API",
             "Fixed – Added ABORTED -> Reschedule branch to diagram.",
         ],
         [
             "SR-08",
             "Requirements",
-            "SRS §4.2 NFR prose",
+            "SRS Section 4.2 NFR prose",
             "General availability prose lacked a test method, unlike table NFR-01..NFR-05.",
             "Low",
-            "SRS §4.2",
+            "SRS Section 4.2",
             "Fixed – Standardized on NFR-01..NFR-05 table.",
         ],
     ]
@@ -803,7 +803,7 @@ def build_bm02(src_docx: Path, dst_paths: list[Path]) -> None:
         tables[3],
         [
             ["1", "SR-01", "Remove Maintenance module to focus 100% on the 4 Drone Inspection workflows (WF-01..WF-04)."],
-            ["2", "SR-02", "Align SDD §2.2 state transition IDs with SRS feature IDs (F-01..F-08)."],
+            ["2", "SR-02", "Align SDD Section 2.2 state transition IDs with SRS feature IDs (F-01..F-08)."],
             ["3", "SR-03", "Complete the remaining 5 staging walkthrough test cases before Defense 1.1."],
             ["4", "SR-04", "Keep Flight Permit gate, Pre/Post-flight checklists, and Building Items check in WF-03."],
             ["5", "SR-05", "Clarify DroneVisionAI (subsystem) vs. YOLO11 (model) naming across docs."],
@@ -856,7 +856,7 @@ def build_bm03(src_docx: Path, dst_paths: list[Path]) -> None:
         [
             [
                 "01",
-                "§3.2.b Human Actors",
+                "3.2.b Human Actors",
                 "5 actors: Admin, Manager, Inspector, Maintenance Engineer, Viewer.",
                 "4 actors: Admin, Manager, Customer, Inspector.",
                 "Replaces passive Viewer with Customer and drops Maintenance Engineer.",
@@ -864,7 +864,7 @@ def build_bm03(src_docx: Path, dst_paths: list[Path]) -> None:
             ],
             [
                 "02",
-                "§3.2.b/c/f Maintenance Scope",
+                "3.2.b/c/f Maintenance Scope",
                 "Includes Maintenance Ticket / Work Order module.",
                 "Removes Maintenance module; focuses on 4 Inspection workflows (WF-01..WF-04).",
                 "Focuses depth on drone inspection and AI defect reporting.",
@@ -872,7 +872,7 @@ def build_bm03(src_docx: Path, dst_paths: list[Path]) -> None:
             ],
             [
                 "03",
-                "§3.2.b/c Service & Payment Flow",
+                "3.2.b/c Service & Payment Flow",
                 "Basic request creation without quote or payment.",
                 "Adds Quotation, Contract, Report acceptance & online payment.",
                 "Completes the end-to-end inspection service workflow.",
@@ -880,7 +880,7 @@ def build_bm03(src_docx: Path, dst_paths: list[Path]) -> None:
             ],
             [
                 "04",
-                "§3.2.d/e Tech Stack",
+                "3.2.d/e Tech Stack",
                 "ASP.NET Core, EF Core, SignalR, PostgreSQL.",
                 "Java 21, Spring Boot 4.1, Spring Modulith, PostgreSQL 17, MinIO.",
                 "Aligns with team expertise and modular monolith architecture.",
@@ -1119,7 +1119,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "Inspector submits a drone registration with legal documents.",
                 "Drone is verified and activated in the fleet roster.",
                 "DroneRegistration: PENDING -> APPROVED / REJECTED; Drone: -> ACTIVE",
-                "Report 4 SDD §3.3.3",
+                "Report 4 SDD Section 3.3.3",
             ],
             "features": [
                 ["F-01", "Auth & 4-Role RBAC", "Role JWT login, 5-fail lockout, 403 on cross-role access.", "WF1-001..005"],
@@ -1160,7 +1160,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "Customer selects an active asset and submits a Service Request.",
                 "Quote accepted, contract uploaded, and Inspector+Drone dispatched.",
                 "ServiceRequest: SUBMITTED -> QUOTED -> QUOTE_ACCEPTED -> DISPATCHED; Inspection: -> SCHEDULED",
-                "Report 4 SDD §3.5.3",
+                "Report 4 SDD Section 3.5.3",
             ],
             "features": [
                 ["F-03", "Asset & Inspection Items Management", "Registers valid GPS asset & Inspection Items; blocks NO_FLY_ZONE (403).", "WF1-017..021"],
@@ -1201,7 +1201,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "Inspector uploads Flight Permit and starts pre-flight check.",
                 "Checklists, inspection items, evidence & confirmed AI findings recorded.",
                 "Inspection: SCHEDULED -> IN_PROGRESS -> FIELD_COMPLETED; Finding: CANDIDATE -> CONFIRMED",
-                "Report 4 SDD §3.6.3",
+                "Report 4 SDD Section 3.6.3",
             ],
             "features": [
                 ["F-05", "Permit Gate, Checklists & Field Session", "Permit & Pre-flight gate; MAVLink log, Inspection Items & Post-flight check.", "WF2-010..015, 017..020"],
@@ -1242,7 +1242,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "Inspection reaches FIELD_COMPLETED with confirmed findings.",
                 "Report published, accepted, paid online, and settled to Inspector.",
                 "Report: SUBMITTED -> PUBLISHED (or RETURNED); Invoice: UNPAID -> PAID; Payout: -> SETTLED",
-                "Report 4 SDD §3.7.3",
+                "Report 4 SDD Section 3.7.3",
             ],
             "features": [
                 ["F-07", "Auto-Compiled Report & Manager Review", "Auto-generated report with AI summary; Manager publishes report or returns with reason.", "WF3-010, WF4-001..008"],
@@ -1301,7 +1301,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 ["Of which automated in CI", "14", "15/11/2026"],
                 ["Demo scenarios presented", "2 (DS-01a, DS-01b)", "Defense 1.1"],
                 ["Required fixes owned (section 9)", "FX-01, FX-02", "15/11/2026"],
-                ["Documentation sections (Report / section)", "Report 1–2, SRS §2–3.3, SDD §1–2, BM01, BM03", "12/11/2026"],
+                ["Documentation sections (Report / section)", "Report 1–2, SRS Sections 2–3.3, SDD Sections 1–2, BM01, BM03", "12/11/2026"],
             ],
         },
         {
@@ -1318,7 +1318,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 ["Of which automated in CI", "14", "15/11/2026"],
                 ["Demo scenarios presented", "2 (DS-02a, DS-02b)", "Defense 1.1"],
                 ["Required fixes owned (section 9)", "FX-03", "15/11/2026"],
-                ["Documentation sections (Report / section)", "SRS §§3.4–3.5, SDD §§3.4–3.5, Report 5", "12/11/2026"],
+                ["Documentation sections (Report / section)", "SRS Sections 3.4–3.5, SDD Sections 3.4–3.5, Report 5", "12/11/2026"],
             ],
         },
         {
@@ -1335,7 +1335,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 ["Of which automated in CI", "14", "15/11/2026"],
                 ["Demo scenarios presented", "2 (DS-03a, DS-03b)", "Defense 1.1"],
                 ["Required fixes owned (section 9)", "FX-04", "15/11/2026"],
-                ["Documentation sections (Report / section)", "SRS §3.6, SDD §3.6, Report 5, BM02", "12/11/2026"],
+                ["Documentation sections (Report / section)", "SRS Section 3.6, SDD Section 3.6, Report 5, BM02", "12/11/2026"],
             ],
         },
         {
@@ -1352,7 +1352,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 ["Of which automated in CI", "14", "15/11/2026"],
                 ["Demo scenarios presented", "2 (DS-04a, DS-04b)", "Defense 1.1"],
                 ["Required fixes owned (section 9)", "FX-05", "15/11/2026"],
-                ["Documentation sections (Report / section)", "SRS §3.7, SDD §3.7, Report 5, BM04", "12/11/2026"],
+                ["Documentation sections (Report / section)", "SRS Section 3.7, SDD Section 3.7, Report 5, BM04", "12/11/2026"],
             ],
         },
     ]
@@ -1416,7 +1416,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
     populate_data_table(
         tables[53],
         [
-            ["FX-01", "Map SDD §2.2 state-transition IDs to F-01..F-08.", "WF-01..04", "Trần Hoàng Trung Hiếu", "12/11/2026"],
+            ["FX-01", "Map SDD Section 2.2 state-transition IDs to F-01..F-08.", "WF-01..04", "Trần Hoàng Trung Hiếu", "12/11/2026"],
             ["FX-02", "Complete staging walkthrough for partner drone approval (WF1-010).", "WF-01", "Trần Hoàng Trung Hiếu", "15/11/2026"],
             ["FX-03", "Complete staging walkthrough for session abort & reschedule (WF2-015).", "WF-02, WF-03", "Phùng Trung Quốc", "15/11/2026"],
             ["FX-04", "Complete staging walkthroughs for online payment & Vision fallback (WF3-012, 017).", "WF-03, WF-04", "Trần Tùng Bách", "15/11/2026"],
