@@ -60,7 +60,7 @@ group_name: "FA26SE112"
 
 ---
 
-## 5. Summary and Cross-Check (`BM04` §8)
+## 5. Summary and Cross-Check (`BM04` Section 8)
 
 ### 5.1 By Workflow
 
@@ -82,11 +82,11 @@ group_name: "FA26SE112"
 | Trương Thái Như | `WF-04` | `F-07`, `F-08` | 16 | 14 | `DS-04a`, `DS-04b` | Pending |
 | **Total** | **4 Workflows** | **8 Features** | **65** | **56 (86.15%)** | **8 Scenarios** | **—** |
 
-### 5.3 Required Fixes (`BM04` §9)
+### 5.3 Required Fixes (`BM04` Section 9)
 
 | ID | Item | Related workflow | Owner | Due |
 | :---: | --- | --- | --- | --- |
-| `FX-01` | Map SDD §2.2 state-transition IDs to `F-01`..`F-08`. | `WF-01`..`04` | Trần Hoàng Trung Hiếu | `12/11/2026` |
+| `FX-01` | Map SDD Section 2.2 state-transition IDs to `F-01`..`F-08`. | `WF-01`..`04` | Trần Hoàng Trung Hiếu | `12/11/2026` |
 | `FX-02` | Complete staging walkthrough for partner drone approval (`WF1-010`). | `WF-01` | Trần Hoàng Trung Hiếu | `15/11/2026` |
 | `FX-03` | Complete staging walkthrough for session abort & reschedule (`WF2-015`). | `WF-02`, `WF-03` | Phùng Trung Quốc | `15/11/2026` |
 | `FX-04` | Complete staging walkthroughs for online payment & Vision fallback (`WF3-012`, `017`). | `WF-03`, `WF-04` | Trần Tùng Bách | `15/11/2026` |
