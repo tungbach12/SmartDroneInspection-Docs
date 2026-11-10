@@ -10,7 +10,7 @@ from report_ooxml import Spreadsheet, descendants, find_table, plain
 
 SHEET_COUNT = 8
 EXPECTED_CASE_COUNTS = {"Feature 1": 5, "Feature 2": 11, "Feature 3": 5, "Feature 4": 5,
-                       "Feature 5": 11, "Feature 6": 14, "Feature 7": 11, "Feature 8": 5}
+                       "Feature 5": 12, "Feature 6": 14, "Feature 7": 11, "Feature 8": 5}
 
 
 def generated_workbook():
@@ -83,6 +83,7 @@ class FeatureSheetTests(unittest.TestCase):
             self.assertIn("WF2-001", counts["Feature 4"])
             self.assertIn("WF2-008", counts["Feature 5"])
             self.assertIn("WF3-009", counts["Feature 5"])
+            self.assertIn("WF3-020", counts["Feature 5"])
             self.assertIn("WF3-002", counts["Feature 6"])
             self.assertIn("WF3-005", counts["Feature 6"])
             self.assertIn("WF3-017", counts["Feature 6"])
@@ -91,7 +92,7 @@ class FeatureSheetTests(unittest.TestCase):
             self.assertIn("WF4-012", counts["Feature 8"])
             self.assertIn("WF3-018", counts["Feature 6"])
             self.assertIn("WF3-019", counts["Feature 6"])
-            self.assertEqual(sum(len(v) for v in counts.values()), 67)
+            self.assertEqual(sum(len(v) for v in counts.values()), 68)
 
     def test_statistics_lists_all_eight_modules_with_a_correct_subtotal(self):
         book, temp = generated_workbook()
@@ -101,10 +102,10 @@ class FeatureSheetTests(unittest.TestCase):
                 row = 10 + number
                 self.assertEqual(book.value(stats, f"C{row}"), book.value(sheet, "B2"))
                 self.assertEqual(book.value(stats, f"B{row}"), str(number))
-            self.assertEqual(book.value(stats, "H19"), "67")
+            self.assertEqual(book.value(stats, "H19"), "68")
             self.assertEqual(book.value(stats, "D19"), "60")
             self.assertEqual(book.value(stats, "F19"), "5")
-            self.assertEqual(book.value(stats, "G19"), "2")
+            self.assertEqual(book.value(stats, "G19"), "3")
             self.assertEqual(book.value(stats, "C19"), "Sub total")
             self.assertEqual(book.value(stats, "D20"), "60")
             self.assertEqual(book.value(stats, "F20"), "5")
