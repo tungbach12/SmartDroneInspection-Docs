@@ -190,12 +190,16 @@ The target business record set includes customer organizations and users; Inspec
 - **Actors**: `CUSTOMER`, `MANAGER`, automated service support.
 - **Function description**: The target service shall support recurring inspection requests and the coordination of distinct service occurrences under one agreed request. In the current service, planned occurrences are materialized when the recurring request's quotation is accepted; this is not time-based generation, and automatic future-occurrence reminders are not implemented.
 - **Requirements**:
-  - A recurring request states the requested service period, frequency, and other agreed timing conditions in terms understandable to the Customer and `MANAGER`.
+  - A new recurring service request uses a monthly interval of 1–120 months, including common 1, 3, 6, 9, and 12 month choices. A request is bounded by either 2–100 occurrences or an end date that produces 2–100 occurrences.
+  - A new Customer request contains the asset, first requested inspection date, and one-time/recurring choice. Detailed scope and inspection-items are established during Manager quotation, not required in the request form.
+  - The first requested inspection date must be at least 20 calendar days after the current date in the platform's `Asia/Ho_Chi_Minh` business timezone. This is a product scheduling lead-time policy to allow processing and preparation; it is not represented as a statutory 20-day legal deadline.
+  - The requested agreement term end is derived from the requested first date and recurrence bound. For count-bound schedules it is the last calculated occurrence date; for end-date schedules it is the selected end date. The Manager's quoted first occurrence anchors the schedule and must not fall before the requested start or cause the planned schedule to exceed the requested agreement term.
+  - The recurring schedule preview and quote must use the Customer-requested first date as the anchor; the Manager cannot shift the first occurrence to another date. Calendar-month arithmetic is anchored to that requested day and clamps to the last valid day of shorter months (for example, a day 31 monthly series uses the last day in February).
   - Each occurrence, when prepared for delivery, is identifiable by its planned period, assignment, delivery, and payment status, and remains associated with its parent request.
   - Where the parties agree, one signed service agreement may cover the occurrences within its stated term. Each occurrence still requires its own partner assignment, readiness checks, inspection, reporting, and settlement.
   - Occurrence planning and any reminders shall follow the agreed request. Time passing alone does not authorize an inspection or partner assignment.
-- **Normal cases**: The parties agree a recurring service request, record its signed agreement, and coordinate each occurrence using the agreed timing and scope.
-- **Abnormal cases**: An occurrence is not dispatched if the assigned partner or drone is unavailable or no longer meets applicable requirements. A change to the agreed frequency or term requires the parties' agreement.
+- **Normal cases**: The Customer chooses an asset, a first date at least 20 days ahead, and either one-time or a recurring monthly cadence with a 2–100 occurrence or end-date bound. The parties agree a signed service agreement and coordinate each occurrence using the agreed timing and scope.
+- **Abnormal cases**: An earlier requested start date is rejected; a recurring schedule resolving to fewer than two or more than 100 occurrences is rejected; a quote that cannot fit the agreed term cannot be accepted/materialized; an occurrence is not dispatched if the assigned partner or drone is unavailable or no longer meets applicable requirements. A change to the agreed frequency or term requires the parties' agreement.
 
 #### 3.4.2 Notifications
 - **Function trigger**: A significant service, inspection, payment, or maintenance decision occurs, or a user reviews available notices.
@@ -215,17 +219,20 @@ The target business record set includes customer organizations and users; Inspec
 ### 3.5 FE-04 Service Requests, Quotations, Agreements and Dispatch
 
 #### 3.5.1 Service Request, VND Quotation, Negotiation and Signed Agreement
-- **Function trigger**: A Customer submits a one-time or recurring service request, exchanges messages with `MANAGER`, or accepts a quotation; the parties sign an offline service agreement.
+- **Function trigger**: A Customer submits a one-time or recurring service request, exchanges messages with `MANAGER` via the dedicated Messages inbox, or accepts a quotation; the parties sign an offline service agreement.
 - **Actors**: `CUSTOMER`, `MANAGER`.
 - **Function description**: Establish an agreed inspection scope and commercial terms before inspection work is dispatched.
 - **Requirements**:
-  - A service request identifies the asset, requested inspection scope, and requested timing. It may be one-time or recurring.
-  - Customer and `MANAGER` can exchange contextual messages about the request. A message does not itself change agreed quotation terms.
-  - `MANAGER` issues a VND quotation stating scope, timing, and price per occurrence. Any change to the offer is issued as a new version; the Customer accepts the version currently offered.
+  - A new Customer service request identifies the asset and requested timing, and is one-time or recurring. Detailed inspection scope is agreed in the Manager's quotation; the Customer request form does not require free-text scope or display the configured inspection-item checklist. For one-time requests, the Customer chooses a single date (`requestedFrom` equals `requestedUntil`); `MANAGER` cannot propose a different date. Both one-time and recurring first dates must be at least 20 calendar days after the current date in `Asia/Ho_Chi_Minh` business time as an internal scheduling policy.
+  - Customer and `MANAGER` can exchange contextual messages via the dedicated left-nav Messages inbox. A message does not itself change quotation terms.
+  - `MANAGER` issues and edits a single active VND quotation stating scope, timing, and price per occurrence directly without maintaining historical quote revisions. For recurring requests, the quotation's first occurrence must use the Customer-requested first date as its schedule anchor; `MANAGER` cannot shift that date. The Customer accepts the current active quote.
+  - When the Customer accepts the quote, an immutable snapshot of agreed terms (`accepted_terms_snapshot`) is stored and terms are locked against further modification.
   - The parties sign the service agreement offline. `MANAGER` records the signed document after execution. A commercial request is not ready for field dispatch until the signed agreement has been recorded.
   - A recurring agreement applies only to the term and occurrences it describes.
-- **Normal cases**: The Customer submits a request; the parties discuss it; `MANAGER` issues or revises a VND quotation; the Customer accepts the agreed version; the parties sign an agreement; and `MANAGER` records it.
-- **Abnormal cases**: An obsolete quotation cannot be accepted. A dispatch cannot proceed without an accepted quotation and recorded signed agreement. A communication is not treated as acceptance or as a change in price or scope.
+  - The request-detail lifecycle indicator presents four concise stages with role-specific labels: for `CUSTOMER`, submit request, review Manager quotation, accept terms and sign the agreement, and await scheduled inspection; for `MANAGER`, review the Customer request, prepare and discuss the quotation, record the signed agreement, and assign the inspection team. The indicator omits explanatory subtext; authoritative actions and requirements remain in their corresponding panels.
+  - In the Service Requests list, status uses the shared inspection status-chip visual style and is paired with a compact four-step progress subtitle derived from the request state. `OPEN` is step 1, `QUOTED` step 2, `ACCEPTED` and `CONTRACT_SIGNED` step 3, and `ASSIGNED` step 4. `CANCELLED` remains terminal and does not imply progress through the active workflow.
+- **Normal cases**: The Customer submits a request (single date for one-time); `MANAGER` issues or directly edits the active VND quotation; the Customer accepts the active quote or messages `MANAGER` via the Messages inbox to negotiate; terms lock upon acceptance; the parties sign an agreement; and `MANAGER` records it.
+- **Abnormal cases**: A first requested date earlier than the 20-day product lead time is rejected (`400`). A multi-day date range for a one-time request is rejected (`400`). A recurring quotation that shifts the Customer-requested first date is rejected. An accepted quote cannot be modified or deleted. A dispatch cannot proceed without an accepted quotation and recorded signed agreement. A message is not treated as quote acceptance or as a change in price or scope.
 
 #### 3.5.2 Partner Assignment, Dispatch Recovery and Airspace Information
 - **Function trigger**: `MANAGER` assigns an Inspector and owned drone to an agreed occurrence, or responds to an aborted field session.
