@@ -18,6 +18,8 @@ source: "report3-software-requirement-specification.docx"
 | 11 Nov 2026 | M | Project Team | Section 3.5.1 (FE-04): Require recurring quotations and previews to keep the Customer-requested first date as the schedule anchor; reject quotes that shift the first occurrence or whose end-date bound yields more than 100 occurrences. |
 | 11 Nov 2026 | M | Project Team | Section 3.5.1 (FE-04): Clarify the four-stage request lifecycle indicator with role-specific Customer/Manager labels and no explanatory subtext. |
 | 11 Nov 2026 | M | Project Team | Section 3.5.1 (FE-04): Align Service Requests list status chips with the shared inspection chip style and add a compact four-step request progress subtitle. |
+| 11 Nov 2026 | M | Project Team | Sections 3.4.1 and 3.5.2 (FE-03/FE-04): Require partner Inspector pilot-license and drone-registration validity at every scheduled recurring occurrence before quote save/acceptance and occurrence materialization. |
+| 11 Nov 2026 | M | Project Team | Section 3.5.1 (FE-04): Clarify that partner qualification validity covers every planned recurring occurrence before quotation persistence, Customer acceptance, and occurrence creation; no partial schedule is persisted when a license or registration expires before a planned start. |
 |  |  |  |  |
 |  |  |  |  |
 
