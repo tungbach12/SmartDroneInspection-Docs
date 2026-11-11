@@ -14,10 +14,10 @@ from report_ooxml import Spreadsheet, descendants, find_table, key_values, parse
 TEMPLATE_NAME = "Report5_Test Report.xlsx"
 SOURCES = ["report-5-test-report"]
 STATUS = {"Passed", "Failed", "Pending", "N/A"}
-# Report 3 defines eight product features (FE-01..FE-08, sections 3.2-3.9).
+# Report 3 defines six current product features (FE-01..FE-06, sections 3.2-3.7).
 # The supplied template ships two feature sheets; the generated workbook gives
 # each Report 3 feature its own sheet, so sheet N tests FE-0N.
-FEATURE_SHEETS = [f"Feature {n}" for n in range(1, 9)]
+FEATURE_SHEETS = [f"Feature {n}" for n in range(1, 7)]
 CASE_HEADER = ["Test Case ID", "Test Case Description", "Test Case Procedure",
                "Expected Results", "Pre-conditions", "Round 1", "Test date", "Tester",
                "Round 2", "Test date", "Tester", "Round 3", "Test date", "Tester", "Note"]
@@ -212,6 +212,8 @@ def export(template, reports, output):
     # The template ships two feature sheets; clone Feature 2 until every Report 3
     # feature has one. Clones keep the original column widths, merges, validations
     # and style ids, so only the sheet name differs.
+    while len(book.sheets) > len(FEATURE_SHEETS) + 3:
+        book.remove_sheet(book.sheets[-1])
     while len(book.sheets) < len(FEATURE_SHEETS) + 3:
         book.duplicate_sheet("Feature 2", f"Feature {len(book.sheets) - 2}")
     for coord, value in {
