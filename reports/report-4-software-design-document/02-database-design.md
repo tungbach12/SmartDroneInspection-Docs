@@ -25,6 +25,14 @@ erDiagram
   organizations ||--o{ users : employs
   users ||--o| prospective_customer_registrations : submits
   users ||--o| inspector_profiles : has_profile
+  pilot_license_classes {
+    UUID id PK
+    String name UK
+    String description
+    Boolean active
+    Timestamp created_at
+    Timestamp updated_at
+  }
   users |o--o{ otp_challenges : verifies
   users ||--o{ inspector_flight_logs : owns_flight_log
   users ||--o{ drones : owns_drone
@@ -90,7 +98,8 @@ erDiagram
 | :---: | :--- | :--- |
 | 01 | `organizations` | Stores customer organizations that own infrastructure assets, request inspection services, and govern maintenance work orders.<br>- Primary keys: `id`<br>- Foreign keys: None |
 | 02 | `users` | Stores user accounts across the five system roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`, and `MAINTENANCE_ENGINEER`), account status, `ActorZone`, and organization scope.<br>- Primary keys: `id`<br>- Foreign keys: `organization_id` |
-| 03 | `inspector_profiles` | Stores Inspector pilot license numbers, license classes, expiration dates, scanned license files, flight hours, and technical specializations.<br>- Primary keys: `user_id`<br>- Foreign keys: `user_id` |
+| 03 | `inspector_profiles` | Stores Inspector pilot license numbers and selected license class labels, expiration dates, scanned license files, flight hours, and technical specializations. Existing class labels are preserved when the catalogue is introduced.<br>- Primary keys: `user_id`<br>- Foreign keys: `user_id` |
+| 04 | `pilot_license_classes` | Admin-managed UAV pilot-license class catalogue. Inactive entries remain stored for historical Inspector profiles and are excluded from new selections.<br>- Primary keys: `id`<br>- Unique keys: `name`<br>- Foreign keys: None |
 | 04 | `otp_challenges` | Stores consolidated one-time verification codes (`LOGIN`, `REGISTRATION`, and `PASSWORD_RESET`), expiration timestamps, and attempt counters.<br>- Primary keys: `id`<br>- Foreign keys: `user_id` |
 | 05 | `inspector_flight_logs` | Records historical flight missions, flight duration, aircraft details, location, and safety notes for Inspectors.<br>- Primary keys: `id`<br>- Foreign keys: `inspector_user_id`, `recorded_by_user_id` |
 | 06 | `auth_sessions` | Tracks active web and mobile login sessions, hashed refresh tokens, expiration times, and session revocation records.<br>- Primary keys: `id`<br>- Foreign keys: `user_id` |

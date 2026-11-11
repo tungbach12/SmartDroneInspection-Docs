@@ -4,7 +4,7 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope and status (updated 2026-11-10):** The current Report 5 inventory contains **68 test cases** across 8 product features (`FE-01`–`FE-08`, mapped 1-to-1 to `Feature 1`–`Feature 8`) aligned with Flyway `V1`–`V29` and 39 application tables. WF3-020 covers non-MAVLink log import/manual declaration and remains Pending in Round 3. Current Round 1 columns show 60 `Passed`, 0 `Failed`, 5 `Pending`, and three later additions marked `N/A`; the historical Round 1 subtotal remains **65 cases** (60 Passed, 0 Failed, 5 Pending; `92.31%` overall / `93.75%` of the 64-case baseline). Round 3 includes four Passed cases (`WF3-006`, `WF3-016`, `WF3-018`, `WF3-019`); the last two are the V29 subset. V29 schema, persistence, payment lifecycle, PayOS, and VNPay tests passed on 2026-11-05; this change's flight-log/parser checks are reported separately and not marked as an executed Report 5 round.
+**Scope and status (updated 2026-11-11):** The current Report 5 inventory contains **70 test cases** across 8 product features (`FE-01`–`FE-08`, mapped 1-to-1 to `Feature 1`–`Feature 8`) aligned with Flyway `V1`–`V36` and 43 application tables. WF3-020 covers non-MAVLink log import/manual declaration and remains Pending in Round 3. WF1-022 (ADMIN-managed pilot-license catalogue) and WF1-023 (license expiry reminders and expired-session guard) remain Pending in Round 1; focused catalog/expiry unit checks ran on 2026-11-11, but the full acceptance procedures are not marked Passed. Current Round 1 columns show 60 `Passed`, 0 `Failed`, 7 `Pending`, and three later additions marked `N/A`; the historical Round 1 subtotal remains **65 cases** (60 Passed, 0 Failed, 5 Pending; `92.31%` overall / `93.75%` of the 64-case baseline). Round 3 includes four Passed cases (`WF3-006`, `WF3-016`, `WF3-018`, `WF3-019`); the last two are the V29 subset. V29 schema, persistence, payment lifecycle, PayOS, and VNPay tests passed on 2026-11-05; WF3-020 remains Pending.
 
 The original workbook template remains unchanged; generated copies contain eight
 feature sheets (`Feature 1`–`Feature 8`).
@@ -39,7 +39,7 @@ Report 3 feature (`FE-01`–`FE-08`). Sheet `Feature N` contains SRS feature `FE
 | Folder/file | Workbook area | Purpose |
 | --- | --- | --- |
 | `00-cover/` | `Cover` | Project metadata and record of changes. |
-| `01-test-cases/` | `Test Cases` | Complete index of all 68 current test cases across `Feature 1`–`Feature 8` (65 historical cases, two V29 additions, and one flight-log fallback case). |
+| `01-test-cases/` | `Test Cases` | Complete index of all 70 current test cases across `Feature 1`–`Feature 8` (65 historical cases, two V29 additions, one flight-log fallback case, and two FE-02 license cases). |
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary across `Feature 1`–`Feature 8`. |
 | `03-features/fe-01-authentication-access-control.md` | `Feature 1` sheet | `FE-01` (`WF1-001`–`WF1-005`: 5 cases, Owner: Trần Hoàng Trung Hiếu). |
 | `03-features/fe-02-workforce-subscription-management.md` | `Feature 2` sheet | `FE-02` (`WF1-006`–`WF1-016`: 11 cases, Owner: Trần Hoàng Trung Hiếu). |
