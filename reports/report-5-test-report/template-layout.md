@@ -81,7 +81,7 @@ computed from it at rows 21–22:
 - `Test coverage` = `(Passed + Failed) * 100 / (Number of TCs - N/A)`
 - `Test successful coverage` = `Passed * 100 / (Number of TCs - N/A)`
 
-With the current 68-case inventory, Round 1 has `60 Passed`, `0 Failed`, `5
+With the current 70-case inventory, Round 1 has `60 Passed`, `0 Failed`, `7
 Pending`, and `3 N/A`; these cases were added after Round 1. The
 historical Round 1 subtotal remains 65 cases (`60 Passed`, `5 Pending`, `0
 Failed`, `0 N/A`), so the historical coverage remains `92.31%`; pending cases
@@ -146,7 +146,7 @@ the `Feature sheet summary` table in each matching `fe-0N-…md` file. Populate
 | FE source | Workbook destination | Stable case IDs |
 | --- | --- | --- |
 | FE-01 Authentication, Google OAuth2 & 5-Role Access Control (§3.2) | `Feature 1` | WF1-001 to WF1-005 (5 cases) |
-| FE-02 Partner Onboarding, Workforce, Asset & Inspector Drone Registry (§3.3) | `Feature 2` | WF1-006 to WF1-016 (11 cases) |
+| FE-02 Partner Onboarding, Workforce, Asset & Inspector Drone Registry (§3.3) | `Feature 2` | WF1-006 to WF1-016, WF1-022 to WF1-023 (13 cases) |
 | FE-03 Recurring Service Requests, Contract Occurrences & Outbox Notifications (§3.4) | `Feature 3` | WF1-017 to WF1-021 (5 cases) |
 | FE-04 Service Requests, Quotations, Contracts, Dispatch & Airspace Map (§3.5) | `Feature 4` | WF2-001 to WF2-005 (5 cases) |
 | FE-05 Flight Permit Gate, Field Execution, Dashboard & Calendar (§3.6) | `Feature 5` | WF2-008, WF2-009, WF2-011, WF2-012, WF2-015 to WF2-020, WF3-009 (11 cases) |
@@ -154,8 +154,8 @@ the `Feature sheet summary` table in each matching `fe-0N-…md` file. Populate
 | FE-07 Maintenance Work Orders, RAG Scope/Norms Advisor & Repair Execution (§3.8) | `Feature 7` | WF4-001 to WF4-011 (11 cases) |
 | FE-08 Completion Report, 3-Way Re-inspection Verification & Cost Closure (§3.9) | `Feature 8` | WF4-012 to WF4-016 (5 cases) |
 
-All 67 current cases are distributed across `Feature 1` through `Feature 8`
-(`5 + 11 + 5 + 5 + 11 + 14 + 11 + 5 = 67`):
+All 70 current cases are distributed across `Feature 1` through `Feature 8`
+(`5 + 13 + 5 + 5 + 11 + 14 + 11 + 5 + 1 WF3-020 = 70`):
 
 | Workbook sheet | Included SRS feature | Included WF IDs |
 | --- | --- | --- |
