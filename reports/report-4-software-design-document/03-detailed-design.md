@@ -894,7 +894,7 @@ classDiagram
 | 01 | `EvidenceService` | Uploads, validates, streams, and soft-retires field photographs (`10 MB`) and MP4 videos (`500 MB`) associated with an inspection session while extracting EXIF GPS coordinates and capture timestamps. |
 | 02 | `FindingService` & `PrimaryWithFallbackInference` | Invoke Ultralytics YOLO11 (`YoloInferenceClient`) and Vision LLM fallback (`OpenAiCompatibleInferenceClient`) defect detection on photographs and video keyframes, manage manual and AI-suggested findings, and lock the confirmed findings baseline (`inspections.findings_confirmed_at`). |
 | 03 | `ReportService`, `PdfReportRenderer` & `InspectionReport` | Compile and submit 4-state inspection reports (`SUBMITTED`, `RETURNED`, `PUBLISHED`, `SUPERSEDED`), synthesize AI executive summaries (`ReportDraftClient`), enforce independent Manager direct publication, and render on-demand A4 PDFs (`reports/<versionId>.pdf`). |
-| 04 | `ContractWorkflowService`, `PayOSWebhookController` & `VnPayWebhookController` | Record Customer acceptance of a published report (`PAYMENT_DUE`), generate PayOS VietQR (`PayOSPaymentGateway`) and VNPay v2.1.0 (`VnPayPaymentGateway`) checkout links in VND, verify signed webhook callbacks, and settle customer payment (`PAID`) and partner payout (`ELIGIBLE`/`PAID`). |
+| 04 | `ContractWorkflowService`, `PayOSWebhookController` & `VnPayWebhookController` | Record Customer acceptance (`PAYMENT_DUE`), issue PayOS/VNPay checkout links, verify signed callbacks and settle Customer payment (`PAID`) with Inspector payout `ELIGIBLE` only. `MANAGER` records actual payout references; unresolved orders cannot be replaced, and only provider-confirmed PayOS cancellation clears an unpaid order. Manager-recorded external refunds use a capped auditable ledger and hold payout until explicit reconciliation records actual final payout and attribution. |
 | 05 | `Evidence` & `Finding` | Domain entities representing stored inspection media and AI-proposed (`PENDING`) or Inspector-confirmed (`CONFIRMED`) structural defects. |
 
 #### 3.6.2 Photo/Video Evidence Intake, YOLO11 Detection and Findings Confirmation Sequence Diagram
@@ -996,7 +996,8 @@ sequenceDiagram
     Webhooks->>ContractSvc: handleVnPayWebhook(params)
   end
 
-  ContractSvc->>DB: Transition occurrence paymentStatus to PAID and partner payoutStatus to ELIGIBLE/PAID
+  ContractSvc->>DB: Transition customer payment to PAID and payout to ELIGIBLE; a Manager records actual payout separately
+  Note over ContractSvc,DB: Refund ledger holds payout until Manager records transferred final payout and reconciliation attribution
 ```
 
 ---
