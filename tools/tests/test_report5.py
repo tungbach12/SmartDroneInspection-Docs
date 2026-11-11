@@ -11,7 +11,7 @@ from report_ooxml import Spreadsheet, sha256
 class Report5Tests(unittest.TestCase):
     def test_repeated_round_fields_remain_positional(self):
         cases, _, summaries, historical_round1_counts = validate_cases(REPORTS / "report-5-test-report")
-        self.assertEqual(dict(historical_round1_counts), {"Passed": 60, "Pending": 5})
+        self.assertEqual(dict(historical_round1_counts), {"Passed": 45, "Pending": 4})
         # WF3-002 is FE-06, so it lands on the sheet for feature 6.
         row = next(row for _, row, _ in cases["Feature 6"] if row[0] == "WF3-002")
         self.assertEqual(len(row), 15)

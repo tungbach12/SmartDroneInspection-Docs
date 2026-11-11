@@ -942,6 +942,26 @@ class Spreadsheet:
                 rel.parentNode.removeChild(rel)
         return rels.toxml(encoding="UTF-8")
 
+    def remove_sheet(self, name):
+        part, _ = self.sheets.pop(name)
+        book = self.package.xml("xl/workbook.xml")
+        rels = self.package.xml("xl/_rels/workbook.xml.rels")
+        sheet = next(node for node in descendants(book, "sheet") if node.getAttribute("name") == name)
+        rel_id = sheet.getAttribute("r:id")
+        sheet.parentNode.removeChild(sheet)
+        for rel in list(descendants(rels, "Relationship")):
+            if rel.getAttribute("Id") == rel_id:
+                rel.parentNode.removeChild(rel)
+        types = self.package.xml("[Content_Types].xml")
+        for node in list(descendants(types, "Override")):
+            if node.getAttribute("PartName") == "/" + part:
+                node.parentNode.removeChild(node)
+        self.package.parts.pop(part, None)
+        self.package.set_xml("xl/workbook.xml", book)
+        self.package.set_xml("xl/_rels/workbook.xml.rels", rels)
+        self.package.set_xml("[Content_Types].xml", types)
+        self.changed_parts.update({"xl/workbook.xml", "xl/_rels/workbook.xml.rels", "[Content_Types].xml"})
+
     def duplicate_sheet(self, source, new_name):
         """Clone an existing sheet, its part and its styles, under a new name.
 

@@ -4,16 +4,15 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope and status (updated 2026-11-10):** The current Report 5 inventory contains **68 test cases** across 8 product features (`FE-01`–`FE-08`, mapped 1-to-1 to `Feature 1`–`Feature 8`) aligned with Flyway `V1`–`V29` and 39 application tables. WF3-020 covers non-MAVLink log import/manual declaration and remains Pending in Round 3. Current Round 1 columns show 60 `Passed`, 0 `Failed`, 5 `Pending`, and three later additions marked `N/A`; the historical Round 1 subtotal remains **65 cases** (60 Passed, 0 Failed, 5 Pending; `92.31%` overall / `93.75%` of the 64-case baseline). Round 3 includes four Passed cases (`WF3-006`, `WF3-016`, `WF3-018`, `WF3-019`); the last two are the V29 subset. V29 schema, persistence, payment lifecycle, PayOS, and VNPay tests passed on 2026-11-05; this change's flight-log/parser checks are reported separately and not marked as an executed Report 5 round.
+**Scope and status (updated 2026-11-11):** The current Report 5 inventory contains **52 active test cases** across 6 product features (`FE-01`–`FE-06`, mapped 1-to-1 to `Feature 1`–`Feature 6`) aligned with Flyway `V1`–`V29` and 39 application tables. WF3-020 covers non-MAVLink log import/manual declaration and remains Pending in Round 3. Current-scope Round 1 totals are 45 `Passed`, 0 `Failed`, 4 `Pending`, and 3 `N/A`. The active-scope historical subtotal is 49 cases (45 Passed, 4 Pending); original eight-feature results are historical and not current coverage. Round 3 includes four Passed cases (`WF3-006`, `WF3-016`, `WF3-018`, `WF3-019`); the last two are the V29 subset. V29 schema, persistence, payment lifecycle, PayOS, and VNPay tests passed on 2026-11-05; this change's flight-log/parser checks are reported separately and not marked as an executed Report 5 round.
 
-The original workbook template remains unchanged; generated copies contain eight
-feature sheets (`Feature 1`–`Feature 8`).
+The original workbook template remains unchanged; generated copies contain six active feature sheets (`Feature 1`–`Feature 6`). Maintenance feature sheets and cases are retired historical material, not current coverage.
 
 ## Naming layers and mapping
 
 The supplied template has two feature sheets (`Feature 1`, `Feature 2`). Generated
-workbooks extend it to eight feature sheets (`Feature 1`–`Feature 8`), one per
-Report 3 feature (`FE-01`–`FE-08`). Sheet `Feature N` contains SRS feature `FE-0N`.
+workbooks extend it to six active feature sheets (`Feature 1`–`Feature 6`), one per
+current Report 3 feature (`FE-01`–`FE-06`). Sheet `Feature N` contains SRS feature `FE-0N`.
 
 | Layer | Meaning | Example |
 | --- | --- | --- |
@@ -25,11 +24,11 @@ Report 3 feature (`FE-01`–`FE-08`). Sheet `Feature N` contains SRS feature `FE
 
 - `template/Report5_Test Report.xlsx` is an unchanged copy of the supplied
   workbook. Do not edit this copy to add new sections or rename sheets.
-- Exactly eight FE-specific Markdown files in `03-features/` are the editable
-  feature sources (`fe-01` through `fe-08`). Keep test case IDs stable when a
+- Exactly six active FE-specific Markdown files in `03-features/` are the editable
+  feature sources (`fe-01` through `fe-06`). Keep test case IDs stable when a
   case is reworded or re-tested.
 - When the report is ready for submission, use the exporter to produce a copy
-  of the official template with eight generated feature sheets. Read
+  of the official template with six generated feature sheets. Read
   [template-layout.md](template-layout.md) first: it carries the exact cell
   addresses, the per-sheet summary block, and the template defects that will
   otherwise corrupt an export.
@@ -39,20 +38,18 @@ Report 3 feature (`FE-01`–`FE-08`). Sheet `Feature N` contains SRS feature `FE
 | Folder/file | Workbook area | Purpose |
 | --- | --- | --- |
 | `00-cover/` | `Cover` | Project metadata and record of changes. |
-| `01-test-cases/` | `Test Cases` | Complete index of all 68 current test cases across `Feature 1`–`Feature 8` (65 historical cases, two V29 additions, and one flight-log fallback case). |
-| `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary across `Feature 1`–`Feature 8`. |
+| `01-test-cases/` | `Test Cases` | Complete index of all 52 active test cases across `Feature 1`–`Feature 6` (49 baseline cases, two V29 additions, and one flight-log fallback case). |
+| `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary across active `Feature 1`–`Feature 6`. |
 | `03-features/fe-01-authentication-access-control.md` | `Feature 1` sheet | `FE-01` (`WF1-001`–`WF1-005`: 5 cases, Owner: Trần Hoàng Trung Hiếu). |
 | `03-features/fe-02-workforce-subscription-management.md` | `Feature 2` sheet | `FE-02` (`WF1-006`–`WF1-016`: 11 cases, Owner: Trần Hoàng Trung Hiếu). |
 | `03-features/fe-03-asset-drone-fleet-management.md` | `Feature 3` sheet | `FE-03` (`WF1-017`–`WF1-021`: 5 cases, Owner: Phùng Trung Quốc). |
 | `03-features/fe-04-recurring-schedule-notifications.md` | `Feature 4` sheet | `FE-04` (`WF2-001`–`WF2-005`: 5 cases, Owner: Phùng Trung Quốc). |
 | `03-features/fe-05-mission-dispatch-airspace-advisory.md` | `Feature 5` sheet | `FE-05` (`WF2-008`–`009`, `011`–`012`, `015`–`020`, `WF3-009`, `WF3-020`: 12 cases, Owner: Trần Tùng Bách). |
 | `03-features/fe-06-flight-readiness-field-execution.md` | `Feature 6` sheet | `FE-06` (`WF3-001`–`008`, `WF3-010`, `012`, `016`–`019`: 14 cases, Owner: Trần Tùng Bách). |
-| `03-features/fe-07-operational-dashboard-schedule-calendar.md` | `Feature 7` sheet | `FE-07` (`WF4-001`–`WF4-011`: 11 cases, Owner: Trương Thái Như). |
-| `03-features/fe-08-evidence-ai-defect-detection.md` | `Feature 8` sheet | `FE-08` (`WF4-012`–`WF4-016`: 5 cases, Owner: Trương Thái Như). |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
 | `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
 
-The `FE-01`–`FE-08` codes and their Report 3 sections are:
+The `FE-01`–`FE-06` codes and their Report 3 sections are:
 
 | FE | Report 3 § | Report 3 feature title | Owner |
 | --- | --- | --- | --- |
@@ -62,16 +59,13 @@ The `FE-01`–`FE-08` codes and their Report 3 sections are:
 | `FE-04` | `3.5` | Service Requests, Quotations, Contracts, Dispatch & Airspace Map | Phùng Trung Quốc (`SE170027`) |
 | `FE-05` | `3.6` | Flight Permit Gate, Field Execution, Dashboard & Calendar | Trần Tùng Bách (`SE180220`) |
 | `FE-06` | `3.7` | Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS | Trần Tùng Bách (`SE180220`) |
-| `FE-07` | `3.8` | Maintenance Work Orders, RAG Scope/Norms Advisor & Repair Execution | Trương Thái Như (`SE180082`) |
-| `FE-08` | `3.9` | Completion Report, 3-Way Re-inspection Verification & Cost Closure | Trương Thái Như (`SE180082`) |
 
-Each FE file's H1 carries the Report 3 title. The filenames keep their
-original wording and are left alone so existing links remain stable.
+Each active FE file's H1 carries its current Report 3 title. Retired maintenance case sources are removed from the active suite.
 
 ## Editing workflow
 
-1. Add or update the case in its owning FE-specific file first (`fe-01`–`fe-08`).
-2. Keep the existing ID format (`WF1-001`–`WF4-016`) stable.
+1. Add or update the case in its owning active FE-specific file first (`fe-01`–`fe-06`).
+2. Keep the existing active ID formats (`WF1-...` to `WF3-...`) stable; do not add `WF4` cases.
 3. Mirror every case in `01-test-cases/test-case-list.md`.
 4. Record execution only in the matching Round 1, Round 2, or Round 3 cell.
    Use only `Passed`, `Failed`, `Pending`, or `N/A`.

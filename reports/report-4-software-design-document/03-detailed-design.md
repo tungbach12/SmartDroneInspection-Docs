@@ -9,7 +9,7 @@ source: "report4-software-design-document.docx"
 
 ### 3.1 FE-01 Customer Registration, Sign-In and Account Access
 
-This section presents the detailed design for `FE-01` (Customer organization and initial asset registration with No-Fly Zone airspace screening, Argon2id credential sign-in, consolidated OTP verification, Google OAuth 2.0 federation, JWT session rotation, and 5-role `ActorZone` access control).
+This section presents the detailed design for `FE-01` (Customer organization and initial asset registration with No-Fly Zone airspace screening, Argon2id credential sign-in, consolidated OTP verification, Google OAuth 2.0 federation, JWT session rotation, and four-role `ActorZone` access control).
 
 #### 3.1.1 Class Diagram
 
@@ -92,7 +92,7 @@ classDiagram
 | 02 | `OAuth2Controller` | Handles federated Google OAuth 2.0 sign-in and callback redirection for web browsers and mobile deep links (`smartdrone://auth`). |
 | 03 | `UserProfileController` | Allows signed-in users to retrieve their current profile (`/api/v1/users/me`), update pilot license credentials, and configure AI vision fallback preferences. |
 | 04 | `AuthService` | Coordinates Argon2id credential verification, account lockout after repeated failed attempts (`LoginFailureService`), airspace screening during customer onboarding (`CustomerAirspacePolicyAdapter`), and JWT session issuance (`AccessTokenService`, `RefreshCookieService`). |
-| 05 | `User` & `OtpChallenge` | Domain entities representing user accounts across the five system roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`) and consolidated time-limited OTP challenges (`LOGIN`, `REGISTRATION`, `PASSWORD_RESET`). |
+| 05 | `User` & `OtpChallenge` | Domain entities representing user accounts across the four active system roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`) and consolidated time-limited OTP challenges (`LOGIN`, `REGISTRATION`, `PASSWORD_RESET`). |
 | 06 | `ProspectiveCustomerRegistration` | Domain entity recording a customer organization and initial asset registration request along with its airspace classification result (`CLEAR_ZONE`, `RESTRICTED_ZONE`, `NO_FLY_ZONE`). |
 
 #### 3.1.2 Customer Organization and Initial Asset Registration Sequence Diagram
@@ -179,7 +179,7 @@ sequenceDiagram
 
 ### 3.2 FE-02 Partner Qualification, Workforce, Assets and Drone Registration
 
-This section presents the detailed design for `FE-02` (Platform-provisioned Inspector accounts, pilot license profiles and flight logs, restricted-airspace customer review, Customer Maintenance Engineer workforce provisioning, infrastructure asset catalog with `inspection_items` checkpoints and reference documents, and Inspector-owned drone 3-document registration).
+This section presents the detailed design for `FE-02` (Platform-provisioned Inspector accounts, pilot license profiles and flight logs, restricted-airspace customer review, infrastructure asset catalog with `inspection_items` checkpoints and reference documents, and Inspector-owned drone 3-document registration).
 
 #### 3.2.1 Class Diagram
 
@@ -265,7 +265,7 @@ classDiagram
 | No | Class | Description |
 | :---: | :--- | :--- |
 | 01 | `PlatformUserController` & `InspectorProfileController` | Allow platform administrators and managers to provision `INSPECTOR` accounts, maintain pilot license credentials in `inspector_profiles`, upload license scans, and record flight logs in `inspector_flight_logs`. |
-| 02 | `WorkforceController` & `WorkforceService` | Allow a Customer organization account to provision and manage `MAINTENANCE_ENGINEER` accounts scoped strictly to that customer organization. |
+| 02 | `WorkforceController` & `WorkforceService` | Retired maintenance-account provisioning; not an active product API or workflow. |
 | 03 | `AssetController` & `AssetDocumentController` | Manage customer infrastructure assets, structural inspection checkpoints (`inspection_items`), and SHA-256 engineering reference documents in MinIO, blocking asset creation inside prohibited No-Fly Zones. |
 | 04 | `DroneRegistrationApplicationController` & `DroneRegistrationApplicationService` | Handle Inspector-owned drone registration submissions with three required documents (`REGISTRATION`, `OWNERSHIP`, and `INSPECTION`) and platform review decisions. |
 | 05 | `InspectorProfile`, `Drone` & `Asset` | Domain entities representing Inspector qualifications, approved Inspector-owned drones, and customer infrastructure assets. |
@@ -296,10 +296,10 @@ sequenceDiagram
   PlatCtrl->>UserSvc: listFlightLogs(userId)
   UserSvc->>DB: Query inspector_flight_logs
 
-  Cust->>WorkCtrl: POST /api/v1/workforce/users (role = MAINTENANCE_ENGINEER)
+  Note over Cust,WorkCtrl: Legacy maintenance provisioning interaction; excluded from current scope
   WorkCtrl->>UserSvc: createWorkforceUser(customerActorId, request)
   UserSvc->>DB: Verify same-tenant email uniqueness and insert User (must_change_password = true)
-  DB-->>Cust: Return temporary credentials for Maintenance Engineer (201 Created)
+  Note over Cust,DB: Legacy maintenance records are retained; no provisioning workflow is exposed
 ```
 
 #### 3.2.3 Infrastructure Asset and Reference Document Registration Sequence Diagram
@@ -641,7 +641,7 @@ sequenceDiagram
 
 ### 3.5 FE-05 Flight Permit and On-Site Field Sessions
 
-This section presents the detailed design for `FE-05` (Aviation flight permit upload with pilot license validation, on-site field session execution, `SmartDroneHub` live telemetry, flight trace and MP4 video sync, session abort and Manager recovery dispatch, 5-role operational dashboards, and Inspector Schedule Calendar).
+This section presents the detailed design for `FE-05` (Aviation flight permit upload with pilot license validation, on-site field session execution, `SmartDroneHub` live telemetry, flight trace and MP4 video sync, session abort and Manager recovery dispatch, four-role operational dashboards, and Inspector Schedule Calendar).
 
 #### 3.5.1 Class Diagram
 
@@ -735,7 +735,7 @@ classDiagram
 | 01 | `InspectionController`, `InspectionListController` & `InspectionCreationService` | Handle mission flight permit uploads (checking assigned Inspector pilot license validity at upload time), scoped mission queries, flight permit streaming, and Manager recovery actions (`reschedule`, `reassign`, or `cancel`) when an on-site field session is aborted. |
 | 02 | `InspectionFieldSessionController` & `InspectionFieldSessionService` | Govern on-site field session execution, enforcing that a session can start only when the inspection is `SCHEDULED` with `hasFlightPermit() == true`, and recording either normal completion (`FIELD_COMPLETED`) or session abort (`ABORTED` with mission reopen to `SCHEDULED`). |
 | 03 | `InspectionDroneHubService` & `SmartDroneHubClient` | Connect an active field session to `SmartDroneHub`, stream live telemetry, persist post-flight report metrics and GPS flight traces (`flight_trace_json`) on `FieldSession`, and synchronize recorded mission MP4 videos into inspection `Evidence`. |
-| 04 | `DashboardController` & `DashboardAnalyticsService` | Aggregate 5-role operational KPIs, mission queues, confirmed defect severity distributions, and maintenance budget metrics. |
+| 04 | `DashboardController` & `DashboardAnalyticsService` | Aggregate 5-role operational KPIs, mission queues, confirmed defect severity distributions, and inspection-service metrics only. |
 | 05 | `Inspection` & `FieldSession` | Domain entities representing the 6-state inspection mission aggregate and the 4-state on-site flight session with persisted telemetry, GPS flight trace, and synced video reference (`V28`). |
 
 #### 3.5.2 Flight Permit Gate, Field Session Execution and SmartDroneHub Sync Sequence Diagram
@@ -1001,233 +1001,8 @@ sequenceDiagram
 
 ---
 
-### 3.7 FE-07 Maintenance Work Orders, Estimates and Repair Execution
-
-This section presents the detailed design for `FE-07` (Corrective maintenance work order creation from forwarded defects, `pgvector` RAG repair scope advisor with 1-click initial tasks, team role assignment, RAG cost norms estimation, independent Customer budget and Change Order approval, field repair execution, and 1-click Team Lead batch work-log verification).
-
-#### 3.7.1 Class Diagram
-
-```mermaid
-%% title: FE-07 Maintenance Work Order, RAG Planning and Repair Execution Class Diagram
-classDiagram
-  class MaintenanceController {
-    +suggestScope(req) SuggestScopeResponse
-    +suggestEstimate(workOrderId) SuggestEstimateResponse
-    +createWorkOrder(req) ApiResponse
-    +assignTeam(workOrderId, req) List~TeamMemberView~
-    +createTask(workOrderId, req) ApiResponse
-    +createEstimateVersion(workOrderId, req) ApiResponse
-    +submitEstimateVersion(workOrderId, verNo) EstimateVersionView
-    +approveEstimateVersion(workOrderId, verNo) EstimateVersionView
-  }
-  class MaintenanceExecutionController {
-    +releaseWorkOrder(workOrderId) WorkOrderView
-    +startWorkOrder(workOrderId) WorkOrderView
-    +createWorkLog(workOrderId, req) ApiResponse
-    +submitWorkLog(workOrderId, logId) WorkLogView
-    +batchVerifyWorkLogs(workOrderId) List~WorkLogView~
-    +declareComplete(workOrderId) WorkOrderView
-  }
-  class MaintenanceScopeAdvisorService {
-    +suggestScope(actorId, req) SuggestScopeResponse
-    +suggestEstimate(actorId, workOrderId) SuggestEstimateResponse
-  }
-  class MaintenanceWorkOrder {
-    -UUID id
-    -UUID organizationId
-    -UUID assetId
-    -UUID sourceFindingId
-    -WorkOrderStatus status
-    -UUID budgetApproverUserId
-    -UUID teamLeadUserId
-    -UUID reportAuthorUserId
-    -UUID acceptingReviewerUserId
-  }
-  MaintenanceController --> MaintenanceScopeAdvisorService
-  MaintenanceController --> MaintenanceWorkOrder
-  MaintenanceExecutionController --> MaintenanceWorkOrder
-```
-
-**Class Specifications**
-
-| No | Class | Description |
-| :---: | :--- | :--- |
-| 01 | `MaintenanceController` & `WorkOrderService` | Manage corrective maintenance work order creation from forwarded defects, repair team allocation (`LEAD`, `REPORT_AUTHOR`, `MEMBER`, and independent `acceptingReviewerUserId`), task breakdown, and cost estimate submission and approval. |
-| 02 | `MaintenanceScopeAdvisorService` & `DeterministicScopeFallback` | Query engineering repair standards (`TCVN`/`EN`/`ISO`) stored in `repair_knowledge_chunks` (`pgvector`) to suggest repair scopes, 1-click `initialTasks`, and standard construction cost norms, with deterministic fallback when the external LLM is offline. |
-| 03 | `MaintenanceExecutionController` & `MaintenanceExecutionService` | Govern field repair execution, change order requests (`MaintenanceChangeOrder`), engineer work log submission (`MaintenanceWorkLog`), Team Lead batch verification (`batch-verify`), and work completion declaration. |
-| 04 | `MaintenanceWorkOrder`, `MaintenanceEstimateVersion` & `MaintenanceTask` | Domain entities tracking the 12-state maintenance lifecycle, versioned cost baselines, and individual repair tasks while enforcing separation of duties between executing engineers and Customer reviewers. |
-
-#### 3.7.2 RAG Repair Scope Advisory, Work Order Creation and Team Assignment Sequence Diagram
-
-```mermaid
-%% title: FE-07 RAG Repair Scope Advisory, Work Order Creation and Team Assignment Sequence Diagram
-sequenceDiagram
-  autonumber
-  actor Cust as Customer
-  participant Ctrl as MaintenanceController
-  participant Advisor as MaintenanceScopeAdvisorService
-  participant WoSvc as WorkOrderService
-  participant DB as PostgreSQL (pgvector)
-
-  Cust->>Ctrl: POST /api/v1/maintenance/suggest-scope (findingId, defectLabel, severity)
-  Ctrl->>Advisor: suggestScope(customerId, request)
-  Advisor->>DB: Cosine similarity search on repair_knowledge_chunks (TCVN/EN/ISO)
-  Advisor-->>Cust: Return correctiveScope, acceptanceCriteria, referenceStandards, and suggestedTasks
-
-  Cust->>Ctrl: POST /api/v1/maintenance/work-orders (sourceFindingId, scope, initialTasks)
-  Ctrl->>WoSvc: createWorkOrder(customerId, request)
-  WoSvc->>DB: Verify finding is forwarded_to_maintenance_at != null, save DRAFT MaintenanceWorkOrder and PLANNED tasks
-
-  Cust->>Ctrl: POST /api/v1/maintenance/work-orders/{id}/team (lead, reportAuthor, members, acceptingReviewer)
-  Ctrl->>WoSvc: assignTeam(customerId, workOrderId, request)
-  WoSvc->>DB: Enforce acceptingReviewer independence from LEAD/REPORT_AUTHOR and save MaintenanceTeamMember rows
-```
-
-#### 3.7.3 RAG Cost Estimation, Budget Approval, Work Logs and Batch Verification Sequence Diagram
-
-```mermaid
-%% title: FE-07 RAG Cost Estimation, Budget Approval, Work Logs and Batch Verification Sequence Diagram
-sequenceDiagram
-  autonumber
-  actor Lead as Maintenance Engineer (Team Lead)
-  actor Cust as Customer (Budget Approver)
-  participant Ctrl as MaintenanceController / MaintenanceExecutionController
-  participant Advisor as MaintenanceScopeAdvisorService
-  participant Svc as WorkOrderService / MaintenanceExecutionService
-  participant DB as PostgreSQL
-
-  Lead->>Ctrl: POST /api/v1/maintenance/work-orders/{id}/suggest-estimate
-  Ctrl->>Advisor: suggestEstimate(engineerId, workOrderId)
-  Advisor-->>Lead: Return standard norm cost lines (LABOR, MATERIAL, EQUIPMENT, CONTINGENCY)
-
-  Lead->>Ctrl: POST /estimate-versions & POST /estimate-versions/{verNo}/submit
-  Ctrl->>Svc: createEstimateVersion(...) & submitEstimateVersion(...)
-  Svc->>DB: Save MaintenanceEstimateVersion + MaintenanceCostLine rows and move WorkOrder to AWAITING_APPROVAL
-
-  Cust->>Ctrl: POST /api/v1/maintenance/work-orders/{id}/estimate-versions/{verNo}/approve
-  Ctrl->>Svc: approveEstimateVersion(customerId, workOrderId, verNo)
-  Svc->>DB: Verify caller is not an executing engineer, mark Estimate and WorkOrder APPROVED
-
-  Lead->>Ctrl: POST /release, POST /start, POST /work-logs, and POST /work-logs/{logId}/submit
-  Ctrl->>Svc: Transition WorkOrder APPROVED -> READY -> IN_PROGRESS and save SUBMITTED work logs
-  Lead->>Ctrl: POST /api/v1/maintenance/work-orders/{id}/work-logs/batch-verify & POST /declare-complete
-  Ctrl->>Svc: batchVerifyWorkLogs(leadId, workOrderId) & declareComplete(leadId, workOrderId)
-  Svc->>DB: Mark all submitted logs VERIFIED, verify zero pending ChangeOrders, and mark WorkOrder WORK_COMPLETED
-```
-
 ---
 
-### 3.8 FE-08 Completion, Re-inspection and Work-Order Closeout
+### 3.7 Retired Maintenance Scope
 
-This section presents the detailed design for `FE-08` (Smart auto-drafted Maintenance Completion Report, RAG Technical Acceptance Compliance Audit, event-driven 3-step/3-way Re-inspection defect verification loop, independent Customer acceptance, baseline-to-actual cost inheritance and reconciliation, and Work Order closure).
-
-#### 3.8.1 Class Diagram
-
-```mermaid
-%% title: FE-08 Completion Report, Re-inspection Verification and Cost Closure Class Diagram
-classDiagram
-  class MaintenanceExecutionController {
-    +getAutoDraftReport(workOrderId) AutoDraftReportResponse
-    +getAcceptanceCompliance(workOrderId) AcceptanceComplianceResponse
-    +recordAcceptanceDecision(workOrderId, req) ApiResponse
-    +reconcileCosts(workOrderId, req) CostReconciliationView
-    +closeWorkOrder(workOrderId) WorkOrderView
-  }
-  class ReinspectionVerificationService {
-    +getVerifications(actorId, reinspId) List~ReinspectionVerificationResponse~
-    +updateVerification(actorId, reinspId, verId, req) ReinspectionVerificationResponse
-  }
-  class InspectionReinspectionListener {
-    +onReinspectionRequested(event) void
-  }
-  class WorkOrderReinspectionListener {
-    +onReinspectionCreated(event) void
-    +onReinspectionReportPublished(event) void
-  }
-  class ReinspectionDefectVerification {
-    -UUID id
-    -UUID reinspectionId
-    -UUID sourceFindingId
-    -UUID newEvidenceId
-    -String repairProofUrl
-    -String repairEngineerNotes
-    -String resolutionStatus
-    -String inspectorNotes
-  }
-  MaintenanceExecutionController --> WorkOrderReinspectionListener
-  ReinspectionVerificationService --> ReinspectionDefectVerification
-  InspectionReinspectionListener --> ReinspectionDefectVerification
-```
-
-**Class Specifications**
-
-| No | Class | Description |
-| :---: | :--- | :--- |
-| 01 | `MaintenanceExecutionController` & `MaintenanceExecutionService` | Support auto-drafting the maintenance completion report (`auto-draft`), running the RAG acceptance compliance check (`acceptance-compliance`), recording the Customer acceptance decision, reconciling actual costs, and closing the work order. |
-| 02 | `ReinspectionVerificationService` & `ReinspectionDefectVerification` | Manage three-way defect verification during a drone re-inspection mission, comparing the original defect, the engineer repair proof, and the newly captured drone evidence (`RESOLVED`, `UNRESOLVED`, `INCONCLUSIVE`). |
-| 03 | `InspectionReinspectionListener` & `WorkOrderReinspectionListener` | Coordinate the event-driven re-inspection loop between `maintenance` and `inspections`: creating the linked `RE_INSPECTION` mission on `ReinspectionRequestedEvent` and reinstating the work order to `SUBMITTED_FOR_ACCEPTANCE` (or `REWORK_REQUIRED`) on `ReinspectionReportPublishedEvent`. |
-| 04 | `MaintenanceReportVersion`, `MaintenanceAcceptanceDecision` & `MaintenanceReportRenderer` | Domain entities and PDF renderer governing versioned completion reports, attributable Customer acceptance decisions, and archived A4 completion PDFs (`maintenance-reports/<id>.pdf`). |
-
-#### 3.8.2 Smart Auto-Draft Completion Report and Three-Way Re-inspection Verification Sequence Diagram
-
-```mermaid
-%% title: FE-08 Smart Auto-Draft Completion Report and Three-Way Re-inspection Verification Sequence Diagram
-sequenceDiagram
-  autonumber
-  actor Author as Maintenance Engineer (Report Author)
-  actor Cust as Customer (Accepting Reviewer)
-  actor Insp as Assigned Inspector
-  actor Mgr as Manager
-  participant MaintCtrl as MaintenanceExecutionController
-  participant MaintSvc as MaintenanceExecutionService
-  participant InspSvc as InspectionReinspectionListener / ReinspectionVerificationService
-  participant RepSvc as ReportService
-  participant DB as PostgreSQL
-
-  Author->>MaintCtrl: GET /reports/auto-draft, POST /reports, POST /reports/{v}/verify & POST /submit
-  MaintCtrl->>MaintSvc: Synthesize 5-part report from verified work logs and submit for acceptance
-  MaintSvc->>DB: Save SUBMITTED MaintenanceReportVersion and transition WorkOrder to SUBMITTED_FOR_ACCEPTANCE
-
-  Cust->>MaintCtrl: GET /acceptance-compliance & POST /acceptance-decisions (decision = REINSPECTION_REQUIRED)
-  MaintCtrl->>MaintSvc: recordAcceptanceDecision(customerId, workOrderId, request)
-  MaintSvc->>DB: Transition WorkOrder to REINSPECTION_REQUIRED and publish ReinspectionRequestedEvent
-  MaintSvc-->>InspSvc: Handle ReinspectionRequestedEvent
-  InspSvc->>DB: Create linked RE_INSPECTION mission and ReinspectionDefectVerification rows (3-way comparison)
-
-  Insp->>InspSvc: PUT /api/v1/inspections/{reinspId}/reinspection-verifications/{verId} (RESOLVED + newEvidenceId)
-  InspSvc->>DB: Save 3-way verification outcome (Prior Defect vs Repair Proof vs Drone Re-capture)
-  Insp->>RepSvc: Submit Re-inspection Report
-  Mgr->>RepSvc: Approve and publish Re-inspection Report (PUBLISHED)
-  RepSvc-->>MaintSvc: Publish ReinspectionReportPublishedEvent
-  MaintSvc->>DB: Attach reinspection_report_version_id and reinstate WorkOrder to SUBMITTED_FOR_ACCEPTANCE
-```
-
-#### 3.8.3 Independent Customer Acceptance, Cost Reconciliation and Work Order Closure Sequence Diagram
-
-```mermaid
-%% title: FE-08 Independent Customer Acceptance, Cost Reconciliation and Work Order Closure Sequence Diagram
-sequenceDiagram
-  autonumber
-  actor Cust as Customer (Accepting Reviewer)
-  participant Ctrl as MaintenanceExecutionController
-  participant Svc as MaintenanceExecutionService
-  participant Pdf as MaintenanceReportRenderer
-  participant DB as PostgreSQL & MinIO
-
-  Cust->>Ctrl: POST /api/v1/maintenance/work-orders/{id}/acceptance-decisions (decision = ACCEPTED)
-  Ctrl->>Svc: recordAcceptanceDecision(customerId, workOrderId, request)
-  Svc->>DB: Verify caller is independent of executing repair team and mark WorkOrder ACCEPTED
-  Svc->>Pdf: Render Maintenance Completion PDF and store at maintenance-reports/{reportId}.pdf in MinIO
-
-  Cust->>Ctrl: GET /api/v1/maintenance/work-orders/{id}/cost-reconciliation
-  Ctrl->>Svc: getCostReconciliation(customerId, workOrderId)
-  Svc-->>Cust: Return approved baseline + approved ChangeOrder delta and pre-filled cost lines
-
-  Cust->>Ctrl: POST /api/v1/maintenance/work-orders/{id}/cost-reconciliation (ACTUAL cost lines)
-  Ctrl->>Svc: reconcileCosts(customerId, workOrderId, request)
-  Svc->>DB: Save ACTUAL MaintenanceCostLine rows, compute variance, and mark WorkOrder COST_RECONCILED
-
-  Cust->>Ctrl: POST /api/v1/maintenance/work-orders/{id}/close
-  Ctrl->>Svc: closeWorkOrder(customerId, workOrderId)
-  Svc->>DB: Verify status is COST_RECONCILED, transition WorkOrder to CLOSED, and publish WorkOrderClosedEvent
-```
+Maintenance work-order, repair, maintenance-specific re-inspection, and cost-closeout features are not part of the application. Existing database tables and records for those features are retained unchanged for data preservation; they are not exposed through application workflows. Inspection re-inspection functionality, where required as part of an inspection process, remains within FE-05/FE-06 only where specified by those requirements.
