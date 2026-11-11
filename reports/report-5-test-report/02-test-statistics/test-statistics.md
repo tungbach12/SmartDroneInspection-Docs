@@ -11,7 +11,7 @@ round.
 | Project Name | SmartDroneInspection |
 | Project Code | GFA26SE139 |
 | Test round | Current case inventory: 68 IDs across eight features FE-01 to FE-08 (WF3-020 is Pending in Round 3; no new checks are claimed as passed). Current Round 1 records 60 Passed, 0 Failed, 5 Pending, and three later cases marked N/A because they were added after that round. Historical Round 1 remains 65 cases (60 Passed, 0 Failed, 5 Pending; 92.31% overall / 93.75% of the 64-case baseline). Round 3 has four Passed executions: WF3-006, WF3-016, WF3-018 and WF3-019. The two V29 finance cases were verified against Flyway V1–V29 on PostgreSQL 17 with Docker/Testcontainers on 2026-11-05; other feature suites were not run. |
-| Last updated | 2026-11-10 (added pending WF3-020 for non-MAVLink log import/manual declaration; its implementation verification has not yet been executed). |
+| Last updated | 2026-11-11 (Round 2: WF1-017–WF1-019 passed via 42 backend service/domain tests and 3 V35 migration tests. WF2-001 Round 2 remains Pending until full connected Customer→Manager→signed-contract→dispatch execution; focused frontend ContractsPage tests passed (6/6) for UI/status behavior only, not full-flow evidence. Round 1/3 historical totals unchanged.) |
 
 ### Round scope
 
