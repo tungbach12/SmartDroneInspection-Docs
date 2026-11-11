@@ -140,11 +140,12 @@ The target business record set includes customer organizations and users; Inspec
 - **Requirements**:
   - An asset record identifies the infrastructure, its location and category, and the inspection checkpoints relevant to it. Related reference documents may be associated with the asset.
   - Asset creation is blocked for a location identified as prohibited airspace; a location requiring review follows the applicable human review process.
-  - An Inspector drone registration includes its identifying details, registration evidence, ownership evidence, and technical inspection evidence. The three required document categories are `REGISTRATION`, `OWNERSHIP`, and `INSPECTION`.
+  - An Inspector drone registration includes identifying details, at least one real drone photo (`DRONE_IMAGE`), structured outdoor flight capabilities (maximum wind resistance, optical zoom, thermal camera, RTK GNSS positioning), selected feature/safety checklist items configured by `ADMIN` (`drone_feature_configs`), and supporting documents defined by `ADMIN`-configured requirements (`drone_document_configs`). By default, `REGISTRATION` and `OWNERSHIP` are active and required while `INSPECTION` is optional/inactive unless enabled by `ADMIN`.
+  - An Inspector may also submit a renewal or update application for an existing active drone they own; duplicate serial submissions for drones owned by another Inspector or organization, or when a `PENDING` application already exists, are rejected.
   - `ADMIN` or `MANAGER` reviews the drone registration and records an attributable decision. Only a drone accepted for service may be considered for assignment to its owning Inspector.
   - Drone records are classified by Maximum Take-Off Weight (MTOW) into the 5 categories of Article 4 of Decree 288/2025/ND-CP; airframes with MTOW >= 2.0 kg (Category 3+) require the assigned Inspector to hold a Class B pilot license (Article 27 of Decree 288/2025/ND-CP) during quotation, mission dispatch, reassignment, and flight-permit verification.
-- **Normal cases**: A Customer maintains eligible assets; an Inspector submits all required drone documents for review and, after approval, the drone may be considered for partner assignments.
-- **Abnormal cases**: Prohibited locations cannot be registered as eligible assets; missing drone documents or an unresolved drone review prevents the drone from being used for an inspection.
+- **Normal cases**: A Customer maintains eligible assets; an `ADMIN` configures active drone document requirements and capability/safety checklist items; an Inspector submits drone photos, capabilities, and required documents for review and, after approval, the drone may be considered for partner assignments.
+- **Abnormal cases**: Prohibited locations cannot be registered as eligible assets; missing required drone documents, missing drone photo (`DRONE_IMAGE`), duplicate serial owned by another actor, or an unresolved drone review prevents the drone from being used for an inspection.
 
 ---
 

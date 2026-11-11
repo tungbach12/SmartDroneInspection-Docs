@@ -12,6 +12,7 @@ source: "report4-software-design-document.docx"
 | 03 Nov 2026 | A | Project Team | Version 1.0: Initial release of the Software Design Document (SDD) for SmartDroneInspection covering System Design, Database Design (36 PostgreSQL 17 tables across V1–V28), and Detailed Design for the 8 product features (FE-01 to FE-08). |
 | 05 Nov 2026 | M | Project Team | Updated the database design for migration V29: separated per-occurrence service invoices, customer payments, and Inspector payouts into three dedicated tables; the V29 target schema has 38 application tables plus `event_publication` and `flyway_schema_history` (40 total). |
 | 11 Nov 2026 | M | Project Team | Removed maintenance application workflows from the target design. Legacy maintenance schema and persisted data are preserved without destructive migration and are not exposed by the application. |
+| 11 Nov 2026 | M | Project Team | Added Flyway migrations V34–V36 for Admin-configurable drone document requirements (`drone_document_configs`), Admin-configurable drone features/safety checklist (`drone_feature_configs`), and JSONB/scalar capability, image, and document columns on `drone_registration_applications` and `drones` (32 active application tables; 34 total tables including `event_publication` and `flyway_schema_history`). |
 |  |  |  |  |
 |  |  |  |  |
 |  |  |  |  |
