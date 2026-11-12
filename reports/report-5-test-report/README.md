@@ -39,7 +39,7 @@ Report 3 feature (`FE-01`–`FE-08`). Sheet `Feature N` contains SRS feature `FE
 | Folder/file | Workbook area | Purpose |
 | --- | --- | --- |
 | `00-cover/` | `Cover` | Project metadata and record of changes. |
-| `01-test-cases/` | `Test Cases` | Complete index of all 69 current test cases across `Feature 1`–`Feature 8` (65 historical cases, two V29 additions, one flight-log fallback case, and one V33 finance-control case). |
+| `01-test-cases/` | `Test Cases` | Complete index of all 69 current test cases across `Feature 1`–`Feature 8` (65 historical cases, two V29 additions, one flight-log fallback case, and one V33/V34 refund allocation-control case). |
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary across `Feature 1`–`Feature 8`. |
 | `03-features/fe-01-authentication-access-control.md` | `Feature 1` sheet | `FE-01` (`WF1-001`–`WF1-005`: 5 cases, Owner: Trần Hoàng Trung Hiếu). |
 | `03-features/fe-02-workforce-subscription-management.md` | `Feature 2` sheet | `FE-02` (`WF1-006`–`WF1-016`: 11 cases, Owner: Trần Hoàng Trung Hiếu). |
@@ -79,7 +79,7 @@ original wording and are left alone so existing links remain stable.
    `02-test-statistics/test-statistics.md`. `Module code` must match the
    feature sheet's `Feature` name (`B2`).
 6. Keep the current Round 1 subtotal, historical Round 1 subtotal, Round 3
-   executed subtotal, and V29 subset distinct in `test-statistics.md`; separately identify later schema cases such as V33 that remain Pending.
+   executed subtotal, and V29 subset distinct in `test-statistics.md`; separately identify later schema cases such as V33/V34 that remain Pending.
 7. Before exporting, check that the number of cases, IDs, statuses, dates, and
    testers agree across all Markdown files and the workbook.
 
