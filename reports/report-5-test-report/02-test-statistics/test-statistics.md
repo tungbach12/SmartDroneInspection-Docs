@@ -10,12 +10,12 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | GFA26SE139 |
-| Test round | Current case inventory: 52 active IDs across six features FE-01 to FE-06 (WF3-020 is Pending in Round 3; no new checks are claimed as passed). Current Round 1 records 45 Passed, 0 Failed, 4 Pending, and 3 N/A cases added later. The active-scope historical Round 1 subtotal is 49 cases (45 Passed, 0 Failed, 4 Pending; 91.84% passed). These recalculated counts exclude retired maintenance cases and are not directly comparable with the original eight-feature report. Round 3 has four Passed executions: WF3-006, WF3-016, WF3-018 and WF3-019. The two V29 finance cases were verified against Flyway V1–V29 on PostgreSQL 17 with Docker/Testcontainers on 2026-11-05; other feature suites were not run. |
-| Last updated | 2026-11-10 (added pending WF3-020 for non-MAVLink log import/manual declaration; its implementation verification has not yet been executed). |
+| Test round | Current case inventory: 52 active IDs across six features FE-01 to FE-06. Current Round 1 records 45 Passed, 0 Failed, 4 Pending, and 3 N/A cases added later. The active-scope historical Round 1 subtotal is 49 cases (45 Passed, 0 Failed, 4 Pending; 91.84% passed). These recalculated counts exclude retired maintenance cases and are not directly comparable with the original eight-feature report. Round 3 has four Passed executions: WF3-006, WF3-016, WF3-018 and WF3-019. WF3-020 remains Pending in Round 3. The two V29 finance cases were verified against Flyway V1–V29 on PostgreSQL 17 with Docker/Testcontainers on 2026-11-05; other feature suites were not run. Focused recurring-qualification regression checks are recorded as evidence only and do not change case statuses or totals. |
+| Last updated | 2026-11-12 (focused recurring-partner qualification regression checks passed: backend ContractWorkflowServiceTest and PartnerRegistryServiceTest 50/50; frontend ContractsPage.test.tsx 7/7 and production build passed. These checks are not connected end-to-end evidence; WF2-001 Round 2 remains Pending until Customer→Manager→signed-contract→dispatch execution.) |
 
 ### Round scope
 
-Historical counts include legacy recurrence scenarios WF1-018, WF1-019, and WF1-021 (excluded from the current target) and implementation-specific WF3-017. The current Round 1 subtotal includes all current case IDs, with WF3-020 and later V29 additions marked N/A; the separate historical subtotal preserves the original 65-case results. Round 3 executed counts include only cases with Passed or Failed results, and the V29 subtotal is included within that count.
+Historical counts preserve the original eight-feature report, including retired maintenance cases, legacy recurrence scenarios WF1-018/WF1-019/WF1-021, and implementation-specific WF3-017. Current Round 1 counts apply only to the 52 active IDs in FE-01–FE-06; three later additions are N/A for that round. Round 3 executed counts include only cases with Passed or Failed results; WF3-020 remains Pending, and the two V29 cases are included in the four Passed Round 3 cases.
 
 ## Module summary
 
