@@ -83,8 +83,8 @@ computed from it at rows 21–22:
 
 With the current 69-case inventory, Round 1 has `60 Passed`, `0 Failed`, `6
 Pending`, and `3 N/A`; the three N/A cases were added after Round 1. WF3-021 is
-Pending in Round 1, while WF3-020, the two V29 finance cases, and the V34 refund
-allocation additions are N/A for Round 1. The historical Round 1 subtotal remains 65 cases (`60 Passed`, `5
+Pending in Round 1, while WF3-020, the two V29 finance cases, and the V34/V35 refund
+lifecycle/allocation additions are N/A for Round 1. The historical Round 1 subtotal remains 65 cases (`60 Passed`, `5
 Pending`, `0 Failed`, `0 N/A`), so historical coverage remains `92.31%`; pending
 cases remain in the denominator. Current Round 1 coverage is `90.91%`. Keep
 workbook formulas; change underlying statuses in the feature Markdown files.

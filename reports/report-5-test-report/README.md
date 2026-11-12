@@ -4,7 +4,7 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope and status (updated 2026-11-11):** The current Report 5 inventory contains **69 test cases** across 8 product features (`FE-01`–`FE-08`, mapped 1-to-1 to `Feature 1`–`Feature 8`) and now includes the V33 refund/order/payout-control case WF3-021. WF3-020 remains Pending in Round 3 and WF3-021 remains Pending until V33 schema-backed integration checks execute. Current Round 1 columns show 60 `Passed`, 0 `Failed`, 6 `Pending`, and three later additions marked `N/A`; the historical Round 1 subtotal remains **65 cases** (60 Passed, 0 Failed, 5 Pending; `92.31%` overall / `93.75%` of the 64-case baseline). Round 3 currently has three Passed cases (`WF3-006`, `WF3-016`, `WF3-018`); WF3-019 has been returned to Pending because it must be re-run against the revised payout contract. WF3-018 is the sole currently Passed V29 subset case. The historical V29 checks ran on 2026-11-05; on 2026-11-11 the focused payment unit and architecture suite passed 39 tests. Docker-backed V33 integration checks remain unverified because Docker is unavailable.
+**Scope and status (updated 2026-11-12):** The current Report 5 inventory contains **69 test cases** across 8 product features (`FE-01`–`FE-08`, mapped 1-to-1 to `Feature 1`–`Feature 8`) and WF3-021 now covers V33–V35 refund/order/payout lifecycle controls. WF3-020 remains Pending in Round 3; WF3-021 remains Pending until V35 schema-backed integration checks execute. Current Round 1 columns show 60 `Passed`, 0 `Failed`, 6 `Pending`, and three later additions marked `N/A`; the historical Round 1 subtotal remains **65 cases** (60 Passed, 0 Failed, 5 Pending; `92.31%` overall / `93.75%` of the 64-case baseline). Round 3 currently has three Passed cases (`WF3-006`, `WF3-016`, `WF3-018`); WF3-019 remains Pending because it must be re-run against the revised payout contract. WF3-018 is the sole currently Passed V29 subset case. Historical V29 checks ran on 2026-11-05; on 2026-11-12 ContractWorkflowServiceTest passed 36/36 and Contracts frontend build/lint succeeded. The focused contract API test passed 8 tests; a later run of the broader Contracts test selection failed during suite initialization (`Cannot read properties of undefined (reading 'config')`), so it is not considered passed. Docker-backed V35 integration remains unverified because Docker is unavailable.
 
 The original workbook template remains unchanged; generated copies contain eight
 feature sheets (`Feature 1`–`Feature 8`).
@@ -39,7 +39,7 @@ Report 3 feature (`FE-01`–`FE-08`). Sheet `Feature N` contains SRS feature `FE
 | Folder/file | Workbook area | Purpose |
 | --- | --- | --- |
 | `00-cover/` | `Cover` | Project metadata and record of changes. |
-| `01-test-cases/` | `Test Cases` | Complete index of all 69 current test cases across `Feature 1`–`Feature 8` (65 historical cases, two V29 additions, one flight-log fallback case, and one V33/V34 refund allocation-control case). |
+| `01-test-cases/` | `Test Cases` | Complete index of all 69 current test cases across `Feature 1`–`Feature 8` (65 historical cases, two V29 additions, one flight-log fallback case, and one V33-V35 refund lifecycle/allocation-control case). |
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary across `Feature 1`–`Feature 8`. |
 | `03-features/fe-01-authentication-access-control.md` | `Feature 1` sheet | `FE-01` (`WF1-001`–`WF1-005`: 5 cases, Owner: Trần Hoàng Trung Hiếu). |
 | `03-features/fe-02-workforce-subscription-management.md` | `Feature 2` sheet | `FE-02` (`WF1-006`–`WF1-016`: 11 cases, Owner: Trần Hoàng Trung Hiếu). |
@@ -79,7 +79,7 @@ original wording and are left alone so existing links remain stable.
    `02-test-statistics/test-statistics.md`. `Module code` must match the
    feature sheet's `Feature` name (`B2`).
 6. Keep the current Round 1 subtotal, historical Round 1 subtotal, Round 3
-   executed subtotal, and V29 subset distinct in `test-statistics.md`; separately identify later schema cases such as V33/V34 that remain Pending.
+   executed subtotal, and V29 subset distinct in `test-statistics.md`; separately identify later schema cases such as V33–V35 that remain Pending.
 7. Before exporting, check that the number of cases, IDs, statuses, dates, and
    testers agree across all Markdown files and the workbook.
 

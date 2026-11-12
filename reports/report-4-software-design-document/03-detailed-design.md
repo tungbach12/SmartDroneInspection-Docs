@@ -997,8 +997,14 @@ sequenceDiagram
   end
 
   ContractSvc->>DB: Transition customer payment to PAID and payout to ELIGIBLE; a Manager records actual payout separately
-  Note over ContractSvc,DB: Refund ledger holds payout until Manager records transferred final payout and reconciliation attribution
+  Note over ContractSvc,DB: Refund initiation occurs before manual external transfer and immediately holds any unpaid Inspector payout
 ```
+
+#### 3.6.5 Refund Initiation, External Completion, Legacy Reconciliation and Receivable Recovery
+
+Manager-only operations run under a locked occurrence transaction. `POST /contracts/requests/{requestId}/occurrences/{occurrenceId}/refunds` validates captured balance and a case-insensitive request reference, reserves the refund amount, and holds an unpaid payout before any external transfer. No gateway or bank transfer is initiated by the system. After the Manager completes the transfer outside the platform, `POST .../refunds/{refundId}/complete` accepts a unique external reference and accounting allocations whose sum exactly equals the refund. Cancellation requires a reason and is rejected after completion; hold release is recalculated against all other pending and unallocated legacy rows.
+
+Legacy `COMPLETED` refunds with unknown allocation are reconciled one row at a time by ID through `POST .../refunds/{refundId}/reconcile-allocation`. The evidence reference, note, Manager and time are stored with the allocation. Already-paid Inspector payouts are immutable: initiation records the receivable/platform-absorption plan and completion adds an `inspector_receivables` row. Managers record actual collections separately through `POST .../receivables/{receivableId}/recover`; row locking and optimistic versioning prevent concurrent over-recovery, and the system never offsets future payouts automatically. Manager finance responses list the refund and receivable ledgers; Customer responses mask internal recovery details. The Contracts UI presents separate forms for initiation, completion/cancellation, refund-ID legacy reconciliation, and manual receivable recovery.
 
 ---
 
