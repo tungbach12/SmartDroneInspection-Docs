@@ -6,7 +6,7 @@ weight: 10
 
 # Report 3 - Software Requirement Specification
 
-This folder is the team-maintained Markdown source of Report 3. **Current revision: 1 November 2026 — Platform Inspection Service model, 5 canonical login roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`), 8 product features (`FE-01`–`FE-08`), and 4 connected Main Flows (`MF1`–`MF4`).**
+This folder is the team-maintained Markdown source of Report 3. **Current revision: 11 November 2026 — Platform Inspection Service model, 4 canonical login roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`), 6 product features (`FE-01`–`FE-06`), and 3 connected Main Flows (`MF1`–`MF3`).** Maintenance is outside application scope; legacy maintenance schema and data remain preserved but are not exposed by the application.
 
 ## Sections
 

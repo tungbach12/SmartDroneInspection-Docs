@@ -1,12 +1,14 @@
-# Báo cáo đề xuất thay đổi mô hình và Main Flows MF1–MF4
+# Báo cáo mô hình dịch vụ kiểm định — phạm vi hiện hành MF1–MF3
+
+> **Quyết định sản phẩm (11/11/2026):** Ứng dụng chỉ bao gồm MF1–MF3, FE-01–FE-06 và bốn vai trò đăng nhập ADMIN, MANAGER, CUSTOMER, INSPECTOR. MF4, FE-07/FE-08 và MAINTENANCE_ENGINEER đã bị loại bỏ; Customer xử lý sửa chữa bên ngoài ứng dụng. Schema và dữ liệu bảo trì đã có được giữ nguyên, không destructive migration, nhưng ứng dụng không còn cung cấp luồng hoặc giao diện bảo trì.
 
 **Dự án:** SmartDroneInspection
 
-**Phiên bản:** v2.1 (02/11/2026) — Cập nhật đối chiếu giữa target nghiệp vụ và bằng chứng triển khai hiện tại; phạm vi target gồm **8 Features (`FE-01`..`FE-08`)**.
+**Phiên bản:** v2.1 (02/11/2026) — Cập nhật đối chiếu giữa target nghiệp vụ và bằng chứng triển khai hiện tại; phạm vi target gồm **6 Features (`FE-01`..`FE-06`)**.
 
-**Trạng thái tài liệu (02/11/2026):** Đây là tài liệu mô tả target nghiệp vụ và đối chiếu implementation, không khẳng định MF1–MF4/FE-01–FE-08 đã hoàn tất triển khai.
+**Trạng thái tài liệu (11/11/2026):** Quyết định phạm vi hiện hành ở trên thay thế nội dung lịch sử bên dưới. Các nội dung 5 role, MF4, FE-07/FE-08, bảo trì, bay lại sau bảo trì, acceptance bảo trì và quyết toán trong các phần còn lại là **lịch sử, không phải yêu cầu hoặc luồng sản phẩm hiện hành**. Xem Report 3 SRS hiện hành để biết phạm vi MF1–MF3/FE-01–FE-06.
 
-**Phạm vi:** Mô hình target 5 role, 8 features (`FE-01`..`FE-08`), `MF1`–`MF4`, cùng đối chiếu với mã nguồn hiện có. Source Flyway hiện có tới `V25`. Report 5 ghi việc xác minh V25 bằng Testcontainers là Pending; lần thử ngày 01/11/2026 bị chặn trước assertions do Docker không khả dụng. Có migration file không đồng nghĩa schema đã được xác minh hoặc workflow đã hoàn tất.
+**Phạm vi:** Mô hình target 4 role, 6 features (`FE-01`..`FE-06`), `MF1`–`MF3`, cùng đối chiếu với mã nguồn hiện có. Nội dung còn lại của báo cáo là snapshot lịch sử theo mô hình trước quyết định ngày 11/11/2026; không dùng các yêu cầu, vai trò, flow, tiêu chí nghiệm thu hoặc mô tả triển khai cũ làm phạm vi hiện hành. Source Flyway hiện có tới `V25`. Report 5 ghi việc xác minh V25 bằng Testcontainers là Pending; lần thử ngày 01/11/2026 bị chặn trước assertions do Docker không khả dụng. Có migration file không đồng nghĩa schema đã được xác minh hoặc workflow đã hoàn tất.
 
 > **Target nghiệp vụ:** Nền tảng cung cấp dịch vụ kiểm tra công trình, Platform điều phối Inspector đối tác; Customer sở hữu tài sản và quản lý đội bảo trì. Quy trình target gồm hồ sơ đối tác, request/báo giá/hợp đồng/điều phối, kiểm tra hiện trường, báo cáo và bảo trì.
 >
@@ -329,74 +331,6 @@ flowchart TD
 
 ---
 
-## 7. MF4 — Bảo trì, bay lại, nghiệm thu và quyết toán
-
-**Mục tiêu:** Khép kín vòng kiểm tra → sửa → kiểm tra lại, **đồng thời giữ đầy đủ kiểm soát ngân sách/chi phí của flow cũ theo D3**.
-
-**Phân biệt ba loại báo cáo:**
-
-1. **Inspection Report lần đầu:** Inspector lập → Manager publish → Customer đọc.
-2. **Maintenance Report:** Maintenance Engineer lập → Customer tiếp nhận; bản được Customer chuyển sang Manager là căn cứ yêu cầu bay lại, chưa đồng nghĩa công việc đã được nghiệm thu cuối cùng.
-3. **Re-inspection Report:** Inspector lập cho **nhiệm vụ bay lại mới** → Manager publish → Customer dùng cùng hồ sơ sửa chữa để quyết định nghiệm thu.
-
-### 7.1. Các bước nghiệp vụ
-
-| Bước | Chủ thể | Xử lý và kết quả |
-| --- | --- | --- |
-| MF4-01 | Customer | Đọc Inspection Report published, chọn confirmed defects cần sửa; tạo Work Order liên kết đúng phiên bản report, Asset và defects nguồn. Không giao sửa dựa trên AI candidate chưa xác nhận hoặc report chưa published. |
-| MF4-02 | Customer | Phân công kỹ sư/đội kỹ sư đã được mình cấp tài khoản, thời hạn và yêu cầu. Giữ phân công Team Lead, Report Author, Team Member khi có đội; chỉ là trách nhiệm trong Work Order. Người nghiệm thu Customer phải độc lập với đội thực hiện. |
-| MF4-03 | Maintenance Engineer/Team Lead | Lập phương án, task, tiêu chí kiểm tra và dự toán có căn cứ cho nhân công, vật tư, thiết bị/dịch vụ theo cấu trúc đang áp dụng. Có thể dùng RAG tư vấn tiêu chuẩn; kỹ sư vẫn chịu trách nhiệm nội dung. |
-| MF4-04 | Customer | Duyệt, trả lại hoặc từ chối dự toán/phạm vi. Chỉ phần việc được phê duyệt mới được phát hành/bắt đầu; giữ phiên bản ngân sách gốc. |
-| MF4-05 | Maintenance Engineer và Team Lead | Sửa chữa; ghi task, nhật ký, số đo/kiểm tra và ảnh trước–sau. Team Lead xác nhận nhật ký theo flow cũ. Phát sinh phạm vi/chi phí/lịch phải qua Change Order do **Customer** duyệt trước khi làm phần phát sinh. |
-| MF4-06 | Maintenance Engineer giữ trách nhiệm Report Author | Hoàn tất các task, kiểm tra bằng chứng và nhật ký; soạn, xác nhận rồi gửi **Maintenance Report về Customer**. Không gửi thẳng Manager để bỏ qua Customer. |
-| MF4-07 | Customer | Kiểm tra báo cáo sửa chữa; trả lại kỹ sư nếu thiếu/sai. Khi đủ căn cứ, chủ động **chuyển phiên bản Maintenance Report và các defects cần kiểm chứng sang Manager**, kèm yêu cầu bay lại. Chuyển tiếp không phải nghiệm thu cuối cùng. |
-| MF4-08 | Manager | Tiếp nhận, kiểm tra phạm vi bay lại theo hợp đồng; thống nhất lịch và phân công Inspector có drone phù hợp. Tạo **nhiệm vụ bay lại mới**, liên kết Work Order, Maintenance Report, inspection/report ban đầu và các defects cần kiểm chứng. |
-| MF4-09 | Inspector | Thực hiện toàn bộ cổng hồ sơ, kiểm tra an toàn và thực địa của MF3 cho nhiệm vụ mới; upload Evidence mới, đối chiếu từng defect và lập **Re-inspection Report** cũng theo MF3, gửi Manager. Không sửa đè Findings/report lịch sử để làm chúng trông như chưa từng có lỗi. |
-| MF4-10 | Manager | Duyệt/trả lại report bay lại như MF3; nếu đạt chất lượng báo cáo thì publish cho Customer. **Báo cáo đánh giá sửa chữa chưa đạt vẫn có thể được publish nếu phản ánh đúng kết quả**; không đồng nhất duyệt chất lượng report với công nhận đã sửa đạt. |
-| MF4-11 | Customer | Đọc Re-inspection Report published, đối chiếu Maintenance Report, tiêu chí nghiệm thu và kết quả thử nghiệm. Nếu chưa đạt/thiếu bằng chứng thì yêu cầu bổ sung hoặc sửa lại. Nếu đạt đủ phạm vi thì ghi quyết định nghiệm thu độc lập. |
-| MF4-12 | Customer | Đối soát chi phí thực tế với dự toán và các Change Order đã duyệt, xử lý chênh lệch; sau nghiệm thu và quyết toán mới đóng Work Order. Không tự đóng toàn bộ Asset/hợp đồng định kỳ khi một Work Order hoàn thành. |
-
-### 7.2. Sơ đồ MF4
-
-```mermaid
-flowchart TD
-  A["Customer chọn defects từ report published<br/>tạo Work Order và giao kỹ sư"] --> B["Kỹ sư lập kế hoạch, task và dự toán<br/>RAG chỉ hỗ trợ"]
-  B --> C{"Customer duyệt phạm vi<br/>và ngân sách?"}
-  C -->|"Chưa duyệt"| B
-  C -->|"Duyệt"| D["Kỹ sư sửa chữa, ghi nhật ký<br/>bằng chứng trước sau, Lead xác nhận"]
-  D --> CO{"Có phát sinh ngoài<br/>phạm vi đã duyệt?"}
-  CO -->|"Có"| CP["Kỹ sư đề xuất Change Order<br/>Customer duyệt trước phần phát sinh"]
-  CP --> D
-  CO -->|"Không còn phát sinh chờ duyệt"| E["Kỹ sư gửi Maintenance Report cho Customer"]
-  E --> F{"Customer kiểm tra<br/>hồ sơ sửa chữa"}
-  F -->|"Thiếu hoặc sai"| E
-  F -->|"Đủ để kiểm chứng"| G["Customer chuyển Maintenance Report<br/>và yêu cầu bay lại cho Manager"]
-  G --> H["Manager tạo nhiệm vụ bay lại mới<br/>phân công Inspector và drone"]
-  H --> I["Inspector qua cổng hồ sơ, bay lại<br/>thu Evidence mới theo phần thực địa MF3"]
-  I --> IA["Inspector soạn hoặc sửa Re-inspection Report<br/>xác nhận lại và submit theo MF3"]
-  IA --> J{"Manager duyệt<br/>chất lượng report"}
-  J -->|"Chỉ cần sửa nội dung report"| IA
-  J -->|"Cần bổ sung bằng chứng thực địa"| I
-  J -->|"Đủ để phát hành"| K["Manager publish Re-inspection Report cho Customer"]
-  K --> L{"Customer nghiệm thu<br/>đủ phạm vi đã sửa?"}
-  L -->|"Không đạt hoặc thiếu bằng chứng"| R["Bổ sung bằng chứng hoặc sửa lại<br/>Customer duyệt phát sinh nếu có"]
-  R --> D
-  L -->|"Đạt"| M["Customer ghi nghiệm thu<br/>đối soát chi phí và quyết toán"]
-  M --> N["Đóng Work Order đủ điều kiện<br/>giữ nguyên lịch sử nguồn"]
-```
-
-### 7.3. Quy tắc khép vòng
-
-- Bay lại **không chỉ là upload ảnh sửa chữa của kỹ sư**: phải có phân công của Manager, Inspector thực hiện, report gửi Manager và Manager publish.
-- Kết quả từng defect trong báo cáo bay lại phân biệt: **đã khắc phục trong phạm vi kiểm tra**, **chưa đạt**, **chưa đủ bằng chứng/không đánh giá được**. Không mặc định trạng thái cuối cùng là đạt.
-- Hình ảnh drone chỉ xác minh được phần quan sát/đo được trong phạm vi khảo sát. Không tự thay thế thử nghiệm kỹ thuật cần thiết hoặc bảo đảm an toàn toàn bộ kết cấu.
-- Nghiệm thu là quyết định của Customer độc lập với người sửa; Manager publish report không tự duyệt ngân sách hoặc tự nghiệm thu thay Customer.
-- Nếu còn defects khác chưa xử lý, phải giữ trạng thái/quyết định theo dõi của chúng. Đóng một Work Order không tự đánh dấu mọi finding của report gốc là đã giải quyết.
-- Phí bay lại có nằm trong giá hợp đồng hay cần báo giá bổ sung chưa được chốt. **Không mặc định miễn phí hoặc bỏ qua phê duyệt thương mại** cho nhiệm vụ phát sinh.
-
-**Đầu ra MF4:** Maintenance Report, Re-inspection Report published, quyết định nghiệm thu, chi phí đã đối soát và Work Order đóng đúng phạm vi; hoặc vòng bổ sung/sửa lại được lưu rõ.
-
----
 
 ## 8. Trạng thái và quy tắc xuyên suốt
 

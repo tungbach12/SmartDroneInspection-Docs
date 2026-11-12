@@ -10,12 +10,12 @@ round.
 | --- | --- |
 | Project Name | SmartDroneInspection |
 | Project Code | GFA26SE139 |
-| Test round | Current case inventory: 68 IDs across eight features FE-01 to FE-08 (WF3-020 is Pending in Round 3; focused recurring-qualification regression checks are documented as evidence, with no workbook case status changed). Current Round 1 records 60 Passed, 0 Failed, 5 Pending, and three later cases marked N/A because they were added after that round. Historical Round 1 remains 65 cases (60 Passed, 0 Failed, 5 Pending; 92.31% overall / 93.75% of the 64-case baseline). Round 3 has four Passed executions: WF3-006, WF3-016, WF3-018 and WF3-019. The two V29 finance cases were verified against Flyway V1–V29 on PostgreSQL 17 with Docker/Testcontainers on 2026-11-05; other feature suites were not run. |
-| Last updated | 2026-11-11 (Round 2: WF1-017–WF1-019 passed via 42 backend service/domain tests and 3 V35 migration tests. Additional recurring-partner qualification regression checks passed in 50 backend ContractWorkflowServiceTest/PartnerRegistryServiceTest tests total; ContractsPage.test.tsx passed 7/7 and frontend production build passed. These are focused checks, not connected end-to-end evidence; WF2-001 Round 2 remains Pending until Customer→Manager→signed-contract→dispatch execution. Round 1/3 historical totals and status counts unchanged.) |
+| Test round | Current case inventory: 52 active IDs across six features FE-01 to FE-06. Current Round 1 records 45 Passed, 0 Failed, 4 Pending, and 3 N/A cases added later. The active-scope historical Round 1 subtotal is 49 cases (45 Passed, 0 Failed, 4 Pending; 91.84% passed). These recalculated counts exclude retired maintenance cases and are not directly comparable with the original eight-feature report. Round 3 has four Passed executions: WF3-006, WF3-016, WF3-018 and WF3-019. WF3-020 remains Pending in Round 3. The two V29 finance cases were verified against Flyway V1–V29 on PostgreSQL 17 with Docker/Testcontainers on 2026-11-05; other feature suites were not run. Focused recurring-qualification regression checks are recorded as evidence only and do not change case statuses or totals. |
+| Last updated | 2026-11-12 (focused recurring-partner qualification regression checks passed: backend ContractWorkflowServiceTest and PartnerRegistryServiceTest 50/50; frontend ContractsPage.test.tsx 7/7 and production build passed. These checks are not connected end-to-end evidence; WF2-001 Round 2 remains Pending until Customer→Manager→signed-contract→dispatch execution.) |
 
 ### Round scope
 
-Historical counts include legacy recurrence scenarios WF1-018, WF1-019, and WF1-021 (excluded from the current target) and implementation-specific WF3-017. The current Round 1 subtotal includes all current case IDs, with WF3-020 and later V29 additions marked N/A; the separate historical subtotal preserves the original 65-case results. Round 3 executed counts include only cases with Passed or Failed results, and the V29 subtotal is included within that count.
+Historical counts preserve the original eight-feature report, including retired maintenance cases, legacy recurrence scenarios WF1-018/WF1-019/WF1-021, and implementation-specific WF3-017. Current Round 1 counts apply only to the 52 active IDs in FE-01–FE-06; three later additions are N/A for that round. Round 3 executed counts include only cases with Passed or Failed results; WF3-020 remains Pending, and the two V29 cases are included in the four Passed Round 3 cases.
 
 ## Module summary
 
@@ -27,12 +27,10 @@ Historical counts include legacy recurrence scenarios WF1-018, WF1-019, and WF1-
 | 4 | Service Requests, Quotations, Contracts, Dispatch & Airspace Map | 5 | 0 | 0 | 0 | 5 |
 | 5 | Flight Permit Gate, Field Execution, Dashboard & Calendar | 10 | 0 | 1 | 1 | 12 |
 | 6 | Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS | 10 | 0 | 2 | 2 | 14 |
-| 7 | Maintenance Work Orders, RAG Scope/Norms Advisor & Repair Execution | 10 | 0 | 1 | 0 | 11 |
-| 8 | Completion Report, 3-Way Re-inspection Verification & Cost Closure | 5 | 0 | 0 | 0 | 5 |
-| **Current Round 1 subtotal** |  | **60** | **0** | **5** | **3** | **68** |
-| **Historical Round 1 subtotal** |  | **60** | **0** | **5** | **0** | **65** |
-| **Historical Review 2 baseline** |  | **60** | **0** | **4** | **0** | **64** |
+| **Current Round 1 subtotal** |  | **45** | **0** | **4** | **3** | **52** |
+| **Historical Round 1 subtotal** |  | **45** | **0** | **4** | **0** | **49** |
+| **Historical Review 2 baseline (original eight-feature report)** |  | **60** | **0** | **4** | **0** | **64** |
 | **Historical implementation-specific pending** |  | **0** | **0** | **1** | **0** | **1** |
 | **Round 3 executed cases** |  | **4** | **0** | **0** | **0** | **4** |
 | **V29 Round 3 cases** |  | **2** | **0** | **0** | **0** | **2** |
-| **Current inventory** |  |  |  |  |  | **68** |
+| **Current inventory** |  |  |  |  |  | **52** |
