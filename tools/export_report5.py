@@ -25,7 +25,7 @@ CASE_HEADER = ["Test Case ID", "Test Case Description", "Test Case Procedure",
 # coverage rows; cloning it keeps the original vertical spacing.
 BLANK_SPACER_ROW = 15
 V29_ROUND3_CASE_IDS = {"WF3-018", "WF3-019"}
-POST_ROUND1_CASE_IDS = V29_ROUND3_CASE_IDS | {"WF3-020"}
+POST_ROUND1_CASE_IDS = V29_ROUND3_CASE_IDS | {"WF3-020", "WF3-021"}
 
 
 def validate_cases(report_dir):
