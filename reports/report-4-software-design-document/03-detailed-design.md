@@ -894,7 +894,7 @@ classDiagram
 | 01 | `EvidenceService` | Uploads, validates, streams, and soft-retires field photographs (`10 MB`) and MP4 videos (`500 MB`) associated with an inspection session while extracting EXIF GPS coordinates and capture timestamps. |
 | 02 | `FindingService` & `PrimaryWithFallbackInference` | Invoke Ultralytics YOLO11 (`YoloInferenceClient`) and Vision LLM fallback (`OpenAiCompatibleInferenceClient`) defect detection on photographs and video keyframes, manage manual and AI-suggested findings, and lock the confirmed findings baseline (`inspections.findings_confirmed_at`). |
 | 03 | `ReportService`, `PdfReportRenderer` & `InspectionReport` | Compile and submit 4-state inspection reports (`SUBMITTED`, `RETURNED`, `PUBLISHED`, `SUPERSEDED`), synthesize AI executive summaries (`ReportDraftClient`), enforce independent Manager direct publication, and render on-demand A4 PDFs (`reports/<versionId>.pdf`). |
-| 04 | `ContractWorkflowService`, `PayOSWebhookController` & `VnPayWebhookController` | Record Customer acceptance of a published report (`PAYMENT_DUE`), generate PayOS VietQR (`PayOSPaymentGateway`) and VNPay v2.1.0 (`VnPayPaymentGateway`) checkout links in VND, verify signed webhook callbacks, and settle customer payment (`PAID`) and partner payout (`ELIGIBLE`/`PAID`). |
+| 04 | `ContractWorkflowService`, `PayOSWebhookController` & `VnPayWebhookController` | Record Customer acceptance (`PAYMENT_DUE`), issue PayOS/VNPay checkout links, verify signed callbacks and settle Customer payment (`PAID`) with Inspector payout `ELIGIBLE` only. `MANAGER` records actual payout references; unresolved orders cannot be replaced, and only provider-confirmed PayOS cancellation clears an unpaid order. Manager-recorded external refunds use a capped auditable ledger and hold payout until explicit reconciliation records actual final payout and attribution. |
 | 05 | `Evidence` & `Finding` | Domain entities representing stored inspection media and AI-proposed (`PENDING`) or Inspector-confirmed (`CONFIRMED`) structural defects. |
 
 #### 3.6.2 Photo/Video Evidence Intake, YOLO11 Detection and Findings Confirmation Sequence Diagram
@@ -996,8 +996,15 @@ sequenceDiagram
     Webhooks->>ContractSvc: handleVnPayWebhook(params)
   end
 
-  ContractSvc->>DB: Transition occurrence paymentStatus to PAID and partner payoutStatus to ELIGIBLE/PAID
+  ContractSvc->>DB: Transition customer payment to PAID and payout to ELIGIBLE; a Manager records actual payout separately
+  Note over ContractSvc,DB: Refund initiation occurs before manual external transfer and immediately holds any unpaid Inspector payout
 ```
+
+#### 3.6.5 Refund Initiation, External Completion, Legacy Reconciliation and Receivable Recovery
+
+Manager-only operations run under a locked occurrence transaction. `POST /contracts/requests/{requestId}/occurrences/{occurrenceId}/refunds` validates captured balance and a case-insensitive request reference, reserves the refund amount, and holds an unpaid payout before any external transfer. No gateway or bank transfer is initiated by the system. After the Manager completes the transfer outside the platform, `POST .../refunds/{refundId}/complete` accepts a unique external reference and accounting allocations whose sum exactly equals the refund. Cancellation requires a reason and is rejected after completion; hold release is recalculated against all other pending and unallocated legacy rows.
+
+Legacy `COMPLETED` refunds with unknown allocation are reconciled one row at a time by ID through `POST .../refunds/{refundId}/reconcile-allocation`. The evidence reference, note, Manager and time are stored with the allocation. Already-paid Inspector payouts are immutable: initiation records the receivable/platform-absorption plan and completion adds an `inspector_receivables` row. Managers record actual collections separately through `POST .../receivables/{receivableId}/recover`; row locking and optimistic versioning prevent concurrent over-recovery, and the system never offsets future payouts automatically. Manager finance responses list the refund and receivable ledgers; Customer responses mask internal recovery details. The Contracts UI presents separate forms for initiation, completion/cancellation, refund-ID legacy reconciliation, and manual receivable recovery.
 
 ---
 

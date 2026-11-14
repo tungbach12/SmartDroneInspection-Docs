@@ -81,16 +81,19 @@ coverage below them:
 - `Test coverage` = `(Passed + Failed) * 100 / (Number of TCs - N/A)`
 - `Test successful coverage` = `Passed * 100 / (Number of TCs - N/A)`
 
-With the active 52-case inventory, Round 1 has `45 Passed`, `0 Failed`, `4
-Pending`, and `3 N/A`; later-added cases are marked N/A for Round 1. Retired
-maintenance cases are excluded from active counts. Keep workbook formulas and
-change underlying statuses in the feature Markdown files.
+With the active 53-case inventory, Round 1 has `45 Passed`, `0 Failed`, `5
+Pending`, and `3 N/A`; WF3-021 is Pending in Round 1, while WF3-020 and the two
+V29 finance cases are N/A for Round 1. Retired maintenance cases are excluded
+from active counts. Keep workbook formulas and change underlying statuses in the
+feature Markdown files.
 
 The generated statistics sheet places six module rows at 11–16, current Round 1
 subtotal at row 17, historical active-scope Round 1 at row 18, Round 3 executed
 cases at row 19, the V29 Round 3 subset at row 20, spacer at row 21, and coverage
-at rows 22–23. Round 3 executed totals include only Passed/Failed cases: four in total,
-including WF3-018/019 as the two-case V29 subset.
+at rows 22–23 (`90.00%`). Round 3 executed totals include only Passed/Failed cases:
+three in total (`WF3-006`, `WF3-016`, `WF3-018`). The V29 subset covers
+WF3-018/019; WF3-018 is Passed while WF3-019 is Pending pending re-execution
+against the revised payout contract.
 
 ## Feature sheets (supplied template and generated workbook)
 
@@ -148,7 +151,7 @@ the `Feature sheet summary` table in each matching `fe-0N-…md` file. Populate
 | FE-03 Recurring Service Requests, Contract Occurrences & Outbox Notifications (§3.4) | `Feature 3` | WF1-017 to WF1-021 (5 cases) |
 | FE-04 Service Requests, Quotations, Contracts, Dispatch & Airspace Map (§3.5) | `Feature 4` | WF2-001 to WF2-005 (5 cases) |
 | FE-05 Flight Permit Gate, Field Execution, Dashboard & Calendar (§3.6) | `Feature 5` | WF2-008, WF2-009, WF2-011, WF2-012, WF2-015 to WF2-020, WF3-009, WF3-020 (12 cases) |
-| FE-06 Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS (§3.7) | `Feature 6` | WF3-001 to WF3-008, WF3-010, WF3-012, WF3-016 to WF3-019 (14 cases) |
+| FE-06 Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS (§3.7) | `Feature 6` | WF3-001 to WF3-008, WF3-010, WF3-012, WF3-016 to WF3-019, WF3-021 (15 cases) |
 
 ## Visual and status rules
 
