@@ -4,7 +4,7 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope and status (updated 2026-11-12):** The current Report 5 inventory contains **53 active test cases** across 6 product features (`FE-01`–`FE-06`, mapped 1-to-1 to `Feature 1`–`Feature 6`) aligned with Flyway `V1`–`V46` (`V44`–`V46` refund/order/payout lifecycle and receivables controls). WF3-020 remains Pending in Round 3; WF3-021 remains Pending until full Report 5 round re-execution. Current-scope Round 1 totals are 45 `Passed`, 0 `Failed`, 5 `Pending`, and 3 `N/A`. The active-scope historical subtotal is 49 cases (45 Passed, 4 Pending); original eight-feature results are historical and not current coverage. Round 3 currently has three Passed cases (`WF3-006`, `WF3-016`, `WF3-018`); `WF3-019` remains Pending pending re-execution against the revised payout contract, leaving `WF3-018` as the currently Passed V29 subset case.
+**Scope and status (updated 2026-11-15):** The current Report 5 inventory contains **57 active test cases** across 6 product features (`FE-01`–`FE-06`, mapped 1-to-1 to `Feature 1`–`Feature 6`) aligned with Flyway `V1`–`V55` (`V44`–`V46` refund/order/payout lifecycle and receivables controls; `V55` evidence media optimization & resumable upload sessions). `WF3-020` and `WF3-022`–`WF3-025` remain `Pending` in Round 3 until live Nginx/Docker Compose E2E verification; `WF3-019` and `WF3-021` remain `Pending` until full Report 5 round re-execution. Current-scope Round 1 totals are 45 `Passed`, 0 `Failed`, 5 `Pending`, and 7 `N/A`. The active-scope historical subtotal is 49 cases (45 Passed, 4 Pending); original eight-feature results are historical and not current coverage. Round 3 currently has three Passed cases (`WF3-006`, `WF3-016`, `WF3-018`); `WF3-019` remains Pending pending re-execution against the revised payout contract, leaving `WF3-018` as the currently Passed V29 subset case.
 
 The original workbook template remains unchanged; generated copies contain six active feature sheets (`Feature 1`–`Feature 6`). Maintenance feature sheets and cases are retired historical material, not current coverage.
 
@@ -38,14 +38,14 @@ current Report 3 feature (`FE-01`–`FE-06`). Sheet `Feature N` contains SRS fea
 | Folder/file | Workbook area | Purpose |
 | --- | --- | --- |
 | `00-cover/` | `Cover` | Project metadata and record of changes. |
-| `01-test-cases/` | `Test Cases` | Complete index of all 53 active test cases across `Feature 1`–`Feature 6` (49 baseline cases, two V29 additions, one flight-log fallback case, and one refund/payout lifecycle case). |
+| `01-test-cases/` | `Test Cases` | Complete index of all 57 active test cases across `Feature 1`–`Feature 6` (49 baseline cases, two V29 additions, one flight-log fallback case, one refund/payout lifecycle case, and four V55 evidence media optimization cases). |
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary across active `Feature 1`–`Feature 6`. |
 | `03-features/fe-01-authentication-access-control.md` | `Feature 1` sheet | `FE-01` (`WF1-001`–`WF1-005`: 5 cases, Owner: Trần Hoàng Trung Hiếu). |
 | `03-features/fe-02-workforce-subscription-management.md` | `Feature 2` sheet | `FE-02` (`WF1-006`–`WF1-016`: 11 cases, Owner: Trần Hoàng Trung Hiếu). |
 | `03-features/fe-03-asset-drone-fleet-management.md` | `Feature 3` sheet | `FE-03` (`WF1-017`–`WF1-021`: 5 cases, Owner: Phùng Trung Quốc). |
 | `03-features/fe-04-recurring-schedule-notifications.md` | `Feature 4` sheet | `FE-04` (`WF2-001`–`WF2-005`: 5 cases, Owner: Phùng Trung Quốc). |
 | `03-features/fe-05-mission-dispatch-airspace-advisory.md` | `Feature 5` sheet | `FE-05` (`WF2-008`–`009`, `011`–`012`, `015`–`020`, `WF3-009`, `WF3-020`: 12 cases, Owner: Trần Tùng Bách). |
-| `03-features/fe-06-flight-readiness-field-execution.md` | `Feature 6` sheet | `FE-06` (`WF3-001`–`008`, `WF3-010`, `012`, `016`–`019`, `021`: 15 cases, Owner: Trần Tùng Bách). |
+| `03-features/fe-06-flight-readiness-field-execution.md` | `Feature 6` sheet | `FE-06` (`WF3-001`–`008`, `WF3-010`, `012`, `016`–`019`, `021`–`025`: 19 cases, Owner: Trần Tùng Bách). |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
 | `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
 

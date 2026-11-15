@@ -11,4 +11,4 @@ working source for current test cases, execution rounds, and statistics across f
 
 See [README.md](README.md) for the editing workflow.
 
-Current scope revision: **2.4** (2026-11-12). The active inventory tracks **53 cases** across six sheets (`FE-01`–`FE-06`). Current-scope Round 1 includes 45 Passed, 0 Failed, 5 Pending, and 3 N/A. The original eight-feature test report is historical context only. Round 3 currently has three Passed executions (`WF3-006`, `WF3-016`, `WF3-018`); `WF3-019` and `WF3-021` remain Pending pending finance/refund lifecycle re-execution.
+Current scope revision: **2.6** (2026-11-15). The active inventory tracks **57 cases** across six sheets (`FE-01`–`FE-06`). Current-scope Round 1 includes 45 Passed, 0 Failed, 5 Pending, and 7 N/A. The original eight-feature test report is historical context only. Round 3 currently has three Passed executions (`WF3-006`, `WF3-016`, `WF3-018`); `WF3-019` and `WF3-021` remain Pending pending finance/refund lifecycle re-execution, and `WF3-022`–`WF3-025` remain Pending until live Nginx/Docker Compose E2E verification.

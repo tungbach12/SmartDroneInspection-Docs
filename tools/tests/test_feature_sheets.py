@@ -10,7 +10,7 @@ from report_ooxml import Spreadsheet, descendants, find_table, plain
 
 SHEET_COUNT = 6
 EXPECTED_CASE_COUNTS = {"Feature 1": 5, "Feature 2": 11, "Feature 3": 5, "Feature 4": 5,
-                       "Feature 5": 12, "Feature 6": 15}
+                       "Feature 5": 12, "Feature 6": 19}
 
 
 def generated_workbook():
@@ -89,8 +89,10 @@ class FeatureSheetTests(unittest.TestCase):
             self.assertIn("WF3-017", counts["Feature 6"])
             self.assertIn("WF3-018", counts["Feature 6"])
             self.assertIn("WF3-019", counts["Feature 6"])
-            self.assertEqual(sum(len(v) for v in counts.values()), 53)
+            self.assertEqual(sum(len(v) for v in counts.values()), 57)
             self.assertIn("WF3-021", counts["Feature 6"])
+            for media_opt_id in ("WF3-022", "WF3-023", "WF3-024", "WF3-025"):
+                self.assertIn(media_opt_id, counts["Feature 6"])
 
     def test_statistics_lists_all_six_modules_with_a_correct_subtotal(self):
         book, temp = generated_workbook()
@@ -100,10 +102,10 @@ class FeatureSheetTests(unittest.TestCase):
                 row = 10 + number
                 self.assertEqual(book.value(stats, f"C{row}"), book.value(sheet, "B2"))
                 self.assertEqual(book.value(stats, f"B{row}"), str(number))
-            self.assertEqual(book.value(stats, "H17"), "53")
+            self.assertEqual(book.value(stats, "H17"), "57")
             self.assertEqual(book.value(stats, "D17"), "45")
             self.assertEqual(book.value(stats, "F17"), "5")
-            self.assertEqual(book.value(stats, "G17"), "3")
+            self.assertEqual(book.value(stats, "G17"), "7")
             self.assertEqual(book.value(stats, "C17"), "Sub total")
             self.assertEqual(book.value(stats, "D18"), "45")
             self.assertEqual(book.value(stats, "F18"), "4")
