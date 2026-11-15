@@ -18,7 +18,7 @@ The following rules govern the current inspection service. Maintenance work orde
 | BR-04 | An `INSPECTOR` may act only on assigned inspection work. |
 | BR-05 | Inspectors must have current pilot credentials for flight assignment and field work. An expired credential prevents assignment or field work. |
 | BR-06 | Customer onboarding screens the initial asset location against applicable airspace information. A prohibited No-Fly Zone location is not accepted; a location requiring review remains pending for an `ADMIN` decision. Screening does not grant governmental flight clearance. |
-| BR-07 | Before starting an on-site field session, the assigned Inspector must provide the required flight permit, have current pilot credentials, and record a pre-flight safety note. |
+| BR-07 | Before starting an on-site field session, the assigned Inspector must upload a valid flight permit with structured metadata (`permitNumber`, `issuingAuthority`, validity window, matching drone serial) and obtain mandatory `MANAGER`/`ADMIN` verification (`APPROVED`), hold current pilot credentials, and record a pre-flight safety note. |
 | BR-08 | Airspace checks and permit records support internal readiness review only; they do not grant government aviation authorization. |
 | BR-09 | Inspection assignment and reassignment consider overlapping commitments across customer organizations so an Inspector or drone is not double-booked. |
 | BR-10 | Service quotations are stated in VND per occurrence, identify scope and timing, and are associated with an eligible Inspector and a drone owned by that Inspector. |
