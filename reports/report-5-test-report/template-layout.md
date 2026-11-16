@@ -146,12 +146,12 @@ the `Feature sheet summary` table in each matching `fe-0N-…md` file. Populate
 
 | FE source | Workbook destination | Stable case IDs |
 | --- | --- | --- |
-| FE-01 Authentication, Google OAuth2 & 4-Role Access Control (§3.2) | `Feature 1` | WF1-001 to WF1-005 (5 cases) |
+| FE-01 Authentication, Google OAuth2 & 4-Role Access Control (§3.2) | `Feature 1` | WF1-001 to WF1-005, WF1-022 (6 cases) |
 | FE-02 Partner Onboarding, Workforce, Asset & Inspector Drone Registry (§3.3) | `Feature 2` | WF1-006 to WF1-016 (11 cases) |
 | FE-03 Recurring Service Requests, Contract Occurrences & Outbox Notifications (§3.4) | `Feature 3` | WF1-017 to WF1-021 (5 cases) |
 | FE-04 Service Requests, Quotations, Contracts, Dispatch & Airspace Map (§3.5) | `Feature 4` | WF2-001 to WF2-005 (5 cases) |
 | FE-05 Flight Permit Gate, Field Execution, Dashboard & Calendar (§3.6) | `Feature 5` | WF2-008, WF2-009, WF2-011, WF2-012, WF2-015 to WF2-020, WF3-009, WF3-020 (12 cases) |
-| FE-06 Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS (§3.7) | `Feature 6` | WF3-001 to WF3-008, WF3-010, WF3-012, WF3-016 to WF3-019, WF3-021 (15 cases) |
+| FE-06 Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS (§3.7) | `Feature 6` | WF3-001 to WF3-008, WF3-010, WF3-012, WF3-016 to WF3-019, WF3-021 to WF3-025 (19 cases) |
 
 ## Visual and status rules
 

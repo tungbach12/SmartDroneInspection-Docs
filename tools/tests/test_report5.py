@@ -11,11 +11,11 @@ from report_ooxml import Spreadsheet, sha256
 class Report5Tests(unittest.TestCase):
     def test_repeated_round_fields_remain_positional(self):
         cases, _, summaries, historical_round1_counts = validate_cases(REPORTS / "report-5-test-report")
-        self.assertEqual(dict(historical_round1_counts), {"Passed": 45, "Pending": 4})
+        self.assertEqual(dict(historical_round1_counts), {"Passed": 45, "Pending": 5})
         # WF3-002 is FE-06, so it lands on the sheet for feature 6.
         row = next(row for _, row, _ in cases["Feature 6"] if row[0] == "WF3-002")
         self.assertEqual(len(row), 15)
-        self.assertEqual(row[5:8], ["Passed", "2026-10-11", "Claude Code (automated)"])
+        self.assertEqual(row[5:8], ["Passed", "2026-11-16", "Antigravity (automated)"])
         self.assertEqual(row[8:14], ["Pending", "", "", "Pending", "", ""])
         for case_id in ("WF3-006", "WF3-016"):
             case_row = next(row for _, row, _ in cases["Feature 6"] if row[0] == case_id)
@@ -31,14 +31,14 @@ class Report5Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / TEMPLATE_NAME
             result = export(template, REPORTS, output)
-            self.assertEqual(result["cases"], 57)
+            self.assertEqual(result["cases"], 58)
             self.assertTrue(result["format_parts_preserved"])
             book, source = Spreadsheet(output), Spreadsheet(template)
             self.assertEqual(list(book.sheets)[:5],
                              ["Cover", "Test Cases", "Test Statistics", "Feature 1", "Feature 2"])
             self.assertEqual(book.value("Feature 6", "B2"),
                              "Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS")
-            for coord, expected in {"G12": "2026-10-11", "H12": "Claude Code (automated)",
+            for coord, expected in {"G12": "2026-11-16", "H12": "Antigravity (automated)",
                                     "J12": "", "K12": "", "M12": "", "N12": "",
                                     "B4": "19", "B6": "10", "B7": "0", "D7": "17", "D8": "16"}.items():
                 self.assertEqual(book.value("Feature 6", coord), expected, coord)
@@ -57,13 +57,13 @@ class Report5Tests(unittest.TestCase):
             self.assertEqual(book.value("Feature 6", "I25"), "N/A")
             self.assertEqual(book.value("Feature 6", "L24"), "Passed")
             self.assertEqual(book.value("Feature 6", "L25"), "Pending")
-            self.assertEqual(book.value("Test Statistics", "H17"), "57")
+            self.assertEqual(book.value("Test Statistics", "H17"), "58")
             self.assertEqual(book.value("Test Statistics", "D17"), "45")
-            self.assertEqual(book.value("Test Statistics", "F17"), "5")
+            self.assertEqual(book.value("Test Statistics", "F17"), "6")
             self.assertEqual(book.value("Test Statistics", "G17"), "7")
-            self.assertEqual(book.value("Test Statistics", "H18"), "49")
+            self.assertEqual(book.value("Test Statistics", "H18"), "50")
             self.assertEqual(book.value("Test Statistics", "D18"), "45")
-            self.assertEqual(book.value("Test Statistics", "F18"), "4")
+            self.assertEqual(book.value("Test Statistics", "F18"), "5")
             self.assertEqual(book.value("Test Statistics", "H19"), "3")
             self.assertEqual(book.value("Test Statistics", "D19"), "3")
             self.assertEqual(book.value("Test Statistics", "H20"), "2")
@@ -73,8 +73,8 @@ class Report5Tests(unittest.TestCase):
             self.assertEqual(book.value("Test Statistics", "C18"), "Historical Round 1")
             self.assertEqual(book.value("Test Statistics", "C19"), "Round 3 executed")
             self.assertEqual(book.value("Test Statistics", "C20"), "V29 Round 3")
-            self.assertAlmostEqual(float(book.value("Test Statistics", "E22")), 90.00, places=2)
-            self.assertAlmostEqual(float(book.value("Test Statistics", "E23")), 90.00, places=2)
+            self.assertAlmostEqual(float(book.value("Test Statistics", "E22")), 45 / 51 * 100, places=2)
+            self.assertAlmostEqual(float(book.value("Test Statistics", "E23")), 45 / 51 * 100, places=2)
             self.assertEqual(book.value("Cover", "E4"), "Creator")
             self.assertEqual(book.value("Test Statistics", "C3"), "SmartDroneInspection")
             self.assertNotIn("<List enviroment", book.value("Test Cases", "D5"))
