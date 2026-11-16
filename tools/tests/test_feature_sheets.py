@@ -9,7 +9,7 @@ from export_report5 import FEATURE_SHEETS, TEMPLATE_NAME, export
 from report_ooxml import Spreadsheet, descendants, find_table, plain
 
 SHEET_COUNT = 6
-EXPECTED_CASE_COUNTS = {"Feature 1": 5, "Feature 2": 11, "Feature 3": 5, "Feature 4": 5,
+EXPECTED_CASE_COUNTS = {"Feature 1": 6, "Feature 2": 11, "Feature 3": 5, "Feature 4": 5,
                        "Feature 5": 12, "Feature 6": 19}
 
 
@@ -89,7 +89,7 @@ class FeatureSheetTests(unittest.TestCase):
             self.assertIn("WF3-017", counts["Feature 6"])
             self.assertIn("WF3-018", counts["Feature 6"])
             self.assertIn("WF3-019", counts["Feature 6"])
-            self.assertEqual(sum(len(v) for v in counts.values()), 57)
+            self.assertEqual(sum(len(v) for v in counts.values()), 58)
             self.assertIn("WF3-021", counts["Feature 6"])
             for media_opt_id in ("WF3-022", "WF3-023", "WF3-024", "WF3-025"):
                 self.assertIn(media_opt_id, counts["Feature 6"])
@@ -102,15 +102,15 @@ class FeatureSheetTests(unittest.TestCase):
                 row = 10 + number
                 self.assertEqual(book.value(stats, f"C{row}"), book.value(sheet, "B2"))
                 self.assertEqual(book.value(stats, f"B{row}"), str(number))
-            self.assertEqual(book.value(stats, "H17"), "57")
+            self.assertEqual(book.value(stats, "H17"), "58")
             self.assertEqual(book.value(stats, "D17"), "45")
-            self.assertEqual(book.value(stats, "F17"), "5")
+            self.assertEqual(book.value(stats, "F17"), "6")
             self.assertEqual(book.value(stats, "G17"), "7")
             self.assertEqual(book.value(stats, "C17"), "Sub total")
             self.assertEqual(book.value(stats, "D18"), "45")
-            self.assertEqual(book.value(stats, "F18"), "4")
+            self.assertEqual(book.value(stats, "F18"), "5")
             self.assertEqual(book.value(stats, "G18"), "0")
-            self.assertEqual(book.value(stats, "H18"), "49")
+            self.assertEqual(book.value(stats, "H18"), "50")
             self.assertEqual(book.value(stats, "D19"), "3")
             self.assertEqual(book.value(stats, "H19"), "3")
             self.assertEqual(book.value(stats, "H20"), "2")
@@ -121,8 +121,8 @@ class FeatureSheetTests(unittest.TestCase):
             self.assertEqual(book.value(stats, "C19"), "Round 3 executed")
             self.assertEqual(book.value(stats, "C20"), "V29 Round 3")
             self.assertEqual(book.value(stats, "C22"), "Test coverage")
-            self.assertAlmostEqual(float(book.value(stats, "E22")), 90.00, places=2)
-            self.assertAlmostEqual(float(book.value(stats, "E23")), 90.00, places=2)
+            self.assertAlmostEqual(float(book.value(stats, "E22")), 45 / 51 * 100, places=2)
+            self.assertAlmostEqual(float(book.value(stats, "E23")), 45 / 51 * 100, places=2)
 
 
 if __name__ == "__main__":
