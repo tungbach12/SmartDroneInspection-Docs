@@ -95,8 +95,8 @@ Customers register assets, accept quotes, and complete online payment. Inspector
 | `F-04` | Service Request, Quote, Contract & Dispatch | Customer, Manager | Customer accepts quote; Manager uploads signed contract and dispatches conflict-free Inspector & Drone. | `WF2-001..009` | Done |
 | `F-05` | Permit Gate, Checklists & Field Session | Inspector, Manager | Requires Permit & Pre-flight check to start; records MAVLink log, Building Items & Post-flight check on complete. | `WF2-010..020` | Done |
 | `F-06` | Evidence Upload & AI Defect Confirmation | Inspector, DroneVisionAI | Photo/MP4 upload triggers `YOLO11` candidates; Inspector confirms/rejects findings and locks baseline. | `WF3-001..010` | Done |
-| `F-07` | Auto-Compiled Report & Manager Review | Inspector, Manager | Compiles draft report with AI summary; independent Manager publishes immutable PDF or returns with reason. | `WF4-001..008` | Done |
-| `F-08` | Customer Acceptance & Payment Settlement | Customer, Manager, Inspector | Customer accepts published report and completes online payment; system marks `PAID` and calculates net payout. | `WF3-011..017`, `WF4-009..016` | In progress |
+| `F-07` | Report Draft, Submission & Independent Manager Review | Inspector, Manager | System prepares an editable draft with advisory AI summary; Inspector explicitly submits it; an independent Manager publishes the immutable official report or returns it with a mandatory reason. | `WF4-001..008` | Done |
+| `F-08` | Customer Acceptance, Payment & Inspector Payout | Customer, Manager, Inspector | Customer accepts the published report; verified gateway payment marks the occurrence `PAID` and makes the Inspector payout `ELIGIBLE`; Manager separately records the actual payout transfer and reference before payout becomes `PAID`. | `WF3-011..017`, `WF4-009..016` | In progress |
 
 ---
 
