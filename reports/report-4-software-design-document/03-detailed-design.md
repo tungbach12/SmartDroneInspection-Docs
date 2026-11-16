@@ -501,7 +501,7 @@ sequenceDiagram
 
 ### 3.4 FE-04 Service Requests, Quotations, Agreements and Dispatch
 
-This section presents the detailed design for `FE-04` (Service request creation, Order Chat negotiation, versioned VND quotations, signed paper contract upload, cross-organization partner Inspector and owned Drone dispatch, abort recovery dispatch, and Vietnam airspace evaluation).
+This section presents the detailed design for `FE-04` (request-level single-Manager ownership, serialized Manager self-claim, ADMIN-only audited assignment correction, assignment-scoped Manager details and commercial workflows, Customer-only assigned-Manager contact projection, three-dot action menu and overview, Service Request Messages inbox, single active VND quotation, signed paper contract upload, cross-organization partner Inspector and owned Drone dispatch, abort recovery dispatch, and Vietnam airspace evaluation).
 
 #### 3.4.1 Class Diagram
 
@@ -509,7 +509,10 @@ This section presents the detailed design for `FE-04` (Service request creation,
 %% title: FE-04 Service Request, Quotation, Signed Contract and Dispatch Class Diagram
 classDiagram
   class ContractWorkflowController {
-    +list() List~ServiceRequestResponse~
+    +list(actorId) List~ServiceRequestResponse~
+    +claimRequest(reqId) ServiceRequestResponse
+    +reassignRequest(reqId, managerId) ServiceRequestResponse
+    +unassignRequest(reqId) ServiceRequestResponse
     +create(req) ServiceRequestResponse
     +postMessage(reqId, msg) ServiceRequestResponse
     +issueQuote(reqId, quoteReq) ServiceRequestResponse
@@ -536,6 +539,9 @@ classDiagram
     -UUID id
     -UUID organizationId
     -UUID assetId
+    -UUID assignedManagerId
+    -Instant managerAssignedAt
+    -UUID managerAssignedByUserId
     -RequestType requestType
     -ServiceRequestStatus status
     -Integer acceptedQuoteVersion
@@ -569,7 +575,7 @@ classDiagram
 
 | No | Class | Description |
 | :---: | :--- | :--- |
-| 01 | `ContractWorkflowController` & `ContractWorkflowService` | Manage customer inspection service requests, order chat messages, versioned VND quotations, quote acceptance, signed paper agreement uploads, and occurrence dispatch. |
+| 01 | `ContractWorkflowController` & `ContractWorkflowService` | Manage role-scoped service requests: Managers claim unassigned rows under a pessimistic request lock, and only the assigned Manager receives detailed conversation/commercial access. ADMIN uses an assignment-only registry to assign, reassign, or unassign with audit events and cannot act as a Manager. The owning Customer alone receives the assigned active Manager contact. The Customer/Manager UI provides a three-dot menu, structured overview, request progress navigation, and left-nav Messages inbox. |
 | 02 | `Mf2InspectionAssignmentAdapter` & `PartnerRegistryService` | Validate Inspector pilot license status, drone ownership, and cross-organization schedule availability before creating a scheduled inspection mission. |
 | 03 | `AirspaceController` & `AirspaceAdvisoryService` | Expose Vietnam No-Fly and Restricted airspace polygons and evaluate target coordinates and altitudes using Haversine distance checks. |
 | 04 | `ServiceRequest`, `ServiceRequestQuote` & `ServiceRequestOccurrence` | Domain entities representing the customer request, each proposed VND quotation version, and the individual inspection occurrences generated upon quote acceptance. |
@@ -591,6 +597,10 @@ sequenceDiagram
   Cust->>Ctrl: POST /api/v1/contracts/requests
   Ctrl->>Svc: create(customerId, request)
   Svc->>DB: Verify active Asset in Customer organization and save OPEN ServiceRequest
+
+  Mgr->>Ctrl: POST /api/v1/contracts/requests/{id}/claim
+  Ctrl->>Svc: claimRequest(managerId, requestId)
+  Svc->>DB: Lock request row; assign only if no current Manager
 
   Cust->>Ctrl: POST /api/v1/contracts/requests/{id}/messages
   Ctrl->>Svc: postMessage(customerId, requestId, body)
