@@ -11,7 +11,7 @@
 | :--- | :---: | :---: | :--- |
 | `contract_partner_inspectors` | 7 cột | **Đã xóa bảng** | Truy vấn trực tiếp Inspector đối tác (`actor_zone = 'INSPECTOR_PARTNER'`, `status = 'ACTIVE'`, bằng lái còn hạn) từ bảng `users` (MF1). |
 | `contract_partner_drones` | 8 cột | **Đã xóa bảng** | Truy vấn trực tiếp Drone đối tác (`inspector_owner_id IS NOT NULL`, `serviceability = 'ACTIVE'`, đăng ký còn hạn) từ bảng `drones` (MF1). |
-| `service_requests` | 27 cột trước V17 | **20 cột sau V17** | Đây là số liệu lịch sử của lần tinh gọn V17, không phải tổng cột hiện tại; V47 bổ sung ba cột assignment (`assigned_manager_id`, `manager_assigned_at`, `manager_assigned_by_user_id`). |
+| `service_requests` | 27 cột trước V17 | **20 cột sau V17** | Đây là số liệu lịch sử của lần tinh gọn V17, không phải tổng cột hiện tại; baseline gộp `V1__baseline.sql` bổ sung thêm ba cột assignment (`assigned_manager_id`, `manager_assigned_at`, `manager_assigned_by_user_id`). |
 | `service_request_quotes` | 12 cột | **10 cột (-2)** | Chuẩn hóa 1 cột giá duy nhất `price_per_occurrence_vnd`. Xóa `price_per_occurrence_usd` và `currency`. |
 | `service_request_occurrences` | 42 cột | **20 cột (-22)** | Giảm hơn 50% số cột: xóa 8 cột tính toán tài chính (tính động qua `InspectionFinanceCalculator`), xóa 7 cột hợp đồng lặp cấp đợt, xóa 7 cột audit/report/payos write-only. |
 | `service_request_messages` | 5 cột | **5 cột** | Giữ nguyên (đã tối giản). |
@@ -21,7 +21,7 @@
 
 ## 2. Sơ đồ thực thể ERD của MF2 (5 Bảng cốt lõi)
 
-> **Lưu ý:** ERD và phần lớn cột dưới đây phản ánh schema lịch sử sau V17. V47 bổ sung ba cột assignment trong bảng `service_requests`; tenant hiện tại là `owner_customer_id`, quote là single-active-quote và các cột acceptance đã được thêm lại ở migration sau. Dùng Report 4 Database Design làm mô tả schema hiện hành.
+> **Lưu ý:** ERD và phần lớn cột dưới đây phản ánh schema lịch sử sau V17. Baseline gộp `V1__baseline.sql` bổ sung ba cột assignment trong bảng `service_requests`; tenant hiện tại là `owner_customer_id`, quote là single-active-quote và các cột acceptance đã được thêm lại ở migration sau. Dùng Report 4 Database Design làm mô tả schema hiện hành.
 
 ```mermaid
 erDiagram
@@ -133,8 +133,8 @@ erDiagram
 
 ## 3. Chi tiết các bảng thuộc MF2 (Sau khi tinh gọn)
 
-### 3.1. Bảng `service_requests` (23 cột sau V47)
-Lưu trữ đơn yêu cầu dịch vụ kiểm định từ Customer (một lần hoặc định kỳ), Manager phụ trách ở cấp yêu cầu, phiên bản báo giá được chấp nhận và đường dẫn tệp hợp đồng giấy đã ký. Đây là bản thiết kế lịch sử sau V17; các tên tenant và quote-version cũ bên dưới không phải schema hiện tại. V47 bổ sung `assigned_manager_id`, `manager_assigned_at`, `manager_assigned_by_user_id` (nullable) và index một phần cho hàng đã giao. Một Manager có thể phụ trách nhiều yêu cầu; mỗi yêu cầu chỉ có tối đa một Manager được giao tại một thời điểm. Manager có thể tự nhận yêu cầu chưa giao; ADMIN có thể giao/chuyển/gỡ giao và các thao tác này được audit. Xem Report 4 Database Design để biết schema đang có hiệu lực.
+### 3.1. Bảng `service_requests` (23 cột sau khi gộp baseline)
+Lưu trữ đơn yêu cầu dịch vụ kiểm định từ Customer (một lần hoặc định kỳ), Manager phụ trách ở cấp yêu cầu, phiên bản báo giá được chấp nhận và đường dẫn tệp hợp đồng giấy đã ký. Đây là bản thiết kế lịch sử sau V17; các tên tenant và quote-version cũ bên dưới không phải schema hiện tại. Baseline gộp `V1__baseline.sql` bổ sung `assigned_manager_id`, `manager_assigned_at`, `manager_assigned_by_user_id` (nullable) và index một phần cho hàng đã giao. Một Manager có thể phụ trách nhiều yêu cầu; mỗi yêu cầu chỉ có tối đa một Manager được giao tại một thời điểm. Manager có thể tự nhận yêu cầu chưa giao; ADMIN có thể giao/chuyển/gỡ giao và các thao tác này được audit. Xem Report 4 Database Design để biết schema đang có hiệu lực.
 
 | Tên cột | Kiểu dữ liệu | Ràng buộc | Ý nghĩa nghiệp vụ |
 | :--- | :--- | :--- | :--- |
