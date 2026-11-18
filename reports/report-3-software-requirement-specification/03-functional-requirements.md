@@ -499,8 +499,9 @@ The model separates four coordinated areas. **Identity and onboarding** covers a
   - Confirming the baseline is an explicit action. Once confirmed, any later edit to findings or evidence resets the confirmation until the Inspector confirms again.
   - Only confirmed findings become official inspection findings and appear in the report.
   - Re-running analysis may replace still-unreviewed candidates while leaving already-reviewed decisions intact.
+  - A `RESOLVED` verdict in a re-inspection requires fresh evidence captured during a completed field session of that re-inspection. The capture time must fall inside the session's start/end interval, and the evidence must not be reused from the source inspection. Evidence with no field session, a session from another inspection, a session that is not completed, a missing or out-of-window capture time, or a reuse of the source evidence is rejected with a distinct validation error so the Inspector knows why the capture was refused.
 - **Normal cases**: The Inspector analyses evidence, reviews each candidate, amends or rejects as needed, adds any missed defect by hand, and confirms the baseline.
-- **Abnormal cases**: A non-assigned user cannot invoke analysis or mutate findings. A finding is not counted as official before confirmation. An image the detector cannot parse is reported as a failed analysis rather than producing a fabricated finding.
+- **Abnormal cases**: A non-assigned user cannot invoke analysis or mutate findings. A finding is not counted as official before confirmation. A re-inspection `RESOLVED` verdict submitted without fresh in-session evidence is rejected. An image the detector cannot parse is reported as a failed analysis rather than producing a fabricated finding.
 
 ---
 
@@ -552,9 +553,12 @@ The model separates four coordinated areas. **Identity and onboarding** covers a
   - Online checkout supports PayOS VietQR and VNPay. Each callback is verified by signature before a payment is treated as settled; a redirect alone is not proof of payment.
   - An unresolved gateway order is not overwritten or switched to another gateway. A Manager may clear an unpaid order only after a gateway-confirmed cancellation.
   - Both gateways are configuration-gated and can be disabled. When they are disabled the application still runs and payment is recorded through an authorised manual confirmation attributed to the confirming user.
+  - Acceptance starts a configurable payment deadline (default 15 days from acceptance). If the occurrence is still unpaid after the deadline, the system marks it overdue and sends one in-app reminder to the Customer and to platform Managers. Overdue never revokes access to the published report and never changes the payment state automatically.
+  - The service renders a downloadable PDF payment notice after acceptance and a payment receipt after verified payment. Both are internal payment documents carrying the occurrence, the published report version, the billed organization, the service amount with its VAT breakdown, the payment status and, for the notice, the due date. Neither is an electronic VAT/tax invoice.
+  - Payment documents are scoped to the owning organization and to the Inspector assigned to the mission; any other organization or an unassigned Inspector receives not-found. Generating a document never changes the payment state.
   - Prices, commission, VAT, and personal income tax are recorded consistently with their stated currency and the rates captured at invoice time.
 - **Normal cases**: The Customer reads the published report, accepts it, pays through a gateway, and the payment is confirmed by a verified callback.
-- **Abnormal cases**: A Customer cannot access an unpublished report as an official deliverable. A payment is not marked settled without a verified signature or an authorised confirmation. A duplicate or tampered callback is rejected.
+- **Abnormal cases**: A Customer cannot access an unpublished report as an official deliverable. A payment is not marked settled without a verified signature or an authorised confirmation. A duplicate or tampered callback is rejected. An overdue payment remains due and report access is not revoked; a second overdue scan sends no duplicate reminder. A payment document requested before acceptance is refused, and a request from a foreign organization or an unassigned Inspector is refused.
 
 #### 3.9.2 Partner Settlement, Payouts and Refunds
 - **Function trigger**: A verified customer payment exists, or a Manager must refund a settled occurrence.
