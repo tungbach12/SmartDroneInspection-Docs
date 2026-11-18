@@ -1,0 +1,28 @@
+%% title: End-to-End Inspection Workflow
+flowchart LR
+  ONB["Onboarding"]
+  COM["Request and<br/>quotation"]
+  AGR["Signed<br/>agreement"]
+  ASG["Inspector and<br/>drone assigned"]
+  PMT["Permit<br/>verified"]
+  FLD["Field session<br/>and evidence"]
+  FND["Findings<br/>confirmed"]
+  SUB["Report<br/>submitted"]
+  REV["Review and<br/>publication"]
+  PAY["Acceptance and<br/>settlement"]
+
+  ONB --> COM
+  COM --> AGR
+  AGR --> ASG
+  ASG --> PMT
+  PMT --> FLD
+  FLD --> FND
+  FND --> SUB
+  SUB --> REV
+  REV --> PAY
+
+  ONB ~~~ FLD
+  COM ~~~ FND
+  AGR ~~~ SUB
+  ASG ~~~ REV
+  PMT ~~~ PAY

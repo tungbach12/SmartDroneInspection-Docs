@@ -1,0 +1,56 @@
+%% title: FE-08 Customer Acceptance, Payment Settlement and Re-inspection Class Diagram
+classDiagram
+  class InspectionController {
+    +createQuickReinspection(inspId, req) InspectionResponse
+    +getReinspectionVerifications(inspId) List~ReinspectionVerificationResponse~
+    +updateReinspectionVerification(inspId, verificationId, req) ReinspectionVerificationResponse
+  }
+  class ContractWorkflowService {
+    +customerAcceptReport(custId, reqId, occId, verId) ServiceRequestResponse
+    +createOccurrencePayOSCheckout(custId, reqId, occId, req) PayOSCheckoutResponse
+    +createOccurrenceVnPayCheckout(custId, reqId, occId, req, ip) VnPayCheckoutResponse
+    +handlePayOSWebhook(payload) void
+    +handleVnPayWebhook(params) VnPayIpnResponse
+    +recordOccurrencePayout(mgrId, reqId, occId, req) ServiceRequestResponse
+    +initiateRefund(mgrId, reqId, occId, req) ServiceRefundResponse
+    +completeRefund(mgrId, reqId, occId, refundId, req) ServiceRefundResponse
+  }
+  class ReinspectionVerificationService {
+    +initializeVerificationsForReinspection(reinspectionId, sourceInspectionId) int
+    +getVerifications(actorId, inspectionId) List~ReinspectionVerificationResponse~
+    +updateVerification(actorId, inspectionId, verificationId, req) ReinspectionVerificationResponse
+  }
+  class PayOSWebhookController {
+    +handleWebhook(payload) void
+  }
+  class VnPayWebhookController {
+    +handleIpn(params) VnPayIpnResponse
+  }
+  class ServicePayment {
+    -UUID id
+    -UUID invoiceId
+    -String provider
+    -BigDecimal amountVnd
+    -PaymentStatus status
+    -String providerTransactionRef
+  }
+  class ServiceRefund {
+    -UUID id
+    -UUID paymentId
+    -BigDecimal amountVnd
+    -RefundStatus status
+    -String evidenceReference
+  }
+  class ReinspectionDefectVerification {
+    -UUID id
+    -UUID reinspectionId
+    -UUID sourceFindingId
+    -UUID newEvidenceId
+    -DefectResolutionStatus resolutionStatus
+    -String inspectorNotes
+  }
+  ContractWorkflowService --> ServicePayment
+  ContractWorkflowService --> ServiceRefund
+  PayOSWebhookController --> ContractWorkflowService
+  VnPayWebhookController --> ContractWorkflowService
+  ReinspectionVerificationService --> ReinspectionDefectVerification

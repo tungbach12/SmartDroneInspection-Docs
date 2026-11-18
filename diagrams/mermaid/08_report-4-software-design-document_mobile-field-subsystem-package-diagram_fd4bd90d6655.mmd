@@ -1,0 +1,28 @@
+%% title: Mobile Field Subsystem Package Diagram
+flowchart TD
+  subgraph MobRoot["SmartDroneInspection-mobile/lib"]
+    MOB_CORE["core\n(Dio Network, TokenStore, GoRouter, Theme & Localization)"]
+    MOB_AUTH["features/auth\n(LoginPage, OAuthCallback & SessionProvider)"]
+    MOB_ASSETS["features/assets\n(AssetsPage & AssetRepository)"]
+    MOB_CONTRACTS["features/contracts\n(RequestsPage, NewRequest & RequestChat)"]
+    MOB_INSP["features/inspections\n(InspectionsPage & InspectionDetail)"]
+    MOB_DASH["features/dashboard\n(Customer Home)"]
+    MOB_NOTIF["features/notifications\n(Notification List)"]
+    MOB_PROFILE["features/profile\n(ProfilePage & Language Selector)"]
+    MOB_SHARED["shared/widgets & l10n\n(AsyncValueWidget & EN/VI Localizations)"]
+  end
+
+  MOB_AUTH --> MOB_CORE
+  MOB_ASSETS --> MOB_CORE
+  MOB_CONTRACTS --> MOB_CORE
+  MOB_INSP --> MOB_CORE
+  MOB_DASH --> MOB_CORE
+  MOB_NOTIF --> MOB_CORE
+  MOB_PROFILE --> MOB_CORE
+  MOB_AUTH --> MOB_SHARED
+  MOB_ASSETS --> MOB_SHARED
+  MOB_CONTRACTS --> MOB_SHARED
+  MOB_INSP --> MOB_SHARED
+  MOB_DASH --> MOB_SHARED
+  MOB_NOTIF --> MOB_SHARED
+  MOB_PROFILE --> MOB_SHARED

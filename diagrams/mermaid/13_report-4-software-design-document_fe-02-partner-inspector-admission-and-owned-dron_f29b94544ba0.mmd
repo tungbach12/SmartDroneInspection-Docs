@@ -1,0 +1,67 @@
+%% title: FE-02 Partner Inspector Admission and Owned Drone Registration Class Diagram
+classDiagram
+  class PlatformUserController {
+    +listUsers(page, size, query) PagedResponse
+    +createUser(req) ApiResponse
+    +updateRoles(userId, req) ApiResponse
+    +updateStatus(userId, req) ApiResponse
+  }
+  class InspectorProfileController {
+    +listInspectors() List~InspectorProfileResponse~
+    +updateProfile(userId, req) InspectorProfileResponse
+    +uploadLicenseScan(userId, file) InspectorProfileResponse
+    +recordFlightLog(userId, req) InspectorFlightLogResponse
+  }
+  class InspectorApplicationController {
+    +submit(req) ApiResponse
+    +uploadLicenseScan(file) UploadedKeyResponse
+    +listPending() List~InspectorApplicationResponse~
+    +listApprovedAwaitingContract() List~InspectorApplicationResponse~
+    +approve(id, req) UserResponse
+    +reject(id, req) ApiResponse
+    +uploadSignedContract(id, file) InspectorApplicationResponse
+  }
+  class DroneRegistrationApplicationController {
+    +uploadEvidence(docType, file) UploadedKeyResponse
+    +submit(req) ApiResponse
+    +listPending() List~DroneRegistrationResponse~
+    +approve(appId, req) DroneRegistrationResponse
+    +reject(appId, req) DroneRegistrationResponse
+  }
+  class InspectorProfile {
+    -UUID userId
+    -String pilotLicenseNumber
+    -String pilotLicenseClass
+    -Instant pilotLicenseExpiresAt
+    -BigDecimal priorFlightHours
+  }
+  class InspectorApplication {
+    -UUID id
+    -String email
+    -String pilotLicenseNumber
+    -String pilotLicenseClass
+    -String status
+    -UUID approvedUserId
+  }
+  class DroneRegistrationApplication {
+    -UUID id
+    -UUID inspectorUserId
+    -String serialNumber
+    -String registrationFileKey
+    -String ownershipFileKey
+    -String inspectionFileKey
+    -String status
+  }
+  class Drone {
+    -UUID id
+    -UUID inspectorOwnerId
+    -String serialNumber
+    -String model
+    -DroneServiceability serviceability
+  }
+  PlatformUserController --> InspectorProfile
+  InspectorProfileController --> InspectorProfile
+  InspectorApplicationController --> InspectorApplication
+  InspectorApplication --> InspectorProfile
+  DroneRegistrationApplicationController --> DroneRegistrationApplication
+  DroneRegistrationApplication --> Drone

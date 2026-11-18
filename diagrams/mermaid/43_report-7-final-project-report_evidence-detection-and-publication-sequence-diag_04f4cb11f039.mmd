@@ -1,0 +1,34 @@
+%% title: Evidence, Detection and Publication Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Insp as Inspector
+  actor Rev as Manager or Admin
+  participant Ctrl as InspectionController
+  participant Evid as EvidenceService
+  participant Find as FindingService
+  participant Rep as ReportService
+  participant DB as PostgreSQL
+
+  Insp->>Ctrl: POST /inspections/{id}/evidence (photo)
+  Ctrl->>Evid: upload(inspectorId, inspectionId, file)
+  Evid->>DB: Extract metadata, normalize, create thumbnail, and store the object
+  Insp->>Ctrl: POST /evidence/uploads then PUT parts then POST complete (video)
+  Ctrl->>Evid: stage and finalize the resumable upload
+  Evid->>DB: Record rendition keys once the transcode is verified, else retain the source
+  Insp->>Ctrl: POST /evidence/{evidId}/analyze
+  Ctrl->>Find: analyze(inspectorId, inspectionId, evidId)
+  Find->>DB: Run primary detection with vision fallback, then save PENDING candidates
+  Find-->>Insp: Advisory candidates with region and confidence
+  Insp->>Ctrl: POST /inspections/{id}/findings/confirm
+  Ctrl->>Find: confirmFindings(inspectorId, inspectionId)
+  Find->>DB: Require no PENDING finding and set findings_confirmed_at
+  Insp->>Ctrl: POST /inspections/{id}/report/versions
+  Ctrl->>Rep: submit(inspectionId, authorId)
+  Rep->>DB: Create the report as SUBMITTED
+  Rev->>Ctrl: POST /report/versions/{verId}/publish
+  Ctrl->>Rep: publish(reportId, reviewerId)
+  alt Reviewer is the author
+    Rep-->>Rev: 403 a report cannot be published by its author
+  else Approved
+    Rep->>DB: Render the PDF and set PUBLISHED
+  end

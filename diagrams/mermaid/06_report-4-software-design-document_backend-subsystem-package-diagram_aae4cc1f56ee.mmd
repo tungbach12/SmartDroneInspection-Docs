@@ -1,0 +1,30 @@
+%% title: Backend Subsystem Package Diagram
+flowchart TD
+  subgraph RootPkg["com.smartdroneinspection"]
+    USERS["users\n(Authentication, Sessions, Profiles, Applications & Audit)"]
+    CONTRACTS["contracts\n(Service Requests, VND Quotes, Agreements, Dispatch & PayOS/VNPay)"]
+    ASSETS["assets\n(Asset Catalog, Building Assets, Airspace Advisory & Owned Drones)"]
+    INSPECTIONS["inspections\n(Inspections, Field Sessions, Evidence, Findings & PDF Reports)"]
+    NOTIFICATIONS["notifications\n(In-App Notification Inbox & Event Listeners)"]
+    DASHBOARD["dashboard\n(Role-Scoped Operational Metrics)"]
+    INFRASTRUCTURE["infrastructure\n(MinIO, YOLO11/LLM Clients, SmartDroneHub & Payment Gateways)"]
+    SHARED["shared\n(SecurityConfig, Responses, Roles, Ports, Validation & Exceptions)"]
+  end
+
+  CONTRACTS --> ASSETS
+  CONTRACTS --> USERS
+  CONTRACTS --> INSPECTIONS
+  ASSETS --> USERS
+  INSPECTIONS --> ASSETS
+  INSPECTIONS --> USERS
+  NOTIFICATIONS -.->|"Domain Events"| INSPECTIONS
+  DASHBOARD --> ASSETS
+  DASHBOARD --> INSPECTIONS
+  USERS --> SHARED
+  CONTRACTS --> SHARED
+  ASSETS --> SHARED
+  INSPECTIONS --> SHARED
+  NOTIFICATIONS --> SHARED
+  INFRASTRUCTURE --> SHARED
+  INFRASTRUCTURE -.->|"SPI / Gateway Ports"| INSPECTIONS
+  INFRASTRUCTURE -.->|"Gateway Ports"| CONTRACTS

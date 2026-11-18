@@ -14,6 +14,8 @@ import export_report3
 import export_report4
 import export_report5
 import export_report5_doc
+import export_report6
+import export_report7
 import export_weekly
 from export_common import (METADATA_SOURCE, input_hashes, original, parser,
                            project_metadata, validate_output_directory,
@@ -26,13 +28,13 @@ EXPORTERS = {
     "report4": export_report4,
     "report5": export_report5,
     "report5-documentation": export_report5_doc,
+    "report6": export_report6,
+    "report7": export_report7,
     "project-tracking": export_project_tracking,
     "weekly": export_weekly,
 }
 MISSING_SOURCES = {
     "report5-unit": "Report5_Unit Test.xls",
-    "report6": "Report6_Software User Guides.docx",
-    "report7": "Report7_Final Project Report.docx",
 }
 TEMPLATES = {key: module.TEMPLATE_NAME for key, module in EXPORTERS.items()} | MISSING_SOURCES
 

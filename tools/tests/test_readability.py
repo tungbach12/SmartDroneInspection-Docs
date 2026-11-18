@@ -44,8 +44,11 @@ def style(node):
 class ListMarkerTests(unittest.TestCase):
     def test_no_body_paragraph_starts_with_a_literal_list_marker(self):
         body = exported_document()
+        # The cover carries a deliberately dashed date line, e.g.
+        # "- Hanoi, November 2026 -", so it is not a leaked list marker.
         offenders = [text for node, text in paragraphs(body)
-                     if re.match(r"^[-*+]\s", text)]
+                     if re.match(r"^[-*+]\s", text)
+                     and not re.match(r"^-\s+[^,]+,\s+\w+\s+\d{4}\s+-$", text)]
         self.assertEqual(offenders, [],
                          f"{len(offenders)} paragraph(s) still begin with '-': "
                          f"{offenders[:3]}")

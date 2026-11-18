@@ -1,0 +1,32 @@
+%% title: Business Screens Flow Diagram
+flowchart TD
+  PUB["Public screens<br/>Landing, Customer<br/>Registration, Inspector<br/>Application"]
+
+  MF1["MF1: Onboarding and<br/>partner admission"]
+  FE01["FE-01<br/>Sign-in and<br/>Account Access"]
+  FE02["FE-02<br/>Partner Inspector<br/>and Drone Registry"]
+
+  MF2["MF2: Assets, requests<br/>and dispatch"]
+  FE03["FE-03<br/>Buildings, Airspace<br/>and Notifications"]
+  FE04["FE-04<br/>Requests, Quotations,<br/>Agreements, Dispatch"]
+
+  MF3["MF3: Field work and<br/>evidence"]
+  FE05["FE-05<br/>Permit and<br/>Field Sessions"]
+  FE06["FE-06<br/>Evidence and<br/>Findings"]
+
+  MF4["MF4: Report and<br/>settlement"]
+  FE07["FE-07<br/>Prepare, Review<br/>and Publish"]
+  FE08["FE-08<br/>Acceptance and<br/>Payment"]
+
+  PUB --> MF1
+  MF1 --> FE01
+  MF1 --> FE02
+  FE01 --> MF2
+  MF2 --> FE03
+  MF2 --> FE04
+  FE04 --> MF3
+  MF3 --> FE05
+  MF3 --> FE06
+  FE06 --> MF4
+  MF4 --> FE07
+  MF4 --> FE08

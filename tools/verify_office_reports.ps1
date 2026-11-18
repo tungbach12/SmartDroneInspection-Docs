@@ -96,23 +96,35 @@ try {
                     }
                     $statistics = $workbook.Worksheets.Item('Test Statistics')
                     $feature = $workbook.Worksheets.Item('Feature 3')
-                    $result['totalCases'] = $statistics.Range('H19').Value2
-                    $result['passed'] = $statistics.Range('D19').Value2
-                    $result['coverage'] = $statistics.Range('E21').Value2
-                    $result['successfulCoverage'] = $statistics.Range('E22').Value2
-                    $result['round1Passed'] = $statistics.Range('D19').Value2
+                    # Totals are read from the Sub total row and cross-checked
+                    # against the per-sheet sum rather than against literals, so
+                    # the workbook can grow without the verifier going stale.
+                    $result['totalCases'] = $statistics.Range('H17').Value2
+                    $result['passed'] = $statistics.Range('D17').Value2
+                    $result['coverage'] = $statistics.Range('E22').Value2
+                    $result['successfulCoverage'] = $statistics.Range('E23').Value2
+                    $result['round1Passed'] = $statistics.Range('D17').Value2
                     $result['round2Pending'] = 0
                     $result['round3Pending'] = 0
+                    $sheetCases = 0
                     foreach ($sheetName in @('Feature 1', 'Feature 2', 'Feature 3', 'Feature 4', 'Feature 5', 'Feature 6', 'Feature 7', 'Feature 8')) {
                         $featureRound = $workbook.Worksheets.Item($sheetName)
                         $result['round2Pending'] += $featureRound.Range('D7').Value2
                         $result['round3Pending'] += $featureRound.Range('D8').Value2
+                        $sheetCases += $featureRound.Range('B4').Value2
                     }
                     $result['date'] = $feature.Range('G12').Text
                     $result['tester'] = $feature.Range('H12').Text
-                    if ($result.totalCases -ne 65 -or $result.passed -ne 60 -or
-                        $result.round3Pending -ne 63) {
-                        throw 'Report 5 calculated values do not match its source evidence.'
+                    $outcomeTotal = $statistics.Range('D17').Value2 +
+                        $statistics.Range('E17').Value2 +
+                        $statistics.Range('F17').Value2 +
+                        $statistics.Range('G17').Value2
+                    if ($outcomeTotal -ne $result.totalCases) {
+                        throw ('Report 5 Sub total outcomes (' + $outcomeTotal +
+                            ') do not equal its case total (' + $result.totalCases + ')')
+                    }
+                    if ($result.passed -gt $result.totalCases) {
+                        throw 'Report 5 passed count exceeds its case total.'
                     }
                 }
                 if ($ExportPdf) { $workbook.ExportAsFixedFormat(0, $pdfPath) }

@@ -1,0 +1,83 @@
+%% title: FE-03 Building Catalogue, Occurrences and Notification Inbox Class Diagram
+classDiagram
+  class AssetController {
+    +createAsset(req) ApiResponse
+    +listAssets(page, size, query) PagedResponse
+    +updateAsset(assetId, req) AssetView
+    +retireAsset(assetId) AssetView
+  }
+  class AssetDocumentController {
+    +upload(assetId, docType, file) AssetDocumentResponse
+    +list(assetId) List~AssetDocumentResponse~
+    +download(assetId, docId) ResponseEntity
+  }
+  class AirspaceReviewController {
+    +listPending() List~ProspectiveCustomerRegistrationResponse~
+    +approve(registrationId) ProspectiveCustomerRegistrationResponse
+    +reject(registrationId, req) ProspectiveCustomerRegistrationResponse
+  }
+  class Asset {
+    -UUID id
+    -UUID ownerCustomerId
+    -String assetCode
+    -String name
+    -BigDecimal latitude
+    -BigDecimal longitude
+    -AssetStatus status
+  }
+  class ContractWorkflowService {
+    +acceptQuote(actorId, reqId, versionNo) ServiceRequestResponse
+    +uploadSignedContract(actorId, reqId, file) ServiceRequestResponse
+    +assignOccurrence(actorId, reqId, occId, assignReq) ServiceRequestResponse
+  }
+  class ServiceRequestOccurrence {
+    -UUID id
+    -UUID requestId
+    -int occurrenceIndex
+    -Instant plannedStartAt
+    -Instant plannedEndAt
+    -OccurrenceStatus status
+  }
+  class NotificationController {
+    +listNotifications(page, size, unreadOnly) NotificationPageResponse
+    +getUnreadCount() NotificationUnreadCountResponse
+    +markRead(notificationId) NotificationResponse
+  }
+  class NotificationService {
+    +list(userId, page, pageSize, unreadOnly) NotificationPageResponse
+    +unreadCount(userId) NotificationUnreadCountResponse
+    +markAsRead(userId, notificationId) NotificationResponse
+  }
+  class InspectionNotificationListener {
+    +onInspectionAssigned(event) void
+    +onFieldSessionAborted(event) void
+    +onInspectionDeclined(event) void
+    +onInspectionOverdue(event) void
+    +onFieldSessionHung(event) void
+    +onFieldSessionForceAborted(event) void
+    +onInspectionRescheduled(event) void
+    +onInspectionAssignmentRevoked(event) void
+    +onFlightPermitSubmitted(event) void
+    +onFlightPermitReviewed(event) void
+  }
+  class InspectorApplicationNotificationListener {
+    +onApplicationSubmitted(event) void
+  }
+  class PilotLicenseExpiryCheckService {
+    +checkExpiringLicenses() void
+  }
+  class Notification {
+    -UUID id
+    -UUID recipientUserId
+    -String eventType
+    -String title
+    -NotificationStatus status
+    -String deduplicationKey
+  }
+  AssetController --> Asset
+  AssetDocumentController --> Asset
+  ContractWorkflowService --> ServiceRequestOccurrence
+  NotificationController --> NotificationService
+  InspectionNotificationListener --> Notification
+  InspectorApplicationNotificationListener --> Notification
+  NotificationService --> Notification

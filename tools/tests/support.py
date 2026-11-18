@@ -40,4 +40,5 @@ def assert_word_export(test, exporter):
                 test.assertIn(plain(block.text), text)
         test.assertIn("SmartDroneInspection", text)
         test.assertNotIn("Hanoi, August 2019", text)
+        test.assertNotIn("<month>/<year>", text)
         return result
