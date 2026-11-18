@@ -518,12 +518,12 @@ The main screens are the public landing and the two registration paths, then per
 | 17 | `FE-06` | Evidence normalization pipeline | Extracts metadata, normalizes images, generates thumbnails and posters, and transcodes video in the background. |
 | 18 | `FE-06` | Resumable upload management | Tracks chunked video upload state so an interrupted transfer resumes rather than restarting. |
 | 19 | `FE-06` | Defect detection and fallback | Runs the primary model, falls back to the secondary vision service, and returns advisory candidates only; a human confirms the baseline. |
-| 21 | `FE-06` | Media streaming ticket issuance | Mints a short-lived signed ticket so a browser can stream video with HTTP Range requests without exposing storage credentials. |ns advisory candidates.|
-| 22 | `FE-07` | Report submission and author gating | Records an explicit submit action and refuses publication by the report's own author. |
-| 23 | `FE-07` | Independent review and publication | Lets a manager who did not author the report publish a locked version or return it with a reason; prior published versions are superseded rather than overwritten. |
-| 24 | `FE-08` | Report acceptance and settlement | Transitions an occurrence to payment due on acceptance, and settles the occurrence through a PayOS or VNPay gateway callback with a verified signature. |
-| 25 | `FE-08` | Refund initiation and payout hold | Caps each refund by the captured balance, requires a reason and evidence reference, and holds any unpaid payout until reconciliation records the outcome. |
-| 26 | `FE-08` | Re-inspection initialization and defect verification | Initializes one verification item per source defect for a re-inspection opened on a published report, and records each three-way outcome: resolved, unresolved, or inconclusive. |
+| 20 | `FE-06` | Media streaming ticket issuance | Mints a short-lived signed ticket so a browser can stream video with HTTP Range requests without exposing storage credentials. |
+| 21 | `FE-07` | Report submission and author gating | Records an explicit submit action and refuses publication by the report's own author. |
+| 22 | `FE-07` | Independent review and publication | Lets a manager who did not author the report publish a locked version or return it with a reason; prior published versions are superseded rather than overwritten. |
+| 23 | `FE-08` | Report acceptance and settlement | Transitions an occurrence to payment due on acceptance, and settles the occurrence through a PayOS or VNPay gateway callback with a verified signature. |
+| 24 | `FE-08` | Refund initiation and payout hold | Caps each refund by the captured balance, requires a reason and evidence reference, and holds any unpaid payout until reconciliation records the outcome. |
+| 25 | `FE-08` | Re-inspection initialization and defect verification | Initializes one verification item per source defect for a re-inspection opened on a published report, and records each three-way outcome: resolved, unresolved, or inconclusive. |
 
 **Entity Relationship Model**
 

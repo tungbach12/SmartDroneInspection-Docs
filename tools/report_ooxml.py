@@ -349,10 +349,83 @@ class WordDocument:
             r.appendChild(t)
         return r
 
+    def column_widths(self, rows, total):
+        """Heuristic per-column widths in twips, mirroring the template path."""
+        col_weights = []
+        for col_idx in range(len(rows[0])):
+            hdr_txt = plain(rows[0][col_idx]).strip()
+            hdr_lower = hdr_txt.lower()
+            col_cells = [plain(r[col_idx]).strip() for r in rows[:20] if col_idx < len(r)]
+            max_line_len = max((len(ln.strip()) for c in col_cells for ln in c.splitlines()),
+                               default=len(hdr_txt))
+            max_word_len = max((len(w) for c in col_cells for w in re.findall(r"\S+", c)),
+                               default=len(hdr_txt))
+            if hdr_lower in {"#", "no", "no.", "id"} and max_line_len <= 10:
+                col_weights.append(7)
+            elif max_line_len <= 16 and max_word_len <= 14:
+                col_weights.append(14)
+            elif max_line_len <= 32 and max_word_len <= 20:
+                col_weights.append(22)
+            elif max_line_len <= 55:
+                col_weights.append(30)
+            else:
+                col_weights.append(42)
+        weight_sum = sum(col_weights) or 1
+        widths = [max(650, int(total * w / weight_sum)) for w in col_weights]
+        widths[-1] = max(650, widths[-1] + (total - sum(widths)))
+        # Widen any column that cannot hold its longest word on one line,
+        # taking the space from the last (description) column.
+        for col_idx in range(len(widths) - 1):
+            words = [len(w) for r in rows[1:21] if col_idx < len(r)
+                     for w in re.findall(r"\S+", plain(r[col_idx]))]
+            if not words:
+                continue
+            needed = 300 + 118 * max(words)
+            if widths[col_idx] < needed:
+                deficit = needed - widths[col_idx]
+                widths[col_idx] = needed
+                widths[-1] = max(650, widths[-1] - deficit)
+        return widths
+
+    def plain_paragraph(self, text, bold=False, centered=False):
+        p = self.paragraph_prototype.cloneNode(True)
+        ppr = (children(p, "pPr") or [None])[0]
+        if ppr is None:
+            ppr = element(self.doc, W, "w:pPr")
+            p.insertBefore(ppr, p.firstChild)
+        remove_children(ppr, ("jc", "spacing"))
+        ppr.appendChild(element(self.doc, W, "w:jc", {"w:val": "center" if centered else "left"}))
+        ppr.appendChild(element(self.doc, W, "w:spacing", {
+            "w:before": "60", "w:after": "60", "w:line": "250", "w:lineRule": "auto"}))
+        # Inherited pPr already carries fonts/colors from the template body
+        # paragraph; fill_paragraph only replaces the runs.
+        remove_children(p, ("r",))
+        p = self.fill_paragraph(p, text, size=(16 if bold else 20))
+        if bold:
+            for run in descendants(p, "r"):
+                rp = (children(run, "rPr") or [None])[0]
+                if rp is None:
+                    rp = element(self.doc, W, "w:rPr")
+                    run.insertBefore(rp, run.firstChild)
+                if not children(rp, "b"):
+                    rp.appendChild(element(self.doc, W, "w:b"))
+        return p
+
     def fill_paragraph(self, p, text, size=None):
         runs = descendants(p, "r")
         prototype = runs[0].cloneNode(True) if runs else self.run_prototype
+        keep_style = None
+        for ppr in children(p, "pPr"):
+            styles = [s.getAttribute("w:val") or "" for s in children(ppr, "pStyle")]
+            # Preserve table-header styles (HeadingLv1) that the template uses
+            # for header rows; body headings are re-created by paragraph().
+            keep_style = next((val for val in styles
+                               if val and not re.fullmatch(r"Heading[1-9]", val)), None)
         remove_children(p, ("pPr",))
+        if keep_style:
+            ppr = element(self.doc, W, "w:pPr")
+            ppr.appendChild(element(self.doc, W, "w:pStyle", {"w:val": keep_style}))
+            p.insertBefore(ppr, p.firstChild)
         text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
         parts = re.split(r"(\*\*[^*\n]+\*\*|`[^`\n]+`|\[[^\]]+\]\([^)]+\))", text)
         for part in parts:
@@ -366,6 +439,20 @@ class WordDocument:
                                   italic=part.startswith("*") and not part.startswith("**"),
                                   size=size))
         return p
+
+    def drop_body_heading_style(self, ppr):
+        """Remove body-level heading styles (Heading1–9) so table text never
+        leaks into the TOC, but keep table-header styles such as HeadingLv1."""
+        kept = []
+        for pstyle in children(ppr, "pStyle"):
+            val = pstyle.getAttribute("w:val") or ""
+            if re.fullmatch(r"Heading[1-9]", val):
+                continue
+            kept.append(pstyle)
+        for pstyle in children(ppr, "pStyle"):
+            ppr.removeChild(pstyle)
+        for pstyle in kept:
+            ppr.appendChild(pstyle)
 
     def list_paragraph(self, text, level=0):
         """Render one list item as a real Word list, not text starting with '-'."""
@@ -414,8 +501,64 @@ class WordDocument:
             return (len(wanted & labels), len(children(data_row, "tc")) == len(header))
         return max(self.table_prototypes, key=score)
 
+    def clean_table(self, ncols):
+        """Build a border-only table from scratch when the template offers no
+        matching column count (Report 7's use-case table has 4 columns but the
+        template only has 2- and 3-column tables). Avoids inheriting heading
+        borders, merged headers and negative indents from the wrong prototype."""
+        table = element(self.doc, W, "w:tbl")
+        tbl_pr = element(self.doc, W, "w:tblPr", {
+            "w:w": "0", "w:type": "auto",
+        })
+        table.appendChild(tbl_pr)
+        borders = element(self.doc, W, "w:tblBorders")
+        for side in ("top", "left", "bottom", "right", "insideH", "insideV"):
+            borders.appendChild(element(self.doc, W, "w:" + side, {
+                "w:val": "single", "w:sz": "4", "w:space": "0", "w:color": "auto"}))
+        tbl_pr.appendChild(borders)
+        tbl_pr.appendChild(element(self.doc, W, "w:tblLook", {
+            "w:val": "01E0", "w:firstRow": "1", "w:lastRow": "1",
+            "w:firstColumn": "1", "w:lastColumn": "1",
+            "w:noHBand": "0", "w:noVBand": "0",
+        }))
+        grid = element(self.doc, W, "w:tblGrid")
+        table.appendChild(grid)
+        width = max(1200, 9000 // ncols)
+        for _ in range(ncols):
+            grid.appendChild(element(self.doc, W, "w:gridCol", {"w:w": width}))
+        return table
+
     def table(self, rows):
         template = self.choose_table(rows[0])
+        ncols = len(rows[0])
+        # The template (notably Report 7's) may not have a table with the same
+        # column count as this header: cloning the nearest prototype would then
+        # inherit heading borders, merged cells and negative indents.
+        if not any(len(children(tr, "tc")) == ncols
+                   for tr in children(template, "tr")):
+            table = self.clean_table(ncols)
+            widths = self.column_widths(rows, 9000)
+            for index, row_values in enumerate(rows):
+                row = element(self.doc, W, "w:tr")
+                tr_pr = element(self.doc, W, "w:trPr")
+                tr_pr.appendChild(element(self.doc, W, "w:cantSplit"))
+                if index == 0:
+                    tr_pr.appendChild(element(self.doc, W, "w:tblHeader"))
+                row.appendChild(tr_pr)
+                for col, value in enumerate(row_values):
+                    cell = element(self.doc, W, "w:tc")
+                    cell.appendChild(element(self.doc, W, "w:tcPr"))
+                    if len(widths) > col:
+                        cell_pr = children(cell, "tcPr")[0]
+                        cell_pr.appendChild(element(self.doc, W, "w:tcW", {
+                            "w:w": str(widths[col]), "w:type": "dxa"}))
+                    p = self.plain_paragraph(value, bold=index == 0,
+                                             centered=index > 0 and col == 0)
+                    cell.appendChild(p)
+                    row.appendChild(cell)
+                table.appendChild(row)
+            self.table_count += 1
+            return table
         table = template.cloneNode(True)
         prototypes = children(template, "tr")
         has_two_row_merged_header = (
@@ -457,6 +600,20 @@ class WordDocument:
             weight_sum = sum(col_weights) or 1
             widths = [max(650, int(total * w / weight_sum)) for w in col_weights]
             widths[-1] = max(650, widths[-1] + (total - sum(widths)))
+        # A template grid can be narrower than its content: Report 7's use-case
+        # table allots 670 twips to "UC-01", which wraps the id across two
+        # lines. Widen any column that cannot hold its longest word on one
+        # line, taking the space from the last (description) column.
+        for col_idx in range(len(widths) - 1):
+            words = [len(w) for r in rows[1:21] if col_idx < len(r)
+                     for w in re.findall(r"\S+", plain(r[col_idx]))]
+            if not words:
+                continue
+            needed = 300 + 118 * max(words)
+            if widths[col_idx] < needed:
+                deficit = needed - widths[col_idx]
+                widths[col_idx] = needed
+                widths[-1] = max(650, widths[-1] - deficit)
         for row in children(table, "tr"):
             table.removeChild(row)
         grid = (children(table, "tblGrid") or [None])[0]
@@ -468,8 +625,13 @@ class WordDocument:
             grid.appendChild(element(self.doc, W, "w:gridCol", {"w:w": width}))
         start_index = 0
         if has_two_row_merged_header:
-            table.appendChild(prototypes[0].cloneNode(True))
-            table.appendChild(prototypes[1].cloneNode(True))
+            for proto_row in prototypes[:2]:
+                header_row = proto_row.cloneNode(True)
+                for paragraph in descendants(header_row, "p"):
+                    for ppr in children(paragraph, "pPr"):
+                        for ind in children(ppr, "ind"):
+                            ppr.removeChild(ind)
+                table.appendChild(header_row)
             start_index = 1
         for index, values in enumerate(rows[start_index:], start_index):
             if has_two_row_merged_header:
@@ -498,14 +660,22 @@ class WordDocument:
                         width.setAttributeNS(W, "w:w", str(widths[col]))
                 ps = children(cell, "p")
                 cell_p = ps[0].cloneNode(True) if ps else self.paragraph_prototype.cloneNode(True)
-                if index > 0:
-                    hdr_lower = plain(rows[0][col]).strip().lower() if col < len(rows[0]) else ""
-                    jc_val = "center" if (col == 0 and hdr_lower in {"#", "no", "no.", "id"} and len(plain(value)) <= 8) else "left"
-                    for ppr in children(cell_p, "pPr"):
-                        for rpr in children(ppr, "rPr"):
-                            ppr.removeChild(rpr)
-                        for pstyle in children(ppr, "pStyle"):
-                            ppr.removeChild(pstyle)
+                hdr_lower = plain(rows[0][col]).strip().lower() if col < len(rows[0]) else ""
+                jc_val = "center" if (col == 0 and hdr_lower in {"#", "no", "no.", "id"}
+                                      and len(plain(value)) <= 8) else "left"
+                for ppr in children(cell_p, "pPr"):
+                    for rpr in children(ppr, "rPr"):
+                        ppr.removeChild(rpr)
+                    # Report 7's template prototype carries a negative left
+                    # indent (w:left="-2801") that drags cell text back over
+                    # the neighbouring column. Drop every indent so text
+                    # starts at the cell edge, and drop body-level heading
+                    # styles so table header text never leaks into the TOC.
+                    # Table-header styles such as HeadingLv1 are kept.
+                    for ind in children(ppr, "ind"):
+                        ppr.removeChild(ind)
+                    self.drop_body_heading_style(ppr)
+                    if index > 0:
                         for sp in children(ppr, "spacing"):
                             ppr.removeChild(sp)
                         for jc in children(ppr, "jc"):
@@ -514,6 +684,7 @@ class WordDocument:
                             "w:before": "60", "w:after": "60", "w:line": "250", "w:lineRule": "auto"
                         }))
                         ppr.appendChild(element(self.doc, W, "w:jc", {"w:val": jc_val}))
+                if index > 0:
                     for r in children(cell_p, "r"):
                         cell_p.removeChild(r)
                 p = self.fill_paragraph(cell_p, value, size=20 if index > 0 else None)
