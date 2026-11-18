@@ -20,6 +20,7 @@ W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 S = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 PKG_R = "http://schemas.openxmlformats.org/package/2006/relationships"
+CT = "http://schemas.openxmlformats.org/package/2006/content-types"
 XML = "http://www.w3.org/XML/1998/namespace"
 
 
@@ -287,9 +288,14 @@ class WordDocument:
             ppr.appendChild(element(self.doc, W, "w:jc", {"w:val": "left"}))
         for r in children(self.paragraph_prototype, "r"):
             self.paragraph_prototype.removeChild(r)
+        # Search the whole document rather than only top-level body children:
+        # Report 7's only drawing sits inside the cover table, so a top-level
+        # scan would wrongly conclude the template has no image prototype.
         self.picture_prototype = next(
-            p.cloneNode(True) for p in original
-            if p.localName == "p" and descendants(p, "drawing"))
+            (p.cloneNode(True) for p in descendants(self.body, "p")
+             if descendants(p, "drawing")), None) or next(
+            (p.cloneNode(True) for p in original
+             if p.localName == "p" and descendants(p, "drawing")), None)
         self.run_prototype = element(self.doc, W, "w:r")
         # Reuse a real template list paragraph so bullets, indents and the
         # numbering definition stay the originals instead of being invented.
@@ -521,6 +527,16 @@ class WordDocument:
         self.table_count += 1
         return table
 
+    def ensure_png_content_type(self):
+        """Declare a PNG default in [Content_Types].xml when the template lacks one."""
+        types = self.package.xml("[Content_Types].xml")
+        for node in descendants(types, "Default"):
+            if node.getAttribute("Extension").lower() == "png":
+                return
+        types.documentElement.appendChild(element(types, CT, "Default", {
+            "Extension": "png", "ContentType": "image/png"}))
+        self.package.set_xml("[Content_Types].xml", types)
+
     def image(self, path, alt):
         if not path.is_file():
             raise ValueError(f"Missing source image: {path}")
@@ -539,7 +555,9 @@ class WordDocument:
         rels.documentElement.appendChild(element(rels, PKG_R, "Relationship", {
             "Id": rel_id, "Type": R + "/image", "Target": part.removeprefix("word/")}))
         self.package.set_xml("word/_rels/document.xml.rels", rels)
-        # All official DOCX templates already include PNG content-type defaults.
+        # Most official templates declare a PNG default, but Report 7's does not,
+        # and Word refuses to open a package whose media have no content type.
+        self.ensure_png_content_type()
         p = self.picture_prototype.cloneNode(True)
         size_x = 5_500_000
         size_y = round(size_x * height / width)
@@ -771,7 +789,13 @@ class WordDocument:
         self.package.set_xml("word/settings.xml", settings)
 
     def save(self, path):
-        audit = self.package.audit({"word/document.xml", "word/settings.xml", "word/_rels/document.xml.rels"})
+        allowed = {"word/document.xml", "word/settings.xml",
+                   "word/_rels/document.xml.rels"}
+        if self.image_count:
+            # Embedded images require the media parts, their relationships and,
+            # when the template lacks it, a PNG content-type default.
+            allowed |= {"[Content_Types].xml"}
+        audit = self.package.audit(allowed)
         self.package.save(path)
         return {**audit, "headings": self.heading_count, "tables": self.table_count,
                 "lists": self.list_count,

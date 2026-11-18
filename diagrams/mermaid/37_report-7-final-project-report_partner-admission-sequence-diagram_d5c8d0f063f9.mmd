@@ -1,0 +1,31 @@
+%% title: Partner Admission Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Public as Prospective Inspector
+  actor Reviewer as Manager or Admin
+  participant Ctrl as InspectorApplicationController
+  participant Svc as InspectorApplicationService
+  participant Events as Outbox
+  participant DB as PostgreSQL
+
+  Public->>Ctrl: POST /api/v1/inspector-applications/license-scan
+  Ctrl->>Svc: storeLicenseScan(file)
+  Svc->>DB: Write scan to MinIO and return the object key
+  Public->>Ctrl: POST /api/v1/inspector-applications
+  Ctrl->>Svc: submit(request)
+  Svc->>DB: Verify email has no account and no open application
+  Svc->>DB: Insert inspector_applications as PENDING_REVIEW
+  Svc->>Events: Publish InspectorApplicationSubmittedEvent
+  Ctrl-->>Public: 201 created, no account yet
+  Reviewer->>Ctrl: GET /api/v1/inspector-applications
+  Ctrl->>Svc: listPending()
+  alt Approved
+    Reviewer->>Ctrl: POST /api/v1/inspector-applications/{id}/approve
+    Ctrl->>Svc: approve(id, request)
+    Svc->>DB: Insert users with role INSPECTOR and inspector_profiles
+    Svc-->>Reviewer: Provisioned account
+  else Rejected
+    Reviewer->>Ctrl: POST /api/v1/inspector-applications/{id}/reject
+    Ctrl->>Svc: reject(id, reason)
+    Svc->>DB: Set REJECTED with reason and attribution
+  end

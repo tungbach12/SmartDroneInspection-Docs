@@ -1,0 +1,42 @@
+%% title: FE-07 Inspection Report Preparation, Review and Publication Class Diagram
+classDiagram
+  class InspectionController {
+    +generateAiSummary(inspId, locale) ReportAiSummaryResponse
+    +generateDraft(inspId) InspectionReportResponse
+    +submitVersion(inspId, verId) InspectionReportResponse
+    +reviewVersion(inspId, verId, req) ReportPublishedResponse
+    +withdrawVersion(inspId, verId, req) InspectionReportResponse
+    +downloadArtefact(inspId, verId, locale) ResponseEntity
+  }
+  class ReportService {
+    +generateDraft(actorId, inspId) InspectionReportResponse
+    +authorManualDraft(actorId, inspId, req) InspectionReportResponse
+    +verifyVersion(actorId, inspId, verId) InspectionReportResponse
+    +submitVersion(actorId, inspId, verId) InspectionReportResponse
+    +reviewVersion(actorId, inspId, verId, approve, reason) ReportPublishedResponse
+    +requestCustomerClarification(actorId, inspId, verId, req) ReportPublishedResponse
+    +withdrawVersion(actorId, inspId, verId, req) InspectionReportResponse
+    +listVersions(actorId, inspId) List~InspectionReportResponse~
+    +preview(actorId, inspId, verId) ResponseEntity
+    +downloadArtefact(actorId, inspId, verId, locale) ResponseEntity
+  }
+  class ReportDraftClient {
+    +draft(narrativeRequest) ReportNarrative
+  }
+  class PdfReportRenderer {
+    +render(context, locale) byte[]
+  }
+  class InspectionReport {
+    -UUID id
+    -UUID inspectionId
+    -int versionNo
+    -ReportStatus status
+    -UUID reviewerUserId
+    -String returnReason
+    -Instant submittedAt
+    -Instant publishedAt
+  }
+  InspectionController --> ReportService
+  ReportService --> InspectionReport
+  ReportService --> ReportDraftClient
+  ReportService --> PdfReportRenderer

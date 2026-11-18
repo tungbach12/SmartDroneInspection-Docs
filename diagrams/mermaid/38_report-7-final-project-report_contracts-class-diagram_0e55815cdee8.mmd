@@ -1,0 +1,33 @@
+%% title: Contracts Class Diagram
+classDiagram
+  class ContractWorkflowController {
+    +create(req) ApiResponse
+    +claim(id) ApiResponse
+    +issueQuote(id, req) ApiResponse
+    +acceptQuote(id, versionNo) ApiResponse
+    +uploadContract(id, file) ApiResponse
+  }
+  class ContractWorkflowService {
+    +acceptQuote(actorId, requestId, versionNo) ServiceRequestResponse
+    +materializeOccurrences(request, quote) List~ServiceRequestOccurrence~
+  }
+  class ServiceRequest {
+    -UUID id
+    -String requestType
+    -String acceptedTermsSnapshot
+    -UUID assignedManagerId
+  }
+  class ServiceRequestQuote {
+    -UUID id
+    -BigDecimal pricePerOccurrenceVnd
+    -Instant firstOccurrenceStartAt
+  }
+  class ServiceRequestOccurrence {
+    -UUID id
+    -int occurrenceIndex
+    -Instant plannedStartAt
+  }
+  ContractWorkflowController --> ContractWorkflowService
+  ContractWorkflowService --> ServiceRequest
+  ContractWorkflowService --> ServiceRequestQuote
+  ContractWorkflowService --> ServiceRequestOccurrence

@@ -1,0 +1,49 @@
+%% title: Use Case Diagram
+flowchart TD
+  ADMIN["ADMIN"]
+  MANAGER["MANAGER"]
+  CUSTOMER["CUSTOMER"]
+  INSPECTOR["INSPECTOR"]
+  PUBLIC["Prospective<br/>Inspector"]
+
+  GOV["Govern accounts, categories<br/>and finance"]
+  REVIEW["Review airspace cases,<br/>applications<br/>and drone records"]
+  APPLY["Submit partner<br/>Inspector application"]
+  REGISTER["Register organization<br/>and initial building"]
+  BUILDING["Manage buildings,<br/>checkpoints and documents"]
+  DRONE["Register owned drones"]
+
+  COMMERCIAL["Create request, negotiate<br/>and accept VND quotation"]
+  DISPATCH["Assign partner<br/>and manage dispatch"]
+  PUBLISH["Review and publish<br/>inspection report"]
+  FINANCE["Manage payouts and refunds"]
+  FIELD["Provide permit and<br/>record field session"]
+  EVIDENCE["Provide evidence<br/>and confirm findings"]
+  PREPARE["Prepare and submit<br/>inspection report"]
+  PAYMENT["Accept report and<br/>pay service fee"]
+
+  AI["Automated<br/>advisory support"]
+  HUB["SmartDroneHub"]
+
+  ADMIN --> GOV
+  ADMIN --> REVIEW
+  MANAGER --> REVIEW
+  MANAGER --> COMMERCIAL
+  MANAGER --> DISPATCH
+  MANAGER --> PUBLISH
+  MANAGER --> FINANCE
+  CUSTOMER --> REGISTER
+  CUSTOMER --> BUILDING
+  CUSTOMER --> COMMERCIAL
+  CUSTOMER --> PAYMENT
+  PUBLIC --> APPLY
+  INSPECTOR --> DRONE
+  INSPECTOR --> FIELD
+  INSPECTOR --> EVIDENCE
+  INSPECTOR --> PREPARE
+  AI --> EVIDENCE
+  HUB --> FIELD
+
+  GOV ~~~ COMMERCIAL
+  REGISTER ~~~ COMMERCIAL
+  DRONE ~~~ COMMERCIAL

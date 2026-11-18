@@ -14,10 +14,10 @@ from report_ooxml import Spreadsheet, descendants, find_table, key_values, parse
 TEMPLATE_NAME = "Report5_Test Report.xlsx"
 SOURCES = ["report-5-test-report"]
 STATUS = {"Passed", "Failed", "Pending", "N/A"}
-# Report 3 defines six current product features (FE-01..FE-06, sections 3.2-3.7).
-# The supplied template ships two feature sheets; the generated workbook gives
-# each Report 3 feature its own sheet, so sheet N tests FE-0N.
-FEATURE_SHEETS = [f"Feature {n}" for n in range(1, 7)]
+# Report 3 defines eight current product features (FE-01..FE-08, sections 3.2-3.9),
+# two per main flow MF1-MF4. The supplied template ships two feature sheets; the
+# generated workbook gives each Report 3 feature its own sheet, so sheet N tests FE-0N.
+FEATURE_SHEETS = [f"Feature {n}" for n in range(1, 9)]
 CASE_HEADER = ["Test Case ID", "Test Case Description", "Test Case Procedure",
                "Expected Results", "Pre-conditions", "Round 1", "Test date", "Tester",
                "Round 2", "Test date", "Tester", "Round 3", "Test date", "Tester", "Note"]

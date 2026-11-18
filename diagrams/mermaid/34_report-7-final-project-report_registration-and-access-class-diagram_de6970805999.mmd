@@ -1,0 +1,28 @@
+%% title: Registration and Access Class Diagram
+classDiagram
+  class BrowserAuthController {
+    +register(req) ApiResponse
+    +login(req) ApiResponse
+    +refresh(req) ApiResponse
+  }
+  class OrganizationRegistrationService {
+    +register(request) RegistrationResult
+  }
+  class AirspaceAdvisoryService {
+    +classify(lat, lng) AirspaceResult
+  }
+  class User {
+    -UUID id
+    -String email
+    -String roles
+    -String status
+  }
+  class AuthSession {
+    -UUID id
+    -String tokenHash
+    -Instant expiresAt
+  }
+  BrowserAuthController --> OrganizationRegistrationService
+  OrganizationRegistrationService --> AirspaceAdvisoryService
+  OrganizationRegistrationService --> User
+  BrowserAuthController --> AuthSession

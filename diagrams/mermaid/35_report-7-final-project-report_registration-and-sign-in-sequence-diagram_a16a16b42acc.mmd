@@ -1,0 +1,28 @@
+%% title: Registration and Sign-in Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Cust as Prospective Customer
+  participant Ctrl as BrowserAuthController
+  participant Reg as OrganizationRegistrationService
+  participant Air as AirspaceAdvisoryService
+  participant Auth as AuthService
+  participant DB as PostgreSQL
+
+  Cust->>Ctrl: POST /api/v1/auth/register (organization, building, location)
+  Ctrl->>Reg: register(request)
+  Reg->>Air: classify(latitude, longitude)
+  Air-->>Reg: PROHIBITED, RESTRICTED, or ELIGIBLE
+  alt Prohibited
+    Reg-->>Cust: 400 location inside prohibited airspace
+  else Restricted
+    Reg->>DB: Insert prospective_customer_registrations as PENDING
+    Reg-->>Cust: 201 registration held for review
+  else Eligible
+    Reg->>DB: Insert users, assets, and inspection items in one transaction
+    Reg-->>Cust: 201 account created
+  end
+  Cust->>Ctrl: POST /api/v1/auth/login
+  Ctrl->>Auth: authenticate(email, password, clientIp)
+  Auth->>DB: Verify password hash and write AuthSession
+  Auth-->>Ctrl: Access token and rotated refresh token
+  Ctrl-->>Cust: Authenticated session

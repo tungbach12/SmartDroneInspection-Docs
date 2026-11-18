@@ -7,10 +7,13 @@ source_docx: report2-project-management-plan.docx
 
 # I. Record of Changes
 
-| Date | A* M, D | In charge | Change Description |
+| Date | A* / M, D | In charge | Change Description |
 | --- | --- | --- | --- |
-| 11 Sep 2026 | A | Team | Version 1.0: Initial Project Management Plan (PMP) content. |
-| 03 Nov 2026 | M | Team | Version 2.0: Synchronized WBS, effort estimation (135 man-days), risk register, RACI matrix, and quality plan with the 5-Role Platform Inspection Service model and 8 product features (FE-01 to FE-08, 16 functions, 2 features per team member) across Flyway V1–V28, SmartDroneHub integration, and PayOS/VNPay settlement. |
+| 11 Sep 2026 | A | Team | Version 1.0: Initial Project Management Plan (PMP). |
+| 03 Nov 2026 | M | Team | Version 2.0: Synchronized WBS, risk register, RACI matrix, and quality plan with the 5-role / 8-feature target. |
+| 17 Nov 2026 | M | Team | Version 3.0: Rewritten against the delivered product. WBS re-derived for the then-current six-feature set (`FE-01`–`FE-06`) and twelve functions; effort re-estimated and reconciled with available team capacity; risk register, training plan, deliverables, RACI, and tools aligned to the four-role scope and the `V1`+`V2` schema baseline. |
+
+| 18 Nov 2026 | M | Team | Version 3.1: WBS re-derived for the four-main-flow, eight-feature model (`MF1`–`MF4`, `FE-01`–`FE-08`, two features per flow) at sixteen functions. Total effort re-estimated to 208 man-days and reconciled against the same 300 person-day raw allocation at 70% effective capacity. Risk 1, the objectives, the quality table, the training plan, and the deliverable descriptions updated to match. |
 
 *A - Added M - Modified D - Deleted
 
@@ -20,162 +23,177 @@ source_docx: report2-project-management-plan.docx
 
 ### 1.1 Scope & Estimation
 
-SmartDroneInspection is a platform-managed Infrastructure Inspection and Corrective Maintenance Service platform for customer organizations to register airspace-screened infrastructure assets, submit one-time or recurring service requests, negotiate VND-denominated quotes, sign paper contracts, track inspection progress, accept published inspection reports, pay through PayOS (VietQR), and manage corrective maintenance and 3-way re-inspection verification, while the Platform coordinates partner drone Inspectors and their owned drones. The Work Breakdown Structure (WBS) is decomposed into **8 high-level product features (`FE-01` to `FE-08`)** and **16 functional items (`2` features / `4` functions per team member)** totaling **135 man-days**:
+SmartDroneInspection is a platform-operated service for infrastructure inspection. Customer organizations register their assets, raise one-time or recurring inspection service requests, negotiate priced quotations, accept them, and sign a paper service agreement. The platform then coordinates qualified partner drone Inspectors to execute the flights, collect photographic and video evidence, confirm defect findings against vision-model proposals, and produce an inspection report that a Manager independently reviews and publishes for the Customer's acceptance and payment.
 
-| # | WBS Item | Complexity | Est. Effort<br>(man-days) |
+The delivered scope covers four main flows — onboarding (`MF1`), buildings and commercial agreement through dispatch (`MF2`), field work through evidence and findings (`MF3`), and report review through payment settlement (`MF4`) — organised as eight product features and sixteen functions, two features per flow. Work is decomposed below; complexity uses the three levels `Simple`, `Medium`, and `Complex`, and effort is expressed in man-days.
+
+| # | WBS Item | Complexity | Est. Effort (man-days) |
 | --- | --- | --- | --- |
-| 1 | FE-01 Authentication, Google OAuth2 & 5-Role Access Control (Owner: Trần Hoàng Trung Hiếu) |  | 16 |
-| 1.1 | Customer Airspace Registration, Argon2id Sign-In & Google OAuth2 (Web & Mobile) | Complex | 8 |
-| 1.2 | HS256 JWT, Refresh Rotation, `/users/me` Profile & 5-Role `ActorZone` RBAC | Complex | 8 |
-| 2 | FE-02 Partner Onboarding, Workforce, Asset & Inspector Drone Registry (Owner: Trần Hoàng Trung Hiếu) |  | 17 |
-| 2.1 | ADMIN/MANAGER Inspector Account Provisioning, Profile & License Management, and Customer Maintenance Workforce | Medium | 8 |
-| 2.2 | Infrastructure Asset Catalog, No-Fly Zone Guard & Separate Inspector-Owned Drone 3-Doc Registration | Complex | 9 |
-| 3 | FE-03 Recurring Service Requests, Contract Occurrences & Outbox Notifications (Owner: Phùng Trung Quốc) |  | 16 |
-| 3.1 | Recurring Service-Request Planning, Generated Occurrences & Contract Inheritance | Complex | 8 |
-| 3.2 | Spring Modulith Transactional Outbox & Deduplicated In-App Notification Inbox | Medium | 8 |
-| 4 | FE-04 Service Requests, Quotations, Contracts, Dispatch & Airspace Map (Owner: Phùng Trung Quốc) |  | 17 |
-| 4.1 | One-Time / Recurring Service Requests, VND Quotes, Quote Acceptance & Order Chat | Complex | 9 |
-| 4.2 | Signed Paper Contracts, Partner Occurrence Dispatch & Operational Airspace Map | Complex | 8 |
-| 5 | FE-05 Flight Permit Gate, Field Execution, Dashboard & Calendar (Owner: Trần Tùng Bách) |  | 16 |
-| 5.1 | Flight-Permit Readiness & On-Site Field-Work Recording | Complex | 8 |
-| 5.2 | Role-Scoped Operational Dashboards, Schedule Calendar & Customer Progress Views | Medium | 8 |
-| 6 | FE-06 Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS (Owner: Trần Tùng Bách) |  | 19 |
-| 6.1 | Photo/Video Evidence Intake, AI-Assisted Defect Analysis & Findings Confirmation | Complex | 9 |
-| 6.2 | Compiled Inspection Report, AI Summary, Independent Manager Review & PayOS VietQR | Complex | 10 |
-| 7 | FE-07 Maintenance Work Orders, RAG Scope/Norms Advisor & Repair Execution (Owner: Trương Thái Như) |  | 17 |
-| 7.1 | Work Order Creation, `pgvector` RAG Scope Advisor & 1-Click Initial Task Provisioning | Complex | 8 |
-| 7.2 | RAG Cost Norms Estimator, Customer Budget/Change Order Approval & 1-Click Batch Log Verify | Complex | 9 |
-| 8 | FE-08 Completion Report, 3-Way Re-inspection Verification & Cost Closure (Owner: Trương Thái Như) |  | 17 |
-| 8.1 | Smart Auto-Drafted Maintenance Completion Report & RAG Acceptance Compliance Audit | Complex | 8 |
-| 8.2 | 3-Step / 3-Way Re-inspection Defect Verification Loop, Independent Acceptance & Cost Closure | Complex | 9 |
-| Total Estimated Effort (man-days) | 135 |  |  |
+| 1 | `MF1` Onboarding and partner admission (Owner: Trần Hoàng Trung Hiếu) | Complex | 45 |
+| 1.1 | FE-01 Registration, Sign-in and Account Access | Complex | 22 |
+| 1.1.1 | Customer organization registration with airspace screening, secure sign-in, OTP, and Google authentication | Complex | 11 |
+| 1.1.2 | Session and refresh-token handling, account profile, and four-role access control | Complex | 11 |
+| 1.2 | FE-02 Partner Inspector and Drone Registration | Complex | 23 |
+| 1.2.1 | Platform-governed Inspector admission, qualification review, and pilot-licence records | Medium | 10 |
+| 1.2.2 | Inspector-owned drone registration with the configured document set and platform review | Complex | 13 |
+| 2 | `MF2` Buildings, requests, quotations and dispatch (Owner: Phùng Trung Quốc) | Complex | 59 |
+| 2.1 | FE-03 Buildings, Airspace Screening and Notifications | Complex | 33 |
+| 2.1.1 | Customer buildings, inspection checkpoints, reference documents, and restricted-airspace review under the airspace gate | Complex | 13 |
+| 2.1.2 | Recurring service-request planning, occurrence generation, and lifecycle notifications with duplicate suppression | Complex | 20 |
+| 2.2 | FE-04 Service Requests, VND Quotations, Agreements and Dispatch | Complex | 26 |
+| 2.2.1 | One-time and recurring requests, order-chat negotiation, and versioned quotations | Complex | 13 |
+| 2.2.2 | Quotation acceptance, recorded signed agreements, and partner assignment with availability checks | Complex | 13 |
+| 3 | `MF3` Field delivery and evidence (Owner: Trần Tùng Bách) | Complex | 46 |
+| 3.1 | FE-05 Flight Permit and On-site Field Sessions | Complex | 23 |
+| 3.1.1 | Mission flight-permit submission, verification, and permit release gate | Complex | 11 |
+| 3.1.2 | Field-session recording (start, complete, reasoned abort) and Manager reschedule, reassign, or cancel | Complex | 12 |
+| 3.2 | FE-06 Evidence Intake and Human-Reviewed Defect Detection | Complex | 23 |
+| 3.2.1 | Photograph and video evidence intake, normalization, resumable upload, and streaming playback | Complex | 12 |
+| 3.2.2 | Vision-assisted defect proposals and human confirmation of the findings baseline | Complex | 11 |
+| 4 | `MF4` Report review and payment settlement (Owner: Trương Thái Như) | Complex | 28 |
+| 4.1 | FE-07 Inspection Report Preparation, Review and Publication | Complex | 14 |
+| 4.1.1 | Report compilation from confirmed findings with the AI executive summary | Complex | 8 |
+| 4.1.2 | Independent Manager review, publication of a locked version, and PDF rendering | Complex | 6 |
+| 4.2 | FE-08 Customer Report Acceptance and Payment Settlement | Complex | 14 |
+| 4.2.1 | Customer report acceptance, PayOS and VNPay settlement, partner payouts and refunds | Complex | 9 |
+| 4.2.2 | Re-inspection loop with three-way defect resolution recording | Medium | 5 |
+| 5 | Cross-cutting foundation | Medium | 18 |
+| 5.1 | Module boundaries, authorization policy, and audit trail | Medium | 8 |
+| 5.2 | Object storage, media pipeline, and bilingual localization | Medium | 10 |
+| 6 | Verification and documentation | Medium | 12 |
+| 6.1 | Automated suites and regression | Medium | 7 |
+| 6.2 | Report set and test workbooks | Simple | 5 |
+| Total Estimated Effort (man-days) | 208 |  |  |
+
+**Capacity reconciliation.** Four team members work across a fifteen-week semester at an assumed twenty working days per month, giving a raw allocation of `4 members × 3.75 months × 20 days = 300` person-days. Applied at roughly 70% effective capacity — allowing for lectures, review preparation, and rework, with documentation counted inside the breakdown above rather than deducted from it — the available development capacity is about 208 man-days, which matches the estimate above.
 
 ### 1.2 Project Objectives
 
-The objective is to deliver a production-grade, platform-managed Infrastructure Inspection and Corrective Maintenance Service platform covering the complete four-stage lifecycle (`MF1` to `MF4` / `WF-01` to `WF-04`) across Web (`React 19`) and Mobile (`Flutter`), organized into 8 core features (`FE-01` to `FE-08`) and supported by backend, frontend, mobile, and functional testing.
+The objective is to deliver a working, demonstrable platform that completes the four main flows end to end across web and mobile, with a backend that enforces role, ownership, and assignment boundaries.
 
-Quality targets (not current measured results): link 100% of mandatory features (`FE-01`–`FE-08`) to automated and staging test evidence; achieve `>= 90%` functional test pass rate and `>= 80%` backend JaCoCo coverage; maintain `0` Spring Modulith boundary violations and `0` open Critical or High defects.
-
-The following are dated Report 5 results, not a statement of current test-suite health. Report 5 version 2.1 (2026-11-01) retains historical Round 1 totals of 60 Passed, 0 Failed, and 5 Pending (65 tracked cases). The same report states that focused checks ran for the V25 cleanup, PostgreSQL/Testcontainers migration verification remained pending because Docker was unavailable, and the full frontend suite had 14 failing tests in `WorkforcePage.test.tsx` and `RegisterPage.test.tsx`.
+Quality targets, measured against the final integrated build: every delivered feature linked to executed automated or manual test evidence; at least 80% line coverage on the backend core modules; zero Spring Modulith boundary violations; and no open Critical defects at submission.
 
 | # | Testing Stage | Test Coverage | No. of Defects | % of Defect | Notes |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Reviewing | Historical baseline review | Not reported | Not reported | Historical project review; no current coverage percentage claimed. |
-| 2 | Unit Test | Target: >=80% JaCoCo coverage in core modules | Not reported | Not reported | Coverage target only; historical Report 5 Round 1 totals are reported above. |
-| 3 | Integration Test | Target: critical API & DB contracts | Not reported | Not reported | PostgreSQL/Testcontainers verification of V25 remained pending as of 2026-11-01 because Docker was unavailable. |
-| 4 | System Test | Target: >=90% across Feature 1–Feature 8 | Not reported | Not reported | Target only; no current full-system pass result asserted here. |
-| 5 | Acceptance Test | Target: happy-path and demo scenarios | Not reported | Not reported | Target only; no current staging acceptance result asserted here. |
+| 1 | Reviewing | Peer review on every pull request | Not tracked by count | Not applicable | Review is a gate, not a defect metric. |
+| 2 | Unit Test | Target ≥ 80% line coverage on backend core modules; frontend and mobile unit suites maintained | Recorded in Report 5 | Recorded in Report 5 | Executed totals and coverage are reported in Report 5. |
+| 3 | Integration Test | Backend API and persistence contracts exercised against real PostgreSQL and object storage | Recorded in Report 5 | Recorded in Report 5 | Executed totals are reported in Report 5. |
+| 4 | System Test | End-to-end flows `MF1`–`MF4` across all four roles | Recorded in Report 5 | Recorded in Report 5 | Executed totals are reported in Report 5. |
+| 5 | Acceptance Test | Customer, Manager, Inspector, and Administrator scenarios on the deployed build | Recorded in Report 5 | Recorded in Report 5 | Executed totals are reported in Report 5. |
 
-Milestone Timeliness (%): target at least 90%; Review 1 in Week 4, Review 2 in Week 8, Faculty Council (Defense 1.1) in Week 13, and final submission in Week 15.
+Milestone Timeliness (%): target at least 90%; Review 1 in Week 4, Review 2 in Week 8, Defense 1.1 in Week 13, and final submission in Week 15.
 
-Allocated Effort (man-days): requirements and project management 18; architectural & database design 12; full-stack & AI implementation 85; testing, deployment, and documentation 20. Total: 135 man-days.
+Allocated Effort (man-days): requirements and project management 20; architectural and database design 14; implementation 140; testing, deployment, and documentation 34. Total 208 man-days.
 
 ### 1.3 Project Risks
 
 | # | Risk Description | Impact | Possibility | Response Plans |
 | --- | --- | --- | --- | --- |
-| 1 | Scope exceeds four-person capacity across Web, Mobile, Backend, and AI. | High | Medium | Narrow and partition scope into 8 balanced features (FE-01 to FE-08, 2 features / 4 functions per member) and enforce strict weekly WBS tracking. |
-| 2 | Self-hosted YOLO11 container or external LLM/Vision API is unreachable during field operations. | High | Medium | Isolate behind PrimaryWithFallbackInference, provide Vision LLM fallback, manual finding entry (POST /findings), deterministic report compilation, and DeterministicScopeFallback for RAG advice. |
-| 3 | Report content drifts from confirmed findings or requires manual note duplication. | High | Low | Drop manual content_snapshot notes (V16) and DRAFT/AUTHOR_VERIFIED states (V17); auto-compile reports deterministically from confirmed findings upon tab visit and require independent MANAGER publication. |
-| 4 | Cross-tenant data leakage or privilege escalation across the 5 roles. | High | Low | Enforce ActorZone constraints (PLATFORM, CUSTOMER_ORGANIZATION, INSPECTOR_PARTNER), composite tenant FKs (id, organization_id), @PreAuthorize guards, and independent reviewer checks. |
-| 5 | Inspector or Drone double-booking across different customer organizations. | High | Medium | Enforce cross-organization conflict checking (hasPlatformPartnerScheduleConflict) and 3-document inspector-owned drone verification before occurrence assignment. |
-| 6 | Unverified online payment or unauthorized PDF report downloads before settlement. | High | Low | Require Customer report acceptance (PAYMENT_DUE), verify PayOS VietQR webhooks via HMAC-SHA256 signature, and block PDF downloads with 402 Payment Required until PAID. |
-| 7 | Corrupt or oversized media uploads (photos and MP4 videos) degrade MinIO storage and exhaust server/browser memory. | Medium | Medium | Enforce 10 MB per-file limit for photos/documents (EXIF-first extraction, `2048 px` normalization, `480 px` JPEG thumbnail) and `2 GB` (`2 GiB`) limit for MP4 flight videos via resumable `10 MiB` chunked uploads (`EvidenceUploadSessionService`), async FFmpeg `1080p` faststart transcoding + poster, ticket-scoped HTTP Range streaming (`AuthenticatedMedia`), and SHA-256 asset/contract hashing. |
-| 8 | Concurrent CI/CD deployments from Backend and Frontend repositories collide on staging VPS. | Medium | Low | Serialize deployments in deploy.yml via flock -w 900 /tmp/sdi-deploy.lock and take automated pre-deploy pg_dump backups. |
+| 1 | Scope exceeds four-person capacity across backend, web, mobile, and AI work. | High | Medium | Bound the scope to eight features and sixteen functions, assign two features per member, and track the WBS weekly. Corrective maintenance was removed from scope when it threatened the schedule. |
+| 2 | Contract drift between the four repositories — a backend contract change not reflected in the web or mobile client. | High | High | Keep one focused pull request per repository and merge in a documented order; exercise the changed endpoint through the client tests before merging; re-read live code rather than stale documentation when reconciling. |
+| 3 | The self-hosted vision model or the external language-model endpoint is unavailable during a demonstration. | High | Medium | Route inference through a primary-with-fallback strategy; accept manually entered findings when no detector responds; keep report compilation deterministic so a report can always be produced. |
+| 4 | Report content diverges from the confirmed findings. | High | Low | Compile the report from confirmed findings rather than free text, and require an independent Manager to approve publication. |
+| 5 | Cross-customer data leakage or privilege escalation between the four roles. | High | Low | Enforce role checks at every endpoint, add ownership and assignment checks inside services, and keep separation of duties between report author and report reviewer. |
+| 6 | The same Inspector or aircraft is double-booked across two customer organizations. | High | Medium | Check schedule conflicts across all customer organizations before assigning an occurrence, and require a currently valid pilot licence and an eligible aircraft. |
+| 7 | Unverified payment or report download before settlement. | High | Low | Accept payment only through gateway callbacks with verified signatures, and withhold the report deliverable until the occurrence is accepted or paid. |
+| 8 | Large photographs and video exhaust storage or memory during upload. | Medium | Medium | Normalise images on intake, accept video through resumable chunked uploads, transcode asynchronously, and stream playback with signed, time-limited access. |
+| 9 | Database schema churn destabilises the deployment. | Medium | Medium | Consolidate the migration history into a single baseline plus forward-only changes, and assert the migration set in an automated test. |
+| 10 | Concurrent deployments from separate repositories collide on the shared host. | Medium | Low | Serialise deployments behind a lock and take a database backup before each release. |
 
 ## 2. Management Approach
 
-The team uses iterative, risk-driven delivery with a prioritized WBS in `Report3_Project Tracking.xlsx`, weekly checkpoints, non-author pull-request reviews, automated GitHub Actions CI gates, and live staging verification at university review milestones. Trần Hoàng Trung Hiếu coordinates overall project planning and integration. Every feature (`FE-01`–`FE-08`) has a single primary owner (`2` features per member) verified against Git commit authorship.
+The team delivers in short iterations with a prioritised work breakdown, weekly checkpoints, and mandatory peer review before any merge. Each feature has a single primary owner, verified against commit authorship. The team works in four independent repositories — backend, web frontend, mobile, and documentation — and accepts the coordination cost of that split in exchange for independent release.
 
 ### 2.1 Project Process
 
-Each iteration selects prioritized features, refines acceptance criteria and database/API contracts, implements backend/frontend/mobile slices with unit and Testcontainers integration tests, merges via pull request after green CI, and deploys to staging (`https://smartdroneinspection.duckdns.org`).
+Each iteration selects the highest-priority work, agrees its acceptance criteria and its API and data contracts, builds the backend slice with tests, follows with the web and mobile clients, and merges through a pull request only after the local verification suite passes. Integration is continuous: because the clients and the backend evolve in separate repositories, every contract change is made in one coordinated set of pull requests that are merged in a stated order.
 
 ![Report 2 figure](assets/image13.png)
 
-Figure 1. Iterative development process.
+Figure 1. Iterative delivery process.
 
 ### 2.2 Quality Management
 
-- **Defect Prevention**: Use compile-time Spring Modulith boundary checks, Flyway migration tests through the current V28 schema target, TypeScript strict builds, and `flutter analyze`.
-- **Peer Review**: Require pull-request review and automated CI verification before merging to the project's protected branch.
-- **Unit & Integration Testing**: Target `>= 80%` backend JaCoCo coverage and maintain backend, frontend Vitest, and Flutter mobile test suites.
-- **System & Acceptance Testing**: Track functional test cases across `Feature 1`–`Feature 8` in Report 5; record executed results and pending work separately.
+- **Defect Prevention:** enforce module boundaries automatically, keep the TypeScript build strict, run the mobile static analyser, and assert the database migration set in a test.
+- **Peer Review:** every change is reviewed by a non-author before merge.
+- **Unit and Integration Testing:** maintain backend unit and integration suites against real PostgreSQL and object storage, plus web and mobile test suites, and track coverage on the backend core.
+- **System and Acceptance Testing:** trace functional cases from each feature to executed results, and record failures rather than omitting them.
 
 ### 2.3 Training Plan
 
 | Training Area | Participants | When, Duration | Waiver Criteria |
 | --- | --- | --- | --- |
-| 5-Role Platform Inspection Service & Contract Flows (MF1..MF4) | All members | Week 1, 2 hours | Complete end-to-end workflow and state machine walkthrough. |
-| Spring Boot 4.1, Spring Modulith 2.1, PostgreSQL 17 (pgvector) & MinIO | Bách, Hiếu, Quốc, Như | Week 2, 2 hours | Implement a scoped endpoint with Testcontainers integration test. |
-| React 19, MUI v9, TanStack Query & Flutter Riverpod Mobile | All members | Week 2, 2 hours | Build and test a role-guarded web screen and mobile streaming upload slice. |
-| FastAPI YOLO11 (MBDD2025), OpenHTMLtoPDF, PayOS & pgvector RAG | Bách, Quốc, Như | Week 3, 2 hours | Run container inference, server-side PDF rendering, PayOS webhook, and RAG retrieval. |
+| Inspection service domain and the `MF1`–`MF4` workflows | All members | Week 1, 2 hours | Walk through all four flows and every status transition unaided. |
+| Spring Boot 4.1, Spring Modulith, PostgreSQL, and object storage | All members | Week 2, 2 hours | Deliver one scoped endpoint with an integration test against real infrastructure. |
+| React 19, Material UI, and Flutter | All members | Week 2, 2 hours | Build a role-guarded web screen and a mobile upload flow. |
+| Vision-model inference, report rendering, and payment gateways | Bách, Quốc, Như | Week 3, 2 hours | Run detector inference, render a report to PDF, and complete a gateway callback in a sandbox. |
 
 ## 3. Project Deliverables
 
 | # | Deliverable | Due Date | Notes |
 | --- | --- | --- | --- |
-| D1 | Report 1 — Project Introduction | Week 2 / Updated W8 | Vision, background, 5-role governance, and 8 features (FE-01..FE-08). |
-| D2 | Report 2 — Project Management Plan | Week 3 / Updated W8 | 8-feature WBS (135 man-days), risk register, RACI matrix, and quality plan. |
-| D3 | Review 1 Gate Package | Week 4 | Initial Registration Form, PMP, SRS Draft, and architecture baseline. |
-| D4 | Report 3 — Software Requirement Specification (SRS) | Week 8 (Review 2) | Full 5-role, 8-feature (16 functions) SRS + Report3_Project Tracking.xlsx. |
-| D5 | Report 4 — Software Design Document (SDD) | Week 8 (Review 2) | System architecture, V1–V25 database schema target, and 8-feature detailed design. |
-| D6 | Report 5 — Test Documentation & Test Report | Week 8 (Review 2) | Report5_Test Documentation.docx + Report5_Test Report.xlsx (8 Feature sheets). |
-| D7 | SWP490 Review 2 Submission Package (BM01–BM04) | Week 8 (Review 2) | Registration + BM03, Self-Review BM02, Design Brief BM01 + Appendix A, Commitment BM04. |
-| D8 | Milestone 4 Verification & Hardening | Week 11 | Complete full-stack verification across MF1–MF4 and 3-way re-inspection loop. |
-| D9 | Defense 1.1 & Final Submission Package (Reports 1–7) | Weeks 13–15 | Final software release, live staging demo, and complete SEP490 documentation. |
+| D1 | Report 1 — Project Introduction | Week 2 | Product background, three-system comparison, vision, and eight-feature scope. |
+| D2 | Report 2 — Project Management Plan | Week 3 | Six-feature work breakdown, risk register, RACI, and quality plan. |
+| D3 | Review 1 Gate Package | Week 4 | Registration form, management plan, draft requirements, and architecture baseline. |
+| D4 | Report 3 — Software Requirement Specification | Week 8 | Complete requirements for four roles and eight features, with screen and authorization matrices. |
+| D5 | Report 4 — Software Design Document | Week 8 | System architecture, package and database design, and per-feature diagrams. |
+| D6 | Report 5 — Test Documentation and Test Report | Week 8, updated Week 13 | Testing plan plus the executed test-case workbook. |
+| D7 | Review 2 Submission Package | Week 8 | The four review artefacts required at the second review. |
+| D8 | Integrated Release and Verification | Week 13 | All three flows demonstrated on the deployed build. |
+| D9 | Final Submission Package (Reports 1–7) | Weeks 14–15 | Final release, deployed demonstration, and complete documentation. |
 
 ## 4. Responsibility Assignments
 
-The RACI matrix assigns one primary Do (`D`) owner to each of the 16 WBS functions (`FE-01` to `FE-08`, 2 features / 4 functions per member), matching actual Git authorship across `SmartDroneInspection-backend`, `-frontend`, `-mobile`, and `-docs`. H = Trần Hoàng Trung Hiếu (`SE184212`); Q = Phùng Trung Quốc (`SE170027`); N = Trương Thái Như (`SE180082`); B = Trần Tùng Bách (`SE180220`).
+One primary owner is assigned to each of the twelve functions, matching commit authorship across the backend, web, mobile, and documentation repositories. Columns use the four students' initials: **H** — Trần Hoàng Trung Hiếu (`SE184212`); **Q** — Phùng Trung Quốc (`SE170027`); **N** — Trương Thái Như (`SE180082`); **B** — Trần Tùng Bách (`SE180220`).
 
 D~Do; R~Review; S~Support; I~Informed; <blank>- Omitted
 
 | Responsibility | H | Q | N | B | Supervisors |
 | --- | --- | --- | --- | --- | --- |
-| 1.1 FE-01 Customer Airspace Registration, Sign-In & Google OAuth2 | D | S | S | R | I |
-| 1.2 FE-01 Session Management, `/users/me` Profile & 5-Role RBAC | D | S | S | R | R |
-| 2.1 FE-02 ADMIN/MANAGER Inspector Provisioning, Profile/License & Customer Workforce | D | S | S | R | I |
-| 2.2 FE-02 Infrastructure Asset Registry, Airspace Guard & Separate Drone Registration | D | R | S | S | R |
-| 3.1 FE-03 Recurring Service Requests & Generated Contract Occurrences | R | D | S | S | R |
-| 3.2 FE-03 Transactional Outbox & Deduplicated Notification Inbox | S | D | S | R | I |
-| 4.1 FE-04 One-Time/Recurring Service Requests, VND Quotes & Order Chat | R | D | S | S | R |
-| 4.2 FE-04 Signed Paper Contracts, Partner Dispatch & Airspace Map | R | D | S | S | R |
-| 5.1 FE-05 Flight Permit Gate & On-Site Field-Work Recording | R | S | S | D | R |
-| 5.2 FE-05 Role-Scoped Dashboards, Schedule Calendar & Customer Progress | R | S | S | D | I |
-| 6.1 FE-06 Photo/Video Evidence, AI Defect Analysis & Findings Confirmation | S | R | S | D | R |
-| 6.2 FE-06 Compiled Report, AI Summary, Independent Review & PayOS VietQR | R | S | S | D | R |
-| 7.1 FE-07 Work Order Creation, RAG Scope Advisor & 1-Click Initial Tasks | R | S | D | S | R |
-| 7.2 FE-07 RAG Cost Norms Estimator, Budget Approval & 1-Click Batch Log Verify | R | S | D | S | R |
-| 8.1 FE-08 Smart Auto-Draft Completion Report & RAG Acceptance Compliance Audit | R | S | D | S | R |
-| 8.2 FE-08 3-Step / 3-Way Re-inspection Verification, Acceptance & Cost Closure | R | S | D | S | R |
+| 1.1 Customer registration, airspace screening, sign-in, and Google authentication | D | S | S | R | I |
+| 1.2 Session and refresh handling, account profile, and four-role access | D | S | S | R | R |
+| 2.1 Inspector admission, qualification review, and pilot-licence records | D | S | S | R | I |
+| 2.2 Drone registration with document review, and customer asset management | D | R | S | S | R |
+| 3.1 Recurring service requests and inspection occurrences | R | D | S | S | R |
+| 3.2 Lifecycle notifications with duplicate suppression | S | D | S | R | I |
+| 4.1 Service requests, order chat, and versioned quotations | R | D | S | S | R |
+| 4.2 Quotation acceptance, signed agreements, and partner dispatch | R | D | S | S | R |
+| 5.1 Flight-permit submission and verification gate | R | S | S | D | R |
+| 5.2 Field-session recording and Manager reschedule, reassign, or cancel | R | S | S | D | I |
+| 6.1 Evidence intake, vision-assisted defect proposals, and findings confirmation | S | R | S | D | R |
+| 6.2 Report compilation, independent review and publication, and payment settlement | R | S | S | D | R |
+| 7.1 Project documentation and report publication pipeline | R | S | D | S | R |
+| 7.2 Test evidence tracking and release verification | R | S | D | S | R |
 
 ## 5. Project Communications
 
 | Communication Item | Who/ Target | Purpose | When, Frequency | Type, Tool, Method(s) |
 | --- | --- | --- | --- | --- |
-| Daily progress sync | All members | Track task progress and resolve blockers | Working days | Discord / Zalo & GitHub PRs |
-| Weekly planning and WBS review | Leader and team | Update WBS, Issues, Defects & Weekly Report | Weekly | Online meeting & Report3_Project Tracking.xlsx |
-| Supervisor checkpoint | Team and supervisors | Review SRS/SDD/Test artifacts and demo | Weekly / Bi-weekly | In-person / Google Meet & document review |
-| Pull request & CI gate review | Author and reviewer | Verify Modulith, JUnit, Vitest & Flutter tests | Every PR before merge | GitHub Pull Requests & GitHub Actions |
-| Milestone gate review | Team, supervisors & council | Review 1 (W4), Review 2 (W8), Defense 1.1 (W13) | Weeks 4, 8, 13, 15 | Live staging demo & official submission pack |
+| Daily progress sync | All members | Report progress and clear blockers | Working days | Chat channel and pull-request comments |
+| Weekly planning and work-breakdown review | Leader and team | Update the breakdown, defects, and weekly report | Weekly | Online meeting with the tracking workbook |
+| Supervisor checkpoint | Team and supervisors | Review requirements, design, and test artefacts; demonstrate progress | Weekly to bi-weekly | In person or video call, with document review |
+| Pull request and verification gate | Author and reviewer | Confirm module boundaries and all test suites pass | Every change before merge | Pull request with local verification record |
+| Milestone gate review | Team, supervisors, and council | Review 1 (Week 4), Review 2 (Week 8), Defense 1.1 (Week 13) | Weeks 4, 8, 13, and 15 | Live demonstration and formal submission |
 
 ## 6. Configuration Management
 
 ### 6.1 Document Management
 
-Project documents are authored in version-controlled Markdown under `SmartDroneInspection-docs/reports/` with automated Python OOXML exporters (`tools/export_all.py`, `tools/export_review2_pack.py`) that populate the official FPT University SEP490 Word and Excel templates while preserving all template styles, numbering, and formulas byte-for-byte.
+Project documents are authored in version-controlled Markdown under the documentation repository and converted to the official university Word and Excel templates by a Python export toolchain. That toolchain fills the templates rather than rebuilding them, so each release keeps the official styles, numbering, and formulas intact; the Markdown remains the editable source and every change is reviewable in version control.
 
 ### 6.2 Source Code Management
 
-Source code is managed across four GitHub repositories (`SmartDroneInspection-backend`, `-frontend`, `-mobile`, `-docs`) with branch protection and CI verification. Database schema evolution is strictly forward-only; the current implementation target includes Flyway migrations `V1` through `V25`. As of the Report 5 update dated 2026-11-01, PostgreSQL/Testcontainers verification of V25 remained pending because Docker was unavailable.
+Source code is managed in four independent GitHub repositories — backend, web frontend, mobile application, and documentation. Each repository has its own workflow, and a cross-repository change is delivered as one focused pull request per repository, merged in a documented order. Database evolution is forward-only: the migration history is a single consolidated baseline plus subsequent forward migrations, and an automated test asserts the exact set of applied versions so an accidental renumbering fails the build.
 
 ### 6.3 Tools & Infrastructures
 
 | Category | Tools / Infrastructure |
 | --- | --- |
-| Backend & Modular Architecture | Java 21, Spring Boot 4.1.0, Spring Modulith 2.1.1, Spring Security OAuth2 JWT & Google OAuth2, Hibernate/JPA, Flyway (V1–V25 target), OpenHTMLtoPDF 1.0.10 |
-| AI, Vision & RAG Services | Python 3.11, FastAPI 0.115.6, Ultralytics 8.3.55 (YOLO11 mbdd2025-v1), Multimodal Vision Fallback, LLM Executive Summary, pgvector RAG (Scope, Cost Norms, Compliance) |
-| Frontend Web & Mobile Clients | React 19.2.8, TypeScript 6.0.2, Vite 8.2.2, MUI 9.4.0, TanStack Query v5; Flutter 3.47.2, Dart SDK 3.13.2, Riverpod 3.4.2, Dio 5.11.0, file_picker 12.1.3 |
-| Database, Storage & Payments | PostgreSQL 17 (pgvector:pg17 + pgcrypto), MinIO S3 Object Storage, PayOS VietQR Payment Gateway & HMAC-SHA256 Webhooks |
-| CI/CD, Testing & Cloud Staging | GitHub Actions, Testcontainers, JUnit 5, JaCoCo, Vitest, Docker Compose, Nginx, Tailscale SSH (smartdroneinspection.duckdns.org) |
+| Technology | Java 21, Spring Boot 4.1, Spring Modulith, Spring Security with JWT and Google OAuth2, Hibernate/JPA, Flyway; Python with FastAPI and Ultralytics for the vision service; React 19, TypeScript, Vite, Material UI, TanStack Query; Flutter with Riverpod and GoRouter |
+| Database | PostgreSQL 17 with pgcrypto |
+| IDEs/Editors | Visual Studio Code, IntelliJ IDEA, Android Studio |
+| Diagramming | Mermaid and Draw.io sources kept in version control alongside the reports |
+| Documentation | Markdown in the documentation repository with automated OOXML export to the official Word and Excel templates |
+| Version Control | Git and GitHub, with protected branches and pull-request review |
+| Deployment server | Docker Compose on a Linux host, Nginx for the web client, object storage for evidence media |
+| Project management | GitHub pull requests and issues, a project tracking workbook, and weekly reporting |

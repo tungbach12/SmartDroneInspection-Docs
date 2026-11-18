@@ -1,0 +1,35 @@
+%% title: FE-06 Photo and Video Evidence Intake, YOLO11 Detection and Findings Confirmation Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Insp as Assigned Inspector
+  participant Ctrl as InspectionController
+  participant EvidSvc as EvidenceService
+  participant FindSvc as FindingService
+  participant AI as PrimaryWithFallbackInference
+  participant DB as PostgreSQL & MinIO
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/evidence (photo <= 10 MB or compatibility video <= 20 MiB)
+  Ctrl->>EvidSvc: upload(inspectorId, inspectionId, file)
+  EvidSvc->>DB: Extract EXIF first, normalize >2048 px / rotated image, create 480 px thumb, store in MinIO, save Evidence
+
+  Insp->>Ctrl: POST /evidence/uploads -> PUT .../parts/{n} (10 MiB chunks <= 2 GB) -> POST .../complete
+  Ctrl->>EvidSvc: EvidenceUploadSessionService + VideoProcessingWorker (FFmpeg <=1080p faststart + poster, raw deleted only when verified READY)
+  EvidSvc->>DB: Commit Evidence rendition keys & telemetry, or retain raw as retryable FAILED
+
+  Insp->>Ctrl: POST .../evidence/{evidId}/media-ticket -> GET/HEAD .../stream?ticket=... (Range)
+  Ctrl->>EvidSvc: Validate short-lived HMAC ticket & stream HTTP 206 Partial Content from MinIO
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/evidence/{evidId}/analyze (or /analyze-video)
+  Ctrl->>FindSvc: analyzeEvidence(inspectorId, inspectionId, evidId, replace)
+  FindSvc->>AI: predict(imageBytes, contentType)
+  AI-->>FindSvc: Return YOLO11 bounding boxes (or Vision LLM fallback boxes if empty/offline)
+  FindSvc->>DB: Save PENDING Finding rows
+  FindSvc-->>Insp: Return candidate Findings with bounding boxes and confidence scores
+
+  Insp->>Ctrl: POST /findings/{findingId}/confirmation & PUT /findings/{findingId}
+  Ctrl->>FindSvc: review(inspectorId, inspectionId, findingId, decision)
+  FindSvc->>DB: Update Finding status to CONFIRMED (or soft-delete rejected candidate)
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/findings/confirm
+  Ctrl->>FindSvc: confirmFindings(inspectorId, inspectionId, acknowledgeNoFindings)
+  FindSvc->>DB: Verify zero PENDING findings remain and set inspections.findings_confirmed_at

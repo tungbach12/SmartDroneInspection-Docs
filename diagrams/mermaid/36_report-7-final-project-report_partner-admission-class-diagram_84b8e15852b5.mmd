@@ -1,0 +1,36 @@
+%% title: Partner Admission Class Diagram
+classDiagram
+  class InspectorApplicationController {
+    +submit(req) ApiResponse
+    +uploadLicenseScan(file) UploadedKey
+    +listPending() List~InspectorApplicationResponse~
+    +approve(id, req) UserResponse
+    +reject(id, req) ApiResponse
+  }
+  class InspectorApplicationService {
+    +submit(req) InspectorApplication
+    +approve(id, req) User
+  }
+  class DroneRegistrationApplicationController {
+    +submit(req) ApiResponse
+    +approve(id, req) DroneRegistrationResponse
+  }
+  class DroneRegistry {
+    +isEligible(droneId, at) boolean
+  }
+  class InspectorApplication {
+    -UUID id
+    -String email
+    -String status
+    -UUID approvedUserId
+  }
+  class Drone {
+    -UUID id
+    -String serialNumber
+    -Instant registrationExpiresAt
+  }
+  InspectorApplicationController --> InspectorApplicationService
+  InspectorApplicationService --> InspectorApplication
+  InspectorApplicationService --> User
+  DroneRegistrationApplicationController --> Drone
+  DroneRegistry --> Drone

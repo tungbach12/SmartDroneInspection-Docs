@@ -28,10 +28,19 @@ def project_metadata(reports):
         match = re.search(r"^- " + re.escape(label) + r":\s*(.+)$", text, re.M)
         return plain(match[1]) if match else "Not supplied"
 
-    location = re.search(r"^.*Ho Chi Minh City[^\n]+$", text, re.M)
+    # The cover needs one dated line, e.g. "- Hanoi, November 2026 -". An
+    # explicit Location bullet wins; otherwise take the delivery city from the
+    # prose so the template placeholder is still replaced.
+    explicit = re.search(r"^- Location:\s*(.+)$", text, re.M)
+    if explicit:
+        place = plain(explicit[1])
+    else:
+        place = next((m[1] for m in re.finditer(r"([^.,;\n]*Ho Chi Minh City[^.,;\n]*)", text)), "")
+    city = "Hanoi" if "Hanoi" in place else ("Ho Chi Minh City" if "Ho Chi Minh City" in place else place)
+    location = f"- {city}, November 2026 -" if city else ""
     return {"project": value("Project name").split(":", 1)[0],
             "code": value("Project code"), "group": value("Group name"),
-            "location": location[0] if location else ""}
+            "location": location}
 
 
 def render_word(template, reports, output, blocks, warnings=()):

@@ -1,0 +1,46 @@
+%% title: Evidence and Reporting Class Diagram
+classDiagram
+  class InspectionController {
+    +uploadEvidence(id, file) ApiResponse
+    +analyze(inspectionId, evidenceId) ApiResponse
+    +confirmFindings(id, req) ApiResponse
+    +submitReport(id, req) ApiResponse
+    +publish(reportId, req) ApiResponse
+  }
+  class EvidenceService {
+    +upload(inspectorId, inspectionId, file) Evidence
+    +mediaTicket(evidenceId) MediaTicket
+  }
+  class FindingService {
+    +analyze(evidenceId, replace) List~Finding~
+    +confirmFindings(inspectionId, acknowledgeNoFindings) void
+  }
+  class ReportService {
+    +submit(inspectionId, authorId) InspectionReport
+    +publish(reportId, reviewerId) InspectionReport
+  }
+  class PdfReportRenderer {
+    +render(report) byte
+  }
+  class Evidence {
+    -UUID id
+    -String objectKey
+    -String processingStatus
+  }
+  class Finding {
+    -UUID id
+    -String defectLabel
+    -Double confidence
+  }
+  class InspectionReport {
+    -UUID id
+    -int versionNo
+    -String status
+  }
+  InspectionController --> EvidenceService
+  InspectionController --> FindingService
+  InspectionController --> ReportService
+  EvidenceService --> Evidence
+  FindingService --> Finding
+  ReportService --> PdfReportRenderer
+  ReportService --> InspectionReport
