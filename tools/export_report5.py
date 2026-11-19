@@ -32,6 +32,9 @@ POST_ROUND1_CASE_IDS = V29_ROUND3_CASE_IDS | {
     "WF3-023",
     "WF3-024",
     "WF3-025",
+    "WF3-026",
+    "WF3-027",
+    "WF3-028",
 }
 
 
