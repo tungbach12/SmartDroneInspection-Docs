@@ -16,10 +16,10 @@ This release delivers the SmartDroneInspection platform: a building-inspection s
 | 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking for the eight-week build, maintained from the project plan in Report 2. |
 | 2 | Project Backlog | The feature and function backlog for `FE-01`–`FE-08` across `MF1`–`MF4`, with the acceptance criteria each item was closed against. |
 | 3 | Source Codes | Four independent repositories: `SmartDroneInspection-backend` (Java 21, Spring Boot 4.1, Spring Modulith), `SmartDroneInspection-frontend` (React 19, strict TypeScript, Vite, Material UI), `SmartDroneInspection-mobile` (Flutter, Riverpod, GoRouter, Dio), and `SmartDroneInspection-docs`. |
-| 4 | Database Script(s) | Flyway migrations `V1__baseline.sql` (consolidated baseline with catalog seeds) and `V2__remove_finding_recommended_action.sql`, together defining the 41-table PostgreSQL 17 schema. |
+| 4 | Database Script(s) | Flyway migrations `V1__baseline.sql` (consolidated baseline with catalog seeds), `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, and `V62__inspection_knowledge_rag.sql` (`V1`–`V4`, `V60`–`V62`). Together they define the PostgreSQL 17 schema: 45 application tables (47 total in the `public` schema, including `event_publication` and `flyway_schema_history`) with the `pgvector` extension for knowledge-base embeddings. |
 | 5 | Final Report Document | Reports 1–6 of the capstone documentation set, each exported against its official template. |
-| 6 | Test Cases Document | `Report5_Test Report.xlsx` with one sheet per feature, plus this release's executed suite results recorded in Report 5. |
-| 7 | Defects List | The defect log maintained during the build, including the two open defects recorded in Report 5 §5. |
+| 6 | Test Cases Document | `Report5_Test Report.xlsx` with one sheet per feature, plus the executed suite results recorded in Report 5 (19 Nov 2026 baseline, version 3.6). |
+| 7 | Defects List | The defect log maintained during the build, together with the open items and known limitations recorded in Report 5's 19 Nov 2026 baseline. |
 | 8 | Issues List | Outstanding issues and known limitations, including the out-of-scope items documented in Report 3 §3.8. |
 | 9 | Slide | The defence presentation used for the final review. |
 
@@ -49,7 +49,7 @@ The detection service and the video transcoder are the dominant resource consume
 | Web client build | Node.js and npm | Node 22 or later |
 | Mobile client build | Flutter SDK with the Android toolchain | Flutter 3.x |
 | Object storage | MinIO | Provided by the compose stack |
-| Database | PostgreSQL | `17` (provided by the compose stack) |
+| Database | PostgreSQL with the `pgvector` extension | `17` (provided by the compose stack; the extension is enabled by the `V62` migration) |
 | Media processing | FFmpeg | Provided by the backend container image |
 | Browser | Chrome or Edge | Current version |
 
@@ -90,7 +90,7 @@ The AI, payment, and telemetry integrations are all optional. Leave `YOLO_INFERE
 docker compose up -d --build
 ```
 
-Flyway applies `V1` and `V2` automatically on first start. Confirm the stack is healthy:
+Flyway applies `V1`–`V4` and `V60`–`V62` automatically on first start. Migration `V62` enables the `pgvector` extension and creates the `vector(1536)` knowledge columns and HNSW cosine index; the PostgreSQL 17 image in the compose stack already provides the extension, so no separate installation step or additional environment variable is required. When no embedding provider is configured, historical-case retrieval falls back automatically to deterministic `HYBRID_MATCH`, so the platform remains fully usable without an external AI service. Confirm the stack is healthy:
 
 ```bash
 docker compose ps
@@ -351,7 +351,9 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 *Figure 6.16 — Candidate findings awaiting inspector confirmation.*
 
-**Step 5.** Choose **Confirm findings** to set the baseline. This is an explicit action. Only confirmed findings become official, and once confirmed the baseline is what the report is built from.
+**Step 5.** While reviewing a candidate, open its **Similar Cases & Guide** strip. This compact, collapsible chip strip shows matched historical cases with similarity percentages and relevant engineering standard codes (for example `TCVN 9343:2012`). Choose **Apply** on a reference to copy its guidance into the finding's technical note in edit mode; you may still adjust the note before confirming. The strip is advisory only — it does not create or confirm a finding, and it stays hidden when no references are available.
+
+**Step 6.** Choose **Confirm findings** to set the baseline. This is an explicit action. Only confirmed findings become official, and once confirmed the baseline is what the report is built from.
 
 ### 3.7 Workflow 6: Report Submission, Review and Publication (`MF4` `FE-07`)
 
@@ -361,7 +363,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 **Preconditions.** Findings have been confirmed for the inspection.
 
-**Step 1.** As `INSPECTOR`, open the **Report** tab. The platform compiles the report from the confirmed findings, the evidence, and the session record. You may request an advisory narrative draft, which you must review and edit before use.
+**Step 1.** As `INSPECTOR`, open the **Report** tab. The platform compiles the report from the confirmed findings, the evidence, and the session record. You may request an advisory narrative draft, which you must review and edit before use. The **AI Executive Summary** also carries a compact **Matched Cases & Standards** row of reference chips, linking the summary to the historical cases and engineering standards that informed it; these chips are informational and do not change the report content.
 
 ![Inspector report tab](assets/screens/inspector-ws-report.png)
 
@@ -395,11 +397,13 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 **Step 2.** Download and read the published PDF report.
 
-**Step 3.** Choose **Accept report**. Acceptance is recorded against the occurrence and the payment becomes due.
+**Step 3.** Choose **Accept report**. Acceptance is recorded against the occurrence and the payment becomes due. From that point the inspection shows a payment-due badge with a countdown to the configured deadline (15 days by default), and a single overdue reminder is sent if the deadline passes. You can download the payment notice — and, once paid, the receipt — as a PDF from the inspection's **/report/payment-document** link.
 
 **Step 4.** Choose **Pay** and select PayOS VietQR or VNPay. For VietQR, scan the displayed code with a banking application; for VNPay, follow the redirect to the payment page.
 
 **Step 5.** Confirm that the payment shows as paid. Settlement is confirmed by the gateway callback rather than by the redirect alone, so the status may take a moment to update. Once paid, a manager can record the inspector's payout for that occurrence.
+
+**Step 6.** For an inspection that enters re-inspection, open the defect verification view. A `RESOLVED` verdict is valid only when the Inspector supplied fresh evidence from the current re-inspection's completed field session, and an expiry indicator (`validUntil`) shows when that verdict lapses. Use the **Inspector** chat tab to exchange messages and attachments with the assigned Inspector about the findings or the re-inspection without leaving the portal.
 
 ### 3.9 Workflow 8: Customer Mobile Application (`MF1`–`MF4`, Customer only)
 
@@ -417,7 +421,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 *Figure 6.20 — The customer home summary that mirrors the mobile dashboard.*
 
-**Step 3.** Open **Requests** to raise a new service request or continue an existing conversation, and **Inspections** to track progress and read the published report.
+**Step 3.** Open **Requests** to raise a new service request or continue an existing conversation, and **Inspections** to track progress and read the published report. Within an inspection you can open the **Inspector** chat screen to exchange messages and file attachments with the assigned Inspector, review the payment-due badge with its countdown, download the payment notice or receipt PDF, and see a verdict-expiry banner for a re-inspection `RESOLVED` verdict. A collapsible **Matched cases & standards** strip shows the historical cases and engineering standards linked to the inspection's findings; it hides itself when no references are available.
 
 **Step 4.** Open **Profile** to change your name, phone number, or language. The application supports English and Vietnamese, and the choice persists between sessions.
 

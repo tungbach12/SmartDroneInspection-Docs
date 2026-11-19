@@ -4,31 +4,31 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-**Scope and status (updated 2026-11-18):** The current Report 5 inventory contains **61 active test cases**; version 3.0 records profile and request-ownership coverage across 6 product features (`FE-01`–`FE-06`, mapped 1-to-1 to `Feature 1`–`Feature 6`) aligned with Flyway `V1`, `V58`, and `V59` (`V44`–`V46` refund/receivable lifecycle; `V55` evidence-media optimization; `V56` flight-permit verification; `V58` message attachment metadata; `V59` request-level Manager assignment). `WF3-020` and `WF3-022`–`WF3-025` remain `Pending` in Round 3 until live Nginx/Docker Compose E2E verification; `WF3-019` and `WF3-021` remain `Pending` until full Report 5 round re-execution. Current-scope Round 1 totals are 45 `Passed`, 0 `Failed`, 6 `Pending`, and 7 `N/A`. The active-scope historical subtotal is 50 cases (45 Passed, 5 Pending); original eight-feature results are historical and not current coverage. Round 3 currently has three Passed cases (`WF3-006`, `WF3-016`, `WF3-018`); `WF3-019` remains Pending pending re-execution against the revised payout contract, leaving `WF3-018` as the currently Passed V29 subset case. WF2-001 Round 2 remains Pending for connected request-ownership, role-scope, and UI verification; after the 2026-11-16 pull, focused Frontend Contracts tests passed 58/58, build and lint passed (with existing warnings), focused Backend controller/service tests passed (7/7 and 54/54), migration/inventory tests passed (3/3 and 2/2), and the baseline migration assertion passed (3/3) through V59. A new read-only chat attachment retrieval regression test is included. Full Backend `verify` remains blocked by missing `ffmpeg` test dependency and the JaCoCo gate (71% line/69% instruction versus 80% when FFmpeg suites are excluded); Vitest fails before suite execution with a config TypeError on both this tree and upstream-only checkout.
+**Scope and status (updated 2026-11-19):** The current Report 5 inventory holds **64 active test cases** mapped 1-to-1 to eight product features (`FE-01`–`FE-08`, `Feature 1`–`Feature 8`, two per main flow `MF1`–`MF4`), aligned with Flyway `V1`–`V4` and `V60`–`V62` (`["1","2","3","4","60","61","62"]`; 45 application tables, 44 JPA runtime entities, 47 total tables). Current-scope Round 1 totals are 45 `Passed`, 0 `Failed`, 9 `Pending`, and 10 `N/A`. Round 3 has 13 executed `Passed` cases, including `WF3-029` (DroneKnowledgeAI historical case recommendation & tenant isolation), `WF3-030` (advisory knowledge references in the AI summary) and `WF3-031` (Customer Mobile parity from `PR #27`), verified on 2026-11-19 with backend `.\mvnw.cmd verify` (958 tests passed, 0 failures, Modulith and JaCoCo gates met), frontend `npm test` (97 test files, 93 passed / 4 skipped; 716 tests, 712 passed / 4 skipped) and Mobile `flutter test` (56 passed, 0 failures). `WF3-020` and `WF3-022`–`WF3-025` remain `Pending` in Round 3 pending live Nginx/Docker Compose E2E verification; `WF2-001` Round 2 remains `Pending` pending connected cross-role verification.
 
-The original workbook template remains unchanged; generated copies contain six active feature sheets (`Feature 1`–`Feature 6`). Maintenance feature sheets and cases are retired historical material, not current coverage.
+The original workbook template remains unchanged; generated copies contain eight active feature sheets (`Feature 1`–`Feature 8`). Maintenance feature sheets and cases are retired historical material, not current coverage.
 
 ## Naming layers and mapping
 
 The supplied template has two feature sheets (`Feature 1`, `Feature 2`). Generated
-workbooks extend it to six active feature sheets (`Feature 1`–`Feature 6`), one per
-current Report 3 feature (`FE-01`–`FE-06`). Sheet `Feature N` contains SRS feature `FE-0N`.
+workbooks extend it to eight active feature sheets (`Feature 1`–`Feature 8`), one per
+current Report 3 feature (`FE-01`–`FE-08`). Sheet `Feature N` contains SRS feature `FE-0N`.
 
 | Layer | Meaning | Example |
 | --- | --- | --- |
-| Workbook sheet | Generated Report 5 grouping; one sheet per FE | `Feature 6` |
-| SRS feature | Product capability from Report 3 | `FE-06 — Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS` |
-| WF test ID | Business-flow traceability ID | `WF3-005` |
+| Workbook sheet | Generated Report 5 grouping; one sheet per FE | `Feature 8` |
+| SRS feature | Product capability from Report 3 | `FE-08 — Customer Acceptance & Payment Settlement` |
+| WF test ID | Business-flow traceability ID | `WF3-031` |
 
 ## Source of truth and template rule
 
 - `template/Report5_Test Report.xlsx` is an unchanged copy of the supplied
   workbook. Do not edit this copy to add new sections or rename sheets.
-- Exactly six active FE-specific Markdown files in `03-features/` are the editable
-  feature sources (`fe-01` through `fe-06`). Keep test case IDs stable when a
+- Exactly eight active FE-specific Markdown files in `03-features/` are the editable
+  feature sources (`fe-01` through `fe-08`). Keep test case IDs stable when a
   case is reworded or re-tested.
 - When the report is ready for submission, use the exporter to produce a copy
-  of the official template with six generated feature sheets. Read
+  of the official template with eight generated feature sheets. Read
   [template-layout.md](template-layout.md) first: it carries the exact cell
   addresses, the per-sheet summary block, and the template defects that will
   otherwise corrupt an export.
@@ -38,33 +38,37 @@ current Report 3 feature (`FE-01`–`FE-06`). Sheet `Feature N` contains SRS fea
 | Folder/file | Workbook area | Purpose |
 | --- | --- | --- |
 | `00-cover/` | `Cover` | Project metadata and record of changes. |
-| `01-test-cases/` | `Test Cases` | Complete index of all 61 active test cases across `Feature 1`–`Feature 6` (49 baseline cases, one profile-update case, two V29 additions, one flight-log fallback case, one refund/payout lifecycle case, and four V55 evidence media optimization cases). |
-| `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary across active `Feature 1`–`Feature 6`. |
-| `03-features/fe-01-authentication-access-control.md` | `Feature 1` sheet | `FE-01` (`WF1-001`–`WF1-005`, `WF1-022`: 6 cases, Owner: Trần Hoàng Trung Hiếu). |
-| `03-features/fe-02-workforce-subscription-management.md` | `Feature 2` sheet | `FE-02` (`WF1-006`–`WF1-016`: 11 cases, Owner: Trần Hoàng Trung Hiếu). |
-| `03-features/fe-03-asset-drone-fleet-management.md` | `Feature 3` sheet | `FE-03` (`WF1-017`–`WF1-021`: 5 cases, Owner: Phùng Trung Quốc). |
-| `03-features/fe-04-recurring-schedule-notifications.md` | `Feature 4` sheet | `FE-04` (`WF2-001`–`WF2-005`: 5 cases, Owner: Phùng Trung Quốc). |
-| `03-features/fe-05-mission-dispatch-airspace-advisory.md` | `Feature 5` sheet | `FE-05` (`WF2-008`–`009`, `011`–`012`, `015`–`020`, `WF3-009`, `WF3-020`: 12 cases, Owner: Trần Tùng Bách). |
-| `03-features/fe-06-flight-readiness-field-execution.md` | `Feature 6` sheet | `FE-06` (`WF3-001`–`008`, `WF3-010`, `012`, `016`–`019`, `021`–`025`: 19 cases, Owner: Trần Tùng Bách). |
+| `01-test-cases/` | `Test Cases` | Complete index of all 64 active test cases across `Feature 1`–`Feature 8`. |
+| `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary across active `Feature 1`–`Feature 8`. |
+| `03-features/fe-01-authentication-account-access-four-role-portal-scope.md` | `Feature 1` sheet | `FE-01` (`WF1-001`–`005`, `WF1-022`, `WF2-019`, `WF2-020`: 8 cases, Owner: Trần Hoàng Trung Hiếu). |
+| `03-features/fe-02-partner-inspector-application-owned-drone-registry.md` | `Feature 2` sheet | `FE-02` (`WF1-006`–`008`, `WF1-010`, `WF1-014`–`016`: 7 cases, Owner: Trần Hoàng Trung Hiếu). |
+| `03-features/fe-03-buildings-airspace-screening-occurrences-notifications.md` | `Feature 3` sheet | `FE-03` (`WF1-009`, `011`–`013`, `017`–`020`: 8 cases, Owner: Phùng Trung Quốc). |
+| `03-features/fe-04-service-requests-vnd-quotations-agreements-dispatch.md` | `Feature 4` sheet | `FE-04` (`WF1-021`, `WF2-001`–`005`, `WF2-015`, `WF2-016`: 8 cases, Owner: Phùng Trung Quốc). |
+| `03-features/fe-05-flight-permit-gate-on-site-field-sessions.md` | `Feature 5` sheet | `FE-05` (`WF2-008`, `009`, `011`, `012`, `017`, `018`, `020`: 7 cases, Owner: Trần Tùng Bách). |
+| `03-features/fe-06-evidence-intake-human-reviewed-defect-detection.md` | `Feature 6` sheet | `FE-06` (`WF3-001`–`004`, `007`, `008`, `010`, `017`, `022`–`025`, `028`, `029`: 14 cases, Owner: Trần Tùng Bách). |
+| `03-features/fe-07-inspection-report-preparation-review-publication.md` | `Feature 7` sheet | `FE-07` (`WF3-005`, `006`, `009`, `016`, `030`: 5 cases, Owner: Trần Tùng Bách). |
+| `03-features/fe-08-customer-acceptance-payment-settlement.md` | `Feature 8` sheet | `FE-08` (`WF3-012`, `018`, `019`, `021`, `026`, `027`, `031`: 7 cases, Owner: Trương Thái Như). |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
 | `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
 
-The `FE-01`–`FE-06` codes and their Report 3 sections are:
+The `FE-01`–`FE-08` codes and their Report 3 sections are:
 
 | FE | Report 3 § | Report 3 feature title | Owner |
 | --- | --- | --- | --- |
-| `FE-01` | `3.2` | Authentication, Google OAuth2 & 5-Role Access Control | Trần Hoàng Trung Hiếu (`SE184212`) |
-| `FE-02` | `3.3` | Partner Onboarding, Workforce, Asset & Inspector Drone Registry | Trần Hoàng Trung Hiếu (`SE184212`) |
-| `FE-03` | `3.4` | Recurring Service Requests, Contract Occurrences & Outbox Notifications | Phùng Trung Quốc (`SE170027`) |
-| `FE-04` | `3.5` | Service Requests, Quotations, Contracts, Dispatch & Airspace Map | Phùng Trung Quốc (`SE170027`) |
-| `FE-05` | `3.6` | Flight Permit Gate, Field Execution, Dashboard & Calendar | Trần Tùng Bách (`SE180220`) |
-| `FE-06` | `3.7` | Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS | Trần Tùng Bách (`SE180220`) |
+| `FE-01` | `3.2` | Authentication, Account Access & Four-Role Portal Scope | Trần Hoàng Trung Hiếu (`SE184212`) |
+| `FE-02` | `3.3` | Partner Inspector Application & Owned Drone Registry | Trần Hoàng Trung Hiếu (`SE184212`) |
+| `FE-03` | `3.4` | Buildings, Airspace Screening, Occurrences & Notifications | Phùng Trung Quốc (`SE170027`) |
+| `FE-04` | `3.5` | Service Requests, VND Quotations, Agreements & Dispatch | Phùng Trung Quốc (`SE170027`) |
+| `FE-05` | `3.6` | Flight Permit Gate & On-Site Field Sessions | Trần Tùng Bách (`SE180220`) |
+| `FE-06` | `3.7` | Evidence Intake & Human-Reviewed Defect Detection | Trần Tùng Bách (`SE180220`) |
+| `FE-07` | `3.8` | Inspection Report Preparation, Review & Publication | Trần Tùng Bách (`SE180220`) |
+| `FE-08` | `3.9` | Customer Acceptance & Payment Settlement | Trương Thái Như (`SE180082`) |
 
 Each active FE file's H1 carries its current Report 3 title. Retired maintenance case sources are removed from the active suite.
 
 ## Editing workflow
 
-1. Add or update the case in its owning active FE-specific file first (`fe-01`–`fe-06`).
+1. Add or update the case in its owning active FE-specific file first (`fe-01`–`fe-08`).
 2. Keep the existing active ID formats (`WF1-...` to `WF3-...`) stable; do not add `WF4` cases.
 3. Mirror every case in `01-test-cases/test-case-list.md`.
 4. Record execution only in the matching Round 1, Round 2, or Round 3 cell.

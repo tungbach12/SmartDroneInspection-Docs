@@ -837,7 +837,7 @@ sequenceDiagram
 
 ### 3.6 MF3 — FE-06 Evidence Intake and Human-Reviewed Defect Detection
 
-This section presents the detailed design for `FE-06`: photograph intake with EXIF extraction and bounded normalization, resumable chunked MP4 upload with asynchronous FFmpeg transcoding and ticketed Range playback, YOLO11 defect detection with an OpenAI-compatible vision fallback, and the human-reviewed findings baseline that fixes which defects become official.
+This section presents the detailed design for `FE-06`: photograph intake with EXIF extraction and bounded normalization, resumable chunked MP4 upload with asynchronous FFmpeg transcoding and ticketed Range playback, YOLO11 defect detection with an OpenAI-compatible vision fallback, the human-reviewed findings baseline that fixes which defects become official, and tenant-isolated DroneKnowledgeAI recommendations that ground each finding in historical cases and engineering standards.
 
 #### 3.6.1 Class Diagram
 
@@ -859,6 +859,24 @@ classDiagram
   }
   class PrimaryWithFallbackInference {
     +predict(imageBytes, contentType) List~DetectedBox~
+  }
+  class HistoricalCaseService {
+    +recommendForFinding(actorId, inspId, findingId, limit) KnowledgeRecommendationResponse
+    +recommendForInspection(actorId, inspId, limit) KnowledgeRecommendationResponse
+    +indexPublishedFindings(inspId) void
+    +findKnowledgeReferences(inspId) List~KnowledgeReferenceSummary~
+  }
+  class HistoricalCaseAdvisorPort {
+    <<interface>>
+    +embed(text) Optional
+  }
+  class DroneKnowledgeClient {
+    +embed(text) Optional
+  }
+  class KnowledgeRecommendationResponse {
+    +String retrievalMode
+    +List~CaseMatch~ cases
+    +List~GuidelineMatch~ guidelines
   }
   class Evidence {
     -UUID id
@@ -883,6 +901,10 @@ classDiagram
   EvidenceService --> Evidence
   FindingService --> Finding
   FindingService --> PrimaryWithFallbackInference
+  FindingService --> HistoricalCaseService : advisory recommendations
+  HistoricalCaseService --> HistoricalCaseAdvisorPort
+  DroneKnowledgeClient ..|> HistoricalCaseAdvisorPort
+  HistoricalCaseService --> KnowledgeRecommendationResponse
   Evidence "1" o-- "0..*" Finding : locates
 ```
 
@@ -895,6 +917,9 @@ classDiagram
 | 03 | `VideoProcessingWorker`, `FfmpegVideoTranscoder` & `MediaTicketService` | Poll durable DB-backed `PENDING` video jobs, run argument-array FFmpeg transcoding (`<= 1080p` H.264 `+faststart` MP4 + `480 px` poster) with `raw_object_key` retained until verification or retryable failure, and mint short-lived HMAC tickets (`POST .../media-ticket` -> `GET/HEAD .../stream?ticket=...`) for native `<video>` Range playback. |
 | 04 | `FindingService` & `PrimaryWithFallbackInference` | Invoke Ultralytics YOLO11 (`YoloInferenceClient`) and Vision LLM fallback (`OpenAiCompatibleInferenceClient`) defect detection on photographs and video keyframes, manage manual and AI-suggested findings, and lock the confirmed findings baseline (`inspections.findings_confirmed_at`). |
 | 05 | `Evidence`, `EvidenceUploadSession` & `Finding` | Domain entities representing normalized/processed inspection media, resumable upload sessions, and AI-proposed (`PENDING`) or Inspector-confirmed (`CONFIRMED`) structural defects. |
+| 06 | `HistoricalCaseService` (`inspections.service`) | Tenant-isolated advisory retrieval in `inspections`. `recommendForFinding(actorId, inspectionId, findingId, limit)` and `recommendForInspection(actorId, inspectionId, limit)` first call `EvidenceService.requireInspectionInScope`, then embed the finding description and query `inspection_knowledge_chunks`/`historical_finding_cases`. Returns `PGVECTOR_RAG` when the optional embedding succeeds, otherwise deterministic `HYBRID_MATCH` with normalized `[0.0, 1.0]` similarity; an unwired advisor yields an empty `HYBRID_MATCH` payload. `indexPublishedFindings(inspectionId)` publishes confirmed findings when a report is published, and `findKnowledgeReferences(inspectionId)` supplies compact references to the AI summary. |
+| 07 | `HistoricalCaseAdvisorPort` (`inspections.spi`) & `DroneKnowledgeClient` (`infrastructure.ai`) | The outbound embeddings port owned by `inspections` and its optional OpenAI-compatible `POST /v1/embeddings` adapter. `embed(text)` returns a 1536-dimensional vector or empty on timeout, authentication failure or malformed response; `DroneKnowledgeConfiguration` (gated by `app.knowledge-ai.enabled`) and `DroneKnowledgeProperties` supply the endpoint, model, API key and timeout. Retrieval scope is `(organization_id = actor org OR is_anonymized_benchmark = TRUE) AND (source_inspection_id IS NULL OR source_inspection_id <> current inspection)`, so no cross-organization PII leaks. |
+| 08 | `KnowledgeRecommendationResponse` | Advisory DTO with `retrievalMode`, `cases` (`CaseMatch`: id, defect label, severity, asset category/label, same-asset/same-org flags, similarity, technical notes, outcome, published time) and `guidelines` (`GuidelineMatch`: id, standard code, title, severity, similarity, guidance, reference URL). Exposed at `GET /api/v1/inspections/{inspectionId}/findings/{findingId}/recommendations?limit=3` and rendered by the Web `KnowledgeRecommendationPanel` (`Similar Cases & Guide`) with one-click `Apply` into edit mode. |
 
 #### 3.6.2 Photo/Video Evidence Intake, YOLO11 Detection and Findings Confirmation Sequence Diagram
 
@@ -907,6 +932,8 @@ sequenceDiagram
   participant EvidSvc as EvidenceService
   participant FindSvc as FindingService
   participant AI as PrimaryWithFallbackInference
+  participant HistSvc as HistoricalCaseService
+  participant Advisor as HistoricalCaseAdvisorPort
   participant DB as PostgreSQL & MinIO
 
   Insp->>Ctrl: POST /api/v1/inspections/{id}/evidence (photo <= 10 MB or compatibility video <= 20 MiB)
@@ -934,14 +961,28 @@ sequenceDiagram
   Insp->>Ctrl: POST /api/v1/inspections/{id}/findings/confirm
   Ctrl->>FindSvc: confirmFindings(inspectorId, inspectionId, acknowledgeNoFindings)
   FindSvc->>DB: Verify zero PENDING findings remain and set inspections.findings_confirmed_at
+
+  Insp->>Ctrl: GET /api/v1/inspections/{id}/findings/{findingId}/recommendations?limit=3
+  Ctrl->>HistSvc: recommendForFinding(actorId, inspectionId, findingId, limit)
+  HistSvc->>DB: requireInspectionInScope(actorId, inspectionId) and load the finding
+  HistSvc->>Advisor: embed(findingDescription)
+  Advisor-->>HistSvc: 1536-dim vector or empty when unavailable
+  alt Embedding available
+    HistSvc->>DB: pgvector cosine query (PGVECTOR_RAG) filtered by tenant scope
+  else Embedding unavailable
+    HistSvc->>DB: deterministic HYBRID_MATCH over category and defect label
+  end
+  HistSvc-->>Insp: KnowledgeRecommendationResponse with normalized similarity
+  Note over Insp,DB: Web KnowledgeRecommendationPanel renders Similar Cases & Guide with one-click Apply
 ```
 
 ### 3.7 MF4 — FE-07 Inspection Report Preparation, Review and Publication
 
 This section presents the detailed design for `FE-07`: the four-state inspection report lifecycle
 (`SUBMITTED`, `RETURNED`, `PUBLISHED`, `SUPERSEDED`), report content compiled from the confirmed
-findings and the inspected checkpoints, single-shot advisory narrative drafting, independent
-Manager review of a report the reviewer did not author, publication, and on-demand A4 PDF
+findings and the inspected checkpoints, single-shot advisory narrative drafting enriched with
+source-backed DroneKnowledgeAI references, independent Manager review of a report the reviewer did
+not author, publication with automatic indexing of confirmed findings, and on-demand A4 PDF
 rendering of the published version.
 
 #### 3.7.1 Class Diagram
@@ -972,6 +1013,21 @@ classDiagram
   class ReportDraftClient {
     +draft(narrativeRequest) ReportNarrative
   }
+  class HistoricalCaseService {
+    +findKnowledgeReferences(inspId) List~KnowledgeReferenceSummary~
+    +indexPublishedFindings(inspId) void
+    +recommendForInspection(actorId, inspId, limit) KnowledgeRecommendationResponse
+  }
+  class ReportAiSummaryResponse {
+    +String executiveSummary
+    +List~KnowledgeReferenceSummary~ knowledgeReferences
+  }
+  class KnowledgeReferenceSummary {
+    +String kind
+    +String codeOrLabel
+    +String summary
+    +Double similarity
+  }
   class PdfReportRenderer {
     +render(context, locale) byte[]
   }
@@ -986,8 +1042,12 @@ classDiagram
     -Instant publishedAt
   }
   InspectionController --> ReportService
+  InspectionController --> HistoricalCaseService : knowledge-recommendations
   ReportService --> InspectionReport
   ReportService --> ReportDraftClient
+  ReportService --> HistoricalCaseService : knowledge references
+  ReportService --> ReportAiSummaryResponse
+  ReportAiSummaryResponse o-- KnowledgeReferenceSummary
   ReportService --> PdfReportRenderer
 ```
 
@@ -996,10 +1056,13 @@ classDiagram
 | No | Class | Description |
 | :---: | :--- | :--- |
 | 01 | `InspectionController` & `ReportService` | Compile report content from the confirmed findings baseline and the inspected checkpoints, accept an authored or AI-drafted version, verify it, submit it for review, and expose the version history to authorized readers. |
-| 02 | `ReportDraftClient` | Produce a single-shot advisory executive summary through the configured OpenAI-compatible endpoint. The draft is advisory text only; no retrieval corpus, embedding, or vector store is involved, and the rendered report falls back to the deterministic template when the model is unavailable. |
+| 02 | `ReportDraftClient` | Produce a single-shot advisory executive summary through the configured OpenAI-compatible endpoint. The narrative request is not itself retrieval-augmented and the rendered report falls back to the deterministic template when the model is unavailable; however `ReportService` now supplies source-backed reference strings from `HistoricalCaseService` so the summary is grounded in indexed standards and historical cases. |
 | 03 | `ReportService` (review path) | Enforce independent review: a `MANAGER` or `ADMIN` who is not the author may publish the submitted version, returning the lifecycle to `FIELD_COMPLETED` on rejection with a recorded reason, or superseding an earlier published version on approval. |
 | 04 | `PdfReportRenderer` | Render the published version on demand as an A4 PDF from normalized ready image bytes, skipping video binaries, caching the artefact at `reports/<versionId>.pdf` in MinIO, and streaming it to the caller. |
 | 05 | `InspectionReport` | Domain entity holding the version number, lifecycle status, reviewer identity, return reason, and submission and publication timestamps. |
+| 06 | `HistoricalCaseService` (report path) | `findKnowledgeReferences(inspectionId)` returns compact source-backed references from `inspection_knowledge_chunks` and tenant-visible `historical_finding_cases`; `indexPublishedFindings(inspectionId)` copies the published report's confirmed findings into `historical_finding_cases` with `is_anonymized_benchmark = FALSE`. `recommendForInspection(actorId, inspectionId, limit)` backs `GET /api/v1/inspections/{inspectionId}/knowledge-recommendations?limit=4`, which the Web report summary renders as a `Matched Cases & Standards` footer. |
+| 07 | `ReportAiSummaryResponse` & `KnowledgeReferenceSummary` | `generateAiSummary` returns the advisory narrative plus `knowledgeReferences` (`kind`, `codeOrLabel`, `summary`, normalized `similarity`); the list is empty when DroneKnowledgeAI is unavailable, so the UI degrades cleanly. References are advisory only and never alter the confirmed findings or publication decision. |
+| 08 | Web `ReportAiSummaryCard` & `KnowledgeRecommendationPanel` | `src/features/reports/ReportAiSummaryCard` renders the `Matched Cases & Standards` footer from `knowledgeReferences`, while `src/features/inspections/components/KnowledgeRecommendationPanel.tsx` renders the `Similar Cases & Guide` strip with one-click `Apply` for a case's technical note during evidence review. |
 
 #### 3.7.2 Report Submission, Manager Direct Publication and On-Demand PDF Export Sequence Diagram
 
@@ -1012,11 +1075,15 @@ sequenceDiagram
   actor Caller as Authorized User
   participant Ctrl as InspectionController
   participant RepSvc as ReportService
+  participant HistSvc as HistoricalCaseService
   participant Pdf as PdfReportRenderer
   participant DB as PostgreSQL & MinIO
 
   Insp->>Ctrl: POST /api/v1/inspections/{id}/report/ai-summary & POST /report/draft
   Ctrl->>RepSvc: generateAiSummary(...) & generateDraft(inspectorId, inspectionId)
+  RepSvc->>HistSvc: findKnowledgeReferences(inspectionId) for source-backed references
+  HistSvc-->>RepSvc: KnowledgeReferenceSummary list or empty when unavailable
+  Note over Ctrl,DB: GET /knowledge-recommendations renders Matched Cases & Standards in ReportAiSummaryCard
   RepSvc->>DB: Create InspectionReport (status = SUBMITTED) and move Inspection to UNDER_REVIEW
 
   alt Manager Returns Report with Feedback
@@ -1027,6 +1094,7 @@ sequenceDiagram
     Mgr->>Ctrl: POST /api/v1/inspections/{id}/report/versions/{verId}/review (approve = true)
     Ctrl->>RepSvc: reviewVersion(managerId, inspectionId, verId, true, null)
     RepSvc->>DB: Mark prior published version SUPERSEDED, set current version PUBLISHED, and Inspection COMPLETED
+    RepSvc->>HistSvc: indexPublishedFindings(inspectionId) for future recommendations
   end
 
   Caller->>Ctrl: GET /api/v1/inspections/{id}/report/versions/{verId}/document
@@ -1037,9 +1105,11 @@ sequenceDiagram
 ### 3.8 MF4 — FE-08 Customer Report Acceptance and Payment Settlement
 
 This section presents the detailed design for `FE-08`: customer acceptance of a published report,
-VND settlement through PayOS VietQR and VNPay with signed webhook verification, Manager-recorded
-partner settlement with payouts and refunds, and the re-inspection loop opened against a published
-report to re-assess each originally confirmed defect three ways.
+the `V4` payment-due window with a single overdue reminder and a notice/receipt PDF, VND settlement
+through PayOS VietQR and VNPay with signed webhook verification, Manager-recorded partner settlement
+with payouts and refunds, Inspector–Customer inspection chat with a configurable assignment-acceptance
+timeout from `V61`, and the re-inspection loop opened against a published report to re-assess each
+originally confirmed defect three ways with `V3` verdict validity.
 
 #### 3.8.1 Class Diagram
 
@@ -1072,6 +1142,20 @@ classDiagram
   class VnPayWebhookController {
     +handleIpn(params) VnPayIpnResponse
   }
+  class PaymentDocumentService {
+    +download(actorId, inspId) byte[]
+  }
+  class InspectionChatController {
+    +listThreads(actorId) List~InspectionChatThreadResponse~
+    +getThread(actorId, inspId) InspectionChatThreadResponse
+    +postMessage(actorId, inspId, body, files) InspectionChatThreadResponse
+    +markMessagesRead(actorId, inspId) InspectionChatThreadResponse
+    +downloadMessageAttachment(actorId, inspId, messageId, attachmentId) ResponseEntity
+  }
+  class InspectionChatService {
+    +postMessage(actorId, inspId, body, files) InspectionChatThreadResponse
+    +markMessagesRead(actorId, inspId) InspectionChatThreadResponse
+  }
   class ServicePayment {
     -UUID id
     -UUID invoiceId
@@ -1079,6 +1163,8 @@ classDiagram
     -BigDecimal amountVnd
     -PaymentStatus status
     -String providerTransactionRef
+    -Instant paymentDueAt
+    -Instant paymentOverdueNotifiedAt
   }
   class ServiceRefund {
     -UUID id
@@ -1094,11 +1180,15 @@ classDiagram
     -UUID newEvidenceId
     -DefectResolutionStatus resolutionStatus
     -String inspectorNotes
+    -Instant verifiedAt
+    -Instant validUntil
   }
   ContractWorkflowService --> ServicePayment
   ContractWorkflowService --> ServiceRefund
   PayOSWebhookController --> ContractWorkflowService
   VnPayWebhookController --> ContractWorkflowService
+  InspectionController --> PaymentDocumentService
+  InspectionChatController --> InspectionChatService
   ReinspectionVerificationService --> ReinspectionDefectVerification
 ```
 
@@ -1110,6 +1200,10 @@ classDiagram
 | 02 | `ServicePayment` & `ServiceRefund` | Domain entities representing a provider payment against a service invoice and an evidence-backed refund with its allocation. |
 | 03 | `ReinspectionVerificationService` | Open a re-inspection against a source inspection, initialize one `ReinspectionDefectVerification` row per originally confirmed defect, and record each three-way outcome (`RESOLVED`, `UNRESOLVED`, `INCONCLUSIVE`) with the inspector's note and the supporting evidence capture. Recording is refused while the re-inspection is still `SCHEDULED` or `IN_PROGRESS`, and locked once a report for it is `SUBMITTED` or `PUBLISHED`. |
 | 04 | `ReinspectionDefectVerification` | Domain entity linking the re-inspection, the source finding, the replacement evidence, and the recorded resolution status. |
+| 05 | `PaymentDocumentService` (`V4`) | Renders the payment notice/receipt PDF at `GET /api/v1/inspections/{inspectionId}/report/payment-document`. On acceptance, `service_payments.payment_due_at` is set from the configurable window (default 15 days) and `payment_overdue_notified_at` guards a single overdue reminder; both deadlines are surfaced on Web and Mobile. |
+| 06 | `InspectionChatController` & `InspectionChatService` (`V61`) | Inspector–Customer chat through `GET /api/v1/inspections/messages/threads`, `GET /api/v1/inspections/{inspectionId}/messages`, `POST /api/v1/inspections/{inspectionId}/messages`, `POST /{inspectionId}/messages/read`, and `GET /{inspectionId}/messages/{messageId}/attachments/{attachmentId}`. The body is capped at 4000 characters, attachments at 20 MiB each, and every read rechecks inspection scope. `platform_operations_settings.assignment_acceptance_timeout_hours` (default 24) bounds dispatch acceptance before automatic unassignment. |
+| 07 | `ReinspectionVerificationService` (validity path, `V3`) | A `RESOLVED` verdict requires fresh evidence captured in the re-inspection's completed field-session window and stores `verified_at` plus a derived `valid_until`. Web `VerdictExpiryBanner` (`verdictExpiry.ts`) and Mobile `verdict_expiry.dart` split verdicts into expired and expiring-soon, so stale verdicts cannot close regressed defects. |
+| 08 | Mobile Customer parity (`PR #27`) | `KnowledgeReferencesStrip` (`knowledge_references_strip.dart`), `InspectionChatPage` (`inspection_chat_page.dart`), `verdict_expiry.dart`, and payment-due/PDF document support keep the Customer Flutter app aligned with the Web portal across the published-report and re-inspection stages. |
 
 #### 3.8.2 Customer Report Acceptance and PayOS / VNPay Online Payment Sequence Diagram
 
@@ -1121,12 +1215,17 @@ sequenceDiagram
   participant Ctrl as InspectionController / ContractWorkflowController
   participant Webhooks as PayOSWebhookController / VnPayWebhookController
   participant ContractSvc as ContractWorkflowService
+  participant DocSvc as PaymentDocumentService
   participant PayGW as PayOSPaymentGateway / VnPayPaymentGateway
   participant DB as PostgreSQL
 
   Cust->>Ctrl: POST /api/v1/inspections/{id}/report/versions/{verId}/accept
   Ctrl->>ContractSvc: customerAcceptReport(customerId, requestId, occurrenceId, versionId)
   ContractSvc->>DB: Verify report is PUBLISHED and transition occurrence paymentStatus to PAYMENT_DUE
+  ContractSvc->>DB: Set payment_due_at from the configurable window (default 15 days)
+  Cust->>Ctrl: GET /api/v1/inspections/{id}/report/payment-document
+  Ctrl->>DocSvc: download(customerId, inspectionId)
+  DocSvc-->>Cust: Notice/receipt PDF carrying the due date and payment instructions
 
   alt PayOS VietQR Checkout
     Cust->>Ctrl: POST /api/v1/contracts/requests/{reqId}/occurrences/{occId}/payos/checkout
@@ -1158,12 +1257,12 @@ Legacy `COMPLETED` refunds with unknown allocation are reconciled one row at a t
 
 ### 3.9 Design Constraints and Exclusions
 
-**No maintenance design exists.** Corrective maintenance — work orders, repair scope advisory, repair execution, completion reporting, and cost close-out — is absent from the delivered codebase. There is no maintenance package, class, endpoint, or table, so there is no retained schema to document. `reinspection_defect_verifications` is part of the inspection design, not of a maintenance design: it records the three-way comparison between an original finding and its re-observed evidence during a re-inspection, and that loop is designed in `FE-08`.
+**No maintenance design exists.** Corrective maintenance — work orders, repair scope advisory, repair execution, completion reporting, and cost close-out — is absent from the delivered codebase. There is no maintenance package, class, endpoint, or table, so there is no retained schema to document. `reinspection_defect_verifications` is part of the inspection design, not of a maintenance design: it records the three-way comparison between an original finding and its re-observed evidence during a re-inspection, including the `V3` `valid_until` expiry of a `RESOLVED` verdict, and that loop is designed in `FE-08`.
 
-**No vector store.** The AI subsystem performs image inference and single-shot narrative drafting only. `pgvector` is created conditionally by the baseline for image compatibility, but no table carries a vector column, no embedding is computed or persisted, and no retrieval over a document corpus exists. Earlier drafts of this report described a retrieval-augmented advisory service; that design was never delivered.
+**DroneKnowledgeAI is advisory, tenant-isolated and degradation-tolerant.** `V62` creates the `pgvector` extension and persists `vector(1536)` embeddings in `inspection_knowledge_chunks` (eight seeded engineering standards) and `historical_finding_cases` (six anonymized benchmarks plus findings indexed at publication), each with an HNSW `vector_cosine_ops` index. `HistoricalCaseService` queries these stores behind the inspections-owned `HistoricalCaseAdvisorPort`, using `PGVECTOR_RAG` when `DroneKnowledgeClient` returns an embedding and deterministic `HYBRID_MATCH` otherwise. Retrieval is scoped by `(organization_id = actor org OR is_anonymized_benchmark = TRUE) AND (source_inspection_id IS NULL OR source_inspection_id <> current inspection)`, so no cross-organization PII is exposed. Recommendations and knowledge references never confirm a finding, publish a report, clear a location for flight, or authorize maintenance.
 
 **Buildings only.** Building-defect classes, inspection checkpoints, and asset categories are all building-specific. No design element addresses bridges, transmission towers, solar farms, roads, dams, tunnels, ports, or pipelines.
 
 **Separation of duties is a design constraint, not a UI convention.** The reviewer of a flight permit or a report must differ from its author, enforced by comparing the acting user against the stored author or submitter inside the service transaction. This rule is implemented in the domain services rather than in the client, so a direct API call cannot bypass it.
 
-**External services never substitute for human authority.** The detection service, the vision fallback, the narrative drafter, and the airspace advisory all produce advisory output. None of them can confirm a finding, approve a permit, publish a report, or clear a location for flight; each of those transitions requires an authenticated human decision recorded with its actor and time.
+**External services never substitute for human authority.** The detection service, the vision fallback, the narrative drafter, the DroneKnowledgeAI case/standard advisor, and the airspace advisory all produce advisory output. None of them can confirm a finding, approve a permit, publish a report, or clear a location for flight; each of those transitions requires an authenticated human decision recorded with its actor and time.

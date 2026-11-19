@@ -14,6 +14,7 @@ source_docx: report2-project-management-plan.docx
 | 17 Nov 2026 | M | Team | Version 3.0: Rewritten against the delivered product. WBS re-derived for the then-current six-feature set (`FE-01`–`FE-06`) and twelve functions; effort re-estimated and reconciled with available team capacity; risk register, training plan, deliverables, RACI, and tools aligned to the four-role scope and the `V1`+`V2` schema baseline. |
 
 | 18 Nov 2026 | M | Team | Version 3.1: WBS re-derived for the four-main-flow, eight-feature model (`MF1`–`MF4`, `FE-01`–`FE-08`, two features per flow) at sixteen functions. Total effort re-estimated to 208 man-days and reconciled against the same 300 person-day raw allocation at 70% effective capacity. Risk 1, the objectives, the quality table, the training plan, and the deliverable descriptions updated to match. |
+| 19 Nov 2026 | M | Team | Version 3.2: Synchronized scope, WBS, risk register, deliverables, and tooling with the delivered forward-only `V1`–`V4` and `V60`–`V62` schema (45 application tables / 47 total PostgreSQL tables) and `DroneKnowledgeAI` historical-case recommendation; recorded Mobile Customer parity (`PR #27`) and the final verified automated test execution. Total effort remains reconciled at 208 man-days across 300 raw person-days. |
 
 *A - Added M - Modified D - Deleted
 
@@ -26,6 +27,8 @@ source_docx: report2-project-management-plan.docx
 SmartDroneInspection is a platform-operated service for infrastructure inspection. Customer organizations register their assets, raise one-time or recurring inspection service requests, negotiate priced quotations, accept them, and sign a paper service agreement. The platform then coordinates qualified partner drone Inspectors to execute the flights, collect photographic and video evidence, confirm defect findings against vision-model proposals, and produce an inspection report that a Manager independently reviews and publishes for the Customer's acceptance and payment.
 
 The delivered scope covers four main flows — onboarding (`MF1`), buildings and commercial agreement through dispatch (`MF2`), field work through evidence and findings (`MF3`), and report review through payment settlement (`MF4`) — organised as eight product features and sixteen functions, two features per flow. Work is decomposed below; complexity uses the three levels `Simple`, `Medium`, and `Complex`, and effort is expressed in man-days.
+
+The delivered persistence baseline is the forward-only migration set `V1`–`V4` and `V60`–`V62`: 45 application tables and 47 total PostgreSQL tables in the `public` schema, consolidated from a single baseline and asserted by an automated migration-set test. It includes the tenant-isolated `DroneKnowledgeAI` retrieval layer (`pgvector` HNSW cosine index with a deterministic `HYBRID_MATCH` fallback), the re-inspection verdict-validity and payment-due migrations, optional quotation-stage partner assignment, and Inspector–Customer inspection chat, with Customer mobile parity (`PR #27`). This delivered work is absorbed within the feature estimates below; the total remains reconciled at 208 man-days against 300 raw person-days.
 
 | # | WBS Item | Complexity | Est. Effort (man-days) |
 | --- | --- | --- | --- |
@@ -49,10 +52,10 @@ The delivered scope covers four main flows — onboarding (`MF1`), buildings and
 | 3.1.2 | Field-session recording (start, complete, reasoned abort) and Manager reschedule, reassign, or cancel | Complex | 12 |
 | 3.2 | FE-06 Evidence Intake and Human-Reviewed Defect Detection | Complex | 23 |
 | 3.2.1 | Photograph and video evidence intake, normalization, resumable upload, and streaming playback | Complex | 12 |
-| 3.2.2 | Vision-assisted defect proposals and human confirmation of the findings baseline | Complex | 11 |
+| 3.2.2 | Vision-assisted defect proposals, tenant-isolated `DroneKnowledgeAI` advisory recommendations, and human confirmation of the findings baseline | Complex | 11 |
 | 4 | `MF4` Report review and payment settlement (Owner: Trương Thái Như) | Complex | 28 |
 | 4.1 | FE-07 Inspection Report Preparation, Review and Publication | Complex | 14 |
-| 4.1.1 | Report compilation from confirmed findings with the AI executive summary | Complex | 8 |
+| 4.1.1 | Report compilation from confirmed findings with the AI executive summary and its matched-case and engineering-standard knowledge references | Complex | 8 |
 | 4.1.2 | Independent Manager review, publication of a locked version, and PDF rendering | Complex | 6 |
 | 4.2 | FE-08 Customer Report Acceptance and Payment Settlement | Complex | 14 |
 | 4.2.1 | Customer report acceptance, PayOS and VNPay settlement, partner payouts and refunds | Complex | 9 |
@@ -91,7 +94,7 @@ Allocated Effort (man-days): requirements and project management 20; architectur
 | --- | --- | --- | --- | --- |
 | 1 | Scope exceeds four-person capacity across backend, web, mobile, and AI work. | High | Medium | Bound the scope to eight features and sixteen functions, assign two features per member, and track the WBS weekly. Corrective maintenance was removed from scope when it threatened the schedule. |
 | 2 | Contract drift between the four repositories — a backend contract change not reflected in the web or mobile client. | High | High | Keep one focused pull request per repository and merge in a documented order; exercise the changed endpoint through the client tests before merging; re-read live code rather than stale documentation when reconciling. |
-| 3 | The self-hosted vision model or the external language-model endpoint is unavailable during a demonstration. | High | Medium | Route inference through a primary-with-fallback strategy; accept manually entered findings when no detector responds; keep report compilation deterministic so a report can always be produced. |
+| 3 | The self-hosted vision model or the external language-model endpoint is unavailable during a demonstration. | High | Medium | Route inference through a primary-with-fallback strategy; accept manually entered findings when no detector responds; keep report compilation deterministic so a report can always be produced; for `DroneKnowledgeAI` recommendations, fall back to deterministic `HYBRID_MATCH` similarity when embeddings are unconfigured, and keep recommendations advisory so findings can still be confirmed by the Inspector. |
 | 4 | Report content diverges from the confirmed findings. | High | Low | Compile the report from confirmed findings rather than free text, and require an independent Manager to approve publication. |
 | 5 | Cross-customer data leakage or privilege escalation between the four roles. | High | Low | Enforce role checks at every endpoint, add ownership and assignment checks inside services, and keep separation of duties between report author and report reviewer. |
 | 6 | The same Inspector or aircraft is double-booked across two customer organizations. | High | Medium | Check schedule conflicts across all customer organizations before assigning an occurrence, and require a currently valid pilot licence and an eligible aircraft. |
@@ -133,13 +136,13 @@ Figure 1. Iterative delivery process.
 | # | Deliverable | Due Date | Notes |
 | --- | --- | --- | --- |
 | D1 | Report 1 — Project Introduction | Week 2 | Product background, three-system comparison, vision, and eight-feature scope. |
-| D2 | Report 2 — Project Management Plan | Week 3 | Six-feature work breakdown, risk register, RACI, and quality plan. |
+| D2 | Report 2 — Project Management Plan | Week 3 | Eight-feature work breakdown, risk register, RACI, and quality plan. |
 | D3 | Review 1 Gate Package | Week 4 | Registration form, management plan, draft requirements, and architecture baseline. |
 | D4 | Report 3 — Software Requirement Specification | Week 8 | Complete requirements for four roles and eight features, with screen and authorization matrices. |
 | D5 | Report 4 — Software Design Document | Week 8 | System architecture, package and database design, and per-feature diagrams. |
 | D6 | Report 5 — Test Documentation and Test Report | Week 8, updated Week 13 | Testing plan plus the executed test-case workbook. |
 | D7 | Review 2 Submission Package | Week 8 | The four review artefacts required at the second review. |
-| D8 | Integrated Release and Verification | Week 13 | All three flows demonstrated on the deployed build. |
+| D8 | Integrated Release and Verification | Week 13 | All four flows demonstrated on the deployed build. |
 | D9 | Final Submission Package (Reports 1–7) | Weeks 14–15 | Final release, deployed demonstration, and complete documentation. |
 
 ## 4. Responsibility Assignments
@@ -190,7 +193,7 @@ Source code is managed in four independent GitHub repositories — backend, web 
 | Category | Tools / Infrastructure |
 | --- | --- |
 | Technology | Java 21, Spring Boot 4.1, Spring Modulith, Spring Security with JWT and Google OAuth2, Hibernate/JPA, Flyway; Python with FastAPI and Ultralytics for the vision service; React 19, TypeScript, Vite, Material UI, TanStack Query; Flutter with Riverpod and GoRouter |
-| Database | PostgreSQL 17 with pgcrypto |
+| Database | PostgreSQL 17 with pgcrypto and pgvector (`vector(1536)`, HNSW cosine index for the `DroneKnowledgeAI` `inspection_knowledge_chunks` and `historical_finding_cases` retrieval layer; `HYBRID_MATCH` fallback when embeddings are unconfigured) |
 | IDEs/Editors | Visual Studio Code, IntelliJ IDEA, Android Studio |
 | Diagramming | Mermaid and Draw.io sources kept in version control alongside the reports |
 | Documentation | Markdown in the documentation repository with automated OOXML export to the official Word and Excel templates |

@@ -20,10 +20,12 @@ flowchart LR
   MANAGER["Manager"]
   CUSTOMER["Customer"]
   INSPECTOR["Inspector"]
+  SYSTEM["Automated System"]
 
   SDI[["SmartDroneInspection System"]]
-  AI["AI Inference Service"]
-  LLM["Language Model"]
+  YOLO["YOLO11 Vision Service + fallback"]
+  LLM["LLM Summary Service"]
+  DKA[["DroneKnowledgeAI — pgvector RAG"]]
   STORAGE["Object Storage"]
   HUB["SmartDroneHub"]
   PAYMENT["Payment & OAuth2"]
@@ -32,9 +34,11 @@ flowchart LR
   MANAGER <-->|"Quotes, dispatch, flight trace & report review"| SDI
   CUSTOMER <-->|"Buildings, requests, report acceptance & payment"| SDI
   INSPECTOR <-->|"Drone documents, permits, telemetry & photo/MP4 evidence"| SDI
+  SYSTEM <-->|"Lifecycle gates, notices & timed jobs"| SDI
 
-  SDI <-->|"Defect detection on building imagery"| AI
+  SDI <-->|"Defect detection on building imagery"| YOLO
   SDI <-->|"Advisory report narrative drafting"| LLM
+  SDI <-->|"Tenant-isolated defect-history & standards advisory"| DKA
   SDI <-->|"Contracts, permits & photo/MP4 media"| STORAGE
   SDI <-->|"Read-only telemetry, flight trace & mission video"| HUB
   SDI <-->|"PayOS / VNPay checkout & Google OAuth2"| PAYMENT
@@ -47,4 +51,8 @@ The service supports four human login roles:
 - **`CUSTOMER`**: Registers a customer organization and its initial building subject to airspace screening; manages buildings, inspection checkpoints, and building documents; requests inspections; negotiates and accepts quotations; follows inspection progress; accepts published reports; and pays service fees.
 - **`INSPECTOR`**: Applies to join the platform through a public self-service application supplying pilot credentials and partner information, which `ADMIN` or `MANAGER` reviews before an account is created. After approval the Inspector registers owned drones with registration, ownership, and technical inspection documents, records assigned field sessions and evidence, reviews proposed findings, and prepares inspection reports.
 
-**System boundaries.** The service governs commercial building-inspection work, records aviation compliance documents, coordinates field sessions, manages inspection evidence and human-reviewed analysis, publishes inspection reports, and records service payment across eight product features (`FE-01` to `FE-08`) grouped as two features per main flow (`MF1` to `MF4`). It does not pilot or control aircraft. Completing a workflow step or recording a document does not itself grant government aviation clearance or a professional qualification. AI findings and summaries are advisory; an authorized person must review and confirm any official decision (`BR-16`, `BR-20`, `BR-27`). Corrective repair execution — work orders, repair scoping, repair cost estimation, repair execution, and maintenance acceptance — is outside the application scope and is arranged by the Customer outside the platform. A re-inspection of previously confirmed defects is in scope and reuses the same dispatch, field, and reporting flows.
+**Automated actors.** Four automated actors support the four human roles without signing in. `SYSTEM` enforces lifecycle gates, emits lifecycle notices, expires pending assignments on the configured acceptance timeout, and runs other scheduled jobs. `YOLO11` performs building-defect detection on evidence imagery with a configured vision fallback. `LLM` drafts advisory report narrative and executive summaries. `DroneKnowledgeAI` is the `pgvector`-backed advisor that retrieves tenant-isolated historical defect cases and engineering standards to support finding review and report compilation. All automated output is advisory; an authorized person must review and confirm any official decision (`BR-16`, `BR-20`, `BR-27`, `BR-55`).
+
+**Customer mobile parity.** The native application serves the `CUSTOMER` role only. It mirrors the web experience for re-inspection verdict expiry (`verdict_expiry`), the post-acceptance payment-notice and payment-receipt PDF (`payment-document`), the Inspector–Customer inspection chat, and a slim, collapsible `KnowledgeReferencesStrip` on inspection detail that hides cleanly when no references are available. Inspectors and platform staff use the web portals for field capture and operations.
+
+**System boundaries.** The service governs commercial building-inspection work, records aviation compliance documents, coordinates field sessions, manages inspection evidence and human-reviewed analysis, publishes inspection reports, and records service payment across eight product features (`FE-01` to `FE-08`) grouped as two features per main flow (`MF1` to `MF4`). It does not pilot or control aircraft. Completing a workflow step or recording a document does not itself grant government aviation clearance or a professional qualification. AI findings, summaries, and knowledge recommendations are advisory; an authorized person must review and confirm any official decision (`BR-16`, `BR-20`, `BR-27`, `BR-55`). Inspection defect-history and engineering-standard advisory retrieval (`DroneKnowledgeAI`) is in scope. Corrective repair execution — work orders, repair scoping, repair cost estimation, repair execution, and maintenance acceptance — is outside the application scope and is arranged by the Customer outside the platform; a corrective-maintenance repair knowledge base (`repair_knowledge_chunks`) and any external CMMS or work-order execution are likewise out of scope. A re-inspection of previously confirmed defects is in scope and reuses the same dispatch, field, and reporting flows.

@@ -11,7 +11,15 @@ from report_ooxml import parse_markdown
 
 TEMPLATE_NAME = "Report7_Final Project Report.docx"
 SOURCES = ["report-7-final-project-report/" + name + ".md"
-           for name in ("00-record-of-changes", "01-final-project-report")]
+           for name in (
+               "00-record-of-changes",
+               "01-project-introduction",
+               "02-project-management-plan",
+               "03-software-requirement-specification",
+               "04-software-design-description",
+               "05-software-testing-documentation",
+               "06-release-package-and-user-guides",
+           )]
 
 
 def blocks(reports):

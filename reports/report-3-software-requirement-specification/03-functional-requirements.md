@@ -198,7 +198,7 @@ These capabilities have no dedicated screen of their own; they run inside a user
 
 #### 3.1.5 Entity Relationship Diagram
 
-The persisted model comprises 41 tables applied as a single consolidated baseline migration. The diagram shows the principal entities and their relationships; reporting-only helpers such as audit, outbox, session, and configuration tables are omitted for legibility but are described in Report 4 §2.
+The persisted model comprises 45 application tables plus the transactional `event_publication` outbox (47 tables in the `public` schema including `flyway_schema_history`), applied as a consolidated baseline migration followed by forward migrations `V2`, `V3`, `V4`, `V60`, `V61`, and `V62`. `RuntimePersistenceInventoryTest` asserts that inventory exactly: 45 application tables and 44 JPA runtime entity tables. The diagram shows the principal entities and their relationships; configuration and audit tables are omitted for legibility but are listed in the Entities Description table and described in Report 4 §2.
 
 ```mermaid
 %% title: Entity Relationship Diagram
@@ -233,11 +233,17 @@ erDiagram
   INSPECTIONS ||--o{ FINDINGS : "finds"
   INSPECTIONS ||--o{ INSPECTION_REPORTS : "writes"
 
+  INSPECTIONS ||--o{ INSPECTION_MESSAGES : "threads"
+  INSPECTION_MESSAGES ||--o{ INSPECTION_MESSAGE_ATTACHMENTS : "files"
   INSPECTIONS ||--o{ SERVICE_INVOICES : "bills"
   SERVICE_INVOICES ||--o{ SERVICE_PAYMENTS : "pays"
   SERVICE_PAYMENTS ||--o{ SERVICE_REFUNDS : "refunds"
   INSPECTIONS ||--o{ INSPECTOR_PAYOUTS : "pays"
   INSPECTOR_RECEIVABLES ||--o{ INSPECTOR_RECEIVABLE_RECOVERIES : "recovers"
+  PLATFORM_OPERATIONS_SETTINGS ||--o{ SERVICE_REQUEST_OCCURRENCES : "assignment timeout"
+  ASSET_CATEGORIES ||--o{ INSPECTION_KNOWLEDGE_CHUNKS : "categorizes"
+  ASSET_CATEGORIES ||--o{ HISTORICAL_FINDING_CASES : "categorizes"
+  FINDINGS ||--o| HISTORICAL_FINDING_CASES : "indexes at publication"
 ```
 
 **Entities Description**
@@ -285,8 +291,15 @@ erDiagram
 | 39 | `inspector_flight_logs` | Intake record for an imported flight log, including non-MAVLink source formats. |
 | 40 | `notifications` | In-app or email notice with its deduplication key and read state. |
 | 41 | `platform_ai_settings` | Singleton inference configuration holding the auto-confirm flag and its confidence threshold. |
+| 42 | `platform_operations_settings` | Singleton operations configuration holding the Admin-configurable assignment-acceptance timeout (24 hours by default). |
+| 43 | `inspection_messages` | Inspector–Customer inspection chat message, scoped to the inspection and its organization. |
+| 44 | `inspection_message_attachments` | File attached to an inspection chat message, stored by object key and scoped with its message. |
+| 45 | `inspection_knowledge_chunks` | Engineering standard or guideline chunk with a `pgvector` embedding, tenant-independent for seeded standards and used for retrieval grounding. |
+| 46 | `historical_finding_cases` | Historical defect case indexed from a confirmed finding at report publication, or an anonymized benchmark case, with optional `pgvector` embedding, organization scope, and the source inspection excluded from its own recommendations. |
 
-The model separates four coordinated areas. **Identity and onboarding** covers accounts, sessions, one-time codes, the two application records, and the building catalogue. **Commercial** covers the request, its quotation, its negotiation messages, its occurrences, and the recorded agreement. **Inspection** covers the occurrence, its field sessions and flight logs, its evidence and upload sessions, its findings, and its report versions. **Finance** covers the invoice, the customer payment, the Inspector payout, refunds with their allocations, receivables and their recovery, and the settings that parameterize the split.
+The table lists 46 persisted tables: the 45 application tables asserted by `RuntimePersistenceInventoryTest` plus the `event_publication` transactional outbox; 44 of them are mapped as JPA runtime entities (`audit_events` and `platform_ai_settings` are application tables without JPA entity mappings, and `event_publication` is an entity mapping outside the application-table count).
+
+The model separates five coordinated areas. **Identity and onboarding** covers accounts, sessions, one-time codes, the two application records, and the building catalogue. **Commercial** covers the request, its quotation, its negotiation messages, its occurrences, and the recorded agreement. **Inspection** covers the occurrence, its field sessions and flight logs, its evidence and upload sessions, its findings, and its report versions. **Inspection collaboration** covers the Inspector–Customer inspection chat and its attachments, the operations timeout setting, and the `DroneKnowledgeAI` knowledge chunks and historical finding cases. **Finance** covers the invoice, the customer payment, the Inspector payout, refunds with their allocations, receivables and their recovery, and the settings that parameterize the split.
 
 ---
 
@@ -505,6 +518,22 @@ The model separates four coordinated areas. **Identity and onboarding** covers a
 - **Normal cases**: The Inspector analyses evidence, reviews each candidate, amends or rejects as needed, adds any missed defect by hand, and confirms the baseline.
 - **Abnormal cases**: A non-assigned user cannot invoke analysis or mutate findings. A finding is not counted as official before confirmation. A re-inspection `RESOLVED` verdict submitted without fresh in-session evidence is rejected. An image the detector cannot parse is reported as a failed analysis rather than producing a fabricated finding.
 
+#### 3.7.3 DroneKnowledgeAI Historical Case and Engineering Guideline Advisor
+- **Function trigger**: The Inspector views a finding card during finding review and requests advisory recommendations, or the finding detail loads the compact advisor strip.
+- **Actors**: `INSPECTOR`, `CUSTOMER`, `MANAGER`, `ADMIN`, Automated System (`DroneKnowledgeAI`, `LLM` embedding provider).
+- **Function description**: Suggest comparable past defects and relevant engineering standards to inform the human finding review. Recommendations are advisory and never modify or confirm a finding on their own.
+- **Screen layout (mock-up)**: A compact `Similar Cases & Guide` chip strip inside the finding card, with a one-click `Apply` action that copies a case's technical note into the Inspector's edit note. See Figure 3.9.
+- **Requirements**:
+  - The service exposes `GET /api/v1/inspections/{inspectionId}/findings/{findingId}/recommendations?limit=3`, returning `KnowledgeRecommendationResponse` with `retrievalMode`, `cases`, and `guidelines`.
+  - Retrieval is tenant-isolated. A historical case is visible only when `organization_id` equals the current organization or `is_anonymized_benchmark = TRUE`, and the current inspection's own cases are excluded. The same inspection read scope used by the findings endpoints applies, so role alone never grants cross-organization access.
+  - The advisor uses `PGVECTOR_RAG` cosine-similarity retrieval over the `pgvector` embeddings when embeddings are available, and otherwise falls back to deterministic `HYBRID_MATCH` scoring normalized to `[0.0, 1.0]`. The response states which mode produced the matches.
+  - Seed data provides anonymized engineering standards (`TCVN 9343:2012`, `TCVN 9361:2012`, `EN 1504-9`, `ISO 12944-5`, `ASTM C1583`) and anonymized benchmark cases. No organization's private finding text is exposed to another organization.
+  - `Apply` copies the selected technical note into the finding's edit note; the note is human-confirmed and saved only when the Inspector saves the finding. Applying a recommendation never auto-saves or auto-confirms a finding.
+  - When a report moves to `PUBLISHED`, the service automatically indexes that report's confirmed findings as tenant-private historical finding cases, while benchmark cases remain anonymized. Publication indexing is idempotent per finding.
+  - If the advisor is unavailable or disabled, the strip is omitted or shown empty and finding review continues unchanged (`MSG19`).
+- **Normal cases**: The Inspector opens a finding, sees a short list of matched cases and standards, applies a technical note, reviews it, and saves the finding explicitly.
+- **Abnormal cases**: A cross-organization case, a benchmark case with identifying detail, or a case from the current inspection is never returned. A request for a finding outside the caller's inspection scope returns not-found. An advisor failure produces no fabricated recommendation (`BR-34`, `BR-55`).
+
 ---
 
 ### 3.8 MF4 — FE-07 Inspection Report Preparation, Review and Publication
@@ -539,6 +568,19 @@ The model separates four coordinated areas. **Identity and onboarding** covers a
   - The PDF for a published report is generated on demand for that report version, so a superseded version remains retrievable as it was published.
 - **Normal cases**: An independent reviewer reads the submitted report, publishes it, and it becomes available to the Customer as an immutable PDF.
 - **Abnormal cases**: Publication by the report's own author is refused. A return without reasons is refused. An unpublished report is never presented to the Customer as an official deliverable.
+
+#### 3.8.3 Knowledge References in the AI Executive Summary
+- **Function trigger**: The report author requests the advisory AI executive summary, or an authorized user opens the summary card of a compiled report.
+- **Actors**: `INSPECTOR`, `CUSTOMER`, `MANAGER`, `ADMIN`, Automated System (`LLM`, `DroneKnowledgeAI`).
+- **Function description**: Attach a short, source-backed list of matched historical cases and engineering standards to the advisory executive summary so the reader can see what grounded it.
+- **Screen layout (mock-up)**: A compact `Matched Cases & Standards` strip in the footer of the `ReportAiSummaryCard`, listing each reference with a kind badge, a code or label, a short summary, and its normalized similarity. See Figure 3.10.
+- **Requirements**:
+  - The service exposes `GET /api/v1/inspections/{inspectionId}/knowledge-recommendations?limit=4`, returning `KnowledgeRecommendationResponse` with `retrievalMode`, `cases`, and `guidelines` for the inspection's confirmed findings as a whole. The same tenant-isolated scope and retrieval-mode rules apply as in §3.7.3.
+  - `ReportAiSummaryResponse` carries `knowledgeReferences`, a list of `KnowledgeReferenceSummary` values with fields `kind`, `codeOrLabel`, `summary`, and `similarity`. `kind` is `CASE` for a historical finding case or `GUIDELINE` for an engineering standard, and `similarity` is normalized to `[0.0, 1.0]`.
+  - The references strip is advisory, is visibly distinguished from the confirmed findings and the rendered PDF template, and does not alter the official report text.
+  - The strip stays compact and hides cleanly when no references are available or the advisor is disabled; the summary and report remain usable (`MSG19`).
+- **Normal cases**: The author requests a summary; the card shows the narrative draft and a short strip of matched cases and standards, which the author reviews before submitting.
+- **Abnormal cases**: A reference from another organization or from the current inspection is never shown. Unavailable retrieval yields no references and no fabricated summary (`BR-43`, `BR-55`).
 
 ---
 
@@ -589,7 +631,7 @@ The application scope is limited to **building inspection** as described in §1.
 - **Corrective maintenance execution.** Work-order creation from published defects, repair scoping, repair cost estimation, field repair execution, maintenance completion reporting, maintenance acceptance, and cost reconciliation are not part of the application. The service ends at report acceptance and payment; the Customer arranges corrective work outside the platform. What the platform does provide is a re-inspection loop: once a source inspection is complete and its report is published, a customer or platform manager may create a re-inspection against it, and each originally confirmed defect is re-assessed three ways — resolved, unresolved, or inconclusive — by comparing the original finding against the evidence captured on the re-flight. That loop reuses `MF2` for scheduling and `MF3` for field work and evidence rather than introducing a separate flow.
 - **Aircraft control.** The platform does not pilot, guide, or command an aircraft, and does not act as a ground control station.
 - **Photogrammetric reconstruction.** Three-dimensional point-cloud and mesh generation are out of scope. Two-dimensional photographs and video, and the defect annotations derived from them, are in scope.
-- **Retrieval-augmented knowledge base.** The detection model proposes defects from the supplied imagery and the language model drafts narrative text once per report. No vector knowledge base, semantic search, or retrieval index is maintained.
+- **Inspection knowledge retrieval is in scope; maintenance knowledge is not.** The detection model proposes defects from the supplied imagery, the language model drafts narrative text once per report, and `DroneKnowledgeAI` maintains a `pgvector` retrieval index of engineering standards and tenant-isolated historical defect cases for advisory use (§3.7.3, §3.8.3). A corrective-maintenance repair knowledge base (`repair_knowledge_chunks`), RAG repair-scope or cost-norm advising, external CMMS integration, and work-order execution remain outside the application.
 - **Mobile coverage for non-customer roles.** The mobile application serves the `CUSTOMER` role only; Inspectors and platform staff use the web portals.
 
 Where maintenance-related records remain in the data store from earlier development, they are retained unchanged for data preservation and are not exposed as an application workflow.

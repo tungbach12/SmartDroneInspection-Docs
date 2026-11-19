@@ -10,7 +10,7 @@ from report_ooxml import Spreadsheet, descendants, find_table, plain
 
 SHEET_COUNT = 8
 EXPECTED_CASE_COUNTS = {"Feature 1": 8, "Feature 2": 7, "Feature 3": 8, "Feature 4": 8,
-                       "Feature 5": 7, "Feature 6": 12, "Feature 7": 4, "Feature 8": 4}
+                       "Feature 5": 7, "Feature 6": 14, "Feature 7": 5, "Feature 8": 7}
 
 
 def generated_workbook():
@@ -87,13 +87,13 @@ class FeatureSheetTests(unittest.TestCase):
             self.assertIn("WF2-008", counts["Feature 5"])
             self.assertIn("WF3-020", counts["Feature 5"])
             for case_id in ("WF3-001", "WF3-002", "WF3-010", "WF3-017",
-                            "WF3-022", "WF3-023", "WF3-024", "WF3-025"):
+                            "WF3-022", "WF3-023", "WF3-024", "WF3-025", "WF3-029"):
                 self.assertIn(case_id, counts["Feature 6"])
-            for case_id in ("WF3-005", "WF3-006", "WF3-016"):
+            for case_id in ("WF3-005", "WF3-006", "WF3-016", "WF3-030"):
                 self.assertIn(case_id, counts["Feature 7"])
-            for case_id in ("WF3-018", "WF3-019", "WF3-021"):
+            for case_id in ("WF3-018", "WF3-019", "WF3-021", "WF3-031"):
                 self.assertIn(case_id, counts["Feature 8"])
-            self.assertEqual(sum(len(v) for v in counts.values()), 58)
+            self.assertEqual(sum(len(v) for v in counts.values()), 64)
 
     def test_statistics_lists_all_eight_modules_with_a_correct_subtotal(self):
         book, temp = generated_workbook()
@@ -103,29 +103,29 @@ class FeatureSheetTests(unittest.TestCase):
                 row = 10 + number
                 self.assertEqual(book.value(stats, f"C{row}"), book.value(sheet, "B2"))
                 self.assertEqual(book.value(stats, f"B{row}"), str(number))
-            self.assertEqual(book.value(stats, "H19"), "58")
+            self.assertEqual(book.value(stats, "H19"), "64")
             self.assertEqual(book.value(stats, "D19"), "45")
             self.assertEqual(book.value(stats, "E19"), "0")
-            self.assertEqual(book.value(stats, "F19"), "6")
-            self.assertEqual(book.value(stats, "G19"), "7")
+            self.assertEqual(book.value(stats, "F19"), "9")
+            self.assertEqual(book.value(stats, "G19"), "10")
             self.assertEqual(book.value(stats, "C19"), "Sub total")
             self.assertEqual(book.value(stats, "C20"), "Historical Round 1")
             self.assertEqual(book.value(stats, "D20"), "45")
-            self.assertEqual(book.value(stats, "F20"), "5")
-            self.assertEqual(book.value(stats, "G20"), "0")
-            self.assertEqual(book.value(stats, "H20"), "50")
+            self.assertEqual(book.value(stats, "F20"), "8")
+            self.assertEqual(book.value(stats, "G20"), "3")
+            self.assertEqual(book.value(stats, "H20"), "56")
             self.assertEqual(book.value(stats, "C21"), "Round 3 executed")
-            self.assertEqual(book.value(stats, "D21"), "3")
-            self.assertEqual(book.value(stats, "H21"), "3")
+            self.assertEqual(book.value(stats, "D21"), "13")
+            self.assertEqual(book.value(stats, "H21"), "13")
             self.assertEqual(book.value(stats, "C22"), "V29 Round 3")
-            self.assertEqual(book.value(stats, "D22"), "1")
-            self.assertEqual(book.value(stats, "F22"), "1")
+            self.assertEqual(book.value(stats, "D22"), "2")
+            self.assertEqual(book.value(stats, "F22"), "0")
             self.assertEqual(book.value(stats, "G22"), "0")
             self.assertEqual(book.value(stats, "H22"), "2")
             self.assertEqual(book.value(stats, "C24"), "Test coverage")
             self.assertEqual(book.value(stats, "C25"), "Test successful coverage")
-            self.assertAlmostEqual(float(book.value(stats, "E24")), 45 / 51 * 100, places=2)
-            self.assertAlmostEqual(float(book.value(stats, "E25")), 45 / 51 * 100, places=2)
+            self.assertAlmostEqual(float(book.value(stats, "E24")), 45 / 54 * 100, places=2)
+            self.assertAlmostEqual(float(book.value(stats, "E25")), 45 / 54 * 100, places=2)
 
 if __name__ == "__main__":
     unittest.main()
