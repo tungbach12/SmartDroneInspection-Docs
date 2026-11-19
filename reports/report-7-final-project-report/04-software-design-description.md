@@ -1,0 +1,1500 @@
+---
+title: "Report 7 - Software Design Description"
+document_type: report7-section
+weight: 40
+source: "Report7_Final Project Report.docx"
+---
+# IV. Software Design Description
+
+## 1. System Design
+
+### 1.1 System Architecture
+
+SmartDroneInspection uses a modular client-server architecture that separates the client presentation sub-systems, the modular monolith backend, the persistence and object storage layer, and the external services.
+
+The clients are a React 19 web application serving four role-scoped portals and a Flutter mobile application that admits customer accounts only. The backend is a Spring Boot 4.1 modular monolith across eight modules whose permitted collaborators are declared per module and enforced by an architecture test. Persistence is PostgreSQL 17 with 45 application tables (47 total tables in `public`) and `pgvector` support for `DroneKnowledgeAI`, and binary content lives in MinIO. External services are the self-hosted YOLO11 detector, an OpenAI-compatible vision and drafting gateway, an optional ground-station hub, PayOS and VNPay for settlement, and Google OAuth2 for federated sign-in.
+
+![System architecture](assets/mermaid/c8eb454daa9f.png)
+
+*Figure 7.6 — System architecture.*
+
+| Component | Technology | Responsibility |
+| --- | --- | --- |
+| Web Portal Application | React 19, strict TypeScript, Vite, Material UI | Four role-scoped portals with route-level denial. |
+| Mobile Field Application | Flutter, Riverpod, GoRouter, Dio | Customer-only mobile access. |
+| Application Server | Java 21, Spring Boot 4.1.0, Spring Modulith 2.1.1 | Domain logic, authorization, state transitions, PDF rendering, audit, events. |
+| YOLO11 Detection Service | Python FastAPI, Ultralytics YOLO11s | Primary building-defect candidate detection. |
+| Vision and Drafting Gateway | OpenAI-compatible HTTP API | Vision fallback and single-shot narrative drafting. |
+| Knowledge Advisor (`DroneKnowledgeAI`) | `HistoricalCaseService` + optional `DroneKnowledgeClient` | Tenant-isolated historical-case and engineering-standard retrieval over `pgvector`, with deterministic `HYBRID_MATCH` fallback. |
+| SmartDroneHub | External ground station | Read-only telemetry, flight traces, and mission video. |
+| PostgreSQL | PostgreSQL 17 | 45 application tables and `pgvector` case/standard stores; 47 total tables in `public`, audit trail and event outbox. |
+| MinIO | S3-compatible object storage | Private storage of documents, evidence, and published PDFs. |
+| PayOS, VNPay, Google OAuth2 | External HTTPS services | Settlement and federated sign-in. |
+
+### 1.2 Package Diagram
+
+SmartDroneInspection comprises three application sub-systems: the backend application server (`com.smartdroneinspection`), the web portal (`SmartDroneInspection-frontend/src`), and the mobile field application (`SmartDroneInspection-mobile/lib`).
+
+#### 1.2.1 Backend Application Server Package Diagram
+
+The backend is organised into `users`, `contracts`, `assets`, `inspections`, `notifications`, `dashboard`, `infrastructure`, and `shared`. Each declares its permitted collaborators, so `contracts` may reach `assets::domain`, `assets::enums`, `assets::repository`, `users`, and `inspections::spi`, while `notifications` may reach only `inspections::events` and `users::events`. Directional control therefore passes through narrow named sub-packages rather than whole modules.
+
+![Backend package diagram](assets/mermaid/aae4cc1f56ee.png)
+
+*Figure 7.7 — Backend module dependencies.*
+
+| No | Package | Description |
+| :---: | :--- | :--- |
+| 01 | `com.smartdroneinspection.users` | Authentication, sessions, profiles, partner applications, airspace reviews, audit, and platform administration. |
+| 02 | `com.smartdroneinspection.contracts` | Service requests, order chat and attachments, VND quotations, agreements, occurrence dispatch, finance settings, and payment webhooks. |
+| 03 | `com.smartdroneinspection.assets` | Building categories, buildings, inspection checkpoints, reference documents, airspace evaluation, drone configuration, and owned drones. |
+| 04 | `com.smartdroneinspection.inspections` | Missions, permit verification, field sessions, telemetry sync, evidence, findings, reports, and PDF rendering. |
+| 05 | `com.smartdroneinspection.notifications` | Deduplicated in-app notifications driven by domain events. |
+| 06 | `com.smartdroneinspection.dashboard` | Role-scoped operational metrics. |
+| 07 | `com.smartdroneinspection.infrastructure` | Outbound adapters for object storage, detection and drafting clients, the ground-station hub, FFmpeg, and payment gateways. |
+| 08 | `com.smartdroneinspection.shared` | Security configuration, response wrappers, role constants, cross-module ports, upload validation, error handling, and localization. |
+
+The web client separates `app` (shell, router, access policy, theme) from nine feature folders — `auth`, `admin`, `landing`, `assets`, `contracts`, `inspections`, `reports`, `dashboard`, and `notifications` — over a shared layer providing the HTTP client, airspace mapping, localization, and the UI kit. The mobile client separates `core` (network, token storage, router, theme) from `auth`, `assets`, `contracts`, `inspections`, `dashboard`, `notifications`, and `profile`, each with `data`, `domain`, and `presentation` layers where it holds state.
+
+#### 1.2.2 Web Portal Application Package Diagram
+
+```mermaid
+%% title: Web Portal Subsystem Package Diagram
+flowchart TD
+  subgraph WebRoot["SmartDroneInspection-frontend/src"]
+    APP["app\n(AppShell, Router, AccessPolicy, Capability & Theme)"]
+    FEAT_AUTH["features/auth\n(Login, Register, OTP, OAuthCallback & RequireAuth)"]
+    FEAT_ADMIN["features/admin\n(Platform Users, Licence Classes, Drone Config & Reviews)"]
+    FEAT_LANDING["features/landing\n(Public Landing & Portal Selection)"]
+    FEAT_ASSETS["features/assets\n(Asset Catalog, Asset Documents & Owned Drones)"]
+    FEAT_CONTRACTS["features/contracts\n(Service Requests, Order Chat, VND Quotes & Agreements)"]
+    FEAT_INSP["features/inspections\n(Schedule Calendar, Field Sessions, SmartDroneHub & Findings)"]
+    FEAT_REPORTS["features/reports\n(Report Draft, Independent Review & PDF Download)"]
+    FEAT_DASH["features/dashboard\n(Operational Metrics)"]
+    FEAT_NOTIF["features/notifications\n(Notification Inbox & Badge)"]
+    WEB_SHARED["shared\n(Axios Client, Airspace Maps, i18n & UI Kit)"]
+  end
+
+  APP --> FEAT_AUTH
+  APP --> FEAT_ADMIN
+  APP --> FEAT_LANDING
+  APP --> FEAT_ASSETS
+  APP --> FEAT_CONTRACTS
+  APP --> FEAT_INSP
+  APP --> FEAT_REPORTS
+  APP --> FEAT_DASH
+  APP --> FEAT_NOTIF
+  FEAT_AUTH --> WEB_SHARED
+  FEAT_ADMIN --> WEB_SHARED
+  FEAT_ASSETS --> WEB_SHARED
+  FEAT_CONTRACTS --> WEB_SHARED
+  FEAT_INSP --> WEB_SHARED
+  FEAT_REPORTS --> WEB_SHARED
+  FEAT_DASH --> WEB_SHARED
+  FEAT_NOTIF --> WEB_SHARED
+```
+
+**Package Descriptions**
+
+| No | Package | Description |
+| :---: | :--- | :--- |
+| 01 | `src/app` | Contains the application shell (`AppShell`), route configuration (`router.tsx`), the four-portal route access policy (`accessPolicy.ts`), capability helpers (`capability.ts`), portal selection (`PortalSelectionPage`), and design tokens and theme (`tokens.ts`, `theme.ts`, `ColorModeContext`). |
+| 02 | `src/features/auth` | Implements customer organization registration, partner Inspector application submission, email/password and OTP sign-in, Google OAuth 2.0 callback handling, session bootstrapping, and route guards (`RequireAuth`). |
+| 03 | `src/features/admin` | Provides platform account administration, pilot-licence class maintenance, drone document and feature configuration, platform finance settings, AI inference settings, and the airspace, partner-application, and drone-registration review queues. |
+| 04 | `src/features/landing` | Provides the public landing experience and the role-aware entry point into the four portals. |
+| 05 | `src/features/assets` | Provides building asset management, reference document streaming, and Inspector-owned drone registration and inventory. |
+| 06 | `src/features/contracts` | Implements one-time and recurring service requests, in-context order chat with attachments, VND quotation issuance and acceptance, signed contract upload, and occurrence dispatch, with separate `customer` and `manager` presentation branches. |
+| 07 | `src/features/inspections` | Implements the Inspector schedule calendar, the customer inspection progress view, on-site field session and `SmartDroneHub` telemetry controls, flight-permit upload and review, photo and MP4 evidence upload, YOLO11 defect review, and re-inspection verdict-expiry warnings (`lib/verdictExpiry.ts`, `VerdictExpiryBanner`, `ValidityNotice`). |
+| 08 | `src/features/reports` | Implements pre-submission report drafting, independent Manager review and publication, and on-demand PDF download. |
+| 09 | `src/features/dashboard`, `src/features/notifications` | Provide four-role operational metrics and the in-app notification inbox with unread badge. |
+| 10 | `src/shared` | Provides the Axios HTTP client with automatic token refresh, CSRF handling, and RFC 7807 problem parsing (`api`), the interactive Vietnam airspace planner and map (`airspace`), bilingual EN/VI localization (`i18n`), and the shared UI kit including authenticated media components (`ui`, `AuthenticatedImage`, `AuthenticatedMedia`). |
+
+#### 1.2.3 Mobile Field Application Package Diagram
+
+```mermaid
+%% title: Mobile Field Subsystem Package Diagram
+flowchart TD
+  subgraph MobRoot["SmartDroneInspection-mobile/lib"]
+    MOB_CORE["core\n(Dio Network, TokenStore, GoRouter, Theme & Localization)"]
+    MOB_AUTH["features/auth\n(LoginPage, OAuthCallback & SessionProvider)"]
+    MOB_ASSETS["features/assets\n(AssetsPage & AssetRepository)"]
+    MOB_CONTRACTS["features/contracts\n(RequestsPage, NewRequest & RequestChat)"]
+    MOB_INSP["features/inspections\n(InspectionsPage & InspectionDetail)"]
+    MOB_DASH["features/dashboard\n(Customer Home)"]
+    MOB_NOTIF["features/notifications\n(Notification List)"]
+    MOB_PROFILE["features/profile\n(ProfilePage & Language Selector)"]
+    MOB_SHARED["shared/widgets & l10n\n(AsyncValueWidget & EN/VI Localizations)"]
+  end
+
+  MOB_AUTH --> MOB_CORE
+  MOB_ASSETS --> MOB_CORE
+  MOB_CONTRACTS --> MOB_CORE
+  MOB_INSP --> MOB_CORE
+  MOB_DASH --> MOB_CORE
+  MOB_NOTIF --> MOB_CORE
+  MOB_PROFILE --> MOB_CORE
+  MOB_AUTH --> MOB_SHARED
+  MOB_ASSETS --> MOB_SHARED
+  MOB_CONTRACTS --> MOB_SHARED
+  MOB_INSP --> MOB_SHARED
+  MOB_DASH --> MOB_SHARED
+  MOB_NOTIF --> MOB_SHARED
+  MOB_PROFILE --> MOB_SHARED
+```
+
+**Package Descriptions**
+
+| No | Package | Description |
+| :---: | :--- | :--- |
+| 01 | `lib/core` | Provides the shared Dio HTTP client with authentication, API-response, and locale-header interceptors (`network`), secure token storage (`flutter_secure_storage`), application routing (`app_router.dart`), environment configuration (`env`), and theme and localization providers. |
+| 02 | `lib/features/auth` | Implements mobile credential sign-in, Google OAuth 2.0 deep-link callback handling, and Riverpod session state. `session_provider.dart` enforces that only `CUSTOMER` accounts enter the application; the network layer raises `CUSTOMER_ONLY_MOBILE` for any other role. |
+| 03 | `lib/features/assets` | Displays the organization's building assets, coordinates, and inspection checkpoints, with `data`, `domain`, and `presentation` layers. |
+| 04 | `lib/features/contracts` | Implements the customer service-request list, new-request submission, request detail, and order-chat conversation. |
+| 05 | `lib/features/inspections` | Implements the customer inspection list and inspection detail, including the published report and its findings. |
+| 06 | `lib/features/dashboard`, `lib/features/notifications` | Provide the customer home summary and the in-app notification list. |
+| 07 | `lib/features/profile`, `lib/shared` & `lib/l10n` | Provide user profile viewing and language switching, reusable asynchronous state widgets, and generated English/Vietnamese localization bundles from `app_en.arb` and `app_vi.arb`. |
+
+
+## 2. Database Design
+
+**Scope boundary.** The schema models buildings only. Flyway applies `V1__baseline.sql`, a consolidated baseline holding the complete schema and catalog seeds, followed by six forward migrations: `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, and `V62__inspection_knowledge_rag.sql` (`DroneKnowledgeAI` case/standard stores with `pgvector` embeddings). No maintenance table, index, or column exists in the delivered schema. `FullDatabaseSchemaMigrationTest` asserts the applied migration set is exactly `["1","2","3","4","60","61","62"]`. The schema contains **45 application tables** (43 JPA-mapped tables plus `audit_events` and `platform_ai_settings`); together with the `event_publication` outbox and `flyway_schema_history`, the `public` schema holds **47 tables** (`RUNTIME_ENTITY_TABLES` has 44 members because it also includes `event_publication`).
+
+![Database entity relationship diagram](assets/mermaid/323ca4e522aa.png)
+
+*Figure 7.8 — Entity relationship diagram.*
+
+**Framework tables (not counted among the 45 application tables):** `event_publication` stores the Spring Modulith transactional outbox and `flyway_schema_history` is Flyway's migration ledger; together with the 45 application tables they bring the `public` schema to 47 tables. The two `pgvector` stores (`inspection_knowledge_chunks`, `historical_finding_cases`) are listed below as application tables.
+
+| No | Table | Description |
+| :---: | :--- | :--- |
+| 01 | `users` | Platform accounts with role set, status, and lockout state. A customer organization is represented by its owning account. |
+| 02 | `inspector_profiles` | Inspector licence details, partner contract, and onboarding state. |
+| 03 | `inspector_applications` | Public partner applications and their review outcome. |
+| 04 | `otp_challenges` | One-time verification challenges. |
+| 05 | `auth_sessions` | Active sessions with hashed refresh tokens and revocation. |
+| 06 | `inspector_flight_logs` | Historical inspector flight missions. |
+| 07 | `prospective_customer_registrations` | Registrations held for restricted-airspace review. |
+| 08 | `drone_registration_applications` | Drone registration requests with documents and capabilities. |
+| 09 | `drones` | Approved drones with registration validity and serviceability. |
+| 10 | `asset_categories` | Building category catalogue; only active rows are selectable in asset registration. |
+| 11 | `inspection_items` | Category-scoped inspection checkpoints. |
+| 12 | `assets` | Customer buildings with coordinates, profile, and checkpoints. |
+| 13 | `asset_documents` | Building reference documents with checksums. |
+| 14 | `checklist_templates` | Configurable field checklist items. |
+| 15 | `drone_document_configs` | Required drone document types. |
+| 16 | `drone_feature_configs` | The drone capability catalogue. |
+| 17 | `pilot_license_classes` | Recognised pilot-licence classes. |
+| 18 | `inspection_finance_settings` | Commission, VAT, and tax rates. |
+| 19 | `platform_ai_settings` | Detection auto-confirmation setting. |
+| 20 | `platform_operations_settings` | Singleton operations settings, including assignment acceptance timeout and dispatch defaults. |
+| 21 | `service_requests` | One-time and recurring requests with terms snapshot and manager assignment. |
+| 22 | `service_request_messages` | Order-chat messages. |
+| 23 | `service_request_message_attachments` | Private chat attachment metadata. |
+| 24 | `inspection_messages` | Per-inspection chat between the assigned inspector and the customer, separate from the commercial order thread. |
+| 25 | `inspection_message_attachments` | Private inspection-chat attachment metadata with MIME type, size, and checksum. |
+| 26 | `service_request_quotes` | The active VND quotation. |
+| 27 | `service_request_occurrences` | Dated occurrences with dispatch state. |
+| 28 | `service_invoices` | Per-occurrence price and rate snapshots. |
+| 29 | `service_payments` | Customer payment status and gateway reference. |
+| 30 | `inspector_payouts` | Inspector payout state and refund hold. |
+| 31 | `service_refunds` | Refund ledger with accounting allocation. |
+| 32 | `inspector_receivables` | Inspector debt after a refund follows a paid payout. |
+| 33 | `inspector_receivable_recoveries` | Collection records against a receivable. |
+| 34 | `inspections` | Missions with assignment, permit verification, and confirmation state. |
+| 35 | `field_sessions` | On-site sessions with safety notes, metrics, and flight trace. |
+| 36 | `evidence` | Photographs and video with object keys and processing state. |
+| 37 | `evidence_upload_sessions` | Resumable upload state. |
+| 38 | `findings` | Candidate and confirmed defects. |
+| 39 | `reinspection_defect_verifications` | Three-way re-inspection comparison. |
+| 40 | `inspection_reports` | Versioned reports with publication state. |
+| 41 | `notifications` | Deduplicated in-app notices. |
+| 42 | `audit_events` | Append-only decision record. |
+| 43 | `inspector_reliability_events` | Inspector reliability events. |
+| 44 | `event_publication` | The transactional outbox. |
+| 45 | `inspection_knowledge_chunks` | Stores the eight seeded engineering-standard/guideline chunks that ground `DroneKnowledgeAI` (`V62`): standard code, title, asset-category code, defect patterns, severity, guidance text, reference URL, and a `vector(1536)` embedding with an HNSW `vector_cosine_ops` index for cosine retrieval. |
+| 46 | `historical_finding_cases` | Stores six anonymized benchmark cases and confirmed findings indexed automatically at report publication (`V62`), with organization/asset references, defect label, severity, notes, outcome, anonymized flag, and a `vector(1536)` embedding; retrieval is tenant-isolated and excludes the current inspection. |
+
+## 3. Detailed Design
+
+Endpoint paths in Section IV.3 omit the common `/api/v1` prefix.
+
+### 3.1 MF1 — FE-01 Registration, Sign-in and Account Access
+
+This section presents the detailed design for `FE-01` (Customer organization and initial asset registration with No-Fly Zone airspace screening, Argon2id credential sign-in, consolidated OTP verification, Google OAuth 2.0 federation, JWT session rotation, and four-role `ActorZone` access control).
+
+#### 3.1.1 Class Diagram
+
+```mermaid
+%% title: FE-01 Customer Registration, Sign-In and Account Access Class Diagram
+classDiagram
+  class BrowserAuthController {
+    +register(req) ApiResponse
+    +sendRegistrationOtp(req) ApiResponse
+    +login(req) ApiResponse
+    +verifyLoginOtp(req) ApiResponse
+    +sendPasswordResetOtp(req) ApiResponse
+    +confirmPasswordReset(req) ApiResponse
+    +changePassword(req) ApiResponse
+    +refresh() ApiResponse
+  }
+  class MobileAuthController {
+    +login(req) ApiResponse
+    +verifyLoginOtp(req) ApiResponse
+    +changePassword(req) ApiResponse
+    +refresh(req) ApiResponse
+    +logout(req) ApiResponse
+  }
+  class OAuth2Controller {
+    +authorizeGoogle(clientType) void
+    +googleCallback(code, state) void
+  }
+  class UserProfileController {
+    +getProfile() CurrentUserResponse
+    +updatePilotLicense(req) CurrentUserResponse
+    +updateAiFallbackPreference(req) CurrentUserResponse
+  }
+  class AuthService {
+    +registerCustomer(req) RegistrationResult
+    +login(email, password) LoginResult
+    +loginWithGoogle(profile) LoginResult
+  }
+  class User {
+    -UUID id
+    -UUID organizationId
+    -String email
+    -String fullName
+    -UserStatus status
+    -ActorZone actorZone
+    -String roles
+  }
+  class OtpChallenge {
+    -UUID id
+    -OtpChallengePurpose purpose
+    -UUID userId
+    -String destination
+    -Instant expiresAt
+    -Instant consumedAt
+  }
+  class ProspectiveCustomerRegistration {
+    -UUID id
+    -UUID userId
+    -String organizationName
+    -String assetName
+    -BigDecimal latitude
+    -BigDecimal longitude
+    -String airspaceClassification
+    -String status
+  }
+  BrowserAuthController --> AuthService
+  BrowserAuthController --> OtpChallenge
+  MobileAuthController --> AuthService
+  MobileAuthController --> OtpChallenge
+  OAuth2Controller --> AuthService
+  UserProfileController --> AuthService
+  AuthService --> User
+  AuthService --> ProspectiveCustomerRegistration
+```
+
+**Class Specifications**
+
+| No | Class | Description |
+| :---: | :--- | :--- |
+| 01 | `BrowserAuthController` & `MobileAuthController` | Handle customer registration, email and password sign-in, one-time verification code delivery and confirmation, password reset, password change, and session token refresh for web (`HttpOnly` cookie) and mobile (`Bearer` / refresh token) clients. |
+| 02 | `OAuth2Controller` | Handles federated Google OAuth 2.0 sign-in and callback redirection for web browsers and mobile deep links (`smartdrone://auth`). |
+| 03 | `UserProfileController` | Allows signed-in users to retrieve their current profile (`/api/v1/users/me`), update pilot license credentials, and configure AI vision fallback preferences. |
+| 04 | `AuthService` | Coordinates Argon2id credential verification, account lockout after repeated failed attempts (`LoginFailureService`), airspace screening during customer onboarding (`CustomerAirspacePolicyAdapter`), and JWT session issuance (`AccessTokenService`, `RefreshCookieService`). |
+| 05 | `User` & `OtpChallenge` | Domain entities representing user accounts across the four active system roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`) and consolidated time-limited OTP challenges (`LOGIN`, `REGISTRATION`, `PASSWORD_RESET`). |
+| 06 | `ProspectiveCustomerRegistration` | Domain entity recording a customer organization and initial asset registration request along with its airspace classification result (`CLEAR_ZONE`, `RESTRICTED_ZONE`, `NO_FLY_ZONE`). |
+
+**Endpoints and Domain Invariants**
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/auth/registration/otp/send` | Send the registration one-time code to the applicant's email address. | |
+| POST | `/auth/register` | Create the customer organization, its first building, and the owning `CUSTOMER` account in one transaction. | |
+| POST | `/auth/login` | Verify credentials, enforce lockout and rate limits, and open a session or return an OTP challenge. | |
+| POST | `/auth/otp/verify` | Consume a single-use login code and complete the session. | |
+| GET | `/auth/oauth2/authorize/google` | Start the Google OAuth 2.0 authorization-code flow for web or mobile. | |
+| GET / PATCH | `/users/me` | Read the authenticated profile; update the user's own full name and phone number. | |
+| POST | `/auth/refresh` | Rotate the refresh credential and issue a new access token. | |
+
+Domain invariants: an account holds exactly one role; a prohibited airspace location cannot complete registration; five consecutive failures restrict sign-in for fifteen minutes; a consumed or expired one-time code is refused; every account change is attributed.
+
+#### 3.1.2 Customer Organization and Initial Asset Registration Sequence Diagram
+
+```mermaid
+%% title: FE-01 Customer Organization and Initial Asset Registration Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Cust as Prospective Customer
+  participant Web as Web Portal (RegisterPage)
+  participant Ctrl as BrowserAuthController
+  participant OtpSvc as RegistrationOtpService
+  participant RegSvc as OrganizationRegistrationService
+  participant Airspace as CustomerAirspacePolicyAdapter
+  participant DB as PostgreSQL
+
+  Cust->>Web: Enter email and request registration OTP
+  Web->>Ctrl: POST /api/v1/auth/register/otp
+  Ctrl->>OtpSvc: sendRegistrationOtp(email, clientIp)
+  OtpSvc->>DB: Save REGISTRATION OtpChallenge (otp_challenges)
+  OtpSvc-->>Web: Return challengeId and masked destination
+
+  Cust->>Web: Submit organization details, OTP code, and initial asset coordinates
+  Web->>Ctrl: POST /api/v1/auth/register
+  Ctrl->>OtpSvc: verifyAndConsume(challengeId, email, otpCode)
+  OtpSvc->>DB: Mark OtpChallenge consumed
+  Ctrl->>RegSvc: register(request)
+  RegSvc->>Airspace: evaluateFirstAsset(latitude, longitude)
+  alt Prohibited No-Fly Zone (NO_FLY_ZONE)
+    Airspace-->>RegSvc: Prohibited zone detected
+    RegSvc-->>Web: Reject registration (403 Forbidden)
+  else Restricted Zone (RESTRICTED_ZONE)
+    Airspace-->>RegSvc: Restricted zone requires review
+    RegSvc->>DB: Save PENDING ProspectiveCustomerRegistration and User
+    RegSvc-->>Web: Return 201 Created (pending platform review)
+  else Clear Zone (CLEAR_ZONE)
+    Airspace-->>RegSvc: Clear zone approved
+    RegSvc->>DB: Save ACTIVE Organization, CUSTOMER User, initial Asset, and AuditEvent
+    RegSvc-->>Web: Return 201 Created (account active)
+  end
+```
+
+#### 3.1.3 User Sign-In, OTP Verification and Google OAuth 2.0 Sequence Diagram
+
+```mermaid
+%% title: FE-01 User Sign-In, OTP Verification and Google OAuth 2.0 Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor User as System User
+  participant App as Web Portal / Mobile App
+  participant Ctrl as BrowserAuthController / OAuth2Controller
+  participant Auth as AuthService
+  participant Otp as LoginOtpService
+  participant DB as PostgreSQL
+
+  alt Email & Password Sign-In
+    User->>App: Enter email and password
+    App->>Ctrl: POST /api/v1/auth/login (or /api/v1/mobile/auth/login)
+    Ctrl->>Auth: login(email, password, clientIp, userAgent)
+    Auth->>DB: Verify Argon2id password hash and lockout status (users)
+    alt OTP Challenge Required
+      Auth->>Otp: createLoginChallenge(user, clientIp)
+      Otp->>DB: Save LOGIN OtpChallenge (otp_challenges)
+      Auth-->>App: Return otpRequired = true and challengeId
+      User->>App: Enter 6-digit OTP code
+      App->>Ctrl: POST /api/v1/auth/login/otp/verify
+      Ctrl->>Otp: verifyChallenge(challengeId, otpCode)
+      Otp->>DB: Mark OtpChallenge consumed and set user.otp_verified = true
+    end
+    Auth->>DB: Create active AuthSession (auth_sessions) and AuditEvent
+    Auth-->>App: Return HS256 JWT access token and refresh credential
+  else Google OAuth 2.0 Sign-In
+    User->>App: Click Sign in with Google
+    App->>Ctrl: GET /api/v1/auth/oauth2/google?client=web|mobile
+    Ctrl-->>User: Redirect to Google OAuth 2.0 consent screen
+    User->>Ctrl: GET /api/v1/auth/oauth2/google/callback?code=...&state=...
+    Ctrl->>Auth: loginWithGoogle(googleProfile, clientType)
+    Auth->>DB: Match active User and create AuthSession (auth_sessions)
+    Ctrl-->>App: Redirect to Web callback or Mobile smartdrone://auth deep link
+  end
+```
+
+---
+
+### 3.2 MF1 — FE-02 Partner Inspector and Drone Registration
+
+This section presents the detailed design for `FE-02`: the public partner Inspector application with licence scan, platform review and account provisioning, the pilot-licence profile and flight-log records, and Inspector-owned drone registration against the administrator-configurable document set with platform approval.
+
+#### 3.2.1 Class Diagram
+
+```mermaid
+%% title: FE-02 Partner Inspector Admission and Owned Drone Registration Class Diagram
+classDiagram
+  class PlatformUserController {
+    +listUsers(page, size, query) PagedResponse
+    +createUser(req) ApiResponse
+    +updateRoles(userId, req) ApiResponse
+    +updateStatus(userId, req) ApiResponse
+  }
+  class InspectorProfileController {
+    +listInspectors() List~InspectorProfileResponse~
+    +updateProfile(userId, req) InspectorProfileResponse
+    +uploadLicenseScan(userId, file) InspectorProfileResponse
+    +recordFlightLog(userId, req) InspectorFlightLogResponse
+  }
+  class InspectorApplicationController {
+    +submit(req) ApiResponse
+    +uploadLicenseScan(file) UploadedKeyResponse
+    +listPending() List~InspectorApplicationResponse~
+    +listApprovedAwaitingContract() List~InspectorApplicationResponse~
+    +approve(id, req) UserResponse
+    +reject(id, req) ApiResponse
+    +uploadSignedContract(id, file) InspectorApplicationResponse
+  }
+  class DroneRegistrationApplicationController {
+    +uploadEvidence(docType, file) UploadedKeyResponse
+    +submit(req) ApiResponse
+    +listPending() List~DroneRegistrationResponse~
+    +approve(appId, req) DroneRegistrationResponse
+    +reject(appId, req) DroneRegistrationResponse
+  }
+  class InspectorProfile {
+    -UUID userId
+    -String pilotLicenseNumber
+    -String pilotLicenseClass
+    -Instant pilotLicenseExpiresAt
+    -BigDecimal priorFlightHours
+  }
+  class InspectorApplication {
+    -UUID id
+    -String email
+    -String pilotLicenseNumber
+    -String pilotLicenseClass
+    -String status
+    -UUID approvedUserId
+  }
+  class DroneRegistrationApplication {
+    -UUID id
+    -UUID inspectorUserId
+    -String serialNumber
+    -String registrationFileKey
+    -String ownershipFileKey
+    -String inspectionFileKey
+    -String status
+  }
+  class Drone {
+    -UUID id
+    -UUID inspectorOwnerId
+    -String serialNumber
+    -String model
+    -DroneServiceability serviceability
+  }
+  PlatformUserController --> InspectorProfile
+  InspectorProfileController --> InspectorProfile
+  InspectorApplicationController --> InspectorApplication
+  InspectorApplication --> InspectorProfile
+  DroneRegistrationApplicationController --> DroneRegistrationApplication
+  DroneRegistrationApplication --> Drone
+```
+
+**Class Specifications**
+
+| No | Class | Description |
+| :---: | :--- | :--- |
+| 01 | `PlatformUserController` & `InspectorProfileController` | Allow platform administrators and managers to provision `INSPECTOR` accounts, maintain pilot license credentials in `inspector_profiles`, upload license scans, and record flight logs in `inspector_flight_logs`. |
+| 02 | `InspectorApplicationController` & `InspectorApplicationService` | Accept the public partner Inspector application and licence scan without authentication, expose the pending and approved-awaiting-contract review queues to `MANAGER` and `ADMIN`, record approval or rejection with reasons, and on approval provision the `INSPECTOR` account and its `InspectorProfile`. Record the signed partner contract after approval. |
+| 03 | `DroneRegistrationApplicationController` & `DroneRegistrationApplicationService` | Handle Inspector-owned drone registration submissions with three required documents (`REGISTRATION`, `OWNERSHIP`, and `INSPECTION`) and platform review decisions. |
+| 04 | `InspectorApplication`, `InspectorProfile` & `Drone` | Domain entities representing a pending partner application, an Inspector's licence and onboarding state, and an approved Inspector-owned drone. |
+
+**Endpoints and Domain Invariants**
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/inspector-applications` | Submit the public partner application with identity, licence data, and licence scan. | |
+| POST | `/inspector-applications/{id}/approve` | Record the approval and provision the `INSPECTOR` account and licence profile in one step. | |
+| POST | `/inspector-applications/{id}/reject` | Reject the application with a mandatory written reason and notify the applicant. | |
+| POST | `/drone-registration-applications` | Submit an owned drone with photographs, capabilities, and the required document set. | |
+| POST | `/drone-registration-applications/{id}/approve` | Approve the drone so it becomes selectable for dispatch. | |
+| GET | `/drone-registration-applications/mine/drones` | List the signed-in inspector's owned drones and their review state. | |
+| PUT | `/drones/{droneId}/registration` | Renew or update an existing active registration. | |
+
+Domain invariants: a submitted application creates no account; an applicant email must be unique across accounts and open applications; an inspector may apply with no drone; a duplicate serial owned by another party is rejected; licence class must cover the airframe weight; expired or incomplete registration fails closed.
+
+#### 3.2.2 Partner Inspector Application, Review and Account Provisioning Sequence Diagram
+
+```mermaid
+%% title: FE-02 Partner Inspector Application, Review and Account Provisioning Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Public as Prospective Inspector
+  actor Reviewer as Manager or Admin
+  actor Insp as Inspector
+  participant AppCtrl as InspectorApplicationController
+  participant PlatCtrl as PlatformUserController / InspectorProfileController
+  participant UserSvc as InspectorApplicationService / AdminUserService / InspectorProfileService
+  participant Events as Spring Modulith event_publication
+  participant DB as PostgreSQL & MinIO
+
+  Public->>AppCtrl: POST /api/v1/inspector-applications/license-scan (multipart)
+  AppCtrl->>UserSvc: storeLicenseScan(file)
+  UserSvc->>DB: Write scan to MinIO and return object key
+  Public->>AppCtrl: POST /api/v1/inspector-applications (identity, licence, scan key)
+  AppCtrl->>UserSvc: submit(request)
+  UserSvc->>DB: Verify normalized email has no account and no open application
+  UserSvc->>DB: Insert inspector_applications row with status PENDING_REVIEW
+  UserSvc->>Events: Publish InspectorApplicationSubmittedEvent
+  AppCtrl-->>Public: Return 201 Created (no account exists yet)
+
+  Reviewer->>AppCtrl: GET /api/v1/inspector-applications
+  AppCtrl->>UserSvc: listPending()
+  UserSvc->>DB: Query pending applications
+  Reviewer->>AppCtrl: GET /api/v1/inspector-applications/{id}/license-scan
+  AppCtrl->>UserSvc: readLicenseScan(id)
+  UserSvc->>DB: Stream licence scan through a scoped media ticket
+
+  alt Approved
+    Reviewer->>AppCtrl: POST /api/v1/inspector-applications/{id}/approve
+    AppCtrl->>UserSvc: approve(id, request)
+    UserSvc->>DB: Lock application, insert users row with role INSPECTOR and insert inspector_profiles
+    UserSvc->>DB: Link approved_user_id and set notification state
+    AppCtrl-->>Reviewer: Return provisioned UserResponse
+  else Rejected
+    Reviewer->>AppCtrl: POST /api/v1/inspector-applications/{id}/reject (rejectionReason)
+    AppCtrl->>UserSvc: reject(id, request)
+    UserSvc->>DB: Set status REJECTED with reason and store review attribution
+    AppCtrl-->>Reviewer: Return ApiResponse with no content
+  end
+
+  Reviewer->>AppCtrl: POST /api/v1/inspector-applications/{id}/signed-contract (multipart)
+  AppCtrl->>UserSvc: uploadSignedContract(id, file)
+  UserSvc->>DB: Store partner contract and SHA-256 in MinIO and inspector_applications
+  Insp->>PlatCtrl: PUT /api/v1/platform/inspectors/{id} and POST /license-scan
+  PlatCtrl->>UserSvc: updateProfile(userId, req) and uploadLicenseScan(userId, file)
+  UserSvc->>DB: Update inspector_profiles and store the renewed licence scan
+  Insp->>PlatCtrl: GET /api/v1/platform/inspectors/{id}/flight-logs
+  PlatCtrl->>UserSvc: listFlightLogs(userId)
+  UserSvc->>DB: Query inspector_flight_logs
+```
+
+### 3.3 MF2 — FE-03 Buildings, Airspace Screening and Notifications
+
+This section presents the detailed design for `FE-03`: the customer building catalogue with category-scoped inspection checkpoints and SHA-256 reference documents under the No-Fly Zone airspace gate, the platform review of restrictive-airspace registrations, recurring service request occurrence materialization with month-end anchoring, and deduplicated in-app notifications delivered through the Spring Modulith transactional event outbox.
+
+#### 3.3.1 Class Diagram
+
+```mermaid
+%% title: FE-03 Building Catalogue, Occurrences and Notification Inbox Class Diagram
+classDiagram
+  class AssetController {
+    +createAsset(req) ApiResponse
+    +listAssets(page, size, query) PagedResponse
+    +updateAsset(assetId, req) AssetView
+    +retireAsset(assetId) AssetView
+  }
+  class AssetDocumentController {
+    +upload(assetId, docType, file) AssetDocumentResponse
+    +list(assetId) List~AssetDocumentResponse~
+    +download(assetId, docId) ResponseEntity
+  }
+  class AirspaceReviewController {
+    +listPending() List~ProspectiveCustomerRegistrationResponse~
+    +approve(registrationId) ProspectiveCustomerRegistrationResponse
+    +reject(registrationId, req) ProspectiveCustomerRegistrationResponse
+  }
+  class Asset {
+    -UUID id
+    -UUID ownerCustomerId
+    -String assetCode
+    -String name
+    -BigDecimal latitude
+    -BigDecimal longitude
+    -AssetStatus status
+  }
+  class ContractWorkflowService {
+    +acceptQuote(actorId, reqId, versionNo) ServiceRequestResponse
+    +uploadSignedContract(actorId, reqId, file) ServiceRequestResponse
+    +assignOccurrence(actorId, reqId, occId, assignReq) ServiceRequestResponse
+  }
+  class ServiceRequestOccurrence {
+    -UUID id
+    -UUID requestId
+    -int occurrenceIndex
+    -Instant plannedStartAt
+    -Instant plannedEndAt
+    -OccurrenceStatus status
+  }
+  class NotificationController {
+    +listNotifications(page, size, unreadOnly) NotificationPageResponse
+    +getUnreadCount() NotificationUnreadCountResponse
+    +markRead(notificationId) NotificationResponse
+  }
+  class NotificationService {
+    +list(userId, page, pageSize, unreadOnly) NotificationPageResponse
+    +unreadCount(userId) NotificationUnreadCountResponse
+    +markAsRead(userId, notificationId) NotificationResponse
+  }
+  class InspectionNotificationListener {
+    +onInspectionAssigned(event) void
+    +onFieldSessionAborted(event) void
+    +onInspectionDeclined(event) void
+    +onInspectionOverdue(event) void
+    +onFieldSessionHung(event) void
+    +onFieldSessionForceAborted(event) void
+    +onInspectionRescheduled(event) void
+    +onInspectionAssignmentRevoked(event) void
+    +onFlightPermitSubmitted(event) void
+    +onFlightPermitReviewed(event) void
+  }
+  class InspectorApplicationNotificationListener {
+    +onApplicationSubmitted(event) void
+  }
+  class PilotLicenseExpiryCheckService {
+    +checkExpiringLicenses() void
+  }
+  class Notification {
+    -UUID id
+    -UUID recipientUserId
+    -String eventType
+    -String title
+    -NotificationStatus status
+    -String deduplicationKey
+  }
+  AssetController --> Asset
+  AssetDocumentController --> Asset
+  ContractWorkflowService --> ServiceRequestOccurrence
+  NotificationController --> NotificationService
+  InspectionNotificationListener --> Notification
+  InspectorApplicationNotificationListener --> Notification
+  NotificationService --> Notification
+```
+
+**Class Specifications**
+
+| No | Class | Description |
+| :---: | :--- | :--- |
+| 01 | `AssetController`, `AssetDocumentController` & `AirspaceReviewController` | Manage customer buildings, category-scoped inspection checkpoints (`inspection_items`), and SHA-256 engineering reference documents in MinIO, blocking building creation inside prohibited No-Fly Zones, and let `ADMIN` or `MANAGER` review pending restrictive-airspace customer registrations with a mandatory rejection reason. |
+| 02 | `ContractWorkflowService` & `ServiceRequestOccurrence` | Materialize count-bound or end-date-bound `ServiceRequestOccurrence` rows with month-end anchoring when a Customer accepts a recurring quotation and the signed contract is recorded. |
+| 03 | `NotificationController` & `NotificationService` | Provide the role- and organization-scoped in-app notification inbox, unread notification counter, and idempotent `SENT -> READ` updates for signed-in users. |
+| 04 | `InspectionNotificationListener`, `InspectorApplicationNotificationListener` & `PaymentSettlementNotificationListener` | Consume transactional Spring Modulith domain events and persist deduplicated notifications. The inspection listener handles `InspectionAssignedEvent`, `InspectionDeclinedEvent`, `InspectionOverdueEvent`, `InspectionRescheduledEvent`, `InspectionAssignmentRevokedEvent`, `FieldSessionAbortedEvent`, `FieldSessionHungEvent`, `FieldSessionForceAbortedEvent`, `FlightPermitSubmittedEvent`, `FlightPermitReviewedEvent`, `ReportSubmittedEvent`, `ReportReturnedEvent`, and `ReportPublishedEvent`; the application listener handles `InspectorApplicationSubmittedEvent`; the payment listener handles `PaymentSettledEvent`. `PilotLicenseExpiryCheckService` runs the scheduled licence-expiry sweep rather than consuming an event. |
+| 05 | `Asset` & `Notification` | Domain entities representing a customer building under the airspace gate and an in-app user notification protected by `uq_notifications_deduplication_key`. |
+
+**Endpoints and Domain Invariants**
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/assets` | Register a building with its category, structure profile, checkpoints, and coordinates. | |
+| PUT | `/assets/{assetId}` | Update the building record while preserving its inspection history. | |
+| PUT | `/assets/{assetId}/inspection-items` | Adjust the checkpoint set captured for the building. | |
+| POST | `/assets/{assetId}/documents` | Attach a reference document with its checksum. | |
+| POST | `/assets/{assetId}/retire` | Retire the building and block new work against it. | |
+| POST | `/airspace/evaluate` | Screen a coordinate as prohibited, review-required, or clear. | |
+| GET | `/notifications` | Read the signed-in user's deduplicated notification inbox. | |
+
+Domain invariants: a prohibited location cannot be registered; a duplicate asset code within one organization or an identical document checksum is rejected; retirement preserves history and blocks new requests; a notice never grants access to its target record; redelivery of the same event does not create a second notice.
+
+#### 3.3.2 Building Asset and Reference Document Registration Sequence Diagram
+
+```mermaid
+%% title: FE-03 Building Asset and Reference Document Registration Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Cust as Customer
+  participant AssetCtrl as AssetController / AssetDocumentController
+  participant AssetSvc as AssetService / AssetDocumentService
+  participant Airspace as AirspaceAdvisoryService
+  participant Store as MinioEvidenceObjectStore
+  participant DB as PostgreSQL
+
+  Cust->>AssetCtrl: POST /api/v1/assets (assetCode, coordinates, inspectionItems)
+  AssetCtrl->>AssetSvc: createAsset(actorId, request)
+  AssetSvc->>Airspace: evaluate(latitude, longitude, maxAltitudeMeters)
+  alt Coordinates inside Prohibited No-Fly Zone
+    Airspace-->>AssetSvc: NO_FLY_ZONE classification
+    AssetSvc-->>Cust: Return 403 Forbidden (ASSET_IN_NO_FLY_ZONE)
+  else Clear or Restricted Zone
+    Airspace-->>AssetSvc: CLEAR_ZONE or RESTRICTED_ZONE
+    AssetSvc->>DB: Verify unique (organization_id, asset_code) and save ACTIVE Asset
+    AssetSvc-->>Cust: Return created Asset with inspection_items JSONB (201 Created)
+  end
+
+  Cust->>AssetCtrl: POST /api/v1/assets/{assetId}/documents (MultipartFile)
+  AssetCtrl->>AssetSvc: uploadDocument(actorId, assetId, docType, file)
+  AssetSvc->>AssetSvc: Compute SHA-256 checksum and check duplicate on asset
+  AssetSvc->>Store: put(objectKey, contentType, sizeBytes, stream)
+  AssetSvc->>DB: Insert AssetDocument (asset_documents)
+  AssetSvc-->>Cust: Return AssetDocumentResponse (201 Created)
+```
+
+#### 3.3.3 Recurring Service Request Occurrence Materialization Sequence Diagram
+
+```mermaid
+%% title: FE-03 Recurring Service Request Occurrence Materialization Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Cust as Customer
+  actor Mgr as Manager
+  participant Ctrl as ContractWorkflowController
+  participant Svc as ContractWorkflowService
+  participant Store as MinioEvidenceObjectStore
+  participant DB as PostgreSQL
+
+  Cust->>Ctrl: POST /api/v1/contracts/requests (requestType = RECURRING, cadence, bound)
+  Ctrl->>Svc: create(customerId, request)
+  Svc->>DB: Validate exactly one recurrence bound (occurrenceCount xor recurrenceEndDate) and save ServiceRequest
+
+  Mgr->>Ctrl: POST /api/v1/contracts/requests/{id}/quotes
+  Ctrl->>Svc: issueQuote(managerId, requestId, quoteInput)
+  Svc->>DB: Validate first occurrence window within requested range and save ServiceRequestQuote
+
+  Cust->>Ctrl: POST /api/v1/contracts/requests/{id}/accept?versionNo=1
+  Ctrl->>Svc: acceptQuote(customerId, requestId, versionNo)
+  Svc->>Svc: materializeOccurrences(request, acceptedQuote) with month-end date anchoring
+  Svc->>DB: Insert ServiceRequestOccurrence rows (1..N) and mark request ACCEPTED
+
+  Mgr->>Ctrl: POST /api/v1/contracts/requests/{id}/signed-contract (MultipartFile)
+  Ctrl->>Svc: uploadSignedContract(managerId, requestId, file)
+  Svc->>Store: Store signed paper agreement in MinIO
+  Svc->>DB: Record contract_object_key on parent ServiceRequest (CONTRACT_SIGNED)
+```
+
+#### 3.3.4 Event-Driven Notification Inbox and Read Status Sequence Diagram
+
+```mermaid
+%% title: FE-03 Event-Driven Notification Inbox and Read Status Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Mgr as Manager or Customer
+  actor User as Recipient User
+  participant DomainSvc as Inspections / Contracts / Users Service
+  participant Outbox as Spring Modulith Outbox (event_publication)
+  participant Listener as Inspection / Inspector Application NotificationListener
+  participant NotifCtrl as NotificationController
+  participant NotifSvc as NotificationService
+  participant DB as PostgreSQL
+
+  Mgr->>DomainSvc: Execute domain action (e.g., assign an inspection, abort a session, submit an application)
+  DomainSvc->>Outbox: Publish domain event within transaction
+  Outbox->>Listener: Deliver event asynchronously to @ApplicationModuleListener
+  Listener->>DB: Insert Notification (status = SENT) guarded by uq_notifications_deduplication_key
+
+  User->>NotifCtrl: GET /api/v1/notifications & GET /api/v1/notifications/unread-count
+  NotifCtrl->>NotifSvc: list(userId, page, pageSize, unreadOnly) & unreadCount(userId)
+  NotifSvc->>DB: Query recipient-scoped notifications and unread count
+  DB-->>User: Return NotificationPageResponse and unread count
+
+  User->>NotifCtrl: PATCH /api/v1/notifications/{id}/read
+  NotifCtrl->>NotifSvc: markAsRead(userId, notificationId)
+  NotifSvc->>DB: Update Notification status SENT -> READ and set read_at timestamp
+```
+
+---
+
+### 3.4 MF2 — FE-04 Service Requests, VND Quotations, Agreements and Dispatch
+
+This section presents the detailed design for `FE-04` (request-level single-Manager ownership, serialized Manager self-claim, ADMIN-only audited assignment correction, assignment-scoped Manager details and commercial workflows, Customer-only assigned-Manager contact projection, three-dot action menu and overview, Service Request Messages inbox, single active VND quotation, signed paper contract upload, cross-organization partner Inspector and owned Drone dispatch, abort recovery dispatch, and Vietnam airspace evaluation).
+
+#### 3.4.1 Class Diagram
+
+```mermaid
+%% title: FE-04 Service Request, Quotation, Signed Contract and Dispatch Class Diagram
+classDiagram
+  class ContractWorkflowController {
+    +list(actorId) List~ServiceRequestResponse~
+    +claimRequest(reqId) ServiceRequestResponse
+    +reassignRequest(reqId, managerId) ServiceRequestResponse
+    +unassignRequest(reqId) ServiceRequestResponse
+    +create(req) ServiceRequestResponse
+    +postMessage(reqId, msg) ServiceRequestResponse
+    +issueQuote(reqId, quoteReq) ServiceRequestResponse
+    +acceptQuote(reqId, versionNo) ServiceRequestResponse
+    +uploadSignedContract(reqId, file) ServiceRequestResponse
+    +downloadSignedContract(reqId) InputStreamResource
+    +assignOccurrence(reqId, occId, assignReq) ServiceRequestResponse
+  }
+  class ContractWorkflowService {
+    +create(actorId, req) ServiceRequestResponse
+    +issueQuote(actorId, reqId, quoteReq) ServiceRequestResponse
+    +acceptQuote(actorId, reqId, versionNo) ServiceRequestResponse
+    +uploadSignedContract(actorId, reqId, file) ServiceRequestResponse
+    +assignOccurrence(actorId, reqId, occId, assignReq) ServiceRequestResponse
+  }
+  class Mf2InspectionAssignmentAdapter {
+    +assign(orgId, assetId, inspectorId, droneId, startAt, endAt, actorId) UUID
+  }
+  class AirspaceAdvisoryService {
+    +listZones() List~AirspaceZoneView~
+    +evaluate(lat, lon, maxAltitudeMeters) AirspaceEvaluationResult
+  }
+  class ServiceRequest {
+    -UUID id
+    -UUID organizationId
+    -UUID assetId
+    -UUID assignedManagerId
+    -Instant managerAssignedAt
+    -UUID managerAssignedByUserId
+    -RequestType requestType
+    -ServiceRequestStatus status
+    -Integer acceptedQuoteVersion
+    -String contractObjectKey
+  }
+  class ServiceRequestQuote {
+    -UUID id
+    -UUID requestId
+    -int versionNo
+    -UUID inspectorId
+    -UUID droneId
+    -BigDecimal pricePerOccurrenceVnd
+  }
+  class ServiceRequestOccurrence {
+    -UUID id
+    -UUID requestId
+    -UUID inspectionId
+    -OccurrenceStatus status
+    -OccurrencePaymentStatus paymentStatus
+    -Long payosOrderCode
+    -String paymentMethod
+  }
+  ContractWorkflowController --> ContractWorkflowService
+  ContractWorkflowService --> ServiceRequest
+  ContractWorkflowService --> ServiceRequestQuote
+  ContractWorkflowService --> ServiceRequestOccurrence
+  ContractWorkflowService --> Mf2InspectionAssignmentAdapter
+```
+
+**Class Specifications**
+
+| No | Class | Description |
+| :---: | :--- | :--- |
+| 01 | `ContractWorkflowController` & `ContractWorkflowService` | Manage role-scoped service requests: Managers claim unassigned rows under a pessimistic request lock, and only the assigned Manager receives detailed conversation/commercial access. ADMIN uses an assignment-only registry to assign, reassign, or unassign with audit events and cannot act as a Manager. The owning Customer alone receives the assigned active Manager contact. The Customer/Manager UI provides a three-dot menu, structured overview, request progress navigation, and left-nav Messages inbox. |
+| 02 | `Mf2InspectionAssignmentAdapter` & `PartnerRegistryService` | Validate Inspector pilot license status, drone ownership, and cross-organization schedule availability before creating a scheduled inspection mission. |
+| 03 | `AirspaceController` & `AirspaceAdvisoryService` | Expose Vietnam No-Fly and Restricted airspace polygons and evaluate target coordinates and altitudes using Haversine distance checks. |
+| 04 | `ServiceRequest`, `ServiceRequestQuote` & `ServiceRequestOccurrence` | Domain entities representing the customer request, each proposed VND quotation version, and the individual inspection occurrences generated upon quote acceptance. |
+
+**Endpoints and Domain Invariants**
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/contracts/requests` | Create a one-time or recurring request for an active building. | |
+| POST | `/contracts/requests/{requestId}/claim` | Claim an unassigned request under a row lock. | |
+| PUT | `/contracts/requests/{requestId}/quote` | Save or edit the single active VND quotation. | |
+| POST | `/contracts/requests/{requestId}/accept` | Accept the active quotation and freeze the agreed terms. | |
+| POST | `/contracts/requests/{requestId}/signed-contract` | Record the executed paper agreement. | |
+| POST | `/contracts/requests/{requestId}/occurrences/{occurrenceId}/assign` | Assign a qualified inspector and an eligible owned drone. | |
+| POST | `/contracts/requests/{requestId}/messages` | Post an order-chat message with optional attachments. | |
+
+Domain invariants: the requested first date is at least twenty calendar days ahead; the quotation cannot move that date; exactly one manager owns a request; acceptance stores an immutable terms snapshot; eligibility is evaluated for every planned occurrence; a message never changes price or scope by itself.
+
+#### 3.4.2 Service Request, Order Chat and VND Quotation Sequence Diagram
+
+```mermaid
+%% title: FE-04 Service Request, Order Chat and VND Quotation Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Cust as Customer
+  actor Mgr as Manager
+  participant Ctrl as ContractWorkflowController
+  participant Svc as ContractWorkflowService
+  participant Partner as PartnerRegistryService
+  participant FinSvc as InspectionFinanceSettingsService
+  participant DB as PostgreSQL
+
+  Cust->>Ctrl: POST /api/v1/contracts/requests
+  Ctrl->>Svc: create(customerId, request)
+  Svc->>DB: Verify active Asset in Customer organization and save OPEN ServiceRequest
+
+  Mgr->>Ctrl: POST /api/v1/contracts/requests/{id}/claim
+  Ctrl->>Svc: claimRequest(managerId, requestId)
+  Svc->>DB: Lock request row and assign only if no current Manager
+
+  Cust->>Ctrl: POST /api/v1/contracts/requests/{id}/messages
+  Ctrl->>Svc: postMessage(customerId, requestId, body)
+  Svc->>DB: Save ServiceRequestMessage
+
+  Mgr->>Ctrl: POST /api/v1/contracts/requests/{id}/quotes
+  Ctrl->>Svc: issueQuote(managerId, requestId, quoteInput)
+  Svc->>Partner: isEligibleInspector(inspectorId, startAt) & isEligibleDrone(droneId, inspectorId)
+  Svc->>FinSvc: requireConfiguredRates()
+  Svc->>DB: Save immutable ServiceRequestQuote version (VND) and mark request QUOTED
+
+  Cust->>Ctrl: POST /api/v1/contracts/requests/{id}/accept?versionNo=v
+  Ctrl->>Svc: acceptQuote(customerId, requestId, versionNo)
+  Svc->>DB: Verify versionNo is latest, materialize occurrences, and mark request ACCEPTED
+```
+
+#### 3.4.3 Signed Contract Upload, Occurrence Dispatch and Airspace Check Sequence Diagram
+
+```mermaid
+%% title: FE-04 Signed Contract Upload, Occurrence Dispatch and Airspace Check Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Mgr as Manager
+  participant Ctrl as ContractWorkflowController / AirspaceController
+  participant Svc as ContractWorkflowService / AirspaceAdvisoryService
+  participant AssignPort as Mf2InspectionAssignmentAdapter
+  participant Store as MinioEvidenceObjectStore
+  participant DB as PostgreSQL
+
+  Mgr->>Ctrl: GET /api/v1/airspace/evaluate?latitude=...&longitude=...
+  Ctrl->>Svc: evaluate(latitude, longitude, maxAltitudeMeters)
+  Svc-->>Mgr: Return AirspaceEvaluationResult (CLEAR_ZONE, RESTRICTED_ZONE, or NO_FLY_ZONE)
+
+  Mgr->>Ctrl: POST /api/v1/contracts/requests/{id}/signed-contract (PDF/DOCX/JPEG/PNG)
+  Ctrl->>Svc: uploadSignedContract(managerId, requestId, file)
+  Svc->>Store: Store agreement file in MinIO
+  Svc->>DB: Record contract_object_key and transition request to CONTRACT_SIGNED
+
+  Mgr->>Ctrl: POST /api/v1/contracts/requests/{id}/occurrences/{occId}/assign
+  Ctrl->>Svc: assignOccurrence(managerId, requestId, occId, assignInput)
+  Svc->>DB: Check hasScheduleConflict(inspectorId, droneId, startAt, endAt)
+  Svc->>AssignPort: assign(orgId, assetId, inspectorId, droneId, startAt, endAt, managerId)
+  AssignPort->>DB: Create SCHEDULED Inspection and publish InspectionAssignedEvent
+  Svc->>DB: Link inspectionId on ServiceRequestOccurrence and mark request ASSIGNED
+```
+
+---
+
+### 3.5 MF3 — FE-05 Flight Permit and On-site Field Sessions
+
+This section presents the detailed design for `FE-05` (Aviation flight permit upload with pilot license validation, on-site field session execution, `SmartDroneHub` live telemetry, flight trace and MP4 video sync, session abort and Manager recovery dispatch, four-role operational dashboards, and Inspector Schedule Calendar).
+
+#### 3.5.1 Class Diagram
+
+```mermaid
+%% title: FE-05 Flight Permit Gate and Field Inspection Execution Class Diagram
+classDiagram
+  class InspectionController {
+    +uploadFlightPermit(inspId, file) InspectionResponse
+    +reschedule(inspId, req) InspectionResponse
+    +reassign(inspId, req) InspectionResponse
+    +cancel(inspId, req) InspectionResponse
+  }
+  class InspectionListController {
+    +listInspections(page, pageSize, status) PagedResponse
+    +getInspection(inspId) InspectionDetailResponse
+    +flightPermitContent(inspId) ResponseEntity
+  }
+  class InspectionFieldSessionController {
+    +listSessions(inspId) List~FieldSessionResponse~
+    +start(inspId, req) FieldSessionResponse
+    +complete(inspId, sessId, req) FieldSessionResponse
+    +abort(inspId, sessId, req) FieldSessionResponse
+    +droneHubStatus(inspId) DroneHubStatusResponse
+    +connectDroneHub(inspId, sessId, req) DroneHubStatusResponse
+    +getFlightReport(inspId, sessId) DroneFlightReportResponse
+    +syncFlightVideo(inspId, sessId) EvidenceResponse
+  }
+  class InspectionCreationService {
+    +uploadFlightPermit(actorId, inspId, file) Inspection
+    +reschedule(actorId, inspId, startAt, endAt) Inspection
+    +reassign(actorId, inspId, inspectorId, droneId) Inspection
+    +cancel(actorId, inspId, reason) Inspection
+  }
+  class InspectionFieldSessionService {
+    +start(actorId, inspId, safetyNote) FieldSession
+    +complete(actorId, inspId, sessId, notes) FieldSession
+    +abort(actorId, inspId, sessId, reason) FieldSession
+  }
+  class InspectionDroneHubService {
+    +status(actorId, inspId) DroneHubStatusResponse
+    +connect(actorId, inspId, sessId, req) DroneHubStatusResponse
+    +disconnect(actorId, inspId, sessId) DroneHubStatusResponse
+    +getFlightReport(actorId, inspId, sessId) DroneFlightReportResponse
+    +syncFlightVideo(actorId, inspId, sessId) EvidenceResponse
+  }
+  class Inspection {
+    -UUID id
+    -UUID organizationId
+    -UUID assetId
+    -UUID inspectorId
+    -UUID droneId
+    -InspectionStatus status
+    -String flightPermitFileKey
+    +hasFlightPermit() boolean
+    +moveTo(nextStatus) void
+    +reopenAfterSessionAbort() void
+  }
+  class FieldSession {
+    -UUID id
+    -UUID inspectionId
+    -FieldSessionStatus status
+    -Instant startedAt
+    -Instant endedAt
+    -String preFlightChecklistNote
+    -String outcomeNotes
+    -String abortReason
+    -String telemetrySource
+    -Integer flightDurationSeconds
+    -BigDecimal distanceFlownMeters
+    -String flightTraceJson
+    -UUID flightVideoEvidenceId
+    +start(startedAt) void
+    +complete(endedAt, notes) void
+    +abort(endedAt, reason) void
+    +recordFlightReport(...) void
+  }
+  InspectionController --> InspectionCreationService
+  InspectionFieldSessionController --> InspectionFieldSessionService
+  InspectionFieldSessionController --> InspectionDroneHubService
+  InspectionCreationService --> Inspection
+  InspectionFieldSessionService --> Inspection
+  InspectionFieldSessionService --> FieldSession
+  InspectionDroneHubService --> FieldSession
+  Inspection "1" *-- "1..*" FieldSession : executes
+```
+
+**Class Specifications**
+
+| No | Class | Description |
+| :---: | :--- | :--- |
+| 01 | `InspectionController`, `InspectionListController` & `InspectionCreationService` | Handle mission flight permit uploads (checking assigned Inspector pilot license validity at upload time), scoped mission queries, flight permit streaming, and Manager recovery actions (`reschedule`, `reassign`, or `cancel`) when an on-site field session is aborted. |
+| 02 | `InspectionFieldSessionController` & `InspectionFieldSessionService` | Govern on-site field session execution, enforcing that a session can start only when the inspection is `SCHEDULED` with `hasFlightPermit() == true`, and recording either normal completion (`FIELD_COMPLETED`) or session abort (`ABORTED` with mission reopen to `SCHEDULED`). |
+| 03 | `InspectionDroneHubService` & `SmartDroneHubClient` | Connect an active field session to `SmartDroneHub`, stream live telemetry, persist post-flight report metrics and GPS flight traces (`flight_trace_json`) on `FieldSession`, and synchronize recorded mission MP4 videos into inspection `Evidence`. |
+| 04 | `DashboardController` & `DashboardAnalyticsService` | Aggregate four-role operational KPIs, mission queues, confirmed defect severity distributions, and inspection-service metrics only. |
+| 05 | `Inspection` & `FieldSession` | Domain entities representing the 6-state inspection mission aggregate and the 4-state on-site flight session with persisted telemetry, GPS flight trace, and synced video reference (`V28`). |
+
+**Endpoints and Domain Invariants**
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/inspections/{inspectionId}/flight-permit` | Upload the mission permit with its structured metadata and checksum. | |
+| POST | `/inspections/{inspectionId}/flight-permit/review` | Record an independent approval or a reasoned rejection. | |
+| POST | `/inspections/{inspectionId}/field-sessions` | Start an on-site session after the readiness gates pass. | |
+| POST | `/inspections/{inspectionId}/field-sessions/{sessionId}/completion` | Complete the session with its outcome notes. | |
+| POST | `/inspections/{inspectionId}/field-sessions/{sessionId}/abort` | Abort the session with a mandatory reason and alert the manager. | |
+| POST | `/inspections/{inspectionId}/field-sessions/{sessionId}/drone-hub/import-log` | Import an exported SRT, CSV, KML, or GPX flight log. | |
+| GET | `/inspections/{inspectionId}/field-sessions/{sessionId}/drone-hub/telemetry` | Read normalized telemetry for an active session. | |
+
+Domain invariants: the permit uploader cannot verify their own permit; the permit window and drone serial must cover the planned flight; a session cannot start without an approved permit and a completed pre-flight checklist; an abort reason is mandatory; telemetry is read-only and the platform never commands the aircraft.
+
+#### 3.5.2 Flight Permit Gate, Field Session Execution and SmartDroneHub Sync Sequence Diagram
+
+```mermaid
+%% title: FE-05 Flight Permit Gate, Field Session Execution and SmartDroneHub Sync Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Insp as Assigned Inspector
+  participant Ctrl as InspectionController / InspectionFieldSessionController
+  participant Svc as InspectionCreationService / InspectionFieldSessionService
+  participant HubSvc as InspectionDroneHubService
+  participant Hub as SmartDroneHubClient
+  participant DB as PostgreSQL & MinIO
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/flight-permit (MultipartFile)
+  Ctrl->>Svc: uploadFlightPermit(inspectorId, inspectionId, file)
+  Svc->>DB: Verify Inspector pilot license is unexpired, store permit in MinIO, and save flight_permit_file_key
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/field-sessions (preFlightChecklistNote)
+  Ctrl->>Svc: start(inspectorId, inspectionId, preFlightChecklistNote)
+  Svc->>DB: Verify hasFlightPermit() == true, create IN_PROGRESS FieldSession, and mark Inspection IN_PROGRESS
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/field-sessions/{sessId}/drone-hub/connect
+  Ctrl->>HubSvc: connect(inspectorId, inspectionId, sessId, request)
+  HubSvc->>Hub: startMission(missionPayload)
+  Insp->>Ctrl: GET /flight-report & POST /sync-video
+  Ctrl->>HubSvc: getFlightReport(...) & syncFlightVideo(...)
+  HubSvc->>Hub: Fetch telemetry metrics, GPS trace, and recorded MP4 video
+  HubSvc->>DB: Persist flight_trace_json on field_sessions and MP4 Evidence in MinIO
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/field-sessions/{sessId}/completion (outcomeNotes)
+  Ctrl->>Svc: complete(inspectorId, inspectionId, sessId, outcomeNotes)
+  Svc->>DB: Transition FieldSession and Inspection to FIELD_COMPLETED
+```
+
+#### 3.5.3 Field Session Abort and Manager Recovery Dispatch Sequence Diagram
+
+```mermaid
+%% title: FE-05 Field Session Abort and Manager Recovery Dispatch Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Insp as Assigned Inspector
+  actor Mgr as Manager
+  participant SessCtrl as InspectionFieldSessionController
+  participant InspCtrl as InspectionController
+  participant SessSvc as InspectionFieldSessionService
+  participant CreateSvc as InspectionCreationService
+  participant DB as PostgreSQL
+
+  Insp->>SessCtrl: POST /api/v1/inspections/{id}/field-sessions/{sessId}/abort (abortReason)
+  SessCtrl->>SessSvc: abort(inspectorId, inspectionId, sessId, abortReason)
+  SessSvc->>DB: Mark FieldSession ABORTED, reopen Inspection to SCHEDULED, and publish FieldSessionAbortedEvent
+  SessSvc-->>Mgr: Deliver in-app abort alert notification
+
+  alt Reschedule Inspection Window
+    Mgr->>InspCtrl: PUT /api/v1/inspections/{id}/schedule (plannedStartAt, plannedEndAt)
+    InspCtrl->>CreateSvc: reschedule(managerId, inspectionId, startAt, endAt)
+    CreateSvc->>DB: Check partner schedule conflicts and update planned window
+  else Reassign Inspector and Owned Drone
+    Mgr->>InspCtrl: PUT /api/v1/inspections/{id}/assignment (inspectorId, droneId)
+    InspCtrl->>CreateSvc: reassign(managerId, inspectionId, inspectorId, droneId)
+    CreateSvc->>DB: Validate pilot license, drone ownership, and schedule availability, then update assignment
+  else Cancel Inspection Mission
+    Mgr->>InspCtrl: POST /api/v1/inspections/{id}/cancellation (reason)
+    InspCtrl->>CreateSvc: cancel(managerId, inspectionId, reason)
+    CreateSvc->>DB: Transition Inspection to CANCELLED
+  end
+```
+
+---
+
+### 3.6 MF3 — FE-06 Evidence Intake and Human-Reviewed Defect Detection
+
+This section presents the detailed design for `FE-06`: photograph intake with EXIF extraction and bounded normalization, resumable chunked MP4 upload with asynchronous FFmpeg transcoding and ticketed Range playback, YOLO11 defect detection with an OpenAI-compatible vision fallback, and the human-reviewed findings baseline that fixes which defects become official.
+
+#### 3.6.1 Class Diagram
+
+```mermaid
+%% title: FE-06 Evidence Intake and Human-Reviewed Defect Detection Class Diagram
+classDiagram
+  class EvidenceService {
+    +upload(actorId, inspId, file) EvidenceResponse
+    +listForInspection(actorId, inspId) EvidencePageResponse
+    +openContent(actorId, inspId, evidId) EvidenceContent
+    +retire(actorId, inspId, evidId) void
+  }
+  class FindingService {
+    +analyzeEvidence(actorId, inspId, evidId, replace) List~FindingResponse~
+    +analyzeVideo(actorId, inspId, evidId, req) VideoAnalysisResponse
+    +createManual(actorId, inspId, req) FindingResponse
+    +review(actorId, inspId, findingId, decision) FindingResponse
+    +confirmFindings(actorId, inspId, ack) void
+  }
+  class PrimaryWithFallbackInference {
+    +predict(imageBytes, contentType) List~DetectedBox~
+  }
+  class Evidence {
+    -UUID id
+    -UUID inspectionId
+    -String fileName
+    -String contentType
+    -String objectKey
+    -BigDecimal latitude
+    -BigDecimal longitude
+    -boolean isDeleted
+  }
+  class Finding {
+    -UUID id
+    -UUID inspectionId
+    -UUID evidenceId
+    -String findingCode
+    -String defectLabel
+    -FindingSeverity severity
+    -FindingStatus status
+    -BigDecimal confidence
+  }
+  EvidenceService --> Evidence
+  FindingService --> Finding
+  FindingService --> PrimaryWithFallbackInference
+  Evidence "1" o-- "0..*" Finding : locates
+```
+
+**Class Specifications**
+
+| No | Class | Description |
+| :---: | :--- | :--- |
+| 01 | `EvidenceService` & `ImageNormalizer` | Extract EXIF GPS/time/orientation prior to decoding, normalize oversized (`> 2048 px`) or rotated photographs, generate `480 px` JPEG thumbnails (`?variant=thumb`), serve authenticated object reads (`HEAD`, `200`, `206` Partial Content, `416`), retry failed video processing, and soft-retire captures. |
+| 02 | `EvidenceUploadSessionService` | Coordinates resumable multipart MP4 uploads up to `2 GB` (`2 GiB`) using bounded `10 MiB` chunks (`OPEN -> COMPLETING -> COMPLETED`/`FAILED`/`CANCELLED`/`EXPIRED`) through MinIO S3 multipart streaming without full-video JVM buffering, and cleans up expired/aborted sessions. |
+| 03 | `VideoProcessingWorker`, `FfmpegVideoTranscoder` & `MediaTicketService` | Poll durable DB-backed `PENDING` video jobs, run argument-array FFmpeg transcoding (`<= 1080p` H.264 `+faststart` MP4 + `480 px` poster) with `raw_object_key` retained until verification or retryable failure, and mint short-lived HMAC tickets (`POST .../media-ticket` -> `GET/HEAD .../stream?ticket=...`) for native `<video>` Range playback. |
+| 04 | `FindingService` & `PrimaryWithFallbackInference` | Invoke Ultralytics YOLO11 (`YoloInferenceClient`) and Vision LLM fallback (`OpenAiCompatibleInferenceClient`) defect detection on photographs and video keyframes, manage manual and AI-suggested findings, and lock the confirmed findings baseline (`inspections.findings_confirmed_at`). |
+| 05 | `Evidence`, `EvidenceUploadSession` & `Finding` | Domain entities representing normalized/processed inspection media, resumable upload sessions, and AI-proposed (`PENDING`) or Inspector-confirmed (`CONFIRMED`) structural defects. |
+| 06 | `HistoricalCaseService` (`inspections.service`) | Tenant-isolated advisory retrieval: `recommendForFinding` and `recommendForInspection` call `EvidenceService.requireInspectionInScope`, embed the finding description, and query `inspection_knowledge_chunks`/`historical_finding_cases`. Returns `PGVECTOR_RAG` when the optional embedding succeeds, otherwise deterministic `HYBRID_MATCH` with normalized `[0.0, 1.0]` similarity; an unwired advisor yields an empty payload. `indexPublishedFindings` indexes confirmed findings at publication and `findKnowledgeReferences` supplies compact references to the AI summary. |
+| 07 | `HistoricalCaseAdvisorPort` (`inspections.spi`) & `DroneKnowledgeClient` (`infrastructure.ai`) | The outbound embeddings port owned by `inspections` and its optional OpenAI-compatible `POST /v1/embeddings` adapter. `embed(text)` returns a 1536-dimensional vector or empty on timeout, authentication failure or malformed response; `DroneKnowledgeConfiguration` (gated by `app.knowledge-ai.enabled`) and `DroneKnowledgeProperties` supply endpoint, model, API key and timeout. Retrieval scope is `(organization_id = actor org OR is_anonymized_benchmark = TRUE) AND (source_inspection_id IS NULL OR source_inspection_id <> current inspection)`. |
+| 08 | `KnowledgeRecommendationResponse` | Advisory DTO with `retrievalMode`, `cases` (`CaseMatch`) and `guidelines` (`GuidelineMatch`). Exposed at `GET /inspections/{inspectionId}/findings/{findingId}/recommendations?limit=3` and rendered by the Web `KnowledgeRecommendationPanel` (“Similar Cases & Guide”) with one-click `Apply` into edit mode. |
+
+**Endpoints and Domain Invariants**
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/inspections/{inspectionId}/evidence` | Upload a photograph and extract its available capture metadata. | |
+| POST | `/inspections/{inspectionId}/evidence/uploads` | Begin a resumable chunked video upload. | |
+| POST | `/inspections/{inspectionId}/evidence/{evidenceId}/analyze` | Run primary detection and the configured vision fallback over an image. | |
+| POST | `/inspections/{inspectionId}/evidence/{evidenceId}/video-keyframes` | Promote selected video keyframes into evidence records. | |
+| POST | `/inspections/{inspectionId}/evidence/{evidenceId}/media-ticket` | Mint a short-lived, evidence-scoped streaming ticket. | |
+| POST | `/inspections/{inspectionId}/findings` | Add a manual finding with no model confidence. | |
+| POST | `/inspections/{inspectionId}/findings/confirm` | Confirm the findings baseline explicitly. | |
+| GET | `/inspections/{inspectionId}/findings/{findingId}/recommendations?limit=3` | Return tenant-isolated advisory similar cases and engineering guidelines. |
+
+Domain invariants: a photograph is limited to 10 MB and video to 2 GiB in 10 MiB chunks; a media ticket grants access to one evidence record only; detection output and `DroneKnowledgeAI` recommendations are advisory; only human-confirmed findings are official; editing findings or evidence resets confirmation; knowledge matches never cross organization boundaries and never expose a benchmark case with identifying detail.
+
+#### 3.6.2 Photo/Video Evidence Intake, YOLO11 Detection and Findings Confirmation Sequence Diagram
+
+```mermaid
+%% title: FE-06 Photo and Video Evidence Intake, YOLO11 Detection and Findings Confirmation Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Insp as Assigned Inspector
+  participant Ctrl as InspectionController
+  participant EvidSvc as EvidenceService
+  participant FindSvc as FindingService
+  participant AI as PrimaryWithFallbackInference
+  participant DB as PostgreSQL & MinIO
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/evidence (photo <= 10 MB or compatibility video <= 20 MiB)
+  Ctrl->>EvidSvc: upload(inspectorId, inspectionId, file)
+  EvidSvc->>DB: Extract EXIF first, normalize >2048 px / rotated image, create 480 px thumb, store in MinIO, save Evidence
+
+  Insp->>Ctrl: POST /evidence/uploads -> PUT .../parts/{n} (10 MiB chunks <= 2 GB) -> POST .../complete
+  Ctrl->>EvidSvc: EvidenceUploadSessionService + VideoProcessingWorker (FFmpeg <=1080p faststart + poster, raw deleted only when verified READY)
+  EvidSvc->>DB: Commit Evidence rendition keys & telemetry, or retain raw as retryable FAILED
+
+  Insp->>Ctrl: POST .../evidence/{evidId}/media-ticket -> GET/HEAD .../stream?ticket=... (Range)
+  Ctrl->>EvidSvc: Validate short-lived HMAC ticket & stream HTTP 206 Partial Content from MinIO
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/evidence/{evidId}/analyze (or /analyze-video)
+  Ctrl->>FindSvc: analyzeEvidence(inspectorId, inspectionId, evidId, replace)
+  FindSvc->>AI: predict(imageBytes, contentType)
+  AI-->>FindSvc: Return YOLO11 bounding boxes (or Vision LLM fallback boxes if empty/offline)
+  FindSvc->>DB: Save PENDING Finding rows
+  FindSvc-->>Insp: Return candidate Findings with bounding boxes and confidence scores
+
+  Insp->>Ctrl: POST /findings/{findingId}/confirmation & PUT /findings/{findingId}
+  Ctrl->>FindSvc: review(inspectorId, inspectionId, findingId, decision)
+  FindSvc->>DB: Update Finding status to CONFIRMED (or soft-delete rejected candidate)
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/findings/confirm
+  Ctrl->>FindSvc: confirmFindings(inspectorId, inspectionId, acknowledgeNoFindings)
+  FindSvc->>DB: Verify zero PENDING findings remain and set inspections.findings_confirmed_at
+```
+
+### 3.7 MF4 — FE-07 Inspection Report Preparation, Review and Publication
+
+This section presents the detailed design for `FE-07`: the four-state inspection report lifecycle
+(`SUBMITTED`, `RETURNED`, `PUBLISHED`, `SUPERSEDED`), report content compiled from the confirmed
+findings and the inspected checkpoints, single-shot advisory narrative drafting, independent
+Manager review of a report the reviewer did not author, publication, and on-demand A4 PDF
+rendering of the published version.
+
+`DroneKnowledgeAI` contributes advisory `knowledgeReferences` to the executive summary through `HistoricalCaseService.findKnowledgeReferences`. `ReportAiSummaryResponse` carries a list of `KnowledgeReferenceSummary` (`kind` of `CASE` or `GUIDELINE`, `codeOrLabel`, `summary`, normalized `similarity`), surfaced by the Web `ReportAiSummaryCard` as a “Matched Cases & Standards” strip and by the Customer mobile `KnowledgeReferencesStrip`. The list is empty when retrieval is unavailable and never alters the official report text or its four-state lifecycle.
+
+#### 3.7.1 Class Diagram
+
+```mermaid
+%% title: FE-07 Inspection Report Preparation, Review and Publication Class Diagram
+classDiagram
+  class InspectionController {
+    +generateAiSummary(inspId, locale) ReportAiSummaryResponse
+    +generateDraft(inspId) InspectionReportResponse
+    +submitVersion(inspId, verId) InspectionReportResponse
+    +reviewVersion(inspId, verId, req) ReportPublishedResponse
+    +withdrawVersion(inspId, verId, req) InspectionReportResponse
+    +downloadArtefact(inspId, verId, locale) ResponseEntity
+  }
+  class ReportService {
+    +generateDraft(actorId, inspId) InspectionReportResponse
+    +authorManualDraft(actorId, inspId, req) InspectionReportResponse
+    +verifyVersion(actorId, inspId, verId) InspectionReportResponse
+    +submitVersion(actorId, inspId, verId) InspectionReportResponse
+    +reviewVersion(actorId, inspId, verId, approve, reason) ReportPublishedResponse
+    +requestCustomerClarification(actorId, inspId, verId, req) ReportPublishedResponse
+    +withdrawVersion(actorId, inspId, verId, req) InspectionReportResponse
+    +listVersions(actorId, inspId) List~InspectionReportResponse~
+    +preview(actorId, inspId, verId) ResponseEntity
+    +downloadArtefact(actorId, inspId, verId, locale) ResponseEntity
+  }
+  class ReportDraftClient {
+    +draft(narrativeRequest) ReportNarrative
+  }
+  class PdfReportRenderer {
+    +render(context, locale) byte[]
+  }
+  class InspectionReport {
+    -UUID id
+    -UUID inspectionId
+    -int versionNo
+    -ReportStatus status
+    -UUID reviewerUserId
+    -String returnReason
+    -Instant submittedAt
+    -Instant publishedAt
+  }
+  InspectionController --> ReportService
+  ReportService --> InspectionReport
+  ReportService --> ReportDraftClient
+  ReportService --> PdfReportRenderer
+```
+
+**Class Specifications**
+
+| No | Class | Description |
+| :---: | :--- | :--- |
+| 01 | `InspectionController` & `ReportService` | Compile report content from the confirmed findings baseline and the inspected checkpoints, accept an authored or AI-drafted version, verify it, submit it for review, and expose the version history to authorized readers. |
+| 02 | `ReportDraftClient` | Produce a single-shot advisory executive summary through the configured OpenAI-compatible endpoint. The draft is advisory text only; no retrieval corpus, embedding, or vector store is involved, and the rendered report falls back to the deterministic template when the model is unavailable. |
+| 03 | `ReportService` (review path) | Enforce independent review: a `MANAGER` or `ADMIN` who is not the author may publish the submitted version, returning the lifecycle to `FIELD_COMPLETED` on rejection with a recorded reason, or superseding an earlier published version on approval. |
+| 04 | `PdfReportRenderer` | Render the published version on demand as an A4 PDF from normalized ready image bytes, skipping video binaries, caching the artefact at `reports/<versionId>.pdf` in MinIO, and streaming it to the caller. |
+| 05 | `InspectionReport` | Domain entity holding the version number, lifecycle status, reviewer identity, return reason, and submission and publication timestamps. |
+
+**Endpoints and Domain Invariants**
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/inspections/{inspectionId}/report/draft` | Request an advisory executive summary from the confirmed context. | |
+| POST | `/inspections/{inspectionId}/report/versions/{versionId}/submit` | Submit an explicit report version for independent review. | |
+| POST | `/inspections/{inspectionId}/report/versions/{versionId}/review` | Publish the version or return it with a mandatory reason. | |
+| GET | `/inspections/{inspectionId}/report/versions` | List every version and its review state. | |
+| GET | `/inspections/{inspectionId}/report/versions/{versionId}/preview` | Read the compiled numbered sections before submission. | |
+| GET | `/inspections/{inspectionId}/report/versions/{versionId}/document` | Render and download the immutable A4 PDF. | |
+
+Domain invariants: a report cannot be prepared before the findings baseline is confirmed; the author cannot review their own report; publication is a single reviewer decision; a published version is immutable and a correction supersedes it; the PDF template is deterministic and the narrative draft is advisory.
+
+#### 3.7.2 Report Submission, Manager Direct Publication and On-Demand PDF Export Sequence Diagram
+
+```mermaid
+%% title: FE-07 Report Submission, Independent Review and On-Demand PDF Export Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Insp as Assigned Inspector
+  actor Mgr as Independent Manager
+  actor Caller as Authorized User
+  participant Ctrl as InspectionController
+  participant RepSvc as ReportService
+  participant Pdf as PdfReportRenderer
+  participant DB as PostgreSQL & MinIO
+
+  Insp->>Ctrl: POST /api/v1/inspections/{id}/report/ai-summary & POST /report/draft
+  Ctrl->>RepSvc: generateAiSummary(...) & generateDraft(inspectorId, inspectionId)
+  RepSvc->>DB: Create InspectionReport (status = SUBMITTED) and move Inspection to UNDER_REVIEW
+
+  alt Manager Returns Report with Feedback
+    Mgr->>Ctrl: POST /api/v1/inspections/{id}/report/versions/{verId}/review (approve = false, reason)
+    Ctrl->>RepSvc: reviewVersion(managerId, inspectionId, verId, false, reason)
+    RepSvc->>DB: Mark InspectionReport RETURNED and revert Inspection to FIELD_COMPLETED
+  else Manager Approves and Directly Publishes Report
+    Mgr->>Ctrl: POST /api/v1/inspections/{id}/report/versions/{verId}/review (approve = true)
+    Ctrl->>RepSvc: reviewVersion(managerId, inspectionId, verId, true, null)
+    RepSvc->>DB: Mark prior published version SUPERSEDED, set current version PUBLISHED, and Inspection COMPLETED
+  end
+
+  Caller->>Ctrl: GET /api/v1/inspections/{id}/report/versions/{verId}/document
+  Ctrl->>RepSvc: downloadArtefact(actorId, inspectionId, verId, locale)
+  RepSvc->>Pdf: Render A4 PDF on demand if not cached, store at reports/{verId}.pdf in MinIO, and stream bytes
+```
+
+### 3.8 MF4 — FE-08 Customer Report Acceptance and Payment Settlement
+
+This section presents the detailed design for `FE-08`: customer acceptance of a published report,
+VND settlement through PayOS VietQR and VNPay with signed webhook verification, Manager-recorded
+partner settlement with payouts and refunds, and the re-inspection loop opened against a published
+report to re-assess each originally confirmed defect three ways.
+
+Customer Mobile parity is delivered by PR `#27` (`9939c00`): `verdict_expiry.dart`, the payment-due badge and `/report/payment-document` PDF download, `InspectionChatPage` for Inspector–Customer chat, and a collapsible `KnowledgeReferencesStrip` that hides cleanly when empty.
+
+#### 3.8.1 Class Diagram
+
+```mermaid
+%% title: FE-08 Customer Acceptance, Payment Settlement and Re-inspection Class Diagram
+classDiagram
+  class InspectionController {
+    +createQuickReinspection(inspId, req) InspectionResponse
+    +getReinspectionVerifications(inspId) List~ReinspectionVerificationResponse~
+    +updateReinspectionVerification(inspId, verificationId, req) ReinspectionVerificationResponse
+  }
+  class ContractWorkflowService {
+    +customerAcceptReport(custId, reqId, occId, verId) ServiceRequestResponse
+    +createOccurrencePayOSCheckout(custId, reqId, occId, req) PayOSCheckoutResponse
+    +createOccurrenceVnPayCheckout(custId, reqId, occId, req, ip) VnPayCheckoutResponse
+    +handlePayOSWebhook(payload) void
+    +handleVnPayWebhook(params) VnPayIpnResponse
+    +recordOccurrencePayout(mgrId, reqId, occId, req) ServiceRequestResponse
+    +initiateRefund(mgrId, reqId, occId, req) ServiceRefundResponse
+    +completeRefund(mgrId, reqId, occId, refundId, req) ServiceRefundResponse
+  }
+  class ReinspectionVerificationService {
+    +initializeVerificationsForReinspection(reinspectionId, sourceInspectionId) int
+    +getVerifications(actorId, inspectionId) List~ReinspectionVerificationResponse~
+    +updateVerification(actorId, inspectionId, verificationId, req) ReinspectionVerificationResponse
+  }
+  class PayOSWebhookController {
+    +handleWebhook(payload) void
+  }
+  class VnPayWebhookController {
+    +handleIpn(params) VnPayIpnResponse
+  }
+  class ServicePayment {
+    -UUID id
+    -UUID invoiceId
+    -String provider
+    -BigDecimal amountVnd
+    -PaymentStatus status
+    -String providerTransactionRef
+  }
+  class ServiceRefund {
+    -UUID id
+    -UUID paymentId
+    -BigDecimal amountVnd
+    -RefundStatus status
+    -String evidenceReference
+  }
+  class ReinspectionDefectVerification {
+    -UUID id
+    -UUID reinspectionId
+    -UUID sourceFindingId
+    -UUID newEvidenceId
+    -DefectResolutionStatus resolutionStatus
+    -String inspectorNotes
+  }
+  ContractWorkflowService --> ServicePayment
+  ContractWorkflowService --> ServiceRefund
+  PayOSWebhookController --> ContractWorkflowService
+  VnPayWebhookController --> ContractWorkflowService
+  ReinspectionVerificationService --> ReinspectionDefectVerification
+```
+
+**Class Specifications**
+
+| No | Class | Description |
+| :---: | :--- | :--- |
+| 01 | `ContractWorkflowService`, `PayOSWebhookController` & `VnPayWebhookController` | Record Customer acceptance (`PAYMENT_DUE`), issue PayOS/VNPay checkout links, verify signed callbacks, and settle Customer payment (`PAID`) with Inspector payout `ELIGIBLE` only. `MANAGER` records actual payout references; unresolved orders cannot be replaced, and only provider-confirmed PayOS cancellation clears an unpaid order. Manager-recorded external refunds use a capped auditable ledger and hold payout until explicit reconciliation records the actual final payout and attribution. |
+| 02 | `ServicePayment` & `ServiceRefund` | Domain entities representing a provider payment against a service invoice and an evidence-backed refund with its allocation. |
+| 03 | `ReinspectionVerificationService` | Open a re-inspection against a source inspection, initialize one `ReinspectionDefectVerification` row per originally confirmed defect, and record each three-way outcome (`RESOLVED`, `UNRESOLVED`, `INCONCLUSIVE`) with the inspector's note and the supporting evidence capture. Recording is refused while the re-inspection is still `SCHEDULED` or `IN_PROGRESS`, and locked once a report for it is `SUBMITTED` or `PUBLISHED`. |
+| 04 | `ReinspectionDefectVerification` | Domain entity linking the re-inspection, the source finding, the replacement evidence, and the recorded resolution status. |
+
+**Endpoints and Domain Invariants**
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| POST | `/contracts/requests/{requestId}/occurrences/{occurrenceId}/accept-report` | Record customer acceptance of a specific published version. | |
+| POST | `/contracts/requests/{requestId}/occurrences/{occurrenceId}/payos/create-payment-link` | Create a PayOS VietQR checkout link. | |
+| POST | `/contracts/requests/{requestId}/occurrences/{occurrenceId}/vnpay/create-payment-url` | Create a signed VNPay payment URL. | |
+| POST | `/webhooks/payos` | Receive and verify the HMAC-SHA256 signed PayOS callback. | |
+| GET | `/webhooks/vnpay/ipn` | Receive and verify the HMAC-SHA512 signed VNPay IPN. | |
+| POST | `/contracts/requests/{requestId}/occurrences/{occurrenceId}/record-payout` | Record the partner payout against a verified payment. | |
+| POST | `/contracts/requests/{requestId}/occurrences/{occurrenceId}/refunds` | Initiate a capped refund and hold any unpaid payout. | |
+| POST | `/inspections/{inspectionId}/reinspections` | Open a re-inspection and initialize one verification per source defect. | |
+
+Domain invariants: the fee is due only after report acceptance; settlement requires a verified gateway signature, never the redirect alone; a refund cannot exceed the captured balance and its allocations must sum exactly; a `RESOLVED` verdict requires fresh evidence captured inside a completed session of that re-inspection.
+
+**Web Client Verdict-Expiry Components**
+
+The re-inspection view adds a read-only advisory layer over the verdict records. It does not change the lifecycle: the backend still refuses report authoring, submission, and publication for a lapsed verdict with `RESOLUTION_EXPIRED`.
+
+| Component | Source | Responsibility |
+| --- | --- | --- |
+| `summarizeVerdictExpiry` | `src/features/inspections/lib/verdictExpiry.ts` | Splits `RESOLVED` verdicts with a `validUntil` timestamp into lapsed and near-term cases; the near-term window is 14 days (`VERDICT_SOON_WINDOW_MS`). |
+| `VerdictExpiryBanner` | `InspectionReportPage.tsx` | Surfaces the expiry summary on the report page before an author prepares or submits a re-inspection report. |
+| `ValidityNotice` | `ReinspectionVerificationSection.tsx` | Marks the validity state of an individual re-inspection verification item beside the recorded outcome. |
+
+#### 3.8.2 Customer Report Acceptance and PayOS / VNPay Online Payment Sequence Diagram
+
+```mermaid
+%% title: FE-08 Customer Report Acceptance and PayOS / VNPay Online Payment Sequence Diagram
+sequenceDiagram
+  autonumber
+  actor Cust as Customer
+  participant Ctrl as InspectionController / ContractWorkflowController
+  participant Webhooks as PayOSWebhookController / VnPayWebhookController
+  participant ContractSvc as ContractWorkflowService
+  participant PayGW as PayOSPaymentGateway / VnPayPaymentGateway
+  participant DB as PostgreSQL
+
+  Cust->>Ctrl: POST /api/v1/inspections/{id}/report/versions/{verId}/accept
+  Ctrl->>ContractSvc: customerAcceptReport(customerId, requestId, occurrenceId, versionId)
+  ContractSvc->>DB: Verify report is PUBLISHED and transition occurrence paymentStatus to PAYMENT_DUE
+
+  alt PayOS VietQR Checkout
+    Cust->>Ctrl: POST /api/v1/contracts/requests/{reqId}/occurrences/{occId}/payos/checkout
+    Ctrl->>ContractSvc: createOccurrencePayOSCheckout(customerId, reqId, occId, req)
+    ContractSvc->>PayGW: createPaymentLink(orderCode, amountVnd, description)
+    PayGW-->>Cust: Return VietQR checkoutUrl and QR payload
+    PayGW->>Webhooks: POST /api/v1/webhooks/payos (HMAC-SHA256 signed payload)
+    Webhooks->>ContractSvc: handlePayOSWebhook(payload)
+  else VNPay v2.1.0 Checkout
+    Cust->>Ctrl: POST /api/v1/contracts/requests/{reqId}/occurrences/{occId}/vnpay/checkout
+    Ctrl->>ContractSvc: createOccurrenceVnPayCheckout(customerId, reqId, occId, req, clientIp)
+    ContractSvc->>PayGW: createPaymentUrl(txnRef, amountVnd, clientIp)
+    PayGW-->>Cust: Return signed VNPay v2.1.0 paymentUrl
+    PayGW->>Webhooks: GET /api/v1/webhooks/vnpay/ipn (HMAC-SHA512 signed query params)
+    Webhooks->>ContractSvc: handleVnPayWebhook(params)
+  end
+
+  ContractSvc->>DB: Transition customer payment to PAID and payout to ELIGIBLE, then a Manager records the actual payout separately
+  Note over ContractSvc,DB: Refund initiation occurs before manual external transfer and immediately holds any unpaid Inspector payout
+```
+
+#### 3.8.3 Refund Initiation, External Completion, Legacy Reconciliation and Receivable Recovery
+
+Manager-only operations run under a locked occurrence transaction. `POST /contracts/requests/{requestId}/occurrences/{occurrenceId}/refunds` validates captured balance and a case-insensitive request reference, reserves the refund amount, and holds an unpaid payout before any external transfer. No gateway or bank transfer is initiated by the system. After the Manager completes the transfer outside the platform, `POST .../refunds/{refundId}/complete` accepts a unique external reference and accounting allocations whose sum exactly equals the refund. Cancellation requires a reason and is rejected after completion; hold release is recalculated against all other pending and unallocated legacy rows.
+
+Legacy `COMPLETED` refunds with unknown allocation are reconciled one row at a time by ID through `POST .../refunds/{refundId}/reconcile-allocation`. The evidence reference, note, Manager and time are stored with the allocation. Already-paid Inspector payouts are immutable: initiation records the receivable/platform-absorption plan and completion adds an `inspector_receivables` row. Managers record actual collections separately through `POST .../receivables/{receivableId}/recover`; row locking and optimistic versioning prevent concurrent over-recovery, and the system never offsets future payouts automatically. Manager finance responses list the refund and receivable ledgers; Customer responses mask internal recovery details. The Contracts UI presents separate forms for initiation, completion/cancellation, refund-ID legacy reconciliation, and manual receivable recovery.
+
+---
+

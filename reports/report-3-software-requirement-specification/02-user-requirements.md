@@ -17,9 +17,25 @@ This section defines the actors of the building-inspection service and the busin
 | 2 | `MANAGER` | Platform manager. Coordinates Inspector and drone records, reviews partner Inspector applications, responds to customer service requests, negotiates and issues VND quotations, records signed service agreements, assigns Inspectors and drones to inspection occurrences, manages dispatch changes, independently reviews and publishes inspection reports, and manages partner payouts and refunds. |
 | 3 | `CUSTOMER` | Customer organization representative. Registers its organization and initial building subject to airspace screening; manages buildings, inspection checkpoints, and building documents; requests one-time or recurring inspections; negotiates and accepts quotations; follows inspection progress; accepts published reports; and pays service fees. |
 | 4 | `INSPECTOR` | Partner drone inspector. Submits a public self-service application with pilot credentials and partner information; after platform approval an account is created. The Inspector then registers owned drones with registration, ownership, and technical inspection documents, conducts assigned field work, provides inspection evidence, reviews proposed findings, and prepares and submits inspection reports. Drone ownership is not a condition of partner admission. |
-| 5 | Automated System and AI | The service provides airspace screening, schedule-conflict checks, lifecycle notices, candidate building-defect analysis using a self-hosted detection model, and advisory report-narrative drafting. Automated output is advisory; official findings and decisions require human review. |
+| 5 | Automated System and AI Actors | Four automated actors act without a login: `SYSTEM` performs airspace screening, schedule-conflict checks, lifecycle notices, assignment timeouts, and other scheduled jobs; `YOLO11` analyses building imagery for candidate defects with a configured vision fallback; `LLM` drafts advisory report narrative and executive summaries; and `DroneKnowledgeAI` retrieves tenant-isolated historical defect cases and engineering standards over `pgvector`. Automated output is advisory; official findings and decisions require human review. |
 | 6 | External Payment and Identity Services | Google OAuth2 sign-in, PayOS VietQR and VNPay service-payment processing. These services do not replace the platform's authorization, review, or recordkeeping responsibilities. |
 | 7 | SmartDroneHub | An optional ground-station integration that supplies read-only MAVLink telemetry, flight traces, and mission video for a permitted field session. It does not receive flight commands from the platform. |
+
+The `CUSTOMER` role is also served by a native mobile application that mirrors the web experience for verdict expiry, the payment-notice and payment-receipt PDF, Inspector–Customer chat, and the compact knowledge-references strip. Other roles use the web portals.
+
+#### 2.1.1 Project Identity and Implementation Team
+
+- **English title:** SmartDroneInspection: AI-powered Infrastructure Inspection Management Platform.
+- **Vietnamese title:** SmartDroneInspection: Nền tảng Quản lý Kiểm tra Hạ tầng bằng Drone tích hợp AI.
+- **Supervisors:** Phạm Minh Trí (`tripm14@fpt.edu.vn`); Đặng Ngọc Minh Đức (`ducdnm2@fpt.edu.vn`).
+- **Students:**
+
+| Student ID | Name | Role in the project | Main flow / features |
+| --- | --- | --- | --- |
+| `SE184212` | Trần Hoàng Trung Hiếu | Leader | `MF1` (`FE-01`, `FE-02`) |
+| `SE170027` | Phùng Trung Quốc | Member | `MF2` (`FE-03`, `FE-04`) |
+| `SE180082` | Trương Thái Như | Member | `MF4` (`FE-08`) and cross-client parity |
+| `SE180220` | Trần Tùng Bách | Member | `MF3` (`FE-05`, `FE-06`, `FE-07`) |
 
 ### 2.2 Use Cases
 
