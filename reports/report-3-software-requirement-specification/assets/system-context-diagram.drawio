@@ -37,8 +37,8 @@
           <mxGeometry x="40" y="660" width="240" height="85" as="geometry" />
         </mxCell>
 
-        <!-- 5. Maintenance Engineer (MAINTENANCE_ENGINEER) -->
-        <mxCell id="maint_engineer" value="&lt;b&gt;Maintenance Engineer (MAINTENANCE_ENGINEER)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #475569;&quot;&gt;RAG Tasks &amp;amp; Cost Norms, Field Repairs, 1-Click Batch Log Verify &amp;amp; Auto-Draft Report&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#475569;strokeWidth=2;fontColor=#0f172a;arcSize=10;shadow=1;align=center;" vertex="1" parent="1">
+        <!-- 5. Maintenance Engineer (MAINTENANCE_ENGINEER — planned, out of current scope) -->
+        <mxCell id="maint_engineer" value="&lt;b&gt;Maintenance Engineer (MAINTENANCE_ENGINEER — planned, out of current scope)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size: 10px; color: #475569;&quot;&gt;RAG Tasks &amp;amp; Cost Norms, Field Repairs, 1-Click Batch Log Verify &amp;amp; Auto-Draft Report&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#475569;strokeWidth=2;fontColor=#0f172a;arcSize=10;shadow=1;align=center;" vertex="1" parent="1">
           <mxGeometry x="585" y="770" width="260" height="85" as="geometry" />
         </mxCell>
 

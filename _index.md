@@ -13,7 +13,7 @@ SmartDroneInspection documentation defines the target for a platform-managed inf
 - PostgreSQL 17 (`pgvector`) is the source of truth; MinIO stores inspection evidence (photos & MP4 videos), permits, signed contracts, and immutable PDF reports.
 - React 19 web portal (`/admin`, `/client`, `/operations`) and Flutter mobile app share the versioned REST API and Google OAuth2 / JWT authentication.
 - Online VietQR settlement via PayOS after Customer report acceptance.
-- Authorization combines 5-role checks (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`) with `ActorZone`, organization, assignment, and separation-of-duties scope.
+- Authorization combines 4 implemented login roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`) with `ActorZone`, organization, assignment, and separation-of-duties scope. `MAINTENANCE_ENGINEER` and corrective-maintenance MF4 are planned and out of the current release scope.
 
 ## Roles
 
@@ -21,12 +21,13 @@ SmartDroneInspection documentation defines the target for a platform-managed inf
 - `MANAGER` (`ActorZone.PLATFORM`; platform-scoped service operations)
 - `CUSTOMER` (Customer Organization Owner/Manager — `ActorZone.CUSTOMER_ORGANIZATION`)
 - `INSPECTOR` (Partner Drone Inspector — `ActorZone.INSPECTOR_PARTNER`)
-- `MAINTENANCE_ENGINEER` (Customer Maintenance Engineer — `ActorZone.CUSTOMER_ORGANIZATION`)
+- `MAINTENANCE_ENGINEER` (planned, out of current release scope; the backend role enum and account
+  administration implement four login roles today)
 
 ## Documentation map
 
 - [Project reference](project-reference/): workflows, error-prevention checks, and mainflow references.
-- [Mainflows & 5-Role Architecture](bao-cao-thay-doi-mainflows-5-roles.md): target workflow and implementation comparison for `MF1`–`MF4` and 8 features (`FE-01`–`FE-08`).
+- [Mainflows & Role Architecture](bao-cao-thay-doi-mainflows-5-roles.md): target workflow and implementation comparison for `MF1`–`MF4` and 8 features (`FE-01`–`FE-08`); the file keeps its historical name but the implemented login roles are the four listed above, with `MAINTENANCE_ENGINEER` planned.
 - [Diagram assignments](phan-cong-ve-so-do.md): 35-diagram ownership map across the 8 features.
 - [Formal reports](reports/):
   - [Report 1 — Project Introduction](reports/report-1-project-introduction/)

@@ -551,6 +551,7 @@ The model separates four coordinated areas. **Identity and onboarding** covers a
 - **Screen layout (mock-up)**: A customer report view with the published PDF, an acceptance action, and a payment panel offering PayOS VietQR and VNPay. See Figure 3.10.
 - **Requirements**:
   - Acceptance is recorded against the specific published report version and the occurrence it covers.
+  - Before acceptance, only the owning Customer may request clarification or revision on the published report. A request from a Manager, Administrator, Inspector, or another organization is refused.
   - The fee becomes due when the Customer accepts the published report. A payment cannot be settled before acceptance.
   - Online checkout supports PayOS VietQR and VNPay. Each callback is verified by signature before a payment is treated as settled; a redirect alone is not proof of payment.
   - An unresolved gateway order is not overwritten or switched to another gateway. A Manager may clear an unpaid order only after a gateway-confirmed cancellation.
