@@ -33,7 +33,7 @@ Functional and business rule testing applies equivalence partitioning and bounda
 | API and Database Persistence Testing | | X | X | |
 | Security and Scope Isolation Testing | X | X | X | X |
 | AI Vision, Narrative Drafting and Fallback Testing | X | X | X | X |
-| Performance, Payment Webhook and PDF Integrity Testing | | X | X | X |
+| Performance, Payment Webhook and Report Integrity Testing | | X | X | X |
 | User Interface, Localization and Regression Testing | X | X | X | X |
 
 ### 2.3 Supporting Tools
@@ -78,7 +78,7 @@ Functional and business rule testing applies equivalence partitioning and bounda
 | Milestone Task | Start Date | End Date |
 | --- | --- | --- |
 | Milestone 1: Unit and migration foundation gate | `2026-09-15` | `2026-10-08` |
-| Milestone 2: Core inspection, storage, detection and PDF integration testing | `2026-10-09` | `2026-10-22` |
+| Milestone 2: Core inspection, storage, detection and report integration testing | `2026-10-09` | `2026-10-22` |
 | Milestone 3: Review baseline and scope retirement verification | `2026-10-23` | `2026-10-27` |
 | Milestone 4: Four-role, eight-feature consolidation across `MF1`–`MF4` with contracts and payment | `2026-10-28` | `2026-11-04` |
 | Milestone 5: Final regression, staging walkthrough, and defence rehearsal | `2026-11-05` | `2026-11-30` |

@@ -114,7 +114,7 @@ Delivery ran as five gated increments between 15 September and 30 November 2026.
 | Milestone | Window | Increment delivered | Evidence at the gate |
 | --- | --- | --- | --- |
 | M1 Foundation | `2026-09-15` – `2026-10-08` | Four-repository skeleton, consolidated Flyway baseline, identity and admission, building catalogue, and the four-role access policy. | Backend unit suite, migration inventory assertion, and the four-portal route policy tests. |
-| M2 Core delivery | `2026-10-09` – `2026-10-22` | Requests and quotations, occurrence dispatch, permit gate, field sessions, evidence intake, YOLO11 detection, and PDF report rendering. | Integration suites across controllers, storage, detection, and report rendering. |
+| M2 Core delivery | `2026-10-09` – `2026-10-22` | Requests and quotations, occurrence dispatch, permit gate, field sessions, evidence intake, YOLO11 detection, and inspection report management. | Integration suites across controllers, storage, detection, and report workflows. |
 | M3 Review baseline | `2026-10-23` – `2026-10-27` | Independent report review, publication, acceptance, and the retention decisions that retired maintenance capability. | Review-baseline walkthrough and scope-retirement verification. |
 | M4 Consolidation | `2026-10-28` – `2026-11-04` | Eight-feature consolidation across `MF1`–`MF4`, PayOS and VNPay settlement, partner payout and refund ledgers, and re-inspection verification. | Connected lifecycle run and the finance lifecycle cases. |
 | M5 Release | `2026-11-05` – `2026-11-30` | Final regression, staging walkthrough, documentation export, and defence rehearsal. | Full suites, workbook reconciliation, and the exported report set. |

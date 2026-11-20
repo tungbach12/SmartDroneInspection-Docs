@@ -38,7 +38,7 @@ source: "report3-software-requirement-specification.docx"
 
 - **User response time.** Under normal operating conditions, at least 95% of standard user actions, searches, and paged list views complete within 2.0 seconds with 50 active users. This is a performance acceptance target, not a measured result.
 - **Detection latency.** A single-image defect suggestion completes within 5.0 seconds under normal operating conditions for supported inputs. Report submission must not block on drafting; the narrative is advisory and may be retried.
-- **Report rendering.** Rendering a report to PDF must complete without reading video objects into rendering memory, so report generation cost does not scale with the size of the stored evidence.
+- **Report compilation.** Compiling an inspection report must complete without reading video objects into memory, so report generation cost does not scale with the size of the stored evidence.
 - **Media access.** Supported inspection video and images are reviewable without making the rest of the experience unusable during transfer, through range-based streaming and thumbnails.
 - **Background processing.** Video transcoding runs in a bounded worker pool so that concurrent large uploads cannot starve interactive requests.
 

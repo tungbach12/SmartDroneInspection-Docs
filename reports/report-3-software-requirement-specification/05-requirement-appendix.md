@@ -55,7 +55,7 @@ The following rules govern the building-inspection service. Rule identifiers are
 | BR-40 | Published inspection reports are preserved. Corrections are issued as new versions and prior versions remain available. Publication is not governmental or professional certification. |
 | BR-41 | Commercial and reporting approvals require explicit, attributable human decisions. Silence or the passage of time is not approval. |
 | BR-42 | Returning a report requires review reasons, preserves the prior version, and returns it to its author for revision. |
-| BR-43 | The AI-drafted report summary is advisory and must remain visibly distinguished from confirmed findings. The rendered PDF is produced from a fixed template, not generated text. |
+| BR-43 | The AI-drafted report summary is advisory and must remain visibly distinguished from confirmed findings. Official report sections are assembled deterministically from confirmed records rather than model-generated text. |
 | BR-44 | When a Customer accepts a published report, the applicable service fee becomes due. The official deliverable is released according to the agreed payment rule after confirmation. |
 | BR-45 | A payment is settled only after its gateway callback signature is verified or an authorised confirmation is recorded. An unsettled payment cannot be presented as settled. |
 | BR-46 | Verified customer payment makes the Inspector payout eligible but does not record disbursement. A Manager records the actual payout with its external reference and actor attribution. |

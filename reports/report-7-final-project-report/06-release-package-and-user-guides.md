@@ -310,7 +310,7 @@ The manager reviews the permit, the flight report, and the evidence audit before
 
 *Figure 7.35 — Independent report review.*
 
-**Step 4.** Publish, or return with reasons. Publication by the report's own author is refused, and publication renders an immutable PDF.
+**Step 4.** Publish, or return with reasons. Publication by the report's own author is refused, and publication locks the official report version.
 
 **Step 5.** To correct a published report, issue a new version; the previous version is preserved and marked superseded.
 
@@ -326,7 +326,7 @@ For a re-inspection report, the Web UI also flags a `RESOLVED` verdict whose val
 
 *Figure 7.36 — Customer inspection list.*
 
-**Step 2.** Download and read the published PDF.
+**Step 2.** Open and review the published inspection report.
 
 
 

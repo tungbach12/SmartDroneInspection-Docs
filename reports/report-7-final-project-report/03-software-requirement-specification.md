@@ -286,13 +286,13 @@ These capabilities have no dedicated screen of their own; they run inside a user
 | 15 | FE-06 | Duplicate evidence disambiguation | Detects a repeated filename in an inspection and saves it with a sequential suffix rather than rejecting the upload. |
 | 16 | FE-06 | Candidate defect inference | Runs the self-hosted detection model over evidence and records candidate defects with model name and confidence. |
 | 17 | FE-07 | Advisory narrative drafting | Sends the confirmed inspection context to the language model once and stores the returned narrative as clearly labelled advisory draft text. |
-| 18 | FE-07 | Deterministic report rendering | Renders the report to PDF from a fixed template of numbered sections; the PDF text is not model-generated. |
+| 18 | FE-07 | Structured report compilation | Compiles the inspection report from a fixed schema of numbered sections and confirmed findings; official report content is not model-generated. |
 | 19 | FE-08 | Payment gateway callback verification | Verifies the signature of a PayOS or VNPay callback before treating a payment as settled. |
 | 20 | FE-08 | Invoice and settlement derivation | Derives the service invoice, Inspector payout eligibility, commission, and tax components from a verified payment. |
 
 #### 3.1.5 Entity Relationship Diagram
 
-The persisted model comprises 45 application tables (44 JPA runtime entity tables; 47 total tables in `public` including `event_publication` and `flyway_schema_history`) applied as a consolidated `V1` baseline plus six forward migrations through `V62__inspection_knowledge_rag.sql`. The `pgvector` extension backs the `DroneKnowledgeAI` case and standard stores. The diagram shows the principal entities and their relationships; reporting-only helpers such as audit, outbox, session, and configuration tables are omitted for legibility but are described in Report 4 §2.
+The persisted model comprises 45 application tables (44 JPA runtime entity tables; 47 total tables in `public` including `event_publication` and `flyway_schema_history`) applied as a consolidated `V1` baseline plus forward migrations `V2`, `V3`, `V4`, and `V60`–`V65`. The `pgvector` extension backs the `DroneKnowledgeAI` case and standard stores. The diagram shows the principal entities and their relationships; reporting-only helpers such as audit, outbox, session, and configuration tables are omitted for legibility but are described in Report 4 §2.
 
 ```mermaid
 %% title: Entity Relationship Diagram
@@ -651,7 +651,7 @@ Evidence is the factual base of the report. Photographs and video are normalized
 
 ### 3.8 MF4 — FE-07 Inspection Report Preparation, Review and Publication
 
-The report is compiled, not authored from scratch. The platform assembles the confirmed findings and session context, an advisory narrative may be drafted, the inspector submits, and an independent reviewer publishes an immutable versioned PDF.
+The report is compiled, not authored from scratch. The platform assembles the confirmed findings and session context, an advisory narrative may be drafted, the inspector submits, and an independent reviewer publishes an immutable versioned inspection report.
 
 
 
@@ -663,10 +663,10 @@ The report is compiled, not authored from scratch. The platform assembles the co
 - **Requirements**:
   - The report is compiled from the confirmed findings, their evidence, and the recorded session and inspection context. A report cannot be prepared before the findings baseline is confirmed.
   - The report author may request a narrative summary from the language model. That text is advisory, is based on the confirmed inspection context, is visibly labelled as advisory, and must be reviewed and edited by the author before submission.
-  - The PDF deliverable is rendered deterministically from a fixed numbered-section template and is not model-generated text. The model contributes narrative text only.
+  - The inspection report is compiled deterministically from a fixed numbered-section structure and confirmed findings, not from model-generated text. The model contributes the advisory executive summary narrative only.
   - Submission is an explicit action. Opening the report screen does not submit it.
   - Submission records the author and the time so that a later review can establish that the reviewer is a different person.
-  - Report rendering never reads video objects into rendering memory, so rendering cost does not scale with the size of the stored evidence.
+  - Report compilation never reads video objects into memory, so report generation cost does not scale with the size of the stored evidence.
   - Before authoring or submitting a re-inspection report, the Web client checks the validity window of every `RESOLVED` verdict. It shows a `VerdictExpiryBanner` on the report page when a verdict has lapsed or lapses within 14 days, and a `ValidityNotice` beside the affected verification item. This is a pre-authoring prevention aid; the backend remains the authority that rejects a lapsed verdict with `RESOLUTION_EXPIRED`.
 - **Normal cases**: The Inspector reviews the compiled report, optionally requests and edits an advisory summary, and submits the report for review.
 - **Abnormal cases**: Submission is refused while findings remain unconfirmed. Submission or publication that depends on an expired `RESOLVED` verdict is refused with `RESOLUTION_EXPIRED`, and the expiry banner warns before that gate is reached. The drafted summary is never treated as a confirmed finding or as the official text of the report.
@@ -683,8 +683,8 @@ The report is compiled, not authored from scratch. The platform assembles the co
   - A published report is preserved as a versioned record. A correction is issued as a new version, and prior versions are retained and marked superseded rather than overwritten.
   - Customers see the published report, not internal drafts, candidate findings, or unapproved versions.
   - A returned report returns to the author for revision and may be submitted again as a later version.
-  - The PDF for a published report is generated on demand for that report version, so a superseded version remains retrievable as it was published.
-- **Normal cases**: An independent reviewer reads the submitted report, publishes it, and it becomes available to the Customer as an immutable PDF.
+  - Each published report version is retained as an immutable record, so a superseded version remains retrievable exactly as it was published.
+- **Normal cases**: An independent reviewer reads the submitted report, publishes it, and it becomes available to the Customer as an immutable published report version.
 - **Abnormal cases**: Publication by the report's own author is refused. A return without reasons is refused. An unpublished report is never presented to the Customer as an official deliverable.
 
 ---
@@ -697,7 +697,7 @@ The report is compiled, not authored from scratch. The platform assembles the co
 - **Requirements**:
   - The service exposes `GET /api/v1/inspections/{inspectionId}/knowledge-recommendations?limit=4`, returning `KnowledgeRecommendationResponse` with `retrievalMode`, `cases`, and `guidelines` for the inspection's confirmed findings as a whole, under the same tenant-isolated scope and retrieval-mode rules as §3.7.3.
   - `ReportAiSummaryResponse` carries `knowledgeReferences`, a list of `KnowledgeReferenceSummary` values with `kind` (`CASE` or `GUIDELINE`), `codeOrLabel`, `summary`, and `similarity` normalized to `[0.0, 1.0]`.
-  - The references strip is advisory, visibly distinguished from the confirmed findings and the rendered PDF template, and does not alter the official report text.
+  - The references strip is advisory, visibly distinguished from the confirmed findings and the official report sections, and does not alter the official report text.
   - The strip stays compact and hides cleanly when no references are available or the advisor is disabled; the summary and report remain usable.
 - **Normal cases**: The author requests a summary; the card shows the narrative draft and a short strip of matched cases and standards, which the author reviews before submitting.
 - **Abnormal cases**: A reference from another organization or from the current inspection is never shown. Unavailable retrieval yields no references and no fabricated summary (`BR-43`, `BR-55`).
@@ -713,7 +713,7 @@ The engagement closes with acceptance and settlement. The customer accepts the p
 - **Function trigger**: The Customer reviews a published report and accepts it, then settles the service fee.
 - **Actors**: `CUSTOMER`, `MANAGER`, Payment Service.
 - **Function description**: Record the Customer's acceptance of the official deliverable and settle the agreed service fee through an online gateway or an authorised recorded confirmation.
-- **Screen layout (mock-up)**: A customer report view with the published PDF, an acceptance action, and a payment panel offering PayOS VietQR and VNPay. See the screen figures in §3.1.2.
+- **Screen layout (mock-up)**: A customer report view showing the published inspection report, an acceptance action, and a payment panel offering PayOS VietQR and VNPay. See the screen figures in §3.1.2.
 - **Requirements**:
   - Acceptance is recorded against the specific published report version and the occurrence it covers.
   - Before acceptance, only the owning Customer may request clarification or revision on the published report. A request from a Manager, Administrator, Inspector, or another organization is refused.
