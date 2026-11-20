@@ -57,7 +57,7 @@ The delivered persistence baseline is the forward-only migration set `V1`–`V4`
 | 4 | `MF4` Report review and payment settlement (Owner: Trương Thái Như) | Complex | 28 |
 | 4.1 | FE-07 Inspection Report Preparation, Review and Publication | Complex | 14 |
 | 4.1.1 | Report compilation from confirmed findings with the AI executive summary and its matched-case and engineering-standard knowledge references | Complex | 8 |
-| 4.1.2 | Independent Manager review, publication of a locked version, and PDF rendering | Complex | 6 |
+| 4.1.2 | Independent Manager review and publication of a locked report version | Complex | 6 |
 | 4.2 | FE-08 Customer Report Acceptance and Payment Settlement | Complex | 14 |
 | 4.2.1 | Customer report acceptance, PayOS and VNPay settlement, partner payouts and refunds | Complex | 9 |
 | 4.2.2 | Re-inspection loop with three-way defect resolution recording | Medium | 5 |
@@ -130,7 +130,7 @@ Figure 1. Iterative delivery process.
 | Inspection service domain and the `MF1`–`MF4` workflows | All members | Week 1, 2 hours | Walk through all four flows and every status transition unaided. |
 | Spring Boot 4.1, Spring Modulith, PostgreSQL, and object storage | All members | Week 2, 2 hours | Deliver one scoped endpoint with an integration test against real infrastructure. |
 | React 19, Material UI, and Flutter | All members | Week 2, 2 hours | Build a role-guarded web screen and a mobile upload flow. |
-| Vision-model inference, report rendering, and payment gateways | Bách, Quốc, Như | Week 3, 2 hours | Run detector inference, render a report to PDF, and complete a gateway callback in a sandbox. |
+| Vision-model inference, report compilation, and payment gateways | Bách, Quốc, Như | Week 3, 2 hours | Run detector inference, compile and publish an inspection report, and complete a gateway callback in a sandbox. |
 
 ## 3. Project Deliverables
 

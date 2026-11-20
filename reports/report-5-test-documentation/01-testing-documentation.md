@@ -19,7 +19,7 @@ Testing covers the delivered SmartDroneInspection platform across the Web Portal
 - **`MF2` `FE-04` — Service Requests, VND Quotations, Agreements and Dispatch** *(Owner: Phùng Trung Quốc)*: One-time and recurring service requests, request-level Manager ownership and claim, order chat with private attachments, versioned VND quotations whose accepted terms are frozen into an immutable snapshot, signed paper service agreement upload and streaming, cross-organization Inspector and owned-drone dispatch with schedule-conflict guards, abort recovery dispatch, the interactive Vietnam airspace evaluation, dedicated Inspector–Customer inspection chat (`inspection_messages`, `inspection_message_attachments`) with an Admin-configurable assignment-acceptance timeout (`platform_operations_settings`, default 24 hours), and Customer Mobile parity for that chat (`PR #27`).
 - **`MF3` `FE-05` — Flight Permit and On-Site Field Sessions** *(Owner: Trần Tùng Bách)*: Mission flight-permit upload with file-signature, SHA-256 and structured-metadata checks, mandatory verification by a Manager or Administrator who is not the uploader, the field-session gate that refuses to start without a verified permit, on-site field sessions (`Start` → `Complete` or `Abort` with automatic mission reopen and Manager follow-up), `SmartDroneHub` telemetry, persisted flight report metrics and GPS flight trace (`flight_trace_json`), mission MP4 video sync, the role-scoped dashboards, the Inspector schedule calendar, and the customer progress view.
 - **`MF3` `FE-06` — Evidence Intake and Human-Reviewed Defect Detection** *(Owner: Trần Tùng Bách)*: Photograph intake (10 MB, EXIF extraction before normalization to at most 2048 px, 480 px JPEG thumbnail) and resumable chunked `video/mp4` upload (10 MiB chunks up to 2 GB, asynchronous FFmpeg normalization to at most 1080p faststart with a 480 px poster, ticketed HTTP Range streaming), YOLO11 detection with `70%` default auto-confirm threshold (`V63`) and automatic vision fallback, quick `All active` / `Unconfirmed` / `Confirmed` confirmation status filter chips, findings baseline confirmation, and `DroneKnowledgeAI` AI note drafting (`Draft note with AI` with collapsed `References` in `DraftNoteAction`, plus batch `Draft all notes`) backed by tenant-isolated `vector(384)` local `fastembed` retrieval (`V65`), historical case backfill (`V64`), matched engineering standards, and Customer Mobile `KnowledgeReferencesStrip` parity (`PR #27`).
-- **`MF4` `FE-07` — Inspection Report Preparation, Review and Publication** *(Owner: Trần Tùng Bách)*: The four-state inspection report lifecycle (`SUBMITTED`, `RETURNED`, `PUBLISHED`, `SUPERSEDED`), tab-visit auto-compiled report content, single-shot advisory narrative drafting with the `DroneKnowledgeAI` `Matched Cases & Standards` footer (`ReportAiSummaryResponse.knowledgeReferences`), independent Manager review of a report the reviewer did not author, publication, and on-demand A4 PDF rendering of the published version.
+- **`MF4` `FE-07` — Inspection Report Preparation, Review and Publication** *(Owner: Trần Tùng Bách)*: The four-state inspection report lifecycle (`SUBMITTED`, `RETURNED`, `PUBLISHED`, `SUPERSEDED`), tab-visit auto-compiled report content, single-shot advisory narrative drafting with the `DroneKnowledgeAI` `Matched Cases & Standards` footer (`ReportAiSummaryResponse.knowledgeReferences`), independent Manager review of a report the reviewer did not author, and immutable versioned publication.
 - **`MF4` `FE-08` — Customer Report Acceptance and Payment Settlement** *(Owner: Trương Thái Như)*: Customer report acceptance, VND settlement through PayOS (VietQR) and VNPay with HMAC webhook verification, the re-inspection loop opened against a published report with fresh-evidence and `RESOLVED` verdict-expiry tracking (`VerdictExpiryBanner` / `verdictExpiry.ts` and Mobile `verdict_expiry.dart`), a configurable payment-due deadline (default 15 days) with a single overdue reminder, the payment notice/receipt PDF endpoint (`GET /api/v1/inspections/{id}/report/payment-document`), Manager-recorded partner settlement, payouts, and refunds, and Customer Mobile parity for verdict expiry and payment documents (`PR #27`).
 
 **Non-Functional Requirements to be Tested (`NFR-01` to `NFR-08`)**
@@ -53,7 +53,7 @@ Testing covers the delivered SmartDroneInspection platform across the Web Portal
 - **Integration Testing**:
   - *In-charge*: The owning feature developer for each feature.
   - *Inputs / Time*: Spring REST controllers, JPA repositories, Flyway migrations, the Spring Security filter chain, MinIO object storage, and the Modulith event outbox; executed on every pull request using Testcontainers.
-  - *Focuses*: Schema migration integrity and the exact applied migration set, ownership and assignment foreign keys, authorization at the API boundary, event-outbox delivery, object streaming, and PDF rendering.
+  - *Focuses*: Schema migration integrity and the exact applied migration set, ownership and assignment foreign keys, authorization at the API boundary, event-outbox delivery, object streaming, and versioned report publication.
   - *Acceptance Criteria*: `0` Spring Modulith boundary violations, the `45`-application-table inventory (`44` JPA runtime entities, `47` total tables) and the `["1","2","3","4","60","61","62","63","64","65"]` migration set verified, and `100%` of integration tests passing.
 - **System Testing**:
   - *In-charge*: The full engineering team.
@@ -69,7 +69,7 @@ Testing covers the delivered SmartDroneInspection platform across the Web Portal
 **Constraints and Assumptions**
 
 - **Containerized infrastructure**: Database and object-storage integration tests require a running Docker daemon to provision the PostgreSQL and S3-compatible Testcontainers instances.
-- **External AI and telemetry availability**: When the inference container or the language-model gateway is unreachable, the system routes to the vision fallback and to the deterministic PDF template so that business workflows remain testable.
+- **External AI and telemetry availability**: When the inference container or the language-model gateway is unreachable, the system routes to the vision fallback and to deterministic report compilation so that business workflows remain testable.
 - **Payment sandbox**: Payment verification uses deterministic HMAC test credentials and signed webhook payloads rather than live bank debits.
 - **Aviation boundary**: Flight permits, airspace evaluations, and telemetry traces are software governance records. Physical flight safety remains the responsibility of the licensed human pilot, and no test claims governmental clearance.
 
@@ -97,7 +97,7 @@ This section defines the testing types, the four test levels at which they are e
   - *Objective*: Verify accurate bounding-box parsing from YOLO11, automatic vision fallback on empty or unreachable results, single-shot narrative drafting, and deterministic template rendering when the model is unavailable.
   - *Technique*: Mocked and containerized inference responses, empty-detection fallback simulation, and offline drafter fallback assertions.
   - *Completion Criteria*: `100%` of advisory endpoints return valid structured output or a deterministic fallback within the stated latency bound (`NFR-02`).
-- **Performance, Payment Webhook and PDF Integrity Testing**:
+- **Performance, Payment Webhook and Report Integrity Testing**:
   - *Objective*: Validate response latency (`NFR-01`), PayOS HMAC-SHA256 and VNPay HMAC-SHA512 webhook verification, and published-report immutability (`NFR-05`).
   - *Technique*: Concurrent request probes, tampered-signature webhook rejection tests, and multi-version supersession checks.
   - *Completion Criteria*: All performance, cryptographic, and immutability assertions pass with zero regressions.
@@ -122,7 +122,7 @@ The project executes four sequential test levels:
 | API and Database Persistence Testing |  | X | X |  |
 | Security and Scope Isolation Testing | X | X | X | X |
 | AI Vision, Narrative Drafting and Fallback Testing | X | X | X | X |
-| Performance, Payment Webhook and PDF Integrity Testing |  | X | X | X |
+| Performance, Payment Webhook and Report Integrity Testing |  | X | X | X |
 | User Interface, Localization and Regression Testing | X | X | X | X |
 
 ### 2.3 Supporting Tools
@@ -177,7 +177,7 @@ Testing activities are scheduled across five milestones aligned with the iterati
 | Milestone Task | Start Date | End Date |
 | --- | --- | --- |
 | Milestone 1: Unit and migration foundation gate — schema baseline, authentication, authorization, Modulith boundaries | `2026-09-15` | `2026-10-08` |
-| Milestone 2: Core inspection, MinIO evidence, YOLO11 detection and PDF reporting integration testing | `2026-10-09` | `2026-10-22` |
+| Milestone 2: Core inspection, MinIO evidence, YOLO11 detection and inspection report integration testing | `2026-10-09` | `2026-10-22` |
 | Milestone 3: Review 2 baseline and maintenance-scope retirement verification (Round 1 execution) | `2026-10-23` | `2026-10-27` |
 | Milestone 4: Four-role, eight-feature consolidation across `MF1`–`MF4` — consolidated `V1` baseline, contracts, PayOS/VNPay, re-inspection (Rounds 2 and 3) | `2026-10-28` | `2026-11-04` |
 | Milestone 5: Final regression, staging walkthrough and defence rehearsal across `Feature 1`–`Feature 8` | `2026-11-05` | `2026-11-30` |
@@ -200,7 +200,7 @@ The project's test cases are organized into two complementary deliverables.
   - `Feature 4` (`FE-04`) covers service requests, VND quotations, order chat, Inspector–Customer inspection chat with assignment-acceptance timeout, signed-agreement upload, cross-organization dispatch, abort re-dispatch, and the airspace map.
   - `Feature 5` (`FE-05`) covers the flight-permit gate with independent verification, field-session start, completion and abort, telemetry and trace sync, the dashboards, and the calendar.
   - `Feature 6` (`FE-06`) covers photo and video evidence intake, YOLO11 detection (`70%` default auto-confirm threshold) with vision fallback, confirmation status filters (`All active`, `Unconfirmed`, `Confirmed`), findings confirmation, and tenant-isolated `DroneKnowledgeAI` note drafting (`Draft note with AI` / batch `Draft all notes`) over local 384-dimensional `fastembed` retrieval (`V65`) with fresh re-inspection evidence gating.
-  - `Feature 7` (`FE-07`) covers the four-state report lifecycle, tab-visit report compilation, advisory narrative drafting with `DroneKnowledgeAI` matched cases and standards, independent Manager review, and publication with PDF rendering.
+  - `Feature 7` (`FE-07`) covers the four-state report lifecycle, tab-visit report compilation, advisory narrative drafting with `DroneKnowledgeAI` matched cases and standards, independent Manager review, and immutable versioned publication.
   - `Feature 8` (`FE-08`) covers customer report acceptance, PayOS and VNPay settlement, the re-inspection loop with verdict expiry, the payment notice/receipt PDF and payment-due deadline, partner payout and refund settlement, and Customer Mobile parity (`PR #27`).
 
 ---

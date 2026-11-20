@@ -134,7 +134,7 @@ SmartDroneInspection coordinates building inspections between three parties: the
 2. **Commercial agreement.** The customer submits a service request, negotiates with a platform manager in the order chat, and accepts a VND quotation. The parties sign an agreement offline and the manager records the signed copy.
 3. **Field preparation.** The manager assigns an inspector and a drone to each occurrence. The inspector uploads the mission flight permit, and a different manager verifies it before any field work may start.
 4. **Field execution.** The inspector records the on-site session, captures photographs and video, and lets the platform propose candidate defects, which the inspector confirms or rejects.
-5. **Reporting.** The inspector submits the report; a manager who did not write it reviews and publishes it as an immutable PDF.
+5. **Reporting.** The inspector submits the report; a manager who did not write it reviews and publishes the locked official inspection report.
 6. **Settlement.** The customer accepts the published report and pays through PayOS VietQR or VNPay.
 
 Four login roles operate the platform. Each has its own portal, and a section a role may not use does not appear in its navigation at all:
@@ -357,7 +357,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 ### 3.7 Workflow 6: Report Submission, Review and Publication (`MF4` `FE-07`)
 
-**Purpose.** Produce the official inspection report and publish it as a PDF the customer can rely on.
+**Purpose.** Produce the official inspection report and publish the locked version for the customer.
 
 **Actors.** `INSPECTOR`, `MANAGER`, `ADMIN`.
 
@@ -377,7 +377,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 *Figure 6.18 — Independent report review with the publish and return actions.*
 
-**Step 4.** Publish, or return the report with reasons. The platform refuses publication by the report's own author, so the reviewer must be a different person. Publication renders an immutable PDF that the customer can download.
+**Step 4.** Publish, or return the report with reasons. The platform refuses publication by the report's own author, so the reviewer must be a different person. Publication locks the official report version for customer review and acceptance.
 
 **Step 5.** If a published report requires correction, issue a new version. The previously published version is preserved and marked superseded rather than overwritten.
 
@@ -395,7 +395,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 *Figure 6.19 — The customer inspection list with published reports available to review.*
 
-**Step 2.** Download and read the published PDF report.
+**Step 2.** Open and review the published inspection report.
 
 **Step 3.** Choose **Accept report**. Acceptance is recorded against the occurrence and the payment becomes due. From that point the inspection shows a payment-due badge with a countdown to the configured deadline (15 days by default), and a single overdue reminder is sent if the deadline passes. You can download the payment notice — and, once paid, the receipt — as a PDF from the inspection's **/report/payment-document** link.
 

@@ -22,13 +22,13 @@ The clients are a React 19 web application serving four role-scoped portals and 
 | --- | --- | --- |
 | Web Portal Application | React 19, strict TypeScript, Vite, Material UI | Four role-scoped portals with route-level denial. |
 | Mobile Field Application | Flutter, Riverpod, GoRouter, Dio | Customer-only mobile access. |
-| Application Server | Java 21, Spring Boot 4.1.0, Spring Modulith 2.1.1 | Domain logic, authorization, state transitions, PDF rendering, audit, events. |
-| YOLO11 Detection Service | Python FastAPI, Ultralytics YOLO11s | Primary building-defect candidate detection. |
-| Vision and Drafting Gateway | OpenAI-compatible HTTP API | Vision fallback and single-shot narrative drafting. |
-| Knowledge Advisor (`DroneKnowledgeAI`) | `HistoricalCaseService` + optional `DroneKnowledgeClient` | Tenant-isolated historical-case and engineering-standard retrieval over `pgvector`, with deterministic `HYBRID_MATCH` fallback. |
+| Application Server | Java 21, Spring Boot 4.1.0, Spring Modulith 2.1.1 | Domain logic, authorization, state transitions, report management, audit, events. |
+| YOLO11 & FastEmbed Service | Python FastAPI, Ultralytics YOLO11s, FastEmbed | Primary building-defect candidate detection and local 384-dimension multilingual embeddings (`POST /v1/embeddings`). |
+| Vision and Drafting Gateway | OpenAI-compatible HTTP API | Vision fallback, single-shot narrative drafting, and AI finding note drafting. |
+| Knowledge Advisor (`DroneKnowledgeAI`) | `HistoricalCaseService` + `DroneKnowledgeClient` | Tenant-isolated historical-case and engineering-standard retrieval over `pgvector` (`vector(384)` HNSW) + `POST .../draft-note`, with deterministic `HYBRID_MATCH` fallback, historical backfill (`V64`), and startup embedding backfill. |
 | SmartDroneHub | External ground station | Read-only telemetry, flight traces, and mission video. |
 | PostgreSQL | PostgreSQL 17 | 45 application tables and `pgvector` case/standard stores; 47 total tables in `public`, audit trail and event outbox. |
-| MinIO | S3-compatible object storage | Private storage of documents, evidence, and published PDFs. |
+| MinIO | S3-compatible object storage | Private storage of documents, evidence, and published report artefacts. |
 | PayOS, VNPay, Google OAuth2 | External HTTPS services | Settlement and federated sign-in. |
 
 ### 1.2 Package Diagram
@@ -48,7 +48,7 @@ The backend is organised into `users`, `contracts`, `assets`, `inspections`, `no
 | 01 | `com.smartdroneinspection.users` | Authentication, sessions, profiles, partner applications, airspace reviews, audit, and platform administration. |
 | 02 | `com.smartdroneinspection.contracts` | Service requests, order chat and attachments, VND quotations, agreements, occurrence dispatch, finance settings, and payment webhooks. |
 | 03 | `com.smartdroneinspection.assets` | Building categories, buildings, inspection checkpoints, reference documents, airspace evaluation, drone configuration, and owned drones. |
-| 04 | `com.smartdroneinspection.inspections` | Missions, permit verification, field sessions, telemetry sync, evidence, findings, reports, and PDF rendering. |
+| 04 | `com.smartdroneinspection.inspections` | Missions, permit verification, field sessions, telemetry sync, evidence, findings, and versioned inspection reports. |
 | 05 | `com.smartdroneinspection.notifications` | Deduplicated in-app notifications driven by domain events. |
 | 06 | `com.smartdroneinspection.dashboard` | Role-scoped operational metrics. |
 | 07 | `com.smartdroneinspection.infrastructure` | Outbound adapters for object storage, detection and drafting clients, the ground-station hub, FFmpeg, and payment gateways. |
@@ -69,7 +69,7 @@ flowchart TD
     FEAT_ASSETS["features/assets\n(Asset Catalog, Asset Documents & Owned Drones)"]
     FEAT_CONTRACTS["features/contracts\n(Service Requests, Order Chat, VND Quotes & Agreements)"]
     FEAT_INSP["features/inspections\n(Schedule Calendar, Field Sessions, SmartDroneHub & Findings)"]
-    FEAT_REPORTS["features/reports\n(Report Draft, Independent Review & PDF Download)"]
+    FEAT_REPORTS["features/reports\n(Report Draft, Independent Review & Publication)"]
     FEAT_DASH["features/dashboard\n(Operational Metrics)"]
     FEAT_NOTIF["features/notifications\n(Notification Inbox & Badge)"]
     WEB_SHARED["shared\n(Axios Client, Airspace Maps, i18n & UI Kit)"]
@@ -105,7 +105,7 @@ flowchart TD
 | 05 | `src/features/assets` | Provides building asset management, reference document streaming, and Inspector-owned drone registration and inventory. |
 | 06 | `src/features/contracts` | Implements one-time and recurring service requests, in-context order chat with attachments, VND quotation issuance and acceptance, signed contract upload, and occurrence dispatch, with separate `customer` and `manager` presentation branches. |
 | 07 | `src/features/inspections` | Implements the Inspector schedule calendar, the customer inspection progress view, on-site field session and `SmartDroneHub` telemetry controls, flight-permit upload and review, photo and MP4 evidence upload, YOLO11 defect review, and re-inspection verdict-expiry warnings (`lib/verdictExpiry.ts`, `VerdictExpiryBanner`, `ValidityNotice`). |
-| 08 | `src/features/reports` | Implements pre-submission report drafting, independent Manager review and publication, and on-demand PDF download. |
+| 08 | `src/features/reports` | Implements pre-submission report drafting, independent Manager review, and versioned report publication. |
 | 09 | `src/features/dashboard`, `src/features/notifications` | Provide four-role operational metrics and the in-app notification inbox with unread badge. |
 | 10 | `src/shared` | Provides the Axios HTTP client with automatic token refresh, CSRF handling, and RFC 7807 problem parsing (`api`), the interactive Vietnam airspace planner and map (`airspace`), bilingual EN/VI localization (`i18n`), and the shared UI kit including authenticated media components (`ui`, `AuthenticatedImage`, `AuthenticatedMedia`). |
 

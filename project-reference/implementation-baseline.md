@@ -1,5 +1,5 @@
 ---
-title: "Verified Implementation Baseline (2026-11-17)"
+title: "Verified Implementation Baseline (2026-11-20)"
 weight: 20
 ---
 
@@ -10,8 +10,7 @@ against. It records what the running system actually does at commit time, verifi
 source, not by trusting earlier drafts. When a report and this page disagree, this page wins until
 the code changes.
 
-**Snapshot.** Backend `d8640e8`, frontend `490b34b`, mobile `5c5b24a`, all committed 2026-11-17
-21:08 (+07:00). Documentation repo `f8ff497`.
+**Snapshot.** Backend `7964677`, frontend `5ab880d`, mobile `21af14a`, all merged 2026-11-20. Documentation repo synced with `V63`–`V65`.
 
 ---
 
@@ -67,11 +66,11 @@ Module dependency rules live in each module's `package-info.java` (`@Application
 
 | Fact | Value |
 |---|---|
-| Engine | PostgreSQL 17 with the `pgvector` image |
-| Migrations | **2 files**: `V1__baseline.sql` (2,982 lines, schema + catalog seeds) and `V2__remove_finding_recommended_action.sql` |
-| Migration assertion | `FullDatabaseSchemaMigrationTest` asserts `flyway_schema_history` versions are exactly `["1","2"]` |
-| Tables | **41** |
-| `pgvector` usage | Extension created conditionally; **no vector column, no embeddings, no retrieval code**. There is no RAG. |
+| Engine | PostgreSQL 17 with the `pgvector` image (`pgvector/pgvector:pg17`) |
+| Migrations | **10 files**: `V1__baseline.sql`, `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, `V62__inspection_knowledge_rag.sql`, `V63__ai_auto_confirm_default_70.sql`, `V64__backfill_published_historical_cases.sql`, and `V65__rag_local_embeddings_384.sql` |
+| Migration assertion | `FullDatabaseSchemaMigrationTest` asserts `flyway_schema_history` versions are exactly `["1","2","3","4","60","61","62","63","64","65"]` |
+| Tables | **45** application tables (**44** JPA runtime entities including `event_publication`; **47** total tables in `public`) |
+| `pgvector` usage | `V62` enables `pgvector` and `V65` configures `vector(384)` HNSW `vector_cosine_ops` indexes on `inspection_knowledge_chunks` and `historical_finding_cases` backed by local `fastembed` (`paraphrase-multilingual-MiniLM-L12-v2`) in `ai-inference`, with `HYBRID_MATCH` fallback, `V64` backfill, and startup missing-vector backfill (`ApplicationReadyEvent`). |
 
 ### Table inventory (41)
 
@@ -117,7 +116,12 @@ Module dependency rules live in each module's `package-info.java` (`@Application
 | 38 | `inspector_profiles` | 23 | Inspector profile, licences, partner status |
 | 39 | `inspector_flight_logs` | 14 | Flight log intake (including non-MAVLink) |
 | 40 | `notifications` | 12 | In-app/email notification with dedupe and read state |
-| 41 | `platform_ai_settings` | 6 | Singleton AI settings: auto-confirm flag and threshold (seed 85.00) |
+| 41 | `platform_ai_settings` | 6 | Singleton AI settings: auto-confirm flag and threshold (`default 70.00` since `V63`, lowered from `85.00`) |
+| 42 | `platform_operations_settings` | 4 | Singleton operations settings: Step 4 assignment acceptance timeout (`V61`) |
+| 43 | `inspection_messages` | — | Inspector–Customer per-inspection chat thread (`V61`) |
+| 44 | `inspection_message_attachments` | — | Private MinIO chat attachments (`V61`) |
+| 45 | `inspection_knowledge_chunks` | — | Seeded engineering standards/guidelines with `vector(384)` HNSW (`V62`, `V65`) |
+| 46 | `historical_finding_cases` | — | Published/benchmark historical defect cases with `vector(384)` HNSW (`V62`, `V64`, `V65`) |
 
 The full column-level dump (every column, type, default and CHECK constraint) is reproducible with
 `tools/` conventions from `SmartDroneInspection-backend/src/main/resources/db/migration/V1__baseline.sql`.
@@ -264,11 +268,10 @@ removed `MAINTENANCE_ENGINEER` role.
 |---|---|---|
 | Backend | Classes with `@Test` | 119 |
 | Backend | `@Test` methods | 610 |
-| Backend | Tests executed | **627, 0 failures, 0 errors, 0 skipped** (surefire, 2026-11-17 20:57) |
-| Backend | Line coverage | 72.2% (instructions 70.9%, branches 51.9%) |
-| Backend | Stack | JUnit 5, AssertJ, Mockito, Testcontainers (PostgreSQL + MinIO) |
-| Frontend | Test files / cases | 89 / 522 (Vitest) |
-| Mobile | Test files / cases | 13 / 42 (flutter_test) |
+| Backend | Tests executed | **971, 0 failures, 0 errors, 0 skipped** (`.\mvnw.cmd verify`, 2026-11-20; Spotless, Modulith & JaCoCo gates met) |
+| Backend | Stack | JUnit 6, AssertJ, Mockito, Testcontainers (PostgreSQL + MinIO) |
+| Frontend | Test files / cases | 97 files (`93` passed, `4` skipped) / `724` tests (`720` passed, `4` skipped, `0` failed) (Vitest, 2026-11-20) |
+| Mobile | Test files / cases | 56 tests passed, 0 failures (`flutter test`, 2026-11-20) |
 
 The e2e harness under `SmartDroneInspection-backend/e2e/` is **scaffolding, not a working suite** —
 `run-e2e.mjs` points at a directory that no longer exists. Cite it as scaffolding.
@@ -278,10 +281,10 @@ The e2e harness under `SmartDroneInspection-backend/e2e/` is **scaffolding, not 
 ## 12. Known inconsistencies — do not propagate
 
 1. Backend `README.md` still lists removed modules `inspectionrequests`, `maintenance`, `workforce`.
-2. Any "5 roles" or `MAINTENANCE_ENGINEER` reference.
-3. Any "pgvector / RAG / embeddings / retrieval" claim.
-4. Any Flyway range other than `V1` + `V2`.
-5. Any table count other than 41.
+2. Any "5 roles" or `MAINTENANCE_ENGINEER` reference as active login roles.
+3. Any `vector(1536)`, `85.00` default threshold, or `"There is no RAG"` claim (`V62`–`V65` delivered `vector(384)` local `fastembed` RAG and `70.00` default).
+4. Any Flyway range other than `["1","2","3","4","60","61","62","63","64","65"]`.
+5. Any application-table count other than 45 (47 total PostgreSQL tables).
 6. Mobile inspector field-session screens — the app is Customer-only.
 7. `frontend/.../AssetReviewPage.tsx` and `ScheduleProposalsPage.tsx` are deprecated.
 8. `ReportsPage.tsx` is a redirect shim; the queue is `inspections?view=reports`.
