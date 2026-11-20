@@ -49,7 +49,7 @@ The overall objective was to deliver a working, defensible platform covering the
 - All eight features accepted against their Report 3 acceptance criteria.
 - `0` unauthorized or cross-scope data disclosures, verified by role, organization, and assignment probing across all four portals.
 - `0` Spring Modulith module-boundary violations.
-- A verified schema inventory of 45 application tables (44 JPA runtime entity tables; 47 total tables in `public` including `event_publication` and `flyway_schema_history`), with the applied Flyway set exactly `["1","2","3","4","60","61","62"]` through `V62__inspection_knowledge_rag.sql`.
+- A verified schema inventory of 45 application tables (44 JPA runtime entity tables; 47 total tables in `public` including `event_publication` and `flyway_schema_history`), with the applied Flyway set exactly `["1","2","3","4","60","61","62","63","64","65"]` through `V65__rag_local_embeddings_384.sql`.
 - `0` open Critical or High severity defects at handover, with any remaining defect recorded rather than omitted.
 
 **Quality**
@@ -57,7 +57,7 @@ The overall objective was to deliver a working, defensible platform covering the
 | # | Testing Stage | Test Coverage | No. of Defects | % of Defect | Notes |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Reviewing | Requirement, design, and code review of every feature before merge | 6 | 25.0% | Defects caught in review before the code reached a test environment. |
-| 2 | Unit Test | Domain rules, services, components, and widgets | 8 | 33.3% | Backend `958` tests passed (`0` failures, Modulith and JaCoCo gates met); frontend `716` tests (`712` passed, `4` skipped) across `97` files; mobile `56` tests passed (`0` failures). |
+| 2 | Unit Test | Domain rules, services, components, and widgets | 8 | 33.3% | Backend `971` tests passed (`0` failures, Modulith and JaCoCo gates met); frontend `724` tests (`720` passed, `4` skipped) across `97` files; mobile `56` tests passed (`0` failures). |
 | 3 | Integration Test | Controllers, repositories, migrations, storage, and outbox | 7 | 29.2% | Schema, authorization, and object-storage defects. |
 | 4 | System Test | Connected end-to-end lifecycle across roles and clients | 3 | 12.5% | Cross-module sequencing and recovery-path defects. |
 | 5 | Acceptance Test | Business rules and acceptance criteria per feature | 0 | 0.0% | No accepted-scope defect remained at handover. |

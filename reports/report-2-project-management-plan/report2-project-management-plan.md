@@ -15,6 +15,7 @@ source_docx: report2-project-management-plan.docx
 
 | 18 Nov 2026 | M | Team | Version 3.1: WBS re-derived for the four-main-flow, eight-feature model (`MF1`–`MF4`, `FE-01`–`FE-08`, two features per flow) at sixteen functions. Total effort re-estimated to 208 man-days and reconciled against the same 300 person-day raw allocation at 70% effective capacity. Risk 1, the objectives, the quality table, the training plan, and the deliverable descriptions updated to match. |
 | 19 Nov 2026 | M | Team | Version 3.2: Synchronized scope, WBS, risk register, deliverables, and tooling with the delivered forward-only `V1`–`V4` and `V60`–`V62` schema (45 application tables / 47 total PostgreSQL tables) and `DroneKnowledgeAI` historical-case recommendation; recorded Mobile Customer parity (`PR #27`) and the final verified automated test execution. Total effort remains reconciled at 208 man-days across 300 raw person-days. |
+| 20 Nov 2026 | M | Team | Version 3.3: Extended the schema and AI tooling baseline through `V63`–`V65` (applied Flyway set `V1`–`V4` and `V60`–`V65`, retaining 45 application tables / 47 total PostgreSQL tables): `70.00` default AI auto-confirm threshold (`V63`), historical published-case backfill (`V64`), local `fastembed` `vector(384)` multilingual embeddings hosted in `ai-inference` (`V65`), finding/batch AI note drafting (`Draft note with AI` / `Draft all notes`), and finding confirmation status filter chips. |
 
 *A - Added M - Modified D - Deleted
 
@@ -28,7 +29,7 @@ SmartDroneInspection is a platform-operated service for infrastructure inspectio
 
 The delivered scope covers four main flows — onboarding (`MF1`), buildings and commercial agreement through dispatch (`MF2`), field work through evidence and findings (`MF3`), and report review through payment settlement (`MF4`) — organised as eight product features and sixteen functions, two features per flow. Work is decomposed below; complexity uses the three levels `Simple`, `Medium`, and `Complex`, and effort is expressed in man-days.
 
-The delivered persistence baseline is the forward-only migration set `V1`–`V4` and `V60`–`V62`: 45 application tables and 47 total PostgreSQL tables in the `public` schema, consolidated from a single baseline and asserted by an automated migration-set test. It includes the tenant-isolated `DroneKnowledgeAI` retrieval layer (`pgvector` HNSW cosine index with a deterministic `HYBRID_MATCH` fallback), the re-inspection verdict-validity and payment-due migrations, optional quotation-stage partner assignment, and Inspector–Customer inspection chat, with Customer mobile parity (`PR #27`). This delivered work is absorbed within the feature estimates below; the total remains reconciled at 208 man-days against 300 raw person-days.
+The delivered persistence baseline is the forward-only migration set `V1`–`V4` and `V60`–`V65`: 45 application tables and 47 total PostgreSQL tables in the `public` schema, consolidated from a single baseline and asserted by an automated migration-set test. It includes the tenant-isolated `DroneKnowledgeAI` retrieval layer (`pgvector` `vector(384)` HNSW cosine index backed by local `fastembed` embeddings with a deterministic `HYBRID_MATCH` fallback), the `70.00` default AI auto-confirm threshold (`V63`), historical published-case backfill (`V64`), the re-inspection verdict-validity and payment-due migrations, optional quotation-stage partner assignment, and Inspector–Customer inspection chat, with Customer mobile parity (`PR #27`). This delivered work is absorbed within the feature estimates below; the total remains reconciled at 208 man-days against 300 raw person-days.
 
 | # | WBS Item | Complexity | Est. Effort (man-days) |
 | --- | --- | --- | --- |
@@ -193,7 +194,7 @@ Source code is managed in four independent GitHub repositories — backend, web 
 | Category | Tools / Infrastructure |
 | --- | --- |
 | Technology | Java 21, Spring Boot 4.1, Spring Modulith, Spring Security with JWT and Google OAuth2, Hibernate/JPA, Flyway; Python with FastAPI and Ultralytics for the vision service; React 19, TypeScript, Vite, Material UI, TanStack Query; Flutter with Riverpod and GoRouter |
-| Database | PostgreSQL 17 with pgcrypto and pgvector (`vector(1536)`, HNSW cosine index for the `DroneKnowledgeAI` `inspection_knowledge_chunks` and `historical_finding_cases` retrieval layer; `HYBRID_MATCH` fallback when embeddings are unconfigured) |
+| Database | PostgreSQL 17 with pgcrypto and pgvector (`vector(384)`, HNSW cosine index for the `DroneKnowledgeAI` `inspection_knowledge_chunks` and `historical_finding_cases` retrieval layer powered by local `fastembed` `paraphrase-multilingual-MiniLM-L12-v2` embeddings; `HYBRID_MATCH` fallback when the embedding endpoint is unavailable) |
 | IDEs/Editors | Visual Studio Code, IntelliJ IDEA, Android Studio |
 | Diagramming | Mermaid and Draw.io sources kept in version control alongside the reports |
 | Documentation | Markdown in the documentation repository with automated OOXML export to the official Word and Excel templates |

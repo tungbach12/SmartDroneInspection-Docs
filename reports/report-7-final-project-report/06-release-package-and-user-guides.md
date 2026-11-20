@@ -13,7 +13,7 @@ source: "Report7_Final Project Report.docx"
 | 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking against the plan in Report 2. |
 | 2 | Project Backlog | The feature and function backlog for `FE-01`–`FE-08` across `MF1`–`MF4`. |
 | 3 | Source Codes | Four independent repositories: backend (Java 21, Spring Boot 4.1), frontend (React 19, strict TypeScript), mobile (Flutter), and documentation. |
-| 4 | Database Script(s) | Flyway migrations `V1__baseline.sql`, `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, and `V62__inspection_knowledge_rag.sql`, defining the PostgreSQL 17 schema: 45 application tables (44 JPA runtime entities, 47 total tables in `public`) with `pgvector` for `DroneKnowledgeAI`. |
+| 4 | Database Script(s) | Flyway migrations `V1__baseline.sql`, `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, `V62__inspection_knowledge_rag.sql`, `V63__ai_auto_confirm_default_70.sql`, `V64__backfill_published_historical_cases.sql`, and `V65__rag_local_embeddings_384.sql`, defining the PostgreSQL 17 schema: 45 application tables (44 JPA runtime entities, 47 total tables in `public`) with `pgvector` (`vector(384)`) for `DroneKnowledgeAI`. |
 | 5 | Final Report Document | Reports 1–7 of this documentation set, exported against the official templates. |
 | 6 | Test Cases Document | `Report5_Test Report.xlsx` with one sheet per feature, plus the executed results in Report 5 §5. |
 | 7 | Defects List | The defect log, including the two open defects recorded above. |
@@ -32,7 +32,7 @@ Software: Docker Engine 27 or later with the Compose plugin; Java 21 (Temurin) f
 
 Clone the four repositories into sibling folders, because the frontend proxy and the tooling assume that layout. Copy the backend example environment file to `.env` and set the database identity, the MinIO credentials and bucket, both signing secrets, the allowed client origin, and the first administrator's bootstrap credentials. Generate each signing secret as a long random value and never commit them. The AI, payment, and telemetry integrations are optional; leave them disabled for a self-contained local installation, in which case detection falls back to manual entry and drafting falls back to the deterministic template.
 
-Start the backend stack with `docker compose up -d --build`; Flyway applies `V1`–`V4` and `V60`–`V62` on first start. Migration `V62` enables `pgvector` and creates the `vector(1536)` columns and HNSW cosine index for `DroneKnowledgeAI`; no extra environment variable is required, and an unwired embedding provider degrades to deterministic `HYBRID_MATCH`. Confirm health with `docker compose ps` and `curl http://localhost:8080/actuator/health`, which should report `UP`. Then copy the frontend example environment file, run `npm install` and `npm run dev`, and open `http://localhost:3000`, where the dev server proxies `/api` to port 8080. If port 3000 is occupied, Vite prints the port it chose; update the backend's allowed origin to match and restart the backend container.
+Start the backend stack with `docker compose up -d --build`; Flyway applies `V1`–`V4` and `V60`–`V65` on first start. Migration `V62` enables `pgvector`, `V63` sets the default auto-confirm threshold to `70%`, `V64` backfills historical published cases, and `V65` configures `vector(384)` HNSW cosine indexes for `DroneKnowledgeAI` backed by the local `fastembed` `/v1/embeddings` endpoint inside `ai-inference`; no extra embedding service key is required, and an unavailable embedding endpoint degrades cleanly to deterministic `HYBRID_MATCH`. Confirm health with `docker compose ps` and `curl http://localhost:8080/actuator/health`, which should report `UP`. Then copy the frontend example environment file, run `npm install` and `npm run dev`, and open `http://localhost:3000`, where the dev server proxies `/api` to port 8080. If port 3000 is occupied, Vite prints the port it chose; update the backend's allowed origin to match and restart the backend container.
 
 For mobile, run `flutter pub get` and `flutter run` in the mobile repository. Finally, sign in with the bootstrap administrator, change its password immediately, and create the remaining accounts from the platform accounts screen.
 
@@ -280,7 +280,7 @@ The manager reviews the permit, the flight report, and the evidence audit before
 
 *Figure 7.32 — Candidate findings.*
 
-**Step 5.** While reviewing a candidate, open its **Similar Cases & Guide** strip. This compact, collapsible strip shows matched historical cases with similarity percentages and engineering standard codes (for example `TCVN 9343:2012`). Choose **Apply** to copy a reference’s technical note into the finding’s edit note, then review and save the finding explicitly; applying a recommendation never confirms a finding on its own.
+**Step 5.** Use the **All active**, **Unconfirmed**, or **Confirmed** filter chips to focus on findings awaiting decision. While editing or reviewing a finding, choose **Draft note with AI** (inside the card) or **Draft all notes** (next to **Analyze all images** in the toolbar) to populate an editable technical note grounded in matched historical cases and engineering standards (`TCVN 9343:2012`), with sources tucked under a collapsed **References** toggle; save and confirm every finding explicitly.
 
 **Step 5.** Choose **Confirm findings**. This explicit action fixes the baseline, and only confirmed findings become official.
 
@@ -416,7 +416,7 @@ Choose **Manage** on an account to open a centred dialog with **Account & Securi
 
 
 
-**Step 6.** Maintain the singleton **AI settings** — the auto-confirm threshold and the account-level fallback preference. Detection remains advisory regardless of the threshold, and a human still confirms every finding.
+**Step 6.** Maintain the singleton **AI settings** — the auto-confirm threshold (`70%` default since `V63`) and the account-level fallback preference. Detection remains advisory regardless of the threshold, and a human still confirms every finding.
 
 
 Operations settings are held in the adjacent tab of the same workspace; they include the assignment-acceptance timeout applied to pending Step 4 assignments.
