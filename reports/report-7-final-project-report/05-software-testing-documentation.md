@@ -65,7 +65,7 @@ Functional and business rule testing applies equivalence partitioning and bounda
 | Purpose | Tool | Provider | Version |
 | --- | --- | --- | --- |
 | Application runtime | Java 21 with Spring Boot Modulith | Eclipse Temurin / Broadcom | `Java 21` / `4.1.0` |
-| Relational database | PostgreSQL (44 tables, migrations `V1`–`V4`, `V60`–`V61`) | PostgreSQL Global Development Group | `17` |
+| Relational database | PostgreSQL (45 application tables / 47 total, migrations `V1`–`V4`, `V60`–`V65`) | PostgreSQL Global Development Group | `17` |
 | Object storage | MinIO (`inspection-evidence` bucket) | MinIO Inc. | `RELEASE.2025` |
 | Test containers | Testcontainers with `pgvector:pg17` and `adobe/s3mock` | AtomicJar / Docker | `PostgreSQL 17` |
 | Computer vision service | FastAPI with Ultralytics YOLO11s | Python / Ultralytics | `YOLO11s` |
@@ -85,7 +85,7 @@ Functional and business rule testing applies equivalence partitioning and bounda
 
 ## 4. Test Cases
 
-Unit test cases live in the repository suites. On 19 Nov 2026 the backend `.\mvnw.cmd verify` exited 0 with `958` tests passed, `0` failures, Spring Modulith boundary verification passed and JaCoCo coverage checks met. The frontend `npm test` ran `97` files (`93` passed, `4` skipped) and `716` tests (`712` passed, `4` skipped, `0` failed), covering the four-portal access policy, the airspace map, the calendar, evidence/findings/report screens, the re-inspection verdict-expiry warning and the `DroneKnowledgeAI` recommendation chips. The mobile suite (`PR #27`, `9939c00`) passed `56` tests with `0` failures, covering customer-only admission, localization, verdict expiry, payment-document PDF, Inspector–Customer chat, the knowledge strip, and the customer screens. Report 5 tracks `64` active case IDs across `FE-01`–`FE-08`, adding `WF3-029` (DroneKnowledgeAI historical case recommendation and tenant isolation), `WF3-030` (advisory knowledge references in the AI summary) and `WF3-031` (Customer Mobile parity from `PR #27`).
+Unit test cases live in the repository suites. On 20 Nov 2026 the backend `.\mvnw.cmd verify` exited 0 with `971` tests passed, `0` failures, Spring Modulith boundary verification passed and JaCoCo coverage checks met. The frontend `npm test` ran `97` files (`93` passed, `4` skipped) and `724` tests (`720` passed, `4` skipped, `0` failed), covering the four-portal access policy, the airspace map, the calendar, evidence/findings/report screens, the re-inspection verdict-expiry warning, quick status filter chips, and `DroneKnowledgeAI` note drafting (`DraftNoteAction` / `Draft all notes`) and references. The mobile suite (`PR #27`, `9939c00`) passed `56` tests with `0` failures, covering customer-only admission, localization, verdict expiry, payment-document PDF, Inspector–Customer chat, the knowledge strip, and the customer screens. Report 5 tracks `64` active case IDs across `FE-01`–`FE-08`, including `WF3-029` (DroneKnowledgeAI note drafting, local 384d RAG, status filters & tenant isolation), `WF3-030` (advisory knowledge references in the AI summary) and `WF3-031` (Customer Mobile parity from `PR #27`).
 
 Integration, system, and acceptance cases live in `Report5_Test Report.xlsx`, partitioned across eight feature sheets with columns for the procedure, expected results, preconditions, three execution rounds, the test date, the tester, and a note recording the mode and the automated evidence.
 
@@ -99,8 +99,8 @@ Integration, system, and acceptance cases live in `Report5_Test Report.xlsx`, pa
 
 | Suite | Command | Scope | Result |
 | --- | --- | --- | --- |
-| Backend | `.\mvnw.cmd verify` | Domain, service, controller, repository, migration, storage, architecture and knowledge retrieval tests | `958` tests passed, `0` failures, `0` errors; Spring Modulith boundary verification and JaCoCo coverage gate met. `spotless:check` passed. |
-| Web portal | `npm test` | Components, pages, access policy, API clients, verdict-expiry warnings and DroneKnowledgeAI chip strips | `97` files (`93` passed, `4` skipped), `716` tests (`712` passed, `4` skipped), `0` failed. `npm run lint` returned `0` errors (49 pre-existing warnings) and `npm run build` exited `0`. |
+| Backend | `.\mvnw.cmd verify` | Domain, service, controller, repository, migration, storage, architecture and knowledge retrieval tests | `971` tests passed, `0` failures, `0` errors; Spring Modulith boundary verification and JaCoCo coverage gate met. `spotless:check` passed. |
+| Web portal | `npm test` | Components, pages, access policy, API clients, verdict-expiry warnings, filter chips and DroneKnowledgeAI note drafting | `97` files (`93` passed, `4` skipped), `724` tests (`720` passed, `4` skipped), `0` failed. `npm run lint` returned `0` errors and `npm run build` exited `0`. |
 | Mobile | `flutter test` | Customer-only session, localization, verdict expiry, payment PDF, chat, knowledge strip and screens (`PR #27`) | `56` tests passed, `0` failures; `dart format --set-exit-if-changed .` and `flutter analyze` both passed. |
 
 ### 5.2 Acceptance Case Execution
@@ -129,14 +129,14 @@ Report 5 records `13` executed Round 3 cases with `0` failures: `WF3-005`, `WF3-
 
 | Assertion | Test | What it proves |
 | --- | --- | --- |
-| Schema baseline is exact | `FullDatabaseSchemaMigrationTest` | The applied migration set is exactly `V1`, `V2`, `V3`, `V4`, `V60`, `V61` and `V62`; the inventory is exactly 47 relations in `public` (45 application tables, the `event_publication` outbox and `flyway_schema_history`), with 44 JPA runtime entity tables. |
+| Schema baseline is exact | `FullDatabaseSchemaMigrationTest` | The applied migration set is exactly `V1`, `V2`, `V3`, `V4`, `V60`, `V61`, `V62`, `V63`, `V64` and `V65`; the inventory is exactly 47 relations in `public` (45 application tables, the `event_publication` outbox and `flyway_schema_history`), with 44 JPA runtime entity tables. |
 | Module boundaries hold | `ModulithArchitectureTest` | No module reaches another outside its declared `allowedDependencies`. |
 | Lifecycle is connected | `ConnectedMainFlowE2eIntegrationTest` | Onboarding, building and drone registration, request and quotation, dispatch, evidence and detection, publication, and settlement execute in one run. |
 | A report author cannot publish | Reviewer-scope and role-policy tests | Publication requires a reviewer who is not the author. |
 | A permit uploader cannot verify | Permit review tests | Verification requires a distinct manager or administrator. |
 | Media is scoped | Evidence ticket tests | A signed ticket grants access to one evidence record and nothing else. |
 | Payment needs a signature | PayOS and VNPay webhook tests | A redirect alone never settles a payment; a tampered callback is rejected. |
-| Knowledge retrieval is tenant-isolated | `HistoricalCaseServiceTest`, `HistoricalCaseApiIntegrationTest`, `KnowledgeRecommendationPanel.test.tsx`, `knowledge_recommendation_test.dart` | `DroneKnowledgeAI` returns `PGVECTOR_RAG` when embeddings exist and deterministic `HYBRID_MATCH` otherwise; benchmark cases are anonymized, cross-organization cases and the current inspection are excluded, and the customer mobile strip hides when empty. Live Docker stack with `v62` applied returned `HYBRID_MATCH` responses. |
+| Knowledge retrieval & note drafting are tenant-isolated | `HistoricalCaseServiceTest`, `HistoricalCaseApiIntegrationTest`, `InspectionFindingsPage.test.tsx`, `KnowledgeRecommendationPanel.test.tsx`, `knowledge_recommendation_test.dart` | `DroneKnowledgeAI` returns `PGVECTOR_RAG` via local `fastembed` (`vector(384)`) when embeddings exist and deterministic `HYBRID_MATCH` otherwise, plus `AI_VISION_RAG` for note drafting; benchmark cases are anonymized, cross-organization cases and the current inspection are excluded, and the customer mobile strip hides when empty. |
 | Payment deadline and documents over HTTP | `PaymentDueAndDocumentApiIntegrationTest` | On Testcontainers PostgreSQL 17 and the real security filter chain: acceptance stamps `payment_due_at` once, the document endpoint returns `409` before acceptance, a notice PDF after acceptance and a receipt after verified payment, foreign-organization callers receive `404`, and a repeated overdue scan sends no second reminder. Report 5 records this as the Round 3 Passed evidence for `WF3-026` and `WF3-027`. |
 | Expired re-inspection verdict is surfaced early | `verdictExpiry.ts`, `VerdictExpiryBanner`, `ValidityNotice`, `ReinspectionWorkflow.test.tsx` | The Web client distinguishes lapsed `RESOLVED` verdicts from those lapsing within 14 days and warns before report authoring; the backend remains the authority that refuses an expired verdict with `RESOLUTION_EXPIRED`. |
 

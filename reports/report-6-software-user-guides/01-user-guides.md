@@ -16,7 +16,7 @@ This release delivers the SmartDroneInspection platform: a building-inspection s
 | 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking for the eight-week build, maintained from the project plan in Report 2. |
 | 2 | Project Backlog | The feature and function backlog for `FE-01`–`FE-08` across `MF1`–`MF4`, with the acceptance criteria each item was closed against. |
 | 3 | Source Codes | Four independent repositories: `SmartDroneInspection-backend` (Java 21, Spring Boot 4.1, Spring Modulith), `SmartDroneInspection-frontend` (React 19, strict TypeScript, Vite, Material UI), `SmartDroneInspection-mobile` (Flutter, Riverpod, GoRouter, Dio), and `SmartDroneInspection-docs`. |
-| 4 | Database Script(s) | Flyway migrations `V1__baseline.sql` (consolidated baseline with catalog seeds), `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, and `V62__inspection_knowledge_rag.sql` (`V1`–`V4`, `V60`–`V62`). Together they define the PostgreSQL 17 schema: 45 application tables (47 total in the `public` schema, including `event_publication` and `flyway_schema_history`) with the `pgvector` extension for knowledge-base embeddings. |
+| 4 | Database Script(s) | Flyway migrations `V1__baseline.sql` (consolidated baseline with catalog seeds), `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, `V62__inspection_knowledge_rag.sql`, `V63__ai_auto_confirm_default_70.sql`, `V64__backfill_published_historical_cases.sql`, and `V65__rag_local_embeddings_384.sql` (`V1`–`V4`, `V60`–`V65`). Together they define the PostgreSQL 17 schema: 45 application tables (47 total in the `public` schema, including `event_publication` and `flyway_schema_history`) with the `pgvector` extension (`vector(384)`) for knowledge-base embeddings. |
 | 5 | Final Report Document | Reports 1–6 of the capstone documentation set, each exported against its official template. |
 | 6 | Test Cases Document | `Report5_Test Report.xlsx` with one sheet per feature, plus the executed suite results recorded in Report 5 (19 Nov 2026 baseline, version 3.6). |
 | 7 | Defects List | The defect log maintained during the build, together with the open items and known limitations recorded in Report 5's 19 Nov 2026 baseline. |
@@ -49,7 +49,7 @@ The detection service and the video transcoder are the dominant resource consume
 | Web client build | Node.js and npm | Node 22 or later |
 | Mobile client build | Flutter SDK with the Android toolchain | Flutter 3.x |
 | Object storage | MinIO | Provided by the compose stack |
-| Database | PostgreSQL with the `pgvector` extension | `17` (provided by the compose stack; the extension is enabled by the `V62` migration) |
+| Database | PostgreSQL with the `pgvector` extension | `17` (provided by the compose stack; the extension is enabled by `V62` and configured for `vector(384)` by `V65`) |
 | Media processing | FFmpeg | Provided by the backend container image |
 | Browser | Chrome or Edge | Current version |
 
@@ -90,7 +90,7 @@ The AI, payment, and telemetry integrations are all optional. Leave `YOLO_INFERE
 docker compose up -d --build
 ```
 
-Flyway applies `V1`–`V4` and `V60`–`V62` automatically on first start. Migration `V62` enables the `pgvector` extension and creates the `vector(1536)` knowledge columns and HNSW cosine index; the PostgreSQL 17 image in the compose stack already provides the extension, so no separate installation step or additional environment variable is required. When no embedding provider is configured, historical-case retrieval falls back automatically to deterministic `HYBRID_MATCH`, so the platform remains fully usable without an external AI service. Confirm the stack is healthy:
+Flyway applies `V1`–`V4` and `V60`–`V65` automatically on first start. Migration `V62` enables the `pgvector` extension, `V63` sets the default auto-confirm threshold to `70%`, `V64` backfills published historical cases, and `V65` configures `vector(384)` knowledge columns and HNSW cosine indexes backed by the local `fastembed` `/v1/embeddings` endpoint inside `ai-inference`; the PostgreSQL 17 image in the compose stack already provides `pgvector`, so no separate installation step is required. When the embedding service is unavailable, historical-case retrieval falls back automatically to deterministic `HYBRID_MATCH`, so the platform remains usable offline. Confirm the stack is healthy:
 
 ```bash
 docker compose ps
@@ -351,7 +351,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 *Figure 6.16 — Candidate findings awaiting inspector confirmation.*
 
-**Step 5.** While reviewing a candidate, open its **Similar Cases & Guide** strip. This compact, collapsible chip strip shows matched historical cases with similarity percentages and relevant engineering standard codes (for example `TCVN 9343:2012`). Choose **Apply** on a reference to copy its guidance into the finding's technical note in edit mode; you may still adjust the note before confirming. The strip is advisory only — it does not create or confirm a finding, and it stays hidden when no references are available.
+**Step 5.** Filter the queue quickly using **All active**, **Unconfirmed**, or **Confirmed** status chips as needed. While editing or reviewing a finding, choose **Draft note with AI** (inside the card) or **Draft all notes** (next to **Analyze all images** in the toolbar) to populate an editable technical note grounded in matched historical cases and engineering standards (for example `TCVN 9343:2012`), with matched items tucked cleanly under a collapsed **References** toggle. Drafting a note is advisory only — review and save/confirm every finding explicitly.
 
 **Step 6.** Choose **Confirm findings** to set the baseline. This is an explicit action. Only confirmed findings become official, and once confirmed the baseline is what the report is built from.
 
