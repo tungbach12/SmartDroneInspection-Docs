@@ -186,7 +186,7 @@ These capabilities have no dedicated screen of their own; they run inside a user
 | 17 | FE-16 | Candidate defect inference | Runs the automated detection service (`YOLO11`) and optional vision fallback over evidence and records candidate defects with confidence scores (`70%` default auto-confirm setting). |
 | 18 | FE-17 | Knowledge indexing & retrieval preparation | Indexes confirmed findings automatically when a report is published and maintains vector similarity search with keyword-matching fallback. |
 | 19 | FE-17, FE-18 | Advisory narrative & note drafting + structured report compilation | Generates advisory finding notes or single-shot executive summary with matched references, while official report sections assemble consistently from confirmed findings. |
-| 20 | FE-20 | Payment gateway callback verification | Verifies the cryptographic signature of a PayOS or VNPay callback before marking a payment as settled. |
+| 20 | FE-20 | Payment gateway callback verification | Verifies the caller (`Authorization: Apikey` or VNPay HMAC-SHA512) of a Sepay or VNPay callback before treating a payment as settled. |
 | 21 | FE-21 | Invoice & overdue reminder scan | Captures commercial rate snapshots when a report is accepted, sets the payment due date, and sends a single overdue reminder without revoking report access. |
 | 22 | FE-22, FE-23 | Payout hold & allocation reconciliation | Enforces refund holds on unpaid payouts, requires balanced refund allocations after external transfer, and tracks separate Inspector receivables for post-payout refunds. |
 
@@ -600,18 +600,18 @@ The table summarizes the domain's core persisted entities across identity, build
 
 ---
 
-### 3.21 `MF4` — `FE-20` Online Service Fee Payment (`PayOS` VietQR & `VNPay`)
+### 3.21 `MF4` — `FE-20` Online Service Fee Payment (`Sepay` VietQR & `VNPay`)
 
-- **Function trigger**: After report acceptance (`Payment Due`), Customer initiates `PayOS` VietQR or `VNPay` checkout, payment gateways send verified confirmation callbacks, or Manager confirms manual payment / cancels an unpaid gateway order.
-- **Actors**: `CUSTOMER`, `MANAGER`, `PayOS`, `VNPay`.
-- **Function description**: Process VND inspection fee settlement through configuration-gated online payment gateways with cryptographic webhook signature verification and safe fallback to authorized manual confirmation.
-- **Screen layout (mock-up)**: Step 2 of Customer Settlement card (PayOS VietQR modal/link & VNPay redirect launch), Manager unresolved-order cancel action, and Finance Settings gateway switches.
+- **Function trigger**: After report acceptance (`Payment Due`), Customer initiates `Sepay` VietQR or `VNPay` checkout, payment gateways send verified confirmation callbacks, or Manager confirms manual payment / clears an unpaid gateway order.
+- **Actors**: `CUSTOMER`, `MANAGER`, `Sepay`, `VNPay`.
+- **Function description**: Process VND inspection fee settlement through configuration-gated online payment gateways with webhook authentication (`Authorization: Apikey` / VNPay HMAC-SHA512) and safe fallback to authorized manual confirmation.
+- **Screen layout (mock-up)**: Step 2 of Customer Settlement card (Sepay VietQR image & transfer code `SDI<orderCode>` or VNPay redirect launch), Manager unresolved-order clear action, and Finance Settings gateway switches.
 - **Requirements**:
-  - Initiating online checkout is allowed only after report acceptance (`Payment Due`). An unresolved gateway order cannot be silently overwritten or switched across providers (`MSG49`, `BR-47`); a Manager may clear an unpaid order only after gateway-confirmed cancellation.
-  - Both PayOS and VNPay callbacks require verified cryptographic signatures before marking payment `Paid` (`BR-45`); browser return redirects alone never settle payment.
+  - Initiating online checkout is allowed only after report acceptance (`Payment Due`). Online checkout supports Sepay VietQR and VNPay: Sepay builds the VietQR image carrying the occurrence transfer code and verifies incoming bank-transfer webhooks via a constant-time `Authorization: Apikey` header check while rejecting mismatched transfer amounts; VNPay verifies its callback via HMAC-SHA512 secure hash. Browser redirects alone never settle payment.
+  - An unresolved gateway order cannot be silently overwritten or switched across providers (`MSG49`, `BR-47`); because Sepay exposes no order-cancellation API, clearing an unpaid Sepay order is a recorded Manager action, while a VNPay order requires gateway reconciliation before clearing.
   - Both gateways may be disabled by configuration; when disabled, an authorized `MANAGER` may record an attributable manual payment confirmation. Verified payment immediately sets the Partner Inspector's payout status to `Eligible` without marking it `Paid` (`BR-46`).
-- **Normal cases**: Customer pays via PayOS VietQR or VNPay -> verified callback arrives -> payment marks `Paid`, payout becomes `Eligible`, and stakeholders are notified (`MSG47`).
-- **Abnormal cases**: Payment attempt before report acceptance, switching gateway while an earlier order is still pending (`MSG49`), forged callback signature, or duplicate gateway callback (safely ignored without double-counting) is handled cleanly.
+- **Normal cases**: Customer pays via Sepay VietQR or VNPay -> verified callback arrives -> payment marks `Paid`, payout becomes `Eligible`, and stakeholders are notified (`MSG47`).
+- **Abnormal cases**: Payment attempt before report acceptance, switching gateway while an earlier order is still pending (`MSG49`), forged callback header/signature or mismatched transfer amount, or duplicate gateway callback (safely ignored without double-counting) is handled cleanly.
 
 ---
 
