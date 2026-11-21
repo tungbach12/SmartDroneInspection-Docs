@@ -10,14 +10,14 @@ source: "Report7_Final Project Report.docx"
 
 | No. | Deliverable Item | Description |
 | --- | --- | --- |
-| 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking against the plan in Report 2. |
-| 2 | Project Backlog | The feature and function backlog for `FE-01`–`FE-08` across `MF1`–`MF4`. |
-| 3 | Source Codes | Four independent repositories: backend (Java 21, Spring Boot 4.1), frontend (React 19, strict TypeScript), mobile (Flutter), and documentation. |
-| 4 | Database Script(s) | Flyway migrations `V1__baseline.sql`, `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, `V62__inspection_knowledge_rag.sql`, `V63__ai_auto_confirm_default_70.sql`, `V64__backfill_published_historical_cases.sql`, and `V65__rag_local_embeddings_384.sql`, defining the PostgreSQL 17 schema: 45 application tables (44 JPA runtime entities, 47 total tables in `public`) with `pgvector` (`vector(384)`) for `DroneKnowledgeAI`. |
+| 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking against the weighted plan in Report 2 (`208` md). |
+| 2 | Project Backlog | The twenty-four atomic feature backlog (`FE-01`–`FE-24`) across `MF1`–`MF4`. |
+| 3 | Source Codes | Four independent repositories: backend service (`SmartDroneInspection-backend`), web portals (`SmartDroneInspection-frontend`), Customer mobile client (`SmartDroneInspection-mobile`), and documentation (`SmartDroneInspection-docs`). |
+| 4 | Database Script(s) | Automated schema migration scripts (`V1`–`V4` and `V60`–`V66`) defining the PostgreSQL 17 database (45 application tables), `pgvector` support for `DroneKnowledgeAI`, and plain-text building ownership details. |
 | 5 | Final Report Document | Reports 1–7 of this documentation set, exported against the official templates. |
-| 6 | Test Cases Document | `Report5_Test Report.xlsx` with one sheet per feature, plus the executed results in Report 5 §5. |
+| 6 | Test Cases Document | `Report5_Test Report.xlsx` (`v3.9`) with twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `67` active cases, plus the executed results in Report 5 §5. |
 | 7 | Defects List | The defect log, including the two open defects recorded above. |
-| 8 | Issues List | Outstanding issues and known limitations, including the out-of-scope items in Part III §3.8 (Report 3 §3.10). |
+| 8 | Issues List | Outstanding issues and known limitations, including the out-of-scope items in Part III §3.8 (Report 3 §3.26). |
 | 9 | Slide | The defence presentation used for the final review. |
 
 ## 2. Installation Guides
@@ -51,7 +51,7 @@ Clone the four repositories into sibling directories so cross-repo proxies and t
 
 #### Step 2 — Start Backend Stack and Apply Flyway Migrations
 
-Launch all five containers inside `SmartDroneInspection-backend/` with `docker compose up -d --build`. On first startup, Flyway applies `V1`–`V4` and `V60`–`V65`: `V62` enables `pgvector`, `V63` sets the default auto-confirm threshold to `70%`, `V64` backfills published findings into `historical_finding_cases`, and `V65` builds `vector(384)` HNSW cosine indexes backed by local `fastembed` (`paraphrase-multilingual-MiniLM-L12-v2`) inside `ai-inference`. Verify service readiness via `docker compose ps` and `curl http://localhost:8080/actuator/health` returning `UP`.
+Launch all five containers inside `SmartDroneInspection-backend/` with `docker compose up -d --build`. On first startup, automated database migrations configure all schema tables, enable vector knowledge search, load built-in engineering standards and historical case backfill, and prepare plain-text building ownership fields with no manual database steps required. Verify service readiness via `docker compose ps` and `curl http://localhost:8080/actuator/health` returning `UP`.
 
 #### Step 3 — Start Web Portal and Mobile Client
 
@@ -59,7 +59,7 @@ In `SmartDroneInspection-frontend/`, copy the frontend `.env` example, run `npm 
 
 #### Step 4 — Bootstrap Login and Troubleshooting
 
-Sign in using the bootstrap `ADMIN` account, rotate credentials immediately, and provision additional accounts in `/admin/platform-users`. If the backend container fails on startup, verify both JWT/media signing secrets meet minimum length; if file uploads fail while API calls succeed, inspect MinIO credentials and bucket creation; if `ai-inference` embeddings are unavailable, finding drafting and recommendations automatically fall back to deterministic `HYBRID_MATCH` without blocking workflows.
+Sign in using the bootstrap `ADMIN` account, rotate credentials immediately, and provision additional accounts in `/admin/platform-users`. If the backend container fails on startup, verify both JWT/media signing secrets meet minimum length; if file uploads fail while API calls succeed, inspect MinIO credentials and bucket creation; if the AI embedding service is unavailable, finding drafting and recommendations automatically fall back to deterministic keyword matching without blocking workflows.
 
 ## 3. User Manual
 
@@ -127,9 +127,9 @@ flowchart LR
   W6E --> W6F["6. Partner Net Payout & Settlement"]
 ```
 
-### 3.2 Workflow 1: Customer Onboarding, Airspace Screening and Asset Setup
+### 3.2 Workflow 1: Customer Onboarding, Airspace Screening and Asset Setup (`FE-01`, `FE-04`, `FE-06`, `FE-07`, `FE-12`)
 
-**Purpose.** Onboard a new customer organization, screen building coordinates against Vietnam airspace zones, configure inspection checkpoints, and verify notification settings.
+**Purpose.** Onboard a new customer organization, screen building coordinates against Vietnam airspace zones, configure inspection checkpoints and ownership notes, and verify notification settings.
 **Actors.** Prospective Customer (public), `CUSTOMER`, `ADMIN`.
 **Preconditions.** Backend and Web Portal are reachable; target building coordinates and category are known.
 
@@ -157,13 +157,13 @@ flowchart LR
 
 *Figure 7.14 — Workflow 1 Step 4 — Admin onboarding and airspace review console.*
 
-**Step 5 — Manage Building Register.** Inside `/client/assets`, click **+ New asset** ❶ to add more structures, narrow the register using **Search & status filter** ❷, or click **Detail** ❸ on `VHS-TPHCM` to inspect checkpoints and documents.
+**Step 5 — Manage Building Register.** Inside your **Assets** page, click **+ New asset** ❶ to add more structures (including structural specs and plain-text Ownership Information), narrow the register using **Search & status filter** ❷, or click **Detail** ❸ on `VHS-TPHCM` to inspect checkpoints and documents.
 
 ![Workflow 1 Step 5 — Customer building inventory and filter controls.](assets/manual/wf1-05-customer-assets.png)
 
 *Figure 7.15 — Workflow 1 Step 5 — Customer building inventory and filter controls.*
 
-**Step 6 — Maintain Checkpoints and Reference Documents.** In the building modal, verify coordinates and status in **Asset detail header** ❶, and customize building inspection items (`ITEM-01`+) alongside SHA-256 deduplicated blueprints inside **Checkpoints and documents** ❷.
+**Step 6 — Maintain Checkpoints and Reference Documents.** In the building modal, verify coordinates and status in **Asset detail header** ❶, and customize building inspection checkpoints alongside duplicate-checked blueprints inside **Checkpoints and documents** ❷.
 
 ![Workflow 1 Step 6 — Customer building detail checkpoints and document attachments.](assets/manual/wf1-06-customer-asset-detail.png)
 
@@ -175,19 +175,19 @@ flowchart LR
 
 *Figure 7.17 — Workflow 1 Step 7 — Account notifications inbox and deep-link alerts.*
 
-### 3.3 Workflow 2: Partner Inspector Admission and Drone Registration
+### 3.3 Workflow 2: Partner Inspector Admission and Drone Registration (`FE-02`, `FE-03`)
 
 **Purpose.** Admit a qualified drone pilot through public application review and register an airframe eligible for mission dispatch under Decree 288/2025/ND-CP.
 **Actors.** Prospective Inspector (public), `INSPECTOR`, `MANAGER` / `ADMIN`.
 **Preconditions.** Applicant holds a valid civil pilot licence scan; drone registration/ownership documents are ready.
 
-**Step 1 — Submit Public Inspector Application.** Open `/register-inspector`. Follow **3-step stepper** ❶ (`Account -> CCCD & Licence -> OTP & Submit`), complete credentials and licence details inside **Applicant inputs** ❷, attach the licence scan, and verify OTP.
+**Step 1 — Submit Public Inspector Application.** Open the Partner Inspector registration page, follow the **3-step stepper** ❶ (`Account -> CCCD & Licence -> OTP & Submit`), complete credentials and licence details inside **Applicant inputs** ❷, attach the licence scan, and verify OTP.
 
 ![Workflow 2 Step 1 — Three-step Partner Inspector public application form.](assets/manual/wf2-01-inspector-apply.png)
 
 *Figure 7.18 — Workflow 2 Step 1 — Three-step Partner Inspector public application form.*
 
-**Step 2 — Review Application or Drone Queue.** A `MANAGER` or `ADMIN` opens `/manager/onboarding-reviews`, toggles **Queue tabs** ❶ (`Inspector Applications` / `Drone Registrations`), applies status chips inside **Filters & queue area** ❷, and approves qualified records (provisioning the Inspector account upon approval).
+**Step 2 — Review Application or Drone Queue.** A `MANAGER` or `ADMIN` opens **Onboarding reviews**, toggles **Queue tabs** ❶ (`Inspector Applications` / `Drone Registrations`), applies status chips inside **Filters & queue area** ❷, and approves qualified records (provisioning the Inspector account upon approval).
 
 ![Workflow 2 Step 2 — Onboarding compliance review tabs and filters.](assets/manual/wf2-02-review-queue.png)
 
@@ -211,13 +211,13 @@ flowchart LR
 
 *Figure 7.22 — Workflow 2 Step 5 — Register owned drone specification and document form.*
 
-### 3.4 Workflow 3: Service Request, Quotation, Contract and Dispatch
+### 3.4 Workflow 3: Service Request, Quotation, Contract and Dispatch (`FE-08`–`FE-11`)
 
 **Purpose.** Create a building inspection request, negotiate commercial terms via Order Chat, record customer acceptance and the signed offline contract, and dispatch an eligible partner crew.
 **Actors.** `CUSTOMER`, `MANAGER`.
 **Preconditions.** At least one `ACTIVE` building exists and an approved Inspector + owned Drone pair is eligible.
 
-**Step 1 — Open Customer Service Requests.** In `/client/contracts`, track active requests via **Request row** ❷ or click **+ New service request** ❶ to start a new booking.
+**Step 1 — Open Customer Service Requests.** In **Service Requests**, track active requests with concise recurring request titles cleanly displayed in the compact four-column list via **Request row** ❷ or click **+ New service request** ❶ to start a new booking.
 
 ![Workflow 3 Step 1 — Customer service requests list and creation button.](assets/manual/wf3-01-cus-requests.png)
 
@@ -259,19 +259,19 @@ flowchart LR
 
 *Figure 7.29 — Workflow 3 Step 7 — Customer request detail showing accepted quote and signed contract.*
 
-**Step 8 — Confirm Dispatched Inspection in Manager Queue.** Manager opens `/manager/inspections` to verify **Scheduled occurrence** ❶ shows crew acceptance status (`PENDING_ACCEPTANCE` within timeout window or `ACCEPTED`) before field work begins.
+**Step 8 — Confirm Dispatched Inspection in Manager Queue.** Manager opens **Inspections** to verify **Scheduled occurrence** ❶ shows crew acceptance status (`Pending Acceptance` within the response window or `Accepted`) before field work begins.
 
 ![Workflow 3 Step 8 — Manager scheduled occurrence monitor.](assets/manual/wf3-08-mgr-inspections.png)
 
 *Figure 7.30 — Workflow 3 Step 8 — Manager scheduled occurrence monitor.*
 
-### 3.5 Workflow 4: Mission Execution, Flight Permit and Live Hub Telemetry
+### 3.5 Workflow 4: Mission Execution, Flight Permit and Live Hub Telemetry (`FE-10`, `FE-13`, `FE-14`)
 
 **Purpose.** Accept partner dispatch, submit and independently audit the regulatory flight permit, execute pre-flight checks, connect live ArduPilot/Mission Planner MAVLink telemetry (`SmartDroneHub`), and close post-flight verification.
 **Actors.** `INSPECTOR`, `MANAGER`, SmartDroneHub (`14551/udp` / `5762/tcp`).
 **Preconditions.** Dispatched inspection is `SCHEDULED` and accepted by `INSPECTOR`; flight permit document (`<= 25 MB`) is available.
 
-**Step 1 — Open Assigned Inspection.** `INSPECTOR` opens `/operations/inspections` and selects **Assigned building inspection** ❶ to accept the mission (before timeout) and enter the workspace.
+**Step 1 — Open Assigned Inspection.** `INSPECTOR` opens **Inspections** in the operations portal and selects **Assigned building inspection** ❶ to accept the mission before the response deadline and enter the workspace.
 
 ![Workflow 4 Step 1 — Inspector assigned inspections schedule.](assets/manual/wf4-01-ins-inspections.png)
 
@@ -301,7 +301,7 @@ flowchart LR
 
 *Figure 7.35 — Workflow 4 Step 5 — Manager independent flight permit verification panel.*
 
-**Step 6 — Complete Pre-flight Safety Checklist.** Once the permit is approved, `INSPECTOR` opens **Pre-flight stage active** ❶, verifies all items inside **Checklist items** ❷ (or clicks **Check all** ❸), adds a site observation note, and starts the field session (`IN_PROGRESS`).
+**Step 6 — Complete Pre-flight Safety Checklist.** Once the permit is approved, `INSPECTOR` opens **Pre-flight stage active** ❶, verifies all items inside **Checklist items** ❷ (or clicks **Check all** ❸), adds a site observation note, and starts the field session (`In Progress`).
 
 ![Workflow 4 Step 6 — Pre-flight safety checklist verification.](assets/manual/wf4-05-ins-preflight.png)
 
@@ -313,19 +313,19 @@ flowchart LR
 
 *Figure 7.37 — Workflow 4 Step 7 — Live ArduPilot/Mission Planner MAVLink telemetry streaming in SmartDroneHub.*
 
-**Step 8 — Verify Post-flight and Target Building Items.** Advance to **Post-flight stage stepper** ❶, tick each inspected structural checkpoint inside **Target building inspection items** ❷ and post-flight checks, and submit **Complete session** to seal `FIELD_COMPLETED`.
+**Step 8 — Verify Post-flight and Target Building Items.** Advance to **Post-flight stage stepper** ❶, tick each inspected structural checkpoint inside **Target building inspection items** ❷ and post-flight checks, and submit **Complete session** to complete the field work.
 
 ![Workflow 4 Step 8 — Post-flight checklist and target building checkpoint completion.](assets/manual/wf4-07-ins-postflight.png)
 
 *Figure 7.38 — Workflow 4 Step 8 — Post-flight checklist and target building checkpoint completion.*
 
-### 3.6 Workflow 5: Evidence Intake, AI Defect Detection and Findings Confirmation
+### 3.6 Workflow 5: Evidence Intake, AI Defect Detection and Findings Confirmation (`FE-15`, `FE-16`, `FE-17`)
 
-**Purpose.** Upload building photos and resumable MP4 video from the mission, invoke YOLO11 + Vision fallback defect detection, refine notes using `DroneKnowledgeAI`, and confirm the official finding baseline.
-**Actors.** `INSPECTOR`, Automated AI Pipeline (`YOLO11`, `fastembed` `pgvector`, FFmpeg).
-**Preconditions.** Field session is active or completed (`FIELD_COMPLETED`); inspection photos and MP4 footage are staged locally.
+**Purpose.** Upload building photos and resumable MP4 video from the mission, run AI defect detection, refine notes using `DroneKnowledgeAI`, and confirm the official finding baseline.
+**Actors.** `INSPECTOR`, Automated AI Pipeline (`YOLO11`, `DroneKnowledgeAI`, media processor).
+**Preconditions.** Field session is active or completed; inspection photos and MP4 footage are staged locally.
 
-**Step 1 — Upload Field Photos and MP4 Video.** Open Stage 5 (`/evidence`), select photos (`<= 10 MB`) and MP4 video (`<= 2 GiB`, 10 MiB resumable chunks) via **Choose files & Upload** ❶, wait for FFmpeg `1080p` transcoding to finish, and review captures/playback inside **Evidence register card** ❷.
+**Step 1 — Upload Field Photos and MP4 Video.** Open Stage 5 (**Evidence**), select photos (`<= 10 MB`) and MP4 video (`<= 2 GB`, automatically resumable in chunks if interrupted) via **Choose files & Upload** ❶, wait for background video optimization to finish, and review captures/playback inside **Evidence register card** ❷.
 
 ![Workflow 5 Step 1 — Field evidence upload controls and register with photos and transcoded MP4 video.](assets/manual/wf5-01-ins-evidence.png)
 
@@ -349,11 +349,11 @@ flowchart LR
 
 *Figure 7.42 — Workflow 5 Step 4 — Explicit findings baseline confirmation action.*
 
-### 3.7 Workflow 6: Report Authoring, Review, Acceptance and Financial Settlement
+### 3.7 Workflow 6: Report Authoring, Review, Acceptance and Financial Settlement (`FE-05`, `FE-17`–`FE-24`)
 
-**Purpose.** Compile the inspection report with AI Executive Summary, perform non-author Manager review and immutable publication, record Customer report acceptance and PayOS VietQR / VNPay checkout, and settle Partner Inspector payout.
+**Purpose.** Prepare and publish the official inspection report, allow the Customer to accept and pay online through PayOS VietQR or VNPay, and record Partner Inspector payouts.
 **Actors.** `INSPECTOR`, `MANAGER`, `CUSTOMER`, Payment Gateway (PayOS / VNPay).
-**Preconditions.** Official findings baseline is confirmed (`findingsConfirmedAt` recorded).
+**Preconditions.** Official findings baseline has been confirmed.
 
 **Step 1 — Generate AI Summary and Submit Report.** In Stage 7 (`/report`), generate/review **AI Executive Summary & Matched Cases** ❶, inspect formatting with **Preview PDF** ❷ or **Download report** ❸, and submit version `v1` for independent review.
 
@@ -361,7 +361,7 @@ flowchart LR
 
 *Figure 7.43 — Workflow 6 Step 1 — Inspector report preparation, AI summary, and PDF preview controls.*
 
-**Step 2 — Locate Submitted Report in Manager Queue.** A distinct `MANAGER` opens `/manager/reports` and selects **Submitted/Published report row** ❶.
+**Step 2 — Locate Submitted Report in Manager Queue.** A distinct `MANAGER` opens **Reports** and selects **Submitted/Published report row** ❶.
 
 ![Workflow 6 Step 2 — Manager inspection reports review queue.](assets/manual/wf6-02-mgr-reports.png)
 
@@ -385,19 +385,19 @@ flowchart LR
 
 *Figure 7.47 — Workflow 6 Step 5 — Customer official report acceptance and PayOS/VNPay settlement panel.*
 
-**Step 6 — Verify Customer Payment Ledger.** Open `/client/finance-history` to confirm verified payment status, gateway/manual method, and receipt download inside **Payment ledger table** ❶.
+**Step 6 — Verify Customer Payment Ledger.** Open **Finance History** in the customer portal to confirm verified payment status, gateway/manual method, and receipt download inside **Payment ledger table** ❶.
 
 ![Workflow 6 Step 6 — Customer payment history ledger.](assets/manual/wf6-06-cus-finance.png)
 
 *Figure 7.48 — Workflow 6 Step 6 — Customer payment history ledger.*
 
-**Step 7 — Record Partner Payout and Manage Refunds (Manager).** After verified customer payment unlocks eligibility, `MANAGER` opens `/settlement` on the inspection and records external payout reference or refund allocations inside **Payout & refund ledger** ❶.
+**Step 7 — Record Partner Payout and Manage Refunds (Manager).** After verified customer payment unlocks eligibility, `MANAGER` opens the inspection's **Settlement** tab and records external payout reference or refund allocations inside **Payout & refund ledger** ❶.
 
 ![Workflow 6 Step 7 — Manager partner payout, refund, and receivable settlement console.](assets/manual/wf6-07-mgr-settlement.png)
 
 *Figure 7.49 — Workflow 6 Step 7 — Manager partner payout, refund, and receivable settlement console.*
 
-**Step 8 — Audit Platform Revenue, Commission and Taxes.** Open `/manager/finance-history` to inspect platform inflows, earned commission (`15%`), VAT/TNCN withholdings in **Revenue, commission & tax KPIs** ❶ and per-occurrence rows inside **Commission, VAT & payout table** ❷.
+**Step 8 — Audit Platform Revenue, Commission and Taxes.** Open **Finance History** in the manager portal to inspect platform inflows, earned commission (`15%`), VAT/personal income tax withholdings in **Revenue, commission & tax KPIs** ❶ and per-occurrence rows inside **Commission, VAT & payout table** ❷.
 
 ![Workflow 6 Step 8 — Manager platform revenue, commission, tax, and payout history ledger.](assets/manual/wf6-08-mgr-finance-history.png)
 

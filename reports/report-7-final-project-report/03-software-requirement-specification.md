@@ -14,7 +14,12 @@ The scope is limited to buildings, in six supported categories: high-rise office
 
 Four roles sign in. `ADMIN` is the Platform Administrator and `MANAGER` the Platform Manager; `CUSTOMER` is the Customer Organization Manager or Owner, and `INSPECTOR` is a Partner Drone Inspector. There is no fifth login role. The four automated actors — `SYSTEM` (lifecycle gates, notices, assignment timeouts), `YOLO11` (defect detection with vision fallback), `LLM` (advisory narrative and executive summaries), and `DroneKnowledgeAI` (tenant-isolated historical-case and engineering-standard retrieval over `pgvector`) — are not login roles and cannot make a decision that a human is required to make.
 
-The lifecycle runs through four main flows, two features each. `MF1` admits the parties: a partner inspector applies with licence details and is provisioned only after review, and a customer registers its organization and first building subject to airspace screening. `MF2` turns need into agreement: buildings and their reference documents, a one-time or recurring request, an order chat, a VND quotation, an offline signed agreement recorded against the request, and cross-organization dispatch of an inspector and drone to each occurrence. `MF3` delivers the field work: a flight permit that a second person must verify, an on-site field session, evidence capture, and human-confirmed findings. `MF4` closes the engagement: an independently reviewed and published report, customer acceptance with online settlement, partner payouts and refunds, and an optional re-inspection that re-assesses each confirmed defect.
+The lifecycle runs through four main flows organized into twenty-four atomic product features (`FE-01`–`FE-24`):
+
+- **`MF1` — Identity, Partner/Drone Onboarding & Airspace Screening (`FE-01`–`FE-04`):** A customer registers its organization and initial building under live airspace screening, a partner inspector applies with licence details and registers owned drones, and role access is enforced across four portals.
+- **`MF2` — Buildings, Commercial Contracting & Occurrence Dispatch (`FE-06`–`FE-12`):** Customers manage buildings with plain-text ownership details, checkpoints, and duplicate-free reference documents while restricted-airspace cases undergo platform review; customers submit one-time or recurring requests and negotiate VND quotations, record offline signed agreements, receive cross-organization crew dispatch, use separated Order and Inspection chat channels, and stay updated via assignment timeout escalation and deduplicated notifications.
+- **`MF3` — Field Work, Evidence & Advisory AI (`FE-13`–`FE-17`):** Before flights begin, an independently verified flight permit gate controls field start; inspectors record on-site field sessions with SmartDroneHub live telemetry, upload photos and chunked video with background processing, review AI defect suggestions to confirm the findings baseline, and consult `DroneKnowledgeAI` historical-case and engineering-standard retrieval, AI note drafting, and summary references.
+- **`MF4` — Report Publication, Acceptance, Settlement & Re-inspection (`FE-05`, `FE-18`–`FE-24`):** Submitted reports undergo independent Manager review and official publication; customers review and accept published deliverables and settle fees online through PayOS VietQR or VNPay; payment due deadlines, notice/receipt PDFs, partner payouts, evidence-backed refunds/receivables, role-scoped financial ledgers, and three-way re-inspection defect verification complete the engagement.
 
 Building owners, platform staff, and partner inspectors are the four human actors; the detection service, the language model, the `DroneKnowledgeAI` retrieval advisor, object storage, the ground-station hub, and the payment and identity gateways are supporting systems. The platform coordinates their work but does not control an aircraft.
 
@@ -124,7 +129,7 @@ flowchart TD
 
 ### 3.1 System Functional Overview
 
-SmartDroneInspection supports eight product features (`FE-01` to `FE-08`) across four main flows (`MF1` to `MF4`), two features per flow: onboarding and partner admission; building assets, requests and dispatch; field work, evidence and defect detection; and report publication with acceptance and settlement. The product scope is limited to **building structures**; every other infrastructure domain is excluded. The requirements below describe required service outcomes and business controls.
+SmartDroneInspection supports twenty-four atomic product features (`FE-01` to `FE-24`) distributed across four main flows (`MF1`–`MF4`: `MF1` `FE-01`–`FE-04`; `MF2` `FE-06`–`FE-12`; `MF3` `FE-13`–`FE-17`; `MF4` `FE-05`, `FE-18`–`FE-24`). The product scope is limited to **building structures**; every other infrastructure domain is excluded. The requirements below describe required service outcomes and business controls.
 
 The service is delivered through four web portals, one per login role, and a Customer mobile application. Each portal exposes only the navigation sections its role may reach; a section a role may not use has no route at all rather than being hidden in the interface.
 
@@ -176,90 +181,90 @@ The tables below inventory every implemented interface across the Web Applicatio
 | 4 | FE-01 | User Sign-in | All Roles | Email/password, OTP, and Google OAuth2 sign-in page routing authenticated users to their single role portal. |
 | 5 | FE-01 | Password Reset | All Roles | Self-service recovery flow dispatching an email one-time code before accepting a new policy-compliant password. |
 | 6 | FE-01 | Customer Dashboard | `CUSTOMER` | Organization summary displaying building counts, active service requests, upcoming inspections, and payment notices. |
-| 7 | FE-03 | Customer Buildings Inventory | `CUSTOMER` | Searchable and filterable register of organization buildings with status chips, dimensions, and inspection entry links. |
-| 8 | FE-03 | New Building & Airspace Screening Form | `CUSTOMER` | Multi-field asset creation dialog seeded by building category and live Vietnam airspace screening. |
-| 9 | FE-03 | Interactive Airspace Coordinate Picker | `CUSTOMER` | Interactive satellite/street map modal returning coordinates and advisory Clear/Restricted/NFZ classification. |
-| 10 | FE-03 | Customer Building Detail | `CUSTOMER` | Building metadata, editable inspection checkpoints, photo gallery, and SHA-256 deduplicated reference documents. |
-| 11 | FE-04 | Customer Service Requests | `CUSTOMER` | Tracked list of one-time and recurring requests showing current commercial lifecycle stage (`OPEN` to `ASSIGNED`). |
-| 12 | FE-04 | Create Service Request Dialog | `CUSTOMER` | Request form enforcing the 20-day lead time in `Asia/Ho_Chi_Minh` and monthly recurrence cadence (`2–100` occurrences). |
-| 13 | FE-04 | Customer Request Detail & Quote Acceptance | `CUSTOMER` | Four-stage commercial progress view showing versioned VND quotations, quote acceptance, signed contract PDF, and occurrences. |
-| 14 | FE-04 | Customer Messages (Order & Mission Chat) | `CUSTOMER` | Shared messaging inbox switching between Manager order-negotiation threads and Inspector field-coordination threads. |
-| 15 | FE-05 | Customer Inspections List | `CUSTOMER` | Organization inspections with stage status (`Scheduled`, `Field Completed`, `Published`) and fee/settlement links. |
-| 16 | FE-05 | Customer Inspection Tracking | `CUSTOMER` | Occurrence progress view displaying planned schedule, flight permit status, and telemetry summary without internal drafts. |
-| 17 | FE-07 | Customer Inspection Report Deliverable | `CUSTOMER` | Read-only official published report viewer (`v1+`) displaying AI Executive Summary, matched references, and confirmed findings. |
-| 18 | FE-08 | Customer Report Acceptance & Settlement | `CUSTOMER` | Three-step closure wizard (`Accept Report -> Settle Fee -> Fulfilled`) with invoice breakdown, PDF notice, and PayOS/VNPay checkout. |
-| 19 | FE-07 | Customer Reports Archive | `CUSTOMER` | Filtered register of finalized inspection deliverables available for PDF preview, download, and acceptance tracking. |
-| 20 | FE-08 | Customer Payment History | `CUSTOMER` | Organization ledger of verified payments, gateway/manual references, amounts paid, and downloadable receipts. |
-| 21 | FE-01 | Notifications Inbox | All Roles | Deduplicated in-app alerts with unread counters and deep links to the triggering request or inspection. |
+| 7 | FE-06 | Customer Buildings Inventory | `CUSTOMER` | Searchable and filterable register of organization buildings with status chips, dimensions, and inspection entry links. |
+| 8 | FE-04, FE-06 | New Building & Airspace Screening Form | `CUSTOMER` | Multi-field asset creation dialog (with plain-text ownership details) seeded by building category and live Vietnam airspace screening. |
+| 9 | FE-04 | Interactive Airspace Coordinate Picker | `CUSTOMER` | Interactive satellite/street map modal returning coordinates and advisory Clear/Restricted/No-Fly Zone classification. |
+| 10 | FE-06 | Customer Building Detail | `CUSTOMER` | Building metadata (including plain-text ownership details), editable inspection checkpoints, photo gallery, and duplicate-free reference documents. |
+| 11 | FE-08 | Customer Service Requests | `CUSTOMER` | Compact 4-column list of one-time and recurring requests with concise titles showing commercial lifecycle stages. |
+| 12 | FE-08 | Create Service Request Dialog | `CUSTOMER` | Request form enforcing the 20-day lead time in `Asia/Ho_Chi_Minh` and monthly recurrence cadence (`2–100` occurrences). |
+| 13 | FE-08, FE-09 | Customer Request Detail & Quote Acceptance | `CUSTOMER` | Four-stage commercial progress view showing versioned VND quotations, quote acceptance, signed contract PDF, and occurrences. |
+| 14 | FE-10 | Customer Messages (Order & Mission Chat) | `CUSTOMER` | Shared messaging inbox switching between Manager order-negotiation threads and Inspector field-coordination threads. |
+| 15 | FE-14 | Customer Inspections List | `CUSTOMER` | Organization inspections with stage status (`Scheduled`, `Field Completed`, `Published`) and fee/settlement links. |
+| 16 | FE-14 | Customer Inspection Tracking | `CUSTOMER` | Occurrence progress view displaying planned schedule, flight permit status, and telemetry summary without internal drafts. |
+| 17 | FE-18 | Customer Inspection Report Deliverable | `CUSTOMER` | Read-only official published report viewer (`v1+`) displaying AI Executive Summary, matched references, and confirmed findings. |
+| 18 | FE-19, FE-20, FE-21 | Customer Report Acceptance & Settlement | `CUSTOMER` | Three-step closure wizard (`Accept Report -> Settle Fee -> Fulfilled`) with invoice breakdown, PDF notice, and PayOS/VNPay checkout. |
+| 19 | FE-18 | Customer Reports Archive | `CUSTOMER` | Filtered register of finalized inspection deliverables available for PDF preview, download, and acceptance tracking. |
+| 20 | FE-05 | Customer Payment History | `CUSTOMER` | Organization ledger of verified payments, gateway/manual references, amounts paid, and downloadable receipts. |
+| 21 | FE-12 | Notifications Inbox | All Roles | Deduplicated in-app alerts with unread counters and deep links to the triggering request or inspection. |
 | 22 | FE-01 | Account & Profile Settings | All Roles | Self-service profile editor, password change, active session revocation, and AI Vision fallback opt-out toggle. |
 | 23 | FE-01 | Inspector Dashboard | `INSPECTOR` | Assigned flight queue summary, pilot-licence expiry reminders, and quick links to pending missions. |
-| 24 | FE-02 | My Drones Registry | `INSPECTOR` | Owned aircraft inventory displaying approval status, serial numbers, registration expiry, capabilities, and document health. |
-| 25 | FE-02 | Register / Update Owned Drone Dialog | `INSPECTOR` | Submission form for Decree 288 MTOW specifications, photos, configurable checklist items, and registration/ownership/inspection files. |
-| 26 | FE-05 | Inspector Assigned Inspections | `INSPECTOR` | Filterable schedule of partner assignments with Accept/Decline actions and workspace launch buttons. |
-| 27 | FE-04, FE-05 | Inspector Mission Messages | `INSPECTOR` | Dedicated inspection chat thread between the assigned Inspector and Customer with attachment support. |
-| 28 | FE-05 | Inspector Workspace — Tracking | `INSPECTOR` | Seven-stage mission workspace header and lifecycle progress tracker. |
-| 29 | FE-05 | Inspector Workspace — Flight Permit | `INSPECTOR` | Structured permit upload form (number, authority, validity dates, serial, max altitude) and Manager review status. |
-| 30 | FE-05 | Inspector Workspace — Pre-flight Check | `INSPECTOR` | Configurable pre-flight safety checklist and mandatory site condition note required before starting a session. |
-| 31 | FE-05 | Inspector Workspace — Field Session & Live Telemetry | `INSPECTOR` | Active session console connecting live MAVLink telemetry (`SmartDroneHub`), gimbal status, fallback SRT/CSV/KML/GPX log import, and manual declaration. |
-| 32 | FE-05 | Inspector Workspace — Post-flight & Building Items | `INSPECTOR` | Post-flight checklist verification and per-checkpoint coverage confirmation prior to sealing `FIELD_COMPLETED`. |
-| 33 | FE-06 | Inspector Workspace — Field Evidence | `INSPECTOR` | Direct photo intake, chunked 10 MiB resumable MP4 upload queue, evidence filter register, and integrated photo/video player. |
-| 34 | FE-06 | Inspector Workspace — AI Defect Findings | `INSPECTOR` | Batch and per-image YOLO11 + Vision fallback analysis with confidence scores, bounding boxes, and Confirm/Edit/Remove controls. |
-| 35 | FE-06 | Inspector Workspace — DroneKnowledgeAI Note & Standards | `INSPECTOR` | `Draft note with AI`, `Draft all notes`, confirmation filter chips, and collapsible `References` strip citing matched cases/standards. |
-| 36 | FE-07 | Inspector Workspace — Report Authoring & AI Summary | `INSPECTOR` | Auto-compiled draft report (`SUBMITTED`), AI Executive Summary generator with matched cases/standards, PDF preview, and submit control. |
-| 37 | FE-07 | Inspector Reports List | `INSPECTOR` | Assigned reports table displaying `DRAFT`, `SUBMITTED`, `RETURNED`, and `PUBLISHED` versions. |
-| 38 | FE-08 | Inspector Earnings & Payout History | `INSPECTOR` | Completed mission settlement breakdown showing gross fee, platform commission deduction, TNCN tax, and payout status. |
+| 24 | FE-03 | My Drones Registry | `INSPECTOR` | Owned aircraft inventory displaying approval status, serial numbers, registration expiry, capabilities, and document health. |
+| 25 | FE-03 | Register / Update Owned Drone Dialog | `INSPECTOR` | Submission form for Decree 288 MTOW specifications, photos, configurable checklist items, and registration/ownership/inspection files. |
+| 26 | FE-14 | Inspector Assigned Inspections | `INSPECTOR` | Filterable schedule of partner assignments with Accept/Decline actions and workspace launch buttons. |
+| 27 | FE-10 | Inspector Mission Messages | `INSPECTOR` | Dedicated inspection chat thread between the assigned Inspector and Customer with attachment support. |
+| 28 | FE-14 | Inspector Workspace — Tracking | `INSPECTOR` | Seven-stage mission workspace header and lifecycle progress tracker. |
+| 29 | FE-13 | Inspector Workspace — Flight Permit | `INSPECTOR` | Structured permit upload form (number, authority, validity dates, serial, max altitude) and Manager review status. |
+| 30 | FE-14 | Inspector Workspace — Pre-flight Check | `INSPECTOR` | Configurable pre-flight safety checklist and mandatory site condition note required before starting a session. |
+| 31 | FE-14 | Inspector Workspace — Field Session & Live Telemetry | `INSPECTOR` | Active session console connecting live MAVLink telemetry (`SmartDroneHub`), gimbal status, fallback SRT/CSV/KML/GPX log import, and manual declaration. |
+| 32 | FE-14 | Inspector Workspace — Post-flight & Building Items | `INSPECTOR` | Post-flight checklist verification and per-checkpoint coverage confirmation prior to sealing `FIELD_COMPLETED`. |
+| 33 | FE-15 | Inspector Workspace — Field Evidence | `INSPECTOR` | Direct photo intake, chunked 10 MiB resumable MP4 upload queue, evidence filter register, and integrated photo/video player. |
+| 34 | FE-16 | Inspector Workspace — AI Defect Findings | `INSPECTOR` | Batch and per-image YOLO11 + Vision fallback analysis with confidence scores, bounding boxes, and Confirm/Edit/Remove controls. |
+| 35 | FE-17 | Inspector Workspace — DroneKnowledgeAI Note & Standards | `INSPECTOR` | `Draft note with AI`, `Draft all notes`, confirmation filter chips, and collapsible `References` strip citing matched cases/standards. |
+| 36 | FE-17, FE-18 | Inspector Workspace — Report Authoring & AI Summary | `INSPECTOR` | Auto-compiled draft report (`SUBMITTED`), AI Executive Summary generator with matched cases/standards, PDF preview, and submit control. |
+| 37 | FE-18 | Inspector Reports List | `INSPECTOR` | Assigned reports table displaying `DRAFT`, `SUBMITTED`, `RETURNED`, and `PUBLISHED` versions. |
+| 38 | FE-05 | Inspector Earnings & Payout History | `INSPECTOR` | Completed mission settlement breakdown showing gross fee, platform commission deduction, TNCN tax, and payout status. |
 | 39 | FE-01 | Manager Dashboard | `MANAGER` | Platform operations KPIs for claimed requests, permit audits, report reviews awaiting decision, and settlement queues. |
-| 40 | FE-02 | Manager Onboarding & Compliance Reviews | `MANAGER` | Review queue for partner Inspector applications and Inspector-owned Drone registrations with Approve/Reject decisions. |
+| 40 | FE-02, FE-03 | Manager Onboarding & Compliance Reviews | `MANAGER` | Review queue for partner Inspector applications and Inspector-owned Drone registrations with Approve/Reject decisions. |
 | 41 | FE-02 | Partner Inspectors Roster | `MANAGER` | Directory of approved partner Inspectors with pilot-licence classes, expiries, linked eligible drones, and reliability counts. |
-| 42 | FE-03 | Manager Buildings Directory | `MANAGER` | Cross-organization building register accessible for commercial scoping and field coordination. |
-| 43 | FE-04 | Manager Service Requests Queue | `MANAGER` | Incoming customer request queue with unassigned Claim action and 4-stage commercial progress tracking. |
-| 44 | FE-04 | Manager Quotation, Contract & Occurrence Dispatch | `MANAGER` | VND quote editor, offline signed-paper contract upload, recurring/single occurrence crew eligibility check, and dispatch trigger. |
-| 45 | FE-04 | Manager Messages (Order Chat) | `MANAGER` | Assigned request negotiation inbox connecting Platform Manager with Customer organizations. |
-| 46 | FE-05 | Manager Inspections Governance List | `MANAGER` | Cross-organization monitoring table displaying assignment acceptance, permit status, session progress, and abort recovery. |
-| 47 | FE-05 | Manager Workspace — Permit Audit & Flight Trace | `MANAGER` | Independent Flight Permit Approve/Reject panel, flown telemetry report summary, and GPS flight trace audit. |
-| 48 | FE-07 | Manager Reports Review Queue | `MANAGER` | Filterable report queue highlighting `SUBMITTED` reports requiring non-author independent publication or return. |
-| 49 | FE-07 | Manager Workspace — Independent Report Review | `MANAGER` | Side-by-side submitted report, findings evidence, AI Executive Summary, and Publish / Return-with-Reason controls. |
-| 50 | FE-08 | Manager Workspace — Partner Settlement & Refunds | `MANAGER` | Verified customer payment summary, Inspector payout disbursement recording, multi-part refund allocation, and receivable recovery. |
-| 51 | FE-08 | Manager Platform Revenue & Commissions | `MANAGER` | Platform financial ledger aggregating customer inflows, earned commissions, VAT/TNCN taxes, and partner payouts. |
+| 42 | FE-06 | Manager Buildings Directory | `MANAGER` | Cross-organization building register accessible for commercial scoping and field coordination. |
+| 43 | FE-08 | Manager Service Requests Queue | `MANAGER` | Compact 4-column incoming request queue that opens the request detail directly on Claim and tracks 4 commercial stages. |
+| 44 | FE-08, FE-09 | Manager Quotation, Contract & Occurrence Dispatch | `MANAGER` | Compact VND quote workspace, offline signed-paper contract upload, clean candidate selection controls, and occurrence dispatch. |
+| 45 | FE-10 | Manager Messages (Order Chat) | `MANAGER` | Assigned request negotiation inbox connecting Platform Manager with Customer organizations. |
+| 46 | FE-14 | Manager Inspections Governance List | `MANAGER` | Cross-organization monitoring table displaying assignment acceptance, permit status, session progress, and abort recovery. |
+| 47 | FE-13, FE-14 | Manager Workspace — Permit Audit & Flight Trace | `MANAGER` | Independent Flight Permit Approve/Reject panel, flown telemetry report summary, and GPS flight trace audit. |
+| 48 | FE-18 | Manager Reports Review Queue | `MANAGER` | Filterable report queue highlighting `SUBMITTED` reports requiring non-author independent publication or return. |
+| 49 | FE-18 | Manager Workspace — Independent Report Review | `MANAGER` | Side-by-side submitted report, findings evidence, AI Executive Summary, and Publish / Return-with-Reason controls. |
+| 50 | FE-22, FE-23 | Manager Workspace — Partner Settlement & Refunds | `MANAGER` | Verified customer payment summary, Inspector payout disbursement recording, multi-part refund allocation, and receivable recovery. |
+| 51 | FE-05 | Manager Platform Revenue & Commissions | `MANAGER` | Platform financial ledger aggregating customer inflows, earned commissions, VAT/TNCN taxes, and partner payouts. |
 | 52 | FE-01 | Admin Dashboard | `ADMIN` | Platform-wide governance metrics for user accounts, compliance queues, total assets, and recent audit activity. |
-| 53 | FE-02 | Admin Onboarding & Customer Airspace Reviews | `ADMIN` | Full 3-tab compliance review console adding Restricted-Airspace Customer pre-registrations alongside Inspector & Drone queues. |
+| 53 | FE-02, FE-03, FE-07 | Admin Onboarding & Customer Airspace Reviews | `ADMIN` | Full 3-tab compliance review console adding Restricted-Airspace Customer pre-registrations alongside Inspector & Drone queues. |
 | 54 | FE-01, FE-02 | Admin Platform Accounts Directory | `ADMIN` | User lifecycle directory across all four canonical roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`) with status controls. |
 | 55 | FE-01 | Create / Provision Platform Account Dialog | `ADMIN` | Modal for provisioning internal Managers/Admins or managing account activation and password-reset requirements. |
-| 56 | FE-02, FE-03 | Admin Building Asset Catalog | `ADMIN` | Master maintenance of the six in-scope building categories and seeded default inspection checkpoints. |
-| 57 | FE-02, FE-03 | Edit Building Asset Category Dialog | `ADMIN` | Category editor specifying VN/EN labels, structure type metadata, and default inspection item templates (`TELECOM_ROOFTOP_TOWER`, etc.). |
-| 58 | FE-02, FE-05 | Admin Flight & Drone Config — Required Documents | `ADMIN` | Configures mandatory/optional drone registration document rules plus configurable pre-flight and post-flight checklists. |
+| 56 | FE-06 | Admin Building Asset Catalog | `ADMIN` | Master maintenance of the six in-scope building categories and seeded default inspection checkpoints. |
+| 57 | FE-06 | Edit Building Asset Category Dialog | `ADMIN` | Category editor specifying VN/EN labels, structure type metadata, and default building inspection checkpoints. |
+| 58 | FE-03, FE-14 | Admin Flight & Drone Config — Required Documents | `ADMIN` | Configures mandatory/optional drone registration document rules plus configurable pre-flight and post-flight checklists. |
 | 59 | FE-02 | Admin UAV Pilot Licence Classes | `ADMIN` | Configures pilot-licence class tiers mapped to Decree 288/2025/ND-CP weight eligibility gates. |
-| 60 | FE-08 | Admin Finance Governance Settings | `ADMIN` | Maintains global platform commission rate (`15%`), VAT (`10%`), TNCN rate, and overdue payment deadline rules. |
-| 61 | FE-04, FE-05 | Admin Operations Governance Settings | `ADMIN` | Configures the assignment acceptance timeout window (`1–720` hours, default `24` hours) and operational thresholds. |
-| 62 | FE-06 | Admin AI Inference Settings | `ADMIN` | Configures YOLO11 confidence auto-confirm threshold (default `70%` from `V63`) and Vision LLM fallback policy. |
-| 63 | FE-04 | Admin Service Request Governance | `ADMIN` | Read-only commercial overview allowing `ADMIN` to assign, reassign, or unassign `MANAGER` ownership on requests. |
-| 64 | FE-03 | Admin Platform-Wide Buildings Registry | `ADMIN` | Cross-tenant building catalog view for airspace governance and inspection readiness oversight. |
+| 60 | FE-20, FE-21 | Admin Finance Governance Settings | `ADMIN` | Maintains global platform commission rate (`15%`), VAT (`10%`), personal income tax (TNCN) rate, and overdue payment deadline rules. |
+| 61 | FE-11, FE-13 | Admin Operations Governance Settings | `ADMIN` | Configures the assignment acceptance timeout window (`1–720` hours, default `24` hours) and operational thresholds. |
+| 62 | FE-16, FE-17 | Admin AI Inference Settings | `ADMIN` | Configures automatic defect-confirmation threshold (`70%` default) and Vision fallback policy. |
+| 63 | FE-08, FE-09 | Admin Service Request Governance | `ADMIN` | Read-only commercial overview allowing `ADMIN` to assign, reassign, or unassign `MANAGER` ownership on requests. |
+| 64 | FE-06 | Admin Platform-Wide Buildings Registry | `ADMIN` | Cross-tenant building catalog view for airspace governance and inspection readiness oversight. |
 | 65 | FE-01 | Admin Activity & Audit Logs | `ADMIN` | Append-only attributable trail of security, onboarding, configuration, permit, and report-publication decisions. |
 
 **Mobile Application Screens (Customer App)**
 
 | # | Feature | Screen | Route | Description |
 | --- | --- | --- | --- | --- |
-| 1 | FE-01 | Customer Mobile Sign-in | `#/login` | Email/password, OTP, and Google sign-in entry restricted exclusively to `CUSTOMER` accounts on mobile. |
-| 2 | FE-01 | Customer Mobile Registration | `#/register` | Mobile customer organization registration screen with password validation and email OTP check. |
-| 3 | FE-01 | Mobile Forgot Password | `#/forgot-password` | OTP-backed password recovery flow for mobile Customer accounts. |
-| 4 | FE-01 | Mobile Home Dashboard | `#/home` | Summary cards displaying registered buildings, active service requests, scheduled inspections, and quick navigation tiles. |
-| 5 | FE-01 | Mobile Notifications Inbox | `#/notifications` | Real-time notification feed with unread badges and deep links to requests and inspection deliverables. |
-| 6 | FE-03 | Mobile Buildings List | `#/assets` | Organization building cards displaying airspace status, structure height, footprint, and active inspection badge. |
-| 7 | FE-03 | Mobile Building Detail | `#/assets/:id` | Detailed building coordinates, configured checkpoints list, photos, and uploaded technical reference documents. |
-| 8 | FE-04 | Mobile Service Requests List | `#/requests` | Customer request tracker grouped by status (`OPEN`, `QUOTED`, `ACCEPTED`, `CONTRACT_SIGNED`, `ASSIGNED`). |
-| 9 | FE-04 | Mobile New Service Request | `#/requests/new` | One-time or monthly recurring request builder enforcing the 20-day minimum lead date. |
-| 10 | FE-04 | Mobile Service Request Detail | `#/requests/:id` | Quotation breakdown (`VND`), one-tap quote acceptance, signed contract status, and scheduled occurrences. |
-| 11 | FE-04 | Mobile Request Order Chat | `#/requests/:id/chat` | Interactive messaging timeline between Customer and Platform Manager with attachment preview. |
-| 12 | FE-05 | Mobile Inspections List | `#/inspections` | Scheduled, in-progress, field-completed, and published inspections scoped to the Customer's organization. |
-| 13 | FE-05 | Mobile Inspection Tracking Tab | `#/inspections/:id` | Read-only flight progress milestones, permit readiness badge, and session completion timeline. |
-| 14 | FE-07 | Mobile Inspection Report Tab | `#/inspections/:id` | Published report (`v1+`) reader with AI Executive Summary, Matched Cases & Standards strip, and PDF download. |
-| 15 | FE-08 | Mobile Inspection Settlement Tab | `#/inspections/:id` | Invoice breakdown, Report Acceptance / Request Clarification buttons, and PayOS VietQR / VNPay checkout launch. |
-| 16 | FE-01 | Mobile Profile & Security Settings | `#/profile` | Signed-in customer profile summary, language/locale toggle, AI vision fallback preference, and sign-out action. |
+| 1 | FE-01 | Customer Mobile Sign-in | Sign-in Screen | Email/password, OTP, and Google sign-in entry restricted exclusively to `CUSTOMER` accounts on mobile. |
+| 2 | FE-01 | Customer Mobile Registration | Registration Screen | Mobile customer organization registration screen with password validation and email OTP check. |
+| 3 | FE-01 | Mobile Forgot Password | Recovery Screen | OTP-backed password recovery flow for mobile Customer accounts. |
+| 4 | FE-01 | Mobile Home Dashboard | Home Tab | Summary cards displaying registered buildings, active service requests, scheduled inspections, and quick navigation tiles. |
+| 5 | FE-12 | Mobile Notifications Inbox | Notifications View | Real-time notification feed with unread badges and deep links to requests and inspection deliverables. |
+| 6 | FE-06 | Mobile Buildings List | Buildings Tab | Organization building cards displaying airspace status, structure height, footprint, and active inspection badge. |
+| 7 | FE-06 | Mobile Building Detail | Building Detail View | Detailed building coordinates, plain-text ownership details, configured checkpoints list, photos, and reference documents. |
+| 8 | FE-08 | Mobile Service Requests List | Requests Tab | Customer request tracker grouped by commercial stage (`Open`, `Quoted`, `Accepted`, `Contract Signed`, `Assigned`). |
+| 9 | FE-08 | Mobile New Service Request | New Request View | One-time or monthly recurring request builder enforcing the 20-day minimum lead date. |
+| 10 | FE-08, FE-09 | Mobile Service Request Detail | Request Detail View | Quotation breakdown (`VND`), one-tap quote acceptance, signed contract status, and scheduled occurrences. |
+| 11 | FE-10 | Mobile Request Order Chat | Request Chat View | Interactive messaging timeline between Customer and Platform Manager with attachment preview. |
+| 12 | FE-14 | Mobile Inspections List | Inspections Tab | Scheduled, in-progress, field-completed, and published inspections scoped to the Customer's organization. |
+| 13 | FE-14 | Mobile Inspection Tracking Tab | Inspection Tracking | Read-only flight progress milestones, permit readiness badge, and session completion timeline. |
+| 14 | FE-17, FE-18 | Mobile Inspection Report Tab | Inspection Report | Published report (`v1+`) reader with AI Executive Summary, Matched Cases & Standards strip, and PDF download. |
+| 15 | FE-19, FE-20, FE-21 | Mobile Inspection Settlement Tab | Inspection Settlement | Invoice breakdown, Report Acceptance / Request Clarification buttons, and PayOS VietQR / VNPay checkout launch. |
+| 16 | FE-01 | Mobile Profile & Security Settings | Profile Tab | Signed-in customer profile summary, language/locale toggle, AI vision fallback preference, and sign-out action. |
 
 #### 3.1.3 Screen Authorization
 
-The matrices below define route and screen visibility enforced by `accessPolicy.ts` on the web client and GoRouter on Flutter mobile alongside backend controller guards. A visible screen never by itself grants authority: organization ownership, work assignment, pilot/drone qualification, and separation of duties are enforced server-side on every API call.
+The matrices below define screen and navigation visibility enforced by role routing policies on both web and mobile clients alongside backend access guards. A visible screen never by itself grants authority: organization ownership, work assignment, pilot/drone qualification, and separation of duties are enforced server-side on every action.
 
 **Web Application Screen Authorization**
 
@@ -289,11 +294,11 @@ The matrices below define route and screen visibility enforced by `accessPolicy.
 
 | Mobile Screen Module | `CUSTOMER` | `ADMIN` | `MANAGER` | `INSPECTOR` |
 | --- | :---: | :---: | :---: | :---: |
-| Authentication (`#/login`, `#/register`, `#/forgot-password`) | X | — | — | — |
-| Home shell, Notifications, Profile & Security (`#/home`, `#/notifications`, `#/profile`) | X | — | — | — |
-| Buildings inventory & detail (`#/assets`, `#/assets/:id`) | X | — | — | — |
-| Service requests, quote acceptance & order chat (`#/requests*`) | X | — | — | — |
-| Inspections tracking, published report & PayOS/VNPay settlement (`#/inspections*`) | X | — | — | — |
+| Authentication Screens (Sign-in, Registration, Password Reset) | X | — | — | — |
+| Home Shell, Notifications, Profile & Security | X | — | — | — |
+| Buildings Inventory & Building Detail | X | — | — | — |
+| Service Requests, Quote Acceptance & Order Chat | X | — | — | — |
+| Inspections Tracking, Published Report & PayOS/VNPay Settlement | X | — | — | — |
 | Query Own Data (owning customer organization scope only) | X | — | — | — |
 
 #### 3.1.4 Non-Screen Functions
@@ -302,30 +307,30 @@ These capabilities have no dedicated screen of their own; they run inside a user
 
 | # | Feature | System Function | Description |
 | --- | --- | --- | --- |
-| 1 | FE-01 | Airspace position screening | Compares a building's coordinates with the configured airspace zones and returns a prohibited, review-required, or clear outcome. |
+| 1 | FE-04 | Airspace position screening | Compares a building's coordinates with the configured airspace zones and returns a prohibited, review-required, or clear outcome. |
 | 2 | FE-01 | One-time-code issue and verify | Issues and validates short-lived codes for registration, sign-in, and password reset, with per-IP rate limiting. |
 | 3 | FE-01 | Session issuance and refresh rotation | Issues access and refresh credentials, rotates the refresh token, and records the prior hash so a replayed token can be detected. |
 | 4 | FE-02 | Pilot-licence expiry sweep | A scheduled job that flags Inspectors whose licence has lapsed and notifies them and the platform. |
-| 5 | FE-03 | Building-inspection item seeding | Generates the default inspection checkpoints for a building from its category on registration. |
-| 6 | FE-04 | Occurrence materialization | Creates the individual inspection occurrences covered by an accepted recurring agreement. |
-| 7 | FE-03 | Duplicate-notification suppression | Deduplicates lifecycle notices so a retried event does not produce a second notice. |
-| 8 | FE-04 | Schedule-conflict detection | Detects overlapping Inspector or drone commitments across all customer organizations before assignment. |
-| 9 | FE-04 | Quotation validity evaluation | Revalidates pilot licence and drone registration against every scheduled occurrence before a quote is saved or accepted. |
-| 10 | FE-05 | Permit verification reset | Returns an approved permit to pending review when the drone is changed or the schedule moves outside the permit window. |
-| 11 | FE-05 | Inspection lifecycle monitor | A scheduled job that advances or flags occurrences whose scheduled window has passed without the expected session activity. |
-| 12 | FE-05 | Flight-log import and normalisation | Parses an imported SRT, CSV, KML, or GPX log and normalises available position, time, altitude, speed, heading, and battery values, marking absent fields as unavailable. |
-| 13 | FE-06 | Image normalization and thumbnailing | Extracts available capture metadata, normalises oversized or rotated photographs, and generates a thumbnail alongside the original. |
-| 14 | FE-06 | Asynchronous video processing | Transcodes a resumable video upload into a bounded H.264 rendition with a poster image, retaining the source until both outputs are verified. |
-| 15 | FE-06 | Duplicate evidence disambiguation | Detects a repeated filename in an inspection and saves it with a sequential suffix rather than rejecting the upload. |
-| 16 | FE-06 | Candidate defect inference | Runs the self-hosted detection model over evidence and records candidate defects with model name and confidence. |
-| 17 | FE-07 | Advisory narrative drafting | Sends the confirmed inspection context to the language model once and stores the returned narrative as clearly labelled advisory draft text. |
-| 18 | FE-07 | Structured report compilation | Compiles the inspection report from a fixed schema of numbered sections and confirmed findings; official report content is not model-generated. |
-| 19 | FE-08 | Payment gateway callback verification | Verifies the signature of a PayOS or VNPay callback before treating a payment as settled. |
-| 20 | FE-08 | Invoice and settlement derivation | Derives the service invoice, Inspector payout eligibility, commission, and tax components from a verified payment. |
+| 5 | FE-06 | Building-inspection item seeding | Generates the default inspection checkpoints for a building from its category on registration. |
+| 6 | FE-09 | Occurrence materialization | Creates the individual inspection occurrences covered by an accepted recurring agreement. |
+| 7 | FE-12 | Duplicate-notification suppression | Deduplicates lifecycle notices so a retried event does not produce a second notice. |
+| 8 | FE-09 | Schedule-conflict detection | Detects overlapping Inspector or drone commitments across all customer organizations before assignment. |
+| 9 | FE-08, FE-09 | Quotation validity evaluation | Revalidates pilot licence and drone registration against every scheduled occurrence before a quote is saved or accepted. |
+| 10 | FE-13 | Permit verification reset | Returns an approved permit to pending review when the drone is changed or the schedule moves outside the permit window. |
+| 11 | FE-14 | Inspection lifecycle monitor | A scheduled job that advances or flags occurrences whose scheduled window has passed without the expected session activity. |
+| 12 | FE-14 | Flight-log import and normalisation | Parses an imported SRT, CSV, KML, or GPX log and normalises available position, time, altitude, speed, heading, and battery values, marking absent fields as unavailable. |
+| 13 | FE-15 | Image normalization and thumbnailing | Extracts available capture metadata, normalises oversized or rotated photographs, and generates a thumbnail alongside the original. |
+| 14 | FE-15 | Asynchronous video processing | Transcodes a resumable video upload into a bounded H.264 rendition with a poster image, retaining the source until both outputs are verified. |
+| 15 | FE-15 | Duplicate evidence disambiguation | Detects a repeated filename in an inspection and saves it with a sequential suffix rather than rejecting the upload. |
+| 16 | FE-16 | Candidate defect inference | Runs the self-hosted detection model over evidence and records candidate defects with model name and confidence. |
+| 17 | FE-17 | Advisory narrative drafting | Sends the confirmed inspection context to the language model once and stores the returned narrative as clearly labelled advisory draft text. |
+| 18 | FE-18 | Structured report compilation | Compiles the inspection report from a fixed schema of numbered sections and confirmed findings; official report content is not model-generated. |
+| 19 | FE-20 | Payment gateway callback verification | Verifies the signature of a PayOS or VNPay callback before treating a payment as settled. |
+| 20 | FE-20, FE-22 | Invoice and settlement derivation | Derives the service invoice, Inspector payout eligibility, commission, and tax components from a verified payment. |
 
 #### 3.1.5 Entity Relationship Diagram
 
-The persisted model comprises 45 application tables (44 JPA runtime entity tables; 47 total tables in `public` including `event_publication` and `flyway_schema_history`) applied as a consolidated `V1` baseline plus forward migrations `V2`, `V3`, `V4`, and `V60`–`V65`. The `pgvector` extension backs the `DroneKnowledgeAI` case and standard stores. The diagram shows the principal entities and their relationships; reporting-only helpers such as audit, outbox, session, and configuration tables are omitted for legibility but are described in Report 4 §2.
+The domain data model comprises 45 core entities across identity, buildings, partner onboarding, commercial workflow, field operations, evidence/AI analysis, reporting, and financial settlement (described technically in Part IV §2). The diagram shows the principal entities and their relationships; configuration and audit entities are summarized in the Entities Description table below.
 
 ```mermaid
 %% title: Entity Relationship Diagram
@@ -379,7 +384,7 @@ erDiagram
 | 6 | `pilot_license_classes` | Catalogue of pilot-licence classes used to qualify an Inspector for an aircraft weight category. |
 | 7 | `event_publication` | Transactional outbox row for a domain event awaiting publication to a listener. |
 | 8 | `asset_categories` | Catalogue of building categories; only active building categories are offered when a Customer registers an asset. |
-| 9 | `assets` | Customer-owned building with location, structural profile, and lifecycle state. |
+| 9 | `assets` | Customer-owned building with location, technical specifications, dedicated plain-text ownership details (up to 1,000 characters), and lifecycle state. |
 | 10 | `asset_documents` | Reference document attached to a building, stored by object key with a checksum. |
 | 11 | `inspection_items` | Individual inspection checkpoint defined for a building. |
 | 12 | `checklist_templates` | Configurable pre-flight and post-flight checklist row. |
@@ -413,10 +418,10 @@ erDiagram
 | 40 | `inspector_profiles` | Approved Inspector profile holding licence data and partner status. |
 | 41 | `inspector_flight_logs` | Intake record for an imported flight log, including non-MAVLink source formats. |
 | 42 | `notifications` | In-app or email notice with its deduplication key and read state. |
-| 43 | `platform_ai_settings` | Singleton inference configuration holding the auto-confirm flag and its confidence threshold (`default: 70.00` since `V63`, lowered from `85.00`). |
+| 43 | `platform_ai_settings` | Singleton inference configuration holding the auto-confirm flag and its confidence threshold (`70%` default). |
 | 44 | `platform_operations_settings` | Singleton operations settings, including assignment acceptance timeout and dispatch defaults. |
-| 45 | `inspection_knowledge_chunks` | Stores the eight seeded engineering-standard/guideline chunks that ground `DroneKnowledgeAI` (`V62`, updated to `vector(384)` by `V65`): standard code, title, asset-category code, defect patterns, severity, guidance text, reference URL, and a `vector(384)` embedding with an HNSW `vector_cosine_ops` index for cosine retrieval via local `fastembed`. |
-| 46 | `historical_finding_cases` | Stores six anonymized benchmark cases and confirmed findings backfilled (`V64`) and indexed automatically at report publication (`V62`, updated to `vector(384)` by `V65`), with organization/asset references, defect label, severity, notes, outcome (including re-inspection resolution status), anonymized flag, and a `vector(384)` embedding; retrieval is tenant-isolated and excludes the current inspection. |
+| 45 | `inspection_knowledge_chunks` | Stores the eight seeded engineering-standard/guideline chunks that ground `DroneKnowledgeAI` (title, standard code, building category, defect patterns, guidance text, and reference link). |
+| 46 | `historical_finding_cases` | Stores six anonymized benchmark cases and confirmed findings indexed automatically at report publication (organization/asset reference, defect label, severity, notes, and outcome including re-inspection resolution); retrieval is tenant-isolated and excludes the current inspection. |
 
 The model separates four coordinated areas. **Identity and onboarding** covers accounts, sessions, one-time codes, the two application records, and the building catalogue. **Commercial** covers the request, its quotation, its negotiation messages, its occurrences, and the recorded agreement. **Inspection** covers the occurrence, its field sessions and flight logs, its evidence and upload sessions, its findings, and its report versions. **Finance** covers the invoice, the customer payment, the Inspector payout, refunds with their allocations, receivables and their recovery, and the settings that parameterize the split.
 
@@ -424,16 +429,16 @@ The model separates four coordinated areas. **Identity and onboarding** covers a
 
 ### 3.2 Web Application — Public & Authentication
 
-The public entry portal (`FE-01`, `FE-02`) admits customer organizations and partner inspector applicants while enforcing OTP identity verification, airspace pre-screening, and role-based portal redirection.
+The public entry portal (`FE-01`, `FE-02`, `FE-04`) admits customer organizations and partner inspector applicants while enforcing OTP identity verification, airspace pre-screening, and role-based portal redirection.
 
-#### 3.2.1 Public Landing and Customer Registration (`FE-01`)
+#### 3.2.1 Public Landing and Customer Registration (`FE-01`, `FE-04`)
 - **Function trigger**: A visitor opens the public landing page, submits customer organization registration, or switches to partner inspector onboarding.
 - **Actors**: Public visitor, prospective Customer, Automated Identity Service.
 - **Requirements**:
-  - The customer registration screen (`/register`) validates the administrator's full name, email uniqueness, phone format, organization name/code, and strong password policy, followed by email OTP modal verification (`otp_challenges`).
-  - Following sign-in, Customer airspace screening and initial building registration run through the Customer portal (`§3.3.2`) or prospective restricted-zone screening queued for `ADMIN` onboarding review (`prospective_customer_registrations`).
-  - Password failures are rate-limited (`5` consecutive failed attempts trigger a 15-minute lockout) and OTP/sign-in endpoints are throttled per client address.
-- **Normal cases**: Customer completes registration, verifies OTP, and signs in directly to `/client/dashboard`.
+  - The customer registration screen validates the administrator's full name, email uniqueness, phone format, organization name/code, and strong password policy, followed by email OTP verification.
+  - Following sign-in, Customer airspace screening and initial building registration run through the Customer portal (`§3.3.2`) or enter pending restricted-zone review for `ADMIN` approval (`§3.6.1`).
+  - Password failures are rate-limited (`5` consecutive failed attempts trigger a 15-minute lockout) and OTP/sign-in requests are throttled per client address.
+- **Normal cases**: Customer completes registration, verifies OTP, and signs in directly to the Customer Dashboard.
 - **Abnormal cases**: Duplicate organization email/code, expired/reused OTP, or weak passwords are rejected with `MSG` feedback.
 
 ![Public landing page](assets/screens/pub-landing.png)
@@ -444,14 +449,14 @@ The public entry portal (`FE-01`, `FE-02`) admits customer organizations and par
 
 *Figure 7.3.2 — Customer organization and administrator registration form with OTP verification and link to partner inspector onboarding.*
 
-#### 3.2.2 Partner Inspector Application (`FE-01`, `FE-02`)
-- **Function trigger**: A prospective drone inspector opens `/register-inspector` and submits an application with pilot-licence evidence.
+#### 3.2.2 Partner Inspector Application (`FE-02`)
+- **Function trigger**: A prospective drone inspector opens the partner application page and submits an application with pilot-licence evidence.
 - **Actors**: Public applicant, `ADMIN`, `MANAGER`.
 - **Requirements**:
-  - The three-step application collects account credentials, national ID (`CCCD`), address, pilot-licence number/class/expiry, and a scanned licence file without immediately provisioning an active account.
-  - Duplicate emails against existing accounts or open applications are rejected; drone ownership is optional at application time.
-  - Only an attributable `ADMIN` or `MANAGER` approval provisions the `INSPECTOR` account and initial `inspector_profiles` record (`§3.5.1`, `§3.6.1`).
-- **Normal cases**: Applicant completes all 3 steps including OTP confirmation and enters `PENDING` review.
+  - The three-step application collects account credentials, national ID (`CCCD`), address, pilot-licence number/class/expiry, and a scanned licence file without immediately creating an active account.
+  - Duplicate emails against existing accounts or open applications are rejected; drone ownership is optional at application time (`BR-09`).
+  - Only an attributable `ADMIN` or `MANAGER` approval provisions the `INSPECTOR` account and initial qualification profile (`§3.5.1`, `§3.6.1`).
+- **Normal cases**: Applicant completes all 3 steps including OTP confirmation and enters pending review.
 - **Abnormal cases**: Missing licence scan, past expiry date, unrecognized licence class, or duplicate email blocks submission.
 
 ![Partner Inspector application](assets/screens/pub-register-inspector.png)
@@ -462,8 +467,8 @@ The public entry portal (`FE-01`, `FE-02`) admits customer organizations and par
 - **Function trigger**: An existing user signs in via credentials, OTP challenge, or Google OAuth2, or resets a forgotten password.
 - **Actors**: `CUSTOMER`, `INSPECTOR`, `MANAGER`, `ADMIN`.
 - **Requirements**:
-  - Recognized roles are strictly `ADMIN`, `MANAGER`, `CUSTOMER`, and `INSPECTOR`; each account holds exactly one canonical role and routes exclusively to its matching portal (`/admin`, `/manager`, `/client`, `/operations`).
-  - Password reset dispatches a short-lived OTP challenge before accepting a new password and revoking stale refresh tokens (`auth_sessions`).
+  - Recognized roles are strictly `ADMIN`, `MANAGER`, `CUSTOMER`, and `INSPECTOR`; each account holds exactly one role and routes exclusively to its single matching portal (`BR-01`).
+  - Password reset dispatches a short-lived OTP challenge before accepting a new password and revoking stale active sessions.
 - **Normal cases**: Verified user authenticates via password, OTP, or Google SSO and enters the authorized workspace.
 - **Abnormal cases**: Five invalid password attempts trigger lockout; unapproved/suspended accounts cannot authenticate.
 
@@ -479,15 +484,15 @@ The public entry portal (`FE-01`, `FE-02`) admits customer organizations and par
 
 ### 3.3 Web Application — Customer Portal
 
-The Customer portal (`/client`, `CUSTOMER` role) scopes all reads and mutations strictly to the signed-in user's organization (`Query Own Data`), covering building registration with airspace screening, one-time/recurring inspection requests, negotiations, live inspection tracking, official report review, and PayOS VietQR / VNPay settlement.
+The Customer portal (`CUSTOMER` role) scopes all reads and updates strictly to the signed-in user's organization (`Query Own Data`), covering building registration with airspace screening, one-time/recurring inspection requests, negotiations, live inspection tracking, official report review, and PayOS VietQR / VNPay settlement.
 
-#### 3.3.1 Customer Dashboard, Notifications and Account Settings (`FE-01`)
-- **Function trigger**: Customer lands on `/client/dashboard`, opens `/client/notifications`, or updates profile/security settings in `/client/settings`.
+#### 3.3.1 Customer Dashboard, Notifications and Account Settings (`FE-01`, `FE-05`, `FE-12`)
+- **Function trigger**: Customer lands on the Customer Dashboard, opens Notifications, or updates profile/security settings in Settings.
 - **Actors**: `CUSTOMER`, Automated System.
 - **Requirements**:
   - Dashboard summarizes active buildings, requests in flight, scheduled/published inspections, and pending invoices.
-  - Notifications are deduplicated per domain event (`notifications`) with deep links and read toggles.
-  - Account settings permit updating full name, phone number, password, session revocation, and opting out of Vision LLM fallback on findings (`BR-44`); email and role stay immutable.
+  - Notifications are deduplicated per lifecycle event (`BR-47`) with safe record links and read status toggles.
+  - Account settings permit updating full name, phone number, password, session revocation, and opting out of secondary Vision fallback on findings; email and role stay immutable.
 - **Normal cases**: Customer monitors alerts, opens target inspections, and maintains profile security.
 - **Abnormal cases**: Cross-organization resource identifiers return not-found or forbidden; invalid current password blocks password update.
 
@@ -503,13 +508,13 @@ The Customer portal (`/client`, `CUSTOMER` role) scopes all reads and mutations 
 
 *Figure 7.3.8 — Self-service profile, password security, session management, and preferences page.*
 
-#### 3.3.2 Building Inventory, Airspace Screening and Asset Details (`FE-03`)
-- **Function trigger**: Customer views `/client/assets`, opens **New asset** with live map coordinate screening, or edits checkpoints/documents on a building detail view.
+#### 3.3.2 Building Inventory, Airspace Screening and Asset Details (`FE-04`, `FE-06`)
+- **Function trigger**: Customer views **Assets**, opens **New asset** with live map coordinate screening, or edits checkpoints/documents and plain-text ownership details on a building detail view.
 - **Actors**: `CUSTOMER`, `ADMIN`, `MANAGER`.
 - **Requirements**:
-  - Only the six platform-managed building categories (`asset_categories`) may be chosen; initial inspection checkpoints (`inspection_items`) seed automatically from the chosen category.
-  - Selecting coordinates via the interactive map dialog runs backend Vietnam airspace evaluation: **No-Fly Zone** coordinates block creation (`409` / error), **Restricted Zone** coordinates flag review, and **Clear Zone** allows activation. Screening is advisory and does not confer legal aviation clearance (`BR-01`).
-  - Building reference documents compute SHA-256 checksums and reject duplicate byte uploads within the same building. Retiring a building preserves history while blocking new requests.
+  - Only the six platform-managed building categories (`BR-07`) may be chosen; initial inspection checkpoints generate automatically from the chosen category.
+  - Selecting coordinates via the interactive map dialog runs airspace evaluation: **No-Fly Zone** coordinates block creation, **Restricted Zone** coordinates flag review, and **Clear Zone** allows activation. Screening is advisory and does not confer legal aviation clearance (`BR-26`).
+  - Building reference documents verify file integrity checksums and reject duplicate file uploads within the same building. Retiring a building preserves history while blocking new requests.
 - **Normal cases**: Customer pins building coordinates on the airspace map, saves an active building, adjusts checkpoints, and uploads PDF/image blueprints.
 - **Abnormal cases**: Out-of-domain category, duplicate asset code within the organization, duplicate document SHA-256, or prohibited NFZ coordinates are rejected.
 
@@ -529,15 +534,15 @@ The Customer portal (`/client`, `CUSTOMER` role) scopes all reads and mutations 
 
 *Figure 7.3.12 — Building detail dialog presenting inspection checkpoints (`ITEM-01`+), photo gallery, and reference documents.*
 
-#### 3.3.3 Service Requests, Quotations and Order Chat (`FE-04`)
-- **Function trigger**: Customer creates a one-time or recurring request in `/client/contracts`, negotiates via `/client/messages`, or reviews/accepts a VND quotation.
+#### 3.3.3 Service Requests, Quotations and Order Chat (`FE-08`, `FE-09`, `FE-10`)
+- **Function trigger**: Customer creates a compact one-time or recurring request in **Service Requests** (generating concise recurring titles displayed cleanly in the four-column request list), negotiates in **Messages**, or reviews and accepts a VND quotation.
 - **Actors**: `CUSTOMER`, `MANAGER`.
 - **Requirements**:
-  - Requests enforce a minimum 20-day lead time (`Asia/Ho_Chi_Minh`), block duplicate active requests on the same non-retired building (unless creating a `RE_INSPECTION` via `sourceInspectionId`), and accept `1–120` month intervals with `2–100` occurrences on recurring requests.
-  - Only the Customer may accept the active versioned VND quotation (`quoteRowVersion`), locking commercial scope, unit price, and anchor date; Manager chat messages cannot substitute for formal quotation acceptance (`BR-29`).
-  - Real-time order chat supports file attachments between Customer and the claimed Manager; per-inspection chat switches to the assigned Inspector.
+  - Requests enforce a minimum 20-day lead time (`Asia/Ho_Chi_Minh`), block duplicate active requests on the same non-retired building (except when opening a re-inspection linked to a completed inspection), and accept `1–120` month intervals with `2–100` occurrences on recurring requests.
+  - Only the Customer may accept the active versioned VND quotation, locking commercial scope, unit price, and anchor date (`BR-33`); Manager chat messages cannot substitute for formal quotation acceptance (`BR-41`).
+  - Dedicated Order Chat supports file attachments between Customer and the claimed Manager; per-inspection chat switches cleanly to the assigned Inspector.
 - **Normal cases**: Customer submits a request, clarifies timing/scope in Order Chat, accepts the active VND quote, and views materialized occurrences plus signed paper contract PDF.
-- **Abnormal cases**: First date inside 20 days, multi-day window on `ONE_TIME` requests, stale `quoteRowVersion`, or duplicate active requests on the same building are refused.
+- **Abnormal cases**: First date inside 20 days, multi-day window on a one-time request, stale quotation version (`MSG13`), or duplicate active requests on the same building are refused.
 
 ![Customer service requests](assets/screens/cus-service-requests.png)
 
@@ -555,15 +560,15 @@ The Customer portal (`/client`, `CUSTOMER` role) scopes all reads and mutations 
 
 *Figure 7.3.16 — Customer messaging portal toggling between Manager order negotiation threads and Inspector mission chats.*
 
-#### 3.3.4 Inspection Tracking, Official Reports and Settlement (`FE-05`, `FE-07`, `FE-08`)
-- **Function trigger**: Customer tracks scheduled/completed inspections (`/client/inspections`), reads an immutable published report, requests clarification or accepts it, and settles payment via PayOS VietQR or VNPay.
+#### 3.3.4 Inspection Tracking, Official Reports and Settlement (`FE-05`, `FE-14`, `FE-18`, `FE-19`, `FE-20`, `FE-21`, `FE-24`)
+- **Function trigger**: Customer tracks scheduled/completed inspections, reads an immutable published report, requests clarification or accepts it, and settles payment via PayOS VietQR or VNPay.
 - **Actors**: `CUSTOMER`, `MANAGER`, Payment Service (PayOS / VNPay).
 - **Requirements**:
-  - Customers view only `PUBLISHED` report versions (`inspection_reports`), accompanied by the AI Executive Summary and confirmed evidence/findings; internal `DRAFT`, `SUBMITTED`, and `RETURNED` states remain hidden (`BR-19`, `BR-20`).
-  - Before acceptance, only the owning Customer may submit a clarification request (returning the report for revision). Accepting the published report starts the payment due window (default 15 days).
-  - Checkout via PayOS VietQR or VNPay verifies cryptographic webhook/callback signatures (`BR-41`) before marking payment `PAID`; overdue notices never revoke report access or mutate payment status automatically.
+  - Customers view only `Published` report versions, accompanied by the AI Executive Summary and confirmed evidence/findings; internal `Draft`, `Submitted`, and `Returned` states remain hidden (`BR-39`).
+  - Before acceptance, only the owning Customer may submit a clarification request (returning the report for clarification/review). Accepting the published report starts the payment due window (default 15 days).
+  - Checkout via PayOS VietQR or VNPay verifies cryptographic gateway confirmation callbacks (`BR-45`) before marking payment `Paid`; overdue notices never revoke report access or mutate payment status automatically.
   - Internal PDF Payment Notice (post-acceptance) and Payment Receipt (post-payment) downloads remain scoped to the owning organization.
-- **Normal cases**: Customer previews the official published report, clicks **Accept official report**, pays via PayOS VietQR/VNPay (or authorized corporate wire), and archives receipts in `/client/finance-history`.
+- **Normal cases**: Customer previews the official published report, clicks **Accept official report**, pays via PayOS VietQR/VNPay (or authorized manual confirmation), and archives receipts in **Finance History**.
 - **Abnormal cases**: Viewing an unpublished report, forging a gateway callback signature, double-paying an already settled invoice, or accessing another organization's PDF receipt is rejected.
 
 ![Customer inspections list](assets/screens/cus-inspections.png)
@@ -594,10 +599,10 @@ The Customer portal (`/client`, `CUSTOMER` role) scopes all reads and mutations 
 
 ### 3.4 Web Application — Partner Inspector Portal
 
-The Partner Operations portal (`/operations`, `INSPECTOR` role) is strictly scoped to the Inspector's own owned aircraft, own earnings, and assigned inspection occurrences (`Query Own Data`).
+The Partner Operations portal (`INSPECTOR` role) is strictly scoped to the Inspector's own owned aircraft, own earnings, and assigned inspection occurrences (`Query Own Data`).
 
-#### 3.4.1 Inspector Dashboard and Owned Drone Fleet (`FE-01`, `FE-02`)
-- **Function trigger**: Approved Inspector signs in to `/operations/dashboard` or registers/renews an owned drone in `/operations/inspector-drones`.
+#### 3.4.1 Inspector Dashboard and Owned Drone Fleet (`FE-01`, `FE-03`)
+- **Function trigger**: Approved Inspector signs in to the Inspector Dashboard or registers/renews an owned drone in **My Drones**.
 - **Actors**: `INSPECTOR`, `ADMIN`, `MANAGER`.
 - **Requirements**:
   - Drone applications collect serial number, model, Decree 288/2025/ND-CP MTOW weight class (`< 2 kg` Class A vs `>= 2 kg` requires Class B licence), flight capabilities (wind resistance, optical zoom, thermal/RTK), real photos, configurable checklist items, and required documents (`REGISTRATION`, `OWNERSHIP`, optional `INSPECTION`).
@@ -617,12 +622,12 @@ The Partner Operations portal (`/operations`, `INSPECTOR` role) is strictly scop
 
 *Figure 7.3.25 — Drone registration dialog capturing airframe specs, MTOW class, photos, safety checklist, and mandatory documents.*
 
-#### 3.4.2 Assigned Inspections and Per-Inspection Coordination (`FE-04`, `FE-05`)
-- **Function trigger**: Inspector reviews pending/accepted assignments in `/operations/inspections` or coordinates site access with Customer via `/operations/messages`.
+#### 3.4.2 Assigned Inspections and Per-Inspection Coordination (`FE-10`, `FE-11`, `FE-14`)
+- **Function trigger**: Inspector reviews pending/accepted assignments in **Assigned Inspections** or coordinates site access with Customer via **Messages**.
 - **Actors**: `INSPECTOR`, `CUSTOMER`, Automated Timeout Monitor.
 - **Requirements**:
-  - New assignments arrive as `PENDING_ACCEPTANCE` and enforce the admin-configured confirmation window (`assignment_acceptance_timeout_hours`, `1–720` hours, default `24`h); unaccepted assignments automatically revert to `PENDING_ASSIGNMENT` (`BR-53`).
-  - Inspectors accept or decline with a mandatory reason; declining clears assignment and logs an attributable `inspector_reliability_events` entry.
+  - New assignments arrive as `Pending Acceptance` and enforce the administrator-configured confirmation window (`1–720` hours, default `24` hours); unaccepted assignments automatically return for re-dispatch and notify the Manager.
+  - Inspectors accept or decline with a mandatory reason; declining clears assignment and logs an attributable reliability event.
   - Per-inspection chat threads connect only the assigned Inspector with the owning Customer organization.
 - **Normal cases**: Inspector accepts assignment before the deadline, coordinates access in mission chat, and enters the seven-stage Inspection Workspace.
 - **Abnormal cases**: Accepting after deadline cancellation, declining without a reason, or reading unassigned inspection messages is rejected.
@@ -635,15 +640,15 @@ The Partner Operations portal (`/operations`, `INSPECTOR` role) is strictly scop
 
 *Figure 7.3.27 — Per-inspection private messaging thread between the assigned Inspector and Customer organization.*
 
-#### 3.4.3 Flight Permit, Pre-flight, Live Hub Telemetry and Post-flight (`FE-05`)
-- **Function trigger**: Inspector steps through Stages 1–4 of `/operations/inspections/:id/*`: uploading the mission flight permit, completing pre-flight checks, connecting live MAVLink telemetry (`SmartDroneHub`) or importing flight logs, and verifying building inspection checkpoints post-flight.
-- **Actors**: `INSPECTOR`, `MANAGER`, `ADMIN`, SmartDroneHub (`udp/tcp` MAVLink bridge).
+#### 3.4.3 Flight Permit, Pre-flight, Live Hub Telemetry and Post-flight (`FE-13`, `FE-14`)
+- **Function trigger**: Inspector steps through Stages 1–4 of the Inspection Workspace: uploading the mission flight permit, completing pre-flight checks, connecting live telemetry (`SmartDroneHub`) or importing flight logs, and verifying building inspection checkpoints post-flight.
+- **Actors**: `INSPECTOR`, `MANAGER`, `ADMIN`, SmartDroneHub.
 - **Requirements**:
-  - **Stage 1 (Permit)**: Non-empty PDF/PNG/JPG/WEBP `<= 25 MB` with matching magic bytes, permit number, authority, validity timestamps covering planned start/end, max altitude (`1–2000 m`), and matching assigned drone serial. Every upload enters `PENDING_REVIEW` for independent Manager/Admin approval.
-  - **Stage 2 (Pre-flight)**: Configurable pre-flight safety checklist plus mandatory safety note; starting the field session verifies active licence, active drone, valid approved permit at both current and planned flight timestamps, and transitions status to `IN_PROGRESS` (`startNow` supported when permit already valid).
-  - **Stage 3 (Flight Operation)**: Inspector may click **Connect Flight Operations** to stream live read-only MAVLink telemetry (`IN_FLIGHT`, `Mode`, `Armed`, live GPS, altitude, speed, heading, battery, waypoint, `Gimbal Active`) from ArduPilot/Mission Planner (`tcp:host.docker.internal:5762`) via SmartDroneHub—which never arms or controls the aircraft—or import `SRT`, `CSV`, `KML`, or `GPX` flight logs (`<= 15 MB`), or submit a disclosed manual flight declaration. Aborting captures a mandatory reason and notifies Managers.
-  - **Stage 4 (Post-flight & Items)**: Inspector verifies target building checkpoints (`ITEM-01`+) and post-flight checklist, sealing `FIELD_COMPLETED` alongside the persisted GPS flight trace and Flight Operations Report.
-- **Normal cases**: Permit approved -> pre-flight verified -> live MAVLink telemetry recorded (`wp.waypoints`) -> post-flight checkpoints verified -> session transitions cleanly to `FIELD_COMPLETED`.
+  - **Stage 1 (Permit)**: Non-empty PDF/PNG/JPG/WEBP `<= 25 MB` with verified file signature, permit number, authority, validity timestamps covering planned start/end, max altitude (`1–2,000 m`), and matching assigned drone serial. Every upload enters pending review for independent Manager/Admin approval (`BR-24`).
+  - **Stage 2 (Pre-flight)**: Configurable pre-flight safety checklist plus mandatory safety note; starting the field session verifies active licence, active drone, and valid approved permit at both current and planned flight timestamps before moving the session to active progress.
+  - **Stage 3 (Flight Operation)**: Inspector may click **Connect Flight Operations** to stream live read-only flight telemetry (flight status, mode, armed state, live GPS, altitude, speed, heading, battery, waypoint, and gimbal status) via SmartDroneHub—which never arms or controls the aircraft (`BR-30`)—or import `SRT`, `CSV`, `KML`, or `GPX` flight logs (`<= 15 MB`), or submit a disclosed manual flight declaration. Aborting captures a mandatory reason and notifies Managers.
+  - **Stage 4 (Post-flight & Items)**: Inspector verifies target building checkpoints (`ITEM-01`+) and post-flight checklist, completing the field session alongside the saved GPS flight trace and Flight Operations Report.
+- **Normal cases**: Permit approved -> pre-flight verified -> live telemetry recorded -> post-flight checkpoints verified -> session completes cleanly.
 - **Abnormal cases**: Starting without approved permit, expired credentials, permit/drone serial mismatch, malformed/position-less log import, or missing session safety/abort notes are rejected.
 
 ![Inspector workspace tracking](assets/screens/ins-ws-tracking.png)
@@ -666,16 +671,16 @@ The Partner Operations portal (`/operations`, `INSPECTOR` role) is strictly scop
 
 *Figure 7.3.32 — Post-flight completion view confirming building checkpoint coverage (`ITEM-01`+) and safety checks.*
 
-#### 3.4.4 Evidence Intake, AI Defect Detection, `DroneKnowledgeAI` Advisor and Report Authoring (`FE-06`, `FE-07`)
-- **Function trigger**: Inspector uploads field photos/MP4 videos in Stage 5 (`/evidence`), triggers YOLO11 + Vision analysis and drafts technical notes with `DroneKnowledgeAI` in Stage 6 (`/findings`), and prepares/submits the report in Stage 7 (`/report`).
-- **Actors**: `INSPECTOR`, Automated Systems (`ai-inference` YOLO11 + `fastembed` RAG, LLM fallback, FFmpeg worker).
+#### 3.4.4 Evidence Intake, AI Defect Detection, `DroneKnowledgeAI` Advisor and Report Authoring (`FE-15`, `FE-16`, `FE-17`, `FE-18`)
+- **Function trigger**: Inspector uploads field photos/MP4 videos in Stage 5 (**Evidence**), triggers AI detection and drafts technical notes with `DroneKnowledgeAI` in Stage 6 (**Findings**), and prepares/submits the report in Stage 7 (**Report**).
+- **Actors**: `INSPECTOR`, Automated Systems (`YOLO11`, `DroneKnowledgeAI`, LLM fallback, media processor).
 - **Requirements**:
-  - **Evidence Intake**: Photos (`<= 10 MB`) normalize to max `2048 px` with `480 px` JPEG thumbnails; MP4 videos (`<= 2 GiB`) upload in `10 MiB` resumable chunks, retain raw sources until FFmpeg H.264 `1080p faststart` + `480 px` poster complete, auto-number duplicate filenames, support keyframe extraction, and serve media strictly via scoped short-lived media tickets (`HTTP Range` supported).
-  - **AI Detection & Confirmation Gate**: YOLO11 detects 5 building defect classes (`crack`, `leakage`, `abscission`, `corrosion`, `bulge`) with confidence scores and bounding boxes (`V63` default auto-confirm threshold `70%`; Vision LLM fallback honors account opt-out). Every candidate remains advisory until confirmed (`Findings baseline confirmation`); subsequent evidence/finding mutations reset confirmation (`BR-09`, `BR-10`). On `RE_INSPECTION` findings, a `RESOLVED` verdict requires fresh in-session evidence (`BR-52`), carries a 14-day expiry warning window, and blocks report authoring/publication once expired (`RESOLUTION_EXPIRED`), while keeping three-way assessment (`RESOLVED`, `UNRESOLVED`, `INCONCLUSIVE`).
-  - **`DroneKnowledgeAI` Advisor**: Toolbar provides `All active` / `Unconfirmed` / `Confirmed` status chips and batch `Draft all notes`; each finding card offers `Draft note with AI` (`POST .../draft-note`) and a collapsible `References` toggle (`GET /api/v1/inspections/{inspectionId}/findings/{findingId}/recommendations?limit=3`) backed by tenant-isolated `pgvector` `vector(384)` HNSW cosine search (`fastembed`, degrading to deterministic `HYBRID_MATCH`) against seeded engineering standards (`TCVN 9343:2012`, `TCVN 9361:2012`, `EN 1504-9`, `ISO 12944-5`, `ASTM C1583`) and anonymized/tenant historical cases. Drafted notes remain editable and never auto-save or auto-confirm (`BR-34`, `BR-55`).
-  - **Report Authoring & Submission**: Auto-compiled report requires confirmed findings baseline, generates an advisory AI Executive Summary with `Matched Cases & Standards` (`GET /api/v1/inspections/{inspectionId}/knowledge-recommendations?limit=4`, `<= 4`), supports PDF preview/download, and moves to `SUBMITTED` for non-author review (`§3.5.3`).
+  - **Evidence Intake**: Photos (`<= 10 MB`) normalize to max `2,048 px` with `480 px` JPEG thumbnails; MP4 videos (`<= 2 GiB`) upload in `10 MiB` resumable chunks, retain raw sources until background `1080p` MP4 + `480 px` poster conversion finishes, auto-number duplicate filenames, support keyframe capture, and stream strictly via short-lived scoped access tickets.
+  - **AI Detection & Confirmation Gate**: Automated detection identifies 5 building defect classes (`crack`, `leakage`, `abscission`, `corrosion`, `bulge`) with confidence scores and bounding boxes (`70%` default auto-confirm setting; optional Vision fallback honors account opt-out). Every candidate remains advisory until confirmed (`BR-34`); subsequent evidence or finding changes require re-confirmation. On re-inspections, a `Resolved` verdict requires fresh evidence from the current completed field session, displays a 14-day early expiry warning, and blocks report preparation or publication once expired.
+  - **`DroneKnowledgeAI` Advisor**: Toolbar provides `All active`, `Unconfirmed`, and `Confirmed` status chips and batch `Draft all notes`; each finding card offers `Draft note with AI` and a collapsible `References` toggle retrieving up to 3 tenant-isolated matches using multilingual semantic similarity with automatic keyword-matching fallback against seeded engineering standards (`TCVN 9343:2012`, `TCVN 9361:2012`, `EN 1504-9`, `ISO 12944-5`, `ASTM C1583`) and historical cases (`BR-55`). Drafted notes remain editable and never auto-save or auto-confirm.
+  - **Report Authoring & Submission**: Auto-compiled report requires confirmed findings baseline, generates an advisory AI Executive Summary with up to 4 `Matched Cases & Standards`, supports PDF preview/download, and moves to `Submitted` for non-author review (`§3.5.3`).
 - **Normal cases**: Inspector uploads 6 photos and an MP4 video from the mission, runs batch AI detection, drafts standard-cited notes (`ASTM C1583`, `TCVN 9343:2012`), confirms baseline, and submits report `v1`.
-- **Abnormal cases**: Oversized photo, expired media ticket, unconfirmed findings at submission, expired `RESOLVED` verdict, or cross-tenant knowledge lookup is refused.
+- **Abnormal cases**: Oversized photo, expired media ticket, unconfirmed findings at submission, expired `Resolved` verdict, or cross-tenant knowledge lookup is refused.
 
 ![Inspector field evidence register](assets/screens/ins-ws-evidence.png)
 
@@ -705,14 +710,14 @@ The Partner Operations portal (`/operations`, `INSPECTOR` role) is strictly scop
 
 ### 3.5 Web Application — Platform Manager Portal
 
-The Platform Manager portal (`/manager`, `MANAGER` role) coordinates onboarding approvals, service request claims, VND quoting, offline signed contract recording, partner/drone dispatch, independent permit & report verification, and financial payouts/refunds. A Manager cannot quote/review/publish a report they authored (`BR-17`), and may mutate only requests they have claimed (`BR-30`).
+The Platform Manager portal (`MANAGER` role) coordinates onboarding approvals, service request claims, VND quoting, offline signed contract recording, partner/drone dispatch, independent permit & report verification, and financial payouts/refunds. A Manager cannot review or publish a report they authored (`BR-38`), and may act on requests only after claiming ownership (`BR-03`).
 
-#### 3.5.1 Manager Dashboard, Onboarding Reviews, Partner Roster and Buildings (`FE-01`, `FE-02`, `FE-03`)
-- **Function trigger**: Manager inspects daily workload (`/manager/dashboard`), reviews public inspector applications and drone registrations (`/manager/onboarding-reviews`), inspects partner eligibility in `/manager/platform-users` (`Partner inspectors`), or reviews customer buildings in `/manager/assets`.
+#### 3.5.1 Manager Dashboard, Onboarding Reviews, Partner Roster and Buildings (`FE-01`, `FE-02`, `FE-03`, `FE-06`)
+- **Function trigger**: Manager inspects daily workload on the Manager Dashboard, reviews public inspector applications and drone registrations in **Onboarding Reviews**, inspects partner eligibility in **Partner Inspectors**, or reviews customer buildings in **Buildings**.
 - **Actors**: `MANAGER`, `INSPECTOR`.
 - **Requirements**:
-  - Reviewing a pending Inspector application (`APPROVED` / `REJECTED` with mandatory rejection reason) provisions the active `INSPECTOR` login upon approval. Approving a drone registration unlocks that drone for occurrence dispatch (`Decree 288` MTOW class enforced).
-  - Partner roster displays licence class, licence expiry, linked drones, and reliability metrics (`declineCount`, `abortCount`, `noShowCount`).
+  - Reviewing a pending Inspector application (`Approved` / `Rejected` with mandatory written reason) provisions the active `INSPECTOR` login upon approval. Approving a drone registration unlocks that drone for occurrence dispatch (`Decree 288` MTOW class enforced).
+  - Partner roster displays licence class, licence expiry, linked drones, and operational reliability counts (declines, aborts, no-shows).
 - **Normal cases**: Manager approves qualified applicants/drones and verifies roster readiness prior to scheduling.
 - **Abnormal cases**: Approving an application missing a valid scan/future expiry, rejecting without reason, or modifying another role's account config (`ADMIN` only) is denied.
 
@@ -732,12 +737,12 @@ The Platform Manager portal (`/manager`, `MANAGER` role) coordinates onboarding 
 
 *Figure 7.3.42 — Manager cross-customer building directory displaying asset readiness and checkpoint summaries.*
 
-#### 3.5.2 Service Requests, Quotations, Signed Agreements and Partner Dispatch (`FE-04`)
-- **Function trigger**: Manager claims an open request (`/manager/contracts`), issues/updates a versioned VND quote, negotiates in `/manager/messages`, uploads the signed paper contract PDF/scan, and dispatches an eligible Inspector/drone pair per occurrence.
+#### 3.5.2 Service Requests, Quotations, Signed Agreements and Partner Dispatch (`FE-08`, `FE-09`, `FE-10`, `FE-11`)
+- **Function trigger**: Manager claims an open request (opening the commercial detail panel directly), issues or updates a VND quotation, negotiates in **Messages**, uploads the signed paper contract scan, and dispatches an eligible Inspector/drone pair per occurrence using clean non-overlapping candidate controls.
 - **Actors**: `MANAGER`, `CUSTOMER`, `INSPECTOR`.
 - **Requirements**:
-  - Only an unassigned Manager claiming an `OPEN` request gains write scope; `ADMIN` may assign/reassign/unassign Managers (`§3.6.3`) but never quotes or dispatches.
-  - Dispatch validates both pilot qualification (active account, current licence matching MTOW class, zero schedule conflict across all customer organizations) and drone readiness (owned by the selected Inspector, approved registration, current expiry). Recurring occurrences support `Apply to remaining` with per-occurrence validation (`FE-04`).
+  - Only an unassigned Manager claiming an open request gains write scope; `ADMIN` may assign/reassign/unassign Managers (`§3.6.3`) but never quotes or dispatches (`BR-05`).
+  - Dispatch validates both pilot qualification (active account, current licence matching MTOW class, zero schedule conflict across all customer organizations) and drone readiness (owned by the selected Inspector, approved registration, current expiry). Recurring occurrences support `Apply to remaining` with per-occurrence validation (`FE-09`).
   - Following an aborted field session, Manager executes attributable reschedule, reassign, or cancellation recovery (`§3.5.3`).
 - **Normal cases**: Manager claims request, issues VND quote anchored to requested start date, records customer-signed paper contract scan, and dispatches crew.
 - **Abnormal cases**: Competing claim by another Manager, shifting first occurrence date on a recurring quote, dispatching unapproved/unowned drone, or schedule collision fails closed.
@@ -754,13 +759,13 @@ The Platform Manager portal (`/manager`, `MANAGER` role) coordinates onboarding 
 
 *Figure 7.3.45 — Manager messaging console carrying commercial scope/date negotiation threads and attachments with Customers.*
 
-#### 3.5.3 Inspection Governance, Independent Report Review and Partner Settlement (`FE-05`, `FE-07`, `FE-08`)
-- **Function trigger**: Manager audits permits and field activity in `/manager/inspections` and `/audit`, reviews submitted reports in `/manager/reports` and `/review`, disburses partner payouts or reconciles refunds in `/settlement`, and tracks ledger totals in `/manager/finance-history`.
+#### 3.5.3 Inspection Governance, Independent Report Review and Partner Settlement (`FE-05`, `FE-13`, `FE-14`, `FE-18`, `FE-22`, `FE-23`)
+- **Function trigger**: Manager audits permits and field activity in **Inspections** and **Audit**, reviews submitted reports in **Reports** and **Review**, disburses partner payouts or reconciles refunds in **Settlement**, and tracks ledger totals in **Finance History**.
 - **Actors**: `MANAGER`, `INSPECTOR`, `CUSTOMER`.
 - **Requirements**:
-  - **Permit Audit**: Verification requires an `APPROVED` or `REJECTED` (reason required) decision from a Manager/Admin distinct from any submitter (`BR-17`). Rescheduling outside permit validity or swapping drone returns an approved permit to `PENDING_REVIEW`.
-  - **Report Review**: Reviewer cannot be the report's author. Approving and publishing are atomic, freezing immutable version `vN` (`PUBLISHED`); returning requires an explicit written reason.
-  - **Settlement & Refunds**: Verified customer payment unlocks payout eligibility (`ELIGIBLE`), requiring explicit Manager reference entry to mark `PAID`. Refunds follow `INITIATED` (places hold on unpaid payout) -> external transfer -> `COMPLETED` with exact allocation across Inspector deduction, platform commission, VAT, TNCN, and platform absorption; refunds after payout create attributable `inspector_receivables` recovered manually with references (`BR-36`–`BR-42`).
+  - **Permit Audit**: Verification requires an `Approved` or `Rejected` (reason required) decision from a Manager/Admin distinct from the uploader (`BR-24`). Rescheduling outside permit validity or swapping drone returns an approved permit to pending review (`BR-25`).
+  - **Report Review**: Reviewer cannot be the report's author (`BR-38`). Approving and publishing are completed together cleanly, freezing an immutable official version; returning requires an explicit written reason (`BR-42`).
+  - **Settlement & Refunds**: Verified customer payment unlocks payout eligibility, requiring explicit Manager transfer reference entry to mark `Paid` (`BR-46`). Refunds follow initiation (placing a hold on unpaid payouts) -> external bank transfer -> completion with exact five-way allocation across Inspector deduction, platform commission, VAT, TNCN, and platform absorption (`BR-48`); refunds after payout create attributable Inspector receivables recovered manually with references (`BR-50`).
 - **Normal cases**: Manager approves permit, publishes submitted report `v1`, and records net Inspector payout reference after Customer payment clears.
 - **Abnormal cases**: Self-review by author, return without reason, duplicate payout/refund reference, refund exceeding captured payment, or payout during active refund hold is rejected.
 
@@ -792,16 +797,16 @@ The Platform Manager portal (`/manager`, `MANAGER` role) coordinates onboarding 
 
 ### 3.6 Web Application — Platform Admin Portal
 
-The Platform Admin portal (`/admin`, `ADMIN` role) governs user account provisioning, customer restricted-airspace admissions, master catalogs (`asset_categories`, `pilot_license_classes`, `drone_document_configs`, `checklist_templates`), global finance/operations/AI thresholds, Manager assignment oversight, and platform audit logs (`BR-02`, `BR-27`). `ADMIN` cannot issue quotes, chat in order negotiations, accept reports for Customers, or execute payouts.
+The Platform Admin portal (`ADMIN` role) governs user account provisioning, customer restricted-airspace admissions, master catalogs (building categories, pilot-licence classes, required drone documents, safety checklists), global finance/operations/AI thresholds, Manager assignment oversight, and platform audit logs (`BR-01`, `BR-05`). `ADMIN` cannot issue quotes, chat in order negotiations, accept reports for Customers, or execute payouts.
 
-#### 3.6.1 Admin Dashboard, Onboarding Decisions and Platform Accounts (`FE-01`, `FE-02`)
-- **Function trigger**: Administrator monitors `/admin/dashboard`, adjudicates 3-tab onboarding/airspace queues in `/admin/onboarding-reviews`, or creates/deactivates platform accounts in `/admin/platform-users`.
+#### 3.6.1 Admin Dashboard, Onboarding Decisions and Platform Accounts (`FE-01`, `FE-02`, `FE-03`, `FE-07`)
+- **Function trigger**: Administrator monitors the Admin Dashboard, adjudicates 3-tab onboarding/airspace queues in **Onboarding Reviews**, or creates/deactivates platform accounts in **Platform Users**.
 - **Actors**: `ADMIN`.
 - **Requirements**:
-  - Onboarding reviews include the third **Customer Airspace** tab (`prospective_customer_registrations`) exclusively adjudicated by `ADMIN` alongside Inspector Applications and Drone Registrations.
-  - Platform Accounts directory enforces single-role assignment, account activation/deactivation, and mandatory initial password change policies.
+  - Onboarding reviews include the third **Customer Airspace** tab exclusively adjudicated by `ADMIN` (or `MANAGER`) alongside Inspector Applications and Drone Registrations.
+  - Platform Accounts directory enforces single-role assignment, account activation/deactivation, and mandatory initial password change policies (`BR-01`).
 - **Normal cases**: Admin reviews restricted-zone building applications, provisions a new Manager account via dialog, and resets locked accounts.
-- **Abnormal cases**: Assigning multiple canonical roles to one account, creating duplicate email logins, or non-Admin roles invoking `/admin/*` endpoints fails with `403 Forbidden`.
+- **Abnormal cases**: Assigning multiple roles to one account, creating duplicate email logins, or non-Admin roles attempting Administrator configuration actions fails closed (`BR-01`).
 
 ![Admin platform dashboard](assets/screens/adm-dashboard.png)
 
@@ -819,15 +824,15 @@ The Platform Admin portal (`/admin`, `ADMIN` role) governs user account provisio
 
 *Figure 7.3.55 — Administrator modal creating internal platform staff accounts and configuring activation/password flags.*
 
-#### 3.6.2 Catalog, Flight Config, Licence Classes, Finance, Operations and AI Settings (`FE-02`, `FE-04`, `FE-06`, `FE-08`)
-- **Function trigger**: Administrator updates building categories (`/admin/asset-catalog`), required drone docs & checklists (`/admin/flight-config`), licence classes (`/admin/flight-config` / tabs), or singleton settings (`/admin/platform-settings` sub-views for Finance, Operations, AI).
+#### 3.6.2 Catalog, Flight Config, Licence Classes, Finance, Operations and AI Settings (`FE-02`, `FE-03`, `FE-06`, `FE-11`, `FE-14`, `FE-16`, `FE-20`, `FE-21`)
+- **Function trigger**: Administrator updates building categories (**Asset Catalog**), required drone documents, checklists & licence classes (**Flight & Drone Config**), or platform settings (**Finance**, **Operations**, **AI Settings**).
 - **Actors**: `ADMIN`.
 - **Requirements**:
-  - **Asset Catalog**: Maintains the six building categories (`TELECOM_ROOFTOP_TOWER`, commercial, industrial, residential, public, energy-rooftop) and seeded default inspection items without mutating historical inspections.
-  - **Drone & Flight Config**: Configures required vs optional documents (`REGISTRATION`, `OWNERSHIP`, `INSPECTION`), capability tags, pre-flight/post-flight checklists, and UAV licence classes aligned with Decree 288/2025/ND-CP.
-  - **Singleton Governance**: Finance settings set commission, VAT, TNCN, and invoice due days; Operations settings enforce assignment confirmation timeout (`1–720` hours, default `24`h); AI settings control YOLO11 auto-confirm threshold (default `70%` per `V63`) and Vision LLM fallback policy.
-- **Normal cases**: Admin adjusts AI threshold or timeout hours and persists versioned configuration.
-- **Abnormal cases**: Non-building infrastructure categories or out-of-range numeric percentages/timeout hours (`<1` or `>720`) are rejected.
+  - **Asset Catalog**: Maintains the six building categories and seeded default inspection items without mutating historical inspections (`BR-07`).
+  - **Drone & Flight Config**: Configures required vs optional documents (`Registration`, `Ownership`, `Inspection`), capability tags, pre-flight/post-flight checklists, and UAV licence classes aligned with Decree 288/2025/ND-CP (`BR-11`, `BR-12`).
+  - **Platform Settings**: Finance settings set commission, VAT, personal income tax (TNCN), and invoice due days; Operations settings enforce assignment confirmation timeout (`1–720` hours, default `24` hours); AI settings control automatic defect-confirmation threshold (`70%` default) and Vision fallback policy.
+- **Normal cases**: Admin adjusts AI threshold or timeout hours and persists updated configuration.
+- **Abnormal cases**: Non-building infrastructure categories (`MSG23`) or out-of-range percentages or timeout hours (`< 1` or `> 720`) are rejected.
 
 ![Admin building asset catalog](assets/screens/adm-asset-catalog.png)
 
@@ -835,7 +840,7 @@ The Platform Admin portal (`/admin`, `ADMIN` role) governs user account provisio
 
 ![Edit building asset category dialog](assets/screens/adm-asset-catalog-dialog.png)
 
-*Figure 7.3.57 — Category editor displaying EN/VN metadata and default building checkpoint items (`TELECOM_ROOFTOP_TOWER`).*
+*Figure 7.3.57 — Category editor displaying EN/VN metadata and default building checkpoint items.*
 
 ![Admin drone documents and checklist configuration](assets/screens/adm-flight-config-documents.png)
 
@@ -851,20 +856,20 @@ The Platform Admin portal (`/admin`, `ADMIN` role) governs user account provisio
 
 ![Admin operations governance settings](assets/screens/adm-operations-settings.png)
 
-*Figure 7.3.61 — Platform singleton operations settings configuring partner assignment acceptance timeout (`assignment_acceptance_timeout_hours`).*
+*Figure 7.3.61 — Platform operations settings configuring partner assignment acceptance timeout (`1–720` hours, default `24` hours).*
 
 ![Admin AI inference settings](assets/screens/adm-ai-settings.png)
 
 *Figure 7.3.62 — Platform singleton AI configuration governing auto-confirm confidence threshold (`70%`) and Vision LLM fallback behavior.*
 
-#### 3.6.3 Request Governance, Building Registry and Activity Audit Log (`FE-02`, `FE-03`, `FE-04`)
-- **Function trigger**: Administrator reassigns Manager ownership in `/admin/contracts`, audits cross-tenant buildings in `/admin/assets`, or queries immutable `audit_events` in `/admin/audit-logs`.
+#### 3.6.3 Request Governance, Building Registry and Activity Audit Log (`FE-01`, `FE-06`, `FE-08`, `FE-09`)
+- **Function trigger**: Administrator reassigns Manager ownership in **Service Requests**, reviews cross-tenant buildings in **Assets**, or queries immutable activity records in **Audit Logs**.
 - **Actors**: `ADMIN`.
 - **Requirements**:
-  - Request Governance exposes assign/reassign/unassign Manager ownership actions while keeping quotation, pricing, contract upload, and dispatch disabled for `ADMIN` (`BR-27`, `BR-30`).
-  - Activity log records immutable actor, role, action type, entity key, timestamp, and metadata across onboarding, permissions, permits, and report publication.
+  - Request Governance exposes assign/reassign/unassign Manager ownership actions while keeping quotation, pricing, contract upload, and dispatch disabled for `ADMIN` (`BR-05`).
+  - Activity log records attributable actor, role, action type, target record, timestamp, and summary details across onboarding, permissions, permits, and report publication (`BR-51`).
 - **Normal cases**: Admin transfers an unassigned or overloaded request to another active `MANAGER` and traces the action in Activity Log.
-- **Abnormal cases**: Attempting to alter immutable audit events or invoke Manager commercial endpoints as `ADMIN` is rejected.
+- **Abnormal cases**: Attempting to alter historical audit entries or invoke Manager commercial actions as `ADMIN` is rejected.
 
 ![Admin service request governance](assets/screens/adm-contracts.png)
 
@@ -882,16 +887,16 @@ The Platform Admin portal (`/admin`, `ADMIN` role) governs user account provisio
 
 ### 3.7 Mobile Application — Customer App (Flutter)
 
-The cross-platform Flutter Mobile Application serves the **`CUSTOMER` role exclusively** (`lib/core/router/app_router.dart`), maintaining feature parity with the Customer Web portal across authentication, buildings, one-time/recurring requests, order chat, live inspection tracking, official report consumption, and PayOS/VNPay settlement. Non-customer roles (`ADMIN`, `MANAGER`, `INSPECTOR`) are rejected at mobile login (`§3.8`).
+The cross-platform Customer Mobile Application serves the **`CUSTOMER` role exclusively**, maintaining feature parity with the Customer Web portal across authentication, buildings, one-time/recurring requests, order chat, live inspection tracking, official report consumption, and PayOS/VNPay settlement. Non-customer roles (`ADMIN`, `MANAGER`, `INSPECTOR`) are rejected at mobile login (`§3.8`).
 
-#### 3.7.1 Mobile Authentication, Home Dashboard and Notifications (`FE-01`)
-- **Function trigger**: Customer opens the mobile app (`#/login`, `#/register`, `#/forgot-password`), lands on `#/home`, inspects `#/notifications`, or manages `#/profile`.
+#### 3.7.1 Mobile Authentication, Home Dashboard and Notifications (`FE-01`, `FE-12`)
+- **Function trigger**: Customer opens the mobile app (Sign-in, Registration, or Forgot Password), lands on the Home dashboard, inspects Notifications, or manages Profile & Security.
 - **Actors**: `CUSTOMER`, Automated Identity Service.
 - **Requirements**:
-  - Secure JWT/refresh token persistence via `TokenStore` with automatic 401 refresh lock and explicit `CUSTOMER`-only role gate.
+  - Secure credential and session persistence with transparent token refresh and an explicit `CUSTOMER`-only role gate (`MSG41`).
   - Home dashboard summarizes buildings, open requests, active/published inspections, and unread notification badge counts.
 - **Normal cases**: Customer signs in on mobile, views notifications, and updates profile or language preference (`EN`/`VI`).
-- **Abnormal cases**: Signing in with `INSPECTOR`/`MANAGER`/`ADMIN` credentials displays a role-restriction notice and blocks mobile portal entry.
+- **Abnormal cases**: Signing in with `INSPECTOR`, `MANAGER`, or `ADMIN` credentials displays a role-restriction notice and blocks mobile portal entry (`MSG41`).
 
 ![Mobile customer login](assets/screens/mob-login.png)
 
@@ -917,14 +922,14 @@ The cross-platform Flutter Mobile Application serves the **`CUSTOMER` role exclu
 
 *Figure 7.3.71 — Customer mobile account profile, security controls, locale switch, and sign-out screen.*
 
-#### 3.7.2 Mobile Buildings, Service Requests and Order Chat (`FE-03`, `FE-04`)
-- **Function trigger**: Customer browses `#/assets` and `#/assets/:id`, creates/tracks requests in `#/requests` / `#/requests/new` / `#/requests/:id`, or negotiates with Manager in `#/requests/:id/chat`.
+#### 3.7.2 Mobile Buildings, Service Requests and Order Chat (`FE-06`, `FE-08`, `FE-09`, `FE-10`)
+- **Function trigger**: Customer browses the **Buildings** list and details, creates/tracks requests in **Requests**, or negotiates with the assigned Manager in **Order Chat**.
 - **Actors**: `CUSTOMER`, `MANAGER`.
 - **Requirements**:
-  - Read-only and operational parity with Web: buildings display checkpoints and attached documents; New Request form enforces the 20-day minimum lead time and monthly recurrence rules (`2–100` occurrences).
-  - Request detail lets Customers inspect active VND quotations, accept quotes with optimistic locking (`quoteRowVersion`), view signed contracts, and open live Order Chat with attachments.
+  - Read-only and operational parity with Web: buildings display checkpoints and attached documents; New Request enforces the 20-day minimum lead time and monthly recurrence rules (`2–100` occurrences).
+  - Request detail lets Customers inspect active VND quotations, accept the current quote version (preventing stale acceptance via optimistic version checks), view signed contracts, and open Order Chat with attachments.
 - **Normal cases**: Customer checks building checkpoints, submits a service request, negotiates via chat, and accepts the issued VND quote from mobile.
-- **Abnormal cases**: Selecting an earlier date inside 20 days, submitting duplicate active requests on one building, or accepting a superseded quote version fails cleanly.
+- **Abnormal cases**: Selecting an earlier date inside 20 days, submitting duplicate active requests on one building, or accepting a superseded quote version (`MSG13`) fails cleanly.
 
 ![Mobile buildings list](assets/screens/mob-assets.png)
 
@@ -950,13 +955,13 @@ The cross-platform Flutter Mobile Application serves the **`CUSTOMER` role exclu
 
 *Figure 7.3.77 — Customer-Manager interactive order negotiation thread on Flutter mobile with attachment support.*
 
-#### 3.7.3 Mobile Inspection Tracking, Official Report and Settlement (`FE-05`, `FE-07`, `FE-08`)
-- **Function trigger**: Customer opens `#/inspections` -> `#/inspections/:id` and navigates between the **Tracking**, **Report**, and **Settlement** tabs.
+#### 3.7.3 Mobile Inspection Tracking, Official Report and Settlement (`FE-14`, `FE-17`, `FE-18`, `FE-19`, `FE-20`, `FE-21`, `FE-24`)
+- **Function trigger**: Customer opens **Inspections** -> inspection detail and navigates between the **Tracking**, **Report**, and **Settlement** tabs.
 - **Actors**: `CUSTOMER`, Payment Service (PayOS / VNPay).
 - **Requirements**:
   - **Tracking tab**: Displays occurrence status, schedule window, assigned inspector/drone summary, and verified permit badge.
-  - **Report tab**: Renders published version `vN` (`PUBLISHED` only), `AI Executive Summary` card (`overallRisk`, key highlights, recommended actions), `Matched cases & standards` strip, confirmed findings, and **Download official PDF**.
-  - **Settlement tab**: Three-step tracker (`1. Accept official report -> 2. Settle service fee -> 3. Service fulfilled`), VAT-broken-down service invoice, **Accept report** / **Request clarification**, and PayOS VietQR / VNPay payment trigger.
+  - **Report tab**: Renders the latest `Published` report version only, `AI Executive Summary` card (overall risk, key highlights, recommended actions), collapsible `Matched cases & standards` strip, confirmed findings, and **Download official PDF**.
+  - **Settlement tab**: Three-step tracker (`1. Accept official report -> 2. Settle service fee -> 3. Service fulfilled`), VAT-broken-down service invoice, **Accept report** / **Request clarification**, downloadable payment notice/receipt PDF, and PayOS VietQR / VNPay checkout launch.
 - **Normal cases**: Customer reviews the published report and AI summary on mobile, accepts it, and completes PayOS/VNPay settlement.
 - **Abnormal cases**: Unpublished internal drafts remain inaccessible; requesting clarification after acceptance or paying before acceptance is blocked.
 
@@ -985,7 +990,7 @@ The application scope is limited to **building inspection** as described in §1.
 - **Corrective maintenance execution.** Work-order creation from published defects, repair scoping, repair cost estimation, field repair execution, maintenance completion reporting, maintenance acceptance, and cost reconciliation are not part of the application. The service ends at report acceptance and payment; the Customer arranges corrective work outside the platform. What the platform does provide is a re-inspection loop: once a source inspection is complete and its report is published, a customer or platform manager may create a re-inspection against it, and each originally confirmed defect is re-assessed three ways — resolved, unresolved, or inconclusive — by comparing the original finding against the evidence captured on the re-flight. That loop reuses `MF2` for scheduling and `MF3` for field work and evidence rather than introducing a separate flow.
 - **Aircraft control.** The platform does not pilot, guide, or command an aircraft, and does not act as a ground control station.
 - **Photogrammetric reconstruction.** Three-dimensional point-cloud and mesh generation are out of scope. Two-dimensional photographs and video, and the defect annotations derived from them, are in scope.
-- **Retrieval boundary.** Inspection knowledge retrieval is in scope: `DroneKnowledgeAI` maintains a `pgvector` index of engineering standards and tenant-isolated historical defect cases for advisory use (§3.4.4, `BR-55`). A corrective-maintenance repair knowledge base (`repair_knowledge_chunks`), RAG repair-scope or cost-norm advising, external CMMS integration, and work-order execution remain outside the application.
+- **Retrieval boundary.** Inspection knowledge retrieval is in scope: `DroneKnowledgeAI` maintains a searchable knowledge base of engineering standards and tenant-isolated historical defect cases for advisory use (§3.4.4, `BR-55`). A corrective-maintenance repair knowledge base, RAG repair-scope or cost-norm advising, external CMMS integration, and work-order execution remain outside the application.
 - **Mobile coverage for non-customer roles.** The mobile application serves the `CUSTOMER` role only; Inspectors and platform staff use the web portals.
 
 Where maintenance-related records remain in the data store from earlier development, they are retained unchanged for data preservation and are not exposed as an application workflow.
@@ -998,7 +1003,7 @@ Where maintenance-related records remain in the data store from earlier developm
 - **Mobile interface.** The `CUSTOMER` role has a native application covering sign-in, registration, buildings, requests with negotiation, inspection tracking, published reports, and notifications. Field capture and field-session recording are performed by inspectors in the operations web portal.
 - **Detection service.** Building-defect detection is served by a self-hosted inference service, with an OpenAI-compatible vision model as fallback. A user may opt out of the fallback for their own account.
 - **Narrative drafting service.** An OpenAI-compatible language model drafts the report narrative once per draft from the confirmed context, returns strict JSON, and is instructed not to invent facts.
-- **Knowledge retrieval service.** An optional `DroneKnowledgeAI` advisor retrieves tenant-isolated historical defect cases and seeded engineering standards over a `pgvector` HNSW cosine index. When embeddings are unavailable it degrades to deterministic `HYBRID_MATCH`; no retrieval result becomes an official finding or report text.
+- **Knowledge retrieval service.** An optional `DroneKnowledgeAI` advisor retrieves tenant-isolated historical defect cases and seeded engineering standards using semantic vector similarity with an automatic keyword-matching fallback; no retrieval result becomes an official finding or report text.
 - **Payment and identity services.** PayOS VietQR and VNPay process settlement and Google OAuth2 provides federated sign-in. Both gateways are configuration-gated and can be disabled, in which case an authorised manual confirmation records payment.
 - **Ground-station integration.** An optional hub supplies read-only telemetry, flight traces, and mission video. A response from any external service does not replace the platform's own authorization or human review.
 
@@ -1018,8 +1023,8 @@ Where maintenance-related records remain in the data store from earlier developm
 | `NFR-04` | Security | Sign-in resists guessing and revoked access stops working. | Lockout and request rate. | Lockout for `15 min` after `5` failures; over `10` requests per minute blocked. |
 | `NFR-05` | Reliability | Signed and published records stay intact and cannot be silently altered. | Integrity and prevention of in-place change. | `100%` integrity; `100%` of unauthorised changes prevented. |
 | `NFR-06` | Reliability | Large video evidence survives interruption and transcode failure. | Resume success and retry availability. | `100%` resumable; `100%` of failed transcodes retained. |
-| `NFR-07` | Maintainability | All eight features have repeatable verification and module boundaries hold. | Feature coverage and boundary violations. | All eight features covered; `0` violations. |
-| `NFR-08` | Portability | The service rebuilds and starts from its stated dependencies. | Clean start and migration set. | Starts from the compose stack with the declared migration set. |
+| `NFR-07` | Maintainability | All twenty-four atomic features (`FE-01`–`FE-24`) have repeatable verification and module boundaries hold. | Feature coverage and boundary violations. | All twenty-four features covered; `0` violations. |
+| `NFR-08` | Portability | The service rebuilds and starts reliably from its stated container dependencies. | Clean start and schema readiness. | Starts cleanly from the compose stack with all required application schema migrations applied automatically (`45` application tables). |
 
 These thresholds are acceptance targets, not measured claims. Verification is recorded in Report 5.
 
@@ -1048,7 +1053,7 @@ Representative rules from the `BR-01`–`BR-55` set:
 | `BR-43` | A published report is immutable, and a correction is issued as a new version that supersedes the previous one. |
 | `BR-47` | A retried event does not create a duplicate occurrence, evidence record, payment, or notice. |
 | `BR-54` | Corrective maintenance execution, aircraft control, and photogrammetric reconstruction are out of scope; inspection knowledge retrieval is in scope (see `BR-55`). |
-| `BR-55` | `DroneKnowledgeAI` advisory retrieval is in scope: matches are tenant-isolated (`organization_id = currentOrg OR is_anonymized_benchmark = TRUE`, with the current inspection excluded), benchmark cases are anonymized, retrieval is `PGVECTOR_RAG` with a deterministic `HYBRID_MATCH` fallback, and recommendations remain advisory and human-confirmed. Confirmed findings are indexed automatically at report publication. A corrective-maintenance repair knowledge base (`repair_knowledge_chunks`), external CMMS integration, and work-order execution are out of scope. |
+| `BR-55` | `DroneKnowledgeAI` advisory retrieval is in scope: matches are strictly isolated to the current customer organization plus anonymized benchmark cases (excluding the current inspection from matching itself), retrieval uses semantic similarity with automatic keyword fallback, and all recommendations remain advisory and human-confirmed. Confirmed findings are indexed automatically at report publication. A corrective-maintenance repair knowledge base, external CMMS integration, and work-order execution are out of scope. |
 
 ### 5.2 Common Requirements
 
@@ -1118,6 +1123,6 @@ Representative messages from the `MSG01`–`MSG50` catalogue:
 ### 5.4 Other Requirements
 
 - **Scope and operational constraints.** The platform does not pilot aircraft. Permits, airspace results, and published reports are the platform's governance records and are not government clearance.
-- **Feature and flow traceability.** `FE-01` and `FE-02` belong to `MF1`; `FE-03` and `FE-04` to `MF2`; `FE-05` and `FE-06` to `MF3`; `FE-07` and `FE-08` to `MF4`.
+- **Feature and flow traceability.** Twenty-four atomic product features (`FE-01`–`FE-24`) span the four main business flows: `MF1` (`FE-01`–`FE-04`), `MF2` (`FE-06`–`FE-12`), `MF3` (`FE-13`–`FE-17`), and `MF4` (`FE-05`, `FE-18`–`FE-24`).
 - **Research basis.** Requirements were derived from the delivered product, verified against the running system, and checked against the decrees governing drone operation and building inspection in Vietnam.
 

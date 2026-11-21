@@ -14,13 +14,13 @@ This release delivers the SmartDroneInspection platform: a building-inspection s
 | No. | Deliverable Item | Description |
 | --- | --- | --- |
 | 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking for the eight-week build, maintained from the project plan in Report 2. |
-| 2 | Project Backlog | The feature and function backlog for `FE-01`–`FE-08` across `MF1`–`MF4`, with the acceptance criteria each item was closed against. |
+| 2 | Project Backlog | The twenty-four atomic feature backlog (`FE-01`–`FE-24`) across `MF1`–`MF4`, with the acceptance criteria each item was closed against. |
 | 3 | Source Codes | Four independent repositories: `SmartDroneInspection-backend` (Java 21, Spring Boot 4.1, Spring Modulith), `SmartDroneInspection-frontend` (React 19, strict TypeScript, Vite, Material UI), `SmartDroneInspection-mobile` (Flutter, Riverpod, GoRouter, Dio), and `SmartDroneInspection-docs`. |
-| 4 | Database Script(s) | Flyway migrations `V1__baseline.sql` (consolidated baseline with catalog seeds), `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, `V62__inspection_knowledge_rag.sql`, `V63__ai_auto_confirm_default_70.sql`, `V64__backfill_published_historical_cases.sql`, and `V65__rag_local_embeddings_384.sql` (`V1`–`V4`, `V60`–`V65`). Together they define the PostgreSQL 17 schema: 45 application tables (47 total in the `public` schema, including `event_publication` and `flyway_schema_history`) with the `pgvector` extension (`vector(384)`) for knowledge-base embeddings. |
-| 5 | Final Report Document | Reports 1–6 of the capstone documentation set, each exported against its official template. |
-| 6 | Test Cases Document | `Report5_Test Report.xlsx` with one sheet per feature, plus the executed suite results recorded in Report 5 (19 Nov 2026 baseline, version 3.6). |
-| 7 | Defects List | The defect log maintained during the build, together with the open items and known limitations recorded in Report 5's 19 Nov 2026 baseline. |
-| 8 | Issues List | Outstanding issues and known limitations, including the out-of-scope items documented in Report 3 §3.8. |
+| 4 | Database Script(s) | Automated schema migration scripts (`V1`–`V4` and `V60`–`V66`) configuring the PostgreSQL 17 database (45 application tables), vector knowledge search support, and plain-text building ownership details. |
+| 5 | Final Report Document | Reports 1–7 of the capstone documentation set, each exported against its official template. |
+| 6 | Test Cases Document | `Report5_Test Report.xlsx` (`v3.9`) with twenty-four sheets (`Feature 1`–`Feature 24`, mapped 1-to-1 to `FE-01`–`FE-24`) covering `67` active cases (`45 Passed`, `0 Failed`, `9 Pending`, `13 N/A` in Round 1; `13 Passed` in Round 3), plus the executed suite results recorded in Report 5. |
+| 7 | Defects List | The defect log maintained during the build, together with the open items and known limitations recorded in Report 5's 21 Nov 2026 baseline. |
+| 8 | Issues List | Outstanding issues and known limitations, including the out-of-scope items documented in Report 3 §3.26. |
 | 9 | Slide | The defence presentation used for the final review. |
 
 ## 2. Installation Guides
@@ -49,7 +49,7 @@ The detection service and the video transcoder are the dominant resource consume
 | Web client build | Node.js and npm | Node 22 or later |
 | Mobile client build | Flutter SDK with the Android toolchain | Flutter 3.x |
 | Object storage | MinIO | Provided by the compose stack |
-| Database | PostgreSQL with the `pgvector` extension | `17` (provided by the compose stack; the extension is enabled by `V62` and configured for `vector(384)` by `V65`) |
+| Database | PostgreSQL 17 with vector search support | Provided ready-to-use by the compose stack |
 | Media processing | FFmpeg | Provided by the backend container image |
 | Browser | Chrome or Edge | Current version |
 
@@ -90,7 +90,7 @@ The AI, payment, and telemetry integrations are all optional. Leave `YOLO_INFERE
 docker compose up -d --build
 ```
 
-Flyway applies `V1`–`V4` and `V60`–`V65` automatically on first start. Migration `V62` enables the `pgvector` extension, `V63` sets the default auto-confirm threshold to `70%`, `V64` backfills published historical cases, and `V65` configures `vector(384)` knowledge columns and HNSW cosine indexes backed by the local `fastembed` `/v1/embeddings` endpoint inside `ai-inference`; the PostgreSQL 17 image in the compose stack already provides `pgvector`, so no separate installation step is required. When the embedding service is unavailable, historical-case retrieval falls back automatically to deterministic `HYBRID_MATCH`, so the platform remains usable offline. Confirm the stack is healthy:
+Database migrations and built-in reference standards apply automatically on first start. The compose stack enables local vector search and pre-loads published historical cases and plain-text building ownership fields with no manual database steps required. If the AI embedding service is temporarily offline, the knowledge advisor automatically falls back to keyword matching so all workflows keep running normally. Confirm the stack is healthy:
 
 ```bash
 docker compose ps
@@ -118,7 +118,7 @@ flutter pub get
 flutter run
 ```
 
-The mobile application is for customer accounts only. Any other role is refused at sign-in with the message corresponding to the `CUSTOMER_ONLY_MOBILE` error code.
+The mobile application is for customer accounts only. Any other role is refused at sign-in with a clear notice that mobile access is limited to customer accounts.
 
 **Step 6 — Sign in for the first time.** Use the bootstrap administrator account from Step 2. Change its password immediately, then create the remaining accounts from **Platform Accounts** in the administration portal.
 
@@ -177,7 +177,7 @@ flowchart LR
   PMT ~~~ PAY
 ```
 
-### 3.2 Workflow 1: Customer Onboarding and Building Registration (`MF1` `FE-01`, `FE-03`)
+### 3.2 Workflow 1: Customer Onboarding and Building Registration (`MF1` `FE-01`, `FE-04`, `MF2` `FE-06`, `FE-07`)
 
 **Purpose.** Bring a new customer organization onto the platform and register its first building so that a service request can later be raised against it.
 
@@ -213,7 +213,7 @@ Screening is advisory. It records the platform's own check and is not a governme
 
 *Figure 6.3 — The customer building register with status, category, height, and coordinates.*
 
-**Step 5.** Choose **New asset** to add another building, or open an existing record to review its details. For each building you can set the category, structure height, footprint area, technical profile, and GPS coordinates, attach engineering drawings, and later retire it when it is no longer in service. Retiring a building preserves its inspection history and blocks new service requests against it.
+**Step 5.** Choose **New asset** to add another building, or open an existing record to review its details. For each building you can set the category, structure height, footprint area, technical profile, plain-text ownership details, and GPS coordinates, attach engineering drawings, and later retire it when it is no longer in service. Retiring a building preserves its inspection history and blocks new service requests against it.
 
 The categories available on a clean installation are the six building categories listed in Report 3 §1. A platform administrator can add categories from the catalogue, but the defect classes and inspection items shipped with this release are building-specific.
 
@@ -225,7 +225,7 @@ The categories available on a clean installation are the six building categories
 
 Approve or reject each case with a written reason. A rejection reason is mandatory, and the decision is attributed to you in the activity history.
 
-### 3.3 Workflow 2: Partner Inspector Application and Drone Registration (`MF1` `FE-02`)
+### 3.3 Workflow 2: Partner Inspector Application and Drone Registration (`MF1` `FE-02`, `FE-03`)
 
 **Purpose.** Admit a partner drone inspector to the platform and register the drones that inspector will fly.
 
@@ -259,7 +259,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 **Step 7.** Review drone document and feature configuration when the required document set changes. As `ADMIN`, open **Drone Configuration** to set which document types are required and which capability features appear on the registration form.
 
-### 3.4 Workflow 3: Service Request, Quotation and Agreement (`MF2` `FE-04`)
+### 3.4 Workflow 3: Service Request, Quotation and Agreement (`MF2` `FE-08`, `FE-09`, `FE-10`)
 
 **Purpose.** Turn a customer's inspection need into an agreed, signed, scheduled engagement.
 
@@ -267,7 +267,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 **Preconditions.** The customer has an active building. At least one inspector with a valid licence and at least one serviceable drone exist for the manager to quote.
 
-**Step 1.** In the customer portal open **Service Requests** and choose **New request**. Select the building and inspection type, choose one-time or recurring, and pick the window you want. A first date must be at least twenty calendar days away.
+**Step 1.** In the customer portal open **Service Requests** and choose **New request**. Select the building and inspection type, choose one-time or recurring, and pick the window you want. A first date must be at least twenty calendar days away; recurring requests generate concise titles that display cleanly in the four-column request list.
 
 ![Customer service requests](assets/screens/client-service-requests.png)
 
@@ -275,7 +275,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 **Step 2.** Submit the request. It enters the manager queue and you may still add detail or ask questions.
 
-**Step 3.** As `MANAGER`, open **Service Requests** and claim the request so that it is owned by you. Open its order chat and discuss scope with the customer.
+**Step 3.** As `MANAGER`, open **Service Requests** and claim the request so that it is owned by you. Open its order chat (and, after dispatch, the separated Inspector–Customer chat) and discuss scope with the customer.
 
 ![Manager service requests](assets/screens/manager-service-requests.png)
 
@@ -287,7 +287,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 **Step 6.** Sign the agreement on paper, then as `MANAGER` record the signed copy against the request. Occurrences then become available for dispatch.
 
-### 3.5 Workflow 4: Dispatch, Flight Permit and Field Session (`MF2` `FE-04`, `MF3` `FE-05`)
+### 3.5 Workflow 4: Dispatch, Flight Permit and Field Session (`MF2` `FE-09`, `FE-11`, `FE-12`, `MF3` `FE-13`, `FE-14`)
 
 **Purpose.** Prepare and execute one inspection occurrence in the field.
 
@@ -327,7 +327,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 *Figure 6.14 — Post-flight metrics and the recorded GPS flight trace.*
 
-### 3.6 Workflow 5: Evidence Intake and Findings Confirmation (`MF3` `FE-06`)
+### 3.6 Workflow 5: Evidence Intake and Findings Confirmation (`MF3` `FE-15`, `FE-16`, `FE-17`)
 
 **Purpose.** Capture inspection evidence and turn it into an agreed set of official findings.
 
@@ -355,7 +355,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 **Step 6.** Choose **Confirm findings** to set the baseline. This is an explicit action. Only confirmed findings become official, and once confirmed the baseline is what the report is built from.
 
-### 3.7 Workflow 6: Report Submission, Review and Publication (`MF4` `FE-07`)
+### 3.7 Workflow 6: Report Submission, Review and Publication (`MF3` `FE-17`, `MF4` `FE-18`)
 
 **Purpose.** Produce the official inspection report and publish the locked version for the customer.
 
@@ -381,7 +381,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 **Step 5.** If a published report requires correction, issue a new version. The previously published version is preserved and marked superseded rather than overwritten.
 
-### 3.8 Workflow 7: Report Acceptance and Payment (`MF4` `FE-08`)
+### 3.8 Workflow 7: Report Acceptance and Payment (`MF4` `FE-05`, `FE-19`–`FE-24`)
 
 **Purpose.** Accept the published report and settle the inspection fee.
 
@@ -397,15 +397,15 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 **Step 2.** Open and review the published inspection report.
 
-**Step 3.** Choose **Accept report**. Acceptance is recorded against the occurrence and the payment becomes due. From that point the inspection shows a payment-due badge with a countdown to the configured deadline (15 days by default), and a single overdue reminder is sent if the deadline passes. You can download the payment notice — and, once paid, the receipt — as a PDF from the inspection's **/report/payment-document** link.
+**Step 3.** Choose **Accept report**. Acceptance is recorded against the occurrence and the payment becomes due. From that point the inspection shows a payment-due badge with a countdown to the configured deadline (15 days by default), and a single overdue reminder is sent if the deadline passes. You can download the payment notice — and, once paid, the receipt — as a PDF directly from the inspection page.
 
 **Step 4.** Choose **Pay** and select PayOS VietQR or VNPay. For VietQR, scan the displayed code with a banking application; for VNPay, follow the redirect to the payment page.
 
 **Step 5.** Confirm that the payment shows as paid. Settlement is confirmed by the gateway callback rather than by the redirect alone, so the status may take a moment to update. Once paid, a manager can record the inspector's payout for that occurrence.
 
-**Step 6.** For an inspection that enters re-inspection, open the defect verification view. A `RESOLVED` verdict is valid only when the Inspector supplied fresh evidence from the current re-inspection's completed field session, and an expiry indicator (`validUntil`) shows when that verdict lapses. Use the **Inspector** chat tab to exchange messages and attachments with the assigned Inspector about the findings or the re-inspection without leaving the portal.
+**Step 6.** For an inspection that enters re-inspection, open the defect verification view. A `Resolved` verdict is valid only when the Inspector supplied fresh evidence from the current re-inspection's completed field session, and a verdict expiry warning banner shows when that verdict lapses. Use the **Inspector** chat tab to exchange messages and attachments with the assigned Inspector about the findings or the re-inspection without leaving the portal.
 
-### 3.9 Workflow 8: Customer Mobile Application (`MF1`–`MF4`, Customer only)
+### 3.9 Workflow 8: Customer Mobile Application (`MF1`–`MF4`, `FE-01`, `FE-04`, `FE-06`, `FE-08`, `FE-10`, `FE-12`, `FE-17`, `FE-19`–`FE-21`, `FE-24`; Customer only)
 
 **Purpose.** Let a customer follow and act on its inspections from a phone.
 

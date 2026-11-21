@@ -14,10 +14,10 @@ from report_ooxml import Spreadsheet, descendants, find_table, key_values, parse
 TEMPLATE_NAME = "Report5_Test Report.xlsx"
 SOURCES = ["report-5-test-report"]
 STATUS = {"Passed", "Failed", "Pending", "N/A"}
-# Report 3 defines eight current product features (FE-01..FE-08, sections 3.2-3.9),
-# two per main flow MF1-MF4. The supplied template ships two feature sheets; the
-# generated workbook gives each Report 3 feature its own sheet, so sheet N tests FE-0N.
-FEATURE_SHEETS = [f"Feature {n}" for n in range(1, 9)]
+# Report 3 defines twenty-four atomic product features (FE-01..FE-24, sections 3.2-3.25)
+# distributed across the four team members' deliverables. The supplied template ships two
+# feature sheets; the generated workbook gives each Report 3 feature its own sheet, so sheet N tests FE-0N.
+FEATURE_SHEETS = [f"Feature {n}" for n in range(1, 25)]
 CASE_HEADER = ["Test Case ID", "Test Case Description", "Test Case Procedure",
                "Expected Results", "Pre-conditions", "Round 1", "Test date", "Tester",
                "Round 2", "Test date", "Tester", "Round 3", "Test date", "Tester", "Note"]
@@ -26,12 +26,15 @@ CASE_HEADER = ["Test Case ID", "Test Case Description", "Test Case Procedure",
 BLANK_SPACER_ROW = 15
 V29_ROUND3_CASE_IDS = {"WF3-018", "WF3-019"}
 POST_ROUND1_CASE_IDS = V29_ROUND3_CASE_IDS | {
+    "WF2-021",
     "WF3-020",
     "WF3-021",
     "WF3-022",
     "WF3-023",
     "WF3-024",
     "WF3-025",
+    "WF3-032",
+    "WF3-033",
 }
 
 

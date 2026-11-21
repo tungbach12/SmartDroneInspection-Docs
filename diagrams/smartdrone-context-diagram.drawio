@@ -1,0 +1,165 @@
+<mxfile host="app.diagrams.net" pages="1">
+  <diagram id="ctmCYANqdROb9zNJYfJp" name="Context Diagram">
+    <mxGraphModel dx="1607" dy="1219" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+            <mxCell id="0" />
+            <mxCell id="1" parent="0" />
+            <mxCell id="proc" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;fontStyle=1;fontSize=13;fontFamily=Helvetica;align=center;gradientColor=none;" value="SmartDroneInspection&lt;br&gt;System" vertex="1">
+                  <mxGeometry height="280" width="280" x="500" y="220" as="geometry" />
+            </mxCell>
+            <mxCell id="pa" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1.5;fontStyle=1;fontSize=13;fontFamily=Helvetica;align=center;" value="Admin" vertex="1">
+                  <mxGeometry height="70" width="195" x="40" y="55" as="geometry" />
+            </mxCell>
+            <mxCell id="pm" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1.5;fontStyle=1;fontSize=13;fontFamily=Helvetica;align=center;" value="Manager" vertex="1">
+                  <mxGeometry height="70" width="195" x="40" y="230" as="geometry" />
+            </mxCell>
+            <mxCell id="oa" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1.5;fontStyle=1;fontSize=13;fontFamily=Helvetica;align=center;" value="Customer" vertex="1">
+                  <mxGeometry height="70" width="195" x="40" y="340" as="geometry" />
+            </mxCell>
+            <mxCell id="ins" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1.5;fontStyle=1;fontSize=13;fontFamily=Helvetica;align=center;" value="Inspector" vertex="1">
+                  <mxGeometry height="70" width="195" x="40" y="590" as="geometry" />
+            </mxCell>
+            <mxCell id="ai" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1.5;fontStyle=1;fontSize=13;fontFamily=Helvetica;align=center;" value="AI Service" vertex="1">
+                  <mxGeometry height="70" width="195" x="1055" y="55" as="geometry" />
+            </mxCell>
+            <mxCell id="s3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1.5;fontStyle=1;fontSize=13;fontFamily=Helvetica;align=center;" value="Object Storage" vertex="1">
+                  <mxGeometry height="70" width="195" x="1055" y="230" as="geometry" />
+            </mxCell>
+            <mxCell id="hub" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1.5;fontStyle=1;fontSize=13;fontFamily=Helvetica;align=center;" value="SmartDroneHub" vertex="1">
+                  <mxGeometry height="70" width="195" x="1055" y="340" as="geometry" />
+            </mxCell>
+            <mxCell id="pay" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1.5;fontStyle=1;fontSize=13;fontFamily=Helvetica;align=center;" value="Payment, OAuth2 &amp; Mail" vertex="1">
+                  <mxGeometry height="70" width="195" x="1055" y="530" as="geometry" />
+            </mxCell>
+            <mxCell id="e_pa_1" edge="1" parent="1" source="pa" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.25;exitPerimeter=0;entryX=0.41;entryY=0.012;entryPerimeter=0;" target="proc" value="Accounts, catalogs, airspace&lt;br&gt;&amp; platform settings">
+                  <mxGeometry relative="1" x="-0.22" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="615" y="72.5" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_pa_2" edge="1" parent="1" source="proc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0.268;exitY=0.06;exitPerimeter=0;entryX=1;entryY=0.786;entryPerimeter=0;" target="pa" value="Audit logs, dashboard analytics&lt;br&gt;&amp; system status">
+                  <mxGeometry relative="1" x="0.22" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="575" y="110" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_pm_1" edge="1" parent="1" source="pm" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.25;exitPerimeter=0;entryX=0.205;entryY=0.098;entryPerimeter=0;" target="proc" value="Partner/drone/permit reviews,&lt;br&gt;quotes, dispatches &amp; reports">
+                  <mxGeometry relative="1" x="-0.08" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="390" y="247.5" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_pm_2" edge="1" parent="1" source="proc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0.082;exitY=0.232;exitPerimeter=0;entryX=1;entryY=0.786;entryPerimeter=0;" target="pm" value="Service requests, chat messages,&lt;br&gt;submitted reports &amp; flight traces">
+                  <mxGeometry relative="1" x="0.06" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="390" y="285" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_oa_1" edge="1" parent="1" source="oa" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.25;exitPerimeter=0;entryX=0.001;entryY=0.491;entryPerimeter=0;" target="proc" value="Buildings, service requests,&lt;br&gt;quote/report actions &amp; payments">
+                  <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="390" y="357.5" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_oa_2" edge="1" parent="1" source="proc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0.016;exitY=0.625;exitPerimeter=0;entryX=1;entryY=0.786;entryPerimeter=0;" target="oa" value="Quotations, published reports,&lt;br&gt;flight traces &amp; payment receipts">
+                  <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="390" y="395" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_ins_2" edge="1" parent="1" source="proc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0.118;exitY=0.821;exitPerimeter=0;entryX=0.333;entryY=0;entryPerimeter=0;" target="ins" value="Dispatched missions, live telemetry,&lt;br&gt;AI detections &amp; RAG guidance">
+                  <mxGeometry relative="1" x="-0.15" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="105" y="450" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_ins_1" edge="1" parent="1" source="ins" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0.667;exitY=0;exitPerimeter=0;entryX=0.254;entryY=0.936;entryPerimeter=0;" target="proc" value="License/drone docs, flight permits,&lt;br&gt;field evidence &amp; verifications">
+                  <mxGeometry relative="1" x="0.22" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="170" y="482" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_ai_1" edge="1" parent="1" source="proc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0.589;exitY=0.012;exitPerimeter=0;entryX=0;entryY=0.25;entryPerimeter=0;" target="ai" value="Evidence media, defect queries&lt;br&gt;&amp; report summary context">
+                  <mxGeometry relative="1" x="0.22" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="665" y="72.5" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_ai_2" edge="1" parent="1" source="ai" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.786;exitPerimeter=0;entryX=0.732;entryY=0.06;entryPerimeter=0;" target="proc" value="Defect detections, embeddings,&lt;br&gt;AI notes &amp; executive summaries">
+                  <mxGeometry relative="1" x="-0.22" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="705" y="110" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_s3_1" edge="1" parent="1" source="proc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0.795;exitY=0.098;exitPerimeter=0;entryX=0;entryY=0.25;entryPerimeter=0;" target="s3" value="Contracts, drone docs, permits,&lt;br&gt;evidence media &amp; PDFs">
+                  <mxGeometry relative="1" x="0.06" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="910" y="247.5" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_s3_2" edge="1" parent="1" source="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.786;exitPerimeter=0;entryX=0.918;entryY=0.232;entryPerimeter=0;" target="proc" value="Stored documents &amp;amp;&lt;br&gt;evidence media streams">
+                  <mxGeometry relative="1" x="-0.06" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="910" y="285" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_hub_1" edge="1" parent="1" source="proc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0.999;exitY=0.491;exitPerimeter=0;entryX=0;entryY=0.25;entryPerimeter=0;" target="hub" value="Session parameters, telemetry&lt;br&gt;&amp;amp; media capture requests">
+                  <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="910" y="357.5" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_hub_2" edge="1" parent="1" source="hub" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.786;exitPerimeter=0;entryX=0.984;entryY=0.625;entryPerimeter=0;" target="proc" value="Live telemetry, flight traces,&lt;br&gt;flight reports &amp;amp; MP4 recordings">
+                  <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="910" y="395" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_pay_2" edge="1" parent="1" source="pay" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.25;exitPerimeter=0;entryX=0.839;entryY=0.864;entryPerimeter=0;" target="proc" value="Payment webhooks/IPN &amp;&lt;br&gt;verified Google profiles">
+                  <mxGeometry relative="1" x="-0.22" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="735" y="547.5" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+            <mxCell id="e_pay_1" edge="1" parent="1" source="proc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.2;endArrow=classic;endFill=1;fontSize=12;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0.714;exitY=0.946;exitPerimeter=0;entryX=0;entryY=0.786;entryPerimeter=0;" target="pay" value="Sepay/VNPay checkouts, OAuth2&lt;br&gt;requests &amp; OTP/alert emails">
+                  <mxGeometry relative="1" x="0.22" as="geometry">
+                        <mxPoint as="offset" />
+                        <Array as="points">
+                              <mxPoint x="700" y="585" />
+                        </Array>
+                  </mxGeometry>
+            </mxCell>
+      </root>
+</mxGraphModel>
+  </diagram>
+</mxfile>

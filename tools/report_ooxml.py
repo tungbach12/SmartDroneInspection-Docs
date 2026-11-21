@@ -261,6 +261,9 @@ class WordDocument:
         self.doc = self.package.xml("word/document.xml")
         self.body = descendants(self.doc, "body")[0]
         original = children(self.body)
+        first_heading = next(i for i, n in enumerate(original)
+                             if n.localName == "p" and descendants(n, "pStyle")
+                             and descendants(n, "pStyle")[0].getAttribute("w:val") == "Heading1")
         self.headings = {}
         for p in [n for n in original if n.localName == "p"]:
             styles = descendants(p, "pStyle")
@@ -268,7 +271,8 @@ class WordDocument:
                 name = styles[0].getAttribute("w:val")
                 if name.startswith("Heading") and name not in self.headings:
                     self.headings[name] = p.cloneNode(True)
-        self.table_prototypes = [n.cloneNode(True) for n in original if n.localName == "tbl"]
+        body_tables = [n.cloneNode(True) for n in original[first_heading:] if n.localName == "tbl"]
+        self.table_prototypes = body_tables or [n.cloneNode(True) for n in original if n.localName == "tbl"]
         body_candidates = [p for p in original if p.localName == "p"
                            and self.text(p) and not descendants(p, "pStyle")
                            and not descendants(p, "drawing") and original.index(p) > 28]
@@ -307,9 +311,6 @@ class WordDocument:
             ids = [n.getAttribute("w:val")
                    for n in descendants(self.list_prototype, "numId")]
             self.list_num_id = ids[0] if ids else ""
-        first_heading = next(i for i, n in enumerate(original)
-                             if n.localName == "p" and descendants(n, "pStyle")
-                             and descendants(n, "pStyle")[0].getAttribute("w:val") == "Heading1")
         self.cover = original[:first_heading]
         self.section = next(n.cloneNode(True) for n in original if n.localName == "sectPr")
         for node in original[first_heading:]:

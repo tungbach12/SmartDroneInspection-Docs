@@ -1,0 +1,37 @@
+<mxfile host="app.diagrams.net" pages="1">
+  <diagram id="83n6dg3poX-HR_07IO_L" name="Agile Scrum Process">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="jVK7xuovN8KA7p4wh3S3-9" edge="1" parent="1" source="jVK7xuovN8KA7p4wh3S3-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="jVK7xuovN8KA7p4wh3S3-6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jVK7xuovN8KA7p4wh3S3-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;b&gt;1. Plan interation&lt;/b&gt;&lt;br&gt;Prioritize backlog and risks" vertex="1">
+          <mxGeometry height="60" width="200" x="200" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="jVK7xuovN8KA7p4wh3S3-10" edge="1" parent="1" source="jVK7xuovN8KA7p4wh3S3-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="jVK7xuovN8KA7p4wh3S3-7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jVK7xuovN8KA7p4wh3S3-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;b&gt;2. Refine and design&lt;/b&gt;&lt;br&gt;Acceptance criteria&amp;nbsp; API | UI" vertex="1">
+          <mxGeometry height="60" width="200" x="480" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="jVK7xuovN8KA7p4wh3S3-11" edge="1" parent="1" source="jVK7xuovN8KA7p4wh3S3-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="jVK7xuovN8KA7p4wh3S3-8" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jVK7xuovN8KA7p4wh3S3-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;b&gt;3.Build and verify&lt;/b&gt;&lt;br&gt;Implement | review | test" vertex="1">
+          <mxGeometry height="60" width="200" x="480" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="jVK7xuovN8KA7p4wh3S3-12" edge="1" parent="1" source="jVK7xuovN8KA7p4wh3S3-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="jVK7xuovN8KA7p4wh3S3-5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jVK7xuovN8KA7p4wh3S3-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;b&gt;4. Demonstrate and adapt&lt;/b&gt;&lt;br&gt;Review increment | record feedback" vertex="1">
+          <mxGeometry height="60" width="200" x="200" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="jVK7xuovN8KA7p4wh3S3-14" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b&gt;Repeat implementation interations release after acceptance&lt;/b&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="330" y="380" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
