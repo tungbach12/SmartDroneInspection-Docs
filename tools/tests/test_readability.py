@@ -93,6 +93,18 @@ class TableContinuityTests(unittest.TestCase):
                          f"{len(offenders)} raw table row(s) exported as prose: "
                          f"{offenders[:2]}")
 
+    def test_report7_two_column_body_tables_ignore_cover_layout_tables(self):
+        from export_common import original
+        document = WordDocument(original(OFFICIAL, "Report7_Final Project Report.docx"))
+        self.assertEqual(len(document.table_prototypes), 2)
+        rendered = document.table([
+            ["Category", "Tools / Infrastructure"],
+            ["Technology", "Java 21, Spring Boot 4.1"],
+        ])
+        xml = rendered.toxml()
+        self.assertNotIn('w:val="nil"', xml)
+        self.assertNotIn('w:val="32"', xml)
+
 
 class DiagramTests(unittest.TestCase):
     def test_mermaid_keeps_line_structure_and_is_marked_as_source(self):

@@ -8,20 +8,20 @@ explicitly approves a new template version.
 ## Sheet order and used areas
 
 The supplied workbook has five sheets and two feature sheets. Generated workbooks
-extend that source template with four cloned feature sheets so Report 5 has six active
-feature sheets, one for each current Report 3 feature FE-01 through FE-06. The original file in `template/` is
-unchanged. `Feature N` maps to `FE-0N` for active Report 3 sections §§3.2–3.7 (`FE-01`–`FE-06`). Retired maintenance sheets and cases are historical and excluded.
+extend that source template with cloned feature sheets so Report 5 has twenty-four active
+feature sheets (`Feature 1`–`Feature 24`), one for each current Report 3 atomic feature (`FE-01`–`FE-24`). The original file in `template/` is
+unchanged. `Feature N` maps to `FE-0N` for active Report 3 sections `§§3.2–3.25` (`FE-01`–`FE-24`). Retired maintenance sheets and cases are historical and excluded.
 
 | Order | Sheet name | Used area in the supplied template / generated output | Editable source |
 | ---: | --- | --- | --- |
 | 1 | `Cover` | `A2:F17` / content-driven | `00-cover/cover.md`, `00-cover/record-of-changes.md` |
 | 2 | `Test Cases` | `B1:F21` / content-driven | `01-test-cases/test-case-list.md` |
-| 3 | `Test Statistics` | `A1:H18` / `A1:H20` with six module rows | `02-test-statistics/test-statistics.md` |
-| 4–9 | `Feature 1`–`Feature 6` | `A2:R19` / content-driven; one sheet per active FE | Matching `03-features/fe-01` through `fe-06` source |
+| 3 | `Test Statistics` | `A1:H18` / `A1:H41` with twenty-four module rows | `02-test-statistics/test-statistics.md` |
+| 4–27 | `Feature 1`–`Feature 24` | `A2:R19` / content-driven; one sheet per active FE | Matching `03-features/fe-01` through `fe-24` source |
 
 The generator clones the official feature-sheet layout, including its widths,
 styles, print settings and metadata block. It adds no rows or columns to the
-execution table; it adds worksheets because the SRS has six product features.
+execution table; it adds worksheets because the SRS has twenty-four product features.
 Adding or reordering an SRS FE requires updating case routing and the summary
 row together.
 
@@ -45,7 +45,7 @@ columns, in this exact order:
 `No` · `Function Name` · `Sheet Name` · `Description` · `Pre-Condition`
 
 The working source keeps all cases in one table, including cases that belong to
-all six active feature sheets.
+all twenty-four active feature sheets.
 
 **Sheet-name spacing.** The template's own placeholder cells in `Sheet Name`
 read `Feature1` and `Feature2` (no space, `D9:D13`), while the actual sheet tabs
@@ -67,33 +67,27 @@ affect an export, because the workbook keeps its own header cell.
 
 In the supplied template, module rows 11–12 contain formulas that point to
 `Feature 1` and `Feature 2`. Generated workbooks extend the same mapping pattern
-to rows 11–16, pointing row N+10 at sheet `Feature N`:
+to rows 11–34, pointing row N+10 at sheet `Feature N`:
 
 - Column `C` references the sheet's `B2` Feature name.
 - Columns `D:G` reference `B6:E6`, the Round 1 status counts.
 - Column `H` references `B4`, the number of test cases.
 
 So `Module code` reports the SRS feature name in the sheet's `Feature` cell
-(`B2`), not the workbook sheet name. The generated workbook has six active module
-rows. `Sub total` moves to row 17; historical and Round 3 summaries follow, with
+(`B2`), not the workbook sheet name. The generated workbook has twenty-four active module
+rows (`11–34`). `Sub total` moves to row `35`; historical and Round 3 summaries follow, with
 coverage below them:
 
 - `Test coverage` = `(Passed + Failed) * 100 / (Number of TCs - N/A)`
 - `Test successful coverage` = `Passed * 100 / (Number of TCs - N/A)`
 
-With the active 53-case inventory, Round 1 has `45 Passed`, `0 Failed`, `5
-Pending`, and `3 N/A`; WF3-021 is Pending in Round 1, while WF3-020 and the two
-V29 finance cases are N/A for Round 1. Retired maintenance cases are excluded
-from active counts. Keep workbook formulas and change underlying statuses in the
-feature Markdown files.
+With the active 67-case inventory (`64` historical cases + `3` unexecuted standalone cases `WF3-032`, `WF2-021`, `WF3-033`), Round 1 has `45 Passed`, `0 Failed`, `9 Pending`, and `13 N/A` (`45 / 54 = 83.33%`). Retired maintenance cases are excluded from active counts. Keep workbook formulas and change underlying statuses in the feature Markdown files.
 
-The generated statistics sheet places six module rows at 11–16, current Round 1
-subtotal at row 17, historical active-scope Round 1 at row 18, Round 3 executed
-cases at row 19, the V29 Round 3 subset at row 20, spacer at row 21, and coverage
-at rows 22–23 (`90.00%`). Round 3 executed totals include only Passed/Failed cases:
-three in total (`WF3-006`, `WF3-016`, `WF3-018`). The V29 subset covers
-WF3-018/019; WF3-018 is Passed while WF3-019 is Pending pending re-execution
-against the revised payout contract.
+The generated statistics sheet places twenty-four module rows at `11–34`, current Round 1
+subtotal at row `35`, historical active-scope Round 1 at row `36` (`45/0/8/3/56`), Round 3 executed
+cases at row `37` (`13/13`), the V29 Round 3 subset at row `38` (`2/2`), spacer at row `39`, and coverage
+at rows `40–41` (`83.33%`). Round 3 executed totals include only Passed/Failed cases
+(`13` cases: `WF3-005`, `WF3-006`, `WF3-009`, `WF3-016`, `WF3-018`, `WF3-019`, `WF3-021`, `WF3-026`–`WF3-031`). The V29 subset covers `WF3-018` and `WF3-019`, both Round 3 `Passed`.
 
 ## Feature sheets (supplied template and generated workbook)
 
@@ -146,12 +140,30 @@ the `Feature sheet summary` table in each matching `fe-0N-…md` file. Populate
 
 | FE source | Workbook destination | Stable case IDs |
 | --- | --- | --- |
-| FE-01 Authentication, Google OAuth2 & 4-Role Access Control (§3.2) | `Feature 1` | WF1-001 to WF1-005, WF1-022 (6 cases) |
-| FE-02 Partner Onboarding, Workforce, Asset & Inspector Drone Registry (§3.3) | `Feature 2` | WF1-006 to WF1-016 (11 cases) |
-| FE-03 Recurring Service Requests, Contract Occurrences & Outbox Notifications (§3.4) | `Feature 3` | WF1-017 to WF1-021 (5 cases) |
-| FE-04 Service Requests, Quotations, Contracts, Dispatch & Airspace Map (§3.5) | `Feature 4` | WF2-001 to WF2-005 (5 cases) |
-| FE-05 Flight Permit Gate, Field Execution, Dashboard & Calendar (§3.6) | `Feature 5` | WF2-008, WF2-009, WF2-011, WF2-012, WF2-015 to WF2-020, WF3-009, WF3-020 (12 cases) |
-| FE-06 Evidence Intake, YOLO11 Detection, Auto-Compiled Report & PayOS (§3.7) | `Feature 6` | WF3-001 to WF3-008, WF3-010, WF3-012, WF3-016 to WF3-019, WF3-021 to WF3-025 (19 cases) |
+| `FE-01` Account Authentication, OTP & 4-Role Access Control (`§3.2`) | `Feature 1` | `WF1-001`, `WF1-003`–`005`, `WF1-022`, `WF2-019`, `WF2-020` (7 cases) |
+| `FE-02` Partner Inspector Application & Qualification Management (`§3.3`) | `Feature 2` | `WF1-006`–`008`, `WF1-010` (4 cases) |
+| `FE-03` Inspector-Owned Drone Registration & Fleet Management (`§3.4`) | `Feature 3` | `WF1-014`–`016` (3 cases) |
+| `FE-04` Interactive Location Map & No-Fly Zone Airspace Screening (`§3.5`) | `Feature 4` | `WF1-002`, `WF2-004`, `WF2-005` (3 cases) |
+| `FE-05` Financial History & Revenue/Payment Ledger (`§3.6`) | `Feature 5` | `WF3-032` (1 case; `N/A / Pending / Pending`) |
+| `FE-06` Building Asset Registry, Checkpoints & Reference Documents (`§3.7`) | `Feature 6` | `WF1-011`–`013` (3 cases) |
+| `FE-07` Restricted Airspace Review & Clearance Decision (`§3.8`) | `Feature 7` | `WF1-009` (1 case) |
+| `FE-08` Service Requests (One-Time & Recurring) & VND Quotations (`§3.9`) | `Feature 8` | `WF1-017`–`019` (3 cases) |
+| `FE-09` Offline Signed Contract & Occurrence Dispatch Scheduling (`§3.10`) | `Feature 9` | `WF1-021`, `WF2-002`, `WF2-003`, `WF2-015`, `WF2-016` (5 cases) |
+| `FE-10` Dual-Channel Messaging (Order Chat & Inspection Chat) (`§3.11`) | `Feature 10` | `WF2-001` (1 case) |
+| `FE-11` Assignment Acceptance Timeout & Escalation Handling (`§3.12`) | `Feature 11` | `WF2-021` (1 case; `N/A / Pending / Pending`) |
+| `FE-12` System Notifications & Alert Center (`§3.13`) | `Feature 12` | `WF1-020` (1 case) |
+| `FE-13` Flight Permit Upload & Independent Verification Gate (`§3.14`) | `Feature 13` | `WF2-008`, `WF2-009` (2 cases) |
+| `FE-14` On-Site Field Session & SmartDroneHub MAVLink Telemetry (`§3.15`) | `Feature 14` | `WF2-011`, `WF2-012`, `WF2-017`, `WF2-018`, `WF3-020` (5 cases) |
+| `FE-15` Field Evidence Intake & Chunked Video Processing Pipeline (`§3.16`) | `Feature 15` | `WF3-002`, `WF3-022`–`025` (5 cases) |
+| `FE-16` AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Confirmation (`§3.17`) | `Feature 16` | `WF3-001`, `WF3-003`, `WF3-004`, `WF3-007`, `WF3-008`, `WF3-010`, `WF3-017` (7 cases) |
+| `FE-17` AI Case/Standard Retrieval (`pgvector` RAG), Note Drafting & Report Summary (`§3.18`) | `Feature 17` | `WF3-029`, `WF3-030` (2 cases) |
+| `FE-18` Inspection Report Compilation, Independent Review & Official Publication (`§3.19`) | `Feature 18` | `WF3-005`, `WF3-006`, `WF3-009`, `WF3-016` (4 cases) |
+| `FE-19` Customer Report Acceptance & Clarification Workflow (`§3.20`) | `Feature 19` | `WF3-012` (1 case) |
+| `FE-20` Online Service Fee Payment (`PayOS` VietQR & `VNPay`) (`§3.21`) | `Feature 20` | `WF3-018`, `WF3-019` (2 cases) |
+| `FE-21` Payment Deadlines, Invoices & Payment Document Management (`§3.22`) | `Feature 21` | `WF3-026`, `WF3-027` (2 cases) |
+| `FE-22` Partner Inspector Payout Reconciliation (`§3.23`) | `Feature 22` | `WF3-033` (1 case; `N/A / Pending / Pending`) |
+| `FE-23` Evidence-Backed Refunds & Receivable Recovery (`§3.24`) | `Feature 23` | `WF3-021` (1 case) |
+| `FE-24` Post-Remediation Re-inspection & Defect Verification (`§3.25`) | `Feature 24` | `WF3-028`, `WF3-031` (2 cases) |
 
 ## Visual and status rules
 

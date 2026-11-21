@@ -7,7 +7,7 @@ source: "report3-software-requirement-specification.docx"
 
 ## 2. User Requirements
 
-This section defines the actors of the building-inspection service and the business goals they pursue. The scope is limited to building structures as described in §1, and the use cases below are grouped across the four main flows `MF1`–`MF4` that §3 details as eight features. Partner Inspector admission is a public self-service application reviewed by platform staff; an Inspector account is created only after that review succeeds. Recurring service requests are supported, and accepting a quotation materializes their planned occurrences. Occurrence materialization is acceptance-triggered, not time-based generation.
+This section defines the actors of the building-inspection service and the business goals they pursue. The scope is limited to building structures as described in §1, and the use cases below are grouped across the four main flows `MF1`–`MF4` that §3 details as twenty-four atomic features (`FE-01`–`FE-24`). Partner Inspector admission is a public self-service application reviewed by platform staff; an Inspector account is created only after that review succeeds. Recurring service requests are supported, and accepting a quotation materializes their planned occurrences. Occurrence materialization is acceptance-triggered, not time-based generation.
 
 ### 2.1 Actors
 
@@ -22,20 +22,6 @@ This section defines the actors of the building-inspection service and the busin
 | 7 | SmartDroneHub | An optional ground-station integration that supplies read-only MAVLink telemetry, flight traces, and mission video for a permitted field session. It does not receive flight commands from the platform. |
 
 The `CUSTOMER` role is also served by a native mobile application that mirrors the web experience for verdict expiry, the payment-notice and payment-receipt PDF, Inspector–Customer chat, and the compact knowledge-references strip. Other roles use the web portals.
-
-#### 2.1.1 Project Identity and Implementation Team
-
-- **English title:** SmartDroneInspection: AI-powered Infrastructure Inspection Management Platform.
-- **Vietnamese title:** SmartDroneInspection: Nền tảng Quản lý Kiểm tra Hạ tầng bằng Drone tích hợp AI.
-- **Supervisors:** Phạm Minh Trí (`tripm14@fpt.edu.vn`); Đặng Ngọc Minh Đức (`ducdnm2@fpt.edu.vn`).
-- **Students:**
-
-| Student ID | Name | Role in the project | Main flow / features |
-| --- | --- | --- | --- |
-| `SE184212` | Trần Hoàng Trung Hiếu | Leader | `MF1` (`FE-01`, `FE-02`) |
-| `SE170027` | Phùng Trung Quốc | Member | `MF2` (`FE-03`, `FE-04`) |
-| `SE180082` | Trương Thái Như | Member | `MF4` (`FE-08`) and cross-client parity |
-| `SE180220` | Trần Tùng Bách | Member | `MF3` (`FE-05`, `FE-06`, `FE-07`) |
 
 ### 2.2 Use Cases
 

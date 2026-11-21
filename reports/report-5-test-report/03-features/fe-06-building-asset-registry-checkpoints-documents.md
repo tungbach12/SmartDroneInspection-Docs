@@ -1,0 +1,20 @@
+# FE-06: Building Asset Registry, Checkpoints & Reference Documents
+
+Synchronized with Report 3 SRS v2.2 and Report 4 SDD v2.4; upstream of the `(FE-06)` test sheet in `Report5_Test Report.xlsx`.
+
+## Feature sheet summary
+
+Values for the `Feature 6` summary block (`A2:E8` in the workbook).
+
+| Cell | Label | Value |
+| --- | --- | --- |
+| `B2` | Feature | Building Asset Registry, Checkpoints & Reference Documents |
+| `B3` | Test requirement | Verifies Customer building asset creation with plain-text ownership information (`assets.ownership_information` per `V66`) alongside `technical_profile jsonb`, `inspection_items` checkpoints, MinIO reference documents with SHA-256 duplicate guards, NFZ creation guard, and `ACTIVE -> RETIRED` terminal lock. |
+
+## Test case execution records
+
+| Test Case ID | Test Case Description | Test Case Procedure | Expected Results | Pre-conditions | Round 1 | Test date | Tester | Round 2 | Test date | Tester | Round 3 | Test date | Tester | Note |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| WF1-011 | Customer registers an infrastructure asset in clear/restricted airspace with `inspectionItems` checkpoints and uploads an engineering document to MinIO. | 1. As `ADMIN`, create global `AssetCategory` (POST /api/v1/asset-categories).<br>2. As `CUSTOMER`, POST /api/v1/assets with `assetCode`, GPS coordinates outside No-Fly Zone, and `inspectionItems=['Mố cầu M1','Trụ P1','Dầm chính']`.<br>3. Upload PDF schematic via POST /api/v1/assets/{id}/documents and stream it back. | Asset created in `ACTIVE` status with normalized `inspection_items` JSONB (201); document stored in MinIO with SHA-256 checksum and streamed back with matching bytes (200). | Active Customer organization, PostgreSQL 17, and MinIO container. | Passed | 2026-10-26 | Trần Hoàng Trung Hiếu | Pending |  |  | Pending |  |  | [Target: FE-02 Main Flow BR-42] [Mode: Automated (AssetApiIntegrationTest, AssetDocumentApiIntegrationTest)] [Owner: Trần Hoàng Trung Hiếu] |
+| WF1-012 | Asset registry rejects coordinates inside `NO_FLY_ZONE`, duplicate asset codes within the same tenant, and duplicate identical document uploads. | 1. Submit POST /api/v1/assets with coordinates inside a prohibited `NO_FLY_ZONE` or with an existing `assetCode` in the same organization.<br>2. Re-upload an identical binary file (identical SHA-256 bytes) to POST /api/v1/assets/{id}/documents.<br>3. Upload an empty (0-byte) file. | `NO_FLY_ZONE` coordinates return 403 `ASSET_IN_NO_FLY_ZONE`; duplicate `assetCode` returns 409 Conflict; duplicate document `checksum_sha256` returns 409 Conflict; 0-byte upload returns 400 Bad Request. | Existing `Asset` with one uploaded `AssetDocument` in MinIO. | Passed | 2026-10-26 | Trần Hoàng Trung Hiếu | Pending |  |  | Pending |  |  | [Target: FE-02 Validation/BR-42] [Mode: Automated (AssetApiIntegrationTest, AssetDocumentApiIntegrationTest)] [Owner: Trần Hoàng Trung Hiếu] |
+| WF1-013 | Customer retires an asset (`ACTIVE -> RETIRED`) and system blocks subsequent modifications or new service requests. | 1. Call POST /api/v1/assets/{assetId}/retire as `CUSTOMER`.<br>2. Attempt PUT /api/v1/assets/{assetId} or new `ServiceRequest` creation on the retired asset.<br>3. Attempt POST /retire as `INSPECTOR`. | Asset transitions `ACTIVE -> RETIRED` (200 OK) while preserving historical inspections/reports; subsequent edits or service requests on a `RETIRED` asset are rejected (400/404/409); `INSPECTOR` is rejected with 403. | Active `Asset` fixture in PostgreSQL 17. | Passed | 2026-10-26 | Trần Hoàng Trung Hiếu | Pending |  |  | Pending |  |  | [Target: FE-02 Exception/RBAC & State AssetStatus] [Mode: Automated (AssetApiIntegrationTest, AssetTest, AssetsPage.resources.test.tsx)] [Owner: Trần Hoàng Trung Hiếu] |
