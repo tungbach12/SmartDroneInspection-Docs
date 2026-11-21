@@ -548,6 +548,18 @@ classDiagram
   class Mf2InspectionAssignmentAdapter {
     +assign(orgId, assetId, inspectorId, droneId, startAt, endAt, actorId) UUID
   }
+  class PlatformOperationsSettingsController {
+    +get() PlatformOperationsSettingsResponse
+    +update(req) PlatformOperationsSettingsResponse
+  }
+  class PlatformOperationsSettingsService {
+    +getSettings() PlatformOperationsSettingsResponse
+    +updateSettings(actorId, timeoutHours) PlatformOperationsSettingsResponse
+    +assignmentAcceptanceTimeoutHours() int
+  }
+  class InspectionAssignmentTimeoutMonitor {
+    +unassignTimedOutAssignments() void
+  }
   class AirspaceAdvisoryService {
     +listZones() List~AirspaceZoneView~
     +evaluate(lat, lon, maxAltitudeMeters) AirspaceEvaluationResult
@@ -586,16 +598,19 @@ classDiagram
   ContractWorkflowService --> ServiceRequestQuote
   ContractWorkflowService --> ServiceRequestOccurrence
   ContractWorkflowService --> Mf2InspectionAssignmentAdapter
+  PlatformOperationsSettingsController --> PlatformOperationsSettingsService
+  InspectionAssignmentTimeoutMonitor --> PlatformOperationsSettingsService
 ```
 
 **Class Specifications**
 
 | No | Class | Description |
 | :---: | :--- | :--- |
-| 01 | `ContractWorkflowController` & `ContractWorkflowService` | Manage role-scoped service requests: Managers claim unassigned rows under a pessimistic request lock, and only the assigned Manager receives detailed conversation/commercial access. ADMIN uses an assignment-only registry to assign, reassign, or unassign with audit events and cannot act as a Manager. The owning Customer alone receives the assigned active Manager contact. The Customer/Manager UI provides a three-dot menu, structured overview, request progress navigation, and left-nav Messages inbox. |
-| 02 | `Mf2InspectionAssignmentAdapter` & `PartnerRegistryService` | Validate Inspector pilot license status, drone ownership, and cross-organization schedule availability before creating a scheduled inspection mission. |
-| 03 | `AirspaceController` & `AirspaceAdvisoryService` | Expose Vietnam No-Fly and Restricted airspace polygons and evaluate target coordinates and altitudes using Haversine distance checks. |
-| 04 | `ServiceRequest`, `ServiceRequestQuote` & `ServiceRequestOccurrence` | Domain entities representing the customer request, each proposed VND quotation version, and the individual inspection occurrences generated upon quote acceptance. |
+| 01 | `ContractWorkflowController` & `ContractWorkflowService` | Manage role-scoped service requests: Managers claim unassigned rows under a pessimistic request lock, and only the assigned Manager receives detailed conversation/commercial access. ADMIN uses an assignment-only registry to assign, reassign, or unassign with audit events and cannot act as a Manager. The owning Customer alone receives the assigned active Manager contact. The Customer/Manager UI provides a three-dot menu, structured overview, request progress navigation, left-nav Messages inbox, and Customer/Manager finance history endpoints. |
+| 02 | `Mf2InspectionAssignmentAdapter` & `PartnerRegistryService` | Validate Inspector pilot license status, drone ownership, and cross-organization schedule availability at Step 4 dispatch before creating a scheduled inspection mission. |
+| 03 | `PlatformOperationsSettingsController`, `PlatformOperationsSettingsService` & `InspectionAssignmentTimeoutMonitor` | Expose Admin-configurable assignment acceptance timeout (`1`–`720` hours, default `24` hours, `V61`) and monitor `PENDING_ACCEPTANCE` missions via `inspections.assignment_requested_at`. Timed-out occurrences are automatically unassigned, annotated with `last_timeout_cancelled_at` / `last_timeout_inspector_id`, and emit `InspectionAssignmentTimedOutEvent` to notify the Manager. |
+| 04 | `AirspaceController` & `AirspaceAdvisoryService` | Expose Vietnam No-Fly and Restricted airspace polygons and evaluate target coordinates and altitudes using Haversine distance checks. |
+| 05 | `ServiceRequest`, `ServiceRequestQuote` & `ServiceRequestOccurrence` | Domain entities representing the customer request, each proposed VND quotation version (with nullable legacy `inspectorId`/`droneId` per `V60`), and the individual inspection occurrences generated upon quote acceptance. |
 
 #### 3.4.2 Service Request, Order Chat and VND Quotation Sequence Diagram
 
@@ -625,9 +640,8 @@ sequenceDiagram
 
   Mgr->>Ctrl: POST /api/v1/contracts/requests/{id}/quotes
   Ctrl->>Svc: issueQuote(managerId, requestId, quoteInput)
-  Svc->>Partner: isEligibleInspector(inspectorId, startAt) & isEligibleDrone(droneId, inspectorId)
   Svc->>FinSvc: requireConfiguredRates()
-  Svc->>DB: Save immutable ServiceRequestQuote version (VND) and mark request QUOTED
+  Svc->>DB: Save immutable ServiceRequestQuote version (VND, required drone features) and mark request QUOTED
 
   Cust->>Ctrl: POST /api/v1/contracts/requests/{id}/accept?versionNo=v
   Ctrl->>Svc: acceptQuote(customerId, requestId, versionNo)
@@ -660,8 +674,9 @@ sequenceDiagram
   Ctrl->>Svc: assignOccurrence(managerId, requestId, occId, assignInput)
   Svc->>DB: Check hasScheduleConflict(inspectorId, droneId, startAt, endAt)
   Svc->>AssignPort: assign(orgId, assetId, inspectorId, droneId, startAt, endAt, managerId)
-  AssignPort->>DB: Create SCHEDULED Inspection and publish InspectionAssignedEvent
+  AssignPort->>DB: Create SCHEDULED Inspection (PENDING_ACCEPTANCE, assignment_requested_at) and publish InspectionAssignedEvent
   Svc->>DB: Link inspectionId on ServiceRequestOccurrence and mark request ASSIGNED
+  Note over AssignPort,DB: If Inspector does not accept within PlatformOperationsSettings timeout, InspectionAssignmentTimeoutMonitor unassigns occurrence and publishes InspectionAssignmentTimedOutEvent
 ```
 
 ---
@@ -710,9 +725,27 @@ classDiagram
   class InspectionDroneHubService {
     +status(actorId, inspId) DroneHubStatusResponse
     +connect(actorId, inspId, sessId, req) DroneHubStatusResponse
+    +completeFlight(actorId, inspId, sessId) DroneHubStatusResponse
     +disconnect(actorId, inspId, sessId) DroneHubStatusResponse
     +getFlightReport(actorId, inspId, sessId) DroneFlightReportResponse
     +syncFlightVideo(actorId, inspId, sessId) EvidenceResponse
+  }
+  class InspectionChatController {
+    +getThread(inspId) InspectionChatThreadResponse
+    +postMessage(inspId, body, files) InspectionChatThreadResponse
+    +downloadAttachment(inspId, msgId, attId) ResponseEntity
+  }
+  class InspectionChatService {
+    +getThread(actorId, inspId) InspectionChatThreadResponse
+    +postMessage(actorId, inspId, body, files) InspectionChatThreadResponse
+  }
+  class InspectionMessage {
+    -UUID id
+    -UUID inspectionId
+    -UUID authorUserId
+    -String body
+    -boolean hasAttachments
+    -Instant readAt
   }
   class Inspection {
     -UUID id
@@ -752,18 +785,22 @@ classDiagram
   InspectionFieldSessionService --> Inspection
   InspectionFieldSessionService --> FieldSession
   InspectionDroneHubService --> FieldSession
+  InspectionChatController --> InspectionChatService
+  InspectionChatService --> InspectionMessage
   Inspection "1" *-- "1..*" FieldSession : executes
+  Inspection "1" *-- "0..*" InspectionMessage : discusses
 ```
 
 **Class Specifications**
 
 | No | Class | Description |
 | :---: | :--- | :--- |
-| 01 | `InspectionController`, `InspectionListController` & `InspectionCreationService` | Handle mission flight permit uploads (checking assigned Inspector pilot license validity at upload time), scoped mission queries, flight permit streaming, and Manager recovery actions (`reschedule`, `reassign`, or `cancel`) when an on-site field session is aborted. |
+| 01 | `InspectionController`, `InspectionListController` & `InspectionCreationService` | Handle mission flight permit uploads (checking assigned Inspector pilot license validity at upload time), scoped mission queries, flight permit streaming, stakeholder contact projection, and Manager recovery actions (`reschedule`, `reassign`, or `cancel`) when an on-site field session is aborted. |
 | 02 | `InspectionFieldSessionController` & `InspectionFieldSessionService` | Govern on-site field session execution, enforcing that a session can start only when the inspection is `SCHEDULED` with `hasFlightPermit() == true`, and recording either normal completion (`FIELD_COMPLETED`) or session abort (`ABORTED` with mission reopen to `SCHEDULED`). |
-| 03 | `InspectionDroneHubService` & `SmartDroneHubClient` | Connect an active field session to `SmartDroneHub`, stream live telemetry, persist post-flight report metrics and GPS flight traces (`flight_trace_json`) on `FieldSession`, and synchronize recorded mission MP4 videos into inspection `Evidence`. |
-| 04 | `DashboardController` & `DashboardAnalyticsService` | Aggregate 5-role operational KPIs, mission queues, confirmed defect severity distributions, and inspection-service metrics only. |
-| 05 | `Inspection` & `FieldSession` | Domain entities representing the 6-state inspection mission aggregate and the 4-state on-site flight session with persisted telemetry, GPS flight trace, and synced video reference (`V28`). |
+| 03 | `InspectionDroneHubService` & `SmartDroneHubClient` | Connect an active field session to `SmartDroneHub`, stream live telemetry, trigger live flight completion (`completeFlight`), persist post-flight report metrics and GPS flight traces (`flight_trace_json`, filtering null-island coordinates) on `FieldSession`, and synchronize recorded mission MP4 videos into inspection `Evidence`. |
+| 04 | `InspectionChatController`, `InspectionChatService`, `InspectionMessage` & `InspectionMessageAttachment` | Provide dedicated Inspector–Customer inspection-level messaging (`V61`) with private MinIO attachments validated by `ChatAttachmentValidator` (PNG, JPEG, WEBP, PDF, DOCX up to 20 MiB). |
+| 05 | `DashboardController` & `DashboardAnalyticsService` | Aggregate four-role operational KPIs, mission queues, confirmed defect severity distributions, and inspection-service metrics only. |
+| 06 | `Inspection` & `FieldSession` | Domain entities representing the 6-state inspection mission aggregate and the 4-state on-site flight session with persisted telemetry, GPS flight trace, and synced video reference. |
 
 #### 3.5.2 Flight Permit Gate, Field Session Execution and SmartDroneHub Sync Sequence Diagram
 
@@ -1079,6 +1116,8 @@ classDiagram
     -BigDecimal amountVnd
     -PaymentStatus status
     -String providerTransactionRef
+    -Instant paymentDueAt
+    -Instant paymentOverdueNotifiedAt
   }
   class ServiceRefund {
     -UUID id
@@ -1094,6 +1133,8 @@ classDiagram
     -UUID newEvidenceId
     -DefectResolutionStatus resolutionStatus
     -String inspectorNotes
+    -Instant verifiedAt
+    -Instant validUntil
   }
   ContractWorkflowService --> ServicePayment
   ContractWorkflowService --> ServiceRefund
@@ -1106,10 +1147,10 @@ classDiagram
 
 | No | Class | Description |
 | :---: | :--- | :--- |
-| 01 | `ContractWorkflowService`, `PayOSWebhookController` & `VnPayWebhookController` | Record Customer acceptance (`PAYMENT_DUE`), issue PayOS/VNPay checkout links, verify signed callbacks, and settle Customer payment (`PAID`) with Inspector payout `ELIGIBLE` only. `MANAGER` records actual payout references; unresolved orders cannot be replaced, and only provider-confirmed PayOS cancellation clears an unpaid order. Manager-recorded external refunds use a capped auditable ledger and hold payout until explicit reconciliation records the actual final payout and attribution. |
-| 02 | `ServicePayment` & `ServiceRefund` | Domain entities representing a provider payment against a service invoice and an evidence-backed refund with its allocation. |
-| 03 | `ReinspectionVerificationService` | Open a re-inspection against a source inspection, initialize one `ReinspectionDefectVerification` row per originally confirmed defect, and record each three-way outcome (`RESOLVED`, `UNRESOLVED`, `INCONCLUSIVE`) with the inspector's note and the supporting evidence capture. Recording is refused while the re-inspection is still `SCHEDULED` or `IN_PROGRESS`, and locked once a report for it is `SUBMITTED` or `PUBLISHED`. |
-| 04 | `ReinspectionDefectVerification` | Domain entity linking the re-inspection, the source finding, the replacement evidence, and the recorded resolution status. |
+| 01 | `ContractWorkflowService`, `PayOSWebhookController` & `VnPayWebhookController` | Record Customer acceptance (`PAYMENT_DUE` with a configurable `payment_due_at` deadline and overdue notification tracking via `V4`), issue PayOS/VNPay checkout links, verify signed callbacks, settle Customer payment (`PAID`) with Inspector payout `ELIGIBLE` only, and serve Customer/Manager finance history projections (`FinanceHistoryPageResponse`, `ManagerFinanceHistoryResponse`). `MANAGER` records actual payout references; unresolved orders cannot be replaced, and only provider-confirmed PayOS cancellation clears an unpaid order. Manager-recorded external refunds use a capped auditable ledger and hold payout until explicit reconciliation records the actual final payout and attribution. |
+| 02 | `ServicePayment` & `ServiceRefund` | Domain entities representing a provider payment against a service invoice (including `paymentDueAt` and `paymentOverdueNotifiedAt`) and an evidence-backed refund with its allocation. |
+| 03 | `ReinspectionVerificationService` | Open a re-inspection against a source inspection, initialize one `ReinspectionDefectVerification` row per originally confirmed defect, and record each three-way outcome (`RESOLVED`, `UNRESOLVED`, `INCONCLUSIVE`) with the inspector's note, determination timestamp (`verifiedAt`), validity expiry (`validUntil` per `V3`), and the supporting evidence capture. Recording is refused while the re-inspection is still `SCHEDULED` or `IN_PROGRESS`, and locked once a report for it is `SUBMITTED` or `PUBLISHED`. |
+| 04 | `ReinspectionDefectVerification` | Domain entity linking the re-inspection, the source finding, the replacement evidence, the recorded resolution status, and the `RESOLVED` validity window (`verifiedAt`, `validUntil`). |
 
 #### 3.8.2 Customer Report Acceptance and PayOS / VNPay Online Payment Sequence Diagram
 
