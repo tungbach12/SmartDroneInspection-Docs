@@ -88,6 +88,22 @@ Allocated Effort (man-days): 208
 
 The team followed an iterative incremental process inside a fixed capstone timeline. Each of five milestones produced a demonstrable increment: the foundation and migrations first, then core inspection and evidence, then the review baseline, then the four-role consolidation with contracts and payment, and finally regression and rehearsal. Work was organised as vertical slices — a feature was considered done when its backend contract, its client surface, and its tests landed together — rather than as horizontal layers completed one at a time. A pull request carried one slice, and review confirmed the acceptance criteria before merge.
 
+```mermaid
+%% title: Iterative Incremental Delivery Process
+flowchart LR
+  REQ["Requirements &<br/>Vertical Slice Spec<br/>(FE-01..FE-08)"]
+  DEV["Backend Contract +<br/>Web/Mobile Client +<br/>Automated Tests"]
+  REV["Peer PR Review &<br/>Modulith / Schema /<br/>Authorization Gates"]
+  INC["Demonstrable<br/>Milestone Increment<br/>(M1..M5)"]
+  DOC["Docs Sync &<br/>Regression Evidence<br/>(Reports 1..7)"]
+
+  REQ --> DEV
+  DEV --> REV
+  REV --> INC
+  INC --> DOC
+  DOC -. "Next vertical slice / sprint" .-> REQ
+```
+
 ### 2.2 Quality Management
 
 Quality was maintained through four controls. Every change was reviewed by a member who had not written it, with the requirement text open beside the diff. Automated suites ran on every pull request, and a failing architecture, schema, or authorization test blocked the merge. Coverage was measured rather than asserted: the backend reported line coverage of 80.0% (`16,178 / 20,210`) and branch coverage of 57.8% (`5,672 / 9,815`) at handover, meeting the configured 80% line gate. Finally, a strict distinction was kept between what was verified automatically, what was exercised manually, and what was not verified at all, so that the test record never claimed more than it could show.
