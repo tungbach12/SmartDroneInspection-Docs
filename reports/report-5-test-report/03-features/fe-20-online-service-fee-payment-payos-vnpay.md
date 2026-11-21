@@ -1,4 +1,4 @@
-# FE-20: Online Service Fee Payment (PayOS VietQR & VNPay)
+# FE-20: Online Service Fee Payment (Sepay VietQR & VNPay)
 
 Synchronized with Report 3 SRS v2.2 and Report 4 SDD v2.4; upstream of the `(FE-20)` test sheet in `Report5_Test Report.xlsx`.
 
@@ -8,8 +8,8 @@ Values for the `Feature 20` summary block (`A2:E8` in the workbook).
 
 | Cell | Label | Value |
 | --- | --- | --- |
-| `B2` | Feature | Online Service Fee Payment (PayOS VietQR & VNPay) |
-| `B3` | Test requirement | Verifies normalized `V29` finance tables (`invoices`, `payments`, `inspector_payouts`), PayOS (VietQR) HMAC-SHA256 and VNPay HMAC-SHA512 checkout generation and webhook settlement verification, and role-masked financial projections. |
+| `B2` | Feature | Online Service Fee Payment (Sepay VietQR & VNPay) |
+| `B3` | Test requirement | Verifies normalized `V29` finance tables (`service_invoices`, `service_payments`, `inspector_payouts`) plus `V67` (`gateway_order_created_at`) and `V68` (`gateway_inbound_transactions`), Sepay VietQR (`Authorization: Apikey`, receiving-account check, idempotent inbound audit trail) and VNPay v2.1.0 (HMAC-SHA512 checkout/Return/IPN verification, cancel/expiry order release), whole-VND validation, and role-masked financial projections. |
 
 ## Test case execution records
 
