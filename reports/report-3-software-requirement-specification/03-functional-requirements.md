@@ -193,7 +193,7 @@ These capabilities have no dedicated screen of their own; they run inside a user
 | 16 | FE-06 | Candidate defect inference | Runs the self-hosted detection model over evidence and records candidate defects with model name and confidence. |
 | 17 | FE-07 | Advisory narrative drafting | Sends the confirmed inspection context to the language model once and stores the returned narrative as clearly labelled advisory draft text. |
 | 18 | FE-07 | Structured report compilation | Compiles the inspection report from a fixed schema of numbered sections and confirmed findings; official report content is not model-generated. |
-| 19 | FE-08 | Payment gateway callback verification | Verifies the signature of a PayOS or VNPay callback before treating a payment as settled. |
+| 19 | FE-08 | Payment gateway callback verification | Verifies the caller of a Sepay or VNPay callback before treating a payment as settled. |
 | 20 | FE-08 | Invoice and settlement derivation | Derives the service invoice, Inspector payout eligibility, commission, and tax components from a verified payment. |
 
 #### 3.1.5 Entity Relationship Diagram
@@ -590,13 +590,13 @@ The model separates five coordinated areas. **Identity and onboarding** covers a
 - **Function trigger**: The Customer reviews a published report and accepts it, then settles the service fee.
 - **Actors**: `CUSTOMER`, `MANAGER`, Payment Service.
 - **Function description**: Record the Customer's acceptance of the official deliverable and settle the agreed service fee through an online gateway or an authorised recorded confirmation.
-- **Screen layout (mock-up)**: A customer report view showing the published inspection report, an acceptance action, and a payment panel offering PayOS VietQR and VNPay. See Figure 3.10.
+- **Screen layout (mock-up)**: A customer report view showing the published inspection report, an acceptance action, and a payment panel offering Sepay VietQR and VNPay. See Figure 3.10.
 - **Requirements**:
   - Acceptance is recorded against the specific published report version and the occurrence it covers.
   - Before acceptance, only the owning Customer may request clarification or revision on the published report. A request from a Manager, Administrator, Inspector, or another organization is refused.
   - The fee becomes due when the Customer accepts the published report. A payment cannot be settled before acceptance.
-  - Online checkout supports PayOS VietQR and VNPay. Each callback is verified by signature before a payment is treated as settled; a redirect alone is not proof of payment.
-  - An unresolved gateway order is not overwritten or switched to another gateway. A Manager may clear an unpaid order only after a gateway-confirmed cancellation.
+  - Online checkout supports Sepay VietQR and VNPay. Sepay is a bank-transfer notification service rather than a hosted payment page: the service builds the VietQR image for the merchant account with the occurrence's transfer code, and Sepay posts a transaction webhook when the matching transfer arrives. The Sepay webhook is authenticated by a mandatory `Authorization: Apikey` header compared in constant time; the VNPay return URL is verified by its HMAC-SHA512 secure hash. A browser redirect alone is never proof of payment, and a webhook whose transfer amount does not match the agreed occurrence price is rejected without settling.
+  - An unresolved gateway order is not overwritten or switched to another gateway. Sepay exposes no order-cancellation API, so clearing an unpaid Sepay order is a recorded Manager action that leaves no gateway-side order open. A VNPay order cannot be verified as cancelled automatically and must be reconciled with the gateway before it is cleared.
   - Both gateways are configuration-gated and can be disabled. When they are disabled the application still runs and payment is recorded through an authorised manual confirmation attributed to the confirming user.
   - Acceptance starts a configurable payment deadline (default 15 days from acceptance). If the occurrence is still unpaid after the deadline, the system marks it overdue and sends one in-app reminder to the Customer and to platform Managers. Overdue never revokes access to the published report and never changes the payment state automatically.
   - The service renders a downloadable PDF payment notice after acceptance and a payment receipt after verified payment. Both are internal payment documents carrying the occurrence, the published report version, the billed organization, the service amount with its VAT breakdown, the payment status and, for the notice, the due date. Neither is an electronic VAT/tax invoice.
