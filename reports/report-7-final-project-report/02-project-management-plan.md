@@ -37,7 +37,7 @@ The work was decomposed into twenty-four atomic product features (`FE-01`–`FE-
 | 3.6 | `FE-18` Inspection Report Compilation, Independent Review & Official Publication (`MF4`) | Complex | 8 |
 | 4 | Acceptance, Payment Settlement, Payouts & Re-inspection (`MF4`, `FE-19`–`FE-24`) | Complex | 42 |
 | 4.1 | `FE-19` Customer Report Acceptance & Clarification Workflow | Medium | 6 |
-| 4.2 | `FE-20` Online Service Fee Payment (`PayOS` VietQR & `VNPay`) | Complex | 9 |
+| 4.2 | `FE-20` Online Service Fee Payment (`Sepay` VietQR & `VNPay`) | Complex | 9 |
 | 4.3 | `FE-21` Payment Deadlines, Invoices & Payment Document Management | Medium | 7 |
 | 4.4 | `FE-22` Partner Inspector Payout Reconciliation | Medium | 7 |
 | 4.5 | `FE-23` Evidence-Backed Refunds & Receivable Recovery | Complex | 7 |
@@ -61,7 +61,7 @@ The overall objective was to deliver a working, defensible platform covering the
 - All twenty-four atomic product features (`FE-01`–`FE-24`) accepted against their Report 3 acceptance criteria.
 - `0` unauthorized or cross-scope data disclosures, verified by role, organization, and assignment probing across all four portals.
 - `0` Spring Modulith module-boundary violations.
-- A verified database schema baseline of 45 application tables enforced by automated migration and persistence checks.
+- A verified database schema baseline of 48 application tables enforced by automated migration and persistence checks.
 - `0` open Critical or High severity defects at handover, with any remaining defect recorded rather than omitted.
 
 **Quality**
@@ -154,7 +154,7 @@ Work was sliced vertically: a feature counted as complete only when its backend 
 | # | Deliverable | Due Date | Notes |
 | --- | --- | --- | --- |
 | D1 | Requirement specification (Report 3) | 2026-10-03 | Four roles, twenty-four atomic features (`FE-01`–`FE-24`), `BR-01`–`BR-55`, `MSG01`–`MSG50`. |
-| D2 | Design document (Report 4) | 2026-10-17 | Architecture, package diagrams, 45-table schema, and detailed design per feature. |
+| D2 | Design document (Report 4) | 2026-10-17 | Architecture, package diagrams, 46-table application schema, and detailed design per feature. |
 | D3 | Working platform across four repositories | 2026-11-15 | Integrated backend service, four-portal web application, Customer mobile client, and documentation tooling. |
 | D4 | Automated test suites | 2026-11-17 | Backend, frontend, and mobile suites verified. |
 | D5 | Test documentation and workbook (Report 5) | 2026-11-18 | Twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `67` cases (`64` historical + `3` unexecuted breakout cases). |
@@ -188,7 +188,7 @@ Members are identified by initials matching weighted contributions (`24%` / `24%
 | `FE-17` AI Case/Standard Retrieval (`pgvector` RAG), Note Drafting & Report Summary | R | S | S | D | R |
 | `FE-18` Inspection Report Compilation, Independent Review & Official Publication | R | S | R | D | R |
 | `FE-19` Customer Report Acceptance & Clarification Workflow | R | S | D | S | R |
-| `FE-20` Online Service Fee Payment (`PayOS` VietQR & `VNPay`) | S | S | D | R | R |
+| `FE-20` Online Service Fee Payment (`Sepay` VietQR & `VNPay`) | S | S | D | R | R |
 | `FE-21` Payment Deadlines, Invoices & Payment Document Management | S | R | D | S | I |
 | `FE-22` Partner Inspector Payout Reconciliation | R | S | D | S | R |
 | `FE-23` Evidence-Backed Refunds & Receivable Recovery | S | S | D | R | R |

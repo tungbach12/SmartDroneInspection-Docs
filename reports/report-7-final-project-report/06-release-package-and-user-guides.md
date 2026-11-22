@@ -13,7 +13,7 @@ source: "Report7_Final Project Report.docx"
 | 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking against the weighted plan in Report 2 (`208` md). |
 | 2 | Project Backlog | The twenty-four atomic feature backlog (`FE-01`–`FE-24`) across `MF1`–`MF4`. |
 | 3 | Source Codes | Four independent repositories: backend service (`SmartDroneInspection-backend`), web portals (`SmartDroneInspection-frontend`), Customer mobile client (`SmartDroneInspection-mobile`), and documentation (`SmartDroneInspection-docs`). |
-| 4 | Database Script(s) | Automated schema migration scripts (`V1`–`V4` and `V60`–`V66`) defining the PostgreSQL 17 database (45 application tables), `pgvector` support for `DroneKnowledgeAI`, and plain-text building ownership details. |
+| 4 | Database Script(s) | Automated schema migration scripts (`V1`–`V4` and `V60`–`V69`) defining the PostgreSQL 17 database (48 application tables, including gateway order timestamps, `gateway_inbound_transactions`, `inspection_flight_permits`, and `field_session_telemetry`), `pgvector` support for `DroneKnowledgeAI`, and plain-text building ownership details. |
 | 5 | Final Report Document | Reports 1–7 of this documentation set, exported against the official templates. |
 | 6 | Test Cases Document | `Report5_Test Report.xlsx` (`v3.9`) with twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `67` active cases, plus the executed results in Report 5 §5. |
 | 7 | Defects List | The defect log, including the two open defects recorded above. |
@@ -31,7 +31,7 @@ source: "Report7_Final Project Report.docx"
 | Processor | 64-bit x86_64, 4 logical cores | 8+ logical cores | Detection inference (`YOLO11`) and FFmpeg video transcoding are CPU/RAM intensive. |
 | Memory (RAM) | 8 GB | 16 GB | Allocate at least 8 GB to Docker Desktop when running `ai-inference` alongside Postgres and backend. |
 | Disk Space | 40 GB free | 60+ GB SSD | Required for container images, PostgreSQL storage, and MinIO photo/MP4 evidence buckets. |
-| Network / Ports | Localhost loopback | Stable broadband / LAN (`14551/udp`, `5762/tcp`) | Required for package installs, optional OpenAI/PayOS/VNPay callbacks, and Mission Planner MAVLink bridge. |
+| Network / Ports | Localhost loopback | Stable broadband / LAN (`14551/udp`, `5762/tcp`) | Required for package installs, optional OpenAI/Sepay/VNPay callbacks, and Mission Planner MAVLink bridge. |
 
 **Software Prerequisites**
 
@@ -47,7 +47,7 @@ source: "Report7_Final Project Report.docx"
 
 #### Step 1 — Clone Repositories and Configure Environment
 
-Clone the four repositories into sibling directories so cross-repo proxies and tooling resolve as configured. In `SmartDroneInspection-backend/`, copy the environment template to `.env` and populate PostgreSQL credentials, MinIO bucket and keys, JWT/ticket signing secrets (long random values — never commit real secrets), allowed CORS origin (`http://localhost:3000`), and bootstrap administrator credentials. Optional integrations (`ai-inference` Vision fallback, PayOS, VNPay, and Google OAuth2) default cleanly to disabled/manual modes when keys are omitted.
+Clone the four repositories into sibling directories so cross-repo proxies and tooling resolve as configured. In `SmartDroneInspection-backend/`, copy the environment template to `.env` and populate PostgreSQL credentials, MinIO bucket and keys, JWT/ticket signing secrets (long random values — never commit real secrets), allowed CORS origin (`http://localhost:3000`), and bootstrap administrator credentials. Optional integrations (`ai-inference` Vision fallback, Sepay, VNPay, and Google OAuth2) default cleanly to disabled/manual modes when keys are omitted.
 
 #### Step 2 — Start Backend Stack and Apply Flyway Migrations
 
@@ -122,7 +122,7 @@ flowchart LR
 flowchart LR
   W6A["1. Compile & Submit Report + AI Summary"] --> W6B["2. Manager Independent Review"]
   W6B -->|"Publish v1+"| W6C["3. Customer Reviews Official Report"]
-  W6C --> W6D["4. Accept & Pay (PayOS VietQR / VNPay)"]
+  W6C --> W6D["4. Accept & Pay (Sepay VietQR / VNPay)"]
   W6D --> W6E["5. Customer & Manager Finance Ledgers"]
   W6E --> W6F["6. Partner Net Payout & Settlement"]
 ```
@@ -351,8 +351,8 @@ flowchart LR
 
 ### 3.7 Workflow 6: Report Authoring, Review, Acceptance and Financial Settlement (`FE-05`, `FE-17`–`FE-24`)
 
-**Purpose.** Prepare and publish the official inspection report, allow the Customer to accept and pay online through PayOS VietQR or VNPay, and record Partner Inspector payouts.
-**Actors.** `INSPECTOR`, `MANAGER`, `CUSTOMER`, Payment Gateway (PayOS / VNPay).
+**Purpose.** Prepare and publish the official inspection report, allow the Customer to accept and pay online through Sepay VietQR or VNPay, and record Partner Inspector payouts.
+**Actors.** `INSPECTOR`, `MANAGER`, `CUSTOMER`, Payment Gateway (Sepay / VNPay).
 **Preconditions.** Official findings baseline has been confirmed.
 
 **Step 1 — Generate AI Summary and Submit Report.** In Stage 7 (`/report`), generate/review **AI Executive Summary & Matched Cases** ❶, inspect formatting with **Preview PDF** ❷ or **Download report** ❸, and submit version `v1` for independent review.
@@ -379,11 +379,11 @@ flowchart LR
 
 *Figure 7.46 — Workflow 6 Step 4 — Customer inspections list highlighting published deliverable.*
 
-**Step 5 — Accept Report and Pay via PayOS VietQR / VNPay.** Track progress along **Acceptance & Payment stepper** ❶, download the VAT invoice notice using **Payment notice / document button** ❷, accept the official report, and complete payment via **PayOS / VNPay payment card** ❸.
+**Step 5 — Accept Report and Pay via Sepay VietQR / VNPay.** Track progress along **Acceptance & Payment stepper** ❶, download the VAT invoice notice using **Payment notice / document button** ❷, accept the official report, and complete payment via **Sepay VietQR / VNPay payment card** ❸ (the Sepay QR dialog polls automatically every 3 seconds and closes once paid; cancelling VNPay returns directly to `/settlement`).
 
-![Workflow 6 Step 5 — Customer official report acceptance and PayOS/VNPay settlement panel.](assets/manual/wf6-05-cus-report-pay.png)
+![Workflow 6 Step 5 — Customer official report acceptance and Sepay/VNPay settlement panel.](assets/manual/wf6-05-cus-report-pay.png)
 
-*Figure 7.47 — Workflow 6 Step 5 — Customer official report acceptance and PayOS/VNPay settlement panel.*
+*Figure 7.47 — Workflow 6 Step 5 — Customer official report acceptance and Sepay/VNPay settlement panel.*
 
 **Step 6 — Verify Customer Payment Ledger.** Open **Finance History** in the customer portal to confirm verified payment status, gateway/manual method, and receipt download inside **Payment ledger table** ❶.
 

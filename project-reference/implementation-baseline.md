@@ -26,7 +26,7 @@ the code changes.
 | Features | **8**: `FE-01` … `FE-08`, two per main flow |
 | Main flows | `MF1` (onboarding and partner admission: `FE-01`, `FE-02`), `MF2` (buildings, requests, quotes, agreements, dispatch: `FE-03`, `FE-04`), `MF3` (field work, evidence, findings: `FE-05`, `FE-06`), `MF4` (report review and payment settlement: `FE-07`, `FE-08`) |
 | Re-inspection | **In scope under `FE-08`.** `POST /inspections/{id}/reinspections` opens a loop against a published report, and `ReinspectionDefectVerification` records each source defect as `RESOLVED`, `UNRESOLVED`, or `INCONCLUSIVE`. It reuses the `MF2`–`MF4` flows rather than adding a maintenance flow. |
-| Automated actors | AI Vision (YOLO11s + LLM fallback), LLM report drafter, PayOS, VNPay, Google OAuth2, SMTP/SMS OTP |
+| Automated actors | AI Vision (YOLO11s + LLM fallback), LLM report drafter, Sepay, VNPay, Google OAuth2, SMTP/SMS OTP |
 
 **Role enforcement, in order of authority.** A fifth role cannot exist:
 1. `shared/auth/Roles.java` declares exactly the four constants.
@@ -67,9 +67,9 @@ Module dependency rules live in each module's `package-info.java` (`@Application
 | Fact | Value |
 |---|---|
 | Engine | PostgreSQL 17 with the `pgvector` image (`pgvector/pgvector:pg17`) |
-| Migrations | **10 files**: `V1__baseline.sql`, `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, `V62__inspection_knowledge_rag.sql`, `V63__ai_auto_confirm_default_70.sql`, `V64__backfill_published_historical_cases.sql`, and `V65__rag_local_embeddings_384.sql` |
-| Migration assertion | `FullDatabaseSchemaMigrationTest` asserts `flyway_schema_history` versions are exactly `["1","2","3","4","60","61","62","63","64","65"]` |
-| Tables | **45** application tables (**44** JPA runtime entities including `event_publication`; **47** total tables in `public`) |
+| Migrations | **14 files**: `V1__baseline.sql`, `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, `V62__inspection_knowledge_rag.sql`, `V63__ai_auto_confirm_default_70.sql`, `V64__backfill_published_historical_cases.sql`, `V65__rag_local_embeddings_384.sql`, `V66__asset_ownership_information.sql`, `V67__gateway_order_created_at.sql`, `V68__gateway_inbound_transactions.sql`, and `V69__split_inspection_flight_permits_and_field_session_telemetry.sql` |
+| Migration assertion | `FullDatabaseSchemaMigrationTest` asserts `flyway_schema_history` versions are exactly `["1","2","3","4","60","61","62","63","64","65","66","67","68","69"]` |
+| Tables | **48** application tables (**47** JPA runtime entities including `event_publication`; **50** total tables in `public`) |
 | `pgvector` usage | `V62` enables `pgvector` and `V65` configures `vector(384)` HNSW `vector_cosine_ops` indexes on `inspection_knowledge_chunks` and `historical_finding_cases` backed by local `fastembed` (`paraphrase-multilingual-MiniLM-L12-v2`) in `ai-inference`, with `HYBRID_MATCH` fallback, `V64` backfill, and startup missing-vector backfill (`ApplicationReadyEvent`). |
 
 ### Table inventory (41)
@@ -122,6 +122,9 @@ Module dependency rules live in each module's `package-info.java` (`@Application
 | 44 | `inspection_message_attachments` | — | Private MinIO chat attachments (`V61`) |
 | 45 | `inspection_knowledge_chunks` | — | Seeded engineering standards/guidelines with `vector(384)` HNSW (`V62`, `V65`) |
 | 46 | `historical_finding_cases` | — | Published/benchmark historical defect cases with `vector(384)` HNSW (`V62`, `V64`, `V65`) |
+| 47 | `gateway_inbound_transactions` | — | Idempotent inbound payment webhook audit log (`V68`) |
+| 48 | `inspection_flight_permits` | — | Dedicated 1-to-1 flight-permit upload & review gate split from `inspections` (`V69`) |
+| 49 | `field_session_telemetry` | — | Dedicated 1-to-1 SmartDroneHub flight metrics, trace JSON & synced video split from `field_sessions` (`V69`) |
 
 The full column-level dump (every column, type, default and CHECK constraint) is reproducible with
 `tools/` conventions from `SmartDroneInspection-backend/src/main/resources/db/migration/V1__baseline.sql`.
@@ -153,7 +156,7 @@ Per-class metrics are also recorded in `ai-inference/models/training/test_metric
 
 | Gateway | Version / mechanism | Webhook | Default |
 |---|---|---|---|
-| PayOS (VietQR) | checksum-key signed | `POST /webhooks/payos` | disabled (`PAYOS_ENABLED=false`) |
+| Sepay (VietQR) | `Authorization: Apikey` header (`MessageDigest.isEqual` SHA-256) | `POST /api/v1/webhooks/sepay` | disabled (`SEPAY_ENABLED=false`) |
 | VNPay | API 2.1.0, HMAC-SHA512 | `GET /webhooks/vnpay/ipn`, `/return` | disabled (`VNPAY_ENABLED=false`) |
 
 Both run behind a `Disabled*Gateway` fallback so the application boots with payments off. Payment is

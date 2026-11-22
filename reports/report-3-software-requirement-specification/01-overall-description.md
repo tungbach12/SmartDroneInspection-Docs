@@ -41,7 +41,7 @@ flowchart LR
   SDI <-->|"Tenant-isolated defect-history & standards advisory"| DKA
   SDI <-->|"Contracts, permits & photo/MP4 media"| STORAGE
   SDI <-->|"Read-only telemetry, flight trace & mission video"| HUB
-  SDI <-->|"PayOS / VNPay checkout & Google OAuth2"| PAYMENT
+  SDI <-->|"Sepay / VNPay checkout & Google OAuth2"| PAYMENT
 ```
 
 The service supports four human login roles:

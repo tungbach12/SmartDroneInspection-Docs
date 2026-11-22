@@ -9,7 +9,7 @@ source: "report3-software-requirement-specification.docx"
 
 ### 3.1 System Functional Overview
 
-SmartDroneInspection delivers twenty-four atomic product features (`FE-01` to `FE-24`) organized under four connected main flows (`MF1` to `MF4`): identity, partner onboarding, airspace map & financial ledger (`FE-01`–`FE-05`); building assets, restricted-airspace decisions, service requests, quotations, signed agreements, dispatch, dual-channel messaging, acceptance timeouts & notifications (`FE-06`–`FE-12`); flight permits, live field sessions, evidence processing, AI defect detection & `DroneKnowledgeAI` RAG (`FE-13`–`FE-17`); and inspection report publication, acceptance, PayOS/VNPay checkout, payment documents, payouts, refunds & re-inspection verification (`FE-18`–`FE-24`, with `FE-05` surfacing financial ledgers across roles). The product scope is limited to **building structures**; every other infrastructure domain is excluded.
+SmartDroneInspection delivers twenty-four atomic product features (`FE-01` to `FE-24`) organized under four connected main flows (`MF1` to `MF4`): identity, partner onboarding, airspace map & financial ledger (`FE-01`–`FE-05`); building assets, restricted-airspace decisions, service requests, quotations, signed agreements, dispatch, dual-channel messaging, acceptance timeouts & notifications (`FE-06`–`FE-12`); flight permits, live field sessions, evidence processing, AI defect detection & `DroneKnowledgeAI` RAG (`FE-13`–`FE-17`); and inspection report publication, acceptance, Sepay/VNPay checkout, payment documents, payouts, refunds & re-inspection verification (`FE-18`–`FE-24`, with `FE-05` surfacing financial ledgers across roles). The product scope is limited to **building structures**; every other infrastructure domain is excluded.
 
 The service is delivered through four web portals, one per login role, and a Customer mobile application. Each portal exposes only the navigation sections its role may reach; a section a role may not use has no route at all rather than being hidden in the interface.
 
@@ -32,7 +32,7 @@ flowchart TD
   FE16_17["FE-16 YOLO11 & Baseline<br/>FE-17 pgvector RAG & AI Notes"]
 
   MF4["MF4: Reporting, Settlement & Re-inspection"]
-  FE18_21["FE-18 Report Review & Publish · FE-19 Acceptance<br/>FE-20 PayOS/VNPay · FE-21 Deadlines & PDF Docs"]
+  FE18_21["FE-18 Report Review & Publish · FE-19 Acceptance<br/>FE-20 Sepay/VNPay · FE-21 Deadlines & PDF Docs"]
   FE22_24["FE-22 Payouts · FE-23 Refunds/Receivables<br/>FE-24 Re-inspection · FE-05 Finance Ledger"]
 
   PUB --> MF1 --> FE01_04 --> MF2
@@ -84,7 +84,7 @@ The screens below are the implemented application surfaces. Screenshots were cap
 | 35 | FE-10 | Customer messages | Unified messages inbox toggling between Manager order-chat threads and assigned-Inspector per-inspection threads. |
 | 36 | FE-04, FE-06 | Customer buildings | Building inventory with interactive airspace map, plain-text ownership details, inspection checkpoints, and uploaded reference documents. |
 | 37 | FE-14, FE-24 | Customer inspections | Occurrences for the organization with progress, re-inspection creation, and verdict-expiry alerts. |
-| 38 | FE-18, FE-19, FE-20, FE-21 | Customer reports | Published reports available for review, acceptance/clarification, notice/receipt PDF download, and PayOS/VNPay payment. |
+| 38 | FE-18, FE-19, FE-20, FE-21 | Customer reports | Published reports available for review, acceptance/clarification, notice/receipt PDF download, and Sepay/VNPay payment. |
 | 39 | FE-01, FE-14 | Inspector dashboard | The Inspector's assigned workload, upcoming occurrences, and credential-expiry warnings. |
 | 40 | FE-11, FE-14 | Inspector inspections | Assigned occurrences with accept/decline timeout status, readiness state, and entry into the inspection workspace. |
 | 41 | FE-03 | My drones | Drone registration applications with photographs, capabilities, checklist items, and uploaded documents. |
@@ -192,7 +192,7 @@ These capabilities have no dedicated screen of their own; they run inside a user
 
 #### 3.1.5 Entity Relationship Diagram
 
-The persisted model comprises 45 core entities spanning identity, buildings, partner compliance, commercial workflows, field operations, evidence/AI analysis, reporting, and financial settlement (described technically in Report 4 §2). The diagram shows the principal entities and their relationships; configuration and audit entities are listed in the Entities Description table below.
+The persisted model comprises 48 core application entities spanning identity, buildings, partner compliance, commercial workflows, field operations, evidence/AI analysis, reporting, and financial settlement (described technically in Report 4 §2). The diagram shows the principal entities and their relationships; configuration, gateway audit (`gateway_inbound_transactions`), split 1-to-1 operational tables (`inspection_flight_permits`, `field_session_telemetry`), and audit entities are listed in the Entities Description table below.
 
 ```mermaid
 %% title: Entity Relationship Diagram
@@ -260,8 +260,8 @@ erDiagram
 | 14 | `drone_document_configs` | Administrator-configured set of documents an Inspector must supply for drone registration. |
 | 15 | `drone_feature_configs` | Administrator-configured catalogue of drone features and safety checklist items. |
 | 16 | `drone_registration_applications` | Inspector drone registration or renewal submission with its documents and review outcome. |
-| 17 | `inspections` | Inspection occurrence: lifecycle status, assignment, flight-permit block, and schedule. |
-| 18 | `field_sessions` | On-site session with telemetry source, flight trace, and computed flight metrics. |
+| 17 | `inspections` | Inspection occurrence: lifecycle status, assignment, clarification count, and schedule (linked 1-to-1 with `inspection_flight_permits`). |
+| 18 | `field_sessions` | On-site session lifecycle status, pre-flight safety note, outcome notes, and abort/hung state (linked 1-to-1 with `field_session_telemetry`). |
 | 19 | `evidence` | Photograph or video evidence with processing state, storage keys, and its source-video lineage. |
 | 20 | `evidence_upload_sessions` | State of a resumable chunked upload for a large video. |
 | 21 | `findings` | Confirmed or candidate building defect with its bounding region and the model confidence where applicable. |
@@ -274,7 +274,7 @@ erDiagram
 | 28 | `service_request_messages` | Order-chat message exchanged between the Customer and the assigned Manager. |
 | 29 | `service_request_message_attachments` | File attached to an order-chat message. |
 | 30 | `service_invoices` | Service invoice derived from an accepted occurrence. |
-| 31 | `service_payments` | Customer payment against an invoice, including payment due date, overdue notice guard, refunded amount, and refund state. |
+| 31 | `service_payments` | Customer payment against an invoice, including active gateway order code and creation timestamp (`gateway_order_created_at`, `V67`), payment due date, overdue notice guard, refunded amount, and refund state. |
 | 32 | `service_refunds` | Refund allocation across Inspector payout reduction, platform commission, VAT, personal income tax, and platform absorption. |
 | 33 | `inspector_payouts` | Amount payable to an Inspector following verified customer payment. |
 | 34 | `inspector_receivables` | Amount owed back by an Inspector after a refund against an already-disbursed payout. |
@@ -290,6 +290,9 @@ erDiagram
 | 44 | `inspection_message_attachments` | File attached to an inspection chat message, scoped with its message. |
 | 45 | `inspection_knowledge_chunks` | Engineering standard or guideline reference used by `DroneKnowledgeAI` for retrieval grounding across all organizations. |
 | 46 | `historical_finding_cases` | Historical defect case indexed from a confirmed finding at report publication, or an anonymized benchmark case, isolated by organization and excluding the current inspection from self-matching. |
+| 47 | `gateway_inbound_transactions` | Idempotent inbound payment-gateway webhook audit log (`V68`) recording gateway transaction ID, order code, transfer amount, receiving account, raw payload, outcome (`APPLIED`, `AMOUNT_MISMATCH`, `ORDER_NOT_FOUND`, `REJECTED`, `ERROR`), and detail. |
+| 48 | `inspection_flight_permits` | Dedicated 1-to-1 mission flight-permit upload metadata and independent verification gate record split from `inspections` (`V69`). |
+| 49 | `field_session_telemetry` | Dedicated 1-to-1 SmartDroneHub mission telemetry metrics, GPS flight-trace JSON, and synced flight-video reference split from `field_sessions` (`V69`). |
 
 The table summarizes the domain's core persisted entities across identity, buildings, partner onboarding, commercial workflow, field operations, AI/knowledge retrieval, reporting, and financial settlement.
 
@@ -607,8 +610,8 @@ The table summarizes the domain's core persisted entities across identity, build
 - **Function description**: Process VND inspection fee settlement through configuration-gated online payment gateways with webhook authentication (`Authorization: Apikey` / VNPay HMAC-SHA512) and safe fallback to authorized manual confirmation.
 - **Screen layout (mock-up)**: Step 2 of Customer Settlement card (Sepay VietQR image & transfer code `SDI<orderCode>` or VNPay redirect launch), Manager unresolved-order clear action, and Finance Settings gateway switches.
 - **Requirements**:
-  - Initiating online checkout is allowed only after report acceptance (`Payment Due`). Online checkout supports Sepay VietQR and VNPay: Sepay builds the VietQR image carrying the occurrence transfer code and verifies incoming bank-transfer webhooks via a constant-time `Authorization: Apikey` header check while rejecting mismatched transfer amounts; VNPay verifies its callback via HMAC-SHA512 secure hash. Browser redirects alone never settle payment.
-  - An unresolved gateway order cannot be silently overwritten or switched across providers (`MSG49`, `BR-47`); because Sepay exposes no order-cancellation API, clearing an unpaid Sepay order is a recorded Manager action, while a VNPay order requires gateway reconciliation before clearing.
+  - Initiating online checkout is allowed only after report acceptance (`Payment Due`) and validates whole-VND payable totals. Online checkout supports Sepay VietQR and VNPay: Sepay builds the VietQR image carrying the occurrence transfer code (`SDI<orderCode>`) and authenticates incoming bank-transfer webhooks via a constant-time `Authorization: Apikey` header check while checking receiving account number, rejecting mismatched transfer amounts, persisting every processed notification idempotently in `gateway_inbound_transactions` (`V68`), and returning HTTP `500` on transient failures so Sepay retries safely; the Web client polls occurrence status every 3 seconds and auto-closes the QR dialog once `PAID`. VNPay verifies its callback via HMAC-SHA512 secure hash (`BR-45`) and redirects the browser directly back to `/settlement`. Browser redirects alone never settle payment.
+  - An unresolved gateway order cannot be silently overwritten or switched across providers (`MSG49`, `BR-47`); `V67` persists `gateway_order_created_at` so expired unresolved gateway orders and terminal VNPay failures (`vnp_ResponseCode` `24` cancel / `11` timeout) release automatically, whereas clearing an unpaid Sepay order before expiry remains an attributable Manager action (`BR-47`).
   - Both gateways may be disabled by configuration; when disabled, an authorized `MANAGER` may record an attributable manual payment confirmation. Verified payment immediately sets the Partner Inspector's payout status to `Eligible` without marking it `Paid` (`BR-46`).
 - **Normal cases**: Customer pays via Sepay VietQR or VNPay -> verified callback arrives -> payment marks `Paid`, payout becomes `Eligible`, and stakeholders are notified (`MSG47`).
 - **Abnormal cases**: Payment attempt before report acceptance, switching gateway while an earlier order is still pending (`MSG49`), forged callback header/signature or mismatched transfer amount, or duplicate gateway callback (safely ignored without double-counting) is handled cleanly.
@@ -655,7 +658,7 @@ The table summarizes the domain's core persisted entities across identity, build
   - **Initiation**: Initiating a refund verifies remaining refundable balance (`BR-49`) and request uniqueness, creates an `Initiated` refund record, reserves the amount, and immediately places a hold on any unpaid payout (`BR-48`).
   - **Completion & Allocation**: After offline external bank transfer, completing the refund requires a globally unique external reference and an exact five-way allocation (`Inspector payout reduction + Platform commission + VAT + TNCN + Platform absorption == Refund amount`, `BR-48`). Cancelling an untransferred refund requires a written reason and is forbidden once completed (`MSG15`).
   - **Legacy Reconciliation**: Historical completed refunds lacking breakdown allocations are reconciled individually with a transfer evidence reference and note.
-  - **Receivables & Recovery**: A refund against an already-disbursed payout leaves the paid payout immutable and creates an attributable Inspector receivable (`BR-50`). Recoveries are recorded separately against the receivable balance under concurrency protection and never automatically deduct from future mission payouts.
+  - **Receivables & Recovery**: A refund against an already-disbursed payout leaves the paid payout immutable and creates an attributable Inspector receivable (`BR-50`). Recoveries are recorded separately against the receivable balance under concurrency protection and never automatically deduct from future mission payouts. Assigned `INSPECTOR` views expose a masked refund projection (`inspectorRefundSummaries`) showing only payout reduction and receivable impact while hiding platform absorption, commission/VAT adjustments, and internal notes.
 - **Normal cases**: Manager initiates refund -> executes external bank transfer -> completes with exact 5-part allocation -> if post-payout, tracks receivable and logs manual recovery reference.
 - **Abnormal cases**: Refund exceeding captured payment (`MSG50`), allocation sum mismatch (`MSG40`), duplicate external reference, cancelling a completed refund, over-recovering a receivable, or Customer/Inspector invoking refund actions is refused.
 

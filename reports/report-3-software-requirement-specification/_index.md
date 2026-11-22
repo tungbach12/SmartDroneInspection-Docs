@@ -6,7 +6,7 @@ weight: 10
 
 # Report 3 - Software Requirement Specification
 
-This folder is the team-maintained Markdown source of Report 3. **Current revision: 21 November 2026 — Platform Inspection Service model, 4 implemented login roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`), 24 atomic product features (`FE-01`–`FE-24`) across 4 connected Main Flows (`MF1`–`MF4`), and Flyway `V1`–`V4` + `V60`–`V66` (`assets.ownership_information`).** `MAINTENANCE_ENGINEER` and the corrective-maintenance capability are planned and out of the current release scope; the four implemented roles are the only login roles in the backend enum, JWT constants, and account administration. Maintenance is outside current application scope; legacy maintenance schema and data remain preserved but are not exposed by the application.
+This folder is the team-maintained Markdown source of Report 3. **Current revision: 22 November 2026 — Platform Inspection Service model, 4 implemented login roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`), 24 atomic product features (`FE-01`–`FE-24`) across 4 connected Main Flows (`MF1`–`MF4`), and Flyway `V1`–`V4` + `V60`–`V69` (`assets.ownership_information`, `service_payments.gateway_order_created_at`, `gateway_inbound_transactions`, `inspection_flight_permits`, `field_session_telemetry`).** `MAINTENANCE_ENGINEER` and the corrective-maintenance capability are planned and out of the current release scope; the four implemented roles are the only login roles in the backend enum, JWT constants, and account administration. Maintenance is outside current application scope; legacy maintenance schema and data remain preserved but are not exposed by the application.
 
 ## Sections
 

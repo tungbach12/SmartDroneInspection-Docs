@@ -12,7 +12,7 @@ source: "Report7_Final Project Report.docx"
 
 SmartDroneInspection uses a modular client-server architecture that separates the client presentation sub-systems, the modular monolith backend (`FE-01`–`FE-24` across `MF1`–`MF4`), the persistence and object storage layer, and the external services.
 
-The clients are a React 19 web application serving four role-scoped portals and a Flutter mobile application that admits customer accounts only. The backend is a Spring Boot 4.1 modular monolith across eight modules whose permitted collaborators are declared per module and enforced by an architecture test. Persistence is PostgreSQL 17 with 45 application tables (47 total tables in `public`, applied via `V1`–`V4` and `V60`–`V66`) and `pgvector` support for `DroneKnowledgeAI`, and binary content lives in MinIO. External services are the self-hosted YOLO11 detector, an OpenAI-compatible vision and drafting gateway, an optional ground-station hub, PayOS and VNPay for settlement, and Google OAuth2 for federated sign-in.
+The clients are a React 19 web application serving four role-scoped portals and a Flutter mobile application that admits customer accounts only. The backend is a Spring Boot 4.1 modular monolith across eight modules whose permitted collaborators are declared per module and enforced by an architecture test. Persistence is PostgreSQL 17 with 48 application tables (50 total tables in `public`, applied via `V1`–`V4` and `V60`–`V69`) and `pgvector` support for `DroneKnowledgeAI`, and binary content lives in MinIO. External services are the self-hosted YOLO11 detector, an OpenAI-compatible vision and drafting gateway, an optional ground-station hub, Sepay VietQR and VNPay for settlement, and Google OAuth2 for federated sign-in.
 
 ![System architecture](assets/mermaid/c8eb454daa9f.png)
 
@@ -27,9 +27,9 @@ The clients are a React 19 web application serving four role-scoped portals and 
 | Vision and Drafting Gateway | OpenAI-compatible HTTP API | Vision fallback, single-shot narrative drafting, and AI finding note drafting. |
 | Knowledge Advisor (`DroneKnowledgeAI`) | `HistoricalCaseService` + `DroneKnowledgeClient` | Tenant-isolated historical-case and engineering-standard retrieval over `pgvector` (`vector(384)` HNSW) + `POST .../draft-note`, with deterministic `HYBRID_MATCH` fallback, historical backfill (`V64`), and startup embedding backfill. |
 | SmartDroneHub | External ground station | Read-only telemetry, flight traces, and mission video. |
-| PostgreSQL | PostgreSQL 17 | 45 application tables (`V1`–`V4`, `V60`–`V66`) and `pgvector` case/standard stores; 47 total tables in `public`, audit trail and event outbox. |
+| PostgreSQL | PostgreSQL 17 | 48 application tables (`V1`–`V4`, `V60`–`V69`) and `pgvector` case/standard stores; 50 total tables in `public`, gateway webhook log, audit trail and event outbox. |
 | MinIO | S3-compatible object storage | Private storage of documents, evidence, and published report artefacts. |
-| PayOS, VNPay, Google OAuth2 | External HTTPS services | Settlement and federated sign-in. |
+| Sepay, VNPay, Google OAuth2 | External HTTPS services | Settlement and federated sign-in. |
 
 ### 1.2 Package Diagram
 
@@ -157,13 +157,13 @@ flowchart TD
 
 ## 2. Database Design
 
-**Scope boundary.** The schema models buildings only. Flyway applies `V1__baseline.sql`, a consolidated baseline holding the complete schema and catalog seeds, followed by ten forward migrations: `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, `V62__inspection_knowledge_rag.sql` (`DroneKnowledgeAI` case/standard stores with `pgvector` embeddings), `V63__ai_auto_confirm_default_70.sql` (`70.00` default auto-confirm threshold), `V64__backfill_published_historical_cases.sql`, `V65__rag_local_embeddings_384.sql` (local `fastembed` `vector(384)` HNSW cosine indexes), and `V66__asset_ownership_information.sql` (dedicated plain-text `assets.ownership_information VARCHAR(1000)` backfilled from `technical_profile`). No maintenance table, index, or column exists in the delivered schema. `FullDatabaseSchemaMigrationTest` asserts the applied migration set is exactly `["1","2","3","4","60","61","62","63","64","65","66"]`. The schema contains **45 application tables** (43 JPA-mapped tables plus `audit_events` and `platform_ai_settings`); together with the `event_publication` outbox and `flyway_schema_history`, the `public` schema holds **47 tables** (`RUNTIME_ENTITY_TABLES` has 44 members because it also includes `event_publication`).
+**Scope boundary.** The schema models buildings only. Flyway applies `V1__baseline.sql`, a consolidated baseline holding the complete schema and catalog seeds, followed by thirteen forward migrations: `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, `V62__inspection_knowledge_rag.sql` (`DroneKnowledgeAI` case/standard stores with `pgvector` embeddings), `V63__ai_auto_confirm_default_70.sql` (`70.00` default auto-confirm threshold), `V64__backfill_published_historical_cases.sql`, `V65__rag_local_embeddings_384.sql` (local `fastembed` `vector(384)` HNSW cosine indexes), `V66__asset_ownership_information.sql` (dedicated plain-text `assets.ownership_information VARCHAR(1000)` backfilled from `technical_profile`), `V67__gateway_order_created_at.sql` (`service_payments.gateway_order_created_at` for order expiry checks), `V68__gateway_inbound_transactions.sql` (idempotent inbound payment-gateway webhook audit log), and `V69__split_inspection_flight_permits_and_field_session_telemetry.sql` (extracting the 1-to-1 `inspection_flight_permits` and `field_session_telemetry` tables from `inspections` and `field_sessions`). No maintenance table, index, or column exists in the delivered schema. `FullDatabaseSchemaMigrationTest` asserts the applied migration set is exactly `["1","2","3","4","60","61","62","63","64","65","66","67","68","69"]`. The schema contains **48 application tables** (46 JPA-mapped tables plus `audit_events` and `platform_ai_settings`); together with the `event_publication` outbox and `flyway_schema_history`, the `public` schema holds **50 tables** (`RUNTIME_ENTITY_TABLES` has 47 members because it also includes `event_publication`).
 
 ![Database entity relationship diagram](assets/mermaid/323ca4e522aa.png)
 
 *Figure 7.8 — Entity relationship diagram.*
 
-**Framework tables (not counted among the 45 application tables):** `event_publication` stores the Spring Modulith transactional outbox and `flyway_schema_history` is Flyway's migration ledger; together with the 45 application tables they bring the `public` schema to 47 tables. The two `pgvector` stores (`inspection_knowledge_chunks`, `historical_finding_cases`) are listed below as application tables.
+**Framework tables (not counted among the 48 application tables):** `event_publication` stores the Spring Modulith transactional outbox and `flyway_schema_history` is Flyway's migration ledger; together with the 48 application tables they bring the `public` schema to 50 tables. The two `pgvector` stores (`inspection_knowledge_chunks`, `historical_finding_cases`) are listed below as application tables.
 
 | No | Table | Description |
 | :---: | :--- | :--- |
@@ -195,13 +195,13 @@ flowchart TD
 | 26 | `service_request_quotes` | The active VND quotation. |
 | 27 | `service_request_occurrences` | Dated occurrences with dispatch state. |
 | 28 | `service_invoices` | Per-occurrence price and rate snapshots. |
-| 29 | `service_payments` | Customer payment status and gateway reference. |
+| 29 | `service_payments` | Customer payment status, gateway order reference/timestamp (`gateway_order_created_at`, `V67`), due deadline, and refund totals. |
 | 30 | `inspector_payouts` | Inspector payout state and refund hold. |
 | 31 | `service_refunds` | Refund ledger with accounting allocation. |
 | 32 | `inspector_receivables` | Inspector debt after a refund follows a paid payout. |
 | 33 | `inspector_receivable_recoveries` | Collection records against a receivable. |
-| 34 | `inspections` | Missions with assignment, permit verification, and confirmation state. |
-| 35 | `field_sessions` | On-site sessions with safety notes, metrics, and flight trace. |
+| 34 | `inspections` | Missions with assignment, clarification count, and findings confirmation state (permit data split 1-to-1 into `inspection_flight_permits` in `V69`). |
+| 35 | `field_sessions` | On-site session lifecycle and safety/outcome notes (SmartDroneHub metrics, trace, and synced video split 1-to-1 into `field_session_telemetry` in `V69`). |
 | 36 | `evidence` | Photographs and video with object keys and processing state. |
 | 37 | `evidence_upload_sessions` | Resumable upload state. |
 | 38 | `findings` | Candidate and confirmed defects. |
@@ -213,6 +213,9 @@ flowchart TD
 | 44 | `event_publication` | The transactional outbox. |
 | 45 | `inspection_knowledge_chunks` | Stores the eight seeded engineering-standard/guideline chunks that ground `DroneKnowledgeAI` (`V62`, updated to `vector(384)` by `V65`): standard code, title, asset-category code, defect patterns, severity, guidance text, reference URL, and a `vector(384)` embedding with an HNSW `vector_cosine_ops` index for cosine retrieval via local `fastembed`. |
 | 46 | `historical_finding_cases` | Stores six anonymized benchmark cases and confirmed findings backfilled (`V64`) and indexed automatically at report publication (`V62`, updated to `vector(384)` by `V65`), with organization/asset references, defect label, severity, notes, outcome (including re-inspection resolution status), anonymized flag, and a `vector(384)` embedding; retrieval is tenant-isolated and excludes the current inspection. |
+| 47 | `gateway_inbound_transactions` | Idempotent inbound payment-gateway webhook audit table (`V68`) keyed uniquely on `(gateway, external_id)` when present, recording `order_code`, `amount`, `account_number`, raw `payload`, status (`APPLIED`, `AMOUNT_MISMATCH`, `ORDER_NOT_FOUND`, `REJECTED`, `ERROR`), and diagnostic `detail` across `REQUIRES_NEW` transactions. |
+| 48 | `inspection_flight_permits` | 1-to-1 flight-permit document metadata and independent Manager/Admin review gate split from `inspections` (`V69`), keyed on `inspection_id`. |
+| 49 | `field_session_telemetry` | 1-to-1 SmartDroneHub telemetry metrics, GPS `flight_trace_json`, and synced `flight_video_evidence_id` split from `field_sessions` (`V69`), keyed on `field_session_id`. |
 
 ## 3. Detailed Design
 
@@ -1204,37 +1207,45 @@ This section presents the detailed design for `FE-19`: Customer organization rev
 
 ---
 
-### 3.20 `MF4` — `FE-20` Online Service Fee Payment (`PayOS` VietQR & `VNPay`)
+### 3.20 `MF4` — `FE-20` Online Service Fee Payment (`Sepay` VietQR & `VNPay`)
 
-This section presents the detailed design for `FE-20`: configuration-gated VND checkout and signed webhook verification for `PayOS` VietQR (`HMAC-SHA256`) and `VNPay v2.1.0` (`HMAC-SHA512`), unresolved gateway order locks (`BR-47`), unpaid order cancellation, and authorized manual confirmation fallback.
+This section presents the detailed design for `FE-20`: configuration-gated VND checkout, VietQR transfer-code matching (`SDI<orderCode>`) and `Authorization: Apikey` webhook verification for `Sepay` VietQR (backed by `V68` `gateway_inbound_transactions`), `VNPay v2.1.0` (`HMAC-SHA512`) IPN/Return handling with automatic terminal cancel/expiry order release (`V67` `gateway_order_created_at`), unresolved gateway order locks (`BR-47`), 3-second Web QR status polling, and authorized manual confirmation fallback.
 
 #### 3.20.1 Sequence Diagram
 
 ```mermaid
-%% title: FE-20 PayOS VietQR and VNPay Online Payment and Webhook Settlement Sequence Diagram
+%% title: FE-20 Sepay VietQR and VNPay Online Payment and Webhook Settlement Sequence Diagram
 sequenceDiagram
   autonumber
   actor Cust as Customer
+  participant Web as Web Settlement / SepayQrDialog
   participant Ctrl as ContractWorkflowController
-  participant Webhooks as PayOSWebhookController / VnPayWebhookController
+  participant Webhooks as SepayWebhookController / VnPayWebhookController
   participant ContractSvc as ContractWorkflowService
-  participant PayGW as PayOSPaymentGateway / VnPayPaymentGateway
+  participant PayGW as SepayPaymentGateway / VnPayPaymentGateway
+  participant InboundSvc as GatewayInboundTransactionService
   participant DB as PostgreSQL
 
-  alt PayOS VietQR Checkout
-    Cust->>Ctrl: POST /api/v1/contracts/requests/{reqId}/occurrences/{occId}/payos/create-payment-link
-    Ctrl->>ContractSvc: createOccurrencePayOSCheckout(customerId, reqId, occId, req)
-    ContractSvc->>PayGW: createPaymentLink(orderCode, amountVnd, description)
-    PayGW-->>Cust: Return VietQR checkoutUrl and QR payload
-    PayGW->>Webhooks: POST /api/v1/webhooks/payos (HMAC-SHA256 signed payload)
-    Webhooks->>ContractSvc: handlePayOSWebhook(payload)
+  alt Sepay VietQR Checkout
+    Cust->>Ctrl: POST /api/v1/contracts/requests/{reqId}/occurrences/{occId}/sepay/create-payment-link
+    Ctrl->>ContractSvc: createSepayPaymentLink(customerId, reqId, occId)
+    ContractSvc->>PayGW: createPaymentLink(orderCode, amountVnd, description, bankInfo)
+    PayGW-->>Web: Return VietQR image URL and transfer content SDI<orderCode>
+    loop Every 3 seconds while QR dialog is open
+      Web->>Ctrl: GET .../finance (auto-closes modal when paymentStatus == PAID)
+    end
+    PayGW->>Webhooks: POST /api/v1/webhooks/sepay (Authorization: Apikey + JSON payload)
+    Webhooks->>InboundSvc: isAlreadyHandled("SEPAY", externalId)
+    Webhooks->>ContractSvc: applySepayWebhookPayment(orderCode, amount, reference)
+    Webhooks->>InboundSvc: record("SEPAY", ..., Status.APPLIED | AMOUNT_MISMATCH | ORDER_NOT_FOUND | REJECTED | ERROR)
   else VNPay v2.1.0 Checkout
     Cust->>Ctrl: POST /api/v1/contracts/requests/{reqId}/occurrences/{occId}/vnpay/create-payment-url
-    Ctrl->>ContractSvc: createOccurrenceVnPayCheckout(customerId, reqId, occId, req, clientIp)
+    Ctrl->>ContractSvc: createVnPayPaymentLink(customerId, reqId, occId, clientIp)
     ContractSvc->>PayGW: createPaymentUrl(txnRef, amountVnd, clientIp)
     PayGW-->>Cust: Return signed VNPay v2.1.0 paymentUrl
     PayGW->>Webhooks: GET /api/v1/webhooks/vnpay/ipn (HMAC-SHA512 signed query params)
-    Webhooks->>ContractSvc: handleVnPayWebhook(params)
+    Webhooks->>ContractSvc: applyVnPayPayment(orderCode, amountVnd, transactionNo)
+    Note over Webhooks,ContractSvc: On cancel/timeout (vnp_ResponseCode 24/11), releaseVnPayOrderAfterFailure(orderCode); browser /return redirects to /settlement
   end
 
   ContractSvc->>DB: Transition ServicePayment to PAID and InspectorPayout to ELIGIBLE (publish PaymentSettledEvent)
@@ -1244,9 +1255,10 @@ sequenceDiagram
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `PayOSWebhookController`, `PayOSPaymentGateway`, `PayOSCrypto` & `DisabledPayOSGateway` | Generate signed PayOS VietQR links and validate `HMAC-SHA256` webhooks before settling `ServicePayment`; disabled cleanly via config flag without breaking boot. |
-| 02 | `VnPayWebhookController`, `VnPayPaymentGateway`, `VnPayCrypto` & `DisabledVnPayGateway` | Generate signed `VNPay v2.1.0` payment URLs and verify `HMAC-SHA512` IPN params (`BR-45`); browser return redirects never mark payment `PAID`. |
-| 03 | `ContractWorkflowService` (`confirmOccurrencePayment`, `cancelUnpaidPaymentOrder`) | Prevent overwriting an active unresolved gateway order across providers (`MSG49`), clear cancelled orders only after gateway confirmation, and permit authorized manual confirmation when gateways are disabled. |
+| 01 | `SepayWebhookController`, `SepayPaymentGateway`, `SepayProperties` & `DisabledSepayGateway` | Generate public VietQR image URLs embedding `SDI<orderCode>`, verify `Authorization: Apikey` via constant-time SHA-256 comparison plus receiving account number and whole-VND checks, and settle `ServicePayment`; returns `HTTP 500` on unexpected runtime exceptions so Sepay retries transient failures while persisting outcomes safely via `GatewayInboundTransactionService`. |
+| 02 | `GatewayInboundTransactionService` & `GatewayInboundTransaction` (`gateway_inbound_transactions`) | Persists inbound gateway outcomes (`APPLIED`, `AMOUNT_MISMATCH`, `ORDER_NOT_FOUND`, `REJECTED`, `ERROR`) in `Propagation.REQUIRES_NEW` transactions (`V68`) so audit records survive rolled-back payment attempts and deduplicate redeliveries. |
+| 03 | `VnPayWebhookController`, `VnPayPaymentGateway`, `VnPayCrypto` & `DisabledVnPayGateway` | Generate signed `VNPay v2.1.0` payment URLs and verify `HMAC-SHA512` IPN/Return params (`BR-45`); browser `/return` redirects directly back to `/settlement` without settling on its own, and terminal failure codes `24` (cancelled) or `11` (timed out) release the unresolved order via `releaseVnPayOrderAfterFailure`. |
+| 04 | `ContractWorkflowService` & Web `SepayQrDialog.tsx` | Prevent overwriting an active unresolved gateway order across providers (`MSG49`) using `gateway_order_created_at` (`V67`) for automatic expiry release, allow attributable Manager cancellation (`cancelUnpaidPaymentOrder`), support manual confirmation when gateways are disabled, and poll every 3 seconds in the Web UI to close `SepayQrDialog` automatically upon `PAID`. |
 
 ---
 
@@ -1273,7 +1285,7 @@ This section presents the detailed design for `FE-22`: enforcing strict separati
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
 | 01 | `ContractWorkflowController.recordOccurrencePayout` & `InspectorPayout` | Transitions payout from `ELIGIBLE` to `PAID` only when a `MANAGER` supplies a unique external transfer reference (`payout_reference`, actor attribution, timestamp), enforcing active refund holds and post-reduction payout caps (`BR-46`). |
-| 02 | `OccurrenceFinanceResponse` & Role Masking | Projects net payout, commission/TNCN deductions, refund holds, and recovery ledgers to `MANAGER` and assigned `INSPECTOR` while stripping internal partner settlement details from `CUSTOMER` payloads. |
+| 02 | `OccurrenceFinanceResponse` & Role Masking | Projects net payout, commission/TNCN deductions, refund holds, masked `inspectorRefundSummaries` (exposing payout reduction and receivable impact while omitting platform absorption, commission/VAT adjustments, and internal notes), and recovery ledgers to assigned `INSPECTOR`, full rows to `MANAGER`, while stripping internal partner settlement details from `CUSTOMER` payloads. |
 | 03 | Web `OccurrenceFinanceDrawer.tsx`, `InspectorPayoutStatementCard.tsx` & `InspectorPayoutSummaryBar.tsx` | Render eligible/held/paid states, net disbursement breakdown, and Manager payout recording forms inside Workspace Settlement (`/settlement`). |
 
 ---

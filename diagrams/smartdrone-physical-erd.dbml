@@ -1,0 +1,866 @@
+// SmartDroneInspection Physical Database Schema (PostgreSQL 17)
+// Synced from Flyway migrations V1 - V69 (48 application tables + event_publication)
+
+Table users {
+  id uuid [pk]
+  email varchar(320) [not null]
+  normalized_email varchar(320) [unique, not null]
+  full_name varchar(200) [not null]
+  password_hash varchar(1024)
+  status varchar(32) [not null]
+  auth_version integer [not null]
+  failed_login_count integer [not null]
+  lockout_until timestamptz
+  must_change_password boolean [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  vision_fallback_enabled boolean [not null]
+  phone_number varchar(32)
+  avatar_url text
+  roles varchar(255) [not null]
+  otp_verified boolean [not null]
+}
+
+Table auth_sessions {
+  id uuid [pk]
+  user_id uuid [not null]
+  client_type varchar(16) [not null]
+  token_hash varchar(64) [unique]
+  previous_token_hash varchar(64)
+  issued_at timestamptz [not null]
+  expires_at timestamptz [not null]
+  revoked_at timestamptz
+  revoked_reason varchar(128)
+}
+
+Table otp_challenges {
+  id uuid [pk]
+  purpose varchar(32) [not null]
+  challenge_hash varchar(64) [unique, not null]
+  user_id uuid
+  destination varchar(255)
+  channel varchar(16)
+  client_ip varchar(45)
+  code_hash varchar(64)
+  code_expires_at timestamptz
+  expires_at timestamptz [not null]
+  consumed_at timestamptz
+  failed_attempts integer [not null]
+  send_count integer [not null]
+  last_sent_at timestamptz
+  created_at timestamptz [not null]
+  row_version bigint [not null]
+}
+
+Table prospective_customer_registrations {
+  id uuid [pk]
+  user_id uuid [unique, not null]
+  organization_name varchar(200) [not null]
+  organization_code varchar(64) [unique, not null]
+  asset_category_id uuid [not null]
+  asset_code varchar(64) [not null]
+  asset_name varchar(200) [not null]
+  asset_description varchar(2000)
+  asset_location varchar(500) [not null]
+  latitude "numeric(9,6)" [not null]
+  longitude "numeric(9,6)" [not null]
+  ownership_information varchar(1000)
+  status varchar(24) [not null]
+  airspace_classification varchar(32) [not null]
+  review_note varchar(2000)
+  reviewed_by_user_id uuid
+  reviewed_at timestamptz
+  created_at timestamptz [not null]
+  row_version bigint [not null]
+  structure_height_meters "numeric(8,2)"
+  footprint_area_square_meters "numeric(12,2)"
+}
+
+Table inspector_applications {
+  id uuid [pk]
+  normalized_email varchar(320) [not null]
+  email varchar(320) [not null]
+  full_name varchar(200) [not null]
+  phone_number varchar(32)
+  citizen_id varchar(32) [not null]
+  address varchar(500) [not null]
+  pilot_license_number varchar(128) [not null]
+  pilot_license_class varchar(64) [not null]
+  pilot_license_expires_at timestamptz
+  license_scan_file_key varchar(1000) [not null]
+  password_hash varchar(1024) [not null]
+  status varchar(32) [not null]
+  reviewed_by_user_id uuid
+  reviewed_at timestamptz
+  rejection_reason varchar(1000)
+  notification_state varchar(32) [not null]
+  cleanup_attempts integer [not null]
+  correlation_id varchar(128)
+  approved_user_id uuid
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  signed_contract_file_key varchar(1000)
+  signed_contract_sha256 varchar(128)
+}
+
+Table inspector_profiles {
+  user_id uuid [pk]
+  pilot_license_number varchar(128)
+  pilot_license_class varchar(64)
+  pilot_license_expires_at timestamptz
+  pilot_license_file_key varchar(1000)
+  pilot_license_issued_date date
+  pilot_license_authority varchar(200)
+  citizen_id varchar(32)
+  date_of_birth date
+  address varchar(500)
+  prior_flight_hours "numeric(8,2)" [not null]
+  certified_drone_models varchar(500)
+  specializations varchar(500)
+  experience_summary text
+  notes text
+  updated_at timestamptz [not null]
+  onboarding_status varchar(32) [not null]
+  partner_contract_file_key varchar(1000)
+  partner_contract_sha256 varchar(64)
+  partner_contract_uploaded_at timestamptz
+  approved_by_user_id uuid
+  approved_at timestamptz
+  rejection_reason text
+}
+
+Table pilot_license_classes {
+  id uuid [pk]
+  name varchar(64) [unique, not null]
+  description varchar(500)
+  active boolean [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table inspector_flight_logs {
+  id uuid [pk]
+  inspector_user_id uuid [not null]
+  flight_code varchar(64) [not null]
+  flight_date date [not null]
+  mission_title varchar(255) [not null]
+  drone_model varchar(255) [not null]
+  drone_serial_number varchar(128)
+  location varchar(500) [not null]
+  flight_duration_minutes integer [not null]
+  inspection_type varchar(128) [not null]
+  safety_incident boolean [not null]
+  notes text
+  recorded_by_user_id uuid
+  created_at timestamptz [not null]
+}
+
+Table inspector_reliability_events {
+  id uuid [pk]
+  inspector_id uuid [not null]
+  inspection_id uuid [not null]
+  field_session_id uuid
+  event_type varchar(24) [not null]
+  reason varchar(2000)
+  occurred_at timestamptz [not null]
+}
+
+Table asset_categories {
+  id uuid [pk]
+  code varchar(64) [unique, not null]
+  name varchar(160) [not null]
+  description varchar(2000)
+  active boolean [not null]
+  row_version bigint [not null]
+}
+
+Table inspection_items {
+  id uuid [pk]
+  category_id uuid [not null]
+  label varchar(300) [not null]
+  sort_order integer [not null]
+  active boolean [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  row_version bigint [not null]
+}
+
+Table assets {
+  id uuid [pk]
+  category_id uuid [not null]
+  name varchar(200) [not null]
+  description varchar(2000)
+  latitude "numeric(9,6)"
+  longitude "numeric(9,6)"
+  status varchar(24) [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  row_version bigint [not null]
+  asset_code varchar(64) [not null]
+  location jsonb
+  technical_profile jsonb
+  inspection_items jsonb [not null]
+  structure_height_meters "numeric(8,2)"
+  footprint_area_square_meters "numeric(12,2)"
+  owner_customer_id uuid [not null]
+  ownership_information varchar(1000)
+}
+
+Table asset_documents {
+  id uuid [pk]
+  asset_id uuid [not null]
+  uploaded_by_user_id uuid [not null]
+  document_type varchar(32) [not null]
+  file_name varchar(500) [not null]
+  content_type varchar(160) [not null]
+  size_bytes bigint [not null]
+  object_key varchar(1000) [unique, not null]
+  document_date date
+  created_at timestamptz [not null]
+}
+
+Table drones {
+  id uuid [pk]
+  serial_number varchar(128) [unique, not null]
+  model varchar(1000)
+  manufacturer varchar(200)
+  payload_metadata jsonb
+  serviceability varchar(24) [not null]
+  notes varchar(2000)
+  registration_number varchar(100)
+  registration_file_key varchar(1000)
+  registration_expires_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  row_version bigint [not null]
+  inspector_owner_id uuid
+  document_files jsonb
+  max_wind_resistance_mps "numeric(4,1)"
+  optical_zoom_level varchar(32)
+  image_file_keys jsonb
+  features jsonb
+  max_altitude_meters "numeric(8,1)"
+  owner_customer_id uuid
+}
+
+Table drone_registration_applications {
+  id uuid [pk]
+  inspector_user_id uuid [not null]
+  serial_number varchar(128) [unique, not null]
+  model varchar(1000)
+  manufacturer varchar(200)
+  registration_number varchar(100) [not null]
+  registration_file_key varchar(1000) [not null]
+  registration_expires_at timestamptz [not null]
+  status varchar(24) [not null]
+  review_note varchar(2000)
+  reviewed_by_user_id uuid
+  reviewed_at timestamptz
+  drone_id uuid
+  created_at timestamptz [not null]
+  row_version bigint [not null]
+  document_files jsonb
+  max_wind_resistance_mps "numeric(4,1)"
+  optical_zoom_level varchar(32)
+  image_file_keys jsonb
+  features jsonb
+  max_altitude_meters "numeric(8,1)"
+}
+
+Table drone_document_configs {
+  id uuid [pk]
+  code varchar(64) [unique, not null]
+  title_vi varchar(255) [not null]
+  title_en varchar(255) [not null]
+  description_vi varchar(1000)
+  description_en varchar(1000)
+  is_required boolean [not null]
+  is_active boolean [not null]
+  display_order integer [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table drone_feature_configs {
+  id uuid [pk]
+  code varchar(64) [unique, not null]
+  name_vi varchar(255) [not null]
+  name_en varchar(255) [not null]
+  description_vi varchar(500)
+  description_en varchar(500)
+  category varchar(32) [not null]
+  is_active boolean [not null]
+  display_order integer [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table service_requests {
+  id uuid [pk]
+  asset_id uuid [not null]
+  created_by_user_id uuid [not null]
+  description varchar(4000) [not null]
+  requested_from date [not null]
+  requested_until date [not null]
+  timezone varchar(64) [not null]
+  window_start time [not null]
+  window_end time [not null]
+  request_type varchar(16) [not null]
+  recurrence_unit varchar(16)
+  recurrence_interval integer
+  occurrence_count integer
+  recurrence_end_date date
+  status varchar(24) [not null]
+  contract_object_key varchar(1000)
+  contract_uploaded_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  row_version bigint [not null]
+  accepted_quote_id uuid
+  accepted_at timestamptz
+  accepted_by_user_id uuid
+  accepted_terms_snapshot jsonb
+  owner_customer_id uuid [not null]
+  source_inspection_id uuid
+  assigned_manager_id uuid
+  manager_assigned_at timestamptz
+  manager_assigned_by_user_id uuid
+}
+
+Table service_request_messages {
+  id uuid [pk]
+  request_id uuid [not null]
+  author_user_id uuid [not null]
+  body varchar(4000) [not null]
+  created_at timestamptz [not null]
+  read_at timestamptz
+}
+
+Table service_request_message_attachments {
+  id uuid [pk]
+  message_id uuid [not null]
+  file_name varchar(255) [not null]
+  content_type varchar(128) [not null]
+  size_bytes bigint [not null]
+  object_key varchar(512) [unique, not null]
+  created_at timestamptz [not null]
+}
+
+Table service_request_quotes {
+  id uuid [pk]
+  request_id uuid [unique, not null]
+  scope_snapshot varchar(4000) [not null]
+  first_occurrence_start_at timestamptz [not null]
+  first_occurrence_end_at timestamptz [not null]
+  inspector_id uuid
+  drone_id uuid
+  issued_by_user_id uuid [not null]
+  created_at timestamptz [not null]
+  price_per_occurrence_vnd "numeric(15,2)" [not null]
+  required_drone_feature_codes jsonb [not null]
+  updated_at timestamptz [not null]
+  updated_by_user_id uuid [not null]
+  row_version bigint [not null]
+}
+
+Table service_request_occurrences {
+  id uuid [pk]
+  request_id uuid [not null]
+  occurrence_index integer [not null]
+  planned_start_at timestamptz [not null]
+  planned_end_at timestamptz [not null]
+  status varchar(24) [not null]
+  inspector_id uuid
+  drone_id uuid
+  inspection_id uuid [unique]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  row_version bigint [not null]
+  last_timeout_cancelled_at timestamptz
+  last_timeout_inspector_id uuid
+}
+
+Table inspections {
+  id uuid [pk]
+  asset_id uuid [not null]
+  status varchar(32) [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  row_version bigint [not null]
+  planned_start_at timestamptz
+  planned_end_at timestamptz
+  inspector_id uuid
+  drone_id uuid
+  findings_confirmed_at timestamptz
+  partner_assignment boolean [not null]
+  inspection_type varchar(32) [not null]
+  owner_customer_id uuid [not null]
+  decline_reason varchar(2000)
+  declined_at timestamptz
+  declined_by_inspector_id uuid
+  cancellation_reason varchar(2000)
+  overdue_notified_at timestamptz
+  clarification_count integer [not null]
+  assignment_status varchar(32) [not null]
+  assignment_accepted_at timestamptz
+  source_inspection_id uuid
+  assignment_requested_at timestamptz
+}
+
+Table inspection_flight_permits {
+  inspection_id uuid [pk]
+  file_key varchar(1000)
+  file_name varchar(500)
+  permit_number varchar(120)
+  authority varchar(200)
+  valid_from timestamptz
+  valid_to timestamptz
+  drone_serial varchar(120)
+  max_altitude_m integer
+  file_sha256 varchar(64)
+  file_size_bytes bigint
+  content_type varchar(120)
+  uploaded_at timestamptz
+  uploaded_by uuid
+  verification_status varchar(32) [not null]
+  verified_by uuid
+  verified_at timestamptz
+  rejection_reason varchar(1000)
+  review_notes varchar(1000)
+}
+
+Table field_sessions {
+  id uuid [pk]
+  inspection_id uuid [not null]
+  status varchar(24) [not null]
+  started_at timestamptz
+  ended_at timestamptz
+  abort_reason varchar(2000)
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  row_version bigint [not null]
+  pre_flight_checklist_note varchar(2000)
+  outcome_notes varchar(4000)
+  hung_notified_at timestamptz
+  aborted_by_user_id uuid
+}
+
+Table field_session_telemetry {
+  field_session_id uuid [pk]
+  telemetry_source varchar(64)
+  flight_duration_seconds integer
+  distance_flown_meters "numeric(10,2)"
+  max_altitude_meters "numeric(8,2)"
+  start_battery_percent integer
+  end_battery_percent integer
+  flight_final_state varchar(32)
+  flight_report_note varchar(1000)
+  flight_trace_json text
+  flight_video_evidence_id uuid
+}
+
+Table evidence {
+  id uuid [pk]
+  inspection_id uuid [not null]
+  field_session_id uuid
+  file_name varchar(500) [not null]
+  content_type varchar(160) [not null]
+  size_bytes bigint [not null]
+  object_key varchar(1000) [unique, not null]
+  capture_time timestamptz
+  latitude "numeric(9,6)"
+  longitude "numeric(9,6)"
+  location_description varchar(1000)
+  is_deleted boolean [not null]
+  created_at timestamptz [not null]
+  original_size_bytes bigint
+  processing_status varchar(32) [not null]
+  processing_error text
+  raw_object_key varchar(1000)
+  thumbnail_object_key varchar(1000)
+  thumbnail_size_bytes bigint
+  media_width integer
+  media_height integer
+  duration_seconds double
+  processed_at timestamptz
+  processing_attempts integer [not null]
+  processing_locked_at timestamptz
+  source_video_evidence_id uuid
+  source_timestamp_seconds double
+}
+
+Table evidence_upload_sessions {
+  id uuid [pk]
+  inspection_id uuid [not null]
+  field_session_id uuid
+  created_by_user_id uuid [not null]
+  file_name varchar(500) [not null]
+  content_type varchar(160) [not null]
+  declared_size_bytes bigint [not null]
+  chunk_size_bytes integer [not null]
+  total_parts integer [not null]
+  status varchar(32) [not null]
+  storage_upload_id varchar(500)
+  raw_object_key varchar(1000) [not null]
+  evidence_id uuid
+  capture_time timestamptz
+  latitude "numeric(9,6)"
+  longitude "numeric(9,6)"
+  location_description varchar(1000)
+  uploaded_parts_json text [not null]
+  error_message text
+  expires_at timestamptz [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  completed_at timestamptz
+  row_version bigint [not null]
+}
+
+Table findings {
+  id uuid [pk]
+  inspection_id uuid [not null]
+  evidence_id uuid
+  finding_code varchar(64) [not null]
+  defect_label varchar(160) [not null]
+  severity varchar(16) [not null]
+  bounding_box jsonb
+  technical_notes varchar(4000) [not null]
+  status varchar(24) [not null]
+  model_name varchar(160)
+  confidence "numeric(6,5)"
+  is_deleted boolean [not null]
+  created_at timestamptz [not null]
+}
+
+Table reinspection_defect_verifications {
+  id uuid [pk]
+  reinspection_id uuid [not null]
+  source_finding_id uuid [not null]
+  new_evidence_id uuid
+  resolution_status varchar(32) [not null]
+  inspector_notes varchar(4000)
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  verified_at timestamptz
+  valid_until timestamptz
+}
+
+Table inspection_reports {
+  id uuid [pk]
+  inspection_id uuid [not null]
+  version_no integer [not null]
+  status varchar(32) [not null]
+  submitted_at timestamptz
+  reviewer_user_id uuid
+  reviewed_at timestamptz
+  return_reason varchar(2000)
+  published_at timestamptz
+  created_at timestamptz [not null]
+  summary text
+}
+
+Table inspection_messages {
+  id uuid [pk]
+  inspection_id uuid [not null]
+  author_user_id uuid [not null]
+  body varchar(4000) [not null]
+  has_attachments boolean [not null]
+  read_at timestamptz
+  created_at timestamptz [not null]
+}
+
+Table inspection_message_attachments {
+  id uuid [pk]
+  message_id uuid [not null]
+  file_name varchar(255) [not null]
+  content_type varchar(120) [not null]
+  size_bytes bigint [not null]
+  object_key varchar(512) [not null]
+  created_at timestamptz [not null]
+}
+
+Table inspection_knowledge_chunks {
+  id uuid [pk]
+  standard_code varchar(64) [not null]
+  title varchar(255) [not null]
+  asset_category_code varchar(64) [not null]
+  defect_patterns varchar(255) [not null]
+  severity varchar(16) [not null]
+  guidance text [not null]
+  reference_url varchar(500)
+  embedding vector(384)
+  created_at timestamptz [not null]
+}
+
+Table historical_finding_cases {
+  id uuid [pk]
+  source_finding_id uuid [unique]
+  source_inspection_id uuid
+  organization_id uuid
+  asset_id uuid
+  asset_category_code varchar(64) [not null]
+  asset_label varchar(255) [not null]
+  defect_label varchar(160) [not null]
+  severity varchar(16) [not null]
+  technical_notes text [not null]
+  report_outcome varchar(64) [not null]
+  is_anonymized_benchmark boolean [not null]
+  embedding vector(384)
+  published_at timestamptz [not null]
+}
+
+Table service_invoices {
+  occurrence_id uuid [pk]
+  total_price "numeric(15,2)"
+  vat_rate "numeric(5,2)"
+  commission_rate "numeric(5,2)"
+  tncn_rate "numeric(5,2)"
+  report_accepted_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  row_version bigint [not null]
+}
+
+Table service_payments {
+  occurrence_id uuid [pk]
+  payment_status varchar(24) [not null]
+  payos_order_code bigint [unique]
+  payment_method varchar(30)
+  gateway_order_created_at timestamptz
+  payment_reference varchar(255)
+  payment_confirmed_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  row_version bigint [not null]
+  refunded_amount "numeric(15,2)" [not null]
+  refund_status varchar(24) [not null]
+  payment_due_at timestamptz
+  payment_overdue_notified_at timestamptz
+}
+
+Table gateway_inbound_transactions {
+  id uuid [pk]
+  gateway varchar(20) [not null]
+  external_id varchar(100)
+  order_code bigint
+  amount bigint
+  account_number varchar(50)
+  payload text
+  status varchar(24) [not null]
+  detail varchar(255)
+  received_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table service_refunds {
+  id uuid [pk]
+  occurrence_id uuid [not null]
+  amount "numeric(15,2)" [not null]
+  refund_reference varchar(255)
+  reason varchar(2000) [not null]
+  inspector_payout_reduction "numeric(15,2)"
+  platform_commission_adjustment "numeric(15,2)"
+  vat_adjustment "numeric(15,2)"
+  tncn_adjustment "numeric(15,2)"
+  platform_absorbed_amount "numeric(15,2)"
+  allocation_reconciled_by_user_id uuid
+  allocation_reconciliation_reference varchar(255)
+  allocation_reconciliation_note varchar(2000)
+  allocation_reconciled_at timestamptz
+  request_reference varchar(255)
+  inspector_receivable_amount "numeric(15,2)" [not null]
+  platform_absorbed_plan_amount "numeric(15,2)" [not null]
+  refund_status varchar(24) [not null]
+  initiated_by_user_id uuid [not null]
+  initiated_at timestamptz [not null]
+  completed_by_user_id uuid
+  completed_at timestamptz
+  cancelled_by_user_id uuid
+  cancelled_at timestamptz
+  cancellation_reason varchar(2000)
+}
+
+Table inspector_payouts {
+  occurrence_id uuid [pk]
+  inspector_id uuid
+  payout_status varchar(24) [not null]
+  payout_reference varchar(255)
+  payout_recorded_at timestamptz
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  row_version bigint [not null]
+  payout_held_for_refund boolean [not null]
+  payout_recorded_by_user_id uuid
+  final_payout_amount "numeric(15,2)"
+}
+
+Table inspector_receivables {
+  id uuid [pk]
+  refund_id uuid [unique, not null]
+  occurrence_id uuid [not null]
+  inspector_id uuid [not null]
+  assessed_amount "numeric(15,2)" [not null]
+  source_reference varchar(255) [not null]
+  reason varchar(2000) [not null]
+  recorded_by_user_id uuid [not null]
+  recorded_at timestamptz [not null]
+  row_version bigint [not null]
+}
+
+Table inspector_receivable_recoveries {
+  id uuid [pk]
+  receivable_id uuid [not null]
+  amount "numeric(15,2)" [not null]
+  external_reference varchar(255) [not null]
+  note varchar(2000) [not null]
+  recorded_by_user_id uuid [not null]
+  recorded_at timestamptz [not null]
+}
+
+Table checklist_templates {
+  id uuid [pk]
+  template_type varchar(32) [not null]
+  label varchar(300) [not null]
+  sort_order integer [not null]
+  active boolean [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+  row_version bigint [not null]
+  required boolean [not null]
+}
+
+Table inspection_finance_settings {
+  id uuid [pk]
+  commission_rate "numeric(5,2)"
+  vat_rate "numeric(5,2)"
+  tncn_rate "numeric(5,2)"
+  updated_by_user_id uuid
+  updated_at timestamptz [not null]
+}
+
+Table platform_ai_settings {
+  id integer [pk]
+  auto_confirm_enabled boolean [not null]
+  auto_confirm_threshold "numeric(5,2)" [not null]
+  rejected_pending_count bigint [not null]
+  updated_at timestamptz [not null]
+  updated_by uuid
+}
+
+Table platform_operations_settings {
+  id uuid [pk]
+  assignment_acceptance_timeout_hours integer [not null]
+  updated_by_user_id uuid
+  updated_at timestamptz [not null]
+}
+
+Table notifications {
+  id uuid [pk]
+  recipient_user_id uuid [not null]
+  event_type varchar(96) [not null]
+  channel varchar(16) [not null]
+  title varchar(300) [not null]
+  body varchar(4000) [not null]
+  target_path varchar(1000)
+  status varchar(24) [not null]
+  sent_at timestamptz
+  read_at timestamptz
+  created_at timestamptz [not null]
+  deduplication_key varchar(192) [unique]
+}
+
+Table audit_events {
+  id uuid [pk]
+  actor_user_id uuid
+  action varchar(128) [not null]
+  aggregate_type varchar(128) [not null]
+  aggregate_id uuid [not null]
+  before_status varchar(64)
+  after_status varchar(64)
+  aggregate_version bigint
+  trace_id varchar(128)
+  safe_metadata jsonb
+  created_at timestamptz [not null]
+}
+
+Table event_publication {
+  id uuid [pk]
+  listener_id text [not null]
+  event_type text [not null]
+  serialized_event text [not null]
+  publication_date timestamptz [not null]
+  completion_date timestamptz
+  status text
+  completion_attempts integer
+  last_resubmission_date timestamptz
+}
+
+Ref: auth_sessions.user_id > users.id
+Ref: otp_challenges.user_id > users.id
+Ref: prospective_customer_registrations.user_id > users.id
+Ref: prospective_customer_registrations.asset_category_id > asset_categories.id
+Ref: inspector_applications.reviewed_by_user_id > users.id
+Ref: inspector_profiles.user_id - users.id
+Ref: inspector_flight_logs.inspector_user_id > users.id
+Ref: inspection_items.category_id > asset_categories.id
+Ref: assets.category_id > asset_categories.id
+Ref: assets.owner_customer_id > users.id
+Ref: asset_documents.asset_id > assets.id
+Ref: drones.inspector_owner_id > users.id
+Ref: drones.owner_customer_id > users.id
+Ref: drone_registration_applications.inspector_user_id > users.id
+Ref: drone_registration_applications.drone_id > drones.id
+Ref: service_requests.asset_id > assets.id
+Ref: service_requests.accepted_quote_id > service_request_quotes.id
+Ref: service_requests.owner_customer_id > users.id
+Ref: service_requests.source_inspection_id > inspections.id
+Ref: service_requests.assigned_manager_id > users.id
+Ref: service_request_messages.request_id > service_requests.id
+Ref: service_request_message_attachments.message_id > service_request_messages.id
+Ref: service_request_quotes.request_id > service_requests.id
+Ref: service_request_quotes.inspector_id > users.id
+Ref: service_request_quotes.drone_id > drones.id
+Ref: service_request_occurrences.request_id > service_requests.id
+Ref: service_request_occurrences.inspector_id > users.id
+Ref: service_request_occurrences.drone_id > drones.id
+Ref: service_request_occurrences.inspection_id > inspections.id
+Ref: inspections.asset_id > assets.id
+Ref: inspections.inspector_id > users.id
+Ref: inspections.drone_id > drones.id
+Ref: inspections.owner_customer_id > users.id
+Ref: inspection_flight_permits.inspection_id - inspections.id
+Ref: field_sessions.inspection_id > inspections.id
+Ref: field_session_telemetry.field_session_id - field_sessions.id
+Ref: field_session_telemetry.flight_video_evidence_id > evidence.id
+Ref: evidence.inspection_id > inspections.id
+Ref: evidence.field_session_id > field_sessions.id
+Ref: evidence_upload_sessions.inspection_id > inspections.id
+Ref: evidence_upload_sessions.field_session_id > field_sessions.id
+Ref: evidence_upload_sessions.evidence_id > evidence.id
+Ref: findings.inspection_id > inspections.id
+Ref: findings.evidence_id > evidence.id
+Ref: reinspection_defect_verifications.reinspection_id > inspections.id
+Ref: reinspection_defect_verifications.source_finding_id > findings.id
+Ref: reinspection_defect_verifications.new_evidence_id > evidence.id
+Ref: inspection_reports.inspection_id > inspections.id
+Ref: inspection_messages.inspection_id > inspections.id
+Ref: inspection_message_attachments.message_id > inspection_messages.id
+Ref: service_invoices.occurrence_id - service_request_occurrences.id
+Ref: service_payments.occurrence_id - service_invoices.occurrence_id
+Ref: service_refunds.occurrence_id > service_payments.occurrence_id
+Ref: inspector_payouts.occurrence_id - service_invoices.occurrence_id
+Ref: inspector_payouts.inspector_id > users.id
+Ref: inspector_receivables.refund_id > service_refunds.id
+Ref: inspector_receivables.occurrence_id > service_request_occurrences.id
+Ref: inspector_receivables.inspector_id > users.id
+Ref: inspector_receivable_recoveries.receivable_id > inspector_receivables.id
+Ref: inspector_reliability_events.inspector_id > users.id
+Ref: inspector_reliability_events.inspection_id > inspections.id
+Ref: inspector_reliability_events.field_session_id > field_sessions.id
+Ref: notifications.recipient_user_id > users.id
+Ref: audit_events.actor_user_id > users.id
+Ref: inspection_finance_settings.updated_by_user_id > users.id
+Ref: platform_ai_settings.updated_by > users.id
+Ref: platform_operations_settings.updated_by_user_id > users.id
+Ref: historical_finding_cases.source_finding_id - findings.id
+Ref: historical_finding_cases.source_inspection_id > inspections.id

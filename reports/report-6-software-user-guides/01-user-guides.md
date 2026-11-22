@@ -16,10 +16,10 @@ This release delivers the SmartDroneInspection platform: a building-inspection s
 | 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking for the eight-week build, maintained from the project plan in Report 2. |
 | 2 | Project Backlog | The twenty-four atomic feature backlog (`FE-01`–`FE-24`) across `MF1`–`MF4`, with the acceptance criteria each item was closed against. |
 | 3 | Source Codes | Four independent repositories: `SmartDroneInspection-backend` (Java 21, Spring Boot 4.1, Spring Modulith), `SmartDroneInspection-frontend` (React 19, strict TypeScript, Vite, Material UI), `SmartDroneInspection-mobile` (Flutter, Riverpod, GoRouter, Dio), and `SmartDroneInspection-docs`. |
-| 4 | Database Script(s) | Automated schema migration scripts (`V1`–`V4` and `V60`–`V66`) configuring the PostgreSQL 17 database (45 application tables), vector knowledge search support, and plain-text building ownership details. |
+| 4 | Database Script(s) | Automated schema migration scripts (`V1`–`V4` and `V60`–`V69`) configuring the PostgreSQL 17 database (48 application tables, including `service_payments.gateway_order_created_at`, `gateway_inbound_transactions`, `inspection_flight_permits`, and `field_session_telemetry`), vector knowledge search support, and plain-text building ownership details. |
 | 5 | Final Report Document | Reports 1–7 of the capstone documentation set, each exported against its official template. |
-| 6 | Test Cases Document | `Report5_Test Report.xlsx` (`v3.9`) with twenty-four sheets (`Feature 1`–`Feature 24`, mapped 1-to-1 to `FE-01`–`FE-24`) covering `67` active cases (`45 Passed`, `0 Failed`, `9 Pending`, `13 N/A` in Round 1; `13 Passed` in Round 3), plus the executed suite results recorded in Report 5. |
-| 7 | Defects List | The defect log maintained during the build, together with the open items and known limitations recorded in Report 5's 21 Nov 2026 baseline. |
+| 6 | Test Cases Document | `Report5_Test Report.xlsx` (`v3.10`) with twenty-four sheets (`Feature 1`–`Feature 24`, mapped 1-to-1 to `FE-01`–`FE-24`) covering `67` active cases (`45 Passed`, `0 Failed`, `9 Pending`, `13 N/A` in Round 1; `13 Passed` in Round 3), plus the executed suite results and `FE-20` Sepay/VNPay verification recorded in Report 5. |
+| 7 | Defects List | The defect log maintained during the build, together with the open items and known limitations recorded in Report 5's 22 Nov 2026 baseline. |
 | 8 | Issues List | Outstanding issues and known limitations, including the out-of-scope items documented in Report 3 §3.26. |
 | 9 | Slide | The defence presentation used for the final review. |
 
