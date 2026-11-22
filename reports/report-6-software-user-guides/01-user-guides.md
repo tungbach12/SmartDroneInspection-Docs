@@ -135,7 +135,7 @@ SmartDroneInspection coordinates building inspections between three parties: the
 3. **Field preparation.** The manager assigns an inspector and a drone to each occurrence. The inspector uploads the mission flight permit, and a different manager verifies it before any field work may start.
 4. **Field execution.** The inspector records the on-site session, captures photographs and video, and lets the platform propose candidate defects, which the inspector confirms or rejects.
 5. **Reporting.** The inspector submits the report; a manager who did not write it reviews and publishes the locked official inspection report.
-6. **Settlement.** The customer accepts the published report and pays through PayOS VietQR or VNPay.
+6. **Settlement.** The customer accepts the published report and pays through Sepay VietQR or VNPay.
 
 Four login roles operate the platform. Each has its own portal, and a section a role may not use does not appear in its navigation at all:
 
@@ -399,9 +399,11 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 **Step 3.** Choose **Accept report**. Acceptance is recorded against the occurrence and the payment becomes due. From that point the inspection shows a payment-due badge with a countdown to the configured deadline (15 days by default), and a single overdue reminder is sent if the deadline passes. You can download the payment notice — and, once paid, the receipt — as a PDF directly from the inspection page.
 
-**Step 4.** Choose **Pay** and select PayOS VietQR or VNPay. For VietQR, scan the displayed code with a banking application; for VNPay, follow the redirect to the payment page.
+**Step 4.** On the inspection's **Acceptance & Payment** (`/settlement`) view, review the customer-scoped Service Invoice (Pre-VAT base, VAT %, and Amount to pay) and choose either **Pay with VNPay** or **Pay with VietQR (Sepay)**:
+- **VNPay:** You are redirected to the VNPay checkout page (HMAC-SHA512 signed). After completing payment, VNPay returns you to `/client/inspections/{inspectionId}/settlement?payment=success`. If you cancel or the checkout expires, VNPay redirects back to `/settlement?payment=cancelled` and releases the unpaid order automatically so you can retry immediately.
+- **Sepay VietQR:** A VietQR dialog opens showing the scannable QR code, bank name, account number, account holder, amount, and the unique `SDI<orderCode>` transfer content (with one-click copy buttons). Keep the `SDI<orderCode>` content unchanged so the Sepay webhook matches your transfer automatically. While the dialog is open, the page checks settlement status every 3 seconds (or immediately via **Check payment status**) and closes the dialog automatically as soon as payment is confirmed.
 
-**Step 5.** Confirm that the payment shows as paid. Settlement is confirmed by the gateway callback rather than by the redirect alone, so the status may take a moment to update. Once paid, a manager can record the inspector's payout for that occurrence.
+**Step 5.** Confirm that the invoice shows as **PAID** and download the official payment receipt PDF. Customer payment transitions the assigned Inspector's payout to **`ELIGIBLE`**; a Platform Manager then records the external bank transfer reference (UNC) to transition the payout to **`PAID`**. Each role can review its scoped ledger under **Payment history** (`/client/finance-history` for Customer, `/operations/finance-history` for Inspector, and `/manager/finance-history` for Manager).
 
 **Step 6.** For an inspection that enters re-inspection, open the defect verification view. A `Resolved` verdict is valid only when the Inspector supplied fresh evidence from the current re-inspection's completed field session, and a verdict expiry warning banner shows when that verdict lapses. Use the **Inspector** chat tab to exchange messages and attachments with the assigned Inspector about the findings or the re-inspection without leaving the portal.
 
