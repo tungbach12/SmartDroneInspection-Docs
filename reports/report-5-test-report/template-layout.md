@@ -159,7 +159,7 @@ the `Feature sheet summary` table in each matching `fe-0N-…md` file. Populate
 | `FE-17` AI Case/Standard Retrieval (`pgvector` RAG), Note Drafting & Report Summary (`§3.18`) | `Feature 17` | `WF3-029`, `WF3-030` (2 cases) |
 | `FE-18` Inspection Report Compilation, Independent Review & Official Publication (`§3.19`) | `Feature 18` | `WF3-005`, `WF3-006`, `WF3-009`, `WF3-016` (4 cases) |
 | `FE-19` Customer Report Acceptance & Clarification Workflow (`§3.20`) | `Feature 19` | `WF3-012` (1 case) |
-| `FE-20` Online Service Fee Payment (`PayOS` VietQR & `VNPay`) (`§3.21`) | `Feature 20` | `WF3-018`, `WF3-019` (2 cases) |
+| `FE-20` Online Service Fee Payment (`Sepay` VietQR & `VNPay`) (`§3.21`) | `Feature 20` | `WF3-018`, `WF3-019` (2 cases) |
 | `FE-21` Payment Deadlines, Invoices & Payment Document Management (`§3.22`) | `Feature 21` | `WF3-026`, `WF3-027` (2 cases) |
 | `FE-22` Partner Inspector Payout Reconciliation (`§3.23`) | `Feature 22` | `WF3-033` (1 case; `N/A / Pending / Pending`) |
 | `FE-23` Evidence-Backed Refunds & Receivable Recovery (`§3.24`) | `Feature 23` | `WF3-021` (1 case) |

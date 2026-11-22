@@ -993,37 +993,45 @@ This section presents the detailed design for `FE-19`: Customer organization rev
 
 ---
 
-### 3.20 `MF4` — `FE-20` Online Service Fee Payment (`PayOS` VietQR & `VNPay`)
+### 3.20 `MF4` — `FE-20` Online Service Fee Payment (`Sepay` VietQR & `VNPay`)
 
-This section presents the detailed design for `FE-20`: configuration-gated VND checkout and signed webhook verification for `PayOS` VietQR (`HMAC-SHA256`) and `VNPay v2.1.0` (`HMAC-SHA512`), unresolved gateway order locks (`BR-47`), unpaid order cancellation, and authorized manual confirmation fallback.
+This section presents the detailed design for `FE-20`: configuration-gated VND checkout, VietQR transfer-code matching (`SDI<orderCode>`) and `Authorization: Apikey` webhook verification for `Sepay` VietQR (backed by `V68` `gateway_inbound_transactions`), `VNPay v2.1.0` (`HMAC-SHA512`) IPN/Return handling with automatic terminal cancel/expiry order release (`V67` `gateway_order_created_at`), unresolved gateway order locks (`BR-47`), 3-second Web QR status polling, and authorized manual confirmation fallback.
 
 #### 3.20.1 Sequence Diagram
 
 ```mermaid
-%% title: FE-20 PayOS VietQR and VNPay Online Payment and Webhook Settlement Sequence Diagram
+%% title: FE-20 Sepay VietQR and VNPay Online Payment and Webhook Settlement Sequence Diagram
 sequenceDiagram
   autonumber
   actor Cust as Customer
+  participant Web as Web Settlement / SepayQrDialog
   participant Ctrl as ContractWorkflowController
-  participant Webhooks as PayOSWebhookController / VnPayWebhookController
+  participant Webhooks as SepayWebhookController / VnPayWebhookController
   participant ContractSvc as ContractWorkflowService
-  participant PayGW as PayOSPaymentGateway / VnPayPaymentGateway
+  participant PayGW as SepayPaymentGateway / VnPayPaymentGateway
+  participant InboundSvc as GatewayInboundTransactionService
   participant DB as PostgreSQL
 
-  alt PayOS VietQR Checkout
-    Cust->>Ctrl: POST /api/v1/contracts/requests/{reqId}/occurrences/{occId}/payos/create-payment-link
-    Ctrl->>ContractSvc: createOccurrencePayOSCheckout(customerId, reqId, occId, req)
-    ContractSvc->>PayGW: createPaymentLink(orderCode, amountVnd, description)
-    PayGW-->>Cust: Return VietQR checkoutUrl and QR payload
-    PayGW->>Webhooks: POST /api/v1/webhooks/payos (HMAC-SHA256 signed payload)
-    Webhooks->>ContractSvc: handlePayOSWebhook(payload)
+  alt Sepay VietQR Checkout
+    Cust->>Ctrl: POST /api/v1/contracts/requests/{reqId}/occurrences/{occId}/sepay/create-payment-link
+    Ctrl->>ContractSvc: createSepayPaymentLink(customerId, reqId, occId)
+    ContractSvc->>PayGW: createPaymentLink(orderCode, amountVnd, description, bankInfo)
+    PayGW-->>Web: Return VietQR image URL and transfer content SDI<orderCode>
+    loop Every 3 seconds while QR dialog is open
+      Web->>Ctrl: GET .../finance (auto-closes modal when paymentStatus == PAID)
+    end
+    PayGW->>Webhooks: POST /api/v1/webhooks/sepay (Authorization: Apikey + JSON payload)
+    Webhooks->>InboundSvc: isAlreadyHandled("SEPAY", externalId)
+    Webhooks->>ContractSvc: applySepayWebhookPayment(orderCode, amount, reference)
+    Webhooks->>InboundSvc: record("SEPAY", ..., Status.APPLIED | AMOUNT_MISMATCH | ORDER_NOT_FOUND | REJECTED | ERROR)
   else VNPay v2.1.0 Checkout
     Cust->>Ctrl: POST /api/v1/contracts/requests/{reqId}/occurrences/{occId}/vnpay/create-payment-url
-    Ctrl->>ContractSvc: createOccurrenceVnPayCheckout(customerId, reqId, occId, req, clientIp)
+    Ctrl->>ContractSvc: createVnPayPaymentLink(customerId, reqId, occId, clientIp)
     ContractSvc->>PayGW: createPaymentUrl(txnRef, amountVnd, clientIp)
     PayGW-->>Cust: Return signed VNPay v2.1.0 paymentUrl
     PayGW->>Webhooks: GET /api/v1/webhooks/vnpay/ipn (HMAC-SHA512 signed query params)
-    Webhooks->>ContractSvc: handleVnPayWebhook(params)
+    Webhooks->>ContractSvc: applyVnPayPayment(orderCode, amountVnd, transactionNo)
+    Note over Webhooks,ContractSvc: On cancel/timeout (vnp_ResponseCode 24/11), releaseVnPayOrderAfterFailure(orderCode); browser /return redirects to /settlement
   end
 
   ContractSvc->>DB: Transition ServicePayment to PAID and InspectorPayout to ELIGIBLE (publish PaymentSettledEvent)
@@ -1033,9 +1041,10 @@ sequenceDiagram
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `PayOSWebhookController`, `PayOSPaymentGateway`, `PayOSCrypto` & `DisabledPayOSGateway` | Generate signed PayOS VietQR links and validate `HMAC-SHA256` webhooks before settling `ServicePayment`; disabled cleanly via config flag without breaking boot. |
-| 02 | `VnPayWebhookController`, `VnPayPaymentGateway`, `VnPayCrypto` & `DisabledVnPayGateway` | Generate signed `VNPay v2.1.0` payment URLs and verify `HMAC-SHA512` IPN params (`BR-45`); browser return redirects never mark payment `PAID`. |
-| 03 | `ContractWorkflowService` (`confirmOccurrencePayment`, `cancelUnpaidPaymentOrder`) | Prevent overwriting an active unresolved gateway order across providers (`MSG49`), clear cancelled orders only after gateway confirmation, and permit authorized manual confirmation when gateways are disabled. |
+| 01 | `SepayWebhookController`, `SepayPaymentGateway`, `SepayProperties` & `DisabledSepayGateway` | Generate signed-free public VietQR image URLs embedding `SDI<orderCode>`, verify `Authorization: Apikey` via constant-time SHA-256 comparison plus receiving account number and whole-VND checks, and settle `ServicePayment`; returns `HTTP 500` on unexpected runtime exceptions so Sepay retries transient failures while persisting outcomes safely via `GatewayInboundTransactionService`. |
+| 02 | `GatewayInboundTransactionService` & `GatewayInboundTransaction` (`gateway_inbound_transactions`) | Persists inbound gateway outcomes (`APPLIED`, `AMOUNT_MISMATCH`, `ORDER_NOT_FOUND`, `REJECTED`, `ERROR`) in `Propagation.REQUIRES_NEW` transactions (`V68`) so audit records survive rolled-back payment attempts and already-handled deliveries are deduplicated cleanly. |
+| 03 | `VnPayWebhookController`, `VnPayPaymentGateway`, `VnPayCrypto` & `DisabledVnPayGateway` | Generate signed `VNPay v2.1.0` payment URLs and verify `HMAC-SHA512` IPN/Return params (`BR-45`); browser `/return` redirects directly back to `/settlement` without settling on its own, and terminal failure codes `24` (cancelled) or `11` (timed out) release the unresolved order via `releaseVnPayOrderAfterFailure`. |
+| 04 | `ContractWorkflowService` & Web `SepayQrDialog.tsx` | Prevent overwriting an active unresolved gateway order across providers (`MSG49`) using `gateway_order_created_at` (`V67`) for automatic expiry release, allow attributable Manager cancellation (`cancelUnpaidPaymentOrder`), support manual confirmation when gateways are disabled, and poll every 3 seconds in the Web UI to close `SepayQrDialog` automatically upon `PAID`. |
 
 ---
 
@@ -1062,7 +1071,7 @@ This section presents the detailed design for `FE-22`: enforcing strict separati
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
 | 01 | `ContractWorkflowController.recordOccurrencePayout` & `InspectorPayout` | Transitions payout from `ELIGIBLE` to `PAID` only when a `MANAGER` supplies a unique external transfer reference (`payout_reference`, actor attribution, timestamp), enforcing active refund holds and post-reduction payout caps (`BR-46`). |
-| 02 | `OccurrenceFinanceResponse` & Role Masking | Projects net payout, commission/TNCN deductions, refund holds, and recovery ledgers to `MANAGER` and assigned `INSPECTOR` while stripping internal partner settlement details from `CUSTOMER` payloads. |
+| 02 | `OccurrenceFinanceResponse` & Role Masking | Projects net payout, commission/TNCN deductions, refund holds, masked `inspectorRefundSummaries` (exposing payout reduction and receivable impact while omitting platform absorption, commission/VAT adjustments, and internal notes), and recovery ledgers to assigned `INSPECTOR`, full rows to `MANAGER`, while stripping internal partner settlement details from `CUSTOMER` payloads. |
 | 03 | Web `OccurrenceFinanceDrawer.tsx`, `InspectorPayoutStatementCard.tsx` & `InspectorPayoutSummaryBar.tsx` | Render eligible/held/paid states, net disbursement breakdown, and Manager payout recording forms inside Workspace Settlement (`/settlement`). |
 
 ---

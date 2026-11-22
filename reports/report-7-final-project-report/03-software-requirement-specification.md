@@ -19,7 +19,7 @@ The lifecycle runs through four main flows organized into twenty-four atomic pro
 - **`MF1` — Identity, Partner/Drone Onboarding & Airspace Screening (`FE-01`–`FE-04`):** A customer registers its organization and initial building under live airspace screening, a partner inspector applies with licence details and registers owned drones, and role access is enforced across four portals.
 - **`MF2` — Buildings, Commercial Contracting & Occurrence Dispatch (`FE-06`–`FE-12`):** Customers manage buildings with plain-text ownership details, checkpoints, and duplicate-free reference documents while restricted-airspace cases undergo platform review; customers submit one-time or recurring requests and negotiate VND quotations, record offline signed agreements, receive cross-organization crew dispatch, use separated Order and Inspection chat channels, and stay updated via assignment timeout escalation and deduplicated notifications.
 - **`MF3` — Field Work, Evidence & Advisory AI (`FE-13`–`FE-17`):** Before flights begin, an independently verified flight permit gate controls field start; inspectors record on-site field sessions with SmartDroneHub live telemetry, upload photos and chunked video with background processing, review AI defect suggestions to confirm the findings baseline, and consult `DroneKnowledgeAI` historical-case and engineering-standard retrieval, AI note drafting, and summary references.
-- **`MF4` — Report Publication, Acceptance, Settlement & Re-inspection (`FE-05`, `FE-18`–`FE-24`):** Submitted reports undergo independent Manager review and official publication; customers review and accept published deliverables and settle fees online through PayOS VietQR or VNPay; payment due deadlines, notice/receipt PDFs, partner payouts, evidence-backed refunds/receivables, role-scoped financial ledgers, and three-way re-inspection defect verification complete the engagement.
+- **`MF4` — Report Publication, Acceptance, Settlement & Re-inspection (`FE-05`, `FE-18`–`FE-24`):** Submitted reports undergo independent Manager review and official publication; customers review and accept published deliverables and settle fees online through Sepay VietQR or VNPay; payment due deadlines, notice/receipt PDFs, partner payouts, evidence-backed refunds/receivables, role-scoped financial ledgers, and three-way re-inspection defect verification complete the engagement.
 
 Building owners, platform staff, and partner inspectors are the four human actors; the detection service, the language model, the `DroneKnowledgeAI` retrieval advisor, object storage, the ground-station hub, and the payment and identity gateways are supporting systems. The platform coordinates their work but does not control an aircraft.
 
@@ -51,7 +51,7 @@ Supporting actors are the automated system, the external payment and identity se
 | 3 | `CUSTOMER` | Customer organization representative. Registers and maintains the organization and its buildings, requests inspections, negotiates and accepts quotations, accepts reports, and pays. |
 | 4 | `INSPECTOR` | Partner drone inspector. Applies for admission, registers owned drones, conducts assigned field work, confirms findings, and submits reports. |
 | 5 | Automated System and AI Actors | `SYSTEM` runs lifecycle gates, notices, and assignment timeouts; `YOLO11` detects candidate defects with a vision fallback; `LLM` drafts advisory narrative and executive summaries; `DroneKnowledgeAI` retrieves tenant-isolated historical defect cases and engineering standards over `pgvector`. All automated output is advisory. |
-| 6 | External Payment and Identity Services | Google OAuth2 sign-in, PayOS VietQR, and VNPay settlement. These do not replace the platform's authorization or review obligations. |
+| 6 | External Payment and Identity Services | Google OAuth2 sign-in, Sepay VietQR, and VNPay settlement. These do not replace the platform's authorization or review obligations. |
 | 7 | SmartDroneHub | An optional ground-station integration supplying read-only telemetry, flight traces, and mission video. It receives no flight commands. |
 
 ```mermaid
@@ -120,7 +120,7 @@ flowchart TD
 | UC-15 | Review Candidate Findings and Confirm Findings | `INSPECTOR`, Automated System | The service proposes candidate defects; the inspector accepts, edits, rejects, or supplements each, and confirms the baseline. Only confirmed findings become official. |
 | UC-16 | Prepare and Submit Inspection Report | `INSPECTOR`, Automated System | The report author prepares and submits the report for independent review; the drafted summary is advisory material only. |
 | UC-17 | Independently Review and Publish Inspection Report | `MANAGER`, `ADMIN` | A reviewer who is not the author reviews the report, approves or returns it with reasons, and publishes the approved official report. |
-| UC-18 | Follow Inspection, Accept Report and Pay | `CUSTOMER`, `MANAGER`, Payment Service | Customers follow progress, review the published report, record acceptance, and settle the fee through PayOS or VNPay. |
+| UC-18 | Follow Inspection, Accept Report and Pay | `CUSTOMER`, `MANAGER`, Payment Service | Customers follow progress, review the published report, record acceptance, and settle the fee through Sepay VietQR or VNPay. |
 | UC-19 | Manage Partner Settlement, Payouts and Refunds | `MANAGER` | The manager records inspector payouts against verified customer payment, completes evidence-backed refunds, and records receivable recovery. |
 | UC-20 | View Dashboard, Calendar and Notifications | All roles | Users review operational information, schedules, progress, and notices within their authorised scope. |
 | UC-21 | Review Activity History | Authorised roles | Authorised users review attributable records of onboarding, commercial, inspection, payment, and acceptance decisions. |
@@ -192,7 +192,7 @@ The tables below inventory every implemented interface across the Web Applicatio
 | 15 | FE-14 | Customer Inspections List | `CUSTOMER` | Organization inspections with stage status (`Scheduled`, `Field Completed`, `Published`) and fee/settlement links. |
 | 16 | FE-14 | Customer Inspection Tracking | `CUSTOMER` | Occurrence progress view displaying planned schedule, flight permit status, and telemetry summary without internal drafts. |
 | 17 | FE-18 | Customer Inspection Report Deliverable | `CUSTOMER` | Read-only official published report viewer (`v1+`) displaying AI Executive Summary, matched references, and confirmed findings. |
-| 18 | FE-19, FE-20, FE-21 | Customer Report Acceptance & Settlement | `CUSTOMER` | Three-step closure wizard (`Accept Report -> Settle Fee -> Fulfilled`) with invoice breakdown, PDF notice, and PayOS/VNPay checkout. |
+| 18 | FE-19, FE-20, FE-21 | Customer Report Acceptance & Settlement | `CUSTOMER` | Three-step closure wizard (`Accept Report -> Settle Fee -> Fulfilled`) with invoice breakdown, PDF notice, and Sepay VietQR / VNPay checkout. |
 | 19 | FE-18 | Customer Reports Archive | `CUSTOMER` | Filtered register of finalized inspection deliverables available for PDF preview, download, and acceptance tracking. |
 | 20 | FE-05 | Customer Payment History | `CUSTOMER` | Organization ledger of verified payments, gateway/manual references, amounts paid, and downloadable receipts. |
 | 21 | FE-12 | Notifications Inbox | All Roles | Deduplicated in-app alerts with unread counters and deep links to the triggering request or inspection. |
@@ -259,7 +259,7 @@ The tables below inventory every implemented interface across the Web Applicatio
 | 12 | FE-14 | Mobile Inspections List | Inspections Tab | Scheduled, in-progress, field-completed, and published inspections scoped to the Customer's organization. |
 | 13 | FE-14 | Mobile Inspection Tracking Tab | Inspection Tracking | Read-only flight progress milestones, permit readiness badge, and session completion timeline. |
 | 14 | FE-17, FE-18 | Mobile Inspection Report Tab | Inspection Report | Published report (`v1+`) reader with AI Executive Summary, Matched Cases & Standards strip, and PDF download. |
-| 15 | FE-19, FE-20, FE-21 | Mobile Inspection Settlement Tab | Inspection Settlement | Invoice breakdown, Report Acceptance / Request Clarification buttons, and PayOS VietQR / VNPay checkout launch. |
+| 15 | FE-19, FE-20, FE-21 | Mobile Inspection Settlement Tab | Inspection Settlement | Invoice breakdown, Report Acceptance / Request Clarification buttons, and Sepay VietQR / VNPay checkout launch. |
 | 16 | FE-01 | Mobile Profile & Security Settings | Profile Tab | Signed-in customer profile summary, language/locale toggle, AI vision fallback preference, and sign-out action. |
 
 #### 3.1.3 Screen Authorization
@@ -298,7 +298,7 @@ The matrices below define screen and navigation visibility enforced by role rout
 | Home Shell, Notifications, Profile & Security | X | — | — | — |
 | Buildings Inventory & Building Detail | X | — | — | — |
 | Service Requests, Quote Acceptance & Order Chat | X | — | — | — |
-| Inspections Tracking, Published Report & PayOS/VNPay Settlement | X | — | — | — |
+| Inspections Tracking, Published Report & Sepay/VNPay Settlement | X | — | — | — |
 | Query Own Data (owning customer organization scope only) | X | — | — | — |
 
 #### 3.1.4 Non-Screen Functions
@@ -325,12 +325,12 @@ These capabilities have no dedicated screen of their own; they run inside a user
 | 16 | FE-16 | Candidate defect inference | Runs the self-hosted detection model over evidence and records candidate defects with model name and confidence. |
 | 17 | FE-17 | Advisory narrative drafting | Sends the confirmed inspection context to the language model once and stores the returned narrative as clearly labelled advisory draft text. |
 | 18 | FE-18 | Structured report compilation | Compiles the inspection report from a fixed schema of numbered sections and confirmed findings; official report content is not model-generated. |
-| 19 | FE-20 | Payment gateway callback verification | Verifies the signature of a PayOS or VNPay callback before treating a payment as settled. |
+| 19 | FE-20 | Payment gateway callback verification | Verifies the `Authorization: Apikey` header of a Sepay webhook or the `HMAC-SHA512` signature of a VNPay callback, audits outcomes idempotently (`V68`), and releases expired/cancelled orders (`V67`). |
 | 20 | FE-20, FE-22 | Invoice and settlement derivation | Derives the service invoice, Inspector payout eligibility, commission, and tax components from a verified payment. |
 
 #### 3.1.5 Entity Relationship Diagram
 
-The domain data model comprises 45 core entities across identity, buildings, partner onboarding, commercial workflow, field operations, evidence/AI analysis, reporting, and financial settlement (described technically in Part IV §2). The diagram shows the principal entities and their relationships; configuration and audit entities are summarized in the Entities Description table below.
+The domain data model comprises 48 core application entities across identity, buildings, partner onboarding, commercial workflow, field operations, evidence/AI analysis, reporting, and financial settlement (including `V68` `gateway_inbound_transactions` and `V69` `inspection_flight_permits` + `field_session_telemetry`, described technically in Part IV §2). The diagram shows the principal entities and their relationships; configuration, gateway audit, and audit entities are summarized in the Entities Description table below.
 
 ```mermaid
 %% title: Entity Relationship Diagram
@@ -392,8 +392,8 @@ erDiagram
 | 14 | `drone_document_configs` | Administrator-configured set of documents an Inspector must supply for drone registration. |
 | 15 | `drone_feature_configs` | Administrator-configured catalogue of drone features and safety checklist items. |
 | 16 | `drone_registration_applications` | Inspector drone registration or renewal submission with its documents and review outcome. |
-| 17 | `inspections` | Inspection occurrence: lifecycle status, assignment, flight-permit block, and schedule. |
-| 18 | `field_sessions` | On-site session with telemetry source, flight trace, and computed flight metrics. |
+| 17 | `inspections` | Inspection occurrence: lifecycle status, assignment, clarification count, and schedule (with permit metadata in 1-to-1 `inspection_flight_permits`). |
+| 18 | `field_sessions` | On-site session lifecycle status, safety notes, and abort/hung tracking (with telemetry metrics and flight trace in 1-to-1 `field_session_telemetry`). |
 | 19 | `evidence` | Photograph or video evidence with processing state, storage keys, and its source-video lineage. |
 | 20 | `evidence_upload_sessions` | State of a resumable chunked upload for a large video. |
 | 21 | `findings` | Confirmed or candidate building defect with its bounding region and the model confidence where applicable. |
@@ -422,6 +422,9 @@ erDiagram
 | 44 | `platform_operations_settings` | Singleton operations settings, including assignment acceptance timeout and dispatch defaults. |
 | 45 | `inspection_knowledge_chunks` | Stores the eight seeded engineering-standard/guideline chunks that ground `DroneKnowledgeAI` (title, standard code, building category, defect patterns, guidance text, and reference link). |
 | 46 | `historical_finding_cases` | Stores six anonymized benchmark cases and confirmed findings indexed automatically at report publication (organization/asset reference, defect label, severity, notes, and outcome including re-inspection resolution); retrieval is tenant-isolated and excludes the current inspection. |
+| 47 | `gateway_inbound_transactions` | Idempotent inbound payment-gateway webhook audit log (`V68`) recording gateway transaction ID, order code, transfer amount, receiving account, raw payload, outcome, and detail. |
+| 48 | `inspection_flight_permits` | Dedicated 1-to-1 mission flight-permit upload metadata and independent verification gate record split from `inspections` (`V69`). |
+| 49 | `field_session_telemetry` | Dedicated 1-to-1 SmartDroneHub mission telemetry metrics, GPS flight-trace JSON, and synced flight-video reference split from `field_sessions` (`V69`). |
 
 The model separates four coordinated areas. **Identity and onboarding** covers accounts, sessions, one-time codes, the two application records, and the building catalogue. **Commercial** covers the request, its quotation, its negotiation messages, its occurrences, and the recorded agreement. **Inspection** covers the occurrence, its field sessions and flight logs, its evidence and upload sessions, its findings, and its report versions. **Finance** covers the invoice, the customer payment, the Inspector payout, refunds with their allocations, receivables and their recovery, and the settings that parameterize the split.
 
@@ -484,7 +487,7 @@ The public entry portal (`FE-01`, `FE-02`, `FE-04`) admits customer organization
 
 ### 3.3 Web Application — Customer Portal
 
-The Customer portal (`CUSTOMER` role) scopes all reads and updates strictly to the signed-in user's organization (`Query Own Data`), covering building registration with airspace screening, one-time/recurring inspection requests, negotiations, live inspection tracking, official report review, and PayOS VietQR / VNPay settlement.
+The Customer portal (`CUSTOMER` role) scopes all reads and updates strictly to the signed-in user's organization (`Query Own Data`), covering building registration with airspace screening, one-time/recurring inspection requests, negotiations, live inspection tracking, official report review, and Sepay VietQR / VNPay settlement.
 
 #### 3.3.1 Customer Dashboard, Notifications and Account Settings (`FE-01`, `FE-05`, `FE-12`)
 - **Function trigger**: Customer lands on the Customer Dashboard, opens Notifications, or updates profile/security settings in Settings.
@@ -561,15 +564,15 @@ The Customer portal (`CUSTOMER` role) scopes all reads and updates strictly to t
 *Figure 7.3.16 — Customer messaging portal toggling between Manager order negotiation threads and Inspector mission chats.*
 
 #### 3.3.4 Inspection Tracking, Official Reports and Settlement (`FE-05`, `FE-14`, `FE-18`, `FE-19`, `FE-20`, `FE-21`, `FE-24`)
-- **Function trigger**: Customer tracks scheduled/completed inspections, reads an immutable published report, requests clarification or accepts it, and settles payment via PayOS VietQR or VNPay.
-- **Actors**: `CUSTOMER`, `MANAGER`, Payment Service (PayOS / VNPay).
+- **Function trigger**: Customer tracks scheduled/completed inspections, reads an immutable published report, requests clarification or accepts it, and settles payment via Sepay VietQR or VNPay.
+- **Actors**: `CUSTOMER`, `MANAGER`, Payment Service (Sepay / VNPay).
 - **Requirements**:
   - Customers view only `Published` report versions, accompanied by the AI Executive Summary and confirmed evidence/findings; internal `Draft`, `Submitted`, and `Returned` states remain hidden (`BR-39`).
   - Before acceptance, only the owning Customer may submit a clarification request (returning the report for clarification/review). Accepting the published report starts the payment due window (default 15 days).
-  - Checkout via PayOS VietQR or VNPay verifies cryptographic gateway confirmation callbacks (`BR-45`) before marking payment `Paid`; overdue notices never revoke report access or mutate payment status automatically.
+  - Checkout via Sepay VietQR or VNPay verifies gateway confirmation callbacks (`Authorization: Apikey` constant-time check + receiving-account/amount checks with idempotent `gateway_inbound_transactions` audit persistence for Sepay, and `HMAC-SHA512` `vnp_SecureHash` for VNPay, `BR-45`) before marking payment `Paid`; `V67` tracks `gateway_order_created_at` so terminal VNPay cancel/timeout codes (`24`/`11`) and expired orders release cleanly with a direct `/settlement` return redirect, while Web Sepay QR dialogs poll every 3 seconds and close automatically once `PAID`. Overdue notices never revoke report access or mutate payment status automatically.
   - Internal PDF Payment Notice (post-acceptance) and Payment Receipt (post-payment) downloads remain scoped to the owning organization.
-- **Normal cases**: Customer previews the official published report, clicks **Accept official report**, pays via PayOS VietQR/VNPay (or authorized manual confirmation), and archives receipts in **Finance History**.
-- **Abnormal cases**: Viewing an unpublished report, forging a gateway callback signature, double-paying an already settled invoice, or accessing another organization's PDF receipt is rejected.
+- **Normal cases**: Customer previews the official published report, clicks **Accept official report**, pays via Sepay VietQR/VNPay (or authorized manual confirmation), and archives receipts in **Finance History**.
+- **Abnormal cases**: Viewing an unpublished report, forging a gateway callback header/signature, double-paying an already settled invoice, or accessing another organization's PDF receipt is rejected.
 
 ![Customer inspections list](assets/screens/cus-inspections.png)
 
@@ -585,7 +588,7 @@ The Customer portal (`CUSTOMER` role) scopes all reads and updates strictly to t
 
 ![Customer acceptance and payment](assets/screens/cus-inspection-settlement.png)
 
-*Figure 7.3.20 — Three-step acceptance and payment settlement console with VAT-itemized invoice, PDF payment notice, and PayOS/VNPay checkout.*
+*Figure 7.3.20 — Three-step acceptance and payment settlement console with VAT-itemized invoice, PDF payment notice, and Sepay/VNPay checkout.*
 
 ![Customer reports archive](assets/screens/cus-reports.png)
 
@@ -887,7 +890,7 @@ The Platform Admin portal (`ADMIN` role) governs user account provisioning, cust
 
 ### 3.7 Mobile Application — Customer App (Flutter)
 
-The cross-platform Customer Mobile Application serves the **`CUSTOMER` role exclusively**, maintaining feature parity with the Customer Web portal across authentication, buildings, one-time/recurring requests, order chat, live inspection tracking, official report consumption, and PayOS/VNPay settlement. Non-customer roles (`ADMIN`, `MANAGER`, `INSPECTOR`) are rejected at mobile login (`§3.8`).
+The cross-platform Customer Mobile Application serves the **`CUSTOMER` role exclusively**, maintaining feature parity with the Customer Web portal across authentication, buildings, one-time/recurring requests, order chat, live inspection tracking, official report consumption, and Sepay/VNPay settlement. Non-customer roles (`ADMIN`, `MANAGER`, `INSPECTOR`) are rejected at mobile login (`§3.8`).
 
 #### 3.7.1 Mobile Authentication, Home Dashboard and Notifications (`FE-01`, `FE-12`)
 - **Function trigger**: Customer opens the mobile app (Sign-in, Registration, or Forgot Password), lands on the Home dashboard, inspects Notifications, or manages Profile & Security.
@@ -957,12 +960,12 @@ The cross-platform Customer Mobile Application serves the **`CUSTOMER` role excl
 
 #### 3.7.3 Mobile Inspection Tracking, Official Report and Settlement (`FE-14`, `FE-17`, `FE-18`, `FE-19`, `FE-20`, `FE-21`, `FE-24`)
 - **Function trigger**: Customer opens **Inspections** -> inspection detail and navigates between the **Tracking**, **Report**, and **Settlement** tabs.
-- **Actors**: `CUSTOMER`, Payment Service (PayOS / VNPay).
+- **Actors**: `CUSTOMER`, Payment Service (Sepay / VNPay).
 - **Requirements**:
   - **Tracking tab**: Displays occurrence status, schedule window, assigned inspector/drone summary, and verified permit badge.
   - **Report tab**: Renders the latest `Published` report version only, `AI Executive Summary` card (overall risk, key highlights, recommended actions), collapsible `Matched cases & standards` strip, confirmed findings, and **Download official PDF**.
-  - **Settlement tab**: Three-step tracker (`1. Accept official report -> 2. Settle service fee -> 3. Service fulfilled`), VAT-broken-down service invoice, **Accept report** / **Request clarification**, downloadable payment notice/receipt PDF, and PayOS VietQR / VNPay checkout launch.
-- **Normal cases**: Customer reviews the published report and AI summary on mobile, accepts it, and completes PayOS/VNPay settlement.
+  - **Settlement tab**: Three-step tracker (`1. Accept official report -> 2. Settle service fee -> 3. Service fulfilled`), VAT-broken-down service invoice, **Accept report** / **Request clarification**, downloadable payment notice/receipt PDF, and Sepay VietQR / VNPay checkout launch.
+- **Normal cases**: Customer reviews the published report and AI summary on mobile, accepts it, and completes Sepay/VNPay settlement.
 - **Abnormal cases**: Unpublished internal drafts remain inaccessible; requesting clarification after acceptance or paying before acceptance is blocked.
 
 ![Mobile inspections list](assets/screens/mob-inspections.png)
@@ -1004,7 +1007,7 @@ Where maintenance-related records remain in the data store from earlier developm
 - **Detection service.** Building-defect detection is served by a self-hosted inference service, with an OpenAI-compatible vision model as fallback. A user may opt out of the fallback for their own account.
 - **Narrative drafting service.** An OpenAI-compatible language model drafts the report narrative once per draft from the confirmed context, returns strict JSON, and is instructed not to invent facts.
 - **Knowledge retrieval service.** An optional `DroneKnowledgeAI` advisor retrieves tenant-isolated historical defect cases and seeded engineering standards using semantic vector similarity with an automatic keyword-matching fallback; no retrieval result becomes an official finding or report text.
-- **Payment and identity services.** PayOS VietQR and VNPay process settlement and Google OAuth2 provides federated sign-in. Both gateways are configuration-gated and can be disabled, in which case an authorised manual confirmation records payment.
+- **Payment and identity services.** Sepay VietQR and VNPay process settlement and Google OAuth2 provides federated sign-in. Both gateways are configuration-gated and can be disabled, in which case an authorised manual confirmation records payment.
 - **Ground-station integration.** An optional hub supplies read-only telemetry, flight traces, and mission video. A response from any external service does not replace the platform's own authorization or human review.
 
 ### 4.2 Quality Attributes

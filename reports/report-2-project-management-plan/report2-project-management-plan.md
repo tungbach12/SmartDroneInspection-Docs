@@ -16,6 +16,7 @@ source_docx: report2-project-management-plan.docx
 | 19 Nov 2026 | M | Team | Version 3.2: Synchronized scope, WBS, risk register, deliverables, and tooling with the delivered forward-only `V1`–`V4` and `V60`–`V62` schema (45 application tables / 47 total PostgreSQL tables) and `DroneKnowledgeAI` historical-case recommendation; recorded Mobile Customer parity (`PR #27`) and the final verified automated test execution. Total effort remains reconciled at 208 man-days across 300 raw person-days. |
 | 20 Nov 2026 | M | Team | Version 3.3: Extended the schema and AI tooling baseline through `V63`–`V65` (applied Flyway set `V1`–`V4` and `V60`–`V65`, retaining 45 application tables / 47 total PostgreSQL tables): `70.00` default AI auto-confirm threshold (`V63`), historical published-case backfill (`V64`), local `fastembed` `vector(384)` multilingual embeddings hosted in `ai-inference` (`V65`), finding/batch AI note drafting (`Draft note with AI` / `Draft all notes`), and finding confirmation status filter chips. |
 | 21 Nov 2026 | M | Team | Version 3.4: Split the WBS and RACI matrix into twenty-four atomic product features (`FE-01`–`FE-24`) plus four cross-cutting workstreams aligned to member ownership and weighted contribution (`24%` Hiếu / `50` md, `24%` Quốc / `50` md, `28%` Bách / `58` md, `24%` Như / `50` md; `208` man-days total), and synchronized plain-text building ownership details, concise recurring request titles, and streamlined service-request and quotation workflows. |
+| 22 Nov 2026 | M | Team | Version 3.5: Synchronized `FE-20` to `Sepay` VietQR & `VNPay` v2.1.0 hardening and the `48`-application-table (`50`-total PostgreSQL table) schema baseline (`V67`–`V69`, splitting `inspection_flight_permits` and `field_session_telemetry`). |
 
 *A - Added M - Modified D - Deleted
 
@@ -29,7 +30,7 @@ SmartDroneInspection is a platform-operated service for infrastructure inspectio
 
 The delivered scope covers four main flows — onboarding (`MF1`), buildings and commercial agreement through dispatch (`MF2`), field work through evidence and findings (`MF3`), and report review through payment settlement (`MF4`) — organised as twenty-four atomic product features (`FE-01`–`FE-24`) without grouping unrelated workflows. Work is decomposed below by owner workstream and cross-cutting tracks; complexity uses `Simple`, `Medium`, and `Complex`, and effort is expressed in man-days.
 
-The delivered persistence baseline covers 45 application tables (47 total PostgreSQL tables) managed through forward-only migrations and verified by automated schema checks. It encompasses plain-text building ownership details alongside structural specifications, the tenant-isolated `DroneKnowledgeAI` case and engineering-standard advisor with automatic keyword fallback when embeddings are unavailable, configurable AI auto-confirm defaults (`70%`), historical case indexing, re-inspection verdict expiry and payment-due deadlines, optional quotation-stage partner assignment, private Inspector–Customer inspection chat, streamlined service-request and quotation screens, and full Customer mobile app parity. The total effort remains reconciled at **208 man-days** (`50 / 50 / 58 / 50` = `24% / 24% / 28% / 24%`) against 300 raw person-days.
+The delivered persistence baseline covers 48 application tables (50 total PostgreSQL tables) managed through forward-only migrations and verified by automated schema checks. It encompasses plain-text building ownership details alongside structural specifications, the tenant-isolated `DroneKnowledgeAI` case and engineering-standard advisor with automatic keyword fallback when embeddings are unavailable, configurable AI auto-confirm defaults (`70%`), historical case indexing, re-inspection verdict expiry and payment-due deadlines, optional quotation-stage partner assignment, private Inspector–Customer inspection chat, streamlined service-request and quotation screens, and full Customer mobile app parity. The total effort remains reconciled at **208 man-days** (`50 / 50 / 58 / 50` = `24% / 24% / 28% / 24%`) against 300 raw person-days.
 
 | # | WBS Item | Complexity | Est. Effort (man-days) |
 | --- | --- | --- | --- |
@@ -56,7 +57,7 @@ The delivered persistence baseline covers 45 application tables (47 total Postgr
 | 3.6 | `FE-18` Inspection Report Compilation, Independent Review & Official Publication (`MF4`) | Complex | 8 |
 | 4 | Acceptance, Payment Settlement, Payouts & Re-inspection (`MF4`, `FE-19`–`FE-24`) | Complex | 42 |
 | 4.1 | `FE-19` Customer Report Acceptance & Clarification Workflow | Medium | 6 |
-| 4.2 | `FE-20` Online Service Fee Payment (`PayOS` VietQR & `VNPay`) | Complex | 9 |
+| 4.2 | `FE-20` Online Service Fee Payment (`Sepay` VietQR & `VNPay`) | Complex | 9 |
 | 4.3 | `FE-21` Payment Deadlines, Invoices & Payment Document Management | Medium | 7 |
 | 4.4 | `FE-22` Partner Inspector Payout Reconciliation | Medium | 7 |
 | 4.5 | `FE-23` Evidence-Backed Refunds & Receivable Recovery | Complex | 7 |
@@ -182,7 +183,7 @@ D~Do; R~Review; S~Support; I~Informed; <blank>- Omitted
 | `FE-17` AI Case/Standard Retrieval (`pgvector` RAG), Note Drafting & Report Summary | R | S | S | D | R |
 | `FE-18` Inspection Report Compilation, Independent Review & Official Publication | R | S | R | D | R |
 | `FE-19` Customer Report Acceptance & Clarification Workflow | R | S | D | S | R |
-| `FE-20` Online Service Fee Payment (`PayOS` VietQR & `VNPay`) | S | S | D | R | R |
+| `FE-20` Online Service Fee Payment (`Sepay` VietQR & `VNPay`) | S | S | D | R | R |
 | `FE-21` Payment Deadlines, Invoices & Payment Document Management | S | R | D | S | I |
 | `FE-22` Partner Inspector Payout Reconciliation | R | S | D | S | R |
 | `FE-23` Evidence-Backed Refunds & Receivable Recovery | S | S | D | R | R |
