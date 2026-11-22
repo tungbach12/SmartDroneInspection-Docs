@@ -22,7 +22,7 @@ Kế hoạch đồng bộ toàn bộ hệ thống sơ đồ kỹ thuật trong [
 
 ## 2. Trạng thái hiện tại & Lộ trình thực hiện lần lượt
 
-> **Điểm bắt đầu tiếp theo: `Package Diagrams`** (`smartdrone-package-diagrams.drawio` đã được dựng từ code thực tế của Backend, Web Portal và Mobile App, **đang chờ review trước khi chuyển sang ERD**).
+> **Cập nhật hiện tại**: Các nhóm **Package, ERD, State, Activity (5 tab `MF1A`/`MF1B`/`MF2`/`MF3`/`MF4`), Screen Flow (Web & Mobile), Class (9 tab `FE-01`–`FE-24`) và Sequence (13 tab `FE-01A`–`FE-20`)** đã được đồng bộ với mã nguồn thực tế (`main`) và kiểm tra 0 lỗi/0 cảnh báo; bước tiếp theo là `Deployment` và `Process` diagrams trước khi xuất ảnh PNG thay thế Mermaid.
 
 ### Nhóm A — Đã hoàn thành & đã review
 
@@ -31,20 +31,20 @@ Kế hoạch đồng bộ toàn bộ hệ thống sơ đồ kỹ thuật trong [
 | 1 | `diagrams/smartdrone-context-diagram.drawio` | `Context Diagram` | Report 3 §1 (`Product Overview`), Report 7 §III.1 | Đã xong & đã review |
 | 2 | `diagrams/smartdrone-architecture-diagram.drawio` | `System Architecture` | Report 4 §1.1 (`System Architecture`), Report 7 §IV.1.1 | Đã xong & đã review |
 | 3 | `diagrams/smartdrone-use-case-diagrams.drawio` | `UC-1 Auth & Public Access`, `UC-2 Assets, Drones & Onboarding`, `UC-3 Contracting & Field Execution`, `UC-4 AI, Reporting & Settlement`, `UC-5 Platform Administration` | Report 3 §2.2.1 (`Use Case Diagram`), Report 7 §III.2 | Đã xong & đã review (5 tab) |
+| 4 | `diagrams/smartdrone-package-diagrams.drawio` | `Backend Package Diagram`, `Web Portal Package Diagram`, `Mobile App Package Diagram` | Report 4 §1.2.1–1.2.3 & Report 7 | Đã xong & đã merge (#129) |
+| 5 | `diagrams/smartdrone-erd-diagrams.drawio` | `ERD - Conceptual (43 Entities)`, `ERD - Full System (38 Tables)`, `Physical ERD - V1-V69` | Report 3 §3.1.5, Report 4 §2, Report 7 | Đã xong & đã merge (#129) |
+| 6 | `diagrams/smartdrone-state-diagrams.drawio` | `ServiceRequest`, `Occurrence`, `Inspection`, `FieldSession`, `InspectionReport` | Report 4 & Report 7 (`contracts`, `inspections`) | Đã xong & đã merge (#129) |
+| 7 | `diagrams/smartdrone-activity-diagrams.drawio` | `MF1A - Customer Onboarding`, `MF1B - Partner & Drone`, `MF2 - Commercial & Dispatch`, `MF3 - Permit, Field & AI`, `MF4 - Report, Finance & Reinspection` | Report 3 / Report 4 / Report 7 (Mainflows `MF1`–`MF4`) | Đã xong & đã review (5 tab) |
+| 8 | `diagrams/smartdrone-screen-flow-diagrams.drawio` | `Web Application Screen Flow`, `Mobile Application Screen Flow` | Report 3 §3.1.1 & Report 7 §III.3.1.1 | Đã xong & đã review (2 tab) |
+| 9 | `diagrams/smartdrone-class-diagrams.drawio` | `FE-01`, `FE-02`, `FE-03`, `FE-09`, `FE-14`, `FE-16`, `FE-17`, `FE-18`, `FE-24` | Report 4 §3 & Report 7 | Đã xong & đã review (9 tab) |
+| 10 | `diagrams/smartdrone-sequence-diagrams.drawio` | `FE-01A`, `FE-01B`, `FE-02`, `FE-06`, `FE-08`, `FE-09`, `FE-12`, `FE-14A`, `FE-14B`, `FE-16`, `FE-17`, `FE-18`, `FE-20` | Report 4 §3 & Report 7 | Đã xong & đã review (13 tab) |
 
-### Nhóm B — Lộ trình tiếp theo (bắt đầu từ Package Diagrams)
+### Nhóm B — Lộ trình tiếp theo
 
 | Thứ tự | File `.drawio` mục tiêu | Các tab cần làm / rà soát | Nguồn code đối chiếu & nơi thay thế trong Reports | Trạng thái |
 | :---: | :--- | :--- | :--- | :--- |
-| **1 (Next)** | `diagrams/smartdrone-package-diagrams.drawio` | `Backend Package Diagram`, `Web Portal Package Diagram`, `Mobile App Package Diagram` | Đối chiếu `package-info.java` (8 modules) và import TS/Dart thực tế; bỏ `maintenance` & `workforce`; thay `PayOS` → `Sepay` ở Report 4 §1.2.1–1.2.3 & Report 7 | **Chờ review** *(đã vẽ xong bản local, mở sẵn tab Chrome)* |
-| **2** | `diagrams/smartdrone-erd-diagrams.drawio` | `Main Entities ERD`, `Full ERD (Chen)`, `Database Schema ERD` *(rà gộp gọn)* | Đối chiếu JPA entities + Flyway migrations (`V1`–`V66`) trong backend; thay Mermaid ERD ở Report 3 §3.1.5, Report 4 §2, Report 7 §III.3.1.5 & §IV.2 | Chưa rà soát |
-| **3** | `diagrams/smartdrone-state-diagrams.drawio` | `ServiceRequest`, `Occurrence`, `Inspection`, `FieldSession`, `InspectionReport` *(bỏ `WorkOrder`)* | Kéo từ tab Drive/source và đối chiếu enum trạng thái + service transitions trong `contracts` & `inspections` | Chưa tạo file riêng |
-| **4** | `diagrams/smartdrone-activity-diagrams.drawio` | `WF-01 Activity`, `WF-02 Activity`, `WF-03 Activity` *(bỏ `WF-04`)* | Rà sửa role/PayOS → Sepay VietQR, timeout, field abort & report workflow khớp backend | Đã tách file, chưa rà nội dung |
-| **5** | `diagrams/smartdrone-screen-flow-diagrams.drawio` | `Web Screen Flow`, `Mobile Screen Flow` | Đối chiếu `router.tsx` + `accessPolicy.ts` (Web) và `app_router.dart` (Mobile Customer-only); thay Mermaid ở Report 3 §3.1.1 & Report 7 §III.3.1.1 | Chưa tạo file riêng |
-| **6** | `diagrams/smartdrone-deployment-diagram.drawio` | `Physical Deployment` | Đối chiếu `docker-compose.yml`, Nginx SPA container, Oracle Cloud VPS, MinIO, Postgres pgvector, AI Inference, SmartDroneHub | Chưa tạo file riêng |
-| **7** | `diagrams/smartdrone-process-diagrams.drawio` | `Agile Scrum Process`, `End-to-End Operational Flow` | Rà sửa tab `Agile Scrum Process` + dựng luồng nghiệp vụ tổng thể thay Mermaid Report 1 §6.1 & Report 6 §3.1 | Mới có `Agile Scrum Process` |
-| **8** | `diagrams/smartdrone-class-diagrams.drawio` | Các tab Class Diagram cốt lõi (`FE-01`–`FE-24`) | Rà `bách-fe05-class`, `bách-fe06-class`, kéo/bổ sung các Class Diagram còn lại từ source & Drive khớp Report 4 §3 & Report 7 | Mới gộp 2 tab |
-| **9** | `diagrams/smartdrone-sequence-diagrams.drawio` | Các tab Sequence Diagram cốt lõi (`FE-01`–`FE-24`) | Rà `bách-fe05-seq`, `bách-fe06-seq` (chuyển PayOS → Sepay, rà endpoint/method thực tế), bổ sung các tab còn lại khớp Report 4 §3 & Report 7 | Mới gộp 2 tab |
+| **1 (Next)** | `diagrams/smartdrone-deployment-diagram.drawio` | `Physical Deployment` | Đối chiếu `docker-compose.yml`, Nginx SPA container, Oracle Cloud VPS, MinIO, Postgres pgvector, AI Inference, SmartDroneHub | Chưa tạo file riêng |
+| **2** | `diagrams/smartdrone-process-diagrams.drawio` | `Agile Scrum Process`, `End-to-End Operational Flow` | Rà sửa tab `Agile Scrum Process` + dựng luồng nghiệp vụ tổng thể thay Mermaid Report 1 §6.1 & Report 6 §3.1 | Mới có `Agile Scrum Process` |
 
 ---
 
