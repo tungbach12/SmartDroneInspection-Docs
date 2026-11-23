@@ -518,6 +518,7 @@ The Customer portal (`CUSTOMER` role) scopes all reads and updates strictly to t
   - Only the six platform-managed building categories (`BR-07`) may be chosen; initial inspection checkpoints generate automatically from the chosen category.
   - Selecting coordinates via the interactive map dialog runs airspace evaluation: **No-Fly Zone** coordinates block creation, **Restricted Zone** coordinates flag review, and **Clear Zone** allows activation. Screening is advisory and does not confer legal aviation clearance (`BR-26`).
   - Building reference documents verify file integrity checksums and reject duplicate file uploads within the same building. Retiring a building preserves history while blocking new requests.
+  - Asset list and detail responses expose `checkpointsLocked`; once an inspection exists, the Customer checkpoint list is read-only and edits are rejected with `409 INSPECTION_HISTORY_EXISTS`.
 - **Normal cases**: Customer pins building coordinates on the airspace map, saves an active building, adjusts checkpoints, and uploads PDF/image blueprints.
 - **Abnormal cases**: Out-of-domain category, duplicate asset code within the organization, duplicate document SHA-256, or prohibited NFZ coordinates are rejected.
 
