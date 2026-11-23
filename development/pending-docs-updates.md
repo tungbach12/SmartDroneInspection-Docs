@@ -173,8 +173,8 @@ Rolling change log for code and requirement changes made in this workspace sessi
 
 ### Behavioral & Contract Summary
 - **Detailed Safety Checklists (`V71__checklist_safety_details.sql`):**
-  - Extended `checklist_templates` with `category`, `label_vi`, `details`, `details_vi`, `reference_threshold`, `safety_critical`; replaced generic defaults with 8 `PRE_FLIGHT` and 4 `POST_FLIGHT` operational safety checkpoints.
-  - Extended `field_sessions` with `session_date`, `pre_flight_checklist_snapshot` (JSONB), `pre_flight_conditions` (JSONB), and `post_flight_checklist_snapshot` (JSONB); updated `FieldSessionPage` (clean checklist rows without description paragraphs or badge clutter, plus collapsed optional site readings) and `FlightDroneConfigPage` admin editor.
+  - Added [`V71__checklist_safety_details.sql`](../reports/report-4-software-design-document/02-database-design.md) / [`V74__clean_checklist_drone_agnostic.sql`](../reports/report-4-software-design-document/02-database-design.md) extending `checklist_templates` with `category`, `label_vi`, `details`, `details_vi`, `reference_threshold`, `safety_critical` and keeping 8 `PRE_FLIGHT` + 4 `POST_FLIGHT` concrete, drone-agnostic safety checks without universal hardcoded hardware limits.
+  - Extended `field_sessions` with `session_date`, `pre_flight_checklist_snapshot` (JSONB), `pre_flight_conditions` (JSONB), and `post_flight_checklist_snapshot` (JSONB); kept `FieldSessionPage` checklist cards concise (single-line label + optional collapsed site readings) and `FlightDroneConfigPage` Admin editor minimal (`details`/`detailsVi` & `safetyCritical` hidden from dialog).
 - **Multi-Day & Multi-Flight Recording (`V72__multi_flight_sessions.sql`):**
   - Added `field_session_flights` table (`1:N` under `FieldSession`) and linked `field_session_telemetry.flight_id`, backfilling existing telemetry rows as `flight_number = 1`.
   - Unlocked starting additional field sessions/days when `inspection.status == FIELD_COMPLETED` and `findingsConfirmedAt == null`; recorded per-flight `InspectorFlightLog` entries.
