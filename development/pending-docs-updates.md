@@ -121,3 +121,45 @@ Rolling change log for code and requirement changes made in this workspace sessi
 
 **Date:** 2026-11-23
 **Status:** Pre-existing working-tree formatting/lint updates in `lib/l10n/app_localizations*.dart`; no functional flight-permit changes needed (mobile is Customer-only and has no permit review workflow).
+
+---
+
+## 6. Cross-Repo Stale Role & Organization Cleanup
+
+**Date:** 2026-11-23
+**Status:** Applied and verified across `AGENTS.md`, `SmartDroneInspection-backend`, `SmartDroneInspection-frontend`, `SmartDroneInspection-mobile`, and `SmartDroneInspection-docs/_index.md`.
+
+### Summary
+- Enforced strictly 4 human login roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`) with direct Customer ownership (`ownerCustomerId = user.id`; no separate Organization entity or hierarchy) across `Roles.java`, `UserRole.java`, `UserAccess.java`, `Mf2ActorPolicy.java`, frontend `authStore.ts`, mobile `user_role.dart` / `auth_user.dart`, UI labels, and localization catalogs (`messages_vi.properties`, `viCatalog.ts`, `app_en.arb`, `app_vi.arb`).
+- Replaced stale `"Platform Manager"` / `"Organization Manager"` / `"Quản lý nền tảng"` / `"Quản lý tổ chức"` UI strings and comments with `"Manager"` / `"Customer"` / `"Quản lý"` / `"Khách hàng"` (preserving wire DTO keys `organizationName`/`organizationCode` on `/customer-registrations` for DB compatibility).
+
+### Remaining Docs & Diagrams to Update in Combined Pass
+- Report 3 SRS, Report 4 SDD, Report 5 Test Report, Report 6 User Guides, Report 7, and `.drawio` diagrams: sweep any remaining references to `Organization` hierarchy, `ORG_MANAGER`, `ORG_ADMIN`, `PLATFORM_MANAGER`, or `MAINTENANCE_ENGINEER` so only the 4 active roles and direct Customer ownership appear.
+
+---
+
+## 7. Inspector Rating & Evaluation System (Customer & Manager)
+
+**Date:** 2026-11-23
+**Status:** Implemented across Backend (`V70__inspector_ratings.sql`), Web Frontend, and Customer-only Mobile Flutter app.
+
+### Behavioral & Contract Summary
+- **Database (`V70__inspector_ratings.sql`):** Added `inspector_ratings` table (`unique (inspection_id, rater_role)`, `rater_role IN ('CUSTOMER', 'MANAGER')`, `overall_score 1..5`, `criterion_scores jsonb`, `comment text`).
+- **Business Rules (`InspectorRating`, `InspectionRatingService`, `InspectorRatingController`):**
+  - Open only when `inspection.status == COMPLETED` and `inspectorId != null`.
+  - Max 1 rating per `(inspection_id, rater_role)`. Owning `CUSTOMER` evaluates `evidenceQuality`, `communication`, `professionalism`; active `MANAGER` evaluates `sopAndSafety`, `technicalAccuracy`, `timeliness`; `ADMIN` has read-only access; `INSPECTOR` sees received ratings on their own inspections/dashboard.
+  - Editable within **7 days** of `created_at` (`409 RATING_EDIT_WINDOW_EXPIRED` afterwards).
+  - Endpoints: `GET/PUT /api/v1/inspections/{inspectionId}/inspector-rating`, `GET /api/v1/inspectors/{inspectorId}/ratings`, `GET /api/v1/inspectors/me/ratings`.
+  - Privacy: `CUSTOMER` profile lookup receives aggregate summary only (`historyVisible = false`, no comments from other Customers).
+- **SPI, Inspection DTO & Notifications:**
+  - Extended `PartnerReliabilityQuery.ReliabilityCounts` & `PartnerCandidateResponse` (`averageRating`, `ratingCount`, `customerAverageRating`, `managerAverageRating`) and `InspectionResponse` (`inspectorAverageRating`, `inspectorRatingCount`).
+  - Added `InspectorRatedEvent` -> `InspectionNotificationListener.onInspectorRated` -> `INSPECTOR_RATED` in-app notification for the Inspector.
+- **Web Frontend & Customer Mobile:**
+  - Web: concise `InspectorRatingPromptCard` + `InspectorRatingDialog` on `CustomerReportDeliverablePage` and `ManagerReportReviewPage`, `InspectorRatingSummaryBadge` in `PartnerCandidateResults` & `InspectionContextDialogs`, Ratings tab in `InspectorProfileDialog`, and `Ratings & Reviews` section in `InspectorDashboardPage`.
+  - Mobile (`SmartDroneInspection-mobile` — Customer-only): added `InspectorRating` model/provider/repository methods, star badge beside Inspector in `_TrackingTab`, and compact `CustomerInspectorRatingCard` + bottom-sheet form in `_SettlementTab`.
+
+### Docs & Diagrams to Update in Combined Pass
+- Report 3 SRS (`03-functional-requirements.md`, `00-record-of-changes.md`): add Inspector Rating & Evaluation feature requirements and authorization matrix.
+- Report 4 SDD (`02-database-design.md`, `03-detailed-design.md`): add `inspector_ratings` table schema, `InspectorRatingController`, `InspectionRatingService`, `InspectorRatedEvent`, and extended `PartnerReliabilityQuery` / `InspectionResponse`.
+- Report 5 Test Report (`01-test-cases/`, `02-test-execution/`): add test cases & executed results for `InspectorRatingTest`, `InspectionRatingServiceTest`, `InspectorRatingApiIntegrationTest`, Frontend Vitest, and Mobile Flutter tests.
+- Report 6 User Guides & Report 7 & Diagrams (`smartdrone-er-diagrams.drawio`, `smartdrone-sequence-diagrams.drawio`, `smartdrone-class-diagrams.drawio`, `smartdrone-use-case-diagrams.drawio`): add rating workflows and `inspector_ratings` entity/endpoints.
