@@ -81,7 +81,7 @@ coverage below them:
 - `Test coverage` = `(Passed + Failed) * 100 / (Number of TCs - N/A)`
 - `Test successful coverage` = `Passed * 100 / (Number of TCs - N/A)`
 
-With the active 71-case inventory (`64` historical cases + `3` unexecuted standalone cases `WF3-032`, `WF2-021`, `WF3-033` + `4` executed MF2 manager-flow cases `WF2-022`–`WF2-025`), Round 1 has `49 Passed`, `0 Failed`, `9 Pending`, and `13 N/A` (`49 / 58 = 84.48%`). Retired maintenance cases are excluded from active counts. Keep workbook formulas and change underlying statuses in the feature Markdown files.
+With the active 73-case inventory (`64` historical cases + `3` unexecuted standalone cases `WF3-032`, `WF2-021`, `WF3-033` + `6` executed MF2 manager-flow cases `WF2-022`–`WF2-027`), Round 1 has `51 Passed`, `0 Failed`, `9 Pending`, and `13 N/A` (`51 / 60 = 85.00%`). Retired maintenance cases are excluded from active counts. Keep workbook formulas and change underlying statuses in the feature Markdown files.
 
 The generated statistics sheet places twenty-four module rows at `11–34`, current Round 1
 subtotal at row `35`, historical active-scope Round 1 at row `36` (`45/0/8/3/56`), Round 3 executed
