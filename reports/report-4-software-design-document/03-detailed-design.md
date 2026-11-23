@@ -459,16 +459,16 @@ sequenceDiagram
   Ctrl->>Svc: issueQuote(managerId, requestId, quoteInput)
   Svc->>Partner: Validate optional pair and credential expiry across all planned dates
   Svc->>FinSvc: requireConfiguredRates()
-  Svc->>DB: Save ServiceRequestQuote (VND) anchored to Customer requested first date (QUOTED)
+  Svc->>DB: Save ServiceRequestQuote (VND) on or after the Customer first date (QUOTED; later date needs Customer re-acceptance)
 ```
 
 **Class & UI Specifications**
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `ContractWorkflowController` & `ContractWorkflowService` | Enforce 20-day lead time, generate concise recurring titles (`Monthly inspection` / `Every N-month inspection`), serialize `claimRequest` under DB locking, restrict commercial actions to `assignedManagerId`, expose `ADMIN` assignment registry (`PUT`/`DELETE /manager-assignment`), and project assigned Manager read-only contact info (`ServiceManagerContactResponse`) solely to the owning Customer. |
-| 02 | `ServiceRequest` & `ServiceRequestQuote` | Store request cadence/bounds, Manager assignment audit metadata, and single active VND quotation (`V60` nullable `inspector_id`/`drone_id`, empty `requiredDroneFeatureCodes` compatible). |
-| 03 | Web `ServiceRequestListView.tsx`, `useContracts.ts`, `ManagerQuoteWorkspace.tsx`, `QuoteTermsSummary.tsx` | Compact 4-column desktop table (`Request & Asset / Schedule / Stage / Action`) with compact schedule range (`formatFlightTimeRange`) and `N occurrences` wording; claiming caches the request and opens `?requestId=...` detail immediately without reload; quote form omits the optional drone-capability checkboxes while sending `[]` on the API contract (`PR #139`). |
+| 01 | `ContractWorkflowController` & `ContractWorkflowService` | Enforce 20-day lead time, generate concise recurring titles (`Monthly inspection` / `Every N-month inspection`), serialize `claimRequest` under DB locking, restrict commercial actions to `assignedManagerId`, expose `ADMIN` assignment registry (`PUT`/`DELETE /manager-assignment`), and project assigned Manager read-only contact info (`ServiceManagerContactResponse`) solely to the owning Customer. Quote validation allows the first occurrence to move later than `requestedFrom` but never earlier; an end-date recurring quote keeps the Customer end date with 2-100 occurrences, while a count-based term shifts with the new first date. Dispatch validates the occurrence window against the accepted quote term. |
+| 02 | `ServiceRequest` & `ServiceRequestQuote` | Store request cadence/bounds, Manager assignment audit metadata, and single active VND quotation (`V60` nullable `inspector_id`/`drone_id`, empty `requiredDroneFeatureCodes` compatible). Accepted terms keep the effective first date so a revised quote cannot take effect without Customer acceptance. |
+| 03 | Web `ServiceRequestListView.tsx`, `useContracts.ts`, `ManagerQuoteWorkspace.tsx`, `QuoteTermsSummary.tsx`, `ManagerAssetOverview.tsx` | Compact 4-column desktop table (`Request & Asset / Schedule / Stage / Action`) with compact schedule range (`formatFlightTimeRange`) and `N occurrences` wording; claiming caches the request and opens `?requestId=...` detail immediately without reload; quote form omits the optional drone-capability checkboxes while sending `[]` on the API contract (`PR #139`) and lets the Manager move the first date later with an explicit Customer-acceptance warning. The Manager detail shows a persistent asset overview (asset name, Customer, Manager, Drone, Schedule) above every step; recurring previews and totals follow the quoted first date while end-date terms keep the Customer end date. |
 
 ---
 
@@ -618,7 +618,7 @@ sequenceDiagram
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `InspectionNotificationListener`, `InspectorApplicationNotificationListener`, `PaymentOverdueNotificationListener` & `PaymentSettlementNotificationListener` | Handle `InspectionAssignedEvent`, `InspectionAssignmentTimedOutEvent`, `InspectionDeclinedEvent`, `InspectionOverdueEvent`, `InspectionRescheduledEvent`, `InspectionAssignmentRevokedEvent`, `FieldSessionAbortedEvent`, `FieldSessionHungEvent`, `FieldSessionForceAbortedEvent`, `FlightPermitSubmittedEvent`, `FlightPermitReviewedEvent`, `ReportSubmittedEvent`, `ReportReturnedEvent`, `ReportPublishedEvent`, `InspectorApplicationSubmittedEvent`, `PaymentOverdueEvent`, and `PaymentSettledEvent`. |
+| 01 | `InspectionNotificationListener`, `ServiceRequestNotificationListener`, `InspectorApplicationNotificationListener`, `PaymentOverdueNotificationListener` & `PaymentSettlementNotificationListener` | Handle `ServiceRequestCreatedEvent`, `InspectionAssignedEvent`, `InspectionAssignmentTimedOutEvent`, `InspectionDeclinedEvent`, `InspectionOverdueEvent`, `InspectionRescheduledEvent`, `InspectionAssignmentRevokedEvent`, `FieldSessionAbortedEvent`, `FieldSessionHungEvent`, `FieldSessionForceAbortedEvent`, `FlightPermitSubmittedEvent`, `FlightPermitReviewedEvent`, `ReportSubmittedEvent`, `ReportReturnedEvent`, `ReportPublishedEvent`, `InspectorApplicationSubmittedEvent`, `PaymentOverdueEvent`, and `PaymentSettledEvent`. A new service request notifies every active Manager with the request date and a `/manager/contracts?requestId=...` deep link. |
 | 02 | `NotificationController`, `NotificationService` & `Notification` | Expose recipient-scoped paged queries, unread counter, and idempotent `markAsRead` updates protected by `uq_notifications_deduplication_key`. |
 | 03 | Web `NotificationBell.tsx`, `NotificationsPage.tsx` & `targetPath.ts` | Render real-time unread counts, notification feed, and client-side `targetPath` allowlist sanitizer blocking malformed/external links while server APIs enforce independent authorization. |
 
