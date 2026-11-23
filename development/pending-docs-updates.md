@@ -163,3 +163,27 @@ Rolling change log for code and requirement changes made in this workspace sessi
 - Report 4 SDD (`02-database-design.md`, `03-detailed-design.md`): add `inspector_ratings` table schema, `InspectorRatingController`, `InspectionRatingService`, `InspectorRatedEvent`, and extended `PartnerReliabilityQuery` / `InspectionResponse`.
 - Report 5 Test Report (`01-test-cases/`, `02-test-execution/`): add test cases & executed results for `InspectorRatingTest`, `InspectionRatingServiceTest`, `InspectorRatingApiIntegrationTest`, Frontend Vitest, and Mobile Flutter tests.
 - Report 6 User Guides & Report 7 & Diagrams (`smartdrone-er-diagrams.drawio`, `smartdrone-sequence-diagrams.drawio`, `smartdrone-class-diagrams.drawio`, `smartdrone-use-case-diagrams.drawio`): add rating workflows and `inspector_ratings` entity/endpoints.
+
+---
+
+## 8. Detailed Safety Checklists, Multi-Day / Multi-Flight Sessions & Admin-Configurable Rating Criteria
+
+**Date:** 2026-11-23
+**Status:** Implemented and verified across `SmartDroneInspection-backend` (`88bf851`), `SmartDroneInspection-frontend` (`c392c81` + `2c70860`), and `SmartDroneInspection-mobile` (`52af246`) on branch `feat/inspector-ratings-and-role-cleanup`.
+
+### Behavioral & Contract Summary
+- **Detailed Safety Checklists (`V71__checklist_safety_details.sql`):**
+  - Extended `checklist_templates` with `category`, `label_vi`, `details`, `details_vi`, `reference_threshold`, `safety_critical`; replaced generic defaults with 8 `PRE_FLIGHT` and 4 `POST_FLIGHT` operational safety checkpoints.
+  - Extended `field_sessions` with `session_date`, `pre_flight_checklist_snapshot` (JSONB), `pre_flight_conditions` (JSONB), and `post_flight_checklist_snapshot` (JSONB); updated `FieldSessionPage` (clean checklist rows without description paragraphs or badge clutter, plus collapsed optional site readings) and `FlightDroneConfigPage` admin editor.
+- **Multi-Day & Multi-Flight Recording (`V72__multi_flight_sessions.sql`):**
+  - Added `field_session_flights` table (`1:N` under `FieldSession`) and linked `field_session_telemetry.flight_id`, backfilling existing telemetry rows as `flight_number = 1`.
+  - Unlocked starting additional field sessions/days when `inspection.status == FIELD_COMPLETED` and `findingsConfirmedAt == null`; recorded per-flight `InspectorFlightLog` entries.
+  - Added `GET /api/v1/inspections/{inspectionId}/flights`, `GET/POST/DELETE /api/v1/inspections/{inspectionId}/field-session/flights`, and `?flightId=` support on drone hub actions; updated `FlightOperationsReportView` with multi-day aggregated totals and clickable sortie switching.
+- **Admin-Configurable Rating Criteria (`V73__rating_criteria_configs.sql`):**
+  - Added `rating_criterion_configs` table seeded with active `CUSTOMER` and `MANAGER` criteria; replaced hardcoded role/criterion checks with `RatingCriteriaConfigService`.
+  - Added public catalog endpoint `GET /api/v1/ratings/criteria` and Admin CRUD `GET/POST/PATCH/DELETE /api/v1/admin/rating-criteria`; added `expectedCriteria` to rating bundle/summary responses.
+  - Added 4th tab `Inspector Ratings` (`?tab=ratings`) in `PlatformSettingsHubPage` (`RatingCriteriaConfigTab`) and updated both Web `InspectorRatingDialog` and Customer Mobile `CustomerInspectorRatingCard` to render dynamic Admin-configured criteria.
+
+### Docs & Diagrams to Update in Combined Pass
+- Report 3 SRS & Report 4 SDD (`02-database-design.md`, `03-detailed-design.md`): add `V71`–`V73` schema changes (`field_session_flights`, `rating_criterion_configs`, extended `checklist_templates` & `field_sessions`), multi-flight endpoints, and Admin rating criteria endpoints/domain service.
+- Report 5 Test Report & Report 6 User Guides & Diagrams (`smartdrone-er-diagrams.drawio`, `smartdrone-class-diagrams.drawio`, `smartdrone-sequence-diagrams.drawio`): document multi-flight workflow, multi-day sessions, and dynamic rating configuration.
