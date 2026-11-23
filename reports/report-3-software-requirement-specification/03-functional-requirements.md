@@ -269,7 +269,7 @@ erDiagram
 | 23 | `inspector_reliability_events` | Assignment and field reliability signal recorded against an Inspector. |
 | 24 | `reinspection_defect_verifications` | Verification outcome recorded when a defect is re-examined in a later inspection (`Resolved`, `Unresolved`, or `Inconclusive`, plus verification and expiry dates). |
 | 25 | `service_requests` | One-time or recurring inspection request raised for a building, with concise recurring title, owner customer, and assigned Manager. |
-| 26 | `service_request_quotes` | VND quotation stating scope, timing, optional partner/drone, required feature requirements, and price per occurrence. |
+| 26 | `service_request_quotes` | VND quotation stating scope, timing, required drone features, and price per occurrence. Legacy nullable partner/drone references remain for historical rows only; current quotes choose the pair at dispatch. |
 | 27 | `service_request_occurrences` | Individual occurrence covered by a request, carrying its own schedule and delivery state. |
 | 28 | `service_request_messages` | Order-chat message exchanged between the Customer and the assigned Manager. |
 | 29 | `service_request_message_attachments` | File attached to an order-chat message. |
@@ -391,7 +391,7 @@ The table summarizes the domain's core persisted entities across identity, build
 - **Requirements**:
   - Supported asset categories are restricted exclusively to the six platform-managed **building categories**. Non-building infrastructure categories cannot be registered (`BR-07`, `MSG23`). Updating a category does not retroactively mutate existing buildings' checkpoints.
   - Building ownership details are stored as dedicated plain text (up to `1,000` characters) alongside structural specifications so users can enter readable ownership notes without JSON formatting.
-  - Asset creation validates a unique building code within the owning organization, enforces the No-Fly Zone gate (`FE-04`), and seeds default inspection checkpoints from the chosen category. Customers may adjust checkpoints only before the building's first inspection begins; checkpoints lock automatically afterwards. Asset list and detail responses expose a `checkpointsLocked` flag; once true, the Customer detail renders the checkpoint list read-only with an explanatory lock and the checkpoint endpoint rejects edits with `409 INSPECTION_HISTORY_EXISTS`.
+  - Asset creation validates a unique building code within the owning organization, enforces the No-Fly Zone gate (`FE-04`), and seeds default inspection checkpoints from the chosen category. Customers may adjust checkpoints only before the first inspection is created; once any inspection exists, checkpoints lock automatically. Asset list and detail responses expose a `checkpointsLocked` flag; once true, the Customer detail renders the checkpoint list read-only with an explanatory lock and the checkpoint endpoint rejects edits with `409 INSPECTION_HISTORY_EXISTS`.
   - Reference documents compute cryptographic file checksums, reject empty or duplicate-checksum files for the same building, store binaries in private object storage, and allow download exclusively after ownership/role authorization checks.
   - Retiring an active building preserves all historical inspections while blocking new service requests (`MSG46`).
 - **Normal cases**: Customer creates an active building with plain-text ownership details, customizes pre-inspection checkpoints, uploads unique PDF/PNG CAD blueprints, and later retires end-of-life structures cleanly.
@@ -401,8 +401,8 @@ The table summarizes the domain's core persisted entities across identity, build
 
 ### 3.8 `MF2` — `FE-07` Restricted Airspace Review & Clearance Decision
 
-- **Function trigger**: A customer organization signup whose initial building falls inside a restricted airspace zone enters pending onboarding review, and `ADMIN` (or `MANAGER`) reviews it.
-- **Actors**: `ADMIN`, `MANAGER`, Prospective Customer.
+- **Function trigger**: A customer organization signup whose initial building falls inside a restricted airspace zone enters pending onboarding review, and `ADMIN` reviews it.
+- **Actors**: `ADMIN`, Prospective Customer.
 - **Function description**: Hold self-service registrations with restricted-zone coordinates out of active service until platform staff inspect the location context and record an attributable approval or rejection decision.
 - **Screen layout (mock-up)**: Admin Onboarding Reviews (`Customer Airspace` tab) listing pending pre-registrations, coordinates, plain-text ownership details, and Approve/Reject modal controls. See Figure 3.5.
 - **Requirements**:
@@ -424,10 +424,10 @@ The table summarizes the domain's core persisted entities across identity, build
   - One-time requests specify a single date; recurring requests specify `1–120` month intervals and either `2–100` occurrences or an end date yielding `2–100` occurrences (`BR-17`, `BR-28`). Auto-generated titles use concise readable patterns (such as `<Building> · Monthly inspection`).
   - First requested inspection date must be at least `20` calendar days ahead in Vietnam business time (`Asia/Ho_Chi_Minh`, `BR-18`).
   - Managers claim unassigned open requests safely without race conditions; claiming opens the commercial detail workspace immediately. Only the assigned `MANAGER` may view negotiation details or quote/dispatch; `ADMIN` sees an assignment oversight registry to assign, reassign, or unassign Managers with audit logging and never quotes or negotiates (`BR-03`, `BR-05`).
-  - `MANAGER` maintains a single active VND quotation per request; recurring quotes must anchor the first occurrence strictly to the Customer-requested start date and validate Inspector licence and Drone registration validity across every planned occurrence before save (`BR-14`, `BR-19`).
+  - `MANAGER` maintains a single active VND quotation per request. Recurring quotes must anchor the first occurrence strictly to the Customer-requested start date and stay within the agreed recurrence term (`BR-14`, `BR-19`). The quote deliberately does not select a partner Inspector or drone; partner eligibility is evaluated for the concrete occurrence during dispatch (`FE-09`).
   - Owning Customer views read-only contact info (name, avatar, email, phone) of the assigned `MANAGER` without direct `Email`/`Call` action buttons.
 - **Normal cases**: Customer creates a recurring request; Manager claims it and lands immediately on the detail view; Manager saves a VND quote anchored to requested date; Customer reviews terms.
-- **Abnormal cases**: Start date inside 20-day lead time, multi-day range on a one-time request, fewer than 2 or more than 100 recurring occurrences, shifting recurring first date in a quote, expired partner credential on a future occurrence, concurrent Manager claim (`MSG31`), or `ADMIN` commercial mutation attempt is refused.
+- **Abnormal cases**: Start date inside 20-day lead time, multi-day range on a one-time request, fewer than 2 or more than 100 recurring occurrences, shifting recurring first date in a quote, concurrent Manager claim (`MSG31`), or `ADMIN` commercial mutation attempt is refused. An expired partner credential at dispatch of a planned occurrence is rejected by `FE-09`.
 
 ---
 
@@ -438,7 +438,7 @@ The table summarizes the domain's core persisted entities across identity, build
 - **Function description**: Lock accepted commercial terms into an immutable snapshot, materialize recurring inspection occurrences, record offline signed paper contracts, and dispatch qualified Inspectors and owned drones without cross-organization double-booking.
 - **Screen layout (mock-up)**: Quote acceptance action, four-stage Contract Lifecycle Stepper, Signed Paper Contract card, Partner Candidate selection table (clear spaced columns and clean detail icon preventing button overlap), `Apply this team to the remaining` bulk modal, and Manager abort recovery dialog (`Reschedule`, `Reassign`, `Cancel`).
 - **Requirements**:
-  - Quotation acceptance verifies the latest quote version, stores an immutable snapshot of agreed terms (`BR-16`), validates partner and drone eligibility across all planned dates (`BR-19`), and creates each inspection occurrence using month-end date clamping (`Jan 31 -> Feb 28/29 -> Mar 31`).
+  - Quotation acceptance verifies the latest quote version, stores an immutable snapshot of agreed terms (`BR-16`), and creates each inspection occurrence using month-end date clamping (`Jan 31 -> Feb 28/29 -> Mar 31`). Partner Inspector and drone eligibility is evaluated at dispatch (`BR-19`), not frozen into the quote.
   - `MANAGER` uploads the offline signed agreement (`PDF`/`DOCX`/`JPEG`/`PNG`) to private object storage, moving the request to `Contract Signed`; dispatch is refused until the signed contract is recorded (`BR-15`).
   - Before dispatching any occurrence, the system verifies active Inspector status, valid pilot licence matching the drone's Decree 288 weight class, active owned approved drone with current registration, and zero cross-organization schedule conflicts (`BR-21`, `BR-22`).
   - Recurring engagements support bulk assignment (`Apply this team to the remaining`), validating each remaining unassigned occurrence independently and reporting skipped conflicts cleanly.
@@ -457,7 +457,7 @@ The table summarizes the domain's core persisted entities across identity, build
 - **Requirements**:
   - **Order Chat** exclusively connects the owning Customer and the single assigned Manager on that service request.
   - **Inspection Chat** exclusively connects the owning Customer and the assigned Inspector on that inspection occurrence, remaining completely isolated from commercial pricing and explicitly inaccessible to `ADMIN` and `MANAGER`.
-  - Both channels enforce a message body limit (`<= 4,000` characters, optional only when attachments exist) and up to `5` verified attachments (`PNG`/`JPG`/`WEBP`/`PDF`/`DOCX`, `10 MiB` per file / `20 MiB` per request-chat message, `20 MiB` per file on inspection chat) stored privately with integrity checksums and file-type validation (`MSG34`).
+  - Both channels enforce a message body limit (`<= 4,000` characters, optional only when attachments exist) and up to `5` verified attachments (`PNG`/`JPG`/`WEBP`/`PDF`/`DOCX`, `10 MiB` per file and `20 MiB` total per message on both channels) stored privately with integrity checksums and file-type validation (`MSG34`).
   - `ADMIN` and uninvolved Managers, Inspectors, or foreign Customers are refused read, write, and attachment download access. Chat messages never alter quotation terms (`BR-41`).
 - **Normal cases**: Customer negotiates quote terms with Manager in Order Chat using attached specs and later coordinates rooftop gate access with assigned Inspector in Inspection Chat on Web or Mobile.
 - **Abnormal cases**: Oversized/disallowed attachment types (`MSG34`), blank text with zero files (`MSG19`), `ADMIN` or foreign-tenant download request, or commercial chat access by an unassigned Manager fails closed.

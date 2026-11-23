@@ -637,7 +637,7 @@ This section presents the detailed design for `FE-07`: reviewing held `RESTRICTE
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `AirspaceReviewController` (`users.api`) | Exposes `GET /api/v1/platform/customer-airspace-reviews/pending`, `POST /{registrationId}/approve`, and `POST /{registrationId}/reject` restricted to `ADMIN` and authorized `MANAGER` reviewers (`ApproveProspectiveCustomerRequest`, `RejectProspectiveCustomerRequest`). |
+| 01 | `AirspaceReviewController` (`users.api`) | Exposes `GET /api/v1/platform/customer-airspace-reviews/pending`, `POST /{registrationId}/approve`, and `POST /{registrationId}/reject` restricted to `ADMIN` reviewers (`ApproveProspectiveCustomerRequest`, `RejectProspectiveCustomerRequest`). |
 | 02 | `ProspectiveCustomerReviewService` & `ProspectiveCustomerRegistration` | On `approve`, transitions status to `APPROVED`, activates the pending `CUSTOMER` user, publishes `CustomerRegistrationEvent` handled by `assets.AssetRegistrationListener` to create the initial `Asset` preserving plain-text `ownership_information` (`V66`), and records an `AuditEvent`. On `reject`, enforces a mandatory non-blank reason and marks `REJECTED`. |
 | 03 | Web `OnboardingReviews` (`Customer Airspace` tab) | Admin console queue displaying coordinates, plain-text ownership info, and review note controls (`adm-onboarding-reviews.png`). |
 
@@ -775,7 +775,7 @@ This section presents the detailed design for `FE-10`: strictly separated commer
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
 | 01 | `ContractWorkflowController` (`/requests/{id}/messages*`) | Serves Customer <-> assigned `MANAGER` commercial order chat (`ServiceRequestMessage`, `ServiceRequestMessageAttachment`: up to 5 files, `10 MiB` per file / `20 MiB` per message, `PNG`/`JPG`/`WEBP`/`PDF`/`DOCX`), refusing `ADMIN` and non-assigned Managers. |
-| 02 | `InspectionChatController` & `InspectionChatService` (`inspections.api/service`, `V61`) | Exposes `GET /inspections/messages/threads`, `GET /inspections/{id}/messages`, `POST /{id}/messages`, `POST /{id}/messages/read`, and `GET /{id}/messages/{msgId}/attachments/{attId}` scoped solely to owning `CUSTOMER` and assigned `INSPECTOR` (`ADMIN` and `MANAGER` denied), capping message text at `4000` chars and attachments at `20 MiB` each in MinIO (`inspections/{id}/messages/`). |
+| 02 | `InspectionChatController` & `InspectionChatService` (`inspections.api/service`, `V61`) | Exposes `GET /inspections/messages/threads`, `GET /inspections/{id}/messages`, `POST /{id}/messages`, `POST /{id}/messages/read`, and `GET /{id}/messages/{msgId}/attachments/{attId}` scoped solely to owning `CUSTOMER` and assigned `INSPECTOR` (`ADMIN` and `MANAGER` denied), capping message text at `4000` chars and attachments at `10 MiB` per file and `20 MiB` total per message in MinIO (`inspections/{id}/messages/`). |
 | 03 | `ChatAttachmentValidator` (`shared.storage`) | Validates real file magic signatures, declared MIME types, safe filenames, and size caps prior to object upload. |
 | 04 | Web `RequestChatPanel.tsx`, `/messages` & Mobile `RequestChat`, `InspectionChatPage` | Deliver tabbed inboxes (`/client/messages` switching `Service requests` vs `Inspector`, `/manager/messages`, `/operations/messages`) and matching Flutter Mobile threads (`PR #27`). |
 
