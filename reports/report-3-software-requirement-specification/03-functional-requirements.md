@@ -66,18 +66,18 @@ The screens below are the implemented application surfaces. Screenshots were cap
 | 17 | FE-08, FE-09 | Manager service requests | Compact four-column queue (`Request & Asset`, `Schedule`, `Stage`, `Action`) with status chips and concise schedule ranges; claiming a request opens its commercial detail panel directly. |
 | 18 | FE-10 | Manager messages | Dedicated inbox carrying the order-chat negotiation for assigned requests, with attachments. |
 | 19 | FE-06 | Manager buildings | Building records across the customer organizations the Manager serves. |
-| 20 | FE-09, FE-13, FE-14 | Manager inspections | Every inspection occurrence with its assignment, acceptance timeout state, permit readiness, and delivery state. |
+| 20 | FE-09, FE-13, FE-14 | Manager inspections | Every inspection occurrence with its assignment, acceptance timeout state, inspector-uploaded permit status (read-only), and delivery state. |
 | 21 | FE-18 | Manager reports | Report queue filtered to occurrences whose report is submitted for review or already published. |
 | 22 | FE-02 | Partner inspectors | Inspector roster with partner status, pilot-licence class and expiry, and linked drone eligibility. |
 | 23 | FE-14, FE-19 | Inspection workspace — tracking | Occurrence summary, lifecycle position, and the role-appropriate next action. |
-| 24 | FE-13 | Inspection workspace — permit | Permit upload with structured metadata and the independent verification outcome. |
+| 24 | FE-13 | Inspection workspace — permit | Inspector self-attested permit upload with structured metadata, effective immediately once validation passes; Manager/Admin read-only view and audit trail. |
 | 25 | FE-14 | Inspection workspace — pre-flight checklist | Configurable pre-flight safety checklist recorded before the session starts. |
 | 26 | FE-14 | Inspection workspace — field session | Start, complete, or abort the on-site session with optional `SmartDroneHub` live MAVLink telemetry or log import. |
 | 27 | FE-14 | Inspection workspace — post-flight checklist | Configurable post-flight checklist and target building checkpoint completion recorded at closure. |
 | 28 | FE-15 | Inspection workspace — evidence | Photograph and video intake, resumable chunked MP4 upload, thumbnail review, and video keyframe extraction. |
 | 29 | FE-16, FE-17, FE-24 | Inspection workspace — findings | Candidate defect proposals with confidence, confirmation filter chips, `DroneKnowledgeAI` `Draft note with AI` / batch `Draft all notes` + collapsed `References`, manual findings with bounding box, and three-way re-inspection verification. |
 | 30 | FE-17, FE-18 | Inspection workspace — report | Report preparation, AI-drafted summary with `Matched Cases & Standards`, submission, and the published version. |
-| 31 | FE-13, FE-14 | Inspection workspace — audit | Attributable permit and flight-session decision history for the occurrence. |
+| 31 | FE-13, FE-14 | Inspection workspace — audit | Attributable permit upload and flight-session decision history for the occurrence. |
 | 32 | FE-18, FE-22, FE-23 | Inspection workspace — review and settlement | Independent reviewer decision panel alongside the payout, refund, and receivable ledger. |
 | 33 | FE-01, FE-14 | Customer dashboard | Summary of the organization's buildings, active requests, upcoming inspections, and outstanding payment. |
 | 34 | FE-08, FE-09 | Customer service requests | Create a one-time or recurring request and follow it through quotation, acceptance, agreement, and occurrence dispatch. |
@@ -177,7 +177,7 @@ These capabilities have no dedicated screen of their own; they run inside a user
 | 8 | FE-08, FE-09 | Quotation validity evaluation | Revalidates pilot licence and drone registration against every scheduled occurrence before a quote is saved or accepted. |
 | 9 | FE-11 | Assignment acceptance timeout monitor | Scheduled job that automatically cancels unaccepted assignments after the administrator-configured response deadline, frees crew schedules, returns the occurrence for reassignment, and notifies the owning Manager. |
 | 10 | FE-12 | Duplicate-notification suppression | Ensures retried lifecycle events produce at most one notification per intended recipient. |
-| 11 | FE-13 | Permit verification reset | Returns an approved permit to pending review when the drone is changed or the schedule moves outside the permit window. |
+| 11 | FE-13 | Permit re-upload required | Invalidates the inspector-uploaded permit and requires a fresh inspector upload when the drone is changed or the schedule moves outside the permit window. |
 | 12 | FE-14 | Inspection lifecycle monitor | A scheduled job that advances or flags occurrences whose scheduled window has passed without the expected session activity. |
 | 13 | FE-14 | Flight-log import and normalisation | Parses an imported SRT, CSV, KML, or GPX log and normalises available position, time, altitude, speed, heading, and battery values, marking absent fields as unavailable. |
 | 14 | FE-15 | Image normalization and thumbnailing | Extracts available capture metadata, normalises oversized or rotated photographs, and generates a 480 px thumbnail alongside the original. |
@@ -276,7 +276,7 @@ erDiagram
 | 30 | `service_invoices` | Service invoice derived from an accepted occurrence. |
 | 31 | `service_payments` | Customer payment against an invoice, including active gateway order code and creation timestamp (`gateway_order_created_at`, `V67`), payment due date, overdue notice guard, refunded amount, and refund state. |
 | 32 | `service_refunds` | Refund allocation across Inspector payout reduction, platform commission, VAT, personal income tax, and platform absorption. |
-| 33 | `inspector_payouts` | Amount payable to an Inspector following verified customer payment. |
+| 33 | `inspector_payouts` | Amount payable to an Inspector following Manager approval and publication of the inspection report. |
 | 34 | `inspector_receivables` | Amount owed back by an Inspector after a refund against an already-disbursed payout. |
 | 35 | `inspector_receivable_recoveries` | Recorded recovery of an Inspector receivable. |
 | 36 | `inspection_finance_settings` | Singleton rates for platform commission, VAT, and personal income tax. |
@@ -291,10 +291,10 @@ erDiagram
 | 45 | `inspection_knowledge_chunks` | Engineering standard or guideline reference used by `DroneKnowledgeAI` for retrieval grounding across all organizations. |
 | 46 | `historical_finding_cases` | Historical defect case indexed from a confirmed finding at report publication, or an anonymized benchmark case, isolated by organization and excluding the current inspection from self-matching. |
 | 47 | `gateway_inbound_transactions` | Idempotent inbound payment-gateway webhook audit log (`V68`) recording gateway transaction ID, order code, transfer amount, receiving account, raw payload, outcome (`APPLIED`, `AMOUNT_MISMATCH`, `ORDER_NOT_FOUND`, `REJECTED`, `ERROR`), and detail. |
-| 48 | `inspection_flight_permits` | Dedicated 1-to-1 mission flight-permit upload metadata and independent verification gate record split from `inspections` (`V69`). |
+| 48 | `inspection_flight_permits` | Dedicated 1-to-1 mission flight-permit upload metadata and inspector self-attestation record split from `inspections` (`V69`). |
 | 49 | `field_session_telemetry` | Dedicated 1-to-1 SmartDroneHub mission telemetry metrics, GPS flight-trace JSON, and synced flight-video reference split from `field_sessions` (`V69`). |
-| 50 | `service_request_partner_messages` | Private Manager ↔ Inspector coordination chat message scoped by `(request_id, inspector_id)` (`V70`). |
-| 51 | `service_request_partner_message_attachments` | Private file attachment metadata belonging to a Manager ↔ Inspector partner-chat message (`V70`). |
+| 50 | `service_request_partner_messages` | Private Manager ↔ Inspector coordination chat message scoped by `(request_id, inspector_id)` (`V79`). |
+| 51 | `service_request_partner_message_attachments` | Private file attachment metadata belonging to a Manager ↔ Inspector partner-chat message (`V79`). |
 
 The table summarizes the domain's core persisted entities across identity, buildings, partner onboarding, commercial workflow, field operations, AI/knowledge retrieval, reporting, and financial settlement.
 
@@ -485,7 +485,7 @@ The table summarizes the domain's core persisted entities across identity, build
 
 ### 3.13 `MF2` — `FE-12` System Notifications & Alert Center
 
-- **Function trigger**: Platform domain events occur (service request created, partner application submitted, license expiring, dispatch assigned, assignment timed out, permit submitted/reviewed, field session aborted, report submitted/returned/published, payment settled, payment overdue) or a user opens Notifications.
+- **Function trigger**: Platform domain events occur (service request created, partner application submitted, license expiring, dispatch assigned, assignment timed out, permit submitted, field session aborted, report submitted/returned/published, payment settled, payment overdue) or a user opens Notifications.
 - **Actors**: All Login Roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`), `SYSTEM`.
 - **Function description**: Deliver reliable, deduplicated, role-scoped in-app notifications backed by a transactional event outbox.
 - **Screen layout (mock-up)**: Top-bar Notification Bell unread badge & popover, full Notifications inbox on Web and Customer Mobile, filter/mark-read actions, and safe record links.
@@ -499,19 +499,19 @@ The table summarizes the domain's core persisted entities across identity, build
 
 ---
 
-### 3.14 `MF3` — `FE-13` Flight Permit Upload & Independent Verification Gate
+### 3.14 `MF3` — `FE-13` Flight Permit Upload & Inspector Self-Attestation Gate
 
-- **Function trigger**: An assigned `INSPECTOR` uploads the aviation flight permit in Workspace Stage 1, or a distinct `MANAGER`/`ADMIN` approves/rejects it, or an occurrence's drone/schedule changes after approval.
-- **Actors**: `INSPECTOR`, `MANAGER`, `ADMIN`.
-- **Function description**: Enforce documented mission flight-permit submission (`<= 25 MB`, verified binary signature & `SHA-256`, structured permit metadata) and independent human verification before any on-site field session may begin.
-- **Screen layout (mock-up)**: Inspector Workspace Stage 1 (`Permit` tab with preview modal & metadata form) and Manager/Admin Permit Audit panel & Trace ledger (`/audit`).
+- **Function trigger**: An assigned `INSPECTOR` uploads or replaces the aviation flight permit in Workspace Stage 1; a drone change or an out-of-window reschedule invalidates the current permit and requires an inspector re-upload.
+- **Actors**: `INSPECTOR` (uploader and accountable self-attestor), `MANAGER`, `ADMIN` (read-only view and audit trail), `SYSTEM`.
+- **Function description**: Enforce documented mission flight-permit submission (`<= 25 MB`, verified binary signature & `SHA-256`, structured permit metadata). The assigned Inspector uploads the permit and is responsible for it; the upload becomes effective immediately once validation passes, with no Manager or Admin approval. A valid, effective permit gates the start of any on-site field session, and Manager/Admin access is limited to read-only viewing and the audit trail.
+- **Screen layout (mock-up)**: Inspector Workspace Stage 1 (`Permit` tab with preview modal & metadata form) and Manager/Admin read-only Permit view plus Trace ledger (`/audit`); no approve/reject controls are exposed.
 - **Requirements**:
-  - Permit upload is restricted to the assigned `INSPECTOR` while the inspection is scheduled; the service verifies a non-empty file (`<= 25 MB`), valid file signature (`PDF`/`PNG`/`JPG`/`WEBP`), integrity checksum, permit number, issuing authority, validity dates covering the planned mission schedule, optional maximum altitude (`1–2,000 m`), assigned drone serial number match, and active pilot licence plus drone registration (`BR-23`).
-  - Every upload enters `Pending Review` regardless of airspace classification (`Clear Zone` locations never bypass permit review, `BR-24`).
-  - Verification requires `Approved` or `Rejected` (with a mandatory written reason, `MSG15`) by a `MANAGER` or `ADMIN` distinct from the person who uploaded the permit (`BR-24`, `BR-51`).
-  - Reassigning a different drone or rescheduling outside the permit's validity window automatically resets an approved permit back to `Pending Review` (`BR-25`, `MSG42`). Upload or replacement is locked once field work begins.
-- **Normal cases**: Inspector uploads a valid permit PDF with matching drone serial and dates; a different Manager inspects the document and approves it, unlocking Stage 2 Pre-flight and Session Start.
-- **Abnormal cases**: Self-verification by the uploader, corrupt/oversized/mismatched file, missing rejection reason, permit dates outside the mission window, drone serial mismatch, or replacement after field start is rejected.
+  - Permit upload is restricted to the assigned `INSPECTOR` while the inspection is scheduled; the service verifies a non-empty file (`<= 25 MB`), valid file signature (`PDF`/`PNG`/`JPG`/`WEBP`), integrity checksum, permit number, issuing authority, validity dates covering the planned mission schedule, optional maximum altitude (`1–2,000 m`), assigned drone serial number match, and active pilot licence plus drone registration (`BR-23`). The Inspector's upload is the self-attestation that these details are accurate.
+  - A permit that passes validation becomes effective immediately with no `Pending Review` state and no `MANAGER`/`ADMIN` approval or rejection action; airspace classification (including `Clear Zone`) never changes this rule (`BR-24` is superseded).
+  - `MANAGER` and `ADMIN` have read-only access to the permit and its audit trail only: they cannot approve, reject, or verify it. Permit actions remain attributable to the assigned Inspector (the `BR-51` permit-verification clause is superseded).
+  - Reassigning a different drone or rescheduling outside the permit's validity window invalidates the permit and requires the assigned `INSPECTOR` to re-upload a valid permit (`BR-25`, `MSG42`). Upload or replacement is locked once field work begins.
+- **Normal cases**: Inspector uploads a valid permit PDF with matching drone serial and validity dates; the permit is effective immediately, unlocking Stage 2 Pre-flight and Session Start, and the upload is recorded in the audit trail; Manager/Admin can view it read-only.
+- **Abnormal cases**: Corrupt/oversized/mismatched file, missing or invalid metadata, permit dates outside the mission window, drone serial mismatch, or replacement after field start is rejected; invalidating changes (a different drone or an out-of-window reschedule) require a fresh inspector re-upload; no permit approve/reject/review action exists for any role.
 
 ---
 
@@ -519,15 +519,15 @@ The table summarizes the domain's core persisted entities across identity, build
 
 - **Function trigger**: Assigned `INSPECTOR` completes pre-flight checklist and starts/completes/aborts a field session, connects read-only `SmartDroneHub` MAVLink telemetry, imports an offline log, submits a manual flight declaration, or users open Dashboards / Calendar.
 - **Actors**: `INSPECTOR`, `MANAGER`, `CUSTOMER`, `ADMIN`, `SmartDroneHub`.
-- **Function description**: Execute accountable on-site field sessions gated by approved permits and safety checklists, capture read-only flight telemetry/traces and mission MP4 video (or log/manual fallbacks without fabrication), handle aborts, and surface operational schedule/dashboard views.
+- **Function description**: Execute accountable on-site field sessions gated by valid inspector-uploaded permits and safety checklists, capture read-only flight telemetry/traces and mission MP4 video (or log/manual fallbacks without fabrication), handle aborts, and surface operational schedule/dashboard views.
 - **Screen layout (mock-up)**: Pre-flight safety checklist tab, Flight Operation console (with live `SmartDroneHub` telemetry & gimbal status), Post-flight target building checkpoint verification, four-role Dashboards, and the Inspector Schedule Calendar.
 - **Requirements**:
-  - Session start verifies that the inspection is scheduled, the flight permit is approved and covers the actual flight time, the assigned drone serial matches, pilot/drone credentials remain current, the pre-flight safety checklist plus a non-blank safety note are completed (`BR-23`, `BR-26`), and no other session is already active.
+  - Session start verifies that the inspection is scheduled, a valid inspector-uploaded permit is in effect and covers the actual flight time, the assigned drone serial matches, pilot/drone credentials remain current, the pre-flight safety checklist plus a non-blank safety note are completed (`BR-23`, `BR-26`), and no other session is already active.
   - Active sessions may optionally connect to `SmartDroneHub` in strictly read-only telemetry mode (flight status, mode, GPS coordinates, altitude, speed, heading, battery, waypoint, and gimbal status; never sending flight actuation commands `BR-30`), saving the flight trace and synchronizing mission MP4 video.
   - When live telemetry is absent, Inspectors may import `SRT`, `CSV`, `KML`, or `GPX` flight logs (`<= 15 MB`) preserving missing fields as unavailable without fabrication, or submit an accountable manual flight declaration (reason, duration, altitude, note) clearly badged separately from measured telemetry (`BR-28`).
   - Completion records post-flight building checkpoints and moves the mission to `Field Completed`. Aborting requires a written reason (`BR-27`), records a reliability event against the Inspector, reopens the inspection to `Scheduled`, and notifies Managers. Role-scoped Dashboards count only confirmed findings, and the Inspector Schedule Calendar shows Month/Week/Agenda views with abort alerts.
 - **Normal cases**: Inspector completes pre-flight checks, connects live telemetry via SmartDroneHub, flies mission, completes post-flight items -> `Field Completed`.
-- **Abnormal cases**: Starting without an approved permit (`MSG37`, `MSG40`), expired permit/credentials, corrupt/position-less log import (`MSG45`), or missing safety/abort notes is rejected.
+- **Abnormal cases**: Starting without a valid inspector-uploaded permit (`MSG37`, `MSG40`), expired permit/credentials, corrupt/position-less log import (`MSG45`), or missing safety/abort notes is rejected.
 
 ---
 
@@ -613,13 +613,13 @@ The table summarizes the domain's core persisted entities across identity, build
 - **Function trigger**: After report acceptance (`Payment Due`), Customer initiates `Sepay` VietQR or `VNPay` checkout, payment gateways send verified confirmation callbacks, or Manager confirms manual payment / clears an unpaid gateway order.
 - **Actors**: `CUSTOMER`, `MANAGER`, `Sepay`, `VNPay`.
 - **Function description**: Process VND inspection fee settlement through configuration-gated online payment gateways with webhook authentication (`Authorization: Apikey` / VNPay HMAC-SHA512) and safe fallback to authorized manual confirmation.
-- **Screen layout (mock-up)**: Step 2 of Customer Settlement card (Sepay VietQR image & transfer code `SDI<orderCode>` or VNPay redirect launch), Manager unresolved-order clear action, and Finance Settings gateway switches.
+- **Screen layout (mock-up)**: Step 2 of Customer Settlement card on Web and Customer Inspection detail on Mobile (Sepay VietQR dialog with `SDI<orderCode>` copyable details or VNPay launch), Customer/Manager unpaid-order reset action, Manager manual wire confirmation, and Finance Settings gateway switches.
 - **Requirements**:
-  - Initiating online checkout is allowed only after report acceptance (`Payment Due`) and validates whole-VND payable totals. Online checkout supports Sepay VietQR and VNPay: Sepay builds the VietQR image carrying the occurrence transfer code (`SDI<orderCode>`) and authenticates incoming bank-transfer webhooks via a constant-time `Authorization: Apikey` header check while checking receiving account number, rejecting mismatched transfer amounts, persisting every processed notification idempotently in `gateway_inbound_transactions` (`V68`), and returning HTTP `500` on transient failures so Sepay retries safely; the Web client polls occurrence status every 3 seconds and auto-closes the QR dialog once `PAID`. VNPay verifies its callback via HMAC-SHA512 secure hash (`BR-45`) and redirects the browser directly back to `/settlement`. Browser redirects alone never settle payment.
-  - An unresolved gateway order cannot be silently overwritten or switched across providers (`MSG49`, `BR-47`); `V67` persists `gateway_order_created_at` so expired unresolved gateway orders and terminal VNPay failures (`vnp_ResponseCode` `24` cancel / `11` timeout) release automatically, whereas clearing an unpaid Sepay order before expiry remains an attributable Manager action (`BR-47`).
-  - Both gateways may be disabled by configuration; when disabled, an authorized `MANAGER` may record an attributable manual payment confirmation. Verified payment immediately sets the Partner Inspector's payout status to `Eligible` without marking it `Paid` (`BR-46`).
-- **Normal cases**: Customer pays via Sepay VietQR or VNPay -> verified callback arrives -> payment marks `Paid`, payout becomes `Eligible`, and stakeholders are notified (`MSG47`).
-- **Abnormal cases**: Payment attempt before report acceptance, switching gateway while an earlier order is still pending (`MSG49`), forged callback header/signature or mismatched transfer amount, or duplicate gateway callback (safely ignored without double-counting) is handled cleanly.
+  - Initiating online checkout is allowed only after report acceptance (`Payment Due`) and validates whole-VND payable totals. Online checkout supports Sepay VietQR and VNPay across Web and Customer Mobile: Sepay builds the VietQR image carrying the occurrence transfer code (`SDI<orderCode>`) and authenticates incoming bank-transfer webhooks via a constant-time `Authorization: Apikey` header check while checking receiving account number, rejecting mismatched transfer amounts, persisting every processed notification idempotently in `gateway_inbound_transactions` (`V68`), and returning HTTP `500` on transient failures so Sepay retries safely; Web and Mobile clients show the QR + bank details, poll occurrence status every 3 seconds, and auto-close once `PAID`. VNPay verifies its callback via HMAC-SHA512 secure hash (`BR-45`) and redirects Web directly back to `/settlement` or Customer Mobile via the `smartdrone://inspections/{inspectionId}/settlement` deep-link return endpoint (`VNPAY_MOBILE_RETURN_URL`). Return redirects trigger verification polling without marking payment settled until backend confirmation (`PAID`), and receipt PDFs render the recorded settlement confirmation timestamp (`paymentConfirmedAt`).
+  - Switching between unpaid online gateways (`SEPAY <-> VNPAY`) or initiating a fresh `VNPAY` retry while `PAYMENT_DUE` automatically clears the superseded unpaid online order code so customers move smoothly between VietQR and VNPay without manual resets in the UI; non-online pending orders (such as `MANUAL_WIRE`) remain guarded (`MSG49`, `BR-47`). Terminal VNPay failures (`vnp_ResponseCode` `24` cancel / `11` timeout) also release automatically, and late or superseded callbacks from either `SEPAY` or `VNPAY` are persisted in `gateway_inbound_transactions` (`V68`) for reconciliation without double-settling. Assigned Managers and owning Customers retain API reset access (`POST /api/v1/inspections/{inspectionId}/report/cancel-unpaid-order`) for explicit order cleanup.
+  - Both gateways may be disabled by configuration; when enabled in `PAYMENT_DUE` after report acceptance, an authorized `MANAGER` may also record an attributable manual wire confirmation. Customer payment does not delay or re-open partner payout eligibility once the inspection report is published (`BR-46`).
+- **Normal cases**: Customer pays via Sepay VietQR or VNPay -> verified callback arrives -> payment marks `Paid` and stakeholders are notified (`MSG47`).
+- **Abnormal cases**: Payment attempt before report acceptance, switching gateway while a non-online order (`MANUAL_WIRE`) is still pending (`MSG49`), forged callback header/signature or mismatched transfer amount, or duplicate/superseded gateway callback (audited cleanly in `gateway_inbound_transactions` without double-counting) is handled cleanly.
 
 ---
 
@@ -627,29 +627,30 @@ The table summarizes the domain's core persisted entities across identity, build
 
 - **Function trigger**: Customer report acceptance creates/stamps an invoice and due deadline; a daily background check monitors unpaid due windows; or an authorized Customer, Manager, or assigned Inspector downloads the payment notice or receipt PDF.
 - **Actors**: `CUSTOMER`, `MANAGER`, `INSPECTOR`, `SYSTEM`.
-- **Function description**: Snapshot financial rates onto per-occurrence invoices, enforce configurable payment-due deadlines with a single overdue reminder without revoking report access, and generate role-scoped non-tax-invoice payment notice and receipt PDFs.
+- **Function description**: Snapshot financial rates onto per-occurrence invoices, enforce configurable payment-due deadlines with a single overdue reminder without revoking report access, and generate role-scoped non-tax-invoice payment notice and receipt PDFs. The published report PDF is an inspection record: it is available to in-scope actors from publication onward, independent of payment status.
 - **Screen layout (mock-up)**: Payment-due countdown badge on Customer/Manager views, settlement invoice rate breakdown (commission, VAT, personal income tax, due days), and **Download payment notice / receipt PDF** actions across Web and Mobile.
 - **Requirements**:
   - Every service invoice captures the agreed VND price plus configured platform commission, VAT, and personal income tax (TNCN) percentages at creation time.
-  - Accepting a report stamps the payment due date as `accepted date + configured window` (`15` days by default). When an unpaid invoice passes its due date, the system sends at most one overdue reminder notification to the owning Customer and active Managers; overdue status never revokes access to the published report or alters `Payment Due` state.
+  - Accepting a report stamps the payment due date as `accepted date + configured window` (`15` days by default). When an unpaid invoice passes its due date, the system sends at most one overdue reminder notification to the owning Customer and active Managers; overdue status never revokes access to the published report or alters `Payment Due` state. Payment status never gates the published report PDF or Partner Inspector payout eligibility: an unpaid Customer receives the same immutable artefact as any other in-scope actor, and payment produces the Customer receipt only.
   - Requesting the payment document PDF is refused before report acceptance, renders an internal A4 Payment Notice while payment is due (showing due date & VAT breakdown), and renders a Payment Receipt once paid (showing method, transaction reference, and timestamp). Both documents carry a non-VAT-tax-invoice notice, never mutate payment state, and are restricted to the owning Customer, assigned Inspector, `MANAGER`, and `ADMIN`.
-- **Normal cases**: Customer accepts report (`due +15d` stamped), downloads notice PDF, pays later, and downloads verified receipt PDF on Web or Mobile.
+- **Normal cases**: Customer reads the published report and its official PDF from publication onward, accepts it (`due +15d` stamped), downloads the notice PDF, pays later, and downloads the verified receipt PDF on Web or Mobile.
 - **Abnormal cases**: Requesting payment document before report acceptance, foreign Customer or unassigned Inspector requesting the document, or repeated daily checks firing duplicate overdue alerts is prevented cleanly.
 
 ---
 
 ### 3.23 `MF4` — `FE-22` Partner Inspector Payout Reconciliation
 
-- **Function trigger**: Customer fee settles (`Paid`) making payout eligible, and the owning `MANAGER` executes the external bank transfer offline and records disbursement against the occurrence.
+- **Function trigger**: `MANAGER` approves the submitted inspection report (`APPROVED`), transitioning payout status to `Eligible` while prompting Manager to settle the Inspector payout (`PAID`) before publishing the report to Customer (`PUBLISHED`). The owning `MANAGER` generates a SePay VietQR payout code targeting the Inspector's registered bank account and transfers net earnings via banking app; SePay outgoing webhook (`transferType: "out"`, `SDIPAY<orderCode>`) confirms settlement automatically (with manual UNC recording preserved only as a backend fallback endpoint).
 - **Actors**: `MANAGER`, `INSPECTOR`, `CUSTOMER`.
-- **Function description**: Maintain strict separation between payout eligibility and actual partner disbursement, enforce payout holds and net reductions, and mask internal partner settlement fields from Customer views.
-- **Screen layout (mock-up)**: Manager Workspace `Settlement` payout recording form (`Record payout` with external reference & net payout breakdown) and Inspector earnings payout status card.
+- **Function description**: Enforce a two-step Manager approval-to-publish gate so Partner Inspector disbursement is settled in a dedicated Manager workflow step before Customer deliverable publication, require Inspectors to configure a standardized VietQR bank account (`bankName` selected from `VIETQR_BANKS`, `accountNumber`, `accountHolder`, optional `bankBranch`) prior to disbursement, support automatic SePay VietQR payout generation (`SDIPAY<payoutOrderCode>`) + outgoing webhook reconciliation (`V78`), maintain strict separation between payout eligibility and actual partner disbursement, enforce payout holds and net reductions, and mask internal partner settlement fields from Customer views.
+- **Screen layout (mock-up)**: Four-stage Manager inspection workspace (`1. Field Audit -> 2. Report Decision -> 3. Inspector Payout -> 4. Customer Settlement`), where Step 3 (`Inspector Payout`) displays net payout breakdown alongside the Inspector's registered bank details (standardized bank display, copyable account number and amount), SePay VietQR brand emblem and `Pay Inspector via SePay (VietQR)` action opening the QR & `SDIPAY<code>` confirmation dialog with 3-second polling, and the unlocked `Publish to Customer` action; complemented by `Inspector payouts` (`/manager/payout-settlements`) with the same SePay VietQR payout modal, and Inspector `Settings -> Account` / `Payouts` standardized bank selector forms (`VIETQR_BANKS`).
 - **Requirements**:
-  - Verified customer payment sets the Inspector's payout status to `Eligible` with no transfer reference; a payout becomes `Paid` only when `MANAGER` explicitly records the disbursement with a unique non-blank external bank reference and timestamp (`BR-46`).
+  - Approving a submitted report locks the version at `APPROVED`, advances Manager to Step 3 (`Inspector Payout`), and immediately sets the Inspector's payout status to `Eligible` with no transfer reference (hidden from `CUSTOMER`); a payout transitions to `Paid` (`SEPAY-OUT-<reference>`) when SePay delivers an authenticated `transferType: "out"` webhook matching `SDIPAY<payoutOrderCode>` and the rounded integer VND net payout (`BR-46`), or via legacy `recordOccurrencePayout` (`UNC-...`). Publishing (`APPROVED -> PUBLISHED`) is blocked (`409 INSPECTOR_PAYOUT_REQUIRED`) until the linked occurrence's payout is `Paid`.
+  - Inspectors configure their receiving bank details (`bankName` locked to standardized VietQR bank short codes via `VIETQR_BANKS`, `accountNumber`, `accountHolder`, optional `bankBranch`) via `PUT /api/v1/users/me/payout-bank-details` (persisted on `inspector_profiles` in `V77`). Generating a SePay VietQR payout link (`POST /api/v1/inspections/{inspectionId}/sepay/create-payout-link` or `POST /api/v1/contracts/requests/{requestId}/occurrences/{occurrenceId}/sepay/create-payout-link`) or recording disbursement requires complete Inspector bank details (`409 INSPECTOR_PAYOUT_BANK_INFO_REQUIRED`) and valid net payout > 0, never falling back to the platform merchant account. Manager/Admin/Inspector views display those bank details cleanly while Customer projections always mask them (`null`).
   - Final payable amount is capped after verified refund reductions (`FE-23`), and any active pending refund or unreconciled historical refund holds payout disbursement until resolved or released.
-  - Finance views hide internal platform commission, personal income tax (TNCN), payout references, and receivable/recovery ledgers from `CUSTOMER` users while showing Manager/Inspector-permitted fields cleanly.
-- **Normal cases**: After Customer pays, Manager transfers net payout offline (gross fee minus commission minus TNCN), records transfer reference once (safely idempotent on retry), and Inspector sees `Paid` status.
-- **Abnormal cases**: Recording payout before verified Customer payment, recording payout while a refund hold or unallocated legacy refund is active, blank transfer reference, or Customer attempting payout actions is blocked.
+  - Finance views hide internal platform commission, personal income tax (TNCN), payout references, bank account details, and receivable/recovery ledgers from `CUSTOMER` users while showing Manager/Inspector-permitted fields cleanly.
+- **Normal cases**: Inspector selects a VietQR bank from the standardized dropdown and saves account details -> Manager approves submitted report (`APPROVED`) -> Step 3 (`Inspector Payout`) shows net payout and Inspector bank details -> Manager clicks `Pay Inspector via SePay (VietQR)` -> scans QR or transfers with `SDIPAY<orderCode>` -> SePay `transferType: "out"` webhook settles `Paid` automatically -> 3-second polling closes dialog -> Manager clicks `Publish to Customer` (`PUBLISHED`) and advances to Step 4 (`Customer Settlement`).
+- **Abnormal cases**: Attempting to publish an `APPROVED` report before Inspector payout is `Paid`, generating SePay payout QR or settling payout before Inspector configures complete bank details (`INSPECTOR_PAYOUT_BANK_INFO_REQUIRED`), outgoing SePay webhook from a mismatched source account (`REJECTED`) or with mismatched rounded VND payout amount (`AMOUNT_MISMATCH`), payout while a refund hold or unallocated legacy refund is active, or Customer attempting payout actions or reading bank details is blocked.
 
 ---
 
@@ -680,7 +681,7 @@ The table summarizes the domain's core persisted entities across identity, build
   - Editing verification verdicts is restricted to the assigned `INSPECTOR`, refused while the re-inspection is still scheduled or in flight (must be `Field Completed`), and locked once a report version is submitted or published.
   - Marking any defect `Resolved` requires fresh evidence captured inside a **completed** field session **of that re-inspection**, taken during that session's start-to-end flight window and never reused from the original inspection (`BR-54`).
   - Every `Resolved` verdict records verification time and a derived validity expiration timestamp; both Web and Customer Mobile warn early (`14` days before expiry), while server checks block report preparation, submission, or publication whenever any `Resolved` verdict has expired.
-- **Normal cases**: Customer triggers quick re-inspection -> Inspector completes new field session with fresh evidence -> marks defect `Resolved` with Before/After proof -> submits & publishes within the validity window.
+- **Normal cases**: Customer schedules a post-remediation re-inspection from the completed inspection settlement page -> submits the linked MF2 service request (`sourceInspectionId`) through quotation, contract, and dispatch -> Inspector completes a new field session with fresh evidence -> marks defect `Resolved` with Before/After proof -> submits & publishes within the validity window.
 - **Abnormal cases**: Creating re-inspection on an incomplete inspection or by an Inspector, submitting `Resolved` without fresh in-session capture, editing after report submission, or attempting publication after verdict expiry fails closed.
 
 ---

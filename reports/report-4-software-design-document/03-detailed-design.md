@@ -362,7 +362,7 @@ This section presents the detailed design for `FE-05`: role-scoped financial led
 
 | No | Component / Class | Description |
 | :---: | :--- | :--- |
-| 01 | `ContractWorkflowController` (`finance-history/*` routes) | Exposes `GET /api/v1/contracts/requests/finance-history/customer`, `/inspector`, and `/manager` (plus `/{occurrenceId}` detail endpoints) backed by `ContractWorkflowService` paged/filtered ledger queries. |
+| 01 | `ContractWorkflowController` (`finance-history/*` routes) | Exposes `GET /api/v1/contracts/requests/finance-history/customer`, `/inspector`, and `/manager?scope=REVENUE|PAYOUTS` (plus `/{occurrenceId}` detail endpoints) backed by `ContractWorkflowService` paged/filtered ledger queries (`REVENUE` for customer-paid receipts; `PAYOUTS` for report-published eligible/settled payouts). |
 | 02 | `FinanceHistoryPageResponse`, `FinanceHistoryItemResponse`, `ManagerFinanceHistoryResponse` & `OccurrenceFinanceResponse` | DTOs projecting strict role-appropriate financial fields: Customer views payment amounts, receipts, and refundable status while masking partner payouts/receivables; Inspector views gross fee, commission/TNCN deductions, and net payout; Manager views platform inflows, commission, VAT/TNCN, and reconciliation state. |
 | 03 | Web `FinanceHistoryPage.tsx` & `OverviewFinanceSection.tsx` | Role-aware Web ledger views mounted at `/client/finance-history`, `/operations/finance-history`, and `/manager/finance-history`, paired with per-inspection overview financial cards. |
 
@@ -1035,7 +1035,7 @@ sequenceDiagram
     Note over Webhooks,ContractSvc: On cancel/timeout (vnp_ResponseCode 24/11), releaseVnPayOrderAfterFailure(orderCode); browser /return redirects to /settlement
   end
 
-  ContractSvc->>DB: Transition ServicePayment to PAID and InspectorPayout to ELIGIBLE (publish PaymentSettledEvent)
+  ContractSvc->>DB: Transition ServicePayment to PAID (and mark InspectorPayout ELIGIBLE if not already unlocked/PAID; publish PaymentSettledEvent)
 ```
 
 **Class Specifications**
@@ -1065,13 +1065,13 @@ This section presents the detailed design for `FE-21`: per-occurrence `ServiceIn
 
 ### 3.22 `MF4` — `FE-22` Partner Inspector Payout Reconciliation
 
-This section presents the detailed design for `FE-22`: enforcing strict separation between payout eligibility (`ELIGIBLE`) upon verified customer payment and explicit Manager-recorded partner disbursement (`PAID`), refund-hold blocking, final capped payout computation, and role-based financial masking.
+This section presents the detailed design for `FE-22`: enforcing a two-step report approval gate (`SUBMITTED -> APPROVED -> InspectorPayout.PAID -> PUBLISHED`) via `InspectionReportAcceptancePort.onReportApproved` / `requiresPayoutBeforePublish`, keeping strict separation from explicit Manager-recorded partner disbursement (`PAID`), refund-hold blocking, final capped payout computation, and role-based financial masking.
 
 **Class & UI Specifications**
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `ContractWorkflowController.recordOccurrencePayout` & `InspectorPayout` | Transitions payout from `ELIGIBLE` to `PAID` only when a `MANAGER` supplies a unique external transfer reference (`payout_reference`, actor attribution, timestamp), enforcing active refund holds and post-reduction payout caps (`BR-46`). |
+| 01 | `ReportService.reviewVersion` / `publishVersion` -> `InspectionReportAcceptancePort`, `ContractWorkflowController.recordOccurrencePayout` & `InspectorPayout` | `ReportService.reviewVersion(..., approve=true)` calls `onReportApproved(inspectionId)` and holds the version at `APPROVED` (`V76`, hidden from `CUSTOMER`) when `requiresPayoutBeforePublish` returns true, transitioning `InspectorPayout` to `ELIGIBLE` immediately. `recordOccurrencePayout` transitions `ELIGIBLE -> PAID` with an external `UNC` transfer reference (`payout_reference`, actor attribution, timestamp), enforcing active refund holds and post-reduction payout caps (`BR-46`). `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/publish` enforces `requiresPayoutBeforePublish == false` (`409 INSPECTOR_PAYOUT_REQUIRED`) before setting `PUBLISHED`. |
 | 02 | `OccurrenceFinanceResponse` & Role Masking | Projects net payout, commission/TNCN deductions, refund holds, masked `inspectorRefundSummaries` (exposing payout reduction and receivable impact while omitting platform absorption, commission/VAT adjustments, and internal notes), and recovery ledgers to assigned `INSPECTOR`, full rows to `MANAGER`, while stripping internal partner settlement details from `CUSTOMER` payloads. |
 | 03 | Web `OccurrenceFinanceDrawer.tsx`, `InspectorPayoutStatementCard.tsx` & `InspectorPayoutSummaryBar.tsx` | Render eligible/held/paid states, net disbursement breakdown, and Manager payout recording forms inside Workspace Settlement (`/settlement`). |
 

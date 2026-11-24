@@ -11,18 +11,16 @@ SmartDroneInspection documentation defines the target for a platform-managed inf
 
 - Java 21 and Spring Boot 4.1 modular monolith with Spring Modulith.
 - PostgreSQL 17 (`pgvector`) is the source of truth; MinIO stores inspection evidence (photos & MP4 videos), permits, signed contracts, and immutable PDF reports.
-- React 19 web portal (`/admin`, `/client`, `/operations`) and Flutter mobile app share the versioned REST API and Google OAuth2 / JWT authentication.
-- Online VietQR settlement via PayOS after Customer report acceptance.
-- Authorization combines 4 implemented login roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`) with `ActorZone`, organization, assignment, and separation-of-duties scope. `MAINTENANCE_ENGINEER` and corrective-maintenance MF4 are planned and out of the current release scope.
+- React 19 web portal (`/admin`, `/manager`, `/client`, `/operations`) and Customer-only Flutter mobile app share the versioned REST API and Google OAuth2 / JWT authentication.
+- Online VietQR / bank-card settlement via Sepay / VNPay after Customer report acceptance.
+- Authorization combines the 4 login roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`) with ownership (`ownerCustomerId`), assignment (`inspectorId`), and separation-of-duties scope.
 
 ## Roles
 
-- `ADMIN` (`ActorZone.PLATFORM`; platform-scoped administration)
-- `MANAGER` (`ActorZone.PLATFORM`; platform-scoped service operations)
-- `CUSTOMER` (Customer Organization Owner/Manager — `ActorZone.CUSTOMER_ORGANIZATION`)
-- `INSPECTOR` (Partner Drone Inspector — `ActorZone.INSPECTOR_PARTNER`)
-- `MAINTENANCE_ENGINEER` (planned, out of current release scope; the backend role enum and account
-  administration implement four login roles today)
+- `ADMIN` (system administration, catalog/airspace governance, and account management)
+- `MANAGER` (partner onboarding review, service-request quotes, dispatch, report review/publication)
+- `CUSTOMER` (direct customer account managing assets, service requests, report acceptance, and settlement; no organization hierarchy)
+- `INSPECTOR` (partner drone inspector owning drones, flight permits, field sessions, evidence, findings, and report submission)
 
 ## Documentation map
 
