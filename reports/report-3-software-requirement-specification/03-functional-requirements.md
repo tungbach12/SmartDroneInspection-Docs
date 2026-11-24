@@ -66,18 +66,18 @@ The screens below are the implemented application surfaces. Screenshots were cap
 | 17 | FE-08, FE-09 | Manager service requests | Compact four-column queue (`Request & Asset`, `Schedule`, `Stage`, `Action`) with status chips and concise schedule ranges; claiming a request opens its commercial detail panel directly. |
 | 18 | FE-10 | Manager messages | Dedicated inbox carrying the order-chat negotiation for assigned requests, with attachments. |
 | 19 | FE-06 | Manager buildings | Building records across the customer organizations the Manager serves. |
-| 20 | FE-09, FE-13, FE-14 | Manager inspections | Every inspection occurrence with its assignment, acceptance timeout state, permit readiness, and delivery state. |
+| 20 | FE-09, FE-13, FE-14 | Manager inspections | Every inspection occurrence with its assignment, acceptance timeout state, inspector-uploaded permit status (read-only), and delivery state. |
 | 21 | FE-18 | Manager reports | Report queue filtered to occurrences whose report is submitted for review or already published. |
 | 22 | FE-02 | Partner inspectors | Inspector roster with partner status, pilot-licence class and expiry, and linked drone eligibility. |
 | 23 | FE-14, FE-19 | Inspection workspace — tracking | Occurrence summary, lifecycle position, and the role-appropriate next action. |
-| 24 | FE-13 | Inspection workspace — permit | Permit upload with structured metadata and the independent verification outcome. |
+| 24 | FE-13 | Inspection workspace — permit | Inspector self-attested permit upload with structured metadata, effective immediately once validation passes; Manager/Admin read-only view and audit trail. |
 | 25 | FE-14 | Inspection workspace — pre-flight checklist | Configurable pre-flight safety checklist recorded before the session starts. |
 | 26 | FE-14 | Inspection workspace — field session | Start, complete, or abort the on-site session with optional `SmartDroneHub` live MAVLink telemetry or log import. |
 | 27 | FE-14 | Inspection workspace — post-flight checklist | Configurable post-flight checklist and target building checkpoint completion recorded at closure. |
 | 28 | FE-15 | Inspection workspace — evidence | Photograph and video intake, resumable chunked MP4 upload, thumbnail review, and video keyframe extraction. |
 | 29 | FE-16, FE-17, FE-24 | Inspection workspace — findings | Candidate defect proposals with confidence, confirmation filter chips, `DroneKnowledgeAI` `Draft note with AI` / batch `Draft all notes` + collapsed `References`, manual findings with bounding box, and three-way re-inspection verification. |
 | 30 | FE-17, FE-18 | Inspection workspace — report | Report preparation, AI-drafted summary with `Matched Cases & Standards`, submission, and the published version. |
-| 31 | FE-13, FE-14 | Inspection workspace — audit | Attributable permit and flight-session decision history for the occurrence. |
+| 31 | FE-13, FE-14 | Inspection workspace — audit | Attributable permit upload and flight-session decision history for the occurrence. |
 | 32 | FE-18, FE-22, FE-23 | Inspection workspace — review and settlement | Independent reviewer decision panel alongside the payout, refund, and receivable ledger. |
 | 33 | FE-01, FE-14 | Customer dashboard | Summary of the organization's buildings, active requests, upcoming inspections, and outstanding payment. |
 | 34 | FE-08, FE-09 | Customer service requests | Create a one-time or recurring request and follow it through quotation, acceptance, agreement, and occurrence dispatch. |
@@ -177,7 +177,7 @@ These capabilities have no dedicated screen of their own; they run inside a user
 | 8 | FE-08, FE-09 | Quotation validity evaluation | Revalidates pilot licence and drone registration against every scheduled occurrence before a quote is saved or accepted. |
 | 9 | FE-11 | Assignment acceptance timeout monitor | Scheduled job that automatically cancels unaccepted assignments after the administrator-configured response deadline, frees crew schedules, returns the occurrence for reassignment, and notifies the owning Manager. |
 | 10 | FE-12 | Duplicate-notification suppression | Ensures retried lifecycle events produce at most one notification per intended recipient. |
-| 11 | FE-13 | Permit verification reset | Returns an approved permit to pending review when the drone is changed or the schedule moves outside the permit window. |
+| 11 | FE-13 | Permit re-upload required | Invalidates the inspector-uploaded permit and requires a fresh inspector upload when the drone is changed or the schedule moves outside the permit window. |
 | 12 | FE-14 | Inspection lifecycle monitor | A scheduled job that advances or flags occurrences whose scheduled window has passed without the expected session activity. |
 | 13 | FE-14 | Flight-log import and normalisation | Parses an imported SRT, CSV, KML, or GPX log and normalises available position, time, altitude, speed, heading, and battery values, marking absent fields as unavailable. |
 | 14 | FE-15 | Image normalization and thumbnailing | Extracts available capture metadata, normalises oversized or rotated photographs, and generates a 480 px thumbnail alongside the original. |
@@ -291,7 +291,7 @@ erDiagram
 | 45 | `inspection_knowledge_chunks` | Engineering standard or guideline reference used by `DroneKnowledgeAI` for retrieval grounding across all organizations. |
 | 46 | `historical_finding_cases` | Historical defect case indexed from a confirmed finding at report publication, or an anonymized benchmark case, isolated by organization and excluding the current inspection from self-matching. |
 | 47 | `gateway_inbound_transactions` | Idempotent inbound payment-gateway webhook audit log (`V68`) recording gateway transaction ID, order code, transfer amount, receiving account, raw payload, outcome (`APPLIED`, `AMOUNT_MISMATCH`, `ORDER_NOT_FOUND`, `REJECTED`, `ERROR`), and detail. |
-| 48 | `inspection_flight_permits` | Dedicated 1-to-1 mission flight-permit upload metadata and independent verification gate record split from `inspections` (`V69`). |
+| 48 | `inspection_flight_permits` | Dedicated 1-to-1 mission flight-permit upload metadata and inspector self-attestation record split from `inspections` (`V69`). |
 | 49 | `field_session_telemetry` | Dedicated 1-to-1 SmartDroneHub mission telemetry metrics, GPS flight-trace JSON, and synced flight-video reference split from `field_sessions` (`V69`). |
 
 The table summarizes the domain's core persisted entities across identity, buildings, partner onboarding, commercial workflow, field operations, AI/knowledge retrieval, reporting, and financial settlement.
@@ -481,7 +481,7 @@ The table summarizes the domain's core persisted entities across identity, build
 
 ### 3.13 `MF2` — `FE-12` System Notifications & Alert Center
 
-- **Function trigger**: Platform domain events occur (partner application submitted, license expiring, dispatch assigned, assignment timed out, permit submitted/reviewed, field session aborted, report submitted/returned/published, payment settled, payment overdue) or a user opens Notifications.
+- **Function trigger**: Platform domain events occur (partner application submitted, license expiring, dispatch assigned, assignment timed out, permit submitted, field session aborted, report submitted/returned/published, payment settled, payment overdue) or a user opens Notifications.
 - **Actors**: All Login Roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`), `SYSTEM`.
 - **Function description**: Deliver reliable, deduplicated, role-scoped in-app notifications backed by a transactional event outbox.
 - **Screen layout (mock-up)**: Top-bar Notification Bell unread badge & popover, full Notifications inbox on Web and Customer Mobile, filter/mark-read actions, and safe record links.
@@ -494,19 +494,19 @@ The table summarizes the domain's core persisted entities across identity, build
 
 ---
 
-### 3.14 `MF3` — `FE-13` Flight Permit Upload & Independent Verification Gate
+### 3.14 `MF3` — `FE-13` Flight Permit Upload & Inspector Self-Attestation Gate
 
-- **Function trigger**: An assigned `INSPECTOR` uploads the aviation flight permit in Workspace Stage 1, or a distinct `MANAGER`/`ADMIN` approves/rejects it, or an occurrence's drone/schedule changes after approval.
-- **Actors**: `INSPECTOR`, `MANAGER`, `ADMIN`.
-- **Function description**: Enforce documented mission flight-permit submission (`<= 25 MB`, verified binary signature & `SHA-256`, structured permit metadata) and independent human verification before any on-site field session may begin.
-- **Screen layout (mock-up)**: Inspector Workspace Stage 1 (`Permit` tab with preview modal & metadata form) and Manager/Admin Permit Audit panel & Trace ledger (`/audit`).
+- **Function trigger**: An assigned `INSPECTOR` uploads or replaces the aviation flight permit in Workspace Stage 1; a drone change or an out-of-window reschedule invalidates the current permit and requires an inspector re-upload.
+- **Actors**: `INSPECTOR` (uploader and accountable self-attestor), `MANAGER`, `ADMIN` (read-only view and audit trail), `SYSTEM`.
+- **Function description**: Enforce documented mission flight-permit submission (`<= 25 MB`, verified binary signature & `SHA-256`, structured permit metadata). The assigned Inspector uploads the permit and is responsible for it; the upload becomes effective immediately once validation passes, with no Manager or Admin approval. A valid, effective permit gates the start of any on-site field session, and Manager/Admin access is limited to read-only viewing and the audit trail.
+- **Screen layout (mock-up)**: Inspector Workspace Stage 1 (`Permit` tab with preview modal & metadata form) and Manager/Admin read-only Permit view plus Trace ledger (`/audit`); no approve/reject controls are exposed.
 - **Requirements**:
-  - Permit upload is restricted to the assigned `INSPECTOR` while the inspection is scheduled; the service verifies a non-empty file (`<= 25 MB`), valid file signature (`PDF`/`PNG`/`JPG`/`WEBP`), integrity checksum, permit number, issuing authority, validity dates covering the planned mission schedule, optional maximum altitude (`1–2,000 m`), assigned drone serial number match, and active pilot licence plus drone registration (`BR-23`).
-  - Every upload enters `Pending Review` regardless of airspace classification (`Clear Zone` locations never bypass permit review, `BR-24`).
-  - Verification requires `Approved` or `Rejected` (with a mandatory written reason, `MSG15`) by a `MANAGER` or `ADMIN` distinct from the person who uploaded the permit (`BR-24`, `BR-51`).
-  - Reassigning a different drone or rescheduling outside the permit's validity window automatically resets an approved permit back to `Pending Review` (`BR-25`, `MSG42`). Upload or replacement is locked once field work begins.
-- **Normal cases**: Inspector uploads a valid permit PDF with matching drone serial and dates; a different Manager inspects the document and approves it, unlocking Stage 2 Pre-flight and Session Start.
-- **Abnormal cases**: Self-verification by the uploader, corrupt/oversized/mismatched file, missing rejection reason, permit dates outside the mission window, drone serial mismatch, or replacement after field start is rejected.
+  - Permit upload is restricted to the assigned `INSPECTOR` while the inspection is scheduled; the service verifies a non-empty file (`<= 25 MB`), valid file signature (`PDF`/`PNG`/`JPG`/`WEBP`), integrity checksum, permit number, issuing authority, validity dates covering the planned mission schedule, optional maximum altitude (`1–2,000 m`), assigned drone serial number match, and active pilot licence plus drone registration (`BR-23`). The Inspector's upload is the self-attestation that these details are accurate.
+  - A permit that passes validation becomes effective immediately with no `Pending Review` state and no `MANAGER`/`ADMIN` approval or rejection action; airspace classification (including `Clear Zone`) never changes this rule (`BR-24` is superseded).
+  - `MANAGER` and `ADMIN` have read-only access to the permit and its audit trail only: they cannot approve, reject, or verify it. Permit actions remain attributable to the assigned Inspector (the `BR-51` permit-verification clause is superseded).
+  - Reassigning a different drone or rescheduling outside the permit's validity window invalidates the permit and requires the assigned `INSPECTOR` to re-upload a valid permit (`BR-25`, `MSG42`). Upload or replacement is locked once field work begins.
+- **Normal cases**: Inspector uploads a valid permit PDF with matching drone serial and validity dates; the permit is effective immediately, unlocking Stage 2 Pre-flight and Session Start, and the upload is recorded in the audit trail; Manager/Admin can view it read-only.
+- **Abnormal cases**: Corrupt/oversized/mismatched file, missing or invalid metadata, permit dates outside the mission window, drone serial mismatch, or replacement after field start is rejected; invalidating changes (a different drone or an out-of-window reschedule) require a fresh inspector re-upload; no permit approve/reject/review action exists for any role.
 
 ---
 
@@ -514,15 +514,15 @@ The table summarizes the domain's core persisted entities across identity, build
 
 - **Function trigger**: Assigned `INSPECTOR` completes pre-flight checklist and starts/completes/aborts a field session, connects read-only `SmartDroneHub` MAVLink telemetry, imports an offline log, submits a manual flight declaration, or users open Dashboards / Calendar.
 - **Actors**: `INSPECTOR`, `MANAGER`, `CUSTOMER`, `ADMIN`, `SmartDroneHub`.
-- **Function description**: Execute accountable on-site field sessions gated by approved permits and safety checklists, capture read-only flight telemetry/traces and mission MP4 video (or log/manual fallbacks without fabrication), handle aborts, and surface operational schedule/dashboard views.
+- **Function description**: Execute accountable on-site field sessions gated by valid inspector-uploaded permits and safety checklists, capture read-only flight telemetry/traces and mission MP4 video (or log/manual fallbacks without fabrication), handle aborts, and surface operational schedule/dashboard views.
 - **Screen layout (mock-up)**: Pre-flight safety checklist tab, Flight Operation console (with live `SmartDroneHub` telemetry & gimbal status), Post-flight target building checkpoint verification, four-role Dashboards, and the Inspector Schedule Calendar.
 - **Requirements**:
-  - Session start verifies that the inspection is scheduled, the flight permit is approved and covers the actual flight time, the assigned drone serial matches, pilot/drone credentials remain current, the pre-flight safety checklist plus a non-blank safety note are completed (`BR-23`, `BR-26`), and no other session is already active.
+  - Session start verifies that the inspection is scheduled, a valid inspector-uploaded permit is in effect and covers the actual flight time, the assigned drone serial matches, pilot/drone credentials remain current, the pre-flight safety checklist plus a non-blank safety note are completed (`BR-23`, `BR-26`), and no other session is already active.
   - Active sessions may optionally connect to `SmartDroneHub` in strictly read-only telemetry mode (flight status, mode, GPS coordinates, altitude, speed, heading, battery, waypoint, and gimbal status; never sending flight actuation commands `BR-30`), saving the flight trace and synchronizing mission MP4 video.
   - When live telemetry is absent, Inspectors may import `SRT`, `CSV`, `KML`, or `GPX` flight logs (`<= 15 MB`) preserving missing fields as unavailable without fabrication, or submit an accountable manual flight declaration (reason, duration, altitude, note) clearly badged separately from measured telemetry (`BR-28`).
   - Completion records post-flight building checkpoints and moves the mission to `Field Completed`. Aborting requires a written reason (`BR-27`), records a reliability event against the Inspector, reopens the inspection to `Scheduled`, and notifies Managers. Role-scoped Dashboards count only confirmed findings, and the Inspector Schedule Calendar shows Month/Week/Agenda views with abort alerts.
 - **Normal cases**: Inspector completes pre-flight checks, connects live telemetry via SmartDroneHub, flies mission, completes post-flight items -> `Field Completed`.
-- **Abnormal cases**: Starting without an approved permit (`MSG37`, `MSG40`), expired permit/credentials, corrupt/position-less log import (`MSG45`), or missing safety/abort notes is rejected.
+- **Abnormal cases**: Starting without a valid inspector-uploaded permit (`MSG37`, `MSG40`), expired permit/credentials, corrupt/position-less log import (`MSG45`), or missing safety/abort notes is rejected.
 
 ---
 
