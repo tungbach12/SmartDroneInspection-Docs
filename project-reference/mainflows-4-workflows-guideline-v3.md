@@ -25,7 +25,7 @@
 ## WF-03 · Khảo sát hiện trường và xác nhận khuyết tật bằng AI
 *(Precondition: Ca kiểm định ở trạng thái `SCHEDULED`; người thực hiện là `INSPECTOR` được phân công)*
 
-1. **`INSPECTOR`** cung cấp Giấy phép bay (`Flight Permit`) của nhiệm vụ và xác nhận đạt danh mục an toàn trước bay (`Pre-flight Checklist`).
+1. **`INSPECTOR`** cung cấp/upload Giấy phép bay (`Flight Permit`) của nhiệm vụ và tự xác nhận (self-attest), chịu trách nhiệm về nội dung giấy phép; giấy phép có hiệu lực ngay khi qua kiểm tra hợp lệ, **không cần `MANAGER`/`ADMIN` phê duyệt** (họ chỉ xem read-only và vết audit). Đổi drone hoặc dời lịch ra ngoài khung thời gian của giấy phép thì giấy phép bị vô hiệu và Inspector phải upload lại. Sau đó xác nhận đạt danh mục an toàn trước bay (`Pre-flight Checklist`).
 2. **`SYSTEM`** kiểm tra điều kiện an toàn (**BR-06**), chuyển nhiệm vụ sang `IN_PROGRESS` và tự động thu thập nhật ký đường bay `MAVLink` từ Mission Planner.
 3. **`INSPECTOR`** hoàn tất chuyến bay, đối chiếu hoàn thành các hạng mục công trình cần kiểm tra (`Inspection Items`), xác nhận danh mục an toàn sau bay (`Post-flight Checklist` — bắt buộc ghi rõ lý do nếu có hạng mục/tiêu chí chưa hoàn thành) và nộp bộ hình ảnh/video khảo sát (`Evidence`) (**BR-07**) *(nếu gặp sự cố thời tiết/GPS thì dừng khẩn cấp `ABORTED` kèm lý do để `MANAGER` dời lịch hoặc đổi nguồn lực)*.
 4. **`SYSTEM (AI YOLO11)`** phân tích hình ảnh khảo sát, khoanh vùng hư hỏng và sinh danh sách khuyết tật gợi ý (`Finding` → `CANDIDATE`).

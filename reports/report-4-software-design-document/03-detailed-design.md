@@ -362,7 +362,7 @@ This section presents the detailed design for `FE-05`: role-scoped financial led
 
 | No | Component / Class | Description |
 | :---: | :--- | :--- |
-| 01 | `ContractWorkflowController` (`finance-history/*` routes) | Exposes `GET /api/v1/contracts/requests/finance-history/customer`, `/inspector`, and `/manager` (plus `/{occurrenceId}` detail endpoints) backed by `ContractWorkflowService` paged/filtered ledger queries. |
+| 01 | `ContractWorkflowController` (`finance-history/*` routes) | Exposes `GET /api/v1/contracts/requests/finance-history/customer`, `/inspector`, and `/manager?scope=REVENUE|PAYOUTS` (plus `/{occurrenceId}` detail endpoints) backed by `ContractWorkflowService` paged/filtered ledger queries (`REVENUE` for customer-paid receipts; `PAYOUTS` for report-published eligible/settled payouts). |
 | 02 | `FinanceHistoryPageResponse`, `FinanceHistoryItemResponse`, `ManagerFinanceHistoryResponse` & `OccurrenceFinanceResponse` | DTOs projecting strict role-appropriate financial fields: Customer views payment amounts, receipts, and refundable status while masking partner payouts/receivables; Inspector views gross fee, commission/TNCN deductions, and net payout; Manager views platform inflows, commission, VAT/TNCN, and reconciliation state. |
 | 03 | Web `FinanceHistoryPage.tsx` & `OverviewFinanceSection.tsx` | Role-aware Web ledger views mounted at `/client/finance-history`, `/operations/finance-history`, and `/manager/finance-history`, paired with per-inspection overview financial cards. |
 
@@ -459,16 +459,16 @@ sequenceDiagram
   Ctrl->>Svc: issueQuote(managerId, requestId, quoteInput)
   Svc->>Partner: Validate optional pair and credential expiry across all planned dates
   Svc->>FinSvc: requireConfiguredRates()
-  Svc->>DB: Save ServiceRequestQuote (VND) anchored to Customer requested first date (QUOTED)
+  Svc->>DB: Save ServiceRequestQuote (VND) on or after the Customer first date (QUOTED; later date needs Customer re-acceptance)
 ```
 
 **Class & UI Specifications**
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `ContractWorkflowController` & `ContractWorkflowService` | Enforce 20-day lead time, generate concise recurring titles (`Monthly inspection` / `Every N-month inspection`), serialize `claimRequest` under DB locking, restrict commercial actions to `assignedManagerId`, expose `ADMIN` assignment registry (`PUT`/`DELETE /manager-assignment`), and project assigned Manager read-only contact info (`ServiceManagerContactResponse`) solely to the owning Customer. |
-| 02 | `ServiceRequest` & `ServiceRequestQuote` | Store request cadence/bounds, Manager assignment audit metadata, and single active VND quotation (`V60` nullable `inspector_id`/`drone_id`, empty `requiredDroneFeatureCodes` compatible). |
-| 03 | Web `ServiceRequestListView.tsx`, `useContracts.ts`, `ManagerQuoteWorkspace.tsx`, `QuoteTermsSummary.tsx` | Compact 4-column desktop table (`Request & Asset / Schedule / Stage / Action`) with compact schedule range (`formatFlightTimeRange`) and `N occurrences` wording; claiming caches the request and opens `?requestId=...` detail immediately without reload; quote form omits the optional drone-capability checkboxes while sending `[]` on the API contract (`PR #139`). |
+| 01 | `ContractWorkflowController` & `ContractWorkflowService` | Enforce 20-day lead time, generate concise recurring titles (`Monthly inspection` / `Every N-month inspection`), serialize `claimRequest` under DB locking, restrict commercial actions to `assignedManagerId`, expose `ADMIN` assignment registry (`PUT`/`DELETE /manager-assignment`), expose `PUT /{requestId}/inspection-items` (`UpdateServiceRequestInspectionItemsRequest`, locked after dispatch starts with `CHECKPOINTS_LOCKED`), project asset overview summary (`assetName`, `assetCode`, `assetLocationText`) + assigned Manager contact (`ServiceManagerContactResponse`), and validate later first-occurrence quotes. |
+| 02 | `ServiceRequest` & `ServiceRequestQuote` | Store request cadence/bounds, Manager assignment audit metadata, `inspection_items jsonb` (`V71`), and single active VND quotation (`V60` nullable `inspector_id`/`drone_id`, empty `requiredDroneFeatureCodes` compatible, optional `inspectionItems`). Accepted terms keep the effective first date so a revised quote cannot take effect without Customer acceptance. |
+| 03 | Web `ServiceRequestListView.tsx`, `RequestOverviewCard.tsx`, `AssetOverviewDialog.tsx`, `CheckpointsOverviewDialog.tsx`, `RequestCheckpointsEditor.tsx`, `ManagerQuoteWorkspace.tsx`, `QuoteTermsSummary.tsx` | Compact 4-column desktop table + unified outer/inner role-scoped Overview (`Asset` detail modal and compact numbered `Checkpoints` modal). `ManagerQuoteWorkspace` restores explicit start/end `datetime-local` schedule inputs and embeds a compact 1-row `RequestCheckpointsEditor` bar inside `Request review` that opens a modal dialog to configure request checkpoints from Asset suggestions, `ADMIN` category templates (`CATEGORY_INSPECTION_ITEM`), or custom items. |
 
 ---
 
@@ -546,9 +546,9 @@ sequenceDiagram
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `ContractWorkflowService` (`acceptQuote`, `uploadSignedContract`, `assignOccurrence`) | Freezes immutable quote snapshot, materializes recurring occurrences (`Jan 31 -> Feb 28/29 -> Mar 31`), persists signed paper contracts under `contracts/requests/{id}/`, and dispatches single or bulk (`Apply to remaining`) partner assignments. |
-| 02 | `PartnerRegistryService` & `Mf2InspectionAssignmentAdapter` | Verify Decree 288 class match, non-expired registration/licence at planned flight timestamps, and absence of cross-organization schedule collisions (`hasScheduleConflict`). Reassigning a `FIELD_COMPLETED` inspection returns `409`. |
-| 03 | Web `PartnerCandidateResults.tsx` & `ManagerOccurrencesStep.tsx` | Render explicit candidate table column widths with an icon-only details action button (`PR #139`) preventing overlap between drone tier, details, and `Select` controls, plus bulk team assignment confirmation. |
+| 01 | `ContractWorkflowService` (`acceptQuote`, `uploadSignedContract`, `assignOccurrence`) | Freezes immutable quote snapshot, materializes recurring occurrences (`Jan 31 -> Feb 28/29 -> Mar 31`), persists signed paper contracts under `contracts/requests/{id}/`, dispatches single or bulk (`Apply to remaining`) partner assignments, and forwards request `inspectionItems` via the 9-arg `Mf2InspectionAssignment.assign(...)` SPI to `Inspection` (`V71`). |
+| 02 | `PartnerRegistryService`, `Mf2InspectionAssignmentAdapter`, `InspectionCreationService`, `InspectionDroneHubService`, `ReportService` | Verify Decree 288 class match, non-expired registration/licence at planned flight timestamps, and absence of cross-organization schedule collisions (`hasScheduleConflict`); resolve checkpoints via `Inspection.resolveInspectionItems(...)` (`inspection.inspectionItems` with `asset.inspectionItems` fallback) across API responses, SmartDroneHub missions, and rendered reports. Reassigning a `FIELD_COMPLETED` inspection returns `409`. |
+| 03 | Web `PartnerCandidateResults.tsx` & `ManagerOccurrencesStep.tsx` | Render explicit candidate table column widths with an icon-only details action button (`PR #139`) preventing overlap between drone tier, details, and `Select` controls, bulk team assignment confirmation, `inspectorName` / `droneLabel` resolution, and Step 4 Partner Chat `Messages` deep link. |
 
 ---
 
@@ -562,8 +562,9 @@ This section presents the detailed design for `FE-10`: strictly separated commer
 | :---: | :--- | :--- |
 | 01 | `ContractWorkflowController` (`/requests/{id}/messages*`) | Serves Customer <-> assigned `MANAGER` commercial order chat (`ServiceRequestMessage`, `ServiceRequestMessageAttachment`: up to 5 files, `10 MiB` per file / `20 MiB` per message, `PNG`/`JPG`/`WEBP`/`PDF`/`DOCX`), refusing `ADMIN` and non-assigned Managers. |
 | 02 | `InspectionChatController` & `InspectionChatService` (`inspections.api/service`, `V61`) | Exposes `GET /inspections/messages/threads`, `GET /inspections/{id}/messages`, `POST /{id}/messages`, `POST /{id}/messages/read`, and `GET /{id}/messages/{msgId}/attachments/{attId}` scoped solely to owning `CUSTOMER` and assigned `INSPECTOR` (`ADMIN` and `MANAGER` denied), capping message text at `4000` chars and attachments at `10 MiB` per file and `20 MiB` total per message in MinIO (`inspections/{id}/messages/`). |
-| 03 | `ChatAttachmentValidator` (`shared.storage`) | Validates real file magic signatures, declared MIME types, safe filenames, and size caps prior to object upload. |
-| 04 | Web `RequestChatPanel.tsx`, `/messages` & Mobile `RequestChat`, `InspectionChatPage` | Deliver tabbed inboxes (`/client/messages` switching `Service requests` vs `Inspector`, `/manager/messages`, `/operations/messages`) and matching Flutter Mobile threads (`PR #27`). |
+| 03 | `ServiceRequestPartnerChatController` & `ServiceRequestPartnerChatService` (`contracts.api/service`, `V70`) | Exposes `/api/v1/contracts/requests/{requestId}/partner-chat/**` (`threads`, `{inspectorId}/messages`, `POST .../messages`, `read`, attachment download) scoped strictly to the request's assigned `MANAGER` and active/assigned `INSPECTOR` partners, refusing `CUSTOMER`, `ADMIN`, and uninvolved actors with shared `4000`-char / 5-file / `10 MiB` / `20 MiB` limits under `contracts/requests/{requestId}/partner-messages/{inspectorId}/`. |
+| 04 | `ChatAttachmentValidator` (`shared.storage`) | Validates real file magic signatures, declared MIME types, safe filenames, and size caps prior to object upload. |
+| 05 | Web `RequestChatPanel.tsx` (`PartnerChatPanel`), `ContractInboxPage.tsx` (`/messages`) & Mobile `RequestChat`, `InspectionChatPage` | Deliver tabbed inboxes (`/client/messages` switching `Service requests` vs `Inspector`; `/manager/messages` switching `Customers` vs `Inspectors`; `/operations/messages` switching `Customers` vs `Managers`), Step 4 Partner Chat `Messages` button, and matching Flutter Mobile threads (`PR #27`). |
 
 ---
 
@@ -618,7 +619,7 @@ sequenceDiagram
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `InspectionNotificationListener`, `InspectorApplicationNotificationListener`, `PaymentOverdueNotificationListener` & `PaymentSettlementNotificationListener` | Handle `InspectionAssignedEvent`, `InspectionAssignmentTimedOutEvent`, `InspectionDeclinedEvent`, `InspectionOverdueEvent`, `InspectionRescheduledEvent`, `InspectionAssignmentRevokedEvent`, `FieldSessionAbortedEvent`, `FieldSessionHungEvent`, `FieldSessionForceAbortedEvent`, `FlightPermitSubmittedEvent`, `FlightPermitReviewedEvent`, `ReportSubmittedEvent`, `ReportReturnedEvent`, `ReportPublishedEvent`, `InspectorApplicationSubmittedEvent`, `PaymentOverdueEvent`, and `PaymentSettledEvent`. |
+| 01 | `InspectionNotificationListener`, `ServiceRequestNotificationListener`, `InspectorApplicationNotificationListener`, `PaymentOverdueNotificationListener` & `PaymentSettlementNotificationListener` | Handle `ServiceRequestCreatedEvent`, `InspectionAssignedEvent`, `InspectionAssignmentTimedOutEvent`, `InspectionDeclinedEvent`, `InspectionOverdueEvent`, `InspectionRescheduledEvent`, `InspectionAssignmentRevokedEvent`, `FieldSessionAbortedEvent`, `FieldSessionHungEvent`, `FieldSessionForceAbortedEvent`, `FlightPermitSubmittedEvent`, `FlightPermitReviewedEvent`, `ReportSubmittedEvent`, `ReportReturnedEvent`, `ReportPublishedEvent`, `InspectorApplicationSubmittedEvent`, `PaymentOverdueEvent`, and `PaymentSettledEvent`. A new service request notifies every active Manager with the request date and a `/manager/contracts?requestId=...` deep link. |
 | 02 | `NotificationController`, `NotificationService` & `Notification` | Expose recipient-scoped paged queries, unread counter, and idempotent `markAsRead` updates protected by `uq_notifications_deduplication_key`. |
 | 03 | Web `NotificationBell.tsx`, `NotificationsPage.tsx` & `targetPath.ts` | Render real-time unread counts, notification feed, and client-side `targetPath` allowlist sanitizer blocking malformed/external links while server APIs enforce independent authorization. |
 
@@ -1034,7 +1035,7 @@ sequenceDiagram
     Note over Webhooks,ContractSvc: On cancel/timeout (vnp_ResponseCode 24/11), releaseVnPayOrderAfterFailure(orderCode); browser /return redirects to /settlement
   end
 
-  ContractSvc->>DB: Transition ServicePayment to PAID and InspectorPayout to ELIGIBLE (publish PaymentSettledEvent)
+  ContractSvc->>DB: Transition ServicePayment to PAID (and mark InspectorPayout ELIGIBLE if not already unlocked/PAID; publish PaymentSettledEvent)
 ```
 
 **Class Specifications**
@@ -1064,13 +1065,13 @@ This section presents the detailed design for `FE-21`: per-occurrence `ServiceIn
 
 ### 3.22 `MF4` — `FE-22` Partner Inspector Payout Reconciliation
 
-This section presents the detailed design for `FE-22`: enforcing strict separation between payout eligibility (`ELIGIBLE`) upon verified customer payment and explicit Manager-recorded partner disbursement (`PAID`), refund-hold blocking, final capped payout computation, and role-based financial masking.
+This section presents the detailed design for `FE-22`: enforcing a two-step report approval gate (`SUBMITTED -> APPROVED -> InspectorPayout.PAID -> PUBLISHED`) via `InspectionReportAcceptancePort.onReportApproved` / `requiresPayoutBeforePublish`, keeping strict separation from explicit Manager-recorded partner disbursement (`PAID`), refund-hold blocking, final capped payout computation, and role-based financial masking.
 
 **Class & UI Specifications**
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `ContractWorkflowController.recordOccurrencePayout` & `InspectorPayout` | Transitions payout from `ELIGIBLE` to `PAID` only when a `MANAGER` supplies a unique external transfer reference (`payout_reference`, actor attribution, timestamp), enforcing active refund holds and post-reduction payout caps (`BR-46`). |
+| 01 | `ReportService.reviewVersion` / `publishVersion` -> `InspectionReportAcceptancePort`, `ContractWorkflowController.recordOccurrencePayout` & `InspectorPayout` | `ReportService.reviewVersion(..., approve=true)` calls `onReportApproved(inspectionId)` and holds the version at `APPROVED` (`V76`, hidden from `CUSTOMER`) when `requiresPayoutBeforePublish` returns true, transitioning `InspectorPayout` to `ELIGIBLE` immediately. `recordOccurrencePayout` transitions `ELIGIBLE -> PAID` with an external `UNC` transfer reference (`payout_reference`, actor attribution, timestamp), enforcing active refund holds and post-reduction payout caps (`BR-46`). `POST /api/v1/inspections/{inspectionId}/report/versions/{versionId}/publish` enforces `requiresPayoutBeforePublish == false` (`409 INSPECTOR_PAYOUT_REQUIRED`) before setting `PUBLISHED`. |
 | 02 | `OccurrenceFinanceResponse` & Role Masking | Projects net payout, commission/TNCN deductions, refund holds, masked `inspectorRefundSummaries` (exposing payout reduction and receivable impact while omitting platform absorption, commission/VAT adjustments, and internal notes), and recovery ledgers to assigned `INSPECTOR`, full rows to `MANAGER`, while stripping internal partner settlement details from `CUSTOMER` payloads. |
 | 03 | Web `OccurrenceFinanceDrawer.tsx`, `InspectorPayoutStatementCard.tsx` & `InspectorPayoutSummaryBar.tsx` | Render eligible/held/paid states, net disbursement breakdown, and Manager payout recording forms inside Workspace Settlement (`/settlement`). |
 

@@ -31,7 +31,7 @@ class Report5Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / TEMPLATE_NAME
             result = export(template, REPORTS, output)
-            self.assertEqual(result["cases"], 67)
+            self.assertEqual(result["cases"], 70)
             self.assertTrue(result["format_parts_preserved"])
             book, source = Spreadsheet(output), Spreadsheet(template)
             self.assertEqual(list(book.sheets)[:5],
@@ -66,10 +66,10 @@ class Report5Tests(unittest.TestCase):
             self.assertEqual(book.value("Feature 5", "L12"), "Pending")
             self.assertEqual(book.value("Feature 11", "A12"), "WF2-021")
             self.assertEqual(book.value("Feature 22", "A12"), "WF3-033")
-            self.assertEqual(book.value("Test Statistics", "H35"), "67")
+            self.assertEqual(book.value("Test Statistics", "H35"), "70")
             self.assertEqual(book.value("Test Statistics", "D35"), "45")
             self.assertEqual(book.value("Test Statistics", "F35"), "9")
-            self.assertEqual(book.value("Test Statistics", "G35"), "13")
+            self.assertEqual(book.value("Test Statistics", "G35"), "16")
             self.assertEqual(book.value("Test Statistics", "H36"), "56")
             self.assertEqual(book.value("Test Statistics", "D36"), "45")
             self.assertEqual(book.value("Test Statistics", "F36"), "8")

@@ -6,5 +6,5 @@
 | Project Code | GFA26SE139 |
 | Creator | FA26SE112 (Trần Hoàng Trung Hiếu, Phùng Trung Quốc, Trương Thái Như, Trần Tùng Bách) |
 | Issue Date | 2026-11-23 |
-| Document Code | GFA26SE139_Test_Report_v3.12 |
-| Version | 3.12 |
+| Document Code | GFA26SE139_Test_Report_v3.14 |
+| Version | 3.14 |
