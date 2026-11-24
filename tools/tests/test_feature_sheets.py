@@ -13,7 +13,7 @@ EXPECTED_CASE_COUNTS = {
     "Feature 1": 7, "Feature 2": 4, "Feature 3": 3, "Feature 4": 3,
     "Feature 5": 1, "Feature 6": 3, "Feature 7": 1, "Feature 8": 3,
     "Feature 9": 5, "Feature 10": 1, "Feature 11": 1, "Feature 12": 1,
-    "Feature 13": 2, "Feature 14": 5, "Feature 15": 5, "Feature 16": 7,
+    "Feature 13": 5, "Feature 14": 5, "Feature 15": 5, "Feature 16": 7,
     "Feature 17": 2, "Feature 18": 4, "Feature 19": 1, "Feature 20": 2,
     "Feature 21": 2, "Feature 22": 1, "Feature 23": 1, "Feature 24": 2,
 }
@@ -115,7 +115,7 @@ class FeatureSheetTests(unittest.TestCase):
             self.assertIn("WF3-021", counts["Feature 23"])
             for case_id in ("WF3-028", "WF3-031"):
                 self.assertIn(case_id, counts["Feature 24"])
-            self.assertEqual(sum(len(v) for v in counts.values()), 67)
+            self.assertEqual(sum(len(v) for v in counts.values()), 70)
 
     def test_statistics_lists_all_twenty_four_modules_with_a_correct_subtotal(self):
         book, temp = generated_workbook()
@@ -125,11 +125,11 @@ class FeatureSheetTests(unittest.TestCase):
                 row = 10 + number
                 self.assertEqual(book.value(stats, f"C{row}"), book.value(sheet, "B2"))
                 self.assertEqual(book.value(stats, f"B{row}"), str(number))
-            self.assertEqual(book.value(stats, "H35"), "67")
+            self.assertEqual(book.value(stats, "H35"), "70")
             self.assertEqual(book.value(stats, "D35"), "45")
             self.assertEqual(book.value(stats, "E35"), "0")
             self.assertEqual(book.value(stats, "F35"), "9")
-            self.assertEqual(book.value(stats, "G35"), "13")
+            self.assertEqual(book.value(stats, "G35"), "16")
             self.assertEqual(book.value(stats, "C35"), "Sub total")
             self.assertEqual(book.value(stats, "C36"), "Historical Round 1")
             self.assertEqual(book.value(stats, "D36"), "45")
