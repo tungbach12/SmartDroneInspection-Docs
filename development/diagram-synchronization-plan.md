@@ -22,7 +22,7 @@ Kế hoạch đồng bộ toàn bộ hệ thống sơ đồ kỹ thuật trong [
 
 ## 2. Trạng thái hiện tại & Lộ trình thực hiện lần lượt
 
-> **Cập nhật hiện tại**: Các nhóm **Package, ERD, State, Activity (5 tab `MF1A`/`MF1B`/`MF2`/`MF3`/`MF4`), Screen Flow (Web & Mobile), Class (9 tab `FE-01`–`FE-24`) và Sequence (13 tab `FE-01A`–`FE-20`)** đã được đồng bộ với mã nguồn thực tế (`main`) và kiểm tra 0 lỗi/0 cảnh báo; bước tiếp theo là `Deployment` và `Process` diagrams trước khi xuất ảnh PNG thay thế Mermaid.
+> **Cập nhật hiện tại**: Các nhóm **Package, ERD, State, Activity (5 tab `MF1A`/`MF1B`/`MF2`/`MF3`/`MF4`), Screen Flow (Web & Mobile), Class (9 tab `FE-01`–`FE-24`) và Sequence (26 tab `FE-01A`–`FE-24`)** đã được đồng bộ với mã nguồn thực tế (`main` + `V70`/`V71`) và kiểm tra 0 lỗi/0 cảnh báo; bước tiếp theo là `Deployment` và `Process` diagrams trước khi xuất ảnh PNG thay thế Mermaid.
 
 ### Nhóm A — Đã hoàn thành & đã review
 
@@ -37,7 +37,7 @@ Kế hoạch đồng bộ toàn bộ hệ thống sơ đồ kỹ thuật trong [
 | 7 | `diagrams/smartdrone-activity-diagrams.drawio` | `MF1A - Customer Onboarding`, `MF1B - Partner & Drone`, `MF2 - Commercial & Dispatch`, `MF3 - Permit, Field & AI`, `MF4 - Report, Finance & Reinspection` | Report 3 / Report 4 / Report 7 (Mainflows `MF1`–`MF4`) | Đã xong & đã review (5 tab) |
 | 8 | `diagrams/smartdrone-screen-flow-diagrams.drawio` | `Web Application Screen Flow`, `Mobile Application Screen Flow` | Report 3 §3.1.1 & Report 7 §III.3.1.1 | Đã xong & đã review (2 tab) |
 | 9 | `diagrams/smartdrone-class-diagrams.drawio` | `FE-01`, `FE-02`, `FE-03`, `FE-09`, `FE-14`, `FE-16`, `FE-17`, `FE-18`, `FE-24` | Report 4 §3 & Report 7 | Đã xong & đã review (9 tab) |
-| 10 | `diagrams/smartdrone-sequence-diagrams.drawio` | `FE-01A`, `FE-01B`, `FE-02`, `FE-06`, `FE-08`, `FE-09`, `FE-12`, `FE-14A`, `FE-14B`, `FE-16`, `FE-17`, `FE-18`, `FE-20` | Report 4 §3 & Report 7 | Đã xong & đã review (13 tab) |
+| 10 | `diagrams/smartdrone-sequence-diagrams.drawio` | `FE-01A`, `FE-01B`, `FE-02`, `FE-03`, `FE-04`, `FE-05`, `FE-06`, `FE-07`, `FE-08`, `FE-09`, `FE-10`, `FE-11`, `FE-12`, `FE-13`, `FE-14A`, `FE-14B`, `FE-15`, `FE-16`, `FE-17`, `FE-18`, `FE-19`, `FE-20`, `FE-21`, `FE-22`, `FE-23`, `FE-24` | Report 4 §3 & Report 7 | Đã xong 26 tab (đủ `MF1`–`MF4`, gồm `V70`/`V71`) |
 
 ### Nhóm B — Lộ trình tiếp theo
 
