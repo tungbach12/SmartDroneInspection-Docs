@@ -397,7 +397,7 @@ Approve or reject each case with a written reason. A rejection reason is mandato
 
 **Step 2.** Open and review the published inspection report.
 
-**Step 3.** Choose **Accept report**. Acceptance is recorded against the occurrence and the payment becomes due. From that point the inspection shows a payment-due badge with a countdown to the configured deadline (15 days by default), and a single overdue reminder is sent if the deadline passes. You can download the payment notice — and, once paid, the receipt — as a PDF directly from the inspection page.
+**Step 3.** Choose **Accept report**. Acceptance is recorded against the occurrence and the payment becomes due. From that point the inspection shows a payment-due badge with a countdown to the configured deadline (15 days by default), and a single overdue reminder is sent if the deadline passes. The published report and its official PDF stay available throughout; payment does not lock the report. You can download the payment notice — and, once paid, the receipt — as a PDF directly from the inspection page.
 
 **Step 4.** On the inspection's **Acceptance & Payment** (`/settlement`) view, review the customer-scoped Service Invoice (Pre-VAT base, VAT %, and Amount to pay) and choose either **Pay with VNPay** or **Pay with VietQR (Sepay)**:
 - **VNPay:** You are redirected to the VNPay checkout page (HMAC-SHA512 signed). After completing payment, VNPay returns you to `/client/inspections/{inspectionId}/settlement?payment=success`. If you cancel or the checkout expires, VNPay redirects back to `/settlement?payment=cancelled` and releases the unpaid order automatically so you can retry immediately.
