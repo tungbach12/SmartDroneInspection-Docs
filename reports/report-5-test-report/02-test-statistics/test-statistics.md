@@ -33,7 +33,7 @@ Historical counts preserve the original eight-feature snapshot, including retire
 | 10 | FE-10 Dual-Channel Messaging (Order Chat & Inspection Chat) | 1 | 0 | 0 | 0 | 1 |
 | 11 | FE-11 Assignment Acceptance Timeout & Escalation Handling | 0 | 0 | 0 | 1 | 1 |
 | 12 | FE-12 System Notifications & Alert Center | 1 | 0 | 0 | 0 | 1 |
-| 13 | FE-13 Flight Permit Upload & Independent Verification Gate | 2 | 0 | 0 | 0 | 2 |
+| 13 | FE-13 Flight Permit Upload & Independent Verification Gate | 2 | 0 | 0 | 3 | 5 |
 | 14 | FE-14 On-Site Field Session & SmartDroneHub MAVLink Telemetry | 4 | 0 | 0 | 1 | 5 |
 | 15 | FE-15 Field Evidence Intake & Chunked Video Processing Pipeline | 1 | 0 | 0 | 4 | 5 |
 | 16 | FE-16 AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Confirmation | 6 | 0 | 1 | 0 | 7 |
@@ -45,10 +45,10 @@ Historical counts preserve the original eight-feature snapshot, including retire
 | 22 | FE-22 Partner Inspector Payout Reconciliation | 0 | 0 | 0 | 1 | 1 |
 | 23 | FE-23 Evidence-Backed Refunds & Receivable Recovery | 0 | 0 | 1 | 0 | 1 |
 | 24 | FE-24 Post-Remediation Re-inspection & Defect Verification | 0 | 0 | 1 | 1 | 2 |
-| **Current Round 1 subtotal** |  | **45** | **0** | **9** | **13** | **67** |
+| **Current Round 1 subtotal** |  | **45** | **0** | **9** | **16** | **70** |
 | **Historical Round 1 subtotal** |  | **45** | **0** | **8** | **3** | **56** |
 | **Historical Review 2 baseline (original eight-feature snapshot)** |  | **60** | **0** | **4** | **0** | **64** |
 | **Historical implementation-specific pending** |  | **0** | **0** | **1** | **0** | **1** |
 | **Round 3 executed cases** |  | **13** | **0** | **0** | **0** | **13** |
 | **V29 Round 3 cases** |  | **2** | **0** | **0** | **0** | **2** |
-| **Current inventory** |  |  |  |  |  | **67** |
+| **Current inventory** |  |  |  |  |  | **70** |
