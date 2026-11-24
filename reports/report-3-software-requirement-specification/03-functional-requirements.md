@@ -675,7 +675,7 @@ The table summarizes the domain's core persisted entities across identity, build
   - Editing verification verdicts is restricted to the assigned `INSPECTOR`, refused while the re-inspection is still scheduled or in flight (must be `Field Completed`), and locked once a report version is submitted or published.
   - Marking any defect `Resolved` requires fresh evidence captured inside a **completed** field session **of that re-inspection**, taken during that session's start-to-end flight window and never reused from the original inspection (`BR-54`).
   - Every `Resolved` verdict records verification time and a derived validity expiration timestamp; both Web and Customer Mobile warn early (`14` days before expiry), while server checks block report preparation, submission, or publication whenever any `Resolved` verdict has expired.
-- **Normal cases**: Customer triggers quick re-inspection -> Inspector completes new field session with fresh evidence -> marks defect `Resolved` with Before/After proof -> submits & publishes within the validity window.
+- **Normal cases**: Customer schedules a post-remediation re-inspection from the completed inspection settlement page -> submits the linked MF2 service request (`sourceInspectionId`) through quotation, contract, and dispatch -> Inspector completes a new field session with fresh evidence -> marks defect `Resolved` with Before/After proof -> submits & publishes within the validity window.
 - **Abnormal cases**: Creating re-inspection on an incomplete inspection or by an Inspector, submitting `Resolved` without fresh in-session capture, editing after report submission, or attempting publication after verdict expiry fails closed.
 
 ---
