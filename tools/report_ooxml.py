@@ -115,6 +115,7 @@ class Block:
     rows: list[list[str]] | None = None
     language: str = ""
     source: Path | None = None
+    keep_with_next: bool = False
 
 
 def split_row(line):
@@ -852,6 +853,17 @@ class WordDocument:
             else:
                 self.body.appendChild(self.paragraph(block.text))
                 page_lines += max(1, len(block.text) // 80)
+
+            if block.keep_with_next:
+                paragraph = self.body.lastChild
+                properties = (children(paragraph, "pPr") or [None])[0]
+                if properties is None:
+                    properties = element(self.doc, W, "w:pPr")
+                    paragraph.insertBefore(properties, paragraph.firstChild)
+                if not children(properties, "keepNext"):
+                    following = next((child for child in children(properties)
+                                      if child.localName != "pStyle"), None)
+                    properties.insertBefore(element(self.doc, W, "w:keepNext"), following)
 
             if page_lines >= 38:
                 current_page += page_lines // 38

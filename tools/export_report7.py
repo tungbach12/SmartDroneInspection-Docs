@@ -22,10 +22,26 @@ SOURCES = ["report-7-final-project-report/" + name + ".md"
            )]
 
 
+def chapter_blocks(source):
+    chapter = parse_markdown(source, strict_tables=False)
+    for index, block in enumerate(chapter):
+        if block.kind != "image" or not block.text.startswith("assets/manual/"):
+            continue
+        start = index - 1
+        while start >= 0 and chapter[start].kind == "paragraph":
+            if chapter[start].text.startswith("**Step "):
+                for paragraph in chapter[start:index + 1]:
+                    paragraph.keep_with_next = True
+                break
+            start -= 1
+    return chapter
+
+
 def blocks(reports):
     result = []
-    for relative in SOURCES:
+    for relative in SOURCES[:-1]:
         result.extend(parse_markdown(reports / relative, strict_tables=False))
+    result.extend(chapter_blocks(reports / SOURCES[-1]))
     # The official template supplies its own FPT cover and TOC shell, so the
     # source begins at the Record of Changes rather than duplicating them.
     start = next(i for i, block in enumerate(result)

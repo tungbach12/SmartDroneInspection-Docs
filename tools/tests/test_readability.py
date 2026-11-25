@@ -12,6 +12,7 @@ from support import OFFICIAL, REPORTS, assert_word_export
 from report_ooxml import (Package, WordDocument, children, descendants,
                           parse_markdown, text_of)
 import export_report3
+import export_report7
 
 
 def exported_document():
@@ -107,6 +108,28 @@ class TableContinuityTests(unittest.TestCase):
 
 
 class DiagramTests(unittest.TestCase):
+    def test_report7_manual_callouts_stay_with_their_figure(self):
+        from export_common import original
+
+        document = WordDocument(original(OFFICIAL, export_report7.TEMPLATE_NAME))
+        document.fill_cover("SmartDroneInspection", "")
+        document.append(export_report7.chapter_blocks(REPORTS / export_report7.SOURCES[-1]))
+        manual_steps = []
+        active = None
+        for node, prose in paragraphs(children(document.body)):
+            if re.match(r"^Step \d+ — ", prose) and not style(node).startswith("Heading"):
+                active = [node]
+            elif active is not None:
+                if prose.startswith("Figure 7."):
+                    self.assertTrue(descendants(active[-1], "drawing"))
+                    self.assertTrue(all(descendants(p, "keepNext") for p in active))
+                    self.assertFalse(descendants(node, "keepNext"))
+                    manual_steps.append(active)
+                    active = None
+                else:
+                    active.append(node)
+        self.assertEqual(len(manual_steps), 40)
+
     def test_mermaid_keeps_line_structure_and_is_marked_as_source(self):
         body = exported_document()
         placeholders = [
