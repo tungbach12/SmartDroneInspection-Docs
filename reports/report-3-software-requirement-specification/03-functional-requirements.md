@@ -15,31 +15,19 @@ The service is delivered through four web portals, one per login role, and a Cus
 
 #### 3.1.1 Screens Flow
 
-```mermaid
-%% title: Business Screens Flow Diagram
-flowchart TD
-  PUB["Public screens<br/>Landing, Customer Registration,<br/>Inspector Application"]
+The application separates its four role-scoped Web portals from its Customer-only Mobile client. After authentication, each user lands strictly inside the portal or mobile navigation flow matching their canonical role (`ADMIN`, `MANAGER`, `CUSTOMER`, or `INSPECTOR`).
 
-  MF1["MF1: Onboarding, Map & Partner Readiness"]
-  FE01_04["FE-01 Auth & RBAC · FE-02 Inspector App<br/>FE-03 Drone Fleet · FE-04 Airspace Map"]
+##### 3.1.1.1 Web Application Screen Flow
 
-  MF2["MF2: Assets, Commercial Service & Dispatch"]
-  FE06_09["FE-06 Buildings & Docs · FE-07 Restricted Airspace Advisory<br/>FE-08 Requests & Quotes · FE-09 Contracts & Dispatch"]
-  FE10_12["FE-10 Order/Inspection Chat<br/>FE-11 Acceptance Timeout · FE-12 Notifications"]
+![Web Application Screen Flow Diagram](assets/diagrams/screen-flow-web.png)
 
-  MF3["MF3: Field Work, Evidence & AI Analysis"]
-  FE13_15["FE-13 Flight Permit · FE-14 Field Sessions & Hub<br/>FE-15 Photo/Video Pipeline"]
-  FE16_17["FE-16 YOLO11 & Baseline<br/>FE-17 pgvector RAG & AI Notes"]
+Figure 3.1.1 Web Application Screen Flow across Public, Shared, Admin, Manager, Customer, and Inspector portals.
 
-  MF4["MF4: Reporting, Settlement & Re-inspection"]
-  FE18_21["FE-18 Report Review & Publish · FE-19 Acceptance<br/>FE-20 Sepay/VNPay · FE-21 Deadlines & PDF Docs"]
-  FE22_24["FE-22 Payouts · FE-23 Refunds/Receivables<br/>FE-24 Re-inspection · FE-05 Finance Ledger"]
+##### 3.1.1.2 Mobile Application Screen Flow
 
-  PUB --> MF1 --> FE01_04 --> MF2
-  MF2 --> FE06_09 --> FE10_12 --> MF3
-  MF3 --> FE13_15 --> FE16_17 --> MF4
-  MF4 --> FE18_21 --> FE22_24
-```
+![Mobile Application Screen Flow Diagram](assets/diagrams/screen-flow-mobile.png)
+
+Figure 3.1.2 Mobile Application Screen Flow (Customer App).
 
 #### 3.1.2 Screen Descriptions
 
@@ -192,53 +180,11 @@ These capabilities have no dedicated screen of their own; they run inside a user
 
 #### 3.1.5 Entity Relationship Diagram
 
-The persisted model comprises 50 core application entities spanning identity, buildings, partner compliance, commercial workflows, field operations, evidence/AI analysis, reporting, and financial settlement (described technically in Report 4 §2). The diagram shows the principal entities and their relationships; configuration, gateway audit (`gateway_inbound_transactions`), split 1-to-1 operational tables (`inspection_flight_permits`, `field_session_telemetry`), partner chat (`service_request_partner_messages`, `service_request_partner_message_attachments`), and audit entities are listed in the Entities Description table below.
+The persisted model comprises **53 application tables** (plus the Spring Modulith `event_publication` outbox = 54 runtime entities, and `flyway_schema_history` = 55 total PostgreSQL tables) spanning identity, buildings, partner compliance, commercial workflows, field operations, evidence/AI analysis, reporting, ratings, and financial settlement (described technically in Report 4 §2). Figure 3.11 shows the high-level conceptual entities and relationships (`Conceptual Overview (Chen)`), while all 53 application tables and `event_publication` are listed in the Entities Description table below.
 
-```mermaid
-%% title: Entity Relationship Diagram
-erDiagram
-  USERS ||--o{ AUTH_SESSIONS : "has"
-  USERS ||--o{ OTP_CHALLENGES : "issues"
-  USERS ||--o{ NOTIFICATIONS : "gets"
-  USERS ||--o| INSPECTOR_PROFILES : "has"
-  USERS ||--o{ INSPECTOR_APPLICATIONS : "applies"
+![Conceptual Entity Relationship Diagram (Chen)](assets/erd.png)
 
-  ASSET_CATEGORIES ||--o{ ASSETS : "groups"
-  ASSETS ||--o{ ASSET_DOCUMENTS : "files"
-  ASSETS ||--o{ INSPECTION_ITEMS : "lists"
-
-  INSPECTOR_PROFILES ||--o{ DRONES : "owns"
-  DRONES ||--o{ DRONE_REGISTRATION_APPLICATIONS : "applies_for"
-  DRONE_DOCUMENT_CONFIGS ||--o{ DRONE_REGISTRATION_APPLICATIONS : "sets"
-
-  ASSETS ||--o{ SERVICE_REQUESTS : "for"
-  SERVICE_REQUESTS ||--o{ SERVICE_REQUEST_QUOTES : "quotes"
-  SERVICE_REQUESTS ||--o{ SERVICE_REQUEST_MESSAGES : "threads"
-  SERVICE_REQUEST_MESSAGES ||--o{ SERVICE_REQUEST_MESSAGE_ATTACHMENTS : "files"
-  SERVICE_REQUESTS ||--o{ SERVICE_REQUEST_OCCURRENCES : "occurs"
-
-  SERVICE_REQUEST_OCCURRENCES ||--o| INSPECTIONS : "becomes"
-  DRONES ||--o{ INSPECTIONS : "flies"
-  USERS ||--o{ INSPECTIONS : "assigned"
-
-  INSPECTIONS ||--o{ FIELD_SESSIONS : "runs"
-  INSPECTIONS ||--o{ EVIDENCE : "gathers"
-  EVIDENCE ||--o{ EVIDENCE_UPLOAD_SESSIONS : "chunks"
-  INSPECTIONS ||--o{ FINDINGS : "finds"
-  INSPECTIONS ||--o{ INSPECTION_REPORTS : "writes"
-
-  INSPECTIONS ||--o{ INSPECTION_MESSAGES : "threads"
-  INSPECTION_MESSAGES ||--o{ INSPECTION_MESSAGE_ATTACHMENTS : "files"
-  INSPECTIONS ||--o{ SERVICE_INVOICES : "bills"
-  SERVICE_INVOICES ||--o{ SERVICE_PAYMENTS : "pays"
-  SERVICE_PAYMENTS ||--o{ SERVICE_REFUNDS : "refunds"
-  INSPECTIONS ||--o{ INSPECTOR_PAYOUTS : "pays"
-  INSPECTOR_RECEIVABLES ||--o{ INSPECTOR_RECEIVABLE_RECOVERIES : "recovers"
-  PLATFORM_OPERATIONS_SETTINGS ||--o{ SERVICE_REQUEST_OCCURRENCES : "assignment timeout"
-  ASSET_CATEGORIES ||--o{ INSPECTION_KNOWLEDGE_CHUNKS : "categorizes"
-  ASSET_CATEGORIES ||--o{ HISTORICAL_FINDING_CASES : "categorizes"
-  FINDINGS ||--o| HISTORICAL_FINDING_CASES : "indexes at publication"
-```
+Figure 3.11 Conceptual Entity Relationship Diagram (Chen).
 
 **Entities Description**
 
@@ -295,8 +241,35 @@ erDiagram
 | 49 | `field_session_telemetry` | Dedicated 1-to-1 SmartDroneHub mission telemetry metrics, GPS flight-trace JSON, and synced flight-video reference split from `field_sessions` (`V69`). |
 | 50 | `service_request_partner_messages` | Private Manager ↔ Inspector coordination chat message scoped by `(request_id, inspector_id)` (`V79`). |
 | 51 | `service_request_partner_message_attachments` | Private file attachment metadata belonging to a Manager ↔ Inspector partner-chat message (`V79`). |
+| 52 | `inspector_ratings` | Post-completion Customer and Manager ratings of an assigned Inspector (`overall_score`, criterion scores, optional comment, 7-day edit window, `V70`). |
+| 53 | `field_session_flights` | Individual sortie/flight segment recorded inside a field session (`flight_number`, linked telemetry, `V72`). |
+| 54 | `rating_criterion_configs` | Administrator-configured rating criteria per rater role (`CUSTOMER`, `MANAGER`) used when submitting Inspector evaluations (`V73`). |
 
-The table summarizes the domain's core persisted entities across identity, buildings, partner onboarding, commercial workflow, field operations, AI/knowledge retrieval, reporting, and financial settlement.
+The table summarizes the domain's core persisted entities across identity, buildings, partner onboarding, commercial workflow, field operations, AI/knowledge retrieval, reporting, ratings, and financial settlement.
+
+#### 3.1.6 Main Operational Flows (Activity Diagrams)
+
+The five activity diagrams below illustrate the end-to-end operational behavior across `MF1A`, `MF1B`, `MF2`, `MF3`, and `MF4`, matching the implemented roles, gates, and settlement lifecycle.
+
+![MF1A Customer Onboarding Activity Diagram](assets/diagrams/act-mf1a-customer-onboarding.png)
+
+Figure 3.12 Activity Diagram — `MF1A` Customer Onboarding & Airspace Screening.
+
+![MF1B Partner and Drone Onboarding Activity Diagram](assets/diagrams/act-mf1b-partner-drone.png)
+
+Figure 3.13 Activity Diagram — `MF1B` Partner Inspector & Drone Onboarding.
+
+![MF2 Commercial Contracting and Dispatch Activity Diagram](assets/diagrams/act-mf2-commercial-dispatch.png)
+
+Figure 3.14 Activity Diagram — `MF2` Commercial Contracting & Dispatch.
+
+![MF3 Permit, Field Execution and AI Activity Diagram](assets/diagrams/act-mf3-permit-field-ai.png)
+
+Figure 3.15 Activity Diagram — `MF3` Self-Attested Permit, Field Execution & AI Analysis.
+
+![MF4 Report, Finance and Reinspection Activity Diagram](assets/diagrams/act-mf4-report-finance-reinspection.png)
+
+Figure 3.16 Activity Diagram — `MF4` Report Publication, Payout, Settlement & Re-inspection.
 
 ---
 
@@ -346,9 +319,9 @@ The table summarizes the domain's core persisted entities across identity, build
   - Inspector submissions require identifying serial, model, and manufacturer data, at least one real aircraft photograph, outdoor flight capabilities (wind resistance, optical zoom, thermal/RTK), selected safety checklist items, and all required supporting documents.
   - Aircraft weight categories follow Decree 288/2025/ND-CP Article 4; airframes at `>= 2.0 kg` require the assigned Inspector to hold a recognized Class B pilot licence (Article 27), whereas Class A covers known airframes `< 2.0 kg`. Unknown weight or unknown licence class fails eligibility (`BR-12`).
   - Duplicate serial numbers belonging to another owner or submitting a second pending update while one is already pending review are rejected.
-  - Inspectors may renew active drone registrations, switch serviceability between Active and In Maintenance, or permanently retire an aircraft (`Retired` is terminal). Only active, approved, non-expired drones owned by the assigned Inspector are selectable at dispatch (`BR-13`).
+  - Inspectors may renew active drone registrations or switch owned drone serviceability between Active, In Maintenance, and Retired (and reactivate a previously retired aircraft, while Admin-suspended drones remain locked and retired drones cannot submit renewal applications while retired). Only active, approved, non-expired drones owned by the assigned Inspector are selectable at dispatch (`BR-13`).
 - **Normal cases**: `ADMIN` configures required documents; Inspector registers a `DJI` aircraft with real photos and required files; `MANAGER` approves the drone, enabling assignment.
-- **Abnormal cases**: Missing photo or required document, duplicate external serial, Class A pilot paired with heavy drone, expired registration, retired serviceability, or non-`MANAGER` approval/rejection attempt (including `ADMIN`) blocks progression.
+- **Abnormal cases**: Missing photo or required document, duplicate external serial, Class A pilot paired with heavy drone, expired registration, retired/suspended serviceability, or non-`MANAGER` approval/rejection attempt (including `ADMIN`) blocks progression.
 
 ---
 
@@ -523,10 +496,11 @@ The table summarizes the domain's core persisted entities across identity, build
 - **Function description**: Execute accountable on-site field sessions gated by valid inspector-uploaded permits and safety checklists, capture read-only flight telemetry/traces and mission MP4 video (or log/manual fallbacks without fabrication), handle aborts, and surface operational schedule/dashboard views.
 - **Screen layout (mock-up)**: Pre-flight safety checklist tab, Flight Operation console (with live `SmartDroneHub` telemetry & gimbal status), Post-flight target building checkpoint verification, four-role Dashboards, and the Inspector Schedule Calendar.
 - **Requirements**:
-  - Session start verifies that the inspection is scheduled, a valid inspector-uploaded permit is in effect and covers the actual flight time, the assigned drone serial matches, pilot/drone credentials remain current, the pre-flight safety checklist plus a non-blank safety note are completed (`BR-23`, `BR-26`), and no other session is already active.
+  - Session start verifies that the inspection is scheduled, a valid inspector-uploaded permit is in effect and covers the actual flight time, the assigned drone serial matches, pilot/drone credentials remain current, the detailed drone-agnostic pre-flight safety checklist (`8 PRE_FLIGHT` checks) plus a non-blank safety note are completed (`BR-23`, `BR-26`), and no other session is already active.
+  - Active sessions support recording multiple flights/sorties (`field_session_flights`, `V72`) with telemetry linked per sortie, and while an inspection remains `Field Completed` prior to findings baseline confirmation, the assigned Inspector may open additional field sessions/days and inspect aggregated multi-day totals.
   - Active sessions may optionally connect to `SmartDroneHub` in strictly read-only telemetry mode (flight status, mode, GPS coordinates, altitude, speed, heading, battery, waypoint, and gimbal status; never sending flight actuation commands `BR-30`), saving the flight trace and synchronizing mission MP4 video.
   - When live telemetry is absent, Inspectors may import `SRT`, `CSV`, `KML`, or `GPX` flight logs (`<= 15 MB`) preserving missing fields as unavailable without fabrication, or submit an accountable manual flight declaration (reason, duration, altitude, note) clearly badged separately from measured telemetry (`BR-28`).
-  - Completion records post-flight building checkpoints and moves the mission to `Field Completed`. Aborting requires a written reason (`BR-27`), records a reliability event against the Inspector, reopens the inspection to `Scheduled`, and notifies Managers. Role-scoped Dashboards count only confirmed findings, and the Inspector Schedule Calendar shows Month/Week/Agenda views with abort alerts.
+  - Completion records the detailed post-flight safety checklist (`4 POST_FLIGHT` checks) and building checkpoints and moves the mission to `Field Completed`. Aborting requires a written reason (`BR-27`), records a reliability event against the Inspector, reopens the inspection to `Scheduled`, and notifies Managers. Role-scoped Dashboards count only confirmed findings, and the Inspector Schedule Calendar shows Month/Week/Agenda views with abort alerts.
 - **Normal cases**: Inspector completes pre-flight checks, connects live telemetry via SmartDroneHub, flies mission, completes post-flight items -> `Field Completed`.
 - **Abnormal cases**: Starting without a valid inspector-uploaded permit (`MSG37`, `MSG40`), expired permit/credentials, corrupt/position-less log import (`MSG45`), or missing safety/abort notes is rejected.
 
@@ -604,7 +578,8 @@ The table summarizes the domain's core persisted entities across identity, build
 - **Requirements**:
   - Accepting a report verifies that the referenced version is `Published`, records acceptance against that exact version, stamps the acceptance timestamp on the invoice, and transitions payment status to `Payment Due` (`BR-44`).
   - Before acceptance, only the owning `CUSTOMER` may submit a pre-acceptance clarification request (`MANAGER`, `ADMIN`, `INSPECTOR`, or another organization cannot invoke clarification or acceptance). Acceptance cannot occur on unpublished versions or twice on an already-accepted occurrence.
-- **Normal cases**: Owning Customer reviews published `v1` on Web or Mobile, optionally sends pre-acceptance clarification, then clicks **Accept report** to move cleanly into settlement.
+  - Once an inspection reaches `COMPLETED` with an assigned Inspector, the owning `CUSTOMER` (on Web or Customer Mobile) and `MANAGER` may each submit at most one Inspector rating (`inspector_ratings`, `V70`) scored `1–5` overall and across `ADMIN`-configured role criteria (`rating_criterion_configs`, `V73`), editable within `7` days of creation (`409 RATING_EDIT_WINDOW_EXPIRED` afterwards). Aggregate rating summaries appear on Partner Candidate selection and Inspection detail while Customer views hide other Customers' comments, and submitting a rating emits an `INSPECTOR_RATED` notice (`FE-12`).
+- **Normal cases**: Owning Customer reviews published `v1` on Web or Mobile, optionally sends pre-acceptance clarification, clicks **Accept report** to move cleanly into settlement, and rates the Inspector after completion.
 - **Abnormal cases**: Non-owning organization, Manager, Admin, or Inspector invoking acceptance or clarification, accepting an unpublished/superseded version, or submitting clarification after acceptance is rejected.
 
 ---

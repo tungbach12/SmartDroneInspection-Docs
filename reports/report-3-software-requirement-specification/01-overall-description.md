@@ -13,43 +13,16 @@ SmartDroneInspection is an infrastructure inspection service for customer organi
 
 **In-scope asset domain.** The product covers **building structures** only, classified into six platform-managed categories: high-rise office towers and curtain-wall façades; residential apartment towers with balconies, loggias, and external waterproofing; commercial malls and podium blocks with skylights and aluminium composite façades; industrial factories and warehouses with steel structure, industrial roofing, and rooftop solar; hotel, hospital, and public-building complexes with architectural domes and chiller plant areas; and telecom antenna masts mounted on building rooftops. All inspection items, defect classes, and report content are expressed for these building elements. Every other infrastructure domain — bridges and viaducts, power transmission towers, solar farms and ground-mounted plants, roads and pavements, dams, tunnels, ports, and pipelines — is excluded and recorded in §6.2 of Report 1 and in the limitations of this specification.
 
-```mermaid
-%% title: System Context Diagram
-flowchart LR
-  ADMIN["Admin"]
-  MANAGER["Manager"]
-  CUSTOMER["Customer"]
-  INSPECTOR["Inspector"]
-  SYSTEM["Automated System"]
+![System Context Diagram](assets/context.png)
 
-  SDI[["SmartDroneInspection System"]]
-  YOLO["YOLO11 Vision Service + fallback"]
-  LLM["LLM Summary Service"]
-  DKA[["DroneKnowledgeAI — pgvector RAG"]]
-  STORAGE["Object Storage"]
-  HUB["SmartDroneHub"]
-  PAYMENT["Payment & OAuth2"]
-
-  ADMIN <-->|"Accounts, categories, airspace & audit"| SDI
-  MANAGER <-->|"Quotes, dispatch, flight trace & report review"| SDI
-  CUSTOMER <-->|"Buildings, requests, report acceptance & payment"| SDI
-  INSPECTOR <-->|"Drone documents, permits, telemetry & photo/MP4 evidence"| SDI
-  SYSTEM <-->|"Lifecycle gates, notices & timed jobs"| SDI
-
-  SDI <-->|"Defect detection on building imagery"| YOLO
-  SDI <-->|"Advisory report narrative drafting"| LLM
-  SDI <-->|"Tenant-isolated defect-history & standards advisory"| DKA
-  SDI <-->|"Contracts, permits & photo/MP4 media"| STORAGE
-  SDI <-->|"Read-only telemetry, flight trace & mission video"| HUB
-  SDI <-->|"Sepay / VNPay checkout & Google OAuth2"| PAYMENT
-```
+Figure 1.1 System Context Diagram.
 
 The service supports four human login roles:
 
 - **`ADMIN`**: Governs platform accounts and the building asset category catalogue; reviews customer airspace cases, partner Inspector applications, and drone registrations; maintains pilot-licence classes, required drone documents, finance settings, and AI inference settings; and reviews platform activity history.
 - **`MANAGER`**: Coordinates Inspectors and registered drones, reviews partner applications, handles customer service requests and VND quotations, records signed service agreements, assigns inspection occurrences, manages dispatch changes, independently reviews and publishes inspection reports, and oversees partner settlement and refunds.
 - **`CUSTOMER`**: Registers a customer organization and its initial building subject to airspace screening; manages buildings, inspection checkpoints, and building documents; requests inspections; negotiates and accepts quotations; follows inspection progress; accepts published reports; and pays service fees.
-- **`INSPECTOR`**: Applies to join the platform through a public self-service application supplying pilot credentials and partner information, which `ADMIN` or `MANAGER` reviews before an account is created. After approval the Inspector registers owned drones with registration, ownership, and technical inspection documents, records assigned field sessions and evidence, reviews proposed findings, and prepares inspection reports.
+- **`INSPECTOR`**: Applies to join the platform through a public self-service application supplying pilot credentials and partner information, which `MANAGER` reviews before an account is created (`ADMIN` retains read-only oversight). After approval the Inspector registers owned drones with registration, ownership, and technical inspection documents, records assigned field sessions and evidence, reviews proposed findings, and prepares inspection reports.
 
 **Automated actors.** Four automated actors support the four human roles without signing in. `SYSTEM` enforces lifecycle gates, emits lifecycle notices, expires pending assignments on the configured acceptance timeout, and runs other scheduled jobs. `YOLO11` performs building-defect detection on evidence imagery with a configured vision fallback. `LLM` drafts advisory report narrative and executive summaries. `DroneKnowledgeAI` is the `pgvector`-backed advisor that retrieves tenant-isolated historical defect cases and engineering standards to support finding review and report compilation. All automated output is advisory; an authorized person must review and confirm any official decision (`BR-16`, `BR-20`, `BR-27`, `BR-55`).
 

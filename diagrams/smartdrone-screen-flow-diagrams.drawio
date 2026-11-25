@@ -1,368 +1,614 @@
-<?xml version="1.0" encoding="utf-8"?>
-<mxfile host="app.diagrams.net" agent="Antigravity" version="24.7.17" pages="2">
+<mxfile host="app.diagrams.net" pages="2">
   <diagram id="sdi-screen-flow-web" name="Web Application Screen Flow">
-    <mxGraphModel dx="1450" dy="680" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1450" pageHeight="680" math="0" shadow="0">
+    <mxGraphModel dx="1650" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1420" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="h1" value="MF1: Onboarding &amp;amp; Governance" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=13;fontColor=#000000;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="150" y="26" width="225" height="28" as="geometry" />
+        <mxCell id="web-landing" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Landing Page" vertex="1">
+          <mxGeometry height="44" width="150" x="40" y="640" as="geometry" />
         </mxCell>
-        <mxCell id="h2" value="MF2: Request, Quote &amp;amp; Dispatch" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=13;fontColor=#000000;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="480" y="26" width="225" height="28" as="geometry" />
+        <mxCell id="web-login" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Login" vertex="1">
+          <mxGeometry height="44" width="160" x="260" y="135" as="geometry" />
         </mxCell>
-        <mxCell id="h3" value="MF3: Permit, Field &amp;amp; AI Evidence" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=13;fontColor=#000000;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="810" y="26" width="225" height="28" as="geometry" />
+        <mxCell id="web-register" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Customer Registration" vertex="1">
+          <mxGeometry height="38" width="210" x="520" y="30" as="geometry" />
         </mxCell>
-        <mxCell id="h4" value="MF4: Report, Payment &amp;amp; Re-inspection" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=13;fontColor=#000000;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="1190" y="26" width="245" height="28" as="geometry" />
+        <mxCell id="web-ins-reg" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Partner Inspector Application" vertex="1">
+          <mxGeometry height="38" width="210" x="520" y="80" as="geometry" />
         </mxCell>
-        <mxCell id="w_start" value="Start" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#2f3640;strokeColor=#000000;strokeWidth=1.2;fontColor=#ffffff;fontStyle=1;fontSize=13;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="20" y="84" width="100" height="36" as="geometry" />
+        <mxCell id="web-forgot" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Forgot Password &amp;amp; OAuth2 Callback" vertex="1">
+          <mxGeometry height="38" width="210" x="520" y="130" as="geometry" />
         </mxCell>
-        <mxCell id="w_end_nfz" value="End" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#2f3640;strokeColor=#000000;strokeWidth=1.2;fontColor=#ffffff;fontStyle=1;fontSize=13;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="20" y="279" width="100" height="36" as="geometry" />
+        <mxCell id="web-shared" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Authenticated Account" vertex="1">
+          <mxGeometry height="38" width="210" x="520" y="185" as="geometry" />
         </mxCell>
-        <mxCell id="w_login" value="Landing &amp;amp; Auth Portals&lt;br&gt;(/, /login, /inspector/login, /portals)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="175" y="80" width="175" height="44" as="geometry" />
+        <mxCell id="web-notif" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Notifications Center" vertex="1">
+          <mxGeometry height="38" width="230" x="820" y="160" as="geometry" />
         </mxCell>
-        <mxCell id="w_reg" value="Registration &amp;amp; OTP&lt;br&gt;(/register, /inspector/register)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="175" y="168" width="175" height="44" as="geometry" />
+        <mxCell id="web-settings" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Account Settings &amp;amp; Security" vertex="1">
+          <mxGeometry height="38" width="230" x="820" y="210" as="geometry" />
         </mxCell>
-        <mxCell id="w_nfz" value="In No-Fly Zone?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="192" y="264" width="140" height="66" as="geometry" />
+        <mxCell id="web-admin" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Admin Dashboard" vertex="1">
+          <mxGeometry height="44" width="210" x="520" y="370" as="geometry" />
         </mxCell>
-        <mxCell id="w_partner" value="Partner Onboarding &amp;amp; Review&lt;br&gt;(/partner-onboarding, /onboarding-reviews)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="175" y="384" width="175" height="48" as="geometry" />
+        <mxCell id="web-adm-accounts" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Platform Accounts" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="270" as="geometry" />
         </mxCell>
-        <mxCell id="w_assets" value="Building Assets &amp;amp; Airspace&lt;br&gt;(/assets, /flight-config)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="175" y="488" width="175" height="46" as="geometry" />
+        <mxCell id="web-adm-catalog" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Building Asset Catalog" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="316" as="geometry" />
         </mxCell>
-        <mxCell id="w_sreq" value="Service Request &amp;amp; Schedule&lt;br&gt;(/contracts)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="505" y="80" width="175" height="44" as="geometry" />
+        <mxCell id="web-adm-dronecfg" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="UAV Licence &amp;amp; Drone Config" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="362" as="geometry" />
         </mxCell>
-        <mxCell id="w_quote" value="Quotation &amp;amp; Order Chat&lt;br&gt;(/contracts, /messages)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="505" y="168" width="175" height="44" as="geometry" />
+        <mxCell id="web-adm-settings" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Finance, Ops, AI &amp;amp; Rating Settings" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="408" as="geometry" />
         </mxCell>
-        <mxCell id="w_qapp" value="Quote Approved?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="522" y="264" width="140" height="66" as="geometry" />
+        <mxCell id="web-adm-oversight" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Onboarding, Requests &amp;amp; Buildings" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="454" as="geometry" />
         </mxCell>
-        <mxCell id="w_signed" value="Signed Paper Contract Upload&lt;br&gt;(/contracts)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="505" y="384" width="175" height="46" as="geometry" />
+        <mxCell id="web-adm-audit" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Inspections, Reports &amp;amp; Activity Log" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="500" as="geometry" />
         </mxCell>
-        <mxCell id="w_disp" value="Occurrence Dispatch Page&lt;br&gt;(/contracts -&amp;gt; /inspections)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="505" y="488" width="175" height="46" as="geometry" />
+        <mxCell id="web-adm-detail" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Inspection Read-Only &amp;amp; Report Detail" vertex="1">
+          <mxGeometry height="38" width="250" x="1140" y="499" as="geometry" />
         </mxCell>
-        <mxCell id="w_perm" value="Self-Attested Flight Permit&lt;br&gt;(/inspections/:id/permit)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="835" y="80" width="175" height="44" as="geometry" />
+        <mxCell id="web-manager" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Manager Dashboard" vertex="1">
+          <mxGeometry height="44" width="210" x="520" y="670" as="geometry" />
         </mxCell>
-        <mxCell id="w_sess" value="Field Session &amp;amp; Sorties&lt;br&gt;(/pre-flight, /field-session, /post-flight)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="835" y="168" width="175" height="44" as="geometry" />
+        <mxCell id="web-mgr-onboard" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Onboarding &amp;amp; Drone Reviews" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="560" as="geometry" />
         </mxCell>
-        <mxCell id="w_scomp" value="Session Completed?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="852" y="264" width="140" height="66" as="geometry" />
+        <mxCell id="web-mgr-partners" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Partner Inspectors &amp;amp; Buildings" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="606" as="geometry" />
         </mxCell>
-        <mxCell id="w_resched" value="Reschedule / Reassign&lt;br&gt;Dispatch" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="1040" y="274" width="150" height="46" as="geometry" />
+        <mxCell id="web-mgr-req" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Service Requests &amp;amp; Messages" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="652" as="geometry" />
         </mxCell>
-        <mxCell id="w_cont" value="Continue?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="1055" y="374" width="120" height="58" as="geometry" />
+        <mxCell id="web-mgr-insp" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Inspections" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="698" as="geometry" />
         </mxCell>
-        <mxCell id="w_end_abort" value="End" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#2f3640;strokeColor=#000000;strokeWidth=1.2;fontColor=#ffffff;fontStyle=1;fontSize=13;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="1065" y="486" width="100" height="36" as="geometry" />
+        <mxCell id="web-mgr-rep" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Reports Queue" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="744" as="geometry" />
         </mxCell>
-        <mxCell id="w_evid" value="Evidence &amp;amp; YOLO11 Analysis&lt;br&gt;(/inspections/:id)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="835" y="384" width="175" height="46" as="geometry" />
+        <mxCell id="web-mgr-fin" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Revenue &amp;amp; Inspector Payouts" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="790" as="geometry" />
         </mxCell>
-        <mxCell id="w_find" value="Confirmed Findings &amp;amp; RAG Draft&lt;br&gt;(/inspections/:id)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="835" y="488" width="175" height="46" as="geometry" />
+        <mxCell id="web-mgr-ws" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Manager Inspection Workspace&lt;br&gt;Audit · Review · Payout · Settlement" vertex="1">
+          <mxGeometry height="44" width="250" x="1140" y="694" as="geometry" />
         </mxCell>
-        <mxCell id="w_rev" value="Audit, Decision &amp;amp; Payout Gate&lt;br&gt;(/audit, /review, /payout)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="1225" y="80" width="175" height="44" as="geometry" />
+        <mxCell id="web-mgr-repdet" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Report Detail" vertex="1">
+          <mxGeometry height="36" width="250" x="1140" y="744" as="geometry" />
         </mxCell>
-        <mxCell id="w_rapp" value="Approved &amp;amp;&lt;br&gt;Published?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="1242" y="170" width="140" height="66" as="geometry" />
+        <mxCell id="web-customer" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Customer Dashboard" vertex="1">
+          <mxGeometry height="44" width="210" x="520" y="930" as="geometry" />
         </mxCell>
-        <mxCell id="w_acc" value="Acceptance, Rating &amp;amp;&lt;br&gt;Sepay VietQR / VNPay&lt;br&gt;(/report, /settlement)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="1225" y="290" width="175" height="56" as="geometry" />
+        <mxCell id="web-cus-assets" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Building Assets &amp;amp; Airspace Map" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="850" as="geometry" />
         </mxCell>
-        <mxCell id="w_fin" value="Finance Ledger &amp;amp; Payouts&lt;br&gt;(/finance-history)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="1225" y="398" width="175" height="46" as="geometry" />
+        <mxCell id="web-cus-req" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Service Requests &amp;amp; Messages" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="896" as="geometry" />
         </mxCell>
-        <mxCell id="w_reinsp" value="Re-inspection (MF2 / Verify)&lt;br&gt;(/contracts, /inspections/:id)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="1225" y="496" width="175" height="46" as="geometry" />
+        <mxCell id="web-cus-insp" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Inspections" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="942" as="geometry" />
         </mxCell>
-        <mxCell id="w_end" value="End" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#2f3640;strokeColor=#000000;strokeWidth=1.2;fontColor=#ffffff;fontStyle=1;fontSize=13;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="1262" y="594" width="100" height="36" as="geometry" />
+        <mxCell id="web-cus-rep" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Reports Archive" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="988" as="geometry" />
         </mxCell>
-        <mxCell id="we1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_start" target="w_login">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="web-cus-fin" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Payment History Ledger" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="1034" as="geometry" />
         </mxCell>
-        <mxCell id="we2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_login" target="w_reg">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="web-cus-ws" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Customer Inspection Workspace&lt;br&gt;Tracking · Report · Settlement &amp;amp; Rating" vertex="1">
+          <mxGeometry height="44" width="250" x="1140" y="938" as="geometry" />
         </mxCell>
-        <mxCell id="we3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_reg" target="w_nfz">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="web-cus-repdet" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Report Detail" vertex="1">
+          <mxGeometry height="36" width="250" x="1140" y="988" as="geometry" />
         </mxCell>
-        <mxCell id="we4" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_nfz" target="w_end_nfz">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="web-inspector" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Inspector Dashboard" vertex="1">
+          <mxGeometry height="44" width="210" x="520" y="1200" as="geometry" />
         </mxCell>
-        <mxCell id="we5" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_nfz" target="w_partner">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="web-ins-onboard" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Partner Onboarding &amp;amp; Qualification" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="1095" as="geometry" />
         </mxCell>
-        <mxCell id="we6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_partner" target="w_assets">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="web-ins-drones" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="My Drones" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="1141" as="geometry" />
         </mxCell>
-        <mxCell id="we7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_assets" target="w_sreq">
+        <mxCell id="web-ins-msg" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Messages" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="1187" as="geometry" />
+        </mxCell>
+        <mxCell id="web-ins-insp" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Assigned Inspections" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="1233" as="geometry" />
+        </mxCell>
+        <mxCell id="web-ins-rep" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Reports" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="1279" as="geometry" />
+        </mxCell>
+        <mxCell id="web-ins-fin" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Payout History Ledger" vertex="1">
+          <mxGeometry height="36" width="240" x="820" y="1325" as="geometry" />
+        </mxCell>
+        <mxCell id="web-ins-ws" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Inspector 7-Stage Workspace&lt;br&gt;Permit · Pre/Post-Flight · Session · Evidence · Findings · Report" vertex="1">
+          <mxGeometry height="44" width="320" x="1140" y="1229" as="geometry" />
+        </mxCell>
+        <mxCell id="web-ins-repdet" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Report Detail" vertex="1">
+          <mxGeometry height="36" width="250" x="1140" y="1279" as="geometry" />
+        </mxCell>
+        <mxCell id="e-land-login" edge="1" parent="1" source="web-landing" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;fontFamily=Helvetica;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-login" value="Sign In / Apply">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="428" y="511" />
-              <mxPoint x="428" y="102" />
+              <mxPoint x="220" y="662" />
+              <mxPoint x="220" y="157" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="we8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_sreq" target="w_quote">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="we9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_quote" target="w_qapp">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="we10" value="Reject / Negotiate" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_qapp" target="w_quote">
+        <mxCell id="e-log-reg" edge="1" parent="1" source="web-login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-register" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="460" y="297" />
-              <mxPoint x="460" y="190" />
+              <mxPoint x="470" y="157" />
+              <mxPoint x="470" y="49" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="we11" value="Accept" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_qapp" target="w_signed">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="we12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_signed" target="w_disp">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="we13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_disp" target="w_perm">
+        <mxCell id="e-log-insreg" edge="1" parent="1" source="web-login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-ins-reg" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="758" y="511" />
-              <mxPoint x="758" y="102" />
+              <mxPoint x="470" y="157" />
+              <mxPoint x="470" y="99" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="we14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_perm" target="w_sess">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="we15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_sess" target="w_scomp">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="we16" value="Completed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_scomp" target="w_evid">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="we17" value="Aborted" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_scomp" target="w_resched">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="we18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_resched" target="w_cont">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="we19" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_cont" target="w_sess">
+        <mxCell id="e-log-forgot" edge="1" parent="1" source="web-login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-forgot" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1202" y="403" />
-              <mxPoint x="1202" y="190" />
+              <mxPoint x="470" y="157" />
+              <mxPoint x="470" y="149" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="we20" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_cont" target="w_end_abort">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="we21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_evid" target="w_find">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="we22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_find" target="w_rev">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="e-log-shared" edge="1" parent="1" source="web-login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;fontFamily=Helvetica;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-shared" value="Authenticated">
+          <mxGeometry relative="1" x="0.3" as="geometry">
             <Array as="points">
-              <mxPoint x="922" y="578" />
-              <mxPoint x="1208" y="578" />
-              <mxPoint x="1208" y="102" />
+              <mxPoint x="470" y="157" />
+              <mxPoint x="470" y="204" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="we23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_rev" target="w_rapp">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="we24" value="Return" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.78;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_rapp" target="w_find">
+        <mxCell id="e-sh-notif" edge="1" parent="1" source="web-shared" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-notif" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1216" y="203" />
-              <mxPoint x="1216" y="560" />
-              <mxPoint x="971" y="560" />
+              <mxPoint x="775" y="204" />
+              <mxPoint x="775" y="179" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="we25" value="Publish" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_rapp" target="w_acc">
+        <mxCell id="e-sh-set" edge="1" parent="1" source="web-shared" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-settings" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="204" />
+              <mxPoint x="775" y="229" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-log-adm" edge="1" parent="1" source="web-login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;fontFamily=Helvetica;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" target="web-admin" value="Role: Admin">
+          <mxGeometry relative="1" x="0.6" as="geometry">
+            <Array as="points">
+              <mxPoint x="340" y="392" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-log-mgr" edge="1" parent="1" source="web-login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;fontFamily=Helvetica;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" target="web-manager" value="Role: Manager">
+          <mxGeometry relative="1" x="0.72" as="geometry">
+            <Array as="points">
+              <mxPoint x="340" y="692" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-log-cus" edge="1" parent="1" source="web-login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;fontFamily=Helvetica;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" target="web-customer" value="Role: Customer">
+          <mxGeometry relative="1" x="0.8" as="geometry">
+            <Array as="points">
+              <mxPoint x="340" y="952" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-log-ins" edge="1" parent="1" source="web-login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;fontFamily=Helvetica;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" target="web-inspector" value="Role: Inspector">
+          <mxGeometry relative="1" x="0.85" as="geometry">
+            <Array as="points">
+              <mxPoint x="340" y="1222" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-adm-1" edge="1" parent="1" source="web-admin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-adm-accounts" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="392" />
+              <mxPoint x="775" y="288" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-adm-2" edge="1" parent="1" source="web-admin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-adm-catalog" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="392" />
+              <mxPoint x="775" y="334" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-adm-3" edge="1" parent="1" source="web-admin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-adm-dronecfg" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="392" />
+              <mxPoint x="775" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-adm-4" edge="1" parent="1" source="web-admin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-adm-settings" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="392" />
+              <mxPoint x="775" y="426" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-adm-5" edge="1" parent="1" source="web-admin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-adm-oversight" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="392" />
+              <mxPoint x="775" y="472" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-adm-6" edge="1" parent="1" source="web-admin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-adm-audit" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="392" />
+              <mxPoint x="775" y="518" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-adm-det" edge="1" parent="1" source="web-adm-audit" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-adm-detail" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="we26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_acc" target="w_fin">
+        <mxCell id="e-mgr-1" edge="1" parent="1" source="web-manager" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-mgr-onboard" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="692" />
+              <mxPoint x="775" y="578" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-mgr-2" edge="1" parent="1" source="web-manager" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-mgr-partners" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="692" />
+              <mxPoint x="775" y="624" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-mgr-3" edge="1" parent="1" source="web-manager" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-mgr-req" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="692" />
+              <mxPoint x="775" y="670" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-mgr-4" edge="1" parent="1" source="web-manager" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-mgr-insp" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="692" />
+              <mxPoint x="775" y="716" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-mgr-5" edge="1" parent="1" source="web-manager" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-mgr-rep" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="692" />
+              <mxPoint x="775" y="762" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-mgr-6" edge="1" parent="1" source="web-manager" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-mgr-fin" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="692" />
+              <mxPoint x="775" y="808" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-mgr-ws" edge="1" parent="1" source="web-mgr-insp" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-mgr-ws" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="we27" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_fin" target="w_reinsp">
+        <mxCell id="e-mgr-repdet" edge="1" parent="1" source="web-mgr-rep" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-mgr-repdet" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="we28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="w_reinsp" target="w_end">
+        <mxCell id="e-cus-1" edge="1" parent="1" source="web-customer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-cus-assets" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="952" />
+              <mxPoint x="775" y="868" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-cus-2" edge="1" parent="1" source="web-customer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-cus-req" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="952" />
+              <mxPoint x="775" y="914" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-cus-3" edge="1" parent="1" source="web-customer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-cus-insp" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="952" />
+              <mxPoint x="775" y="960" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-cus-4" edge="1" parent="1" source="web-customer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-cus-rep" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="952" />
+              <mxPoint x="775" y="1006" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-cus-5" edge="1" parent="1" source="web-customer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-cus-fin" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="952" />
+              <mxPoint x="775" y="1052" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-cus-ws" edge="1" parent="1" source="web-cus-insp" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-cus-ws" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-cus-repdet" edge="1" parent="1" source="web-cus-rep" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-cus-repdet" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-ins-1" edge="1" parent="1" source="web-inspector" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-ins-onboard" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="1222" />
+              <mxPoint x="775" y="1113" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-ins-2" edge="1" parent="1" source="web-inspector" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-ins-drones" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="1222" />
+              <mxPoint x="775" y="1159" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-ins-3" edge="1" parent="1" source="web-inspector" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-ins-msg" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="1222" />
+              <mxPoint x="775" y="1205" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-ins-4" edge="1" parent="1" source="web-inspector" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-ins-insp" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="1222" />
+              <mxPoint x="775" y="1251" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-ins-5" edge="1" parent="1" source="web-inspector" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-ins-rep" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="1222" />
+              <mxPoint x="775" y="1297" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-ins-6" edge="1" parent="1" source="web-inspector" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-ins-fin" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="1222" />
+              <mxPoint x="775" y="1343" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-ins-ws" edge="1" parent="1" source="web-ins-insp" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-ins-ws" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-ins-repdet" edge="1" parent="1" source="web-ins-rep" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="web-ins-repdet" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
   <diagram id="sdi-screen-flow-mobile" name="Mobile Application Screen Flow">
-    <mxGraphModel dx="1220" dy="680" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1220" pageHeight="680" math="0" shadow="0">
+    <mxGraphModel dx="1450" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1420" pageHeight="780" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="mh1" value="MF1: Mobile Auth &amp;amp; Onboarding" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=13;fontColor=#000000;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="150" y="26" width="225" height="28" as="geometry" />
+        <mxCell id="mob-launch" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="App Launch" vertex="1">
+          <mxGeometry height="44" width="130" x="40" y="60" as="geometry" />
         </mxCell>
-        <mxCell id="mh2" value="MF2: Buildings, Requests &amp;amp; Quotes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=13;fontColor=#000000;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="480" y="26" width="235" height="28" as="geometry" />
+        <mxCell id="mob-session" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Session&lt;br&gt;Exists?" vertex="1">
+          <mxGeometry height="72" width="100" x="220" y="46" as="geometry" />
         </mxCell>
-        <mxCell id="mh3" value="MF3: Inspections, PDF &amp;amp; Payment" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=13;fontColor=#000000;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="815" y="26" width="235" height="28" as="geometry" />
+        <mxCell id="mob-login" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Customer Login" vertex="1">
+          <mxGeometry height="44" width="160" x="390" y="60" as="geometry" />
         </mxCell>
-        <mxCell id="m_start" value="Start" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#2f3640;strokeColor=#000000;strokeWidth=1.2;fontColor=#ffffff;fontStyle=1;fontSize=13;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="20" y="84" width="100" height="36" as="geometry" />
+        <mxCell id="mob-reg" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Customer Registration" vertex="1">
+          <mxGeometry height="42" width="190" x="640" y="30" as="geometry" />
         </mxCell>
-        <mxCell id="m_end_nfz" value="End" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#2f3640;strokeColor=#000000;strokeWidth=1.2;fontColor=#ffffff;fontStyle=1;fontSize=13;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="20" y="384" width="100" height="36" as="geometry" />
+        <mxCell id="mob-forgot" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Forgot Password" vertex="1">
+          <mxGeometry height="42" width="190" x="640" y="95" as="geometry" />
         </mxCell>
-        <mxCell id="m_login" value="LoginScreen&lt;br&gt;(/login, /auth/callback)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="175" y="80" width="175" height="44" as="geometry" />
+        <mxCell id="mob-shell" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Customer Home Shell" vertex="1">
+          <mxGeometry height="44" width="170" x="560" y="370" as="geometry" />
         </mxCell>
-        <mxCell id="m_reg" value="RegisterPage &amp;amp; ForgotPwd&lt;br&gt;(/register, /forgot-password)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="175" y="168" width="175" height="44" as="geometry" />
+        <mxCell id="mob-home" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Home Dashboard" vertex="1">
+          <mxGeometry height="42" width="180" x="820" y="185" as="geometry" />
         </mxCell>
-        <mxCell id="m_home" value="CustomerDashboardPage&lt;br&gt;(/home, /notifications)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="175" y="256" width="175" height="44" as="geometry" />
+        <mxCell id="mob-notif" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Notifications" vertex="1">
+          <mxGeometry height="42" width="210" x="1080" y="185" as="geometry" />
         </mxCell>
-        <mxCell id="m_nfz" value="New Asset&lt;br&gt;In No-Fly Zone?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="192" y="368" width="140" height="68" as="geometry" />
+        <mxCell id="mob-assets" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Buildings List" vertex="1">
+          <mxGeometry height="42" width="180" x="820" y="265" as="geometry" />
         </mxCell>
-        <mxCell id="m_asset" value="AssetsPage &amp;amp; AssetDetailPage&lt;br&gt;(/assets, /assets/:assetId)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="175" y="488" width="175" height="48" as="geometry" />
+        <mxCell id="mob-asset-det" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Building Detail &amp;amp; Airspace" vertex="1">
+          <mxGeometry height="42" width="210" x="1080" y="265" as="geometry" />
         </mxCell>
-        <mxCell id="m_req" value="CreateServiceRequestPage&lt;br&gt;(/requests/new)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="505" y="80" width="175" height="44" as="geometry" />
+        <mxCell id="mob-reqs" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Service Requests List" vertex="1">
+          <mxGeometry height="42" width="180" x="820" y="365" as="geometry" />
         </mxCell>
-        <mxCell id="m_req_d" value="ServiceRequestDetailPage&lt;br&gt;(/requests/:requestId)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="505" y="168" width="175" height="44" as="geometry" />
+        <mxCell id="mob-req-new" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="New Service Request" vertex="1">
+          <mxGeometry height="40" width="210" x="1080" y="335" as="geometry" />
         </mxCell>
-        <mxCell id="m_chat" value="OrderChatPage&lt;br&gt;(/requests/:requestId/chat)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="505" y="256" width="175" height="44" as="geometry" />
+        <mxCell id="mob-req-det" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Service Request Detail" vertex="1">
+          <mxGeometry height="40" width="210" x="1080" y="395" as="geometry" />
         </mxCell>
-        <mxCell id="m_quote_ok" value="Accept Quote?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="522" y="368" width="140" height="66" as="geometry" />
+        <mxCell id="mob-req-chat" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Order Chat" vertex="1">
+          <mxGeometry height="40" width="180" x="1350" y="395" as="geometry" />
         </mxCell>
-        <mxCell id="m_occ" value="Occurrence &amp;amp; Status Tracking&lt;br&gt;(/requests/:requestId)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="505" y="488" width="175" height="48" as="geometry" />
+        <mxCell id="mob-insp" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Inspections List" vertex="1">
+          <mxGeometry height="42" width="180" x="820" y="515" as="geometry" />
         </mxCell>
-        <mxCell id="m_insp" value="InspectionsPage&lt;br&gt;(/inspections)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="845" y="80" width="175" height="44" as="geometry" />
+        <mxCell id="mob-insp-det" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Inspection Detail" vertex="1">
+          <mxGeometry height="42" width="210" x="1080" y="515" as="geometry" />
         </mxCell>
-        <mxCell id="m_insp_d" value="InspectionDetailPage&lt;br&gt;(Findings AI, Chat, Rating)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="845" y="168" width="175" height="48" as="geometry" />
+        <mxCell id="mob-insp-track" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Tracking &amp;amp; Inspection Chat" vertex="1">
+          <mxGeometry height="38" width="210" x="1350" y="460" as="geometry" />
         </mxCell>
-        <mxCell id="m_rep_ok" value="Accept Report?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
-          <mxGeometry x="862" y="268" width="140" height="66" as="geometry" />
+        <mxCell id="mob-insp-rep" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Official Report &amp;amp; Knowledge Refs" vertex="1">
+          <mxGeometry height="38" width="210" x="1350" y="517" as="geometry" />
         </mxCell>
-        <mxCell id="m_clarify" value="Clarification &amp;amp; Review&lt;br&gt;Loop" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="1040" y="278" width="140" height="46" as="geometry" />
+        <mxCell id="mob-settle" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Settlement, VietQR / VNPay &amp;amp; Rating" vertex="1">
+          <mxGeometry height="38" width="210" x="1350" y="574" as="geometry" />
         </mxCell>
-        <mxCell id="m_pay" value="Sepay VietQR Dialog / VNPay&lt;br&gt;(smartdrone://) &amp;amp; Receipt PDF" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="845" y="392" width="175" height="48" as="geometry" />
+        <mxCell id="mob-profile" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1.2;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="Profile" vertex="1">
+          <mxGeometry height="42" width="180" x="820" y="645" as="geometry" />
         </mxCell>
-        <mxCell id="m_prof" value="ProfilePage&lt;br&gt;(/profile)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=12;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=6;spacingRight=6;" vertex="1" parent="1">
-          <mxGeometry x="845" y="492" width="175" height="44" as="geometry" />
-        </mxCell>
-        <mxCell id="m_end" value="End" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#2f3640;strokeColor=#000000;strokeWidth=1.2;fontColor=#ffffff;fontStyle=1;fontSize=13;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="882" y="588" width="100" height="36" as="geometry" />
-        </mxCell>
-        <mxCell id="me1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_start" target="m_login">
+        <mxCell id="e-m-1" edge="1" parent="1" source="mob-launch" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-session" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="me2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_login" target="m_reg">
+        <mxCell id="e-m-no" edge="1" parent="1" source="mob-session" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;fontFamily=Helvetica;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-login" value="No">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="me3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_reg" target="m_home">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="me4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_home" target="m_nfz">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="me5" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_nfz" target="m_end_nfz">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="me6" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_nfz" target="m_asset">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="me7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_asset" target="m_req">
+        <mxCell id="e-m-yes" edge="1" parent="1" source="mob-session" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;fontFamily=Helvetica;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" target="mob-shell" value="Yes">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="428" y="512" />
-              <mxPoint x="428" y="102" />
+              <mxPoint x="270" y="392" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="me8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_req" target="m_req_d">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="me9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_req_d" target="m_chat">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="me10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_chat" target="m_quote_ok">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="me11" value="Negotiate" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_quote_ok" target="m_req_d">
+        <mxCell id="e-m-reg" edge="1" parent="1" source="mob-login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-reg" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="460" y="401" />
-              <mxPoint x="460" y="190" />
+              <mxPoint x="590" y="82" />
+              <mxPoint x="590" y="51" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="me12" value="Accept" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_quote_ok" target="m_occ">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="me13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_occ" target="m_insp">
+        <mxCell id="e-m-forgot" edge="1" parent="1" source="mob-login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-forgot" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="760" y="512" />
-              <mxPoint x="760" y="102" />
+              <mxPoint x="590" y="82" />
+              <mxPoint x="590" y="116" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="me14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_insp" target="m_insp_d">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="me15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_insp_d" target="m_rep_ok">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="me16" value="Clarify" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_rep_ok" target="m_clarify">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="me17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_clarify" target="m_insp_d">
+        <mxCell id="e-m-ok" edge="1" parent="1" source="mob-login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;fontFamily=Helvetica;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=0;entryY=0.35;" target="mob-shell" value="Login Successful">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1110" y="192" />
+              <mxPoint x="470" y="385" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="me18" value="Accept" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_rep_ok" target="m_pay">
+        <mxCell id="e-m-sh1" edge="1" parent="1" source="mob-shell" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-home" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="392" />
+              <mxPoint x="775" y="206" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-m-sh2" edge="1" parent="1" source="mob-shell" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-assets" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="392" />
+              <mxPoint x="775" y="286" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-m-sh3" edge="1" parent="1" source="mob-shell" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-reqs" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="392" />
+              <mxPoint x="775" y="386" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-m-sh4" edge="1" parent="1" source="mob-shell" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-insp" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="392" />
+              <mxPoint x="775" y="536" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-m-sh5" edge="1" parent="1" source="mob-shell" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-profile" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="392" />
+              <mxPoint x="775" y="666" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-m-notif" edge="1" parent="1" source="mob-home" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-notif" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="me19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_pay" target="m_prof">
+        <mxCell id="e-m-assetdet" edge="1" parent="1" source="mob-assets" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-asset-det" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="me20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="m_prof" target="m_end">
+        <mxCell id="e-m-reqnew" edge="1" parent="1" source="mob-reqs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-req-new" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1040" y="386" />
+              <mxPoint x="1040" y="355" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-m-reqdet" edge="1" parent="1" source="mob-reqs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-req-det" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1040" y="386" />
+              <mxPoint x="1040" y="415" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-m-reqchat" edge="1" parent="1" source="mob-req-det" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-req-chat" value="">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m-inspdet" edge="1" parent="1" source="mob-insp" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-insp-det" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m-insptrack" edge="1" parent="1" source="mob-insp-det" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-insp-track" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1315" y="536" />
+              <mxPoint x="1315" y="479" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-m-insprep" edge="1" parent="1" source="mob-insp-det" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-insp-rep" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-m-settle" edge="1" parent="1" source="mob-insp-det" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="mob-settle" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1315" y="536" />
+              <mxPoint x="1315" y="593" />
+            </Array>
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
