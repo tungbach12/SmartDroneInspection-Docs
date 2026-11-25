@@ -27,7 +27,7 @@ Historical counts preserve the original eight-feature snapshot, including retire
 | 4 | FE-04 Interactive Location Map & No-Fly Zone Airspace Screening | 3 | 0 | 0 | 0 | 3 |
 | 5 | FE-05 Financial History & Revenue/Payment Ledger | 0 | 0 | 0 | 1 | 1 |
 | 6 | FE-06 Building Asset Registry, Checkpoints & Reference Documents | 3 | 0 | 0 | 0 | 3 |
-| 7 | FE-07 Restricted Airspace Review & Clearance Decision | 1 | 0 | 0 | 0 | 1 |
+| 7 | FE-07 Restricted Airspace Advisory Warning & Immediate Onboarding | 1 | 0 | 0 | 0 | 1 |
 | 8 | FE-08 Service Requests (One-Time & Recurring) & VND Quotations | 6 | 0 | 0 | 0 | 6 |
 | 9 | FE-09 Offline Signed Contract & Occurrence Dispatch Scheduling | 5 | 0 | 1 | 0 | 6 |
 | 10 | FE-10 Dual-Channel Messaging (Order Chat & Inspection Chat) | 2 | 0 | 0 | 0 | 2 |

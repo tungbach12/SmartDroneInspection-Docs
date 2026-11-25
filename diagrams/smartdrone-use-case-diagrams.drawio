@@ -147,7 +147,7 @@
         <mxCell id="uc_screen_nfz" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Screen Building Airspace" vertex="1">
           <mxGeometry height="46" width="185" x="525" y="65" as="geometry" />
         </mxCell>
-        <mxCell id="uc_rev_air" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Review Pending Customer&lt;br&gt;Airspace" vertex="1">
+        <mxCell id="uc_rev_air" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="View Onboarding &amp; Drone&lt;br&gt;Queues (Read-Only)" vertex="1">
           <mxGeometry height="46" width="185" x="525" y="135" as="geometry" />
         </mxCell>
         <mxCell id="uc_rev_ins" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Review Inspector&lt;br&gt;Applications" vertex="1">

@@ -9,7 +9,7 @@ Values for the `Feature 2` summary block (`A2:E8` in the workbook).
 | Cell | Label | Value |
 | --- | --- | --- |
 | `B2` | Feature | Partner Inspector Application & Qualification Management |
-| `B3` | Test requirement | Verifies public Partner Inspector applications, non-disclosing duplicate email protection, admin/manager admission creating `INSPECTOR_PARTNER` accounts, `inspector_profiles` licence credentials, flight logs, and pilot qualification eligibility at planned flight start. |
+| `B3` | Test requirement | Verifies public Partner Inspector applications, non-disclosing duplicate email protection, `MANAGER`-only admission/contract/flight-log mutations (`ADMIN` read-only oversight), creating `INSPECTOR_PARTNER` accounts, `inspector_profiles` licence credentials, flight logs, and pilot qualification eligibility at planned flight start. |
 
 ## Test case execution records
 
