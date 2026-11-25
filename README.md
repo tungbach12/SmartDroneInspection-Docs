@@ -50,6 +50,7 @@ SmartDroneInspection-docs/
 ├── _index.md                       # Bản đồ điều hướng Hugo cho toàn bộ tài liệu
 ├── README.md                       # Hướng dẫn sử dụng repo, draw.io, export & chuẩn viết report
 ├── hugo.toml                       # Cấu hình trang tài liệu Hugo
+├── .agents/skills/drawio-diagram-skill/  # Skill draw.io đính kèm sẵn trong repo (SKILL.md + scripts/drawio.mjs)
 ├── development/                    # Quy trình Git/PR, kế hoạch đồng bộ sơ đồ, pending log, review phân quyền
 ├── diagrams/                       # Sơ đồ nguồn .drawio (1 loại = 1 file), DBML, ERD HTML & Mermaid .mmd
 ├── project-reference/              # Cẩm nang tránh lỗi Capstone, baseline hiện thực, guideline mainflows
@@ -124,14 +125,14 @@ SmartDroneInspection-docs/
 
 ## 3. Skill đính kèm draw.io & cách chỉnh sửa `.drawio` local
 
-### 3.1 Giới thiệu skill `drawio-diagram-skill`
+### 3.1 Giới thiệu skill `drawio-diagram-skill` (đính kèm sẵn trong repo)
 
-Repo sử dụng chuẩn của skill **`drawio-diagram-skill`** (đặt tại máy cục bộ ở `C:/Users/trant/.gemini/skills/drawio-diagram-skill/`):
+Skill **`drawio-diagram-skill`** được đính kèm trực tiếp trong repository tại `.agents/skills/drawio-diagram-skill/` để mọi thành viên và AI agent đều dùng chung được ngay sau khi clone (không phụ thuộc đường dẫn máy cá nhân):
 
-- Tài liệu hướng dẫn skill: `C:/Users/trant/.gemini/skills/drawio-diagram-skill/SKILL.md`
-- Script CLI đi kèm: `C:/Users/trant/.gemini/skills/drawio-diagram-skill/scripts/drawio.mjs` (chạy bằng **Node.js**, không cần cài thư viện ngoài).
+- Tài liệu hướng dẫn skill: [.agents/skills/drawio-diagram-skill/SKILL.md](.agents/skills/drawio-diagram-skill/SKILL.md)
+- Script CLI đi kèm: [.agents/skills/drawio-diagram-skill/scripts/drawio.mjs](.agents/skills/drawio-diagram-skill/scripts/drawio.mjs) (chạy bằng **Node.js**, không cần cài thư viện ngoài).
 
-> **Mẹo dùng cho thành viên mới / máy khác:** Nếu bạn không dùng Antigravity CLI hoặc chạy trên máy chưa cài skill ở `C:/Users/<user>/.gemini/skills/drawio-diagram-skill/`, chỉ cần copy thư mục `drawio-diagram-skill/` về máy mình hoặc gọi trực tiếp `node "<path-to>/drawio.mjs" ...`. Đối với thao tác sửa tay trực quan, bạn cũng có thể dùng extension **Draw.io Integration** trong VS Code hoặc ứng dụng **draw.io Desktop** mở thẳng các file `.drawio` trong `diagrams/`.
+> **Mẹo dùng cho thành viên mới:** Chỉ cần có Node.js là chạy được ngay `node ".agents/skills/drawio-diagram-skill/scripts/drawio.mjs" ...` từ thư mục gốc repo. Thư mục `.agents/skills/` cũng được Antigravity / các agent hỗ trợ tự động nhận diện theo chuẩn repo-level skills. Đối với thao tác sửa tay trực quan, bạn có thể dùng extension **Draw.io Integration** trong VS Code, ứng dụng **draw.io Desktop**, hoặc chạy lệnh `open` để mở thẳng trên `app.diagrams.net`.
 
 ### 3.2 Danh sách file `.drawio` trong `diagrams/` (1 loại sơ đồ = 1 file nhiều tab)
 
@@ -158,7 +159,7 @@ Mỗi loại sơ đồ gom các biến thể/tính năng thành nhiều tab `<di
 Đặt biến đường dẫn cho gọn trong PowerShell rồi chạy từ gốc `SmartDroneInspection-docs`:
 
 ```powershell
-$DRAWIO = "C:/Users/trant/.gemini/skills/drawio-diagram-skill/scripts/drawio.mjs"
+$DRAWIO = ".agents/skills/drawio-diagram-skill/scripts/drawio.mjs"
 
 # 1. Xem danh sách tab, ID, số cell/vertex/edge và kích thước canvas
 node $DRAWIO info diagrams/smartdrone-sequence-diagrams.drawio
