@@ -114,12 +114,73 @@ SmartDroneInspection-docs/
    ```
 4. **Xuất file nộp & kiểm tra hiển thị:** Chạy `export_all.py` (hoặc exporter của report tương ứng), kiểm tra bằng `check_output.py` và `verify_office_reports.ps1`, mở PDF/Word đọc lướt bảng biểu trước khi chốt nộp.
 
-### 2.3 Chụp ảnh màn hình giao diện cho Report 3, 5, 6, 7
+### 2.3 Quy trình chụp ảnh, lưu trữ và chèn vào Report
 
-- Các báo cáo nhúng ảnh màn hình thật của ứng dụng đang chạy ở độ phân giải thống nhất **`1600×1000` (PNG)**, lưu trong `reports/report-<n>/assets/screens/`.
-- Tham khảo hướng dẫn đầy đủ bằng `agent-browser` tại [.claude/skills/capstone-report-export/SKILL.md](.claude/skills/capstone-report-export/SKILL.md).
-- Quy ước đặt tên file: `{portal}-{screen}.png` (hoặc `{portal}-ws-{tab}.png` cho các tab trong inspection workspace, ví dụ `inspector-ws-permit.png`, `manager-ws-review.png`).
-- **Lưu ý quan trọng:** Bốn report dùng chung bộ screenshot (`Report 3`, `Report 5`, `Report 6`, `Report 7`) đều giữ bản copy riêng trong `assets/screens/` của chính folder đó. Nếu thêm hoặc thay ảnh mới, phải chép vào đủ các folder report có tham chiếu ảnh đó; exporter sẽ dừng và báo lỗi nếu thiếu file hoặc sai định dạng PNG.
+#### A. Chuẩn bị môi trường & tài khoản chụp
+
+1. **Dùng lại stack local đang chạy** (backend Docker Compose tại `http://localhost:8080`, web dev server `npm run dev` tại `SmartDroneInspection-frontend` cổng `3000` đã proxy sẵn `/api`, và giả lập Flutter nếu chụp màn hình Mobile Customer). Không dựng thêm Compose/DB thứ hai chỉ để chụp ảnh, và không reset mật khẩu/dữ liệu seed.
+2. **Tài khoản seed dùng cho 4 cổng Web** (mật khẩu chung: `Test@12345`):
+
+| Vai trò | Cổng Web | Email seed |
+| --- | --- | --- |
+| `ADMIN` | `/admin` | `primary+admin@test.com` |
+| `MANAGER` | `/manager` | `primary+manager1@test.com` |
+| `CUSTOMER` | `/client` | `primary+customer@test.com` |
+| `INSPECTOR` | `/operations` | `primary+inspector1@test.com` |
+
+#### B. Quy trình chụp ảnh chuẩn
+
+- **Định dạng & kích thước:** Chỉ dùng file **`.png` thật** (exporter sẽ báo lỗi nếu sai định dạng hoặc thiếu file). Đặt viewport Web thống nhất **`1600×1000`** để cỡ hình đồng đều giữa các trang Word/PDF.
+- **Chất lượng ảnh:** Đợi trang tải xong hoàn toàn với dữ liệu dự án thật (không chụp khi đang skeleton loading, không để toast/popup thừa che nội dung, không chụp placeholder/dữ liệu giả). Khi UI thay đổi đáng kể, cần chụp lại ngay thay vì giữ ảnh cũ.
+- **Chụp tự động bằng `agent-browser` (khuyên dùng):** Tham khảo chi tiết tại [.claude/skills/capstone-report-export/SKILL.md](.claude/skills/capstone-report-export/SKILL.md) (nếu có trong `.claude/skills/` cục bộ). Quy trình tóm tắt:
+  ```powershell
+  # 1. Tạo session & khóa viewport chuẩn 1600x1000
+  agent-browser --session docs-shots set viewport 1600 1000
+
+  # 2. Đăng nhập bằng tài khoản của cổng cần chụp (tránh lộ mật khẩu trong history)
+  agent-browser --session docs-shots auth save admin --url http://localhost:3000/login --username primary+admin@test.com --password-stdin
+  agent-browser --session docs-shots auth login admin
+  agent-browser --session docs-shots open http://localhost:3000/admin/dashboard
+
+  # 3. Đợi nội dung ổn định rồi chụp thẳng vào thư mục assets/screens/
+  agent-browser --session docs-shots wait --text "Dashboard"
+  agent-browser --session docs-shots screenshot reports/report-3-software-requirement-specification/assets/screens/admin-dashboard.png
+
+  # 4. Đóng session khi hoàn tất
+  agent-browser --session docs-shots close
+  ```
+- **Gắn callout cho ảnh User Manual (`assets/manual/`):** Với các bước hướng dẫn sử dụng ở Report 7 (`06-release-package-and-user-guides.md`), đánh số callout tròn đỏ (`❶`, `❷`, `❸`, `❹`) lên các nút/vùng thao tác chính để khớp trực tiếp với từng bước mô tả.
+
+#### C. Nơi lưu trữ & quy ước đặt tên
+
+Mỗi folder report tự lưu bản copy ảnh của chính nó trong thư mục con `assets/` đặt ngay cạnh các file `.md`:
+
+| Loại ảnh | Thư mục lưu trữ | Quy ước đặt tên | Ghi chú đồng bộ |
+| --- | --- | --- | --- |
+| **Ảnh màn hình ứng dụng (Reports 3, 5, 6)** | `reports/report-3-software-requirement-specification/assets/screens/`<br>`reports/report-5-test-documentation/assets/screens/`<br>`reports/report-6-software-user-guides/assets/screens/` | `{portal}-{screen}.png` hoặc `{portal}-ws-{tab}.png` (`public-`, `admin-`, `manager-`, `client-`, `inspector-`; hiện 49 file) | Dùng chung bộ 49 ảnh; thêm/sửa ảnh nào phải **copy sang cả 3 folder** nếu đều tham chiếu. |
+| **Ảnh màn hình ứng dụng (Report 7)** | `reports/report-7-final-project-report/assets/screens/` | `{prefix}-{screen}.png` (`pub-`, `adm-`, `mgr-`, `cus-`, `ins-`, `mob-`; hiện 81 file gồm cả Mobile) | Ảnh chụp sạch không gắn số callout, phục vụ chương III (SRS). |
+| **Ảnh hướng dẫn có callout (Report 7)** | `reports/report-7-final-project-report/assets/manual/` | `wf<1..6>-<01..nn>-<ten-man-hinh>.png` (ví dụ `wf1-01-landing.png`; hiện 40 file) | Gắn số `❶ ❷ ❸` phục vụ chương VI (User Manual). |
+| **Ảnh sơ đồ từ `.drawio` / Mermaid** | `reports/report-<n>/assets/mermaid/` (hoặc `assets/*.png` như `context.png`, `erd.png`) | Theo hash Mermaid (`<12-hex>.png`) hoặc tên sơ đồ rõ nghĩa | Sinh bằng `tools/render_mermaid.py` hoặc export PNG từ `diagrams/*.drawio`. |
+| **Biểu đồ thống kê (Report 7)** | `reports/report-7-final-project-report/assets/charts/` | `<ten-bieu-do>.png` (`acceptance-status.png`, `test-inventory.png`, `project-timeline.png`, `scrum-process.png`) | Cập nhật lại khi số liệu timeline/test thay đổi. |
+
+#### D. Cách chèn vào Markdown & kiểm tra
+
+1. **Dùng đường dẫn tương đối từ file `.md` chứa ảnh:**
+   ```markdown
+   ![Customer building inventory](assets/screens/client-assets.png)
+
+   Figure 3.8 Customer building inventory.
+   ```
+   Hoặc với Report 7 phần User Manual:
+   ```markdown
+   ![Workflow 1 Step 1 — Public landing page entry controls.](assets/manual/wf1-01-landing.png)
+
+   *Figure 7.11 — Workflow 1 Step 1 — Public landing page entry controls.*
+   ```
+2. **Quy tắc caption:**
+   - Caption luôn đặt **ngay bên dưới hình**; mô tả màn hình/bước thao tác bằng tiếng Anh kỹ thuật (không lặp lại nguyên tên file `.png`).
+   - Phải có câu dẫn hoặc tham chiếu tới hình trong đoạn văn bản gần đó.
+3. **Kiểm tra sau khi chèn:** Chạy exporter của report vừa sửa (ví dụ `python -I tools/export_report3.py` hoặc `python -I tools/export_report7.py`) để xác nhận không thiếu file/hỏng PNG, sau đó kiểm tra bản xuất qua `check_output.py` / `verify_office_reports.ps1 -ExportPdf` để chắc chắn hình không bị cắt trang hoặc tràn khung.
 
 ---
 
