@@ -24,16 +24,18 @@ SOURCES = ["report-7-final-project-report/" + name + ".md"
 
 def chapter_blocks(source):
     chapter = parse_markdown(source, strict_tables=False)
+    in_step = False
     for index, block in enumerate(chapter):
-        if block.kind != "image" or not block.text.startswith("assets/manual/"):
+        if block.kind == "paragraph":
+            if block.text.startswith("**Step "):
+                in_step = True
+            elif in_step:
+                chapter[index - 1].keep_with_next = True
             continue
-        start = index - 1
-        while start >= 0 and chapter[start].kind == "paragraph":
-            if chapter[start].text.startswith("**Step "):
-                for paragraph in chapter[start:index + 1]:
-                    paragraph.keep_with_next = True
-                break
-            start -= 1
+        if in_step and block.kind == "image" and block.text.startswith("assets/manual/"):
+            chapter[index - 1].keep_with_next = True
+            block.keep_with_next = True
+        in_step = False
     return chapter
 
 

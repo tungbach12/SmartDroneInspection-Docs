@@ -14,559 +14,509 @@ source: "Report7_Final Project Report.docx"
 | 2 | Project Backlog | The twenty-four atomic feature backlog (`FE-01`–`FE-24`) across `MF1`–`MF4`. |
 | 3 | Source Codes | Four independent repositories: backend service (`SmartDroneInspection-backend`), web portals (`SmartDroneInspection-frontend`), Customer mobile client (`SmartDroneInspection-mobile`), and documentation (`SmartDroneInspection-docs`). |
 | 4 | Database Script(s) | Automated schema migration scripts (`V1`–`V4` and `V60`–`V80`) defining the PostgreSQL 17 database (`53` application tables / `55` total database tables, including `inspector_ratings` `V70`, `field_session_flights` `V72`, `rating_criterion_configs` `V73`, `service_request_partner_messages` `V79`, and `V80` checkpoint snapshots), `pgvector` support for `DroneKnowledgeAI`, and plain-text building ownership details. |
-| 5 | Final Report Document | Reports 1–7 of this documentation set, exported against the official templates. |
+| 5 | Final Report Document | Reports 1–7, prepared using the official templates. |
 | 6 | Test Cases Document | `Report5_Test Report.xlsx` (`v3.15`) with twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `77` listed rows (`75` active cases + `2` superseded `FE-13` cases), plus the executed results in Report 5 §5. |
 | 7 | Defects List | The defect log, recording `DEF-01` as resolved (`PR #33`) and one low-severity open tooling defect (`DEF-02`). |
-| 8 | Issues List | Outstanding issues and known limitations, including the out-of-scope items in Part III §3.8 (Report 3 §3.26). |
+| 8 | Issues List | Outstanding issues and known limitations, including the product limitations listed in Chapter III. |
 | 9 | Slide | The defence presentation used for the final review. |
 
 ## 2. Installation Guides
 
 ### 2.1 System Requirements
 
-**Hardware Requirements**
-
-| Component | Minimum Specification | Recommended Specification | Notes |
-| --- | --- | --- | --- |
-| Processor | 64-bit x86_64, 4 logical cores | 8+ logical cores | Detection inference (`YOLO11`) and FFmpeg video transcoding are CPU/RAM intensive. |
-| Memory (RAM) | 8 GB | 16 GB | Allocate at least 8 GB to Docker Desktop when running `ai-inference` alongside Postgres and backend. |
-| Disk Space | 40 GB free | 60+ GB SSD | Required for container images, PostgreSQL storage, and MinIO photo/MP4 evidence buckets. |
-| Network / Ports | Localhost loopback | Stable broadband / LAN (`14551/udp`, `5762/tcp`) | Required for package installs, optional OpenAI/Sepay/VNPay callbacks, and Mission Planner MAVLink bridge. |
-
-**Software Prerequisites**
-
-| Layer | Requirement | Purpose |
+| Component | Minimum Setup | Notes |
 | --- | --- | --- |
-| Containerization | Docker Engine 27+ with Compose plugin | Runs `postgres` (`pgvector:pg17`), `minio`, `ai-inference`, `smartdronehub`, and `backend`. |
-| Backend Runtime | Java 21 (Temurin) | Local backend builds (`./mvnw test`, `./mvnw verify`). |
-| Frontend Toolchain | Node.js 22+ & npm | Builds and serves the React 19 + TypeScript Web Portal (`vite`). |
-| Mobile SDK | Flutter SDK + Android toolchain / Chrome | Builds and runs the `CUSTOMER` mobile client (`flutter run`). |
-| Client Browser | Modern Chrome / Edge | Runs all four web portals cleanly in Light/Dark mode. |
+| Host | 64-bit x86 processor with 4 logical cores, 8 GB RAM and 40 GB free disk | Allow additional CPU, memory and storage for detection and video processing. Use 16 GB RAM and 60 GB free for the recommended setup. |
+| Backend and storage | Docker Engine 27+ with Docker Compose | Runs PostgreSQL, MinIO, AI inference, SmartDroneHub and the Spring Boot API. Java 21 is required for local backend builds and tests. |
+| Web development | Node.js 22+ and npm | Runs the Vite development server. Use Chrome or Edge. |
+| Customer mobile app | Flutter SDK and Android toolchain | Run on an emulator or physical Android device. |
+| Optional integrations | Network access for configured services | SmartDroneHub receives MAVLink on UDP 14551 by default. Its default TCP connection targets the host on port 5762. |
 
-### 2.2 Installation Instruction
+### 2.2 Installation Procedure
 
-#### Step 1 — Clone Repositories and Configure Environment
+#### Step 1 — Configure and Start the Backend
 
-Clone the four repositories into sibling directories.
+Clone the backend, frontend, mobile and documentation repositories into sibling directories. In the backend directory, copy `.env.example` to `.env`. Set credentials for PostgreSQL and MinIO, the signing secrets, the web origin and the bootstrap Administrator. Configure mail if you need to exercise public registration with email verification.
 
-In `SmartDroneInspection-backend/`, copy `.env.example` to `.env`. Set the PostgreSQL and MinIO credentials, signing secrets, web origin, and bootstrap Administrator credentials. Use the comments in the template to configure any integrations required for your environment.
+Run `docker compose up -d --build` in the backend directory. Use `docker compose ps` and open `http://localhost:8080/actuator/health`. Wait for `UP` before connecting either client. Flyway applies the migrations during startup.
 
-#### Step 2 — Start Backend Stack and Apply Flyway Migrations
+#### Step 2 — Start the Web Portal
 
-From `SmartDroneInspection-backend/`, run `docker compose up -d --build`. Flyway applies the database migrations on startup.
+From the frontend directory, run `npm install` and then `npm run dev`. Open `http://localhost:3000` and check that the sign-in page loads. The development server proxies `/api` to `http://localhost:8080` by default.
 
-Run `docker compose ps` to check the services. Verify that `http://localhost:8080/actuator/health` reports `UP` before starting the clients.
+#### Step 3 — Start the Customer Mobile App
 
-#### Step 3 — Start Web Portal and Mobile Client
+From the mobile directory, run `flutter doctor` and `flutter pub get`. Start an Android emulator and run `flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080/api/v1`. On a physical device, use a backend address that the device can reach. Verify that a Customer can sign in and open the home screen.
 
-**Web.** In `SmartDroneInspection-frontend/`, copy `.env.example` to `.env`, run `npm install`, and start `npm run dev`. Open `http://localhost:3000`. The dev server proxies `/api/*` to `http://localhost:8080` by default.
+#### Step 4 — Verify the First Web Login
 
-**Android emulator.** In `SmartDroneInspection-mobile/`, run `flutter pub get` and then `flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080/api/v1`. On a physical device, use the host address that the device can reach.
+Use the bootstrap Administrator credentials to sign in to the web portal. Change the initial password and check that **Platform users** opens.
 
-#### Step 4 — Bootstrap Login and Troubleshooting
-
-Sign in using the bootstrap `ADMIN` account, rotate credentials immediately, and provision additional accounts in `/admin/platform-users`. If the backend container fails on startup, verify both JWT/media signing secrets meet minimum length; if file uploads fail while API calls succeed, inspect MinIO credentials and bucket creation; if the AI embedding service is unavailable, finding drafting and recommendations automatically fall back to deterministic keyword matching without blocking workflows.
+If startup fails, use `docker compose logs backend` to find the failing check. For a signing error, check the secret lengths against `.env.example`. If uploads fail after sign-in, check that MinIO is healthy and the configured buckets are available.
 
 ## 3. User Manual
 
-### 3.1 Overview
+### 3.1 Find the Right Workflow
 
-SmartDroneInspection supports the Customer, Inspector, Manager, and Admin web portals, plus a Customer mobile app. The six tutorials below illustrate the web portals and follow the five main flows (`MF1A`–`MF4`). Match each numbered instruction above a figure to the same number in the image. The red boxes identify the control to use or the area to check, and numbering restarts with each figure.
+The six workflows use the web portal. Screenshots show example records. In your portal, keep using the same building, request and inspection when you switch roles. Match each numbered line to the red callout in its figure.
 
-![Workflow Overview — MF1A Customer Onboarding and Airspace Screening](assets/diagrams/act-mf1a-customer-onboarding.png)
+| If you want to | Start with | Finish when |
+| --- | --- | --- |
+| Create a Customer account and prepare a building | Workflow 1 · Customer | The building opens in **Assets** and its checkpoints are ready. |
+| Onboard a Partner Inspector and register a drone | Workflow 2 · Applicant, Manager, Inspector | The Inspector account is approved and the drone appears in the active fleet. |
+| Request, contract and schedule an inspection | Workflow 3 · Customer, Manager | The agreed occurrence has an assigned Inspector and drone. |
+| Prepare and complete a field session | Workflow 4 · Inspector | The session is complete and **Field Evidence** is available. |
+| Upload evidence and confirm findings | Workflow 5 · Inspector | The findings are confirmed and **Review & Submit** opens. |
+| Publish a report and settle payment | Workflow 6 · Inspector, Manager, Customer | The Customer accepts the published report and sees **Payment confirmed**. |
 
-*Figure 7.10a — End-to-end activity flow (MF1A): Customer registration, RESTRICTED_ZONE MSG28 amber warning, NO_FLY_ZONE hard block, and asset setup.*
+### 3.2 Workflow 1: Set Up a Customer Account and Building
 
-![Workflow Overview — MF1B Partner Inspector and Drone Onboarding](assets/diagrams/act-mf1b-partner-drone.png)
+Use a mailbox you can access for verification. Have the building address, category and map location ready.
 
-*Figure 7.10b — End-to-end activity flow (MF1B): Partner Inspector admission and drone registration (MANAGER review; ADMIN read-only).*
+#### Customer registration and building setup
 
-![Workflow Overview — MF2 Commercial Request, Quote, Contract and Dispatch](assets/diagrams/act-mf2-commercial-dispatch.png)
+**Step 1 — Create your Customer account.**
 
-*Figure 7.10c — End-to-end activity flow (MF2): One-time/recurring request, VND quote, Order/Partner chat, signed contract upload, and occurrence dispatch.*
+From the public home page, select **Sign up**.
 
-![Workflow Overview — MF3 Self-Attested Flight Permit, Telemetry and AI Analysis](assets/diagrams/act-mf3-permit-field-ai.png)
+❶ Enter your name and email, set and confirm your password, and accept the terms.
 
-*Figure 7.10d — End-to-end activity flow (MF3): Inspector self-attested flight permit (APPROVED), SmartDroneHub telemetry, chunked evidence, YOLO11, and DroneKnowledgeAI.*
+❷ Select **Create account** to request the email code.
 
-![Workflow Overview — MF4 Report Publication, Sepay Payout, Rating and Settlement](assets/diagrams/act-mf4-report-finance.png)
+Enter the six-digit code, then sign in when the portal returns you to the login page.
 
-*Figure 7.10e — End-to-end activity flow (MF4): Manager report decision -> Sepay VietQR Payout (SDIPAY) -> publication, Customer rating, and Sepay/VNPay settlement.*
+![Customer registration form](assets/manual/wf1-02-customer-register.png)
 
-### 3.2 Workflow 1: Customer Onboarding, Airspace Screening and Asset Setup (`FE-01`, `FE-04`, `FE-06`, `FE-07`, `FE-12`)
+*Figure 7.11 — Customer registration form.*
 
-**Purpose.** Onboard a new Customer account, screen building coordinates against Vietnam airspace zones (`NO_FLY_ZONE` hard block; `RESTRICTED_ZONE` amber `MSG28` advisory with immediate onboarding), configure inspection checkpoints and ownership notes, and verify notification settings.
-**Actors.** Prospective Customer (public), `CUSTOMER`.
-**Preconditions.** Backend and Web Portal are reachable; target building coordinates and category are known.
+**Step 2 — Add and screen the building.**
 
-**Step 1 — Navigate from the Public Landing Page.**
+In **Assets**, select **New asset**. Enter the building details and open **Pick on Google Maps**.
 
-❶ Use the **Header navigation** to find Services, About us, and How it works.
+❶ Pin the building and check the airspace result.
 
-❷ Select **Sign in** if you already have an account.
+❷ Select **Xác nhận vị trí này** (Confirm this location) when available.
 
-❸ Select **Sign up** to create a Customer account.
+A no-fly result blocks confirmation. For a restricted result, go to Step 3. For a clear location, finish the form, save and continue to Step 4.
 
-❹ Select **Get a consultation** to open the Customer registration page.
+![Building location and airspace result](assets/manual/wf1-03-airspace-map.png)
 
-![Workflow 1 Step 1 — Public landing page entry controls.](assets/manual/wf1-01-landing.png)
+*Figure 7.12 — Building location and airspace result.*
 
-*Figure 7.11 — Workflow 1 Step 1 — Public landing page entry controls.*
+**Step 3 — Review a restricted-zone warning.**
 
-**Step 2 — Create a Customer Account.**
+Follow this step when the confirmed position shows the amber warning.
 
-❶ Enter your name, email, and password, then review and accept the terms.
+❶ Read the named authority, altitude limit and reference in the advisory.
 
-❷ Select **Create account**. Follow the email verification and initial building prompts.
+You can still save the building. Obtain and record the required flight permit before field work.
 
-A restricted location shows an advisory and allows registration. A no-fly location blocks registration with those coordinates.
+![Restricted-zone advisory on the building form](assets/manual/wf1-04-restricted-airspace-warning.png)
 
-![Workflow 1 Step 2 — Customer account creation form.](assets/manual/wf1-02-customer-register.png)
+*Figure 7.13 — Restricted-zone advisory on the building form.*
 
-*Figure 7.12 — Workflow 1 Step 2 — Customer account creation form.*
+**Step 4 — Open the building you just added.**
 
-**Step 3 — Screen a Building Location.**
+❶ Select **Detail** on the building you just added to check its location and checkpoints.
 
-❶ In **Assets**, select **New asset** and then **Pick on Google Maps**. Pin the building, check the airspace result, and select **Xác nhận vị trí này** (Confirm this location) when available.
+![Opening the newly added building record](assets/manual/wf1-05-customer-assets.png)
 
-A no-fly result blocks confirmation. A restricted result shows an amber advisory and allows confirmation.
+*Figure 7.14 — Opening the newly added building record.*
 
-![Workflow 1 Step 3 — Interactive Airspace Map dialog evaluating building coordinates.](assets/manual/wf1-03-airspace-map.png)
+**Step 5 — Prepare checkpoints for the first inspection.**
 
-*Figure 7.13 — Workflow 1 Step 3 — Interactive Airspace Map dialog evaluating building coordinates.*
+❶ Verify the building code and pinned location against the intended inspection site.
 
-**Step 4 — Review the Restricted Airspace Advisory.**
+❷ Review **Inspection Checkpoints** and any **Attached documents**. Update the checkpoints that the Inspector should verify before the first inspection is created.
 
-❶ Read the **Restricted Airspace** warning (`MSG28`) for the named authority, altitude ceiling, and published reference.
+If an inspection already exists, the checkpoints are read-only, as shown in the example.
 
-❷ Use **Pick on Google Maps** to adjust the pin if needed.
+![Building checkpoints and reference documents](assets/manual/wf1-06-customer-asset-detail.png)
 
-Complete the required asset fields and save. Restricted locations can be saved immediately. Flight authorization remains a separate requirement.
+*Figure 7.15 — Building checkpoints and reference documents.*
 
-![Workflow 1 Step 4 — Restricted Airspace MSG28 amber advisory banner during asset onboarding.](assets/manual/wf1-04-restricted-airspace-warning.png)
+#### Find an update from a notification
 
-*Figure 7.14 — Workflow 1 Step 4 — Restricted Airspace MSG28 amber advisory banner during asset onboarding.*
+**Step 6 — Open the linked request or inspection.**
 
-**Step 5 — Manage the Building Register.**
+❶ In the Customer portal, open **Notifications**.
 
-❶ Select **New asset** to add a building.
+❷ Select the alert for the request or inspection you want to follow.
 
-❷ Use **Search** and **Status** to narrow the list.
+![Customer notification linking to a work item](assets/manual/wf1-07-notifications-settings.png)
 
-❸ Select **Detail** on the building card to open its record.
+*Figure 7.16 — Customer notification linking to a work item.*
 
-![Workflow 1 Step 5 — Customer building inventory and filter controls.](assets/manual/wf1-05-customer-assets.png)
+### 3.3 Workflow 2: Approve a Partner Inspector and Register a Drone
 
-*Figure 7.15 — Workflow 1 Step 5 — Customer building inventory and filter controls.*
+The applicant needs an email address, identity information and a pilot licence scan. The Manager needs a signed partner contract before approval. The Inspector can prepare the aircraft documents after account approval.
 
-**Step 6 — Review Checkpoints and Reference Documents.**
+#### Applicant submits the application
 
-❶ Check the building name, status, and pinned location in the **Asset detail header**.
+**Step 1 — Apply as a Partner Inspector.**
 
-❷ Review **Attached documents** and **Inspection Checkpoints**.
+On the Inspector sign-in page, select **Register as Inspector**.
 
-Edit checkpoints before the first inspection. The example shows the locked state after an inspection has been created.
+❶ Enter your account details and select **Tiếp tục** (Continue).
 
-![Workflow 1 Step 6 — Customer building detail checkpoints and document attachments.](assets/manual/wf1-06-customer-asset-detail.png)
+❷ Provide identity and licence information, upload the requested scan and complete email verification to submit the application.
 
-*Figure 7.16 — Workflow 1 Step 6 — Customer building detail checkpoints and document attachments.*
+![Partner Inspector application stages](assets/manual/wf2-01-inspector-apply.png)
 
-**Step 7 — Review Customer Notifications.**
+*Figure 7.17 — Partner Inspector application stages.*
 
-❶ Open **Notifications** in the account sidebar.
+#### Manager reviews the application
 
-❷ Read the **Notification list** and open an alert to see the related update.
+**Step 2 — Record the signed contract and approve the applicant.**
 
-![Workflow 1 Step 7 — Account notifications inbox and deep-link alerts.](assets/manual/wf1-07-notifications-settings.png)
+Open **Inspector applications**, locate the applicant and select **Review application**. Verify the licence details and scan.
 
-*Figure 7.17 — Workflow 1 Step 7 — Account notifications inbox and deep-link alerts.*
+Use **Upload signed contract** to attach the signed partner agreement. Approve the application once the scan is attached. The approved Inspector can then sign in.
 
-### 3.3 Workflow 2: Partner Inspector Admission and Drone Registration (`FE-02`, `FE-03`)
+#### Inspector submits the drone registration
 
-**Purpose.** Admit a qualified drone pilot through public application review and register an airframe eligible for mission dispatch under Decree 288/2025/ND-CP.
-**Actors.** Prospective Inspector (public), `INSPECTOR`, `MANAGER` (approver); `ADMIN` holds read-only oversight.
-**Preconditions.** Applicant holds a valid civil pilot licence scan; drone registration/ownership documents are ready.
+**Step 3 — Open the registration form.**
 
-**Step 1 — Submit a Partner Inspector Application.**
+Sign in as the approved Inspector and open **My drones**.
 
-❶ Follow the three stages shown in the progress bar. Enter account details, provide identity and licence documents, then verify the email code and submit.
+❶ Select **Register New Drone**.
 
-❷ Fill in the account form and select **Tiếp tục** (Continue) to move to the document stage.
+![Opening the Register New Drone form](assets/manual/wf2-04-my-drones.png)
 
-![Workflow 2 Step 1 — Three-step Partner Inspector public application form.](assets/manual/wf2-01-inspector-apply.png)
+*Figure 7.18 — Opening the Register New Drone form.*
 
-*Figure 7.18 — Workflow 2 Step 1 — Three-step Partner Inspector public application form.*
+**Step 4 — Submit the aircraft and supporting documents.**
 
-**Step 2 — Review Inspector or Drone Applications.**
+❶ Enter the aircraft details, select its capabilities and attach the requested photos and documents. Check the requirements shown for registration, proof of ownership and technical inspection.
 
-❶ As `MANAGER`, open **Inspector applications** or **Drone registrations** in the governance menu.
+❷ Select **Submit Application** and check that the application is awaiting review.
 
-❷ Filter the queue by status. Open a pending record with **Review application** and record the decision.
+![Drone registration form and submit action](assets/manual/wf2-05-drone-register-form.png)
 
-The example shows the Drone registrations queue. `ADMIN` can view both queues in read-only mode.
+*Figure 7.19 — Drone registration form and submit action.*
 
-![Workflow 2 Step 2 — Onboarding navigation and drone registration filters.](assets/manual/wf2-02-review-queue.png)
+#### Manager reviews the drone registration
 
-*Figure 7.19 — Workflow 2 Step 2 — Onboarding navigation and drone registration filters.*
+**Step 5 — Approve the drone application.**
 
-**Step 3 — Check the Partner Roster.**
+❶ Open **Drone registrations** as Manager.
 
-❶ Open **Partner inspectors** and check the Inspector’s status, licence class, and validity in the **Partner workforce** table. Open **Pilot profile** to see more details.
+❷ Find the pending aircraft and open **Review application**.
 
-![Workflow 2 Step 3 — Manager partner inspectors eligibility directory.](assets/manual/wf2-03-partner-roster.png)
+Check the documents before approving the application. After approval, the Inspector can verify the aircraft in **My drones → Active Fleet**.
 
-*Figure 7.20 — Workflow 2 Step 3 — Manager partner inspectors eligibility directory.*
+![Manager drone registration queue](assets/manual/wf2-02-review-queue.png)
 
-**Step 4 — Open My Drones.**
+*Figure 7.20 — Manager drone registration queue.*
 
-❶ As an approved `INSPECTOR`, open **My drones** and select **Register New Drone** to add an aircraft.
+### 3.4 Workflow 3: Request, Quote, Contract and Dispatch an Inspection
 
-❷ Use the **Active Fleet** cards to check the status and details of an existing aircraft.
+Start with an active building in the Customer portal. Use the same request when switching between Customer and Manager.
 
-![Workflow 2 Step 4 — Inspector owned drone fleet registry.](assets/manual/wf2-04-my-drones.png)
+#### Customer submits the request
 
-*Figure 7.21 — Workflow 2 Step 4 — Inspector owned drone fleet registry.*
+**Step 1 — Create a service request.**
 
-**Step 5 — Submit Drone Details and Documents.**
+Open **Service requests → New service request**.
 
-❶ Enter the aircraft details, select its capabilities, and upload the drone photos and supporting documents requested by the form.
+❶ Select the building and inspection frequency. Set the first date at least 20 days ahead and complete the recurring schedule fields if shown.
 
-❷ Select **Submit Application**. A Manager reviews the submission in **Drone registrations** from Step 2.
+❷ Select **Submit service request** and confirm the new request appears in the list.
 
-![Workflow 2 Step 5 — Register owned drone specification and document form.](assets/manual/wf2-05-drone-register-form.png)
+![Building, schedule and submit controls for a service request](assets/manual/wf3-02-cus-new-request.png)
 
-*Figure 7.22 — Workflow 2 Step 5 — Register owned drone specification and document form.*
+*Figure 7.21 — Building, schedule and submit controls for a service request.*
 
-### 3.4 Workflow 3: Service Request, Quotation, Contract and Dispatch (`FE-08`–`FE-11`)
+#### Manager claims the request and prepares the quotation
 
-**Purpose.** Create a building inspection request, negotiate commercial terms via Order Chat, record customer acceptance and the signed offline contract, and dispatch an eligible partner crew.
-**Actors.** `CUSTOMER`, `MANAGER`.
-**Preconditions.** At least one `ACTIVE` building exists and an approved Inspector + owned Drone pair is eligible.
+**Step 2 — Claim the new request.**
 
-**Step 1 — Open Customer Service Requests.**
+Open **Service requests** as Manager. On the new request, open the actions menu and select **Claim request**. The claimed request opens for review.
 
-❶ Select **New service request** to create a request.
+**Step 3 — Clarify the scope if needed.**
 
-❷ Open an existing **Request row** to check its schedule and status.
+❶ In **Messages**, select the **Customer** tab and open the request thread.
 
-![Workflow 3 Step 1 — Customer service requests list and creation button.](assets/manual/wf3-01-cus-requests.png)
+❷ Ask about the inspection scope or proposed schedule. The Customer replies in the same request thread from the **Manager** tab in **Messages**.
 
-*Figure 7.23 — Workflow 3 Step 1 — Customer service requests list and creation button.*
+![Order Chat for a Customer request](assets/manual/wf3-04-mgr-messages.png)
 
-**Step 2 — Set the Inspection Schedule.**
+*Figure 7.22 — Order Chat for a Customer request.*
 
-❶ Choose the building and inspection frequency. Set the first date at least 20 days ahead and complete any fields shown for recurring work.
+**Step 4 — Issue the quotation.**
 
-❷ Select **Submit service request** once the required fields are complete.
+In the claimed request, open **Prepare quote**. Review the inspection checkpoints and complete the scope, dates and VND pricing. Select **Save quote**. The request waits for the Customer to review the quote.
 
-![Workflow 3 Step 2 — Customer service request form with schedule validation.](assets/manual/wf3-02-cus-new-request.png)
+#### Customer accepts the quoted terms
 
-*Figure 7.24 — Workflow 3 Step 2 — Customer service request form with schedule validation.*
+**Step 5 — Accept the current quotation.**
 
-**Step 3 — Claim the Service Request.**
+Open the same request and select **Review quote**. Verify the scope, first date and price, then select **Accept quote** and confirm. The Manager can now record the signed agreement.
 
-❶ As `MANAGER`, open **Service requests**. Use the actions menu on the new request and select **Claim request** to take ownership.
+#### Manager records the contract and dispatches the team
 
-The example shows the request list with records already in progress.
+**Step 6 — Record the signed contract.**
 
-![Workflow 3 Step 3 — Manager incoming service requests queue.](assets/manual/wf3-03-mgr-requests.png)
+Once the paper agreement has been signed, open **Record contract** in the request and upload the signed scan. The occurrence is ready for team assignment once the contract is recorded.
 
-*Figure 7.25 — Workflow 3 Step 3 — Manager incoming service requests queue.*
+**Step 7 — Assign the Inspector and drone.**
 
-**Step 4 — Negotiate Scope in Manager Order Chat.**
+Open **Assign team** for the occurrence after the contract is recorded.
 
-❶ Open **Messages**, select the **Customer** tab, and choose the Customer’s request thread.
+❶ In **Scheduled flight & assignment**, set the flight window and select **Find eligible partners**.
 
-❷ Use the **Message composer** to clarify scope and the proposed terms.
+Once the candidates load, choose an eligible Inspector and their drone, then select **Assign occurrence**. Verify the assigned pair and flight window. If the mission is awaiting the Inspector’s response, continue with **Accept mission** in Workflow 4.
 
-![Workflow 3 Step 4 — Manager Order Chat workspace.](assets/manual/wf3-04-mgr-messages.png)
+![Flight window and eligible team selection](assets/manual/wf3-06-mgr-quote-agreement.png)
 
-*Figure 7.26 — Workflow 3 Step 4 — Manager Order Chat workspace.*
+*Figure 7.23 — Flight window and eligible team selection.*
 
-**Step 5 — Reply in Customer Order Chat.**
+#### Customer verifies the dispatched inspection
 
-❶ In **Messages**, select the **Manager** tab and open the request thread.
+**Step 8 — Open the scheduled inspection.**
 
-❷ Use the **Message composer** to send a reply or attachment.
+❶ In the same request, check that the progress bar shows **Scheduled**.
 
-![Workflow 3 Step 5 — Customer Order Chat negotiation panel.](assets/manual/wf3-05-cus-messages.png)
+❷ Select **Open inspection** to confirm the scheduled occurrence.
 
-*Figure 7.27 — Workflow 3 Step 5 — Customer Order Chat negotiation panel.*
+![Scheduled request and inspection link](assets/manual/wf3-07-cus-quote-review.png)
 
-**Step 6 — Quote, Record the Contract, and Assign the Team.**
+*Figure 7.24 — Scheduled request and inspection link.*
 
-❶ As Manager, use **Prepare quote** to issue the VND quotation. The Customer opens **Review quote** and selects **Accept quote**. Then use **Record contract** to upload the signed paper agreement.
+### 3.5 Workflow 4: Accept a Mission and Complete Field Work
 
-❷ In **Scheduled flight & assignment**, set the flight window, select **Find eligible partners**, and assign an Inspector and drone.
+Use the assigned Inspector account. Have the flight permit ready and confirm that it covers the assigned aircraft and planned flight window.
 
-The figure shows the **Assign team** stage, after the contract was recorded.
+#### Inspector accepts and prepares the mission
 
-![Workflow 3 Step 6 — Manager scheduled flight window and partner assignment controls.](assets/manual/wf3-06-mgr-quote-agreement.png)
+**Step 1 — Open and accept the assigned mission.**
 
-*Figure 7.28 — Workflow 3 Step 6 — Manager scheduled flight window and partner assignment controls.*
+❶ In **Inspections**, open the row for the assigned building and date.
 
-**Step 7 — Open the Scheduled Inspection as Customer.**
+If the mission is awaiting a response, select **Accept mission** in the inspection. If you cannot take it, select **Decline mission** and enter a reason so the Manager can reassign it.
 
-❶ Open the request and check that the progress bar has reached **Scheduled**.
+![Inspector assignment list](assets/manual/wf4-01-ins-inspections.png)
 
-❷ Select **Open inspection** to track the assigned inspection.
+*Figure 7.25 — Inspector assignment list.*
 
-![Workflow 3 Step 7 — Customer request detail showing the scheduled inspection link.](assets/manual/wf3-07-cus-quote-review.png)
+**Step 2 — Confirm site access if needed.**
 
-*Figure 7.29 — Workflow 3 Step 7 — Customer request detail showing the scheduled inspection link.*
+From the inspection’s **Messages** action, open the Customer conversation. Confirm the meeting point, access arrangements or any change before the visit.
 
-**Step 8 — Check the Dispatched Inspection as Manager.**
+**Step 3 — Upload and verify the flight permit.**
 
-❶ In **Inspections**, open the **Scheduled** occurrence and verify the assigned Inspector, drone, and flight window. Check the assignment acceptance status in the inspection details.
+While the inspection is scheduled, select **Flight Permit** in the progress bar. Upload the permit (up to 25 MB), enter its authority, dates and other requested details, and attest to its validity. A valid upload immediately shows **Approved**.
 
-![Workflow 3 Step 8 — Manager scheduled occurrence monitor.](assets/manual/wf3-08-mgr-inspections.png)
+❶ Check that the saved serial number matches the assigned drone and that the permit covers the flight window.
 
-*Figure 7.30 — Workflow 3 Step 8 — Manager scheduled occurrence monitor.*
+The figure shows the stored permit. Upload a new permit if a drone change or an out-of-window reschedule resets its status.
 
-### 3.5 Workflow 4: Mission Execution, Flight Permit and Live Hub Telemetry (`FE-10`, `FE-13`, `FE-14`)
+![Stored permit and assigned aircraft details](assets/manual/wf4-04-ins-permit.png)
 
-**Purpose.** Accept partner dispatch, self-attest and upload the regulatory flight permit, execute pre-flight checks, connect live ArduPilot/Mission Planner MAVLink telemetry (`SmartDroneHub`), and close post-flight verification.
-**Actors.** `INSPECTOR`, `MANAGER` (read-only audit), SmartDroneHub (`14551/udp` / `5762/tcp`).
-**Preconditions.** An inspection has been dispatched to the Inspector and is `SCHEDULED`. Have the flight permit document ready for upload (up to 25 MB).
+*Figure 7.26 — Stored permit and assigned aircraft details.*
 
-**Step 1 — Open an Assigned Inspection.**
+#### Inspector completes the field session
 
-❶ As `INSPECTOR`, open **Inspections** and select the row for the assigned building.
+**Step 4 — Complete pre-flight checks and start the session.**
 
-If the assignment is awaiting your response, accept it in the workspace before starting field preparation.
+❶ Select **Pre-flight Check** in the progress bar.
 
-![Workflow 4 Step 1 — Inspector assigned inspections schedule.](assets/manual/wf4-01-ins-inspections.png)
+❷ Verify each item under **Required checks**. Check applicable optional items below that list.
 
-*Figure 7.31 — Workflow 4 Step 1 — Inspector assigned inspections schedule.*
+❸ Use **Check all** only after verifying every item it will mark.
 
-**Step 2 — Coordinate Site Access in Inspection Chat.**
+Record relevant site observations under **Pre-flight note**, then select **Start session & Continue to Flight**. The workspace opens **Flight Operation** when the session starts.
 
-❶ Use the **Inspection link** in the Customer conversation to reopen the matching inspection.
+![Required pre-flight checks and checklist controls](assets/manual/wf4-05-ins-preflight.png)
 
-❷ Use the **Message composer** to confirm the site access arrangements.
+*Figure 7.27 — Required pre-flight checks and checklist controls.*
 
-![Workflow 4 Step 2 — Inspector per-inspection chat with Customer.](assets/manual/wf4-02-ins-messages.png)
+**Step 5 — Record and finish a flight.**
 
-*Figure 7.32 — Workflow 4 Step 2 — Inspector per-inspection chat with Customer.*
+In **Flight Operation**, use **SmartDroneHub telemetry** to record or import the flight data according to the available controls. Use **Complete flight** after each sortie when telemetry is active. This closes the sortie so the session can proceed to post-flight checks.
 
-**Step 3 — Check Inspection Progress.**
+❶ Select **Choose log** to import a supported flight log when needed.
 
-❶ Use the **Inspection progress bar** to identify the current stage and open an available stage.
+The figure shows log import after the session is closed. During the session, continue to **Post-flight & Items** after the final sortie.
 
-❷ Read the **Inspection Scheduled** message for the next action.
+![Flight log import after the session closes](assets/manual/wf4-06-ins-flightsession.png)
 
-![Workflow 4 Step 3 — Inspection workspace tracking and stage progress.](assets/manual/wf4-03-ins-tracking.png)
+*Figure 7.28 — Flight log import after the session closes.*
 
-*Figure 7.33 — Workflow 4 Step 3 — Inspection workspace tracking and stage progress.*
+**Step 6 — Complete post-flight checks and close the session.**
 
-**Step 4 — Upload and Self-Attest the Flight Permit.**
+❶ Open **Post-flight & Items**.
 
-❶ Open **Flight Permit** while the inspection is scheduled. Upload the permit, enter its metadata, and attest to its validity. A valid upload is recorded as `APPROVED`.
+❷ Complete the post-flight checklist and mark the **Target Building Inspection Items** you verified. The figure shows the building items after verification.
 
-❷ Check the saved **Permit details**, including the drone serial number and validity window.
+Select **Complete session & Continue to Evidence**. Supply a reason if the app prompts for an explanation of remaining items. If field work cannot continue, use **Abort session** and record why.
 
-❸ Select **View permit document** to open the uploaded file.
+![Post-flight stage and building inspection items](assets/manual/wf4-07-ins-postflight.png)
 
-The example shows the stored permit after the inspection has left the scheduled stage.
+*Figure 7.29 — Post-flight stage and building inspection items.*
 
-![Workflow 4 Step 4 — Inspector mission flight permit panel.](assets/manual/wf4-04-ins-permit.png)
+#### Manager checks the recorded field work
 
-*Figure 7.34 — Workflow 4 Step 4 — Inspector mission flight permit panel.*
+**Step 7 — Audit the permit and flight record.**
 
-**Step 5 — Complete the Pre-flight Safety Check.**
+❶ Open **Field & Evidence Audit** in the Manager inspection workspace.
 
-❶ Select **Pre-flight Check** in the inspection progress bar.
+❷ Check the recorded **Flight Permit** and expand **Flight report** to review the flight details.
 
-❷ Verify each item under **Required checks** and any applicable optional checks.
+![Manager audit of the permit and flight record](assets/manual/wf4-08-mgr-audit.png)
 
-❸ After verifying the items, use **Check all** to mark the checklist together if appropriate.
+*Figure 7.30 — Manager audit of the permit and flight record.*
 
-Record any site observations and start the field session when the required checks are complete.
+### 3.6 Workflow 5: Upload Evidence and Confirm Findings
 
-![Workflow 4 Step 5 — Pre-flight safety checklist verification.](assets/manual/wf4-05-ins-preflight.png)
+Use the assigned Inspector account and the same inspection as in Workflow 4. Have the photos or MP4 files available. Complete field work before confirming findings.
 
-*Figure 7.35 — Workflow 4 Step 5 — Pre-flight safety checklist verification.*
+#### Inspector records evidence and findings
 
-**Step 6 — Record Flight Operations.**
+**Step 1 — Upload the inspection captures.**
 
-❶ Open **Flight Operation** once the field session is active.
+❶ In **Field Evidence**, select **Choose files** and then **Upload**. Photos may be up to 10 MB and MP4 videos up to 2 GB.
 
-❷ Use **SmartDroneHub telemetry** to connect live MAVLink telemetry or import a supported flight log.
+❷ Verify that the files appear in the evidence register. Wait for video processing before checking playback.
 
-Complete the flight at the end of the sortie, then continue to **Post-flight & Items**. The figure shows the completed session and log import options.
+![Evidence upload and registered captures](assets/manual/wf5-01-ins-evidence.png)
 
-![Workflow 4 Step 6 — Completed field session with SmartDroneHub and flight log import options.](assets/manual/wf4-06-ins-flightsession.png)
+*Figure 7.31 — Evidence upload and registered captures.*
 
-*Figure 7.36 — Workflow 4 Step 6 — Completed field session with SmartDroneHub and flight log import options.*
+**Step 2 — Run detection on the uploaded images.**
 
-**Step 7 — Complete Post-flight Checks and Building Items.**
+❶ In **Defect Findings**, select **Analyze all images** to run detection on eligible photos.
 
-❶ Open **Post-flight & Items** and complete the post-flight checklist.
+❷ When findings are present, select **Draft all notes** if you want suggested notes for them.
 
-❷ Mark the **Target Building Inspection Items** you verified.
+Review the evidence yourself before accepting a detection or an AI-drafted note.
 
-Complete the session to proceed to evidence. The figure shows the building items after verification.
+![Batch detection and note drafting controls](assets/manual/wf5-02-ins-findings-toolbar.png)
 
-![Workflow 4 Step 7 — Post-flight checklist and target building checkpoint completion.](assets/manual/wf4-07-ins-postflight.png)
+*Figure 7.32 — Batch detection and note drafting controls.*
 
-*Figure 7.37 — Workflow 4 Step 7 — Post-flight checklist and target building checkpoint completion.*
+**Step 3 — Decide each suggested finding.**
 
-**Step 8 — Audit Field Evidence as Manager.**
+❶ Turn on **Show detected regions** to compare the marked region with the evidence photo.
 
-❶ As `MANAGER`, open **Field & Evidence Audit** in the inspection review workspace.
+❷ Use **Draft note with AI** when needed and correct the suggested text before saving.
 
-❷ Inspect the uploaded **Flight Permit** and expand **Flight report** to review the recorded flight details.
+❸ Select **Confirm** when the finding is supported by the evidence.
 
-The audit provides read-only access to the Inspector’s permit and flight records.
+❹ Select **Remove** if the evidence does not support the suggestion.
 
-![Workflow 4 Step 8 — Manager read-only flight permit and telemetry audit panel.](assets/manual/wf4-08-mgr-audit.png)
+![Evidence, suggested note and finding decision](assets/manual/wf5-03-ins-findings-card.png)
 
-*Figure 7.38 — Workflow 4 Step 8 — Manager read-only flight permit and telemetry audit panel.*
+*Figure 7.33 — Evidence, suggested note and finding decision.*
 
-### 3.6 Workflow 5: Evidence Intake, AI Defect Detection and Findings Confirmation (`FE-15`, `FE-16`, `FE-17`)
+**Step 4 — Confirm the findings baseline.**
 
-**Purpose.** Upload building photos and resumable MP4 video from the mission, run AI defect detection, refine notes using `DroneKnowledgeAI`, and confirm the official finding baseline.
-**Actors.** `INSPECTOR`, Automated AI Pipeline (`YOLO11`, `DroneKnowledgeAI`, media processor).
-**Preconditions.** Field session is active or completed; inspection photos and MP4 footage are staged locally.
+❶ Once field work is complete and at least one evidence item is still active, select **Confirm findings and continue**.
 
-**Step 1 — Upload Photos and Video.**
+If suggestions are awaiting a decision, as shown in the figure, use **Unconfirmed** to find and resolve them. If no findings were observed, acknowledge that you reviewed the captures. Confirmation opens **Review & Submit**.
 
-❶ In **Field Evidence**, select **Choose files**, then **Upload**. Photos may be up to 10 MB and MP4 videos up to 2 GB.
+![Findings confirmation awaiting review decisions](assets/manual/wf5-04-ins-findings-confirm.png)
 
-❷ Open a file in the **Evidence register** to check it. Wait for video processing to finish before reviewing playback.
+*Figure 7.34 — Findings confirmation awaiting review decisions.*
 
-![Workflow 5 Step 1 — Field evidence upload controls and inspection photo register.](assets/manual/wf5-01-ins-evidence.png)
+### 3.7 Workflow 6: Submit, Publish and Pay for the Report
 
-*Figure 7.39 — Workflow 5 Step 1 — Field evidence upload controls and inspection photo register.*
+Start with a confirmed findings baseline for the same inspection. An independent Manager reviews the submitted report. The Customer can accept the report after publication.
 
-**Step 2 — Filter Findings and Run AI Actions.**
+#### Inspector submits the report
 
-❶ Use the status filters to show **All active**, **Unconfirmed**, or **Confirmed** findings.
+**Step 1 — Review the report before submitting.**
 
-❷ Select **Draft all notes** to generate suggested notes for eligible findings.
+Open **Review & Submit** and compare the report preview with the confirmed findings and flight record.
 
-❸ Select **Analyze all images** to run defect detection on the available photos.
+❶ Expand **AI Executive Summary** and verify what it says against the inspection evidence.
 
-Review any AI suggestions before confirming a finding.
+The figure shows the location of the summary in a published report. In the submission view, select **Submit for review**, then **Confirm and Submit**. Verify that the report is **Submitted**.
 
-![Workflow 5 Step 2 — Defect findings filter chips and batch AI actions.](assets/manual/wf5-02-ins-findings-toolbar.png)
+![Where to review the AI executive summary](assets/manual/wf6-01-ins-report.png)
 
-*Figure 7.40 — Workflow 5 Step 2 — Defect findings filter chips and batch AI actions.*
+*Figure 7.35 — Where to review the AI executive summary.*
 
-**Step 3 — Review and Confirm an Individual Finding.**
+#### Manager decides, settles payout and publishes
 
-❶ Check the **Evidence photo** and turn on **Show detected regions** to compare the marked area with the suspected defect.
+**Step 2 — Review the submitted report.**
 
-❷ Select **Draft note with AI** if needed. Check and edit the proposed note before saving it.
+Open **Reports**, select the same inspection with a submitted report and open **Report Decision**. Compare the report and summary with the evidence. Approve a correct report, or return it with a reason for the Inspector to address.
 
-❸ Select **Confirm** once the finding accurately reflects the evidence.
+**Step 3 — Settle the Inspector payout.**
 
-![Workflow 5 Step 3 — Finding card with bounding region, AI-drafted ASTM note, and human confirmation.](assets/manual/wf5-03-ins-findings-card.png)
+For a commercial inspection, continue to **Inspector Payout** after approval. Select **Pay Inspector via SePay (VietQR)** and verify that the payout is settled before publishing.
 
-*Figure 7.41 — Workflow 5 Step 3 — Finding card with bounding region, AI-drafted ASTM note, and human confirmation.*
+**Step 4 — Publish the official report.**
 
-**Step 4 — Confirm the Findings Baseline.**
+❶ Select **Continue to Publish Report** once the report is approved and any required payout is settled.
 
-❶ Resolve every finding awaiting review, then select **Confirm findings and continue** to unlock report preparation.
+Select **Publish to Customer** and verify that the report is **Published**.
 
-The button is disabled in the example because two findings still need a decision. For an inspection with no findings, acknowledge that you reviewed the captures before continuing.
+![Approved report with settled payout ready for publication](assets/manual/wf6-03-mgr-review.png)
 
-![Workflow 5 Step 4 — Findings baseline confirmation while two findings await review.](assets/manual/wf5-04-ins-findings-confirm.png)
+*Figure 7.36 — Approved report with settled payout ready for publication.*
 
-*Figure 7.42 — Workflow 5 Step 4 — Findings baseline confirmation while two findings await review.*
+#### Customer accepts the report and pays
 
-### 3.7 Workflow 6: Report Authoring, Review, Acceptance and Financial Settlement (`FE-05`, `FE-17`–`FE-24`)
-
-**Purpose.** Prepare and publish the official inspection report, allow the Customer to accept and pay online through Sepay VietQR or VNPay, and record Partner Inspector payouts.
-**Actors.** `INSPECTOR`, `MANAGER`, `CUSTOMER`, Payment Gateway (Sepay / VNPay).
-**Preconditions.** Official findings baseline has been confirmed.
-
-**Step 1 — Prepare and Submit the Inspection Report.**
-
-❶ In **Review & Submit**, expand **AI Executive Summary** and check the advisory summary against the confirmed findings. Submit the draft for independent Manager review.
-
-❷ Use **Download report** to save the official PDF after publication, as shown in the example.
-
-The figure shows the published view.
-
-![Workflow 6 Step 1 — Published report view with AI summary and PDF download.](assets/manual/wf6-01-ins-report.png)
-
-*Figure 7.43 — Workflow 6 Step 1 — Published report view with AI summary and PDF download.*
-
-**Step 2 — Locate the Report as Manager.**
-
-❶ Open the Manager **Reports** queue and select the inspection with a report awaiting review or further action. Read the **Stage** and **Report** columns to identify the next action.
-
-The highlighted record shows **Approved** and **Inspector Payout**.
-
-![Workflow 6 Step 2 — Manager inspection reports review queue.](assets/manual/wf6-02-mgr-reports.png)
-
-*Figure 7.44 — Workflow 6 Step 2 — Manager inspection reports review queue.*
-
-**Step 3 — Review, Settle Inspector Payout, and Publish.**
-
-❶ Use the progress bar to open **Report Decision**.
-
-❷ Check the **Report details** and summary against the inspection evidence, then approve the report. For a commercial inspection, complete **Inspector Payout** through Sepay VietQR before publication.
-
-❸ After approval and payout are recorded, select **Continue to Publish Report** and publish the official version.
-
-![Workflow 6 Step 3 — Manager report approved and payout settled, ready to publish.](assets/manual/wf6-03-mgr-review.png)
-
-*Figure 7.45 — Workflow 6 Step 3 — Manager report approved and payout settled, ready to publish.*
-
-**Step 4 — Open the Published Report as Customer.**
+**Step 5 — Open the published report.**
 
 ❶ Open **Inspections** in the Customer portal.
 
-❷ Select a row marked **Published**, then open **Inspection Report** to read the report.
+❷ Select the inspection marked **Published**, then open **Inspection Report** to read the report.
 
-![Workflow 6 Step 4 — Customer inspections list highlighting published deliverable.](assets/manual/wf6-04-cus-inspections.png)
+![Customer inspections list with the published report](assets/manual/wf6-04-cus-inspections.png)
 
-*Figure 7.46 — Workflow 6 Step 4 — Customer inspections list highlighting published deliverable.*
+*Figure 7.37 — Customer inspections list with the published report.*
 
-**Step 5 — Accept the Report, Pay, and Rate the Inspector.**
+**Step 6 — Accept the published report.**
 
-❶ Open **Inspection Report** and accept it. Then open **Service Payment** to pay through Sepay VietQR or VNPay.
+Select **Accept Report**, then **Confirm & Accept Report**. Verify that **Service Payment** is available.
 
-❷ Check **Payment confirmed** and the recorded payment method after settlement.
+**Step 7 — Pay and verify settlement.**
 
-❸ Select **Download payment receipt (PDF)** to save the receipt.
+Open **Service Payment**, choose Sepay VietQR or VNPay and follow the payment instructions. Return to the inspection and check the result before paying again.
 
-❹ Use the Inspector’s rating card to leave or edit a rating.
+❶ Check **Payment confirmed** and verify the recorded method.
 
-The figure shows a completed VNPay payment and an existing rating.
+❷ Select **Download payment receipt (PDF)** if you need a copy.
 
-![Workflow 6 Step 5 — Customer service payment confirmation, receipt, and Inspector rating.](assets/manual/wf6-05-cus-report-pay.png)
+The figure shows a settled VNPay payment. The Customer can also use the rating card to leave or edit an Inspector rating.
 
-*Figure 7.47 — Workflow 6 Step 5 — Customer service payment confirmation, receipt, and Inspector rating.*
+![Confirmed Customer payment and receipt download](assets/manual/wf6-05-cus-report-pay.png)
 
-**Step 6 — Verify Customer Payment History.**
+*Figure 7.38 — Confirmed Customer payment and receipt download.*
 
-❶ Open **Payment history** and check the amount, method, and status in the **Payment ledger**.
+#### Customer looks up a past payment
 
-❷ Select **Details** on a row to view the payment record.
+**Step 8 — Find the payment record.**
 
-![Workflow 6 Step 6 — Customer payment history ledger.](assets/manual/wf6-06-cus-finance.png)
+❶ Open **Payment history** and verify the amount, method and status for the inspection.
 
-*Figure 7.48 — Workflow 6 Step 6 — Customer payment history ledger.*
+❷ Select **Details** on its payment row to retrieve the payment record.
 
-**Step 7 — Verify Customer Settlement as Manager.**
+![Customer payment history and transaction details](assets/manual/wf6-06-cus-finance.png)
 
-❶ Open **Customer Settlement** in the inspection review workspace.
+*Figure 7.39 — Customer payment history and transaction details.*
 
-❷ Check the acceptance and payment status, payment method, and invoice breakdown. Download the receipt when needed.
+#### Manager reconciles an inspection payment
 
-![Workflow 6 Step 7 — Manager Customer settlement and invoice breakdown.](assets/manual/wf6-07-mgr-settlement.png)
+**Step 9 — Check payment against the inspection invoice.**
 
-*Figure 7.49 — Workflow 6 Step 7 — Manager Customer settlement and invoice breakdown.*
+❶ Open **Customer Settlement** in the inspection workspace.
 
-**Step 8 — Review Platform Revenue and Payments.**
+❷ Compare the recorded acceptance, amount and payment status with the invoice breakdown. Use the receipt for reconciliation when needed.
 
-❶ Open **Revenue & payments** and review the totals for collections, earned commission, and VAT.
+![Manager view of Customer settlement and invoice details](assets/manual/wf6-07-mgr-settlement.png)
 
-❷ Use the transaction table to check the method, collected amount, and commission for each inspection.
+*Figure 7.40 — Manager view of Customer settlement and invoice details.*
 
-![Workflow 6 Step 8 — Manager platform revenue, commission, tax, and payout history ledger.](assets/manual/wf6-08-mgr-finance-history.png)
+**Step 10 — Reconcile the same payment in the ledger.**
 
-*Figure 7.50 — Workflow 6 Step 8 — Manager platform revenue, commission, tax, and payout history ledger.*
+Open **Revenue & payments** in the Manager portal.
+
+❶ Find the same inspection in the transaction list and compare the amount collected and recorded commission with the settlement record.
+
+![Manager revenue ledger and per-inspection transactions](assets/manual/wf6-08-mgr-finance-history.png)
+
+*Figure 7.41 — Manager revenue ledger and per-inspection transactions.*

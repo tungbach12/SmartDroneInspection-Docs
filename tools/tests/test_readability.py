@@ -113,11 +113,17 @@ class DiagramTests(unittest.TestCase):
 
         document = WordDocument(original(OFFICIAL, export_report7.TEMPLATE_NAME))
         document.fill_cover("SmartDroneInspection", "")
-        document.append(export_report7.chapter_blocks(REPORTS / export_report7.SOURCES[-1]))
+        chapter = export_report7.chapter_blocks(REPORTS / export_report7.SOURCES[-1])
+        figure_count = sum(
+            block.kind == "image" and block.text.startswith("assets/manual/")
+            for block in chapter
+        )
+        document.append(chapter)
         manual_steps = []
         active = None
         for node, prose in paragraphs(children(document.body)):
             if re.match(r"^Step \d+ — ", prose) and not style(node).startswith("Heading"):
+                self.assertTrue(descendants(node, "keepNext"))
                 active = [node]
             elif active is not None:
                 if prose.startswith("Figure 7."):
@@ -128,7 +134,8 @@ class DiagramTests(unittest.TestCase):
                     active = None
                 else:
                     active.append(node)
-        self.assertEqual(len(manual_steps), 40)
+        self.assertGreater(figure_count, 0)
+        self.assertEqual(len(manual_steps), figure_count)
 
     def test_mermaid_keeps_line_structure_and_is_marked_as_source(self):
         body = exported_document()
