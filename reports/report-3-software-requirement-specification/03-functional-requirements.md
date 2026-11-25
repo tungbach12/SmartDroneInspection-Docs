@@ -24,7 +24,7 @@ flowchart TD
   FE01_04["FE-01 Auth & RBAC · FE-02 Inspector App<br/>FE-03 Drone Fleet · FE-04 Airspace Map"]
 
   MF2["MF2: Assets, Commercial Service & Dispatch"]
-  FE06_09["FE-06 Buildings & Docs · FE-07 Airspace Review<br/>FE-08 Requests & Quotes · FE-09 Contracts & Dispatch"]
+  FE06_09["FE-06 Buildings & Docs · FE-07 Restricted Airspace Advisory<br/>FE-08 Requests & Quotes · FE-09 Contracts & Dispatch"]
   FE10_12["FE-10 Order/Inspection Chat<br/>FE-11 Acceptance Timeout · FE-12 Notifications"]
 
   MF3["MF3: Field Work, Evidence & AI Analysis"]
@@ -53,7 +53,7 @@ The screens below are the implemented application surfaces. Screenshots were cap
 | 4 | FE-01 | Sign-in | Credential sign-in with a one-time-code path and Google sign-in; routes the user to the portal for their role. |
 | 5 | FE-01 | Password reset | Sends a one-time code and sets a new password. |
 | 6 | FE-01 | Admin dashboard | Platform-wide counts of accounts, applications, buildings, and inspections, with recent activity. |
-| 7 | FE-02, FE-03, FE-07 | Onboarding reviews | Queue of pending customer restricted-airspace cases, partner Inspector applications, and drone registration applications awaiting a platform decision. |
+| 7 | FE-02, FE-03 | Onboarding reviews | Queue of partner Inspector applications and drone registration applications (`MANAGER` decides approve/reject; `ADMIN` read-only oversight view). |
 | 8 | FE-01 | Platform accounts | Administrator-managed account list with activation, deactivation, and forced-password-change actions. |
 | 9 | FE-06 | Building asset catalogue | Maintains the six building categories available to Customers. |
 | 10 | FE-02 | UAV licence classes | Maintains the pilot-licence classes used for assignment qualification. |
@@ -248,7 +248,7 @@ erDiagram
 | 2 | `auth_sessions` | Refresh session for a signed-in client, recording the current and previous refresh-token hashes so rotation and replay can be detected. |
 | 3 | `otp_challenges` | Short-lived one-time code for registration, sign-in, or password reset, with attempt count and expiry. |
 | 4 | `audit_events` | Attributable record of an important decision: actor, action, subject, prior and new status, trace identifier. |
-| 5 | `prospective_customer_registrations` | Pre-account customer application holding organization identity, initial building, plain-text ownership details, and the airspace review outcome. |
+| 5 | `prospective_customer_registrations` | Legacy pre-account customer application table retained from earlier migrations; active registration activates `users` and `assets` immediately instead of holding new rows for review. |
 | 6 | `pilot_license_classes` | Catalogue of pilot-licence classes used to qualify an Inspector for an aircraft weight category. |
 | 7 | `event_publication` | Transactional event record coordinating reliable background lifecycle notifications. |
 | 8 | `asset_categories` | Catalogue of the six building categories available to Customers. |
@@ -320,26 +320,26 @@ The table summarizes the domain's core persisted entities across identity, build
 
 ### 3.3 `MF1` — `FE-02` Partner Inspector Application & Qualification Management
 
-- **Function trigger**: A prospective partner Inspector submits a public application, or `ADMIN`/`MANAGER` reviews it, records the signed partner contract, or updates qualification records.
-- **Actors**: Public applicant, `ADMIN`, `MANAGER`, `INSPECTOR`.
+- **Function trigger**: A prospective partner Inspector submits a public application, or `MANAGER` reviews it, records the signed partner contract, or updates qualification records (`ADMIN` retains read-only visibility).
+- **Actors**: Public applicant, `MANAGER`, `INSPECTOR`, `ADMIN` (read-only view).
 - **Function description**: Admit qualified partner drone pilots through a platform-reviewed self-service application (without requiring drone ownership at signup) and maintain pilot licence classes, expiry dates, scans, signed partner contracts, and flight logs.
 - **Screen layout (mock-up)**: Multi-step public Inspector application form, Onboarding Reviews queue (`Inspector Applications` tab), Partner Inspectors roster, Admin UAV Licence Classes screen, and Inspector profile security/qualification panel. See Figure 3.3 and Figure 3.6.
 - **Requirements**:
   - Public application collects identity, contact details, pilot-licence number, recognized licence class, future expiry date, and a verified licence scan stored in private object storage.
-  - Submission creates no login account immediately. Only an attributable approval decision by `ADMIN` or `MANAGER` provisions an active `INSPECTOR` account and qualification profile together; rejection requires a written reason and notifies the applicant (`BR-09`).
+  - Submission creates no login account immediately. Only an attributable approval decision by `MANAGER` provisions an active `INSPECTOR` account and qualification profile together; rejection requires a written reason and notifies the applicant (`BR-09`), while `ADMIN` has read-only audit visibility.
   - Applicant emails must be unique across existing accounts and open pending applications.
-  - Drone ownership is not a precondition of partner admission (`BR-08`). After admission, platform staff record the offline signed partner contract scan against the approved application, and Inspectors may renew licence details or record flight history logs.
+  - Drone ownership is not a precondition of partner admission (`BR-08`). After admission, `MANAGER` records the offline signed partner contract scan against the approved application, and `INSPECTOR` or `MANAGER` may renew licence details while `MANAGER` records flight history logs.
   - A scheduled licence-expiry sweep checks active Inspector licences and flags lapsed credentials, sending duplicate-free alerts and blocking dispatch readiness until renewed (`BR-10`).
-- **Normal cases**: A prospective Inspector submits complete licence details and scan; a reviewer inspects the scan, approves the application (provisioning the account), and records the signed partner contract.
-- **Abnormal cases**: Duplicate email, missing/corrupt licence scan, expired licence at application time, unrecognized licence class, rejection without reason, or non-reviewer approval attempt is rejected.
+- **Normal cases**: A prospective Inspector submits complete licence details and scan; `MANAGER` inspects the scan, approves the application (provisioning the account), and records the signed partner contract.
+- **Abnormal cases**: Duplicate email, missing/corrupt licence scan, expired licence at application time, unrecognized licence class, rejection without reason, or non-`MANAGER` approval/contract-upload attempt (including `ADMIN`) is rejected.
 
 ---
 
 ### 3.4 `MF1` — `FE-03` Inspector-Owned Drone Registration & Fleet Management
 
-- **Function trigger**: An approved `INSPECTOR` submits, renews, maintains, or retires an owned drone, or `ADMIN` configures required drone documents and capability checklists, or `MANAGER`/`ADMIN` reviews a pending drone application.
-- **Actors**: `INSPECTOR`, `ADMIN`, `MANAGER`.
-- **Function description**: Maintain administrator-configurable drone compliance rules and allow partner Inspectors to register owned drones with photographs, outdoor capabilities, and required documents for platform review prior to mission dispatch.
+- **Function trigger**: An approved `INSPECTOR` submits, renews, maintains, or retires an owned drone, or `ADMIN` configures required drone documents and capability checklists, or `MANAGER` reviews a pending drone application (`ADMIN` retains read-only queue visibility).
+- **Actors**: `INSPECTOR`, `MANAGER`, `ADMIN` (config & read-only view).
+- **Function description**: Maintain administrator-configurable drone compliance rules and allow partner Inspectors to register owned drones with photographs, outdoor capabilities, and required documents for `MANAGER` review prior to mission dispatch.
 - **Screen layout (mock-up)**: Inspector `My drones` fleet inventory and registration modal, Onboarding Reviews `Drone Registrations` tab, and Admin Flight & Drone Configuration (`Required Documents` and feature checklist tabs). See Figure 3.5.
 - **Requirements**:
   - `ADMIN` maintains required and optional drone compliance documents (registration and ownership documents active and required by default; technical inspection document configurable) and configurable drone capability/safety checklist items (`BR-11`).
@@ -347,8 +347,8 @@ The table summarizes the domain's core persisted entities across identity, build
   - Aircraft weight categories follow Decree 288/2025/ND-CP Article 4; airframes at `>= 2.0 kg` require the assigned Inspector to hold a recognized Class B pilot licence (Article 27), whereas Class A covers known airframes `< 2.0 kg`. Unknown weight or unknown licence class fails eligibility (`BR-12`).
   - Duplicate serial numbers belonging to another owner or submitting a second pending update while one is already pending review are rejected.
   - Inspectors may renew active drone registrations, switch serviceability between Active and In Maintenance, or permanently retire an aircraft (`Retired` is terminal). Only active, approved, non-expired drones owned by the assigned Inspector are selectable at dispatch (`BR-13`).
-- **Normal cases**: `ADMIN` configures required documents; Inspector registers a `DJI` aircraft with real photos and required files; staff approve the drone, enabling assignment.
-- **Abnormal cases**: Missing photo or required document, duplicate external serial, Class A pilot paired with heavy drone, expired registration, or retired serviceability blocks assignment.
+- **Normal cases**: `ADMIN` configures required documents; Inspector registers a `DJI` aircraft with real photos and required files; `MANAGER` approves the drone, enabling assignment.
+- **Abnormal cases**: Missing photo or required document, duplicate external serial, Class A pilot paired with heavy drone, expired registration, retired serviceability, or non-`MANAGER` approval/rejection attempt (including `ADMIN`) blocks progression.
 
 ---
 
@@ -361,7 +361,7 @@ The table summarizes the domain's core persisted entities across identity, build
 - **Requirements**:
   - Airspace evaluation validates latitude (`[-90, 90]`) and longitude (`[-180, 180]`), measures proximity against active airspace polygons, and classifies locations into Clear Zone, Restricted Zone, or No-Fly Zone.
   - Coordinates falling inside a No-Fly Zone block self-service organization registration and building creation.
-  - Coordinates in a Restricted Zone during signup place the registration into pending platform review (`FE-07`) with advisory warning `MSG28`.
+  - Coordinates in a Restricted Zone attach advisory warning `MSG28` (naming the zone, authority, altitude ceiling, and `cambay.mod.gov.vn`) while permitting immediate registration (`FE-07`) and building creation/update.
   - Every UI surface explicitly states that airspace screening is an internal advisory check and does not grant statutory or military aviation clearance (`BR-06`, `BR-26`, `MSG49`).
 - **Normal cases**: User selects coordinates on the interactive map, inspects live zone classification and buffers, and proceeds when outside prohibited airspace.
 - **Abnormal cases**: Out-of-bounds coordinates fail validation; prohibited zone coordinates fail closed and never create an active building.
@@ -401,18 +401,18 @@ The table summarizes the domain's core persisted entities across identity, build
 
 ---
 
-### 3.8 `MF2` — `FE-07` Restricted Airspace Review & Clearance Decision
+### 3.8 `MF1` — `FE-07` Restricted Airspace Advisory Warning & Immediate Onboarding
 
-- **Function trigger**: A customer organization signup whose initial building falls inside a restricted airspace zone enters pending onboarding review, and `ADMIN` reviews it.
-- **Actors**: `ADMIN`, Prospective Customer.
-- **Function description**: Hold self-service registrations with restricted-zone coordinates out of active service until platform staff inspect the location context and record an attributable approval or rejection decision.
-- **Screen layout (mock-up)**: Admin Onboarding Reviews (`Customer Airspace` tab) listing pending pre-registrations, coordinates, plain-text ownership details, and Approve/Reject modal controls. See Figure 3.5.
+- **Function trigger**: A prospective Customer registers an organization with an initial building in a `RESTRICTED_ZONE`, a Customer creates/edits a building or service request in a `RESTRICTED_ZONE`, or `MANAGER`/`INSPECTOR` views building and inspection airspace advisories.
+- **Actors**: Prospective Customer, `CUSTOMER`, `MANAGER`, `INSPECTOR`, `SYSTEM`.
+- **Function description**: Surface amber `MSG28` advisory warnings (zone name, governing authority, ceiling altitude `<= X m AGL`, and `https://cambay.mod.gov.vn` reference) whenever building coordinates lie in a `RESTRICTED_ZONE` without requiring an Administrator pre-registration clearance queue, while continuing to enforce the hard `NO_FLY_ZONE` gate (`FE-04`) and the Inspector mission flight-permit gate (`FE-13`).
+- **Screen layout (mock-up)**: Coordinate picker and Customer registration map amber `Alert` banner (`MSG28`), post-registration notice on Sign-In (`Web` & `Mobile`), Service Request inline alert, and Building/Overview `Restricted airspace · <= Xm AGL` badge (`AssetsPage` & `AssetOverviewDialog`).
 - **Requirements**:
-  - The restricted-airspace review queue lists all held customer onboarding applications awaiting review.
-  - Approving a pending application atomically activates the `CUSTOMER` organization account, creates its initial building record carrying plain-text ownership details and default checkpoints, records an attributable audit entry, and notifies the applicant.
-  - Rejecting a pending application requires a non-blank written reason (`MSG15`) and retains the application in `Rejected` state with no active customer login.
-- **Normal cases**: Reviewer evaluates restricted-zone coordinates, approves legitimate building onboarding (activating the account and initial building cleanly with plain-text ownership), or rejects ineligible coordinates with a clear reason.
-- **Abnormal cases**: Re-approving an already decided registration, rejecting without a written reason, or unauthorized role access is blocked.
+  - Customer registration whose initial building coordinates fall in `RESTRICTED_ZONE` (or `UNKNOWN`) after valid OTP activates the `CUSTOMER` account and initial building immediately (`ACTIVE`) while returning `airspaceClassification` and advisory `reviewMessage` (`MSG28`) instead of holding the account in `PENDING_AIRSPACE_REVIEW` for `ADMIN` approval.
+  - Coordinates falling in `NO_FLY_ZONE` still fail closed (`403 ASSET_IN_NO_FLY_ZONE` during registration; `400 NO_FLY_ZONE_RESTRICTION` during asset creation/edit).
+  - The legacy `/api/v1/platform/customer-airspace-reviews` Admin approval queue and `customer-airspace` admin route are removed so UI and SRS remain unified around warning-only advisory screening.
+- **Normal cases**: Customer pins `RESTRICTED_ZONE` coordinates, sees the amber `MSG28` permit-requirement banner, activates the account + building immediately after OTP, sees the amber reminder when creating a Service Request, and Inspector/Manager view the restricted-airspace badge prior to mission permit upload (`FE-13`).
+- **Abnormal cases**: Pinning `NO_FLY_ZONE` coordinates disables submission in UI and rejects creation on the backend; malformed/out-of-range coordinates fail validation.
 
 ---
 
@@ -582,16 +582,16 @@ The table summarizes the domain's core persisted entities across identity, build
 
 ### 3.19 `MF4` — `FE-18` Inspection Report Compilation, Independent Review & Official Publication
 
-- **Function trigger**: Assigned `INSPECTOR` opens Report tab / prepares & submits a report version after findings confirmation, or an independent `MANAGER`/`ADMIN` publishes or returns a submitted version, or an authorized reader downloads the rendered PDF.
-- **Actors**: `INSPECTOR`, `MANAGER`, `ADMIN`, `CUSTOMER`.
-- **Function description**: Consistently compile versioned inspection reports from confirmed findings and field telemetry, enforce independent non-author review, publish immutable official versions, and generate A4 PDFs on demand without buffering video bytes.
-- **Screen layout (mock-up)**: Stage 7 (`Report` authoring panel with single-shot advisory narrative draft & PDF preview), Manager `Reports` review queue, Manager Workspace `Review` screen (Publish / Return-with-Reason), and Customer `Reports` archive. See Figure 3.10.
+- **Function trigger**: Assigned `INSPECTOR` opens Report tab / prepares & submits a report version after findings confirmation, or an independent `MANAGER` publishes or returns a submitted version (`ADMIN` retains read-only visibility), or an authorized reader downloads the rendered PDF.
+- **Actors**: `INSPECTOR`, `MANAGER`, `CUSTOMER`, `ADMIN` (read-only view).
+- **Function description**: Consistently compile versioned inspection reports from confirmed findings and field telemetry, enforce independent non-author `MANAGER` review, publish immutable official versions, and generate A4 PDFs on demand without buffering video bytes.
+- **Screen layout (mock-up)**: Stage 7 (`Report` authoring panel with single-shot advisory narrative draft & PDF preview), Manager `Reports` review queue, Manager Workspace `Review` screen (Publish / Return-with-Reason; `ADMIN` sees read-only inspection without decision actions), and Customer `Reports` archive. See Figure 3.10.
 - **Requirements**:
   - **Compilation & Submission**: Report sections compile consistently from a fixed numbered structure using only confirmed findings, evidence metadata, and field session data once the findings baseline is confirmed (`BR-37`); opening the screen never submits automatically, and report generation never loads video files into memory (`NFR-05`, `NFR-06`). Authors may request a single advisory narrative draft clearly marked advisory (`BR-43`) before explicitly submitting the report for review.
-  - **Independent Review & Publication**: A `MANAGER` or `ADMIN` who is not the report author independently publishes the report or returns it with a mandatory written reason (`BR-38`, `BR-42`, reverting the inspection for revision). Approval and publication happen together cleanly; previously published versions become `Superseded` while remaining preserved in history (`BR-40`).
+  - **Independent Review & Publication**: Only a `MANAGER` who is not the report author independently publishes the report or returns it with a mandatory written reason (`BR-38`, `BR-42`, reverting the inspection for revision); `ADMIN` holds read-only view access only and cannot review or publish. Approval and publication happen together cleanly; previously published versions become `Superseded` while remaining preserved in history (`BR-40`).
   - **Customer Visibility & PDF**: Customers see only `Published` report versions (never `Submitted` or `Returned` drafts, `BR-39`). Normalized evidence photographs and confirmed findings render on demand into cached A4 PDFs stored in private object storage.
 - **Normal cases**: Inspector prepares report `v1`, edits optional advisory summary, and submits; another Manager reviews side-by-side evidence/findings and publishes `v1` -> Customer downloads official PDF.
-- **Abnormal cases**: Submitting before findings confirmation (`MSG33`), author attempting self-publication (`BR-38`, `MSG32`), returning without reason (`MSG15`), or Customer requesting an unpublished draft fails closed.
+- **Abnormal cases**: Submitting before findings confirmation (`MSG33`), author attempting self-publication (`BR-38`, `MSG32`), `ADMIN` or non-`MANAGER` attempting review/publication, returning without reason (`MSG15`), or Customer requesting an unpublished draft fails closed.
 
 ---
 

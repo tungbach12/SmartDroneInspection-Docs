@@ -1,5 +1,5 @@
 // SmartDroneInspection Physical Database Schema (PostgreSQL 17)
-// Synced from Flyway migrations V1 - V69 (48 application tables + event_publication)
+// Synced from Flyway migrations V1 - V80 (53 application tables + event_publication)
 
 Table users {
   id uuid [pk]
@@ -127,6 +127,10 @@ Table inspector_profiles {
   approved_by_user_id uuid
   approved_at timestamptz
   rejection_reason text
+  payout_bank_name varchar(120)
+  payout_bank_account_number varchar(64)
+  payout_bank_account_holder varchar(200)
+  payout_bank_branch varchar(200)
 }
 
 Table pilot_license_classes {
@@ -241,6 +245,9 @@ Table drones {
   features jsonb
   max_altitude_meters "numeric(8,1)"
   owner_customer_id uuid
+  mtow_kg "numeric(6,2)"
+  max_flight_time_minutes integer
+  camera_sensor varchar(128)
 }
 
 Table drone_registration_applications {
@@ -265,6 +272,9 @@ Table drone_registration_applications {
   image_file_keys jsonb
   features jsonb
   max_altitude_meters "numeric(8,1)"
+  mtow_kg "numeric(6,2)"
+  max_flight_time_minutes integer
+  camera_sensor varchar(128)
 }
 
 Table drone_document_configs {
@@ -325,6 +335,7 @@ Table service_requests {
   assigned_manager_id uuid
   manager_assigned_at timestamptz
   manager_assigned_by_user_id uuid
+  inspection_items jsonb [not null]
 }
 
 Table service_request_messages {
@@ -343,6 +354,28 @@ Table service_request_message_attachments {
   content_type varchar(128) [not null]
   size_bytes bigint [not null]
   object_key varchar(512) [unique, not null]
+  created_at timestamptz [not null]
+}
+
+Table service_request_partner_messages {
+  id uuid [pk]
+  request_id uuid [not null]
+  inspector_id uuid [not null]
+  author_user_id uuid [not null]
+  body varchar(4000) [not null]
+  has_attachments boolean [not null]
+  read_at timestamptz
+  created_at timestamptz [not null]
+}
+
+Table service_request_partner_message_attachments {
+  id uuid [pk]
+  message_id uuid [not null]
+  file_name varchar(255) [not null]
+  content_type varchar(120) [not null]
+  size_bytes bigint [not null]
+  checksum_sha256 varchar(64) [not null]
+  object_key varchar(512) [not null]
   created_at timestamptz [not null]
 }
 
@@ -405,6 +438,7 @@ Table inspections {
   assignment_accepted_at timestamptz
   source_inspection_id uuid
   assignment_requested_at timestamptz
+  inspection_items jsonb [not null]
 }
 
 Table inspection_flight_permits {
@@ -443,6 +477,10 @@ Table field_sessions {
   outcome_notes varchar(4000)
   hung_notified_at timestamptz
   aborted_by_user_id uuid
+  session_date date
+  pre_flight_checklist_snapshot jsonb [not null]
+  pre_flight_conditions jsonb
+  post_flight_checklist_snapshot jsonb [not null]
 }
 
 Table field_session_telemetry {
@@ -457,6 +495,29 @@ Table field_session_telemetry {
   flight_report_note varchar(1000)
   flight_trace_json text
   flight_video_evidence_id uuid
+}
+
+Table field_session_flights {
+  id uuid [pk]
+  field_session_id uuid [not null]
+  inspection_id uuid [not null]
+  flight_number integer [not null]
+  flight_date date [not null]
+  flight_label varchar(160)
+  telemetry_source varchar(64)
+  started_at timestamptz
+  ended_at timestamptz
+  flight_duration_seconds integer
+  distance_flown_meters "numeric(10,2)"
+  max_altitude_meters "numeric(8,2)"
+  start_battery_percent integer
+  end_battery_percent integer
+  flight_final_state varchar(32)
+  flight_report_note varchar(1000)
+  flight_trace_json text
+  flight_video_evidence_id uuid
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
 }
 
 Table evidence {
@@ -557,6 +618,19 @@ Table inspection_reports {
   published_at timestamptz
   created_at timestamptz [not null]
   summary text
+}
+
+Table inspector_ratings {
+  id uuid [pk]
+  inspection_id uuid [not null]
+  inspector_id uuid [not null]
+  rater_user_id uuid [not null]
+  rater_role varchar(16) [not null]
+  overall_score integer [not null]
+  criterion_scores jsonb [not null]
+  comment text
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
 }
 
 Table inspection_messages {
@@ -692,6 +766,7 @@ Table inspector_payouts {
   payout_held_for_refund boolean [not null]
   payout_recorded_by_user_id uuid
   final_payout_amount "numeric(15,2)"
+  payout_order_code bigint [unique]
 }
 
 Table inspector_receivables {
@@ -727,6 +802,26 @@ Table checklist_templates {
   updated_at timestamptz [not null]
   row_version bigint [not null]
   required boolean [not null]
+  category varchar(64) [not null]
+  label_vi varchar(300)
+  details varchar(1000)
+  details_vi varchar(1000)
+  reference_threshold varchar(120)
+  safety_critical boolean [not null]
+}
+
+Table rating_criterion_configs {
+  id uuid [pk]
+  rater_role varchar(16) [not null]
+  code varchar(64) [not null]
+  label_en varchar(120) [not null]
+  label_vi varchar(120) [not null]
+  description_en varchar(300)
+  description_vi varchar(300)
+  display_order integer [not null]
+  is_active boolean [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
 }
 
 Table inspection_finance_settings {
@@ -817,6 +912,10 @@ Ref: service_requests.source_inspection_id > inspections.id
 Ref: service_requests.assigned_manager_id > users.id
 Ref: service_request_messages.request_id > service_requests.id
 Ref: service_request_message_attachments.message_id > service_request_messages.id
+Ref: service_request_partner_messages.request_id > service_requests.id
+Ref: service_request_partner_messages.inspector_id > users.id
+Ref: service_request_partner_messages.author_user_id > users.id
+Ref: service_request_partner_message_attachments.message_id > service_request_partner_messages.id
 Ref: service_request_quotes.request_id > service_requests.id
 Ref: service_request_quotes.inspector_id > users.id
 Ref: service_request_quotes.drone_id > drones.id
@@ -832,6 +931,9 @@ Ref: inspection_flight_permits.inspection_id - inspections.id
 Ref: field_sessions.inspection_id > inspections.id
 Ref: field_session_telemetry.field_session_id - field_sessions.id
 Ref: field_session_telemetry.flight_video_evidence_id > evidence.id
+Ref: field_session_flights.field_session_id > field_sessions.id
+Ref: field_session_flights.inspection_id > inspections.id
+Ref: field_session_flights.flight_video_evidence_id > evidence.id
 Ref: evidence.inspection_id > inspections.id
 Ref: evidence.field_session_id > field_sessions.id
 Ref: evidence_upload_sessions.inspection_id > inspections.id
@@ -843,6 +945,9 @@ Ref: reinspection_defect_verifications.reinspection_id > inspections.id
 Ref: reinspection_defect_verifications.source_finding_id > findings.id
 Ref: reinspection_defect_verifications.new_evidence_id > evidence.id
 Ref: inspection_reports.inspection_id > inspections.id
+Ref: inspector_ratings.inspection_id > inspections.id
+Ref: inspector_ratings.inspector_id > users.id
+Ref: inspector_ratings.rater_user_id > users.id
 Ref: inspection_messages.inspection_id > inspections.id
 Ref: inspection_message_attachments.message_id > inspection_messages.id
 Ref: service_invoices.occurrence_id - service_request_occurrences.id

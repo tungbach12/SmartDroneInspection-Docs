@@ -57,7 +57,7 @@ The `FE-01`–`FE-24` codes and their Report 3 sections are:
 | `FE-04` | `3.5` | Interactive Location Map & No-Fly Zone Airspace Screening | Trần Hoàng Trung Hiếu (`SE184212`) | 3 |
 | `FE-05` | `3.6` | Financial History & Revenue/Payment Ledger | Trần Hoàng Trung Hiếu (`SE184212`) | 1 |
 | `FE-06` | `3.7` | Building Asset Registry, Checkpoints & Reference Documents | Phùng Trung Quốc (`SE170027`) | 3 |
-| `FE-07` | `3.8` | Restricted Airspace Review & Clearance Decision | Phùng Trung Quốc (`SE170027`) | 1 |
+| `FE-07` | `3.8` | Restricted Airspace Advisory Warning & Immediate Onboarding | Phùng Trung Quốc (`SE170027`) | 1 |
 | `FE-08` | `3.9` | Service Requests (One-Time & Recurring) & VND Quotations | Pham Trung Quoc (`SE170027`) | 6 |
 | `FE-09` | `3.10` | Offline Signed Contract & Occurrence Dispatch Scheduling | Pham Trung Quoc (`SE170027`) | 6 |
 | `FE-10` | `3.11` | Dual-Channel Messaging (Order Chat & Inspection Chat) | Phùng Trung Quốc (`SE170027`) | 2 |

@@ -467,7 +467,7 @@
           <mxGeometry x="0" y="174" width="360" height="20" as="geometry" />
         </mxCell>
         <mxCell id="c_ip" value="InspectorProfile" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="520" y="500" width="360" height="158" as="geometry" />
+          <mxGeometry x="520" y="500" width="360" height="218" as="geometry" />
         </mxCell>
         <mxCell id="c_ip_a0" value="- userId: UUID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ip">
           <mxGeometry x="0" y="26" width="360" height="20" as="geometry" />
@@ -484,11 +484,20 @@
         <mxCell id="c_ip_a4" value="- priorFlightHours: BigDecimal" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ip">
           <mxGeometry x="0" y="106" width="360" height="20" as="geometry" />
         </mxCell>
+        <mxCell id="c_ip_a5" value="- payoutBankName: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ip">
+          <mxGeometry x="0" y="126" width="360" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c_ip_a6" value="- payoutBankAccountNumber: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ip">
+          <mxGeometry x="0" y="146" width="360" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c_ip_a7" value="- payoutBankAccountHolder: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ip">
+          <mxGeometry x="0" y="166" width="360" height="20" as="geometry" />
+        </mxCell>
         <mxCell id="c_ip_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=0;spacingRight=0;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;" vertex="1" parent="c_ip">
-          <mxGeometry x="0" y="126" width="360" height="8" as="geometry" />
+          <mxGeometry x="0" y="186" width="360" height="8" as="geometry" />
         </mxCell>
         <mxCell id="c_ip_m0" value="+ isLicenseValidAt(ts: Instant): boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ip">
-          <mxGeometry x="0" y="134" width="360" height="20" as="geometry" />
+          <mxGeometry x="0" y="194" width="360" height="20" as="geometry" />
         </mxCell>
         <mxCell id="c_pl" value="PilotLicenseClass" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="990" y="500" width="320" height="138" as="geometry" />
@@ -806,16 +815,16 @@
         <mxCell id="c_mfa_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=0;spacingRight=0;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;" vertex="1" parent="c_mfa">
           <mxGeometry x="0" y="66" width="470" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="c_mfa_m0" value="+ assign(orgId: UUID, assetId: UUID, inspId: UUID, droneId: UUID, startAt: Instant, endAt: Instant, actorId: UUID): UUID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_mfa">
+        <mxCell id="c_mfa_m0" value="+ assign(ownerCustomerId: UUID, assetId: UUID, inspId: UUID, droneId: UUID, startAt: Instant, endAt: Instant, items: List): UUID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_mfa">
           <mxGeometry x="0" y="74" width="470" height="20" as="geometry" />
         </mxCell>
         <mxCell id="c_sr" value="ServiceRequest" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="40" y="500" width="350" height="178" as="geometry" />
+          <mxGeometry x="40" y="500" width="350" height="198" as="geometry" />
         </mxCell>
         <mxCell id="c_sr_a0" value="- id: UUID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_sr">
           <mxGeometry x="0" y="26" width="350" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="c_sr_a1" value="- organizationId: UUID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_sr">
+        <mxCell id="c_sr_a1" value="- ownerCustomerId: UUID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_sr">
           <mxGeometry x="0" y="46" width="350" height="20" as="geometry" />
         </mxCell>
         <mxCell id="c_sr_a2" value="- assetId: UUID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_sr">
@@ -827,14 +836,17 @@
         <mxCell id="c_sr_a4" value="- status: ServiceRequestStatus" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_sr">
           <mxGeometry x="0" y="106" width="350" height="20" as="geometry" />
         </mxCell>
+        <mxCell id="c_sr_a5" value="- inspectionItems: List&amp;lt;String&amp;gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_sr">
+          <mxGeometry x="0" y="126" width="350" height="20" as="geometry" />
+        </mxCell>
         <mxCell id="c_sr_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=0;spacingRight=0;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;" vertex="1" parent="c_sr">
-          <mxGeometry x="0" y="126" width="350" height="8" as="geometry" />
+          <mxGeometry x="0" y="146" width="350" height="8" as="geometry" />
         </mxCell>
         <mxCell id="c_sr_m0" value="+ acceptQuote(snapshot: String): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_sr">
-          <mxGeometry x="0" y="134" width="350" height="20" as="geometry" />
+          <mxGeometry x="0" y="154" width="350" height="20" as="geometry" />
         </mxCell>
         <mxCell id="c_sr_m1" value="+ markContractSigned(key: String): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_sr">
-          <mxGeometry x="0" y="154" width="350" height="20" as="geometry" />
+          <mxGeometry x="0" y="174" width="350" height="20" as="geometry" />
         </mxCell>
         <mxCell id="c_srq" value="ServiceRequestQuote" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="450" y="500" width="320" height="158" as="geometry" />
@@ -947,7 +959,7 @@
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="c_fsc" value="InspectionFieldSessionController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="40" y="40" width="460" height="198" as="geometry" />
+          <mxGeometry x="40" y="40" width="460" height="238" as="geometry" />
         </mxCell>
         <mxCell id="c_fsc_a0" value="- fieldSessions: InspectionFieldSessionService" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_fsc">
           <mxGeometry x="0" y="26" width="460" height="20" as="geometry" />
@@ -976,8 +988,14 @@
         <mxCell id="c_fsc_m5" value="+ syncFlightVideo(inspId: UUID, sessId: UUID): EvidenceResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_fsc">
           <mxGeometry x="0" y="174" width="460" height="20" as="geometry" />
         </mxCell>
+        <mxCell id="c_fsc_m6" value="+ addFlight(inspId: UUID, sessId: UUID, req: CreateFlightRequest): FieldSessionFlightResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_fsc">
+          <mxGeometry x="0" y="194" width="460" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c_fsc_m7" value="+ deleteFlight(inspId: UUID, sessId: UUID, flightId: UUID): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_fsc">
+          <mxGeometry x="0" y="214" width="460" height="20" as="geometry" />
+        </mxCell>
         <mxCell id="c_fss" value="InspectionFieldSessionService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="40" y="290" width="460" height="138" as="geometry" />
+          <mxGeometry x="40" y="320" width="460" height="138" as="geometry" />
         </mxCell>
         <mxCell id="c_fss_a0" value="- inspections: InspectionRepository" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_fss">
           <mxGeometry x="0" y="26" width="460" height="20" as="geometry" />
@@ -998,7 +1016,7 @@
           <mxGeometry x="0" y="114" width="460" height="20" as="geometry" />
         </mxCell>
         <mxCell id="c_dhs" value="InspectionDroneHubService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="560" y="290" width="480" height="158" as="geometry" />
+          <mxGeometry x="560" y="320" width="480" height="158" as="geometry" />
         </mxCell>
         <mxCell id="c_dhs_a0" value="- sessions: FieldSessionRepository" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_dhs">
           <mxGeometry x="0" y="26" width="480" height="20" as="geometry" />
@@ -1102,6 +1120,33 @@
         <mxCell id="c_fs_m2" value="+ abort(reason: String): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_fs">
           <mxGeometry x="0" y="194" width="440" height="20" as="geometry" />
         </mxCell>
+        <mxCell id="c_fsf" value="FieldSessionFlight" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1065" y="540" width="335" height="178" as="geometry" />
+        </mxCell>
+        <mxCell id="c_fsf_a0" value="- id: UUID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_fsf">
+          <mxGeometry x="0" y="26" width="335" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c_fsf_a1" value="- fieldSessionId: UUID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_fsf">
+          <mxGeometry x="0" y="46" width="335" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c_fsf_a2" value="- flightNumber: int" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_fsf">
+          <mxGeometry x="0" y="66" width="335" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c_fsf_a3" value="- flightDate: LocalDate" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_fsf">
+          <mxGeometry x="0" y="86" width="335" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c_fsf_a4" value="- telemetrySource: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_fsf">
+          <mxGeometry x="0" y="106" width="335" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c_fsf_a5" value="- flightVideoEvidenceId: UUID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_fsf">
+          <mxGeometry x="0" y="126" width="335" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c_fsf_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=0;spacingRight=0;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=#000000;" vertex="1" parent="c_fsf">
+          <mxGeometry x="0" y="146" width="335" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="c_fsf_m0" value="+ recordTelemetry(report: FlightReport): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_fsf">
+          <mxGeometry x="0" y="154" width="335" height="20" as="geometry" />
+        </mxCell>
         <mxCell id="r1" value="Uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=open;endFill=0;endSize=8;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="c_fsc" target="c_fss">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -1114,8 +1159,8 @@
         <mxCell id="r2" value="Uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=open;endFill=0;endSize=8;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.78;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="c_fsc" target="c_dhs">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="399" y="250" />
-              <mxPoint x="800" y="250" />
+              <mxPoint x="399" y="294" />
+              <mxPoint x="800" y="294" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -1159,6 +1204,15 @@
           <mxGeometry x="-0.78" y="-12" width="24" height="16" relative="1" as="geometry" />
         </mxCell>
         <mxCell id="r6_m2" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r6">
+          <mxGeometry x="0.78" y="-12" width="24" height="16" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r7" value="Sorties" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.1;startArrow=diamondThin;startFill=1;startSize=14;endArrow=none;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="c_fs" target="c_fsf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r7_m1" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r7">
+          <mxGeometry x="-0.78" y="-12" width="24" height="16" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r7_m2" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r7">
           <mxGeometry x="0.78" y="-12" width="24" height="16" relative="1" as="geometry" />
         </mxCell>
       </root>
@@ -1529,7 +1583,7 @@
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="c_ic" value="InspectionController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="40" y="40" width="470" height="178" as="geometry" />
+          <mxGeometry x="40" y="40" width="470" height="198" as="geometry" />
         </mxCell>
         <mxCell id="c_ic_a0" value="- reportService: ReportService" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ic">
           <mxGeometry x="0" y="26" width="470" height="20" as="geometry" />
@@ -1552,11 +1606,14 @@
         <mxCell id="c_ic_m4" value="+ withdrawVersion(inspId: UUID, verId: UUID, req: WithdrawRequest): InspectionReportResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ic">
           <mxGeometry x="0" y="134" width="470" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="c_ic_m5" value="+ downloadArtefact(inspId: UUID, verId: UUID, locale: String): ResponseEntity&amp;lt;byte[]&amp;gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ic">
+        <mxCell id="c_ic_m5" value="+ publishVersion(inspId: UUID, verId: UUID, locale: String): ReportPublishedResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ic">
           <mxGeometry x="0" y="154" width="470" height="20" as="geometry" />
         </mxCell>
+        <mxCell id="c_ic_m6" value="+ downloadArtefact(inspId: UUID, verId: UUID, locale: String): ResponseEntity&amp;lt;byte[]&amp;gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ic">
+          <mxGeometry x="0" y="174" width="470" height="20" as="geometry" />
+        </mxCell>
         <mxCell id="c_rs" value="ReportService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="40" y="260" width="470" height="218" as="geometry" />
+          <mxGeometry x="40" y="275" width="470" height="238" as="geometry" />
         </mxCell>
         <mxCell id="c_rs_a0" value="- reportRepo: InspectionReportRepository" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_rs">
           <mxGeometry x="0" y="26" width="470" height="20" as="geometry" />
@@ -1585,8 +1642,11 @@
         <mxCell id="c_rs_m3" value="+ reviewVersion(actorId: UUID, inspId: UUID, verId: UUID, approve: boolean, reason: String): ReportPublishedResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_rs">
           <mxGeometry x="0" y="174" width="470" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="c_rs_m4" value="+ downloadArtefact(actorId: UUID, inspId: UUID, verId: UUID, locale: String): ResponseEntity&amp;lt;byte[]&amp;gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_rs">
+        <mxCell id="c_rs_m4" value="+ publishVersion(actorId: UUID, inspId: UUID, verId: UUID, locale: String): ReportPublishedResponse" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_rs">
           <mxGeometry x="0" y="194" width="470" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c_rs_m5" value="+ downloadArtefact(actorId: UUID, inspId: UUID, verId: UUID, locale: String): ResponseEntity&amp;lt;byte[]&amp;gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_rs">
+          <mxGeometry x="0" y="214" width="470" height="20" as="geometry" />
         </mxCell>
         <mxCell id="c_rdc" value="ReportDraftClient" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="590" y="40" width="360" height="78" as="geometry" />
@@ -1613,7 +1673,7 @@
           <mxGeometry x="0" y="54" width="360" height="20" as="geometry" />
         </mxCell>
         <mxCell id="c_ir" value="InspectionReport" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="590" y="350" width="380" height="238" as="geometry" />
+          <mxGeometry x="590" y="350" width="380" height="258" as="geometry" />
         </mxCell>
         <mxCell id="c_ir_a0" value="- id: UUID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ir">
           <mxGeometry x="0" y="26" width="380" height="20" as="geometry" />
@@ -1645,8 +1705,11 @@
         <mxCell id="c_ir_m1" value="+ returnForRevision(reason: String): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ir">
           <mxGeometry x="0" y="194" width="380" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="c_ir_m2" value="+ publish(reviewerId: UUID): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ir">
+        <mxCell id="c_ir_m2" value="+ approve(approverId: UUID, authorId: UUID): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ir">
           <mxGeometry x="0" y="214" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c_ir_m3" value="+ publish(reviewerId: UUID, authorId: UUID): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=6;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=10.5;" vertex="1" parent="c_ir">
+          <mxGeometry x="0" y="234" width="380" height="20" as="geometry" />
         </mxCell>
         <mxCell id="r1" value="Uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=open;endFill=0;endSize=8;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="c_ic" target="c_rs">
           <mxGeometry relative="1" as="geometry" />

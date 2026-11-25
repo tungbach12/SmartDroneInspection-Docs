@@ -16,7 +16,7 @@
         <mxCell id="uc_nfz" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Evaluate Airspace&lt;br&gt;No-Fly Zone" vertex="1">
           <mxGeometry height="48" width="185" x="260" y="65" as="geometry" />
         </mxCell>
-        <mxCell id="uc_reg_cust" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Register Customer&lt;br&gt;Organization" vertex="1">
+        <mxCell id="uc_reg_cust" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Register Customer&lt;br&gt;Account" vertex="1">
           <mxGeometry height="48" width="185" x="260" y="135" as="geometry" />
         </mxCell>
         <mxCell id="uc_ins_app" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Submit Inspector&lt;br&gt;Application" vertex="1">
@@ -147,7 +147,7 @@
         <mxCell id="uc_screen_nfz" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Screen Building Airspace" vertex="1">
           <mxGeometry height="46" width="185" x="525" y="65" as="geometry" />
         </mxCell>
-        <mxCell id="uc_rev_air" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Review Pending Customer&lt;br&gt;Airspace" vertex="1">
+        <mxCell id="uc_rev_air" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="View Onboarding &amp; Drone&lt;br&gt;Queues (Read-Only)" vertex="1">
           <mxGeometry height="46" width="185" x="525" y="135" as="geometry" />
         </mxCell>
         <mxCell id="uc_rev_ins" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Review Inspector&lt;br&gt;Applications" vertex="1">
@@ -217,12 +217,12 @@
     </mxGraphModel>
   </diagram>
   <diagram name="UC-3 Contracting &amp; Field Execution" id="uc3-contracting-field">
-    <mxGraphModel dx="1100" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="920" pageHeight="810" math="0" shadow="0">
+    <mxGraphModel dx="1100" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="920" pageHeight="840" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="boundary" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=1.4;fontColor=#000000;fontStyle=1;fontSize=13;fontFamily=Helvetica;verticalAlign=top;align=center;spacingTop=8;" value="Contracting, Dispatch &amp; Field Execution" vertex="1">
-          <mxGeometry height="750" width="580" x="190" y="30" as="geometry" />
+          <mxGeometry height="780" width="580" x="190" y="30" as="geometry" />
         </mxCell>
         <mxCell id="a_cust" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=11;fontStyle=1;fontFamily=Helvetica;align=center;" value="Customer" vertex="1">
           <mxGeometry height="68" width="42" x="50" y="115" as="geometry" />
@@ -248,10 +248,10 @@
         <mxCell id="uc_acc_occ" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Accept / Decline&lt;br&gt;Assignment" vertex="1">
           <mxGeometry height="46" width="185" x="225" y="355" as="geometry" />
         </mxCell>
-        <mxCell id="uc_permit" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Upload Flight Permit" vertex="1">
+        <mxCell id="uc_permit" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Upload Self-Attested&lt;br&gt;Flight Permit" vertex="1">
           <mxGeometry height="46" width="185" x="225" y="430" as="geometry" />
         </mxCell>
-        <mxCell id="uc_fs_start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Start &amp; Complete&lt;br&gt;Field Session" vertex="1">
+        <mxCell id="uc_fs_start" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Execute Field Session &amp;&lt;br&gt;Multi-Flight Sorties" vertex="1">
           <mxGeometry height="46" width="185" x="225" y="515" as="geometry" />
         </mxCell>
         <mxCell id="uc_fs_abort" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Abort Field Session" vertex="1">
@@ -278,8 +278,11 @@
         <mxCell id="uc_dispatch" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Assign Partner Occurrence" vertex="1">
           <mxGeometry height="46" width="190" x="545" y="405" as="geometry" />
         </mxCell>
-        <mxCell id="uc_rev_perm" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Review Flight Permit" vertex="1">
+        <mxCell id="uc_req_chkpt" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Manage Request&lt;br&gt;Checkpoints" vertex="1">
           <mxGeometry height="46" width="190" x="545" y="475" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_pchat" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Partner Chat&lt;br&gt;(Manager–Inspector)" vertex="1">
+          <mxGeometry height="46" width="190" x="545" y="728" as="geometry" />
         </mxCell>
         <mxCell id="uc_resched" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Reschedule / Force-Abort&lt;br&gt;Occurrence" vertex="1">
           <mxGeometry height="46" width="190" x="545" y="545" as="geometry" />
@@ -335,8 +338,18 @@
         <mxCell id="e_m_disp" edge="1" parent="1" source="a_mgr" style="edgeStyle=none;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" target="uc_dispatch" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_m_perm" edge="1" parent="1" source="a_mgr" style="edgeStyle=none;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" target="uc_rev_perm" value="">
+        <mxCell id="e_m_perm" edge="1" parent="1" source="a_mgr" style="edgeStyle=none;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" target="uc_req_chkpt" value="">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_m_pchat" edge="1" parent="1" source="a_mgr" style="edgeStyle=none;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" target="uc_pchat" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_i_pchat" edge="1" parent="1" source="a_ins" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" target="uc_pchat" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="71" y="751" />
+            </Array>
+          </mxGeometry>
         </mxCell>
         <mxCell id="e_m_resc" edge="1" parent="1" source="a_mgr" style="edgeStyle=none;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" target="uc_resched" value="">
           <mxGeometry relative="1" as="geometry" />
@@ -351,12 +364,12 @@
     </mxGraphModel>
   </diagram>
   <diagram name="UC-4 AI, Reporting &amp; Settlement" id="uc4-ai-reporting-payment">
-    <mxGraphModel dx="1100" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="920" pageHeight="800" math="0" shadow="0">
+    <mxGraphModel dx="1100" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="920" pageHeight="840" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="boundary" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=1.4;fontColor=#000000;fontStyle=1;fontSize=13;fontFamily=Helvetica;verticalAlign=top;align=center;spacingTop=8;" value="AI Inspection, Reporting &amp; Financial Settlement" vertex="1">
-          <mxGeometry height="740" width="580" x="190" y="30" as="geometry" />
+          <mxGeometry height="780" width="580" x="190" y="30" as="geometry" />
         </mxCell>
         <mxCell id="a_ins" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=11;fontStyle=1;fontFamily=Helvetica;align=center;" value="Inspector" vertex="1">
           <mxGeometry height="68" width="42" x="50" y="195" as="geometry" />
@@ -406,13 +419,13 @@
         <mxCell id="uc_aisum" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Generate AI Defect Notes&lt;br&gt;&amp; Executive Summary" vertex="1">
           <mxGeometry height="46" width="190" x="545" y="210" as="geometry" />
         </mxCell>
-        <mxCell id="uc_pub" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Review &amp; Publish&lt;br&gt;Inspection Report" vertex="1">
+        <mxCell id="uc_pub" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Approve &amp; Publish&lt;br&gt;Inspection Report" vertex="1">
           <mxGeometry height="46" width="190" x="545" y="345" as="geometry" />
         </mxCell>
         <mxCell id="uc_reins_req" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Request Re-inspection" vertex="1">
           <mxGeometry height="46" width="190" x="545" y="445" as="geometry" />
         </mxCell>
-        <mxCell id="uc_conf_pay" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Confirm Payment &amp;&lt;br&gt;Record Payout" vertex="1">
+        <mxCell id="uc_conf_pay" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Confirm Payment &amp; Settle&lt;br&gt;Payout (SePay VietQR)" vertex="1">
           <mxGeometry height="46" width="190" x="545" y="515" as="geometry" />
         </mxCell>
         <mxCell id="uc_refund" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Manage Refunds &amp;&lt;br&gt;Receivables" vertex="1">
@@ -420,6 +433,9 @@
         </mxCell>
         <mxCell id="uc_webhook" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Verify Payment Webhook&lt;br&gt;&amp; Settlement IPN" vertex="1">
           <mxGeometry height="46" width="190" x="545" y="660" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_rate" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Rate Inspector" vertex="1">
+          <mxGeometry height="46" width="185" x="385" y="742" as="geometry" />
         </mxCell>
         <mxCell id="e_i_evi" edge="1" parent="1" source="a_ins" style="edgeStyle=none;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="uc_evi" value="">
           <mxGeometry relative="1" as="geometry" />
@@ -484,16 +500,31 @@
         <mxCell id="inc_pay_wh" edge="1" parent="1" source="uc_pay" style="edgeStyle=none;rounded=0;html=0;strokeColor=#000000;strokeWidth=1.1;dashed=1;dashPattern=5 3;endArrow=open;endSize=8;fontSize=10;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="uc_webhook" value="&lt;&lt;include&gt;&gt;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="e_c_rate" edge="1" parent="1" source="a_cust" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" target="uc_rate" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="71" y="765" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_m_rate" edge="1" parent="1" source="a_mgr" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.7;entryX=1;entryY=0.5;" target="uc_rate" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="790" y="503" />
+              <mxPoint x="790" y="765" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
   <diagram name="UC-5 Platform Administration" id="uc5-platform-admin">
-    <mxGraphModel dx="1100" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="895" pageHeight="780" math="0" shadow="0">
+    <mxGraphModel dx="1100" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="895" pageHeight="830" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="boundary" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;strokeWidth=1.4;fontColor=#000000;fontStyle=1;fontSize=13;fontFamily=Helvetica;verticalAlign=top;align=center;spacingTop=8;" value="Platform Administration &amp; Analytics" vertex="1">
-          <mxGeometry height="725" width="580" x="190" y="25" as="geometry" />
+          <mxGeometry height="775" width="580" x="190" y="25" as="geometry" />
         </mxCell>
         <mxCell id="a_admin" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontSize=11;fontStyle=1;fontFamily=Helvetica;align=center;" value="Admin" vertex="1">
           <mxGeometry height="68" width="42" x="50" y="290" as="geometry" />
@@ -514,7 +545,7 @@
           <mxGeometry height="46" width="190" x="230" y="372" as="geometry" />
         </mxCell>
         <mxCell id="uc_mcfg" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Configure Platform Settings" vertex="1">
-          <mxGeometry height="46" width="190" x="230" y="582" as="geometry" />
+          <mxGeometry height="46" width="190" x="230" y="632" as="geometry" />
         </mxCell>
         <mxCell id="j_musers" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;strokeColor=none;" value="" vertex="1">
           <mxGeometry height="2" width="2" x="474" y="209" as="geometry" />
@@ -523,7 +554,7 @@
           <mxGeometry height="2" width="2" x="474" y="394" as="geometry" />
         </mxCell>
         <mxCell id="j_mcfg" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;strokeColor=none;" value="" vertex="1">
-          <mxGeometry height="2" width="2" x="474" y="604" as="geometry" />
+          <mxGeometry height="2" width="2" x="474" y="654" as="geometry" />
         </mxCell>
         <mxCell id="uc_ucreate" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Create User Account" vertex="1">
           <mxGeometry height="40" width="210" x="525" y="115" as="geometry" />
@@ -546,20 +577,23 @@
         <mxCell id="uc_liccls" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Manage Pilot License Classes" vertex="1">
           <mxGeometry height="40" width="210" x="525" y="425" as="geometry" />
         </mxCell>
-        <mxCell id="uc_ddoc" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Configure Drone Document Rules" vertex="1">
-          <mxGeometry height="40" width="210" x="525" y="485" as="geometry" />
+        <mxCell id="uc_rcrit" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Configure Rating Criteria" vertex="1">
+          <mxGeometry height="40" width="210" x="525" y="475" as="geometry" />
         </mxCell>
-        <mxCell id="uc_dfeat" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Configure Drone Feature Rules" vertex="1">
+        <mxCell id="uc_ddoc" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Configure Drone Document Rules" vertex="1">
           <mxGeometry height="40" width="210" x="525" y="535" as="geometry" />
         </mxCell>
-        <mxCell id="uc_ops" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Configure Operations Settings" vertex="1">
+        <mxCell id="uc_dfeat" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Configure Drone Feature Rules" vertex="1">
           <mxGeometry height="40" width="210" x="525" y="585" as="geometry" />
         </mxCell>
-        <mxCell id="uc_fin" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Configure Finance Settings" vertex="1">
+        <mxCell id="uc_ops" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Configure Operations Settings" vertex="1">
           <mxGeometry height="40" width="210" x="525" y="635" as="geometry" />
         </mxCell>
-        <mxCell id="uc_ai" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Configure Platform AI Settings" vertex="1">
+        <mxCell id="uc_fin" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Configure Finance Settings" vertex="1">
           <mxGeometry height="40" width="210" x="525" y="685" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_ai" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontSize=10.5;fontFamily=Helvetica;align=center;verticalAlign=middle;" value="Configure Platform AI Settings" vertex="1">
+          <mxGeometry height="40" width="210" x="525" y="735" as="geometry" />
         </mxCell>
         <mxCell id="e_a_dash" edge="1" parent="1" source="a_admin" style="edgeStyle=none;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="uc_dash" value="">
           <mxGeometry relative="1" as="geometry" />
@@ -633,34 +667,40 @@
               <mxPoint x="475" y="445" />
             </Array></mxGeometry>
         </mxCell>
-        <mxCell id="b_ddoc" edge="1" parent="1" source="uc_ddoc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;" target="j_mcfg" value="">
+        <mxCell id="b_rcrit" edge="1" parent="1" source="uc_rcrit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;" target="j_mcfg" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="475" y="505" />
+              <mxPoint x="475" y="495" />
             </Array></mxGeometry>
         </mxCell>
-        <mxCell id="b_dfeat" edge="1" parent="1" source="uc_dfeat" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;" target="j_mcfg" value="">
+        <mxCell id="b_ddoc" edge="1" parent="1" source="uc_ddoc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;" target="j_mcfg" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="475" y="555" />
             </Array></mxGeometry>
         </mxCell>
-        <mxCell id="b_ops" edge="1" parent="1" source="uc_ops" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;" target="j_mcfg" value="">
+        <mxCell id="b_dfeat" edge="1" parent="1" source="uc_dfeat" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;" target="j_mcfg" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="475" y="605" />
             </Array></mxGeometry>
         </mxCell>
-        <mxCell id="b_fin" edge="1" parent="1" source="uc_fin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;" target="j_mcfg" value="">
+        <mxCell id="b_ops" edge="1" parent="1" source="uc_ops" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;" target="j_mcfg" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="475" y="655" />
             </Array></mxGeometry>
         </mxCell>
-        <mxCell id="b_ai" edge="1" parent="1" source="uc_ai" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;" target="j_mcfg" value="">
+        <mxCell id="b_fin" edge="1" parent="1" source="uc_fin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;" target="j_mcfg" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="475" y="705" />
+            </Array></mxGeometry>
+        </mxCell>
+        <mxCell id="b_ai" edge="1" parent="1" source="uc_ai" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=none;exitX=0;exitY=0.5;" target="j_mcfg" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="475" y="755" />
             </Array></mxGeometry>
         </mxCell>
       </root>

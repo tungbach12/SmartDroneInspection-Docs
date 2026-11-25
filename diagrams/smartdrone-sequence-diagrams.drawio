@@ -143,7 +143,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_5" value="6. Submit org, OTP code &amp;amp; initial building" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.4912;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_1" target="act_1_1">
+        <mxCell id="m_5" value="6. Submit customer details, OTP code &amp; initial building" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.4912;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_1" target="act_1_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -183,17 +183,17 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_13" value="12b. Requires Admin clearance" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.9364;exitDx=0;exitDy=0;entryX=1;entryY=0.4864;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_5_0" target="act_4_0">
+        <mxCell id="m_13" value="12b. Restricted zone (MSG28 advisory warning)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.9364;exitDx=0;exitDy=0;entryX=1;entryY=0.4864;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_5_0" target="act_4_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_14" value="13b. Save PENDING registration &amp;amp; User" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5720;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_0" target="act_6_2">
+        <mxCell id="m_14" value="13b. Save ACTIVE Customer User, Asset &amp;amp; AuditEvent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5720;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_0" target="act_6_2">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_15" value="14b. Return 201 Created (pending review)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.6576;exitDx=0;exitDy=0;entryX=1;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_0" target="act_1_3">
+        <mxCell id="m_15" value="14b. Return 201 Created (ACTIVE + MSG28 warning)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.6576;exitDx=0;exitDy=0;entryX=1;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_0" target="act_1_3">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -203,7 +203,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_17" value="13c. Save ACTIVE Org, Customer, Asset &amp;amp; AuditEvent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8872;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_0" target="act_6_3">
+        <mxCell id="m_17" value="13c. Save ACTIVE Customer User, Asset &amp; AuditEvent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8872;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_0" target="act_6_3">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -443,7 +443,7 @@
         <mxCell id="life_0" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="140" y="98" width="1" height="934" as="geometry" />
         </mxCell>
-        <mxCell id="p_1" value="Manager / Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="p_1" value="Manager" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="357" y="18" width="30" height="55" as="geometry" />
         </mxCell>
         <mxCell id="life_1" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
@@ -643,7 +643,7 @@
         <mxCell id="life_0" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="140" y="98" width="1" height="904" as="geometry" />
         </mxCell>
-        <mxCell id="p_1" value="Manager / Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="p_1" value="Manager" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="357" y="18" width="30" height="55" as="geometry" />
         </mxCell>
         <mxCell id="life_1" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
@@ -1276,24 +1276,24 @@
       </root>
     </mxGraphModel>
   </diagram>
-  <diagram id="sdi-seq-fe07" name="FE-07 - Restricted Airspace Clearance">
+  <diagram id="sdi-seq-fe07" name="FE-07 - Restricted Airspace Warning">
     <mxGraphModel dx="1440" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1440" pageHeight="900" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="p_0" value="Platform Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="p_0" value="Customer" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="125" y="18" width="30" height="55" as="geometry" />
         </mxCell>
         <mxCell id="life_0" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="140" y="98" width="1" height="772" as="geometry" />
         </mxCell>
-        <mxCell id="p_1" value=":AirspaceReviewCtrl" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="p_1" value=":Web / Mobile UI" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="292" y="34" width="160" height="40" as="geometry" />
         </mxCell>
         <mxCell id="life_1" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="372" y="74" width="1" height="796" as="geometry" />
         </mxCell>
-        <mxCell id="p_2" value=":ProspectiveCustomerRevSvc" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="p_2" value=":Airspace / Asset API" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="524" y="34" width="160" height="40" as="geometry" />
         </mxCell>
         <mxCell id="life_2" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
@@ -1305,7 +1305,7 @@
         <mxCell id="life_3" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="836" y="74" width="1" height="796" as="geometry" />
         </mxCell>
-        <mxCell id="p_4" value=":NotificationService" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="p_4" value=":Client Feedback" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="988" y="34" width="160" height="40" as="geometry" />
         </mxCell>
         <mxCell id="life_4" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
@@ -1368,81 +1368,81 @@
         <mxCell id="fr_0" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;width=62;height=22;boundedLbl=1;verticalAlign=middle;align=left;spacingLeft=5;fillColor=none;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontStyle=1;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="86" y="294" width="1268" height="516" as="geometry" />
         </mxCell>
-        <mxCell id="fr_0_g0" value="[Approved Clearance]" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=2;" vertex="1" parent="fr_0">
-          <mxGeometry x="68" y="2" width="260" height="20" as="geometry" />
+        <mxCell id="fr_0_g0" value="[RESTRICTED_ZONE — MSG28 Amber Warning]" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=2;" vertex="1" parent="fr_0">
+          <mxGeometry x="68" y="2" width="320" height="20" as="geometry" />
         </mxCell>
         <mxCell id="fr_0_d0" value="" style="line;strokeWidth=1;dashed=1;dashPattern=5 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="fr_0">
           <mxGeometry x="0" y="252" width="1268" height="2" as="geometry" />
         </mxCell>
-        <mxCell id="fr_0_dg0" value="[Rejected Clearance]" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=2;" vertex="1" parent="fr_0">
+        <mxCell id="fr_0_dg0" value="[NO_FLY_ZONE — Hard Block]" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=2;" vertex="1" parent="fr_0">
           <mxGeometry x="12" y="256" width="260" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="m_0" value="1. GET /platform/customer-airspace-reviews/pending" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_0" target="act_1_0">
+        <mxCell id="m_0" value="1. Pick location coordinates on map" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_0" target="act_1_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_1" value="2. pending(adminId)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.1053;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_0" target="act_2_0">
+        <mxCell id="m_1" value="2. POST /api/v1/airspace/evaluate" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.1053;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_0" target="act_2_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_2" value="3. Load PENDING restricted-zone registrations" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4912;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_0" target="act_5_0">
+        <mxCell id="m_2" value="3. Compute distance to airspace zones" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4912;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_0" target="act_5_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_3" value="4. Return queue &amp; initial Asset coords" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.8772;exitDx=0;exitDy=0;entryX=1;entryY=0.1132;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_0" target="act_0_1">
+        <mxCell id="m_3" value="4. Return classification, ceiling, authority &amp;amp; MSG28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.8772;exitDx=0;exitDy=0;entryX=1;entryY=0.1132;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_0" target="act_0_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_4" value="5a. POST /{registrationId}/approve" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8679;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_1" target="act_1_1">
+        <mxCell id="m_4" value="5a. Show Amber warning; submit asset/reg" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8679;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_1" target="act_1_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_5" value="6a. approve(adminId, registrationId)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.0759;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_1" target="act_2_1">
+        <mxCell id="m_5" value="6a. POST /assets or /auth/register" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.0759;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_1" target="act_2_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_6" value="7a. Activate Org, Customer User &amp; Asset" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.3544;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_1" target="act_5_1">
+        <mxCell id="m_6" value="7a. Activate Customer User &amp;amp; ACTIVE Asset" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.3544;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_1" target="act_5_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_7" value="8a. Record airspace approval audit_event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6329;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_1" target="act_3_0">
+        <mxCell id="m_7" value="8a. Record active registration audit_event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6329;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_1" target="act_3_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_8" value="9a. Notify customer account active" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9114;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_1" target="act_4_0">
+        <mxCell id="m_8" value="9a. Surface MSG28 chip &amp;amp; SR reminder banner" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9114;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_1" target="act_4_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_9" value="5b. POST /{registrationId}/reject (reason)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_2" target="act_1_2">
+        <mxCell id="m_9" value="5b. Show Error banner; block UI confirm" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_2" target="act_1_2">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_10" value="6b. reject(adminId, registrationId, reason)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.0759;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_2" target="act_2_2">
+        <mxCell id="m_10" value="6b. Direct POST blocked by No-Fly gate" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.0759;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_2" target="act_2_2">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_11" value="7b. Mark REJECTED &amp; store review note" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.3544;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_2" target="act_5_2">
+        <mxCell id="m_11" value="7b. Abort persistence (no user/asset saved)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.3544;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_2" target="act_5_2">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_12" value="8b. Record rejection audit_event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6329;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_2" target="act_3_1">
+        <mxCell id="m_12" value="8b. Record blocked gate security event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6329;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_2" target="act_3_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_13" value="9b. Notify applicant with rejection reason" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9114;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_2" target="act_4_1">
+        <mxCell id="m_13" value="9b. Return 403 ASSET_IN_NO_FLY_ZONE" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9114;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_2" target="act_4_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -1569,7 +1569,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_6" value="7. PUT /requests/{id}/inspection-items (V71)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.5923;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_1" target="act_2_0">
+        <mxCell id="m_6" value="7. PUT /requests/{id}/inspection-items (V80)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.5923;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_1" target="act_2_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -1800,7 +1800,7 @@
         <mxCell id="life_4" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="1068" y="74" width="1" height="748" as="geometry" />
         </mxCell>
-        <mxCell id="p_5" value=":PartnerChatSvc (V70)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="p_5" value=":PartnerChatSvc (V79)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="1220" y="34" width="160" height="40" as="geometry" />
         </mxCell>
         <mxCell id="life_5" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
@@ -2199,7 +2199,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_3" value="4. Insert SENT row (uq_notifications_deduplication_key)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.1053;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_0" target="act_6_0">
+        <mxCell id="m_3" value="4. Save bilingual (&quot;Tiếng Việt | English&quot;) row &amp; critical email" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.1053;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_0" target="act_6_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -2219,12 +2219,12 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_7" value="8. PATCH /notifications/{id}/read" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9114;exitDx=0;exitDy=0;entryX=0;entryY=0.7129;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_0" target="act_5_0">
+        <mxCell id="m_7" value="8. PATCH /notifications/{id}/read or /read-all" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9114;exitDx=0;exitDy=0;entryX=0;entryY=0.7129;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_0" target="act_5_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_8" value="9. Idempotent SENT -&amp;gt; READ &amp;amp; stamp read_at" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9307;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_5_0" target="act_6_1">
+        <mxCell id="m_8" value="9. Idempotent SENT -&gt; READ (single or mark-all read_at)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9307;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_5_0" target="act_6_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -2243,19 +2243,19 @@
         <mxCell id="life_0" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="140" y="98" width="1" height="684" as="geometry" />
         </mxCell>
-        <mxCell id="p_1" value="Manager / Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="357" y="18" width="30" height="55" as="geometry" />
+        <mxCell id="p_1" value=":InspectionCtrl" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="292" y="34" width="160" height="40" as="geometry" />
         </mxCell>
         <mxCell id="life_1" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
-          <mxGeometry x="372" y="98" width="1" height="684" as="geometry" />
+          <mxGeometry x="372" y="74" width="1" height="708" as="geometry" />
         </mxCell>
-        <mxCell id="p_2" value=":InspectionCtrl" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="p_2" value=":InspectionCreationSvc" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="524" y="34" width="160" height="40" as="geometry" />
         </mxCell>
         <mxCell id="life_2" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="604" y="74" width="1" height="708" as="geometry" />
         </mxCell>
-        <mxCell id="p_3" value=":InspectionCreationSvc" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="p_3" value=":FlightPermitPolicy" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="756" y="34" width="160" height="40" as="geometry" />
         </mxCell>
         <mxCell id="life_3" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
@@ -2276,116 +2276,95 @@
         <mxCell id="act_0_0" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
           <mxGeometry x="135" y="116" width="10" height="26" as="geometry" />
         </mxCell>
+        <mxCell id="act_0_1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="135" y="420" width="10" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="act_0_2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="135" y="576" width="10" height="26" as="geometry" />
+        </mxCell>
         <mxCell id="act_1_0" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="367" y="292" width="10" height="26" as="geometry" />
+          <mxGeometry x="367" y="116" width="10" height="70" as="geometry" />
         </mxCell>
         <mxCell id="act_1_1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="367" y="416" width="10" height="26" as="geometry" />
+          <mxGeometry x="367" y="420" width="10" height="26" as="geometry" />
         </mxCell>
         <mxCell id="act_1_2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="367" y="588" width="10" height="26" as="geometry" />
+          <mxGeometry x="367" y="576" width="10" height="26" as="geometry" />
         </mxCell>
         <mxCell id="act_2_0" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="599" y="116" width="10" height="70" as="geometry" />
+          <mxGeometry x="599" y="160" width="10" height="442" as="geometry" />
         </mxCell>
         <mxCell id="act_2_1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="599" y="292" width="10" height="194" as="geometry" />
-        </mxCell>
-        <mxCell id="act_2_2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="599" y="588" width="10" height="70" as="geometry" />
+          <mxGeometry x="599" y="660" width="10" height="70" as="geometry" />
         </mxCell>
         <mxCell id="act_3_0" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="831" y="160" width="10" height="114" as="geometry" />
+          <mxGeometry x="831" y="204" width="10" height="26" as="geometry" />
         </mxCell>
         <mxCell id="act_3_1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="831" y="460" width="10" height="70" as="geometry" />
-        </mxCell>
-        <mxCell id="act_3_2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="831" y="632" width="10" height="70" as="geometry" />
+          <mxGeometry x="831" y="532" width="10" height="26" as="geometry" />
         </mxCell>
         <mxCell id="act_4_0" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="1063" y="204" width="10" height="26" as="geometry" />
-        </mxCell>
-        <mxCell id="act_4_1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="1063" y="336" width="10" height="26" as="geometry" />
+          <mxGeometry x="1063" y="316" width="10" height="26" as="geometry" />
         </mxCell>
         <mxCell id="act_5_0" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="1295" y="248" width="10" height="26" as="geometry" />
+          <mxGeometry x="1295" y="368" width="10" height="26" as="geometry" />
         </mxCell>
         <mxCell id="act_5_1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="1295" y="504" width="10" height="26" as="geometry" />
-        </mxCell>
-        <mxCell id="act_5_2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
-          <mxGeometry x="1295" y="676" width="10" height="26" as="geometry" />
+          <mxGeometry x="1295" y="704" width="10" height="26" as="geometry" />
         </mxCell>
         <mxCell id="fr_0" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;width=62;height=22;boundedLbl=1;verticalAlign=middle;align=left;spacingLeft=5;fillColor=none;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontStyle=1;fontSize=11;fontFamily=Helvetica;" vertex="1" parent="1">
-          <mxGeometry x="318" y="382" width="1036" height="340" as="geometry" />
+          <mxGeometry x="96" y="268" width="1260" height="356" as="geometry" />
         </mxCell>
-        <mxCell id="fr_0_g0" value="[Approved Permit]" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=2;" vertex="1" parent="fr_0">
-          <mxGeometry x="68" y="2" width="260" height="20" as="geometry" />
+        <mxCell id="fr_0_g0" value="[Valid Self-Attested Upload]" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=2;" vertex="1" parent="fr_0">
+          <mxGeometry x="68" y="2" width="280" height="20" as="geometry" />
         </mxCell>
         <mxCell id="fr_0_d0" value="" style="line;strokeWidth=1;dashed=1;dashPattern=5 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="fr_0">
-          <mxGeometry x="0" y="164" width="1036" height="2" as="geometry" />
+          <mxGeometry x="0" y="216" width="1260" height="2" as="geometry" />
         </mxCell>
-        <mxCell id="fr_0_dg0" value="[Rejected Permit]" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=2;" vertex="1" parent="fr_0">
-          <mxGeometry x="12" y="168" width="260" height="20" as="geometry" />
+        <mxCell id="fr_0_dg0" value="[Invalid Metadata / Missing Attestation]" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=2;" vertex="1" parent="fr_0">
+          <mxGeometry x="12" y="220" width="300" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="m_0" value="1. POST /inspections/{id}/flight-permit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_0" target="act_2_0">
+        <mxCell id="m_0" value="1. POST /inspections/{id}/flight-permit (PDF + attestation)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_0" target="act_1_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_1" value="2. uploadFlightPermit(actorId, inspId, file)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.1053;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_0" target="act_3_0">
+        <mxCell id="m_1" value="2. uploadFlightPermit(actorId, inspId, file, meta)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.0385;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_0" target="act_2_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_2" value="3. Put permit PDF &amp; compute SHA-256" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4912;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_0" target="act_4_0">
+        <mxCell id="m_2" value="3. validate(permitNumber, dates, selfAttested)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.1267;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_0" target="act_3_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_3" value="4. Save flight_permit PENDING_REVIEW" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8772;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_0" target="act_5_0">
+        <mxCell id="m_3" value="4a. Put permit PDF &amp; compute SHA-256" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.3801;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_0" target="act_4_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_4" value="5. GET /flight-permit/content" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.0619;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_0" target="act_2_1">
+        <mxCell id="m_4" value="5a. Save flight_permit APPROVED immediately &amp; emit event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4977;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_0" target="act_5_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_5" value="6. Stream permit document for review" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.2887;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_1" target="act_4_1">
+        <mxCell id="m_5" value="6a. Return 200 OK (APPROVED — unlocks field session)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5000;exitDx=0;exitDy=0;entryX=1;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_1" target="act_0_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_6" value="7a. POST /flight-permit/review (APPROVED)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.7010;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_1" target="act_2_1">
+        <mxCell id="m_6" value="4b. Throw validation / attestation failure (400 / 409)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.4615;exitDx=0;exitDy=0;entryX=1;entryY=0.8688;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_1" target="act_2_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_7" value="8a. reviewFlightPermit(reviewerId, inspId, true)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9278;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_1" target="act_3_1">
+        <mxCell id="m_7" value="5b. Return 400/409 validation error (permit remains pending)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.4615;exitDx=0;exitDy=0;entryX=1;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_2" target="act_0_2">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_8" value="9a. Mark APPROVED (unlocks field session)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_1" target="act_5_1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint y="-10" as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="m_9" value="7b. POST /flight-permit/review (REJECTED)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_2" target="act_2_2">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint y="-10" as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="m_10" value="8b. reviewFlightPermit(reviewerId, inspId, false)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_2" target="act_3_2">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint y="-10" as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="m_11" value="9b. Save REJECTED reason &amp; notify Inspector" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_2" target="act_5_2">
+        <mxCell id="m_8" value="7. On drone change or out-of-window reschedule: reset -&gt; PENDING_REVIEW" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_1" target="act_5_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -2470,7 +2449,7 @@
         <mxCell id="act_5_2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
           <mxGeometry x="1295" y="600" width="10" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="m_0" value="1. POST /inspections/{id}/field-sessions (safetyNote)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.0258;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_0" target="act_1_0">
+        <mxCell id="m_0" value="1. POST /inspections/{id}/field-sessions (preFlightSnapshot, V71)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.0258;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_0" target="act_1_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -2500,17 +2479,17 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_6" value="7. GET /flight-report &amp;amp; POST /sync-video" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.5923;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_2" target="act_1_0">
+        <mxCell id="m_6" value="7. POST /field-sessions/{sessId}/flights &amp; POST /sync-video" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.5923;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_2" target="act_1_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_7" value="8. getFlightReport(...) &amp;amp; syncFlightVideo(...)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6867;exitDx=0;exitDy=0;entryX=0;entryY=0.7129;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_0" target="act_3_0">
+        <mxCell id="m_7" value="8. addFlight(...) / getFlightReport(...) &amp; syncFlightVideo(...)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6867;exitDx=0;exitDy=0;entryX=0;entryY=0.7129;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_0" target="act_3_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_8" value="9. Save flight_trace_json &amp;amp; MP4 Evidence in MinIO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9307;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_0" target="act_5_1">
+        <mxCell id="m_8" value="9. Save field_session_flights (V72) &amp; MP4 Evidence in MinIO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9307;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_0" target="act_5_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -3231,10 +3210,10 @@
           <mxGeometry x="68" y="2" width="240" height="20" as="geometry" />
         </mxCell>
         <mxCell id="fr_0_d0" value="" style="line;strokeWidth=1;dashed=1;dashPattern=5 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="fr_0">
-          <mxGeometry x="0" y="164" width="1496" height="2" as="geometry" />
+          <mxGeometry x="0" y="146" width="1496" height="2" as="geometry" />
         </mxCell>
-        <mxCell id="fr_0_dg0" value="[Manager Approves &amp;amp; Publishes]" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=2;" vertex="1" parent="fr_0">
-          <mxGeometry x="12" y="168" width="240" height="20" as="geometry" />
+        <mxCell id="fr_0_dg0" value="[Approve -&gt; Payout -&gt; Publish]" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=#ffffff;fontColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=2;" vertex="1" parent="fr_0">
+          <mxGeometry x="12" y="150" width="185" height="20" as="geometry" />
         </mxCell>
         <mxCell id="m_0" value="1. POST /report/ai-summary &amp;amp; POST /report/draft" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_0" target="act_3_0">
           <mxGeometry relative="1" as="geometry">
@@ -3271,17 +3250,17 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_7" value="5b. POST /versions/{verId}/review (approve=true)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.7500;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_1" target="act_3_1">
+        <mxCell id="m_7" value="5b. POST /versions/{verId}/review (approve=true) &amp; POST /publish" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.7500;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_1" target="act_3_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_8" value="6b. reviewVersion(managerId, verId, true, null)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9397;exitDx=0;exitDy=0;entryX=0;entryY=0.5969;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_1" target="act_4_0">
+        <mxCell id="m_8" value="6b. reviewVersion -&gt; APPROVED (unlocks payout); publish after PAID" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9397;exitDx=0;exitDy=0;entryX=0;entryY=0.5969;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_1" target="act_4_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_9" value="7b. Supersede prior, set PUBLISHED &amp;amp; Inspection COMPLETED" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6656;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_0" target="act_7_2">
+        <mxCell id="m_9" value="7b. Check INSPECTOR_PAYOUT_REQUIRED, set PUBLISHED &amp; COMPLETED" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6656;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_0" target="act_7_2">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -3291,7 +3270,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_11" value="9. GET /report/versions/{verId}/document" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_0" target="act_3_2">
+        <mxCell id="m_11" value="9. GET /report/versions/{verId}/document (ungated once PUBLISHED)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_0" target="act_3_2">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -3476,7 +3455,7 @@
         <mxCell id="life_0" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="140" y="98" width="1" height="902" as="geometry" />
         </mxCell>
-        <mxCell id="p_1" value=":Web Settlement UI" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
+        <mxCell id="p_1" value=":Web / Mobile UI" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.2;fontColor=#000000;fontStyle=1;fontSize=12;fontFamily=Helvetica;" vertex="1" parent="1">
           <mxGeometry x="292" y="34" width="160" height="40" as="geometry" />
         </mxCell>
         <mxCell id="life_1" value="" style="line;strokeWidth=1;direction=south;html=1;dashed=1;dashPattern=4 4;strokeColor=#000000;fillColor=none;" vertex="1" parent="1">
@@ -3610,7 +3589,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_4" value="5a. GET .../finance (auto-close when PAID)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8627;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_0" target="act_2_1">
+        <mxCell id="m_4" value="5a. GET .../finance (poll) or POST /cancel-unpaid-order (switch)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8627;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_1_0" target="act_2_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -3650,7 +3629,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_12" value="4b. Return signed VNPay paymentUrl" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.4912;exitDx=0;exitDy=0;entryX=1;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_5_2" target="act_0_2">
+        <mxCell id="m_12" value="4b. Return signed VNPay paymentUrl (Mobile smartdrone:// return)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;dashPattern=4 4;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.4912;exitDx=0;exitDy=0;entryX=1;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_5_2" target="act_0_2">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -3665,7 +3644,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_15" value="10. Mark ServicePayment PAID &amp;amp; InspectorPayout ELIGIBLE" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8511;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_3" target="act_7_0">
+        <mxCell id="m_15" value="10. Mark ServicePayment PAID &amp; notify settlement" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8511;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_3" target="act_7_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -3937,7 +3916,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_3" value="4. Check accepted &amp; PAID &amp; not held for refund" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8772;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_0" target="act_6_0">
+        <mxCell id="m_3" value="4. Check report APPROVED, bank details &amp; not held for refund" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8772;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_0" target="act_6_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -3947,17 +3926,17 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_5" value="6. POST /occurrences/{occId}/record-payout" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.4912;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_1" target="act_2_1">
+        <mxCell id="m_5" value="6. POST /occurrences/{occId}/sepay/create-payout-link (or /record-payout)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.4912;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_1" target="act_2_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_6" value="7. recordOccurrencePayout(managerId, occId, ref)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8772;exitDx=0;exitDy=0;entryX=0;entryY=0.1053;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_1" target="act_3_1">
+        <mxCell id="m_6" value="7. Validate bank info (409), generate SDIPAY{code} QR / record ref" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8772;exitDx=0;exitDy=0;entryX=0;entryY=0.1053;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_1" target="act_3_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_7" value="8. Set InspectorPayout SETTLED &amp; save ref" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4912;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_1" target="act_6_1">
+        <mxCell id="m_7" value="8. Webhook transferType=&quot;out&quot; -&gt; set InspectorPayout PAID (enables publish)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4912;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_1" target="act_6_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -4189,12 +4168,12 @@
         <mxCell id="act_5_1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
           <mxGeometry x="1295" y="556" width="10" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="m_0" value="1. POST /inspections/{id}/reinspections" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_0" target="act_2_0">
+        <mxCell id="m_0" value="1. POST /inspections/{id}/reinspections (or MF2 linked Request)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4615;exitDx=0;exitDy=0;entryX=0;entryY=0.1714;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_0_0" target="act_2_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_1" value="2. createQuickReinspection(customerId, srcId)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.0759;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_0" target="act_3_0">
+        <mxCell id="m_1" value="2. createQuickReinspection / MF2 dispatch (sourceInspectionId)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.0759;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_0" target="act_3_0">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -4244,7 +4223,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_11" value="12. requireNoExpiredResolutions() before report" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9431;exitDx=0;exitDy=0;entryX=0;entryY=0.8000;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_1" target="act_5_1">
+        <mxCell id="m_11" value="12. requireNoExpiredResolutions() before report; PUT /inspector-rating" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9431;exitDx=0;exitDy=0;entryX=0;entryY=0.8000;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_1" target="act_5_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
