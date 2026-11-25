@@ -67,7 +67,7 @@ The web client separates `app` (shell, router, access policy, theme) from nine f
 | No | Package | Description |
 | :---: | :--- | :--- |
 | 01 | `src/app` | Contains the application shell (`AppShell`), route configuration (`router.tsx`), the four-portal route access policy (`accessPolicy.ts`), capability helpers (`capability.ts`), portal selection (`PortalSelectionPage`), and design tokens and theme (`tokens.ts`, `theme.ts`, `ColorModeContext`). |
-| 02 | `src/features/auth` | Implements customer organization registration (`RESTRICTED_ZONE` `MSG28` amber warning), partner Inspector application submission, email/password and OTP sign-in, Google OAuth 2.0 callback handling, session bootstrapping, and route guards (`RequireAuth`). |
+| 02 | `src/features/auth` | Implements Customer account registration (`RESTRICTED_ZONE` `MSG28` amber warning), partner Inspector application submission, email/password and OTP sign-in, Google OAuth 2.0 callback handling, session bootstrapping, and route guards (`RequireAuth`). |
 | 03 | `src/features/admin` | Provides platform account administration, pilot-licence class maintenance, drone document and feature configuration, platform finance/operations/rating-criteria/AI settings, Manager onboarding reviews, and read-only Admin oversight views. |
 | 04 | `src/features/landing` | Provides the public landing experience and the role-aware entry point into the four portals. |
 | 05 | `src/features/assets` | Provides building asset management (`checkpointsLocked`), reference document streaming, interactive airspace modal, and Inspector-owned drone registration and inventory. |
@@ -89,7 +89,7 @@ The web client separates `app` (shell, router, access policy, theme) from nine f
 | :---: | :--- | :--- |
 | 01 | `lib/core` | Provides the shared Dio HTTP client with authentication, API-response, and locale-header interceptors (`network`), secure token storage (`flutter_secure_storage`), application routing (`app_router.dart`), environment configuration (`env`), and theme and localization providers. |
 | 02 | `lib/features/auth` | Implements mobile credential sign-in, Google OAuth 2.0 deep-link callback handling, and Riverpod session state. `session_provider.dart` enforces that only `CUSTOMER` accounts enter the application; the network layer raises `CUSTOMER_ONLY_MOBILE` for any other role. |
-| 03 | `lib/features/assets` | Displays the organization's building assets, coordinates, and inspection checkpoints, with `data`, `domain`, and `presentation` layers. |
+| 03 | `lib/features/assets` | Displays the Customer’s building assets, coordinates, and inspection checkpoints, with `data`, `domain`, and `presentation` layers. |
 | 04 | `lib/features/contracts` | Implements the customer service-request list, new-request submission, request detail, and order-chat conversation. |
 | 05 | `lib/features/inspections` | Implements the customer inspection list and inspection detail, including the published report and its findings. |
 | 06 | `lib/features/dashboard`, `lib/features/notifications` | Provide the customer home summary and the in-app notification list. |
@@ -102,7 +102,7 @@ The web client separates `app` (shell, router, access policy, theme) from nine f
 
 ![Physical Schema Overview — PostgreSQL 17 V1 to V80](assets/diagrams/erd-physical-dbdiagram.png)
 
-*Figure 7.8 — SmartDroneInspection Physical Schema Overview (`smartdrone-physical-erd.dbml`, `53` application tables + outbox/audit across `V1`–`V80`).*
+*Figure 7.8 — SmartDroneInspection Physical Schema Overview (`smartdrone-physical-erd.dbml`, `53` application tables + Spring Modulith outbox across `V1`–`V80`).*
 
 ![Physical Schema Domain 1 — IAM and Onboarding](assets/diagrams/erd-dbml-1-iam-onboarding.png)
 
@@ -148,13 +148,13 @@ The web client separates `app` (shell, router, access policy, theme) from nine f
 
 | No | Table | Description |
 | :---: | :--- | :--- |
-| 01 | `users` | Platform accounts with role set, status, and lockout state. A customer organization is represented by its owning account. |
+| 01 | `users` | Platform accounts with role set, status, and lockout state. The Customer account ID is the ownership key for customer records. |
 | 02 | `inspector_profiles` | Inspector licence details, partner contract, and onboarding state. |
 | 03 | `inspector_applications` | Public partner applications and their review outcome. |
 | 04 | `otp_challenges` | One-time verification challenges. |
 | 05 | `auth_sessions` | Active sessions with hashed refresh tokens and revocation. |
 | 06 | `inspector_flight_logs` | Historical inspector flight missions. |
-| 07 | `prospective_customer_registrations` | Registrations held for restricted-airspace review. |
+| 07 | `prospective_customer_registrations` | Legacy registration records retained for historical airspace review data. New registrations activate immediately after advisory screening. |
 | 08 | `drone_registration_applications` | Drone registration requests with documents and capabilities. |
 | 09 | `drones` | Approved drones with registration validity and serviceability. |
 | 10 | `asset_categories` | Building category catalogue; only active rows are selectable in asset registration. |
@@ -195,7 +195,7 @@ The web client separates `app` (shell, router, access policy, theme) from nine f
 | 45 | `inspection_knowledge_chunks` | Stores the eight seeded engineering-standard/guideline chunks that ground `DroneKnowledgeAI` (`V62`, updated to `vector(384)` by `V65`): standard code, title, asset-category code, defect patterns, severity, guidance text, reference URL, and a `vector(384)` embedding with an HNSW `vector_cosine_ops` index for cosine retrieval via local `fastembed`. |
 | 46 | `historical_finding_cases` | Stores six anonymized benchmark cases and confirmed findings backfilled (`V64`) and indexed automatically at report publication (`V62`, updated to `vector(384)` by `V65`), with organization/asset references, defect label, severity, notes, outcome (including re-inspection resolution status), anonymized flag, and a `vector(384)` embedding; retrieval is tenant-isolated and excludes the current inspection. |
 | 47 | `gateway_inbound_transactions` | Idempotent inbound payment-gateway webhook audit table (`V68`) keyed uniquely on `(gateway, external_id)` when present, recording `order_code`, `amount`, `account_number`, raw `payload`, status (`APPLIED`, `AMOUNT_MISMATCH`, `ORDER_NOT_FOUND`, `REJECTED`, `ERROR`), and diagnostic `detail` across `REQUIRES_NEW` transactions. |
-| 48 | `inspection_flight_permits` | 1-to-1 flight-permit document metadata and independent Manager/Admin review gate split from `inspections` (`V69`), keyed on `inspection_id`. |
+| 48 | `inspection_flight_permits` | One-to-one self-attested flight permit metadata keyed on `inspection_id` (`V69`), with read-only Manager and Admin audit access. |
 | 49 | `field_session_telemetry` | 1-to-1 SmartDroneHub telemetry metrics, GPS `flight_trace_json`, and synced `flight_video_evidence_id` split from `field_sessions` (`V69`), keyed on `field_session_id`. |
 
 ## 3. Detailed Design
@@ -204,7 +204,7 @@ Endpoint paths in Section IV.3 omit the common /api/v1 prefix.
 
 ### 3.1 `MF1` — `FE-01` Account Authentication, OTP & 4-Role Access Control
 
-This section presents the detailed design for `FE-01`: Customer organization registration (with No-Fly Zone airspace gate), Argon2id credential sign-in, consolidated `REGISTRATION`/`LOGIN`/`PASSWORD_RESET` OTP challenges, Google OAuth 2.0 federation, HS256 JWT and HmacSHA256 refresh-token rotation, self-service user profile updates, platform user administration, and strict four-role access control (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`).
+This section presents the detailed design for `FE-01`: Customer account registration (with No-Fly Zone airspace gate), Argon2id credential sign-in, consolidated `REGISTRATION`/`LOGIN`/`PASSWORD_RESET` OTP challenges, Google OAuth 2.0 federation, HS256 JWT and HmacSHA256 refresh-token rotation, self-service user profile updates, platform user administration, and strict four-role access control (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`).
 
 #### 3.1.1 Class Diagram
 
@@ -222,7 +222,7 @@ This section presents the detailed design for `FE-01`: Customer organization reg
 | 04 | `AuthService`, `AuthRateLimitFilter` & `LoginFailureService` | Coordinates Argon2id verification, 5-failure 15-minute lockout, per-IP OTP/login throttling, and JWT issuance/rotation (`AccessTokenService`, `RefreshCookieService`). |
 | 05 | `User`, `OtpChallenge` & `AuthSession` | Domain entities representing single-role users across `ADMIN`, `MANAGER`, `CUSTOMER`, and `INSPECTOR`, time-limited OTP challenges, and rotated refresh sessions. |
 
-#### 3.1.2 Customer Organization and Initial Asset Registration Sequence Diagram
+#### 3.1.2 Customer Account and Initial Asset Registration Sequence Diagram
 
 ![FE-01A Registration Sequence Diagram](assets/diagrams/seq-fe01a.png)
 
@@ -450,7 +450,7 @@ This section presents the detailed design for `FE-11`: the Administrator-configu
 
 ### 3.12 `MF2` — `FE-12` System Notifications & Alert Center
 
-This section presents the detailed design for `FE-12`: transactional Spring Modulith outbox-driven notifications across all five workflow pillars, bilingual `"Tiếng Việt | English"` formatting, SMTP critical alerts, `PATCH /api/v1/notifications/read-all`, database-level deduplication (`uq_notifications_deduplication_key`), and XSS/open-redirect safe deep linking.
+This section presents the detailed design for `FE-12`: transactional Spring Modulith outbox-driven notifications across all five workflow pillars, bilingual Vietnamese and English formatting, SMTP critical alerts, `PATCH /api/v1/notifications/read-all`, database-level deduplication (`uq_notifications_deduplication_key`), and XSS/open-redirect safe deep linking.
 
 #### 3.12.1 Sequence Diagram
 
@@ -470,7 +470,7 @@ This section presents the detailed design for `FE-12`: transactional Spring Modu
 
 ### 3.13 `MF3` — `FE-13` Flight Permit Upload & Self-Attestation Gate
 
-This section presents the detailed design for `FE-13`: assigned-Inspector flight permit submission (`<= 25 MB`, verified binary signature & `SHA-256`, structured permit metadata), immediate `APPROVED` activation via Inspector self-attestation (no Manager/Admin permit approval), pre-session gate enforcement, automatic reset to `PENDING_REVIEW` when drone or schedule changes (`BR-25`), and read-only Manager/Admin audit views.
+This section presents the detailed design for `FE-13`: assigned-Inspector flight permit submission (`<= 25 MB`, verified binary signature & `SHA-256`, structured permit metadata), immediate `APPROVED` activation via Inspector self-attestation (no Manager/Admin permit approval), pre-session gate enforcement, automatic reset to `PENDING_REVIEW` when the drone changes or the schedule moves outside the permit validity window (`BR-25`), and read-only Manager/Admin audit views.
 
 ![FE-13 Flight Permit Self-Attestation Sequence Diagram](assets/diagrams/seq-fe13.png)
 
@@ -589,7 +589,7 @@ This section presents the detailed design for `FE-18`: deterministic fixed-secti
 
 ### 3.19 `MF4` — `FE-19` Customer Report Acceptance, Ratings & Clarification Workflow
 
-This section presents the detailed design for `FE-19`: Customer organization review of published inspection deliverables across Web and Flutter Mobile, Customer and Manager structured Inspector Ratings (`inspector_ratings` `V70`, configurable EN/VI criteria `rating_criterion_configs` `V73`), explicit acceptance against the exact published report version (`PAYMENT_DUE`), and owning-Customer-only pre-acceptance clarification requests (`BR-41`).
+This section presents the detailed design for `FE-19`: Customer review of published inspection deliverables across Web and Flutter Mobile, Customer and Manager structured Inspector Ratings (`inspector_ratings` `V70`, configurable EN/VI criteria `rating_criterion_configs` `V73`), explicit acceptance against the exact published report version (`PAYMENT_DUE`), and owning-Customer-only pre-acceptance clarification requests.
 
 ![FE-19 Acceptance and Rating Sequence Diagram](assets/diagrams/seq-fe19.png)
 
@@ -600,7 +600,7 @@ This section presents the detailed design for `FE-19`: Customer organization rev
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
 | 01 | `ContractWorkflowService.customerAcceptReport` & `InspectionReportAcceptancePort` | Verify target report is `PUBLISHED`, transition occurrence payment status to `PAYMENT_DUE`, stamp `service_invoices.customer_accepted_at` and `payment_due_at`, and block duplicate acceptance or acceptance on unpublished drafts. |
-| 02 | `ReportService.requestCustomerClarification` | Restricted strictly to the owning `CUSTOMER` prior to report acceptance (`403` for `MANAGER`, `ADMIN`, `INSPECTOR`, or foreign organizations), incrementing `inspections.clarification_count` and notifying staff. |
+| 02 | `ReportService.requestCustomerClarification` | Restricted strictly to the owning `CUSTOMER` prior to report acceptance (`403` for `MANAGER`, `ADMIN`, `INSPECTOR`, or other Customer accounts), incrementing `inspections.clarification_count` and notifying staff. |
 | 03 | Web `CustomerReportDeliverablePage.tsx`, `CustomerReportSettlementCard.tsx` & Mobile Settlement Step 1 | Surface read-only official PDF deliverables (`PUBLISHED` only), Clarification dialog, and explicit **Accept report** confirmation before unlocking online checkout. |
 
 ---
@@ -644,7 +644,7 @@ This section presents the detailed design for `FE-21`: per-occurrence `ServiceIn
 | :---: | :--- | :--- |
 | 01 | `InspectionFinanceSettingsController`, `InspectionFinanceSettingsService`, `InspectionFinanceCalculator` & `ServiceInvoice` | Manage Admin finance rates (`platformCommissionRate`, `vatRate`, `tncnRate`, `paymentDueDays`) and freeze exact rate snapshots onto each occurrence's `ServiceInvoice`. |
 | 02 | `PaymentDueExpiryService` (`V4`) | Stamps `service_payments.payment_due_at = accepted_at + configuredWindow` once upon report acceptance; scheduled `scanOverduePayments()` emits a single `PaymentOverdueEvent` (`payment_overdue_notified_at` guard) to owning Customer and active Managers without revoking published report access or altering `PAYMENT_DUE`. |
-| 03 | `PaymentDocumentService` & `PaymentDocumentRenderer` | Expose `GET /api/v1/inspections/{id}/report/payment-document` (returning `409` before acceptance, A4 Payment Notice PDF while `PAYMENT_DUE`, and Payment Receipt PDF once `PAID`, each bearing a non-tax-invoice disclaimer); strictly scoped to owning organization, assigned Inspector, `MANAGER`, and `ADMIN` (`404` otherwise). |
+| 03 | `PaymentDocumentService` & `PaymentDocumentRenderer` | Expose `GET /api/v1/inspections/{id}/report/payment-document` (returning `409` before acceptance, A4 Payment Notice PDF while `PAYMENT_DUE`, and Payment Receipt PDF once `PAID`, each bearing a non-tax-invoice disclaimer); strictly scoped to owning Customer, assigned Inspector, `MANAGER`, and `ADMIN` (`404` otherwise). |
 
 ---
 
@@ -713,7 +713,7 @@ This section presents the detailed design for `FE-24`: opening follow-up `RE_INS
 
 **No maintenance design exists.** Corrective maintenance — work orders, repair scope advisory, repair execution, completion reporting, and cost close-out — is absent from the delivered codebase. There is no maintenance package, class, endpoint, or table, so there is no retained schema to document. `reinspection_defect_verifications` is part of the inspection design, not of a maintenance design: it records the three-way comparison (`RESOLVED`, `UNRESOLVED`, `INCONCLUSIVE`) between an original finding and fresh re-observed evidence during a re-inspection, including the `V3` `valid_until` expiry of a `RESOLVED` verdict, designed under `FE-24`.
 
-**DroneKnowledgeAI is advisory, tenant-isolated and degradation-tolerant.** `V62` creates the `pgvector` extension, `V64` backfills published historical cases, and `V65` persists `vector(384)` embeddings in `inspection_knowledge_chunks` (eight seeded engineering standards) and `historical_finding_cases` (six anonymized benchmarks plus published confirmed findings), each with an HNSW `vector_cosine_ops` index. `HistoricalCaseService` (`FE-17`) backfills missing vectors on `ApplicationReadyEvent` and queries these stores behind `HistoricalCaseAdvisorPort`, using `PGVECTOR_RAG` via local `fastembed` `/v1/embeddings` when available and deterministic `HYBRID_MATCH` otherwise, as well as `AI_VISION_RAG` for note drafting (`POST .../draft-note`). Retrieval is scoped by `(organization_id = actor org OR is_anonymized_benchmark = TRUE) AND (source_inspection_id IS NULL OR source_inspection_id <> current inspection)`, so no cross-organization PII leaks. Recommendations, drafted notes, and knowledge references never confirm a finding, publish a report, clear a location for flight, or authorize maintenance.
+**DroneKnowledgeAI is advisory, tenant-isolated and degradation-tolerant.** `V62` creates the `pgvector` extension, `V64` backfills published historical cases, and `V65` persists `vector(384)` embeddings in `inspection_knowledge_chunks` (eight seeded engineering standards) and `historical_finding_cases` (six anonymized benchmarks plus published confirmed findings), each with an HNSW `vector_cosine_ops` index. `HistoricalCaseService` (`FE-17`) backfills missing vectors on `ApplicationReadyEvent` and queries these stores behind `HistoricalCaseAdvisorPort`, using `PGVECTOR_RAG` via local `fastembed` `/v1/embeddings` when available and deterministic `HYBRID_MATCH` otherwise, as well as `AI_VISION_RAG` for note drafting (`POST .../draft-note`). Retrieval is scoped by `(organization_id = owning Customer ID OR is_anonymized_benchmark = TRUE) AND (source_inspection_id IS NULL OR source_inspection_id <> current inspection)`, so no cross-organization PII leaks. Recommendations, drafted notes, and knowledge references never confirm a finding, publish a report, clear a location for flight, or authorize maintenance.
 
 **Buildings only.** Building-defect classes, inspection checkpoints, and asset categories are all building-specific. No design element addresses bridges, transmission towers, solar farms, roads, dams, tunnels, ports, or pipelines.
 

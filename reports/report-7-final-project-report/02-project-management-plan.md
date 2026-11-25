@@ -22,14 +22,14 @@ The work was decomposed into twenty-four atomic product features (`FE-01`–`FE-
 | 1.5 | `FE-05` Financial History & Revenue/Payment Ledger (`MF4` ledger views) | Medium | 7 |
 | 2 | Buildings, Commercial Service, Chat & Notifications (`MF2`, `FE-06`–`FE-12`) | Complex | 45 |
 | 2.1 | `FE-06` Building Asset Registry, Checkpoints & Reference Documents | Complex | 8 |
-| 2.2 | `FE-07` Restricted Airspace Review & Clearance Decision | Medium | 5 |
+| 2.2 | `FE-07` Restricted Airspace Advisory Warning & Immediate Onboarding | Medium | 5 |
 | 2.3 | `FE-08` Service Requests (One-Time & Recurring) & VND Quotations | Complex | 9 |
 | 2.4 | `FE-09` Offline Signed Contract & Occurrence Dispatch Scheduling | Complex | 8 |
-| 2.5 | `FE-10` Dual-Channel Messaging (Order Chat & Inspection Chat) | Medium | 6 |
+| 2.5 | `FE-10` Messaging (Order Chat, Partner Chat & Inspection Chat) | Medium | 6 |
 | 2.6 | `FE-11` Assignment Acceptance Timeout & Escalation Handling | Simple | 4 |
 | 2.7 | `FE-12` System Notifications & Alert Center | Medium | 5 |
 | 3 | Field Execution, AI Inference/RAG & Report Publication (`MF3` + `FE-18`, `FE-13`–`FE-18`) | Complex | 48 |
-| 3.1 | `FE-13` Flight Permit Upload & Independent Verification Gate (`MF3`) | Medium | 7 |
+| 3.1 | `FE-13` Flight Permit Upload & Self-Attestation Gate (`MF3`) | Medium | 7 |
 | 3.2 | `FE-14` On-Site Field Session & SmartDroneHub MAVLink Telemetry (`MF3`) | Complex | 8 |
 | 3.3 | `FE-15` Field Evidence Intake & Chunked Video Processing Pipeline (`MF3`) | Complex | 9 |
 | 3.4 | `FE-16` AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Confirmation (`MF3`) | Complex | 8 |
@@ -59,9 +59,9 @@ The estimate reconciles against capacity: four members over three and three-quar
 The overall objective was to deliver a working, defensible platform covering the full inspection chain for buildings, with governance — not detection — as the differentiator. The measurable targets were:
 
 - All twenty-four atomic product features (`FE-01`–`FE-24`) accepted against their Report 3 acceptance criteria.
-- `0` unauthorized or cross-scope data disclosures, verified by role, organization, and assignment probing across all four portals.
+- `0` unauthorized or cross-scope data disclosures, verified by role, ownership, and assignment probing across all four portals.
 - `0` Spring Modulith module-boundary violations.
-- A verified database schema baseline of 53 application tables (`55` total DBML relations across `V1`–`V4` and `V60`–`V80`) enforced by automated migration and persistence checks.
+- A verified database schema baseline of 53 application tables (`55` total database tables across `V1`–`V4` and `V60`–`V80`) enforced by automated migration and persistence checks.
 - `0` open Critical or High severity defects at handover, with all identified scope defects resolved and regression-verified.
 
 **Quality**
@@ -154,7 +154,7 @@ Work was sliced vertically: a feature counted as complete only when its backend 
 | # | Deliverable | Due Date | Notes |
 | --- | --- | --- | --- |
 | D1 | Requirement specification (Report 3) | 2026-10-03 | Four roles, twenty-four atomic features (`FE-01`–`FE-24`), `BR-01`–`BR-55`, `MSG01`–`MSG50`. |
-| D2 | Design document (Report 4) | 2026-10-17 | Architecture, package diagrams, 53-table application schema (`55` total DBML relations across `V1`–`V4`, `V60`–`V80`), and detailed design per feature. |
+| D2 | Design document (Report 4) | 2026-10-17 | Architecture, package diagrams, 53-table application schema (`55` total database tables across `V1`–`V4`, `V60`–`V80`), and detailed design per feature. |
 | D3 | Working platform across four repositories | 2026-11-15 | Integrated backend service, four-portal web application, Customer mobile client, and documentation tooling. |
 | D4 | Automated test suites | 2026-11-17 | Backend, frontend, and mobile suites verified. |
 | D5 | Test documentation and workbook (Report 5) | 2026-11-18 | Twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `77` listed rows (`75` active test cases + `2` superseded `FE-13` cases). |
@@ -175,13 +175,13 @@ Members are identified by initials matching weighted contributions (`24%` / `24%
 | `FE-04` Interactive Location Map & No-Fly Zone Airspace Screening | D | S | R | S | I |
 | `FE-05` Financial History & Revenue/Payment Ledger | D | S | R | S | I |
 | `FE-06` Building Asset Registry, Checkpoints & Reference Documents | S | D | R | S | R |
-| `FE-07` Restricted Airspace Review & Clearance Decision | S | D | R | S | I |
+| `FE-07` Restricted Airspace Advisory Warning & Immediate Onboarding | S | D | R | S | I |
 | `FE-08` Service Requests (One-Time & Recurring) & VND Quotations | R | D | S | S | R |
 | `FE-09` Offline Signed Contract & Occurrence Dispatch Scheduling | R | D | S | S | R |
-| `FE-10` Dual-Channel Messaging (Order Chat & Inspection Chat) | S | D | R | S | I |
+| `FE-10` Messaging (Order Chat, Partner Chat & Inspection Chat) | S | D | R | S | I |
 | `FE-11` Assignment Acceptance Timeout & Escalation Handling | S | D | R | S | I |
 | `FE-12` System Notifications & Alert Center | S | D | S | R | I |
-| `FE-13` Flight Permit Upload & Independent Verification Gate | S | R | S | D | R |
+| `FE-13` Flight Permit Upload & Self-Attestation Gate | S | R | S | D | R |
 | `FE-14` On-Site Field Session & SmartDroneHub MAVLink Telemetry | R | S | S | D | R |
 | `FE-15` Field Evidence Intake & Chunked Video Processing Pipeline | S | S | R | D | R |
 | `FE-16` AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Confirmation | S | R | S | D | R |
