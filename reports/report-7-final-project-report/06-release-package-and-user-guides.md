@@ -13,10 +13,10 @@ source: "Report7_Final Project Report.docx"
 | 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking against the weighted plan in Report 2 (`208` md). |
 | 2 | Project Backlog | The twenty-four atomic feature backlog (`FE-01`–`FE-24`) across `MF1`–`MF4`. |
 | 3 | Source Codes | Four independent repositories: backend service (`SmartDroneInspection-backend`), web portals (`SmartDroneInspection-frontend`), Customer mobile client (`SmartDroneInspection-mobile`), and documentation (`SmartDroneInspection-docs`). |
-| 4 | Database Script(s) | Automated schema migration scripts (`V1`–`V4` and `V60`–`V69`) defining the PostgreSQL 17 database (48 application tables, including gateway order timestamps, `gateway_inbound_transactions`, `inspection_flight_permits`, and `field_session_telemetry`), `pgvector` support for `DroneKnowledgeAI`, and plain-text building ownership details. |
+| 4 | Database Script(s) | Automated schema migration scripts (`V1`–`V4` and `V60`–`V80`) defining the PostgreSQL 17 database (`53` application tables / `55` total DBML relations, including `inspector_ratings` `V70`, `field_session_flights` `V72`, `rating_criterion_configs` `V73`, `service_request_partner_messages` `V79`, and `V80` checkpoint snapshots), `pgvector` support for `DroneKnowledgeAI`, and plain-text building ownership details. |
 | 5 | Final Report Document | Reports 1–7 of this documentation set, exported against the official templates. |
-| 6 | Test Cases Document | `Report5_Test Report.xlsx` (`v3.9`) with twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `67` active cases, plus the executed results in Report 5 §5. |
-| 7 | Defects List | The defect log, including the two open defects recorded above. |
+| 6 | Test Cases Document | `Report5_Test Report.xlsx` (`v3.15`) with twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `77` listed rows (`75` active cases + `2` superseded `FE-13` cases), plus the executed results in Report 5 §5. |
+| 7 | Defects List | The defect log, recording `DEF-01` as resolved (`PR #33`) and one low-severity open tooling defect (`DEF-02`). |
 | 8 | Issues List | Outstanding issues and known limitations, including the out-of-scope items in Part III §3.8 (Report 3 §3.26). |
 | 9 | Slide | The defence presentation used for the final review. |
 
@@ -65,72 +65,32 @@ Sign in using the bootstrap `ADMIN` account, rotate credentials immediately, and
 
 ### 3.1 Overview
 
-SmartDroneInspection organizes daily operations into six end-to-end workflows across its four authenticated Web Portals (`CUSTOMER`, `INSPECTOR`, `MANAGER`, `ADMIN`) and the Customer Mobile App (`CUSTOMER` only). Every figure in §3.2–§3.7 marks interactive controls using numbered red callouts (`❶`, `❷`, `❸`, `❹`) matched directly to each step.
+SmartDroneInspection organizes daily operations across its four authenticated Web Portals (`CUSTOMER`, `INSPECTOR`, `MANAGER`, `ADMIN`) and the Customer Mobile App (`CUSTOMER` only) around five canonical end-to-end Main Flows (`MF1A`–`MF4`). Every step figure in §3.2–§3.7 marks interactive controls using numbered red callouts (`❶`, `❷`, `❸`, `❹`) matched directly to each step.
 
-```mermaid
-%% title: Workflow 1 — Customer Onboarding, Airspace Screening and Asset Setup
-flowchart LR
-  W1A["1. Public Landing & Sign Up"] --> W1B["2. Customer Registration + OTP"]
-  W1B --> W1C["3. Building Form & Airspace Map"]
-  W1C -->|"Restricted Zone"| W1D["4. Admin Onboarding Review"]
-  W1C -->|"Clear Zone"| W1E["5. Building Register & Detail"]
-  W1D --> W1E
-  W1E --> W1F["6. Notifications & Settings"]
-```
+![Workflow Overview — MF1A Customer Onboarding and Airspace Screening](assets/diagrams/act-mf1a-customer-onboarding.png)
 
-```mermaid
-%% title: Workflow 2 — Partner Inspector Admission and Drone Registration
-flowchart LR
-  W2A["1. Public Inspector Apply (3 Steps)"] --> W2B["2. Staff Onboarding Queue Review"]
-  W2B --> W2C["3. Partner Roster Qualified"]
-  W2C --> W2D["4. Inspector Opens My Drones"]
-  W2D --> W2E["5. Submit Specs, Photos & Docs"]
-  W2E -->|"Staff Approve"| W2C
-```
+*Figure 7.10a — End-to-end activity flow (`MF1A`): Customer registration, `RESTRICTED_ZONE` `MSG28` amber warning, `NO_FLY_ZONE` hard block, and asset setup.*
 
-```mermaid
-%% title: Workflow 3 — Service Request, Negotiation, Contract and Dispatch
-flowchart LR
-  W3A["1. Customer Submits Request"] --> W3B["2. Manager Claims & Quotes"]
-  W3A <-->|"Order Chat"| W3C["3. Customer & Manager Negotiate"]
-  W3B --> W3D["4. Customer Accepts Quote"]
-  W3D --> W3E["5. Signed Paper Contract Uploaded"]
-  W3E --> W3F["6. Manager Dispatches Inspector + Drone"]
-  W3F --> W3G["7. Scheduled Inspection Occurrence"]
-```
+![Workflow Overview — MF1B Partner Inspector and Drone Onboarding](assets/diagrams/act-mf1b-partner-drone.png)
 
-```mermaid
-%% title: Workflow 4 — Mission Execution, Flight Permit and Live Hub Telemetry
-flowchart LR
-  W4A["1. Inspector Accepts Assignment"] --> W4B["2. Upload Flight Permit & Metadata"]
-  W4B --> W4C["3. Manager Permit Audit"]
-  W4C -->|"Approved"| W4D["4. Pre-flight Safety Checklist"]
-  W4D --> W4E["5. Connect Live MAVLink Telemetry"]
-  W4E --> W4F["6. Complete Flight & Post-flight Items"]
-```
+*Figure 7.10b — End-to-end activity flow (`MF1B`): Partner Inspector admission and drone registration (`MANAGER` review; `ADMIN` read-only).*
 
-```mermaid
-%% title: Workflow 5 — Field Evidence Intake, AI Detection and Findings Confirmation
-flowchart LR
-  W5A["1. Upload Photos & Resumable MP4 Video"] --> W5B["2. Run Batch / Image YOLO11 Detection"]
-  W5B --> W5C["3. Draft Note with AI & Cite Standards"]
-  W5C --> W5D["4. Confirm Official Findings Baseline"]
-```
+![Workflow Overview — MF2 Commercial Request, Quote, Contract and Dispatch](assets/diagrams/act-mf2-commercial-dispatch.png)
 
-```mermaid
-%% title: Workflow 6 — Report Authoring, Review, Acceptance and Financial Settlement
-flowchart LR
-  W6A["1. Compile & Submit Report + AI Summary"] --> W6B["2. Manager Independent Review"]
-  W6B -->|"Publish v1+"| W6C["3. Customer Reviews Official Report"]
-  W6C --> W6D["4. Accept & Pay (Sepay VietQR / VNPay)"]
-  W6D --> W6E["5. Customer & Manager Finance Ledgers"]
-  W6E --> W6F["6. Partner Net Payout & Settlement"]
-```
+*Figure 7.10c — End-to-end activity flow (`MF2`): One-time/recurring request, VND quote, Order/Partner chat, signed contract upload, and occurrence dispatch.*
+
+![Workflow Overview — MF3 Self-Attested Flight Permit, Telemetry and AI Analysis](assets/diagrams/act-mf3-permit-field-ai.png)
+
+*Figure 7.10d — End-to-end activity flow (`MF3`): Inspector self-attested flight permit (`APPROVED`), SmartDroneHub telemetry, chunked evidence, YOLO11, and DroneKnowledgeAI.*
+
+![Workflow Overview — MF4 Report Publication, Sepay Payout, Rating and Settlement](assets/diagrams/act-mf4-report-finance.png)
+
+*Figure 7.10e — End-to-end activity flow (`MF4`): Manager report decision -> Sepay VietQR Payout (`SDIPAY`) -> publication, Customer rating, and Sepay/VNPay settlement.*
 
 ### 3.2 Workflow 1: Customer Onboarding, Airspace Screening and Asset Setup (`FE-01`, `FE-04`, `FE-06`, `FE-07`, `FE-12`)
 
-**Purpose.** Onboard a new customer organization, screen building coordinates against Vietnam airspace zones, configure inspection checkpoints and ownership notes, and verify notification settings.
-**Actors.** Prospective Customer (public), `CUSTOMER`, `ADMIN`.
+**Purpose.** Onboard a new customer organization, screen building coordinates against Vietnam airspace zones (`NO_FLY_ZONE` hard block; `RESTRICTED_ZONE` amber `MSG28` advisory with immediate onboarding), configure inspection checkpoints and ownership notes, and verify notification settings.
+**Actors.** Prospective Customer (public), `CUSTOMER`.
 **Preconditions.** Backend and Web Portal are reachable; target building coordinates and category are known.
 
 **Step 1 — Navigate from Public Landing.** Open the platform landing page (`http://localhost:3000/`). Review the navigation in Header bar ❶, click **Sign in** ❷ if already registered, or select **Sign up** ❸ / **Get a consultation** ❹ to begin onboarding.
@@ -139,23 +99,23 @@ flowchart LR
 
 *Figure 7.11 — Workflow 1 Step 1 — Public landing page entry controls.*
 
-**Step 2 — Complete Customer Registration.** Fill organization identity, administrator name, email, and policy-compliant password inside the **Registration form** ❶ (or follow **Inspector link** ❷ to switch to partner onboarding), then click **Submit button** ❸ and confirm the email OTP challenge.
+**Step 2 — Complete Customer Registration.** Fill organization identity, administrator name, email, and policy-compliant password inside the **Registration form** ❶ (or follow **Inspector link** ❷ to switch to partner onboarding), then click **Submit button** ❸ and confirm the email OTP challenge. Account activation proceeds immediately unless coordinates fall inside a prohibited `NO_FLY_ZONE`.
 
 ![Workflow 1 Step 2 — Customer registration form and OTP submission trigger.](assets/manual/wf1-02-customer-register.png)
 
 *Figure 7.12 — Workflow 1 Step 2 — Customer registration form and OTP submission trigger.*
 
-**Step 3 — Screen Building Coordinates on Airspace Map.** Sign in as `CUSTOMER`, open **Assets -> + New asset**, enter structural height/footprint, and click **Pick on Google Maps** to launch the **Interactive Airspace Map dialog** ❶. Pin the exact building coordinates; clear locations proceed directly whereas prohibited zones block submission.
+**Step 3 — Screen Building Coordinates on Airspace Map.** Sign in as `CUSTOMER`, open **Assets -> + New asset**, enter structural height/footprint, and click **Pick on Google Maps** to launch the **Interactive Airspace Map dialog** ❶. Pin the exact building coordinates; prohibited zones disable confirmation (`ASSET_IN_NO_FLY_ZONE`), whereas restricted locations display the amber `MSG28` advisory and permit confirmation (`Xác nhận vị trí này`).
 
 ![Workflow 1 Step 3 — Interactive Airspace Map dialog evaluating building coordinates.](assets/manual/wf1-03-airspace-map.png)
 
 *Figure 7.13 — Workflow 1 Step 3 — Interactive Airspace Map dialog evaluating building coordinates.*
 
-**Step 4 — Adjudicate Restricted-Zone Queue (if flagged).** When an application falls in a restricted airspace zone, `ADMIN` opens **Onboarding reviews**, selects **Onboarding queue tabs** ❶ (`Customer Airspace` / `Drone Registrations`), filters entries, and records the decision inside **Review panel** ❷.
+**Step 4 — Review `RESTRICTED_ZONE` (`MSG28`) Advisory Banner and Save Immediately.** After confirming a coordinate inside a `RESTRICTED_ZONE`, the **New Asset form** displays the amber **Restricted Airspace (`MSG28`) warning banner** ❶ citing the governing military authority, altitude ceiling (`<= 120 m AGL`), and `https://cambay.mod.gov.vn` alongside **Google Maps Location controls** ❷ while keeping submission enabled (no Admin approval wait required).
 
-![Workflow 1 Step 4 — Admin onboarding and airspace review console.](assets/manual/wf1-04-admin-onboarding-review.png)
+![Workflow 1 Step 4 — Restricted Airspace MSG28 amber advisory banner during asset onboarding.](assets/manual/wf1-04-restricted-airspace-warning.png)
 
-*Figure 7.14 — Workflow 1 Step 4 — Admin onboarding and airspace review console.*
+*Figure 7.14 — Workflow 1 Step 4 — Restricted Airspace `MSG28` amber advisory banner during asset onboarding.*
 
 **Step 5 — Manage Building Register.** Inside your **Assets** page, click **+ New asset** ❶ to add more structures (including structural specs and plain-text Ownership Information), narrow the register using **Search & status filter** ❷, or click **Detail** ❸ on `VHS-TPHCM` to inspect checkpoints and documents.
 
@@ -178,7 +138,7 @@ flowchart LR
 ### 3.3 Workflow 2: Partner Inspector Admission and Drone Registration (`FE-02`, `FE-03`)
 
 **Purpose.** Admit a qualified drone pilot through public application review and register an airframe eligible for mission dispatch under Decree 288/2025/ND-CP.
-**Actors.** Prospective Inspector (public), `INSPECTOR`, `MANAGER` / `ADMIN`.
+**Actors.** Prospective Inspector (public), `INSPECTOR`, `MANAGER` (approver); `ADMIN` holds read-only oversight.
 **Preconditions.** Applicant holds a valid civil pilot licence scan; drone registration/ownership documents are ready.
 
 **Step 1 — Submit Public Inspector Application.** Open the Partner Inspector registration page, follow the **3-step stepper** ❶ (`Account -> CCCD & Licence -> OTP & Submit`), complete credentials and licence details inside **Applicant inputs** ❷, attach the licence scan, and verify OTP.
@@ -187,7 +147,7 @@ flowchart LR
 
 *Figure 7.18 — Workflow 2 Step 1 — Three-step Partner Inspector public application form.*
 
-**Step 2 — Review Application or Drone Queue.** A `MANAGER` or `ADMIN` opens **Onboarding reviews**, toggles **Queue tabs** ❶ (`Inspector Applications` / `Drone Registrations`), applies status chips inside **Filters & queue area** ❷, and approves qualified records (provisioning the Inspector account upon approval).
+**Step 2 — Review Application or Drone Queue.** `MANAGER` opens **Onboarding reviews**, toggles **Queue tabs** ❶ (`Inspector Applications` / `Drone Registrations`), applies status chips inside **Filters & queue area** ❷, and approves qualified records (`ADMIN` may inspect both tabs read-only).
 
 ![Workflow 2 Step 2 — Onboarding compliance review tabs and filters.](assets/manual/wf2-02-review-queue.png)
 
@@ -267,8 +227,8 @@ flowchart LR
 
 ### 3.5 Workflow 4: Mission Execution, Flight Permit and Live Hub Telemetry (`FE-10`, `FE-13`, `FE-14`)
 
-**Purpose.** Accept partner dispatch, submit and independently audit the regulatory flight permit, execute pre-flight checks, connect live ArduPilot/Mission Planner MAVLink telemetry (`SmartDroneHub`), and close post-flight verification.
-**Actors.** `INSPECTOR`, `MANAGER`, SmartDroneHub (`14551/udp` / `5762/tcp`).
+**Purpose.** Accept partner dispatch, self-attest and upload the regulatory flight permit, execute pre-flight checks, connect live ArduPilot/Mission Planner MAVLink telemetry (`SmartDroneHub`), and close post-flight verification.
+**Actors.** `INSPECTOR`, `MANAGER` (read-only audit), SmartDroneHub (`14551/udp` / `5762/tcp`).
 **Preconditions.** Dispatched inspection is `SCHEDULED` and accepted by `INSPECTOR`; flight permit document (`<= 25 MB`) is available.
 
 **Step 1 — Open Assigned Inspection.** `INSPECTOR` opens **Inspections** in the operations portal and selects **Assigned building inspection** ❶ to accept the mission before the response deadline and enter the workspace.
@@ -289,17 +249,17 @@ flowchart LR
 
 *Figure 7.33 — Workflow 4 Step 3 — Inspection workspace tracking and stage progress.*
 
-**Step 4 — Upload Mission Flight Permit.** Open Stage 1 via **Workspace stage bar** ❶, inspect or enter permit number, issuing authority, validity window, drone serial, and max altitude in **Permit details card** ❷, or click **Replace permit** ❸ (`184/TC-QC.pdf`).
+**Step 4 — Self-Attest and Upload Mission Flight Permit.** Open Stage 1 via **Workspace stage bar** ❶, enter permit number, issuing authority, validity window, drone serial, and max altitude in **Permit details card** ❷, or click **View / Replace permit** ❸ (`184/TC-QC.pdf`). Valid submission immediately marks the permit `APPROVED` via Inspector self-attestation.
 
 ![Workflow 4 Step 4 — Inspector mission flight permit panel.](assets/manual/wf4-04-ins-permit.png)
 
 *Figure 7.34 — Workflow 4 Step 4 — Inspector mission flight permit panel.*
 
-**Step 5 — Approve Permit Independently (Manager).** A distinct `MANAGER` navigates via **Manager stage stepper** ❶ to inspect metadata and approve or reject with reason inside **Permit audit card** ❷.
+**Step 5 — Audit Permit and Flight Trace Read-Only (Manager).** `MANAGER` navigates via **Manager stage stepper** ❶ to inspect self-attested permit metadata, document download, and recorded flight report details inside **Read-only Permit & Flight Audit** ❷ (`ADMIN` and `MANAGER` never approve or reject permits).
 
-![Workflow 4 Step 5 — Manager independent flight permit verification panel.](assets/manual/wf4-08-mgr-audit.png)
+![Workflow 4 Step 5 — Manager read-only flight permit and telemetry audit panel.](assets/manual/wf4-08-mgr-audit.png)
 
-*Figure 7.35 — Workflow 4 Step 5 — Manager independent flight permit verification panel.*
+*Figure 7.35 — Workflow 4 Step 5 — Manager read-only flight permit and telemetry audit panel.*
 
 **Step 6 — Complete Pre-flight Safety Checklist.** Once the permit is approved, `INSPECTOR` opens **Pre-flight stage active** ❶, verifies all items inside **Checklist items** ❷ (or clicks **Check all** ❸), adds a site observation note, and starts the field session (`In Progress`).
 
@@ -367,7 +327,7 @@ flowchart LR
 
 *Figure 7.44 — Workflow 6 Step 2 — Manager inspection reports review queue.*
 
-**Step 3 — Perform Independent Review and Publication.** Inside **Report Decision stage** ❶, verify findings and narrative in **Submitted report & AI summary** ❷, download verification copy via **Download report** ❸, and either **Publish official report** or **Return for revision** with reason.
+**Step 3 — Perform Independent Review, Partner Payout and Publication.** Inside **Report Decision stage** ❶, verify findings and narrative in **Submitted report & AI summary** ❷, download verification copy via **Download report** ❸, approve the report (`APPROVED`), complete Partner Inspector payout via **Sepay VietQR Payout (`SDIPAY`)** (`V78`) at Step 3, and finalize **Publish official report** (`PUBLISHED`). Official report PDFs remain ungated once `PUBLISHED`.
 
 ![Workflow 6 Step 3 — Manager independent report review and publication screen.](assets/manual/wf6-03-mgr-review.png)
 
@@ -379,7 +339,7 @@ flowchart LR
 
 *Figure 7.46 — Workflow 6 Step 4 — Customer inspections list highlighting published deliverable.*
 
-**Step 5 — Accept Report and Pay via Sepay VietQR / VNPay.** Track progress along **Acceptance & Payment stepper** ❶, download the VAT invoice notice using **Payment notice / document button** ❷, accept the official report, and complete payment via **Sepay VietQR / VNPay payment card** ❸ (the Sepay QR dialog polls automatically every 3 seconds and closes once paid; cancelling VNPay returns directly to `/settlement`).
+**Step 5 — Accept Report, Rate Inspector and Pay via Sepay VietQR / VNPay.** Track progress along **Acceptance & Payment stepper** ❶, download the VAT invoice notice or receipt using **Payment notice / document button** ❷, rate the assigned Inspector (`V70` five-star criteria card), accept the official report, and complete payment via **Sepay VietQR / VNPay payment card** ❸ (the Sepay QR dialog polls automatically every 3 seconds and closes once paid; cancelling VNPay returns directly to `/settlement`).
 
 ![Workflow 6 Step 5 — Customer official report acceptance and Sepay/VNPay settlement panel.](assets/manual/wf6-05-cus-report-pay.png)
 
