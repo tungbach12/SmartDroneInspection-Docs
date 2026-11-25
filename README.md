@@ -258,6 +258,35 @@ node $DRAWIO pack path/to/model.xml
    - **Đường nối sạch sẽ:** Ghi rõ `exitX`, `exitY`, `entryX`, `entryY` trên cạnh `edgeStyle=none` và chạy `drawio.mjs check --verbose` để xử lý hết `ERROR` và các cảnh báo `overlap` / `crosses vertex`.
 5. **Mở xem trực quan & lưu lại:** Nếu chỉnh sửa XML bằng script/editor, chạy `drawio.mjs open <file.drawio>` để kiểm tra trực quan từng tab trên `app.diagrams.net`. Nếu chỉnh sửa trực tiếp trên `app.diagrams.net` hoặc VS Code *Draw.io Integration*, lưu lại về đúng file `.drawio` local rồi chạy `drawio.mjs check --verbose` trước khi commit.
 
+### 3.5 Xuất sơ đồ `.drawio` ra PNG & chèn vào Report
+
+Toolchain xuất Word trong `tools/report_ooxml.py` **chỉ chấp nhận file ảnh `.png` thật** (sẽ báo lỗi nếu truyền trực tiếp file `.drawio`, `.svg` hay `.jpg`). Vì vậy, quy trình chuẩn là **vẽ/duyệt trên `.drawio` trước, xuất từng tab ra `.png` sau, rồi mới chèn vào Markdown**:
+
+1. **Xuất từng tab `.drawio` ra ảnh PNG sắc nét:**
+   - **Cách 1 — Qua `app.diagrams.net` (khuyên dùng):**
+     1. Chạy `node ".agents/skills/drawio-diagram-skill/scripts/drawio.mjs" open diagrams/<ten-file>.drawio`.
+     2. Chọn đúng **tab** cần xuất ở thanh tab phía dưới.
+     3. Vào **File → Export as → PNG...**, thiết lập:
+        - **Zoom:** `200%` (hoặc `300%` cho sơ đồ nhiều chữ như Sequence/Class/ERD).
+        - **Border Width:** `16`–`20`.
+        - **Transparent Background:** **tắt** (giữ nền trắng `#FFFFFF` để không bị đen nền khi xem Dark Mode hoặc in PDF).
+        - Chọn **Selection Only** (nếu muốn cắt gọn vùng vừa chọn) hoặc để mặc định trang hiện tại → bấm **Export** → lưu về máy.
+   - **Cách 2 — Qua VS Code (*Draw.io Integration*) hoặc *draw.io Desktop*:** Mở file `.drawio`, chọn tab tương ứng rồi **Export as PNG** với cấu hình nền trắng và độ phóng đại `2x`/`200%` trở lên.
+2. **Nơi lưu ảnh & quy ước đặt tên:**
+   - Lưu vào thư mục `assets/` (hoặc `assets/diagrams/`) **bên trong folder của từng report** có nhúng sơ đồ đó (mỗi report giữ bản ảnh độc lập để exporter đóng gói không phụ thuộc folder khác):
+     - Ví dụ: `reports/report-3-software-requirement-specification/assets/` (hiện đang chứa `context.png`, `erd.png`, `screen-flow.png`, `use-cases.png`), `reports/report-4-software-design-document/assets/diagrams/`, `reports/report-7-final-project-report/assets/diagrams/`.
+   - Với file `.drawio` có nhiều tab (`UC-1`..`UC-5`, `MF1A`..`MF4`, `FE-01`..`FE-24`), đặt tên PNG rõ ràng theo loại và tab, ví dụ: `uc-1-auth-public.png`, `act-mf3-permit-field-ai.png`, `seq-fe-13-flight-permit.png`.
+   - Nếu cùng một sơ đồ được chèn ở cả Report 3/4 và Report 7, copy file PNG vào `assets/` của **cả hai report**.
+3. **Chèn vào Markdown & thay thế block Mermaid cũ:**
+   - Khi thay thế một block ```` ```mermaid ... ``` ```` cũ (theo lộ trình tại [diagram-synchronization-plan.md](development/diagram-synchronization-plan.md)), **xóa toàn bộ block `mermaid` đó** và thay bằng đường dẫn ảnh PNG tương đối từ file `.md` + caption ngay bên dưới:
+     ```markdown
+     ![FE-13 Flight permit upload and self-attestation sequence diagram](assets/diagrams/seq-fe-13-flight-permit.png)
+
+     *Figure 4.14 — FE-13 Flight Permit Upload and Self-Attestation Sequence Diagram.*
+     ```
+   - **Lưu ý hiển thị trên trang Word:** Exporter tự co bề ngang ảnh vừa khung trang Word (và giới hạn chiều cao tối đa để không tràn trang dọc). Nếu sơ đồ quá cao/dài khiến chữ bị nhỏ khi thu gọn, hãy tách bớt thành nhiều tab `.drawio` gọn hơn trước khi xuất PNG.
+4. **Kiểm tra sau khi chèn:** Chạy `python -I tools/export_report<N>.py` để chắc chắn đường dẫn PNG hợp lệ, sau đó chạy `./tools/verify_office_reports.ps1 -OutputDirectory reports/generated/<run> -ExportPdf` và mở PDF kiểm tra chữ trong sơ đồ đủ rõ nét.
+
 ---
 
 ## 4. Công cụ export báo cáo (`tools/`) & kiểm tra chất lượng
