@@ -275,7 +275,7 @@
         <mxCell id="d3" value="Offer&lt;br&gt;accepted?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="975" y="762" width="120" height="62" as="geometry" />
         </mxCell>
-        <mxCell id="a13" value="Create &amp;amp; schedule inspection&lt;br&gt;occurrence" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
+        <mxCell id="a13" value="Confirm &amp;amp; schedule inspection&lt;br&gt;occurrence" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
           <mxGeometry x="633" y="770" width="224" height="46" as="geometry" />
         </mxCell>
         <mxCell id="e_ok" value="" style="ellipse;shape=endState;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
@@ -404,7 +404,7 @@
         <mxCell id="a1" value="Upload self-attested flight&lt;br&gt;permit &amp;amp; metadata" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
           <mxGeometry x="53" y="116" width="224" height="46" as="geometry" />
         </mxCell>
-        <mxCell id="a2" value="Validate permit &amp;amp; drone&lt;br&gt;(auto-set APPROVED)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
+        <mxCell id="a2" value="Validate permit &amp;amp; attestation&lt;br&gt;(auto-set APPROVED)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
           <mxGeometry x="919" y="116" width="232" height="46" as="geometry" />
         </mxCell>
         <mxCell id="d1" value="Valid&lt;br&gt;permit?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
@@ -600,7 +600,7 @@
         <mxCell id="a10" value="Settle inspector payout via&lt;br&gt;SePay VietQR (pre-publish)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
           <mxGeometry x="342" y="276" width="226" height="46" as="geometry" />
         </mxCell>
-        <mxCell id="a_pub" value="Publish immutable PDF &amp;amp;&lt;br&gt;notify customer" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
+        <mxCell id="a_pub" value="Publish immutable report&lt;br&gt;&amp;amp; notify customer" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
           <mxGeometry x="925" y="276" width="220" height="46" as="geometry" />
         </mxCell>
         <mxCell id="a4" value="Review ungated report PDF&lt;br&gt;&amp;amp; optionally rate inspector" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
@@ -612,7 +612,7 @@
         <mxCell id="a5" value="Submit clarification request" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
           <mxGeometry x="639" y="524" width="212" height="44" as="geometry" />
         </mxCell>
-        <mxCell id="a6" value="Set PAYMENT_DUE &amp;amp; issue&lt;br&gt;payment notice PDF" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
+        <mxCell id="a6" value="Set PAYMENT_DUE&lt;br&gt;(notice PDF on demand)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
           <mxGeometry x="925" y="442" width="220" height="46" as="geometry" />
         </mxCell>
         <mxCell id="a7" value="Pay via Sepay VietQR or VNPay&lt;br&gt;(switch / reset order)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
@@ -624,7 +624,7 @@
         <mxCell id="d3" value="Payment&lt;br&gt;verified?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="975" y="678" width="120" height="62" as="geometry" />
         </mxCell>
-        <mxCell id="a9" value="Mark PAID &amp;amp; issue&lt;br&gt;payment receipt PDF" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
+        <mxCell id="a9" value="Mark PAID&lt;br&gt;(receipt PDF on demand)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
           <mxGeometry x="925" y="768" width="220" height="46" as="geometry" />
         </mxCell>
         <mxCell id="d4" value="Follow-up&lt;br&gt;needed?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;" vertex="1" parent="1">
@@ -633,7 +633,7 @@
         <mxCell id="a11" value="Handle refund &amp;amp;&lt;br&gt;post-payout receivable" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
           <mxGeometry x="344" y="932" width="222" height="46" as="geometry" />
         </mxCell>
-        <mxCell id="a12" value="Open linked MF2 request&lt;br&gt;(defect re-inspection)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
+        <mxCell id="a12" value="Open re-inspection request&lt;br&gt;(MF2 or quick flow)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=18;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontColor=#000000;fontSize=11.5;fontFamily=Helvetica;align=center;verticalAlign=middle;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
           <mxGeometry x="640" y="932" width="210" height="46" as="geometry" />
         </mxCell>
         <mxCell id="e_ok" value="" style="ellipse;shape=endState;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
@@ -689,7 +689,7 @@
         <mxCell id="c8" value="Clarify" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="d2" target="a5">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="c9" value="Re-open assessment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1;dashed=1;dashPattern=4 3;endArrow=classic;endFill=1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.35;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="a5" target="a1">
+        <mxCell id="c9" value="Return report (max 2x)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1;dashed=1;dashPattern=4 3;endArrow=classic;endFill=1;fontColor=#000000;fontSize=11;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.35;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="a5" target="a1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="131" y="546" />
