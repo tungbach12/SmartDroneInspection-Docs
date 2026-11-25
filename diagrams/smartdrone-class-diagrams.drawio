@@ -239,7 +239,7 @@
           <mxGeometry x="-0.78" y="-12" width="24" height="16" relative="1" as="geometry" />
         </mxCell>
         <mxCell id="r2_m2" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r2">
-          <mxGeometry x="0.78" y="-12" width="24" height="16" relative="1" as="geometry" />
+          <mxGeometry x="0.65" y="-12" width="24" height="16" relative="1" as="geometry" />
         </mxCell>
         <mxCell id="r3" value="Uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=open;endFill=0;endSize=8;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.8;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="c_oauth" target="c_authsvc">
           <mxGeometry relative="1" as="geometry">
@@ -258,8 +258,8 @@
         <mxCell id="r4" value="Reads / Updates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.1;endArrow=open;endFill=0;endSize=8;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.35;entryDx=0;entryDy=0;" edge="1" parent="1" source="c_uprof" target="c_authsvc">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1170" y="102" />
-              <mxPoint x="1170" y="368" />
+              <mxPoint x="1202" y="99" />
+              <mxPoint x="1202" y="355" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -1383,7 +1383,7 @@
           <mxGeometry x="-0.78" y="-12" width="24" height="16" relative="1" as="geometry" />
         </mxCell>
         <mxCell id="r2_m2" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r2">
-          <mxGeometry x="0.78" y="-12" width="24" height="16" relative="1" as="geometry" />
+          <mxGeometry x="0.65" y="-12" width="24" height="16" relative="1" as="geometry" />
         </mxCell>
         <mxCell id="r3" value="Configures threshold" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.1;dashed=1;dashPattern=5 4;endArrow=open;endFill=0;endSize=8;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="c_aisc" target="c_pwi">
           <mxGeometry relative="1" as="geometry" />
@@ -1546,7 +1546,7 @@
           <mxGeometry x="-0.78" y="-12" width="24" height="16" relative="1" as="geometry" />
         </mxCell>
         <mxCell id="r2_m2" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#000000;fontFamily=Helvetica;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r2">
-          <mxGeometry x="0.78" y="-12" width="24" height="16" relative="1" as="geometry" />
+          <mxGeometry x="0.65" y="-12" width="24" height="16" relative="1" as="geometry" />
         </mxCell>
         <mxCell id="r3" value="Implements" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=1.1;dashed=1;dashPattern=5 4;endArrow=block;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="c_dkc" target="c_port">
           <mxGeometry relative="1" as="geometry" />

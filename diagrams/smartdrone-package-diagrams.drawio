@@ -174,7 +174,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="sdi-web-package-diagram" name="Web Portal Package Diagram">
-    <mxGraphModel adaptiveColors="none" dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1135" pageHeight="620" math="0" shadow="0">
+    <mxGraphModel adaptiveColors="none" dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1290" pageHeight="620" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -207,6 +207,9 @@
         </mxCell>
         <mxCell id="w_rep" parent="1" style="shape=folder;tabWidth=44;tabHeight=16;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;strokeWidth=1.4;fontSize=13;fontStyle=1;spacingTop=10;verticalAlign=middle;align=center;" value="features/reports" vertex="1">
           <mxGeometry height="64" width="185" x="855" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="w_pets3d" parent="1" style="shape=folder;tabWidth=44;tabHeight=16;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;strokeWidth=1.4;fontSize=13;fontStyle=1;spacingTop=10;verticalAlign=middle;align=center;" value="features/pets3d" vertex="1">
+          <mxGeometry height="64" width="165" x="1085" y="350" as="geometry" />
         </mxCell>
         <mxCell id="w_shared" parent="1" style="shape=folder;tabWidth=44;tabHeight=16;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;strokeWidth=1.4;fontSize=13;fontStyle=1;spacingTop=10;verticalAlign=middle;align=center;" value="shared" vertex="1">
           <mxGeometry height="64" width="290" x="405" y="520" as="geometry" />
@@ -346,18 +349,31 @@
               <mxPoint x="975" y="481" />
             </Array></mxGeometry>
         </mxCell>
-        <mxCell id="we_land_sh" edge="1" parent="1" source="w_land" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;dashPattern=6 4;endArrow=open;endFill=0;endSize=9;strokeColor=#000000;fontColor=#000000;strokeWidth=1.2;fontSize=11;html=1;labelBackgroundColor=#ffffff;exitPerimeter=0;entryPerimeter=0;exitX=0.2;exitY=1;endArrow=none;" target="wj_sh" value="">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="we_land_sh" edge="1" parent="1" source="w_land" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;dashPattern=6 4;endArrow=open;endFill=0;endSize=9;strokeColor=#000000;fontColor=#000000;strokeWidth=1.2;fontSize=11;html=1;labelBackgroundColor=#ffffff;exitPerimeter=0;entryPerimeter=0;exitX=0.2;exitY=1;entryX=0.15;entryY=0.25;" target="w_shared" value="«import»">
+          <mxGeometry x="-0.45" relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="85" y="500" />
-              <mxPoint x="550" y="500" />
+              <mxPoint x="448" y="500" />
             </Array></mxGeometry>
         </mxCell>
-        <mxCell id="we_adm_sh" edge="1" parent="1" source="w_admin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;dashPattern=6 4;endArrow=open;endFill=0;endSize=9;strokeColor=#000000;fontColor=#000000;strokeWidth=1.2;fontSize=11;html=1;labelBackgroundColor=#ffffff;exitPerimeter=0;entryPerimeter=0;exitX=0.85;exitY=1;endArrow=none;" target="wj_sh" value="">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="we_adm_sh" edge="1" parent="1" source="w_admin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;dashPattern=6 4;endArrow=open;endFill=0;endSize=9;strokeColor=#000000;fontColor=#000000;strokeWidth=1.2;fontSize=11;html=1;labelBackgroundColor=#ffffff;exitPerimeter=0;entryPerimeter=0;exitX=0.85;exitY=1;entryX=0.85;entryY=0.25;" target="w_shared" value="«import»">
+          <mxGeometry x="-0.45" relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1059" y="500" />
-              <mxPoint x="550" y="500" />
+              <mxPoint x="651" y="500" />
+            </Array></mxGeometry>
+        </mxCell>
+        <mxCell id="we_app_pets3d" edge="1" parent="1" source="wj_app" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;dashPattern=6 4;endArrow=open;endFill=0;endSize=9;strokeColor=#000000;fontColor=#000000;strokeWidth=1.2;fontSize=11;html=1;labelBackgroundColor=#ffffff;exitPerimeter=0;entryPerimeter=0;entryX=0.55;entryY=0.25;" target="w_pets3d" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1176" y="143" />
+            </Array></mxGeometry>
+        </mxCell>
+        <mxCell id="we_pets3d_sh" edge="1" parent="1" source="w_pets3d" style="edgeStyle=orthogonalEdgeStyle;rounded=0;dashed=1;dashPattern=6 4;endArrow=open;endFill=0;endSize=9;strokeColor=#000000;fontColor=#000000;strokeWidth=1.2;fontSize=11;html=1;labelBackgroundColor=#ffffff;exitPerimeter=0;entryPerimeter=0;exitX=0.5;exitY=1;endArrow=none;" target="wj_sh" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1168" y="481" />
+              <mxPoint x="550" y="481" />
             </Array></mxGeometry>
         </mxCell>
       </root>
