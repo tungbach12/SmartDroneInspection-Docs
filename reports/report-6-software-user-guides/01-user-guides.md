@@ -140,7 +140,7 @@ On the Inspector sign-in page, select **Register as Inspector**.
 
 ❶ Enter your account details and select **Tiếp tục** (Continue).
 
-❷ Provide identity and licence information, upload the requested scan and complete email verification to submit the application.
+Complete the next two stages in the wizard to provide identity and licence information, upload the requested scan and finish email verification to submit the application.
 
 ![Partner Inspector application stages](assets/manual/wf2-01-inspector-apply.png)
 
@@ -330,11 +330,13 @@ Open the Customer conversation from **Messages** in the inspection.
 
 Open **Flight Permit** while the inspection is scheduled.
 
-❶ Select **Choose permit file** (up to 25 MB). To update an existing permit, select **Replace permit** and **Choose replacement permit file**. Enter the permit details and check the assigned drone and flight window.
+❶ Select **Choose permit file** (up to 25 MB). To update an existing permit, select **Replace permit** and **Choose replacement permit file**.
 
-❷ Select **Save flight permit** (**Lưu giấy phép bay**). Check that a valid upload shows **Approved**. If a drone change or reschedule resets the permit, save a replacement.
+❷ Enter the permit number, issuing authority, validity window and max altitude, and check the assigned drone.
 
-❸ If you have accepted the assignment and field work has yet to start, select **Withdraw from assignment** (**Rút khỏi phân công**), enter the reason and select **Confirm withdrawal** (**Xác nhận rút**). The inspections list opens and the Manager can reassign or cancel the scheduled inspection. After starting a session, contact the Manager to change the schedule, even if you have since aborted the session.
+❸ Select **Save flight permit** (**Lưu giấy phép bay**). Check that a valid upload shows **Approved**. If a drone change or reschedule resets the permit, save a replacement.
+
+*Alternative:* If you have accepted the assignment and field work has yet to start, select **Withdraw from assignment** (**Rút khỏi phân công**), enter the reason and select **Confirm withdrawal** (**Xác nhận rút**). The inspections list opens and the Manager can reassign or cancel the scheduled inspection. After starting a session, contact the Manager to change the schedule, even if you have since aborted the session.
 
 ![Flight Permit screen with save and withdrawal actions](assets/manual/wf4-permit-form.png)
 
@@ -418,9 +420,7 @@ Use the assigned Inspector account and the same inspection as in Workflow 4. Hav
 
 ❶ In **Defect Findings**, select **Analyze all images** to run detection on eligible photos.
 
-❷ When findings are present, select **Draft all notes** if you want suggested notes for them.
-
-Review the evidence yourself before accepting a detection or an AI-drafted note.
+*Optional:* When findings are present, select **Draft all notes** if you want suggested notes for them. Review the evidence yourself before accepting a detection or an AI-drafted note.
 
 ![Batch detection and note drafting controls](assets/manual/wf5-02-ins-findings-toolbar.png)
 
@@ -430,11 +430,9 @@ Review the evidence yourself before accepting a detection or an AI-drafted note.
 
 ❶ Turn on **Show detected regions** to compare the marked region with the evidence photo.
 
-❷ Use **Draft note with AI** when needed and correct the suggested text before saving.
+❷ Choose a decision for the finding: select **Confirm** when supported by the evidence, **Edit / Change defect** to adjust the label or severity, or **Remove** if the suggestion is not supported.
 
-❸ Select **Confirm** when the finding is supported by the evidence.
-
-❹ Select **Remove** if the evidence does not support the suggestion.
+*Optional:* Use **Draft note with AI** before confirming when you want a suggested technical note, and review the text before saving.
 
 ![Evidence, suggested note and finding decision](assets/manual/wf5-03-ins-findings-card.png)
 
