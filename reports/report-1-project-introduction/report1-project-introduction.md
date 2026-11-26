@@ -9,12 +9,6 @@ source_docx: report1-project-introduction.docx
 
 | Date | A* / M, D | In charge | Change Description |
 | --- | --- | --- | --- |
-| 11 Sep 2026 | A | Team | Version 1.0: Initial Project Introduction. |
-| 03 Nov 2026 | M | Team | Version 2.0: Aligned product background, competitor review, and scope with the 5-role / 8-feature target. |
-| 17 Nov 2026 | M | Team | Version 3.0: Rewritten against the implemented product. Scope narrowed to four login roles and the then-current six-feature set across three main flows; corrective maintenance recorded as an exclusion rather than a deliverable; existing-systems review extended to three comparators. |
-| 18 Nov 2026 | M | Team | Version 3.1: Restructured to the four-main-flow, eight-feature model (`MF1`–`MF4`, `FE-01`–`FE-08`, two features per flow). `MF3` now ends at evidence and findings; `MF4` covers report review and payment settlement, including the re-inspection loop. Corrective maintenance execution remains a recorded exclusion. |
-| 19 Nov 2026 | M | Team | Version 3.2: Documented the human-in-the-loop `DroneKnowledgeAI` retrieval boundary (`LI-9`) and synchronized FE-06/FE-07/FE-08, mobile scope, and the main flows with delivered re-inspection verdict validity, payment notice/receipt PDF, and Inspector–Customer chat. |
-| 21 Nov 2026 | M | Team | Version 3.3: Decomposed the delivered product scope from eight grouped features into twenty-four atomic features (`FE-01`–`FE-24`) aligned across the four main flows (`MF1`–`MF4`), updated `LI-9` references to `FE-16`/`FE-17`/`FE-18`, and synced plain-text building ownership details, concise recurring request titles, and streamlined service-request workflows. |
 | 25 Nov 2026 | M | Team | Version 3.4: Synchronized `MF1`–`MF4` and `FE-01`–`FE-24` with the current `main` baseline (`V70`–`V80`, `#175`): immediate restricted-airspace onboarding with `MSG28` warning (`FE-07`), Manager-only `MF1B`/`MF3` review and publication with Administrator read-only oversight, Inspector self-attested flight permits (`FE-13`), `Sepay` VietQR + `VNPay` checkout (`FE-20`), Step-3 `SePay` VietQR partner payout gate (`FE-22`), multi-flight sessions (`FE-14`), Inspector ratings (`FE-19`), per-request checkpoints (`FE-08`), Partner Chat (`FE-10`), bilingual notifications/emails (`FE-12`), and replaced Figure 1 with the exported Draw.io `End-to-End Operational Flow` diagram. |
 | 26 Nov 2026 | M | Project Team | Aligned the product introduction, limits, and feature descriptions with the release and refreshed the operational overview. |
 

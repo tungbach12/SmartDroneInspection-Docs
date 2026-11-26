@@ -96,3 +96,16 @@ The session-progress check exercises the response before publication. The stored
 The web release checkout used `bcb7b48`. The command `npm test -- --maxWorkers=2 --testTimeout=60000 --reporter=dot` returned 769 passes in 111 files and 4 skipped tests. Five files stopped during collection because Vite denied the installed MapLibre worker outside the worktree. The five were then run with the same options and a temporary MapLibre filesystem allowlist. All 62 tests passed, covering the field session, inspection report, Customer settlement card, Manager review and report detail. The two runs together recorded 831 passes and 4 skips.
 
 The mobile release checkout used the tree equivalent to `ba5dc62`. The commands `flutter test` and `flutter analyze` recorded 58 passing cases and no analyzer issues.
+
+## Inspector withdrawal regression
+
+Backend revision 9dd0d67 passed 15 tests with InspectionRecoveryFlowIntegrationTest and InspectionCreationLifecycleTest. WF2-032 covers pre-field withdrawal, WF2-033 covers rejection after abort, and WF2-034 covers Manager cancellation with both reasons retained. The 77-case map above records the earlier release snapshot.
+
+The four Web suites for inspection detail, field session, assignments ledger and work-detail dialog passed 66 tests. They cover the reason and confirmation interaction, server eligibility, and the compact restricted-zone badge after acceptance.
+
+```powershell
+.\mvnw.cmd '-Dtest=InspectionRecoveryFlowIntegrationTest,InspectionCreationLifecycleTest' test
+npm test -- src/features/inspections/pages/InspectionDetailPage.test.tsx src/features/inspections/pages/FieldSessionPage.test.tsx src/features/inspections/components/AssignmentsLedger.test.tsx src/features/inspections/components/InspectionWorkDetailDialog.test.tsx --maxWorkers=2 --testTimeout=60000
+npm run lint
+npm run build
+```

@@ -157,7 +157,7 @@ Work was sliced vertically: a feature counted as complete only when its backend 
 | D2 | Design document (Report 4) | 2026-10-17 | Architecture, package diagrams, 53-table application schema (`55` total database tables across `V1`–`V4`, `V60`–`V80`), and detailed design per feature. |
 | D3 | Working platform across four repositories | 2026-11-15 | Integrated backend service, four-portal web application, Customer mobile client, and documentation tooling. |
 | D4 | Automated test suites | 2026-11-17 | Backend, frontend, and mobile suites verified. |
-| D5 | Test documentation and workbook (Report 5) | 2026-11-18 | Twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `77` listed rows (`75` active test cases + `2` superseded `FE-13` cases). |
+| D5 | Test documentation and workbook (Report 5) | 2026-11-18 | Twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `80` listed rows (`78` active test cases + `2` superseded `FE-13` cases). |
 | D6 | Release package and user guides (Report 6) | 2026-11-19 | Installation guide and illustrated role workflows mapped to `FE-01`–`FE-24`. |
 | D7 | Project introduction and management plan (Reports 1 and 2) | 2026-11-19 | Scope, comparators, weighted WBS estimation (`208` md), and process. |
 | D8 | Final project report (Report 7) | 2026-11-25 | Consolidated defence document covering all twenty-four product features across Chapters I–VI. |

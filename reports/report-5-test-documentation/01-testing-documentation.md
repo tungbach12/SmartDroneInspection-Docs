@@ -91,7 +91,7 @@ Integration and system tests cover evidence processing, AI fallbacks, payment ca
 
 ## 4. Test Cases
 
-Section 5.1 records the backend, web, and mobile suite results. The companion workbook (`Report5_Test Report.xlsx`, version 3.18) records 75 active integration, system, and acceptance cases and two superseded flight-permit cases. Its 24 feature sheets list the procedures, expected results, and results of each test round.
+Section 5.1 records the backend, web, and mobile suite results. The companion workbook (`Report5_Test Report.xlsx`, version 3.19) records 78 active integration, system, and acceptance cases and two superseded flight-permit cases. Its 24 feature sheets list the procedures, expected results, and results of each test round.
 
 ## 5. Test Reports
 
@@ -115,23 +115,29 @@ Section 5.3 names the tests used for the two focused backend reruns. The full ba
 
 ![Acceptance case execution status](assets/charts/acceptance-status.png)
 
-*Figure 5.1 — Round 1 acceptance case status for the 77 listed rows (75 active) across FE-01–FE-24 (the recorded acceptance rounds).*
+*Figure 5.1 — Round 1 status for the 77-case baseline before the three assignment-withdrawal cases were added.*
 
 | Main flow and features | Cases | Passed | Failed | Pending | N/A |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | MF1 Onboarding and assets (FE-01–FE-07) | 22 | 19 | 0 | 2 | 1 |
-| MF2 Commercial workflow and dispatch (FE-08–FE-12) | 18 | 16 | 0 | 1 | 1 |
-| MF3 Permits, field operations, evidence and findings (FE-13–FE-17) | 24 | 13 | 0 | 1 | 10 |
+| MF2 Commercial workflow and dispatch (FE-08–FE-12) | 20 | 16 | 0 | 1 | 3 |
+| MF3 Permits, field operations, evidence and findings (FE-13–FE-17) | 25 | 13 | 0 | 1 | 11 |
 | MF4 Reports, settlement and re-inspection (FE-18–FE-24) | 13 | 4 | 0 | 5 | 4 |
-| Total | 77 | 52 | 0 | 9 | 16 |
+| Total | 80 | 52 | 0 | 9 | 19 |
 
-In Round 1, 52 of the 61 applicable cases passed and 9 were pending, with zero failures. The other 16 rows were marked N/A. The companion workbook provides feature-level totals.
+In Round 1, 52 of the 61 applicable cases passed and 9 were pending, with zero failures. The other 19 rows were marked N/A. The companion workbook provides feature-level totals.
 
 The regression ledger links fresh Surefire class results to 64 of the 77 listed cases. In the local browser check, the owning Customer could follow progress before publication. The report action and Flight operations tab were absent. A published demo inspection opened the findings report and the stored Flight operations tab. The workbook retains the recorded dates and outcomes of its acceptance rounds.
 
-Report 5 records 13 passes and zero failures in Round 3 (`WF3-005`, `WF3-006`, `WF3-009`, `WF3-016`, `WF3-018`, `WF3-019`, `WF3-021`, and `WF3-026`–`WF3-031`). `WF3-020`, `WF3-022`–`WF3-025`, `WF3-032`, `WF2-021`, and `WF3-033` remain pending.
+Report 5 records 16 passes and zero failures in Round 3 (`WF3-005`, `WF3-006`, `WF3-009`, `WF3-016`, `WF3-018`, `WF3-019`, `WF3-021`, `WF3-026`–`WF3-031`, and the three cases below). `WF3-020`, `WF3-022`–`WF3-025`, `WF3-032`, `WF2-021`, and `WF3-033` remain pending.
 
 The cases cover payouts (`WF3-019`), payment deadlines and documents (`WF3-026`, `WF3-027`), fresh re-inspection evidence (`WF3-028`), and knowledge references on web and mobile (`WF3-029`–`WF3-031`).
+
+The assignment-withdrawal regression ran on Backend revision 9dd0d67. The recovery integration suite and inspection lifecycle suite passed all 15 checks.
+
+- **WF2-032 (FE-11)** The assigned Inspector withdrew before field work. The scheduled occurrence required reassignment.
+- **WF2-033 (FE-13)** Withdrawal after abort was rejected with HTTP 409 ASSIGNMENT_FIELD_WORK_STARTED.
+- **WF2-034 (FE-09)** The Manager cancelled after withdrawal. The two reasons were retained and the reassignment flag cleared.
 
 ### 5.3 Cross-Cutting Assertions
 
