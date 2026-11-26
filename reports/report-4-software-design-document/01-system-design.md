@@ -13,63 +13,11 @@ source: "report4-software-design-document.docx"
 
 **Current application scope:** Four login roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`) and twenty-four atomic active features (`FE-01`–`FE-24`) organized across `MF1`–`MF4`. The inspection scope is buildings only. Corrective maintenance is neither modelled nor exposed: no maintenance package, class, table, or endpoint exists in the delivered codebase. Re-inspection against a published report is modelled, and is designed under `FE-24`. DroneKnowledgeAI is an optional, tenant-isolated advisory retrieval capability for historical cases and engineering standards (`FE-17`); it is an automated actor, not a login role, and it never authorizes flight or a workflow transition.
 
-SmartDroneInspection uses a modular client-server architecture that separates the client presentation sub-systems (Web Portal Application and Mobile Field Application), the modular monolith backend application server (Java 21 and Spring Boot 4.1 with Spring Modulith), the persistence and object storage layer (PostgreSQL 17 with `pgvector` and MinIO object storage), and external or containerized systems (YOLO11 defect detection service, OpenAI-compatible vision, narrative-drafting and knowledge-embedding gateway, SmartDroneHub telemetry and flight video service, Sepay VietQR and VNPay payment gateways, and Google OAuth 2.0).
+SmartDroneInspection uses a modular client-server architecture that separates the client presentation sub-systems (Web Portal Application and Mobile Field Application), the modular monolith backend application server (Java 21 and Spring Boot 4.1 with Spring Modulith), the persistence and object storage layer (PostgreSQL 17 with `pgvector` and MinIO object storage), and external or containerized systems (YOLO11 defect detection service, OpenAI-compatible vision, narrative-drafting and knowledge-embedding gateway, SmartDroneHub telemetry and flight video service, Sepay VietQR and VNPay payment gateways, and Google OAuth 2.0), as illustrated in Figure 4.1.
 
-```mermaid
-%% title: System Architecture Diagram
-flowchart TD
-  subgraph Clients["Client Presentation Sub-Systems"]
-    CLIENT_WEB["Web Portal Application\n(React 19, TypeScript, Material UI)"]
-    CLIENT_MOB["Mobile Field Application\n(Flutter, Dart, Riverpod)"]
-  end
+![SmartDroneInspection System Architecture Diagram](assets/diagrams/arch-system-architecture.png)
 
-  subgraph Backend["Application Server Sub-System (Java 21 & Spring Boot Modulith)"]
-    SEC_FILTER["Security & Access Filter\n(SecurityConfig, JWT, OAuth 2.0, CSRF & AuthRateLimitFilter)"]
-    MOD_USERS["users\n(Identity, 4-Role Access, Profiles, Applications & Audit)"]
-    MOD_CONTRACTS["contracts\n(Service Requests, VND Quotations, Agreements, Dispatch & Billing)"]
-    MOD_ASSETS["assets\n(Building Assets, Categories, Airspace Advisory & Owned Drones)"]
-    MOD_INSP["inspections\n(Flight Permits, Field Sessions, Evidence, Findings, Historical Case Advice & Inspection Reports)"]
-    MOD_NOTIF["notifications & dashboard\n(In-App Notifications & Role Dashboards)"]
-    MOD_INFRA["infrastructure & shared\n(MinIO, YOLO11/LLM & DroneKnowledge Clients, SmartDroneHub & Payment Gateways)"]
-  end
-
-  subgraph DataAndStorage["Persistence & Object Storage Sub-Systems"]
-    DB_PG[("PostgreSQL 17\n(48 Application Tables, 50 Total, pgvector vector(384))")]
-    STORE_MINIO[("MinIO Object Storage\n(inspection-evidence Bucket)")]
-  end
-
-  subgraph ExternalAndAI["External Systems & AI Services"]
-    AI_SERVICE["YOLO11 & FastEmbed Service\n(Python FastAPI, Ultralytics & /v1/embeddings)"]
-    LLM_GATEWAY["AI Vision & Narrative Drafting\n(OpenAI-Compatible Gateway)"]
-    KNOWLEDGE_AI["DroneKnowledgeAI Embeddings\n(Local FastEmbed /v1/embeddings or External Override)"]
-    DRONE_HUB["SmartDroneHub Service\n(Live Telemetry, Flight Trace & MP4 Video)"]
-    PAY_GATEWAY["Online Payment Gateways\n(Sepay VietQR & VNPay v2.1.0)"]
-    GOOGLE_OAUTH["Google OAuth 2.0\n(Federated Sign-In)"]
-  end
-
-  CLIENT_WEB -->|"HTTPS REST API & HttpOnly Cookies"| SEC_FILTER
-  CLIENT_MOB -->|"HTTPS REST API & Bearer Tokens"| SEC_FILTER
-
-  SEC_FILTER --> MOD_USERS
-  SEC_FILTER --> MOD_CONTRACTS
-  SEC_FILTER --> MOD_ASSETS
-  SEC_FILTER --> MOD_INSP
-  SEC_FILTER --> MOD_NOTIF
-
-  MOD_CONTRACTS --> MOD_INFRA
-  MOD_ASSETS --> MOD_INFRA
-  MOD_INSP --> MOD_INFRA
-  MOD_NOTIF --> MOD_INFRA
-
-  MOD_INFRA -->|"JDBC / JPA"| DB_PG
-  MOD_INFRA -->|"S3 Object Streaming"| STORE_MINIO
-  MOD_INFRA -->|"Multipart Image Defect Inference"| AI_SERVICE
-  MOD_INFRA -->|"Vision Fallback & Narrative Drafting"| LLM_GATEWAY
-  MOD_INFRA -->|"Historical Case & Standard Embeddings"| KNOWLEDGE_AI
-  MOD_INFRA <-->|"Telemetry, Flight Report & MP4 Sync"| DRONE_HUB
-  MOD_INFRA <-->|"Payment Links & Signed Webhooks"| PAY_GATEWAY
-  MOD_USERS <-->|"OAuth 2.0 Authorization"| GOOGLE_OAUTH
-```
+*Figure 4.1 — SmartDroneInspection System Architecture Diagram.*
 
 **Explanation of Architecture Components**
 
@@ -82,7 +30,7 @@ flowchart TD
    - **Narrative Drafting** (`ReportDraftClient`): A single-shot request that turns the confirmed inspection context into structured narrative text for the executive summary. The draft itself is not retrieval-augmented; source-backed references are attached separately from the DroneKnowledgeAI stores and rendered in `ReportAiSummaryResponse.knowledgeReferences`.
    - **Knowledge Embeddings** (`DroneKnowledgeClient`, `DroneKnowledgeConfiguration`, `DroneKnowledgeProperties`): An OpenAI-compatible `POST /v1/embeddings` adapter behind the inspections-owned `HistoricalCaseAdvisorPort`, configured via `app.knowledge-ai.embedding-base-url` (pointing by default in Docker Compose to the local `ai-inference` `fastembed` endpoint serving `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`) to produce a 384-dimension vector for cosine retrieval over `inspection_knowledge_chunks` and `historical_finding_cases`. A missing endpoint, timeout, authentication failure or malformed response yields an empty embedding so retrieval degrades to deterministic `HYBRID_MATCH` rather than failing a finding or report.
 6. **SmartDroneHub Telemetry and Flight Video Service**: External drone ground-control and telemetry system accessed through `SmartDroneHubClient` and `InspectionDroneHubService`. It supplies read-only live mission telemetry, persists post-flight report metrics and GPS flight traces (`flight_trace_json`) into `field_session_telemetry` (1-to-1 with `field_sessions`), and synchronizes recorded mission MP4 videos into inspection `evidence`. The platform never sends flight commands to it.
-7. **Relational Database (PostgreSQL 17)**: Persists **48 application tables** (`46` JPA-mapped application tables plus the two non-entity tables `audit_events` and `platform_ai_settings`; `TARGET_APPLICATION_TABLES` in `RuntimePersistenceInventoryTest` has size 48, while the `47` JPA runtime entity tables additionally include the `event_publication` outbox). Flyway applies `V1__baseline.sql`, a consolidated baseline holding the complete current schema and catalog seeds, followed by thirteen forward migrations: `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60__quote_partner_assignment_optional.sql`, `V61__inspection_chat_and_dispatch_settings.sql`, `V62__inspection_knowledge_rag.sql`, `V63__ai_auto_confirm_default_70.sql`, `V64__backfill_published_historical_cases.sql`, `V65__rag_local_embeddings_384.sql`, `V66__asset_ownership_information.sql`, `V67__gateway_order_created_at.sql` (adding `service_payments.gateway_order_created_at` for gateway order lifetime expiry checks), `V68__gateway_inbound_transactions.sql` (adding the `gateway_inbound_transactions` audit table for idempotent inbound gateway webhook tracking), and `V69__split_inspection_flight_permits_and_field_session_telemetry.sql` (extracting the 1-to-1 `inspection_flight_permits` and `field_session_telemetry` tables from `inspections` and `field_sessions`). With `event_publication` (the Spring Modulith outbox) and `flyway_schema_history`, the `public` schema contains **50 tables**; `FullDatabaseSchemaMigrationTest` asserts the applied migration set is exactly `["1","2","3","4","60","61","62","63","64","65","66","67","68","69"]`, so an accidental renumbering fails the build. `V62` creates the `pgvector` extension, and `V65` configures `vector(384)` embeddings in `inspection_knowledge_chunks` and `historical_finding_cases`, each with an HNSW `vector_cosine_ops` index; embeddings are read and written with parameterized JDBC rather than mapped as JPA attributes.
+7. **Relational Database (PostgreSQL 17)**: Persists **53 application tables** (`51` JPA-mapped application tables plus the two non-entity tables `audit_events` and `platform_ai_settings`; `TARGET_APPLICATION_TABLES` in `RuntimePersistenceInventoryTest` has size 53, while the `52` `RUNTIME_ENTITY_TABLES` additionally include the `event_publication` outbox). Flyway applies `V1__baseline.sql`, a consolidated baseline holding the complete current schema and catalog seeds, followed by twenty-four forward migrations (`V2`–`V4` and `V60`–`V80`): `V2__remove_finding_recommended_action.sql`, `V3__reinspection_resolved_validity.sql`, `V4__payment_due_expiry.sql`, `V60`–`V69` (optional quote pair, inspection chat/dispatch SLA, `pgvector` RAG stores with `vector(384)` local embeddings, `70.00` threshold, `assets.ownership_information`, `gateway_order_created_at`, `gateway_inbound_transactions`, split `inspection_flight_permits` and `field_session_telemetry`), `V70__inspector_ratings.sql`, `V71__checklist_safety_details.sql`, `V72__multi_flight_sessions.sql` (`field_session_flights`), `V73__rating_criteria_configs.sql` (`rating_criterion_configs`), `V74__clean_checklist_drone_agnostic.sql`, `V75__drone_structured_specs.sql` (`mtow_kg`, `max_flight_time_minutes`, `camera_sensor`), `V76__report_approved_status.sql` (`APPROVED` report status), `V77__inspector_payout_bank_details.sql`, `V78__inspector_payout_sepay_order_code.sql` (`SDIPAY<orderCode>`), `V79__service_request_partner_messages.sql` (Manager–Inspector partner chat), and `V80__service_request_inspection_items.sql` (`inspection_items jsonb` on requests and inspections). With `event_publication` (the Spring Modulith outbox) and `flyway_schema_history`, the `public` schema contains **55 tables** (`FullDatabaseSchemaMigrationTest` asserts all 55 tables). `V62` creates the `pgvector` extension, and `V65` configures `vector(384)` embeddings in `inspection_knowledge_chunks` and `historical_finding_cases`, each with an HNSW `vector_cosine_ops` index; embeddings are read and written with parameterized JDBC rather than mapped as JPA attributes.
 8. **Object Storage (MinIO)**: S3-compatible private bucket (`inspection-evidence`) managed through `MinioEvidenceObjectStore` to store signed service agreements, chat attachments, pilot licence scans, three-document drone registration files, building engineering documents, flight permits, field photographs and MP4 videos, and published inspection report artefacts. Binary content is served only through short-lived HMAC media tickets and HTTP Range streaming.
 9. **Online Payment Gateways (Sepay VietQR and VNPay v2.1.0) & Google OAuth 2.0**: External payment gateways (`SepayPaymentGateway` generating public VietQR images with `SDI<orderCode>` transfer content and authenticating webhooks via constant-time `Authorization: Apikey` header check backed by `GatewayInboundTransactionService`, plus `VnPayPaymentGateway` v2.1.0 with HMAC-SHA512 IPN/Return verification and terminal cancel/expiry order release) for VND inspection fee settlement, and Google OAuth 2.0 (`OAuth2Controller`, `GoogleOAuthService`) for federated identity. Both payment gateways are configuration-gated and disabled by default; the application starts and remains operable without them.
 
@@ -96,7 +44,7 @@ flowchart TD
 | YOLO11 Detection Service | Python FastAPI, Ultralytics YOLO11s | Primary building-defect candidate detection over photographs and video keyframes. |
 | Vision, Drafting & Knowledge Gateway | `ai-inference` `/v1/embeddings` & OpenAI-compatible HTTP API | Vision fallback detection, single-shot narrative drafting, advisory finding note drafting, and local 384-dimension `fastembed` (`paraphrase-multilingual-MiniLM-L12-v2`) embeddings. |
 | SmartDroneHub | External ground station | Read-only telemetry, flight traces, and mission video. |
-| PostgreSQL | PostgreSQL 17 | 48 application tables (50 total), pgvector case/standard retrieval, audit trail, gateway webhook log, and event outbox. |
+| PostgreSQL | PostgreSQL 17 | 53 application tables (55 total), pgvector case/standard retrieval, audit trail, gateway webhook log, ratings/multi-sortie records, and event outbox. |
 | MinIO | S3-compatible object storage | Private storage of documents, evidence media, and published report artefacts. |
 | Sepay / VNPay / Google OAuth 2.0 | External HTTPS services | Service-fee settlement and federated sign-in. |
 
@@ -106,139 +54,57 @@ SmartDroneInspection comprises three application sub-systems: the **Backend Appl
 
 #### 1.2.1 Backend Application Server Package Diagram
 
-```mermaid
-%% title: Backend Subsystem Package Diagram
-flowchart TD
-  subgraph RootPkg["com.smartdroneinspection"]
-    USERS["users\n(Authentication, Sessions, Profiles, Applications & Audit)"]
-    CONTRACTS["contracts\n(Service Requests, VND Quotes, Agreements, Dispatch & Sepay/VNPay)"]
-    ASSETS["assets\n(Asset Catalog, Building Assets, Airspace Advisory & Owned Drones)"]
-    INSPECTIONS["inspections\n(Inspections, Field Sessions, Evidence, Findings, HistoricalCaseService & Inspection Reports)"]
-    NOTIFICATIONS["notifications\n(In-App Notification Inbox & Event Listeners)"]
-    DASHBOARD["dashboard\n(Role-Scoped Operational Metrics)"]
-    INFRASTRUCTURE["infrastructure\n(MinIO, YOLO11/LLM & DroneKnowledge Clients, SmartDroneHub & Payment Gateways)"]
-    SHARED["shared\n(SecurityConfig, Responses, Roles, Ports, Validation & Exceptions)"]
-  end
+Figure 4.2 shows the Spring Modulith backend module layout under com.smartdroneinspection.
 
-  CONTRACTS --> ASSETS
-  CONTRACTS --> USERS
-  CONTRACTS --> INSPECTIONS
-  ASSETS --> USERS
-  INSPECTIONS --> ASSETS
-  INSPECTIONS --> USERS
-  NOTIFICATIONS -.->|"Domain Events"| INSPECTIONS
-  DASHBOARD --> ASSETS
-  DASHBOARD --> INSPECTIONS
-  USERS --> SHARED
-  CONTRACTS --> SHARED
-  ASSETS --> SHARED
-  INSPECTIONS --> SHARED
-  NOTIFICATIONS --> SHARED
-  INFRASTRUCTURE --> SHARED
-  INFRASTRUCTURE -.->|"SPI / Gateway Ports"| INSPECTIONS
-  INFRASTRUCTURE -.->|"Gateway Ports"| CONTRACTS
-```
+![Backend Spring Modulith Package Diagram](assets/diagrams/pkg-backend.png)
 
-The eight modules declare their permitted collaborators in `@ApplicationModule(allowedDependencies = {...})`. `contracts` may reach `assets::domain`, `assets::enums`, `assets::repository`, `users`, and `inspections::spi`; `inspections` may reach `assets::domain`, `assets::enums`, `assets::repository`, `assets::reportcontext`, `users`, and its own `reportcontext`; `notifications` may reach `inspections::events` and `users::events`; `infrastructure` may reach `inspections::spi` and `contracts::gateway`. In particular, `inspections::spi` declares `HistoricalCaseAdvisorPort`, which `infrastructure.ai.DroneKnowledgeClient` implements, keeping the embedding transport outside the business module. Directional control therefore passes through narrow named sub-packages rather than whole modules.
+*Figure 4.2 — Backend Spring Modulith Package Diagram (`com.smartdroneinspection`).*
+
+The eight modules declare their permitted collaborators in `@ApplicationModule(allowedDependencies = {...})`. `contracts` may reach `assets::domain`, `assets::enums`, `assets::repository`, `users`, and `inspections::spi`; `inspections` may reach `assets::domain`, `assets::enums`, `assets::repository`, `assets::reportcontext`, `users`, and its own `reportcontext`; `notifications` may reach `assets`, `assets::events`, `contracts::events`, `inspections::events`, `users`, and `users::events`; `dashboard` may reach `users`, `assets`, `inspections`, and `shared`; `infrastructure` may reach `inspections::spi` and `contracts::gateway`. Cross-module advisory interfaces live in `shared::api` (`CustomerAirspacePolicy`, `AirspaceZoneAdvisor`, `AirspaceZoneInfo`), keeping `assets` airspace zone definitions decoupled from `users` and `inspections`. Directional control therefore passes through narrow named sub-packages rather than whole modules.
 
 **Package Descriptions**
 
 | No | Package | Description |
 | :---: | :--- | :--- |
-| 01 | `com.smartdroneinspection.users` | Manages user authentication (password, `OtpChallenge` verification, and Google OAuth 2.0), active sessions (`AuthSession`), JWT and refresh cookies (`AccessTokenService`, `RefreshCookieService`), IP rate limiting (`AuthRateLimitFilter`), account lockout (`LoginFailureService`), security audit logging (`SecurityAuditService`), Inspector profiles (`InspectorProfile`) and flight logs (`InspectorFlightLog`), the public partner Inspector application and its review into a provisioned account (`InspectorApplication`), customer airspace registration reviews (`ProspectiveCustomerRegistration`), and platform user administration. |
-| 02 | `com.smartdroneinspection.contracts` | Manages one-time and recurring inspection service requests (`ServiceRequest`), order chat messages and their private attachments (`ServiceRequestMessage`, `ServiceRequestMessageAttachment`), versioned VND quotations (`ServiceRequestQuote`), signed service agreement files, inspection occurrence dispatch (`ServiceRequestOccurrence`), platform finance rates (`InspectionFinanceSettings`), and Sepay VietQR / VNPay online payment checkout, webhook audit logging (`GatewayInboundTransaction`), and payout/refund settlement. |
-| 03 | `com.smartdroneinspection.assets` | Manages global building asset categories (`AssetCategory`), customer building assets (`Asset`), category-scoped inspection checkpoints (`InspectionItem`), building reference documents (`AssetDocument`), Vietnam airspace evaluation (`AirspaceAdvisoryService`), drone document and feature configuration (`DroneDocumentConfig`, `DroneFeatureConfig`), and Inspector-owned drone registration and approval (`DroneRegistrationApplication`, `Drone`). |
-| 04 | `com.smartdroneinspection.inspections` | Coordinates scheduled inspection missions (`Inspection`), the flight-permit upload and independent verification gate, on-site field sessions (`FieldSession`), `SmartDroneHub` telemetry and flight-video sync (`InspectionDroneHubService`), Manager recovery dispatch after an aborted session, photograph and MP4 evidence with resumable uploads (`Evidence`, `EvidenceUploadSession`), YOLO11 defect analysis and confirmed findings (`Finding`), tenant-isolated historical case recommendation (`HistoricalCaseService` behind the `HistoricalCaseAdvisorPort` SPI), Inspector–Customer inspection chat (`InspectionChatService`), re-inspection verdict validity (`valid_until`), payment-due expiry tracking and payment documents, and versioned inspection report lifecycle management (`InspectionReport`). |
-| 05 | `com.smartdroneinspection.notifications` | Delivers deduplicated in-app notifications (`NotificationController`, `NotificationService`) to users in response to domain events published by `inspections` and `users`, with a deduplication key that prevents a retried event from producing a duplicate notice. |
-| 06 | `com.smartdroneinspection.dashboard` | Aggregates operational summaries, mission queues, and asset health indicators (`DashboardController`, `DashboardAnalyticsService`) tailored to each of the four user roles. |
+| 01 | `com.smartdroneinspection.users` | Manages user authentication (password, `OtpChallenge` verification, and Google OAuth 2.0), active sessions (`AuthSession`), JWT and refresh cookies (`AccessTokenService`, `RefreshCookieService`), IP rate limiting (`AuthRateLimitFilter`), account lockout (`LoginFailureService`), security audit logging (`SecurityAuditService`), Inspector profiles (`InspectorProfile`, including payout bank details from `V77`) and flight logs (`InspectorFlightLog`), the public partner Inspector application and its review into a provisioned account (`InspectorApplication`), customer registration (`OrganizationRegistrationService`, with optional airspace screening via `ProspectiveCustomerRegistration`), and platform user administration. |
+| 02 | `com.smartdroneinspection.contracts` | Manages paginated one-time and recurring inspection service requests (`ServiceRequest`), order chat (`ServiceRequestMessage`, `ServiceRequestMessageAttachment`), internal Manager ↔ Inspector partner chat (`ServiceRequestPartnerChatController`, `ServiceRequestPartnerChatService`, `V79`), versioned VND quotations (`ServiceRequestQuote`), signed service agreement files, per-request `inspection_items jsonb` (`V80`), Manager cancellation of `OPEN`/`QUOTED` requests or individual occurrences when restricted flight permits are unobtainable (`CancelServiceRequestRequest`), inspection occurrence dispatch (`ServiceRequestOccurrence`), platform finance/operations rates, Sepay VietQR (incoming payments + `SDIPAY<orderCode>` partner payouts `V78`) / VNPay checkout, webhook audit logging (`GatewayInboundTransaction`), and payout/refund settlement. |
+| 03 | `com.smartdroneinspection.assets` | Manages global building asset categories (`AssetCategory`), paginated customer building assets (`Asset`, server-side filtered/paginated), category-scoped inspection checkpoints (`InspectionItem`), building reference documents (`AssetDocument`), Vietnam airspace evaluation (`AirspaceAdvisoryService`, including `estimateFootprintRadiusMeters` / `findFootprintNoFlyOverlap` perimeter screening and `CustomerAirspacePolicyAdapter` implementing `AirspaceZoneAdvisor`), drone document and feature configuration (`DroneDocumentConfig`, `DroneFeatureConfig`), and paginated Inspector-owned drone registration (`DroneRegistrationApplication`) and fleet management (`Drone` with `V75` structured specs and `RETIRED <-> ACTIVE` toggles). |
+| 04 | `com.smartdroneinspection.inspections` | Coordinates scheduled inspection missions (`Inspection`), self-attested flight-permit uploads with restricted-airspace ceiling enforcement (`FlightPermitPolicy.validateRestrictedAirspaceCeiling`, `PERMIT_ALTITUDE_EXCEEDS_ZONE_LIMIT`), on-site field sessions (`FieldSession`) and multi-sortie flight logs (`InspectionFlightController`, `FieldSessionFlight` `V72`), drone-agnostic safety checklists (`V71`, `V74`), `SmartDroneHub` telemetry and flight-video sync (`InspectionDroneHubService`), Manager recovery dispatch and `cancelInspection(...)` SPI (`Mf2InspectionAssignmentAdapter`), photograph and MP4 evidence with resumable uploads (`Evidence`, `EvidenceUploadSession`), YOLO11 defect analysis and confirmed findings (`Finding`), tenant-isolated historical case recommendation (`HistoricalCaseService`), Inspector–Customer inspection chat (`InspectionChatService`), post-inspection ratings (`InspectorRatingController`, `RatingCriteriaConfigController` `V70`/`V73`), re-inspection verdict validity (`valid_until`), payment-due expiry tracking, and versioned inspection report lifecycle management (`SUBMITTED -> APPROVED -> InspectorPayout.PAID -> PUBLISHED`, `V76`). |
+| 05 | `com.smartdroneinspection.notifications` | Delivers deduplicated bilingual EN/VI in-app notifications (`NotificationController`, `NotificationService`) and critical lifecycle emails across `assets`, `contracts`, `inspections`, and `users` events, guarded by `uq_notifications_deduplication_key`. |
+| 06 | `com.smartdroneinspection.dashboard` | Aggregates separated Admin platform governance metrics and Manager/Customer/Inspector operational summaries (`DashboardController`, `DashboardAnalyticsService`). |
 | 07 | `com.smartdroneinspection.infrastructure` | Implements technical outbound adapters for MinIO object storage (`MinioEvidenceObjectStore`), YOLO11 and OpenAI-compatible AI clients (`YoloInferenceClient`, `OpenAiCompatibleInferenceClient`, `PrimaryWithFallbackInference`, `ReportDraftClient`), the optional embeddings adapter (`DroneKnowledgeClient`, enabled by `DroneKnowledgeConfiguration` and configured by `DroneKnowledgeProperties`) implementing the inspections-owned `HistoricalCaseAdvisorPort`, `SmartDroneHub` telemetry and video integration (`SmartDroneHubClient`), FFmpeg video processing, and Sepay/VNPay payment gateways (`SepayPaymentGateway`, `VnPayPaymentGateway`). |
-| 08 | `com.smartdroneinspection.shared` | Provides cross-cutting HTTP security configuration (`SecurityConfig`), shared API response wrappers (`ApiResponse`, `Result`), role constants (`Roles`), cross-module service ports (`EvidenceObjectStore`, `AiInferencePort`, `SmartDroneHubPort`, payment ports), upload validation (`EvidenceUploadValidator`), RFC 7807 error handling (`GlobalExceptionHandler`), and bilingual localization (`RequestLocale`). |
+| 08 | `com.smartdroneinspection.shared` | Provides cross-cutting HTTP security configuration (`SecurityConfig`), shared API response wrappers (`ApiResponse`, `Result`), role constants (`Roles`), cross-module service ports (`EvidenceObjectStore`, `AiInferencePort`, `SmartDroneHubPort`, `AirspaceZoneAdvisor`, `AirspaceZoneInfo`, payment ports), upload validation (`EvidenceUploadValidator`), RFC 7807 error handling (`GlobalExceptionHandler`), and bilingual localization (`RequestLocale`). |
 
 #### 1.2.2 Web Portal Application Package Diagram
 
-```mermaid
-%% title: Web Portal Subsystem Package Diagram
-flowchart TD
-  subgraph WebRoot["SmartDroneInspection-frontend/src"]
-    APP["app\n(AppShell, Router, AccessPolicy, Capability & Theme)"]
-    FEAT_AUTH["features/auth\n(Login, Register, OTP, OAuthCallback & RequireAuth)"]
-    FEAT_ADMIN["features/admin\n(Platform Users, Licence Classes, Drone Config & Reviews)"]
-    FEAT_LANDING["features/landing\n(Public Landing & Portal Selection)"]
-    FEAT_ASSETS["features/assets\n(Asset Catalog, Asset Documents & Owned Drones)"]
-    FEAT_CONTRACTS["features/contracts\n(Service Requests, Order Chat, VND Quotes & Agreements)"]
-    FEAT_INSP["features/inspections\n(Schedule Calendar, Field Sessions, SmartDroneHub, Findings, Filter Chips & DraftNoteAction)"]
-    FEAT_REPORTS["features/reports\n(Report Draft, Independent Review & Publication)"]
-    FEAT_DASH["features/dashboard\n(Operational Metrics)"]
-    FEAT_NOTIF["features/notifications\n(Notification Inbox & Badge)"]
-    WEB_SHARED["shared\n(Axios Client, Airspace Maps, i18n & UI Kit)"]
-  end
+Figure 4.3 illustrates the React 19 Web Portal source package hierarchy under src/.
 
-  APP --> FEAT_AUTH
-  APP --> FEAT_ADMIN
-  APP --> FEAT_LANDING
-  APP --> FEAT_ASSETS
-  APP --> FEAT_CONTRACTS
-  APP --> FEAT_INSP
-  APP --> FEAT_REPORTS
-  APP --> FEAT_DASH
-  APP --> FEAT_NOTIF
-  FEAT_AUTH --> WEB_SHARED
-  FEAT_ADMIN --> WEB_SHARED
-  FEAT_ASSETS --> WEB_SHARED
-  FEAT_CONTRACTS --> WEB_SHARED
-  FEAT_INSP --> WEB_SHARED
-  FEAT_REPORTS --> WEB_SHARED
-  FEAT_DASH --> WEB_SHARED
-  FEAT_NOTIF --> WEB_SHARED
-```
+![Web Portal Package Diagram](assets/diagrams/pkg-web-portal.png)
+
+*Figure 4.3 — Web Portal React 19 Package Diagram (`src/`).*
 
 **Package Descriptions**
 
 | No | Package | Description |
 | :---: | :--- | :--- |
-| 01 | `src/app` | Contains the application shell (`AppShell`), route configuration (`router.tsx`), the four-portal route access policy (`accessPolicy.ts`), capability helpers (`capability.ts`), portal selection (`PortalSelectionPage`), and design tokens and theme (`tokens.ts`, `theme.ts`, `ColorModeContext`). |
-| 02 | `src/features/auth` | Implements customer organization registration, partner Inspector application submission, email/password and OTP sign-in, Google OAuth 2.0 callback handling, session bootstrapping, and route guards (`RequireAuth`). |
-| 03 | `src/features/admin` | Provides platform account administration, pilot-licence class maintenance, drone document and feature configuration, platform finance settings, AI inference settings, and the airspace, partner-application, and drone-registration review queues. |
+| 01 | `src/app` | Contains the application shell (`AppShell`), route configuration (`router.tsx`), the four-portal route access policy (`accessPolicy.ts`), capability helpers (`capability.ts`), portal selection (`PortalSelectionPage`), and design tokens and theme (`tokens.ts`, `theme.ts`, `ColorModeContext`, defaulting customizations off on first load). |
+| 02 | `src/features/auth` | Implements separated Customer vs Inspector auth portals (`RegisterPage`, `InspectorRegisterPage`, OTP, Google OAuth 2.0 callback), account-first customer organization registration (users create assets after account creation), session bootstrapping, and route guards (`RequireAuth`). |
+| 03 | `src/features/admin` | Provides platform account administration, pilot-licence class maintenance, drone document, feature, and rating-criteria configuration, platform finance/operations/AI settings, and the airspace, partner-application, and drone-registration review queues. |
 | 04 | `src/features/landing` | Provides the public landing experience and the role-aware entry point into the four portals. |
-| 05 | `src/features/assets` | Provides building asset management, reference document streaming, and Inspector-owned drone registration and inventory. |
-| 06 | `src/features/contracts` | Implements one-time and recurring service requests (`ServiceRequestListView` compact 4-column table, immediate `?requestId=...` selection on claim in `useContracts`), in-context order chat with attachments, VND quotation issuance (`ManagerQuoteWorkspace`, sending empty `requiredDroneFeatureCodes: []` without capability checkboxes) and acceptance, signed contract upload, `PartnerCandidateResults` dispatch selection, and role-scoped `FinanceHistoryPage`, with separate `customer` and `manager` presentation branches. |
-| 07 | `src/features/inspections` | Implements the Inspector schedule calendar, the customer inspection progress view, on-site field session and `SmartDroneHub` telemetry controls, flight-permit upload and review, photo and MP4 evidence upload, YOLO11 defect review with `All active` / `Unconfirmed` / `Confirmed` status filter chips, and `DraftNoteAction` (`Draft note with AI`, collapsed `References`, and batch `Draft all notes`) writing advisory notes directly into the finding editor. |
-| 08 | `src/features/reports` | Implements pre-submission report drafting, independent Manager review, versioned publication, and the source-backed `Matched Cases & Standards` footer of `ReportAiSummaryCard`. |
-| 09 | `src/features/dashboard`, `src/features/notifications` | Provide four-role operational metrics and the in-app notification inbox with unread badge. |
-| 10 | `src/shared` | Provides the Axios HTTP client with automatic token refresh, CSRF handling, and RFC 7807 problem parsing (`api`), the interactive Vietnam airspace planner and map (`airspace`), bilingual EN/VI localization (`i18n`), and the shared UI kit including authenticated media components (`ui`, `AuthenticatedImage`, `AuthenticatedMedia`). |
+| 05 | `src/features/assets` | Provides paginated building asset management (`AssetsPage` with restricted-zone partial-coverage and no-fly footprint overlap warnings), reference document streaming, and Inspector-owned drone registration and paginated fleet inventory with `RETIRED <-> ACTIVE` controls. |
+| 06 | `src/features/contracts` | Implements paginated one-time and recurring service requests (`ServiceRequestListView`, `CreateRequestDialog` allowing new requests when all contracted occurrences are cancelled), commercial order chat and partner chat (`RequestChatPanel`, `PartnerChatPanel`), VND quotation workspace (`ManagerQuoteWorkspace` with `Cancel request`), `RequestCheckpointsEditor`, `ManagerOccurrencesStep` (`Cancel flight` and partner dispatch), and role-scoped `FinanceHistoryPage` (`scope=REVENUE` or `PAYOUTS`). |
+| 07 | `src/features/inspections` | Implements the Inspector schedule calendar, `InspectionDetailPage` (restricted-zone confirmation & quick restricted-permit decline chip), `FieldSessionPage` (Stage 1 self-attested permit upload with `Max altitude (m)` validation, Stage 1 permit-unavailable decline, multi-flight sorties, drone-agnostic safety checklists, `SmartDroneHub` telemetry), photo/MP4 evidence intake, YOLO11 defect review, `DraftNoteAction`, and post-inspection Inspector ratings. |
+| 08 | `src/features/reports` | Implements pre-submission report drafting, independent Manager review (`SUBMITTED -> APPROVED -> InspectorPayout.PAID -> PUBLISHED`), official publication, and the source-backed `Matched Cases & Standards` footer of `ReportAiSummaryCard`. |
+| 09 | `src/features/dashboard`, `src/features/notifications` & `src/features/pets3d` | Provide distinct 4-role operational dashboards (`ADMIN` governance vs `MANAGER` operations), bilingual EN/VI in-app notification feed with toast/unread badge, and the interactive Three.js 3D pet companion (`PetCompanionWidget`). |
+| 10 | `src/shared` | Provides the Axios HTTP client with automatic token refresh, CSRF handling, and RFC 7807 problem parsing (`api`), the interactive Vietnam airspace planner, `airspaceZones.ts` (`evaluateFootprintNoFlyOverlap`), and `RestrictedAirspaceNotice.tsx` (`airspace`), bilingual EN/VI localization (`i18n`), and the shared UI kit (`ui`, `AuthenticatedImage`, `AuthenticatedMedia`). |
 
 #### 1.2.3 Mobile Field Application Package Diagram
 
-```mermaid
-%% title: Mobile Field Subsystem Package Diagram
-flowchart TD
-  subgraph MobRoot["SmartDroneInspection-mobile/lib"]
-    MOB_CORE["core\n(Dio Network, TokenStore, GoRouter, Theme & Localization)"]
-    MOB_AUTH["features/auth\n(LoginPage, OAuthCallback & SessionProvider)"]
-    MOB_ASSETS["features/assets\n(AssetsPage & AssetRepository)"]
-    MOB_CONTRACTS["features/contracts\n(RequestsPage, NewRequest & RequestChat)"]
-    MOB_INSP["features/inspections\n(InspectionsPage, InspectionDetail, InspectionChatPage & KnowledgeReferencesStrip)"]
-    MOB_DASH["features/dashboard\n(Customer Home)"]
-    MOB_NOTIF["features/notifications\n(Notification List)"]
-    MOB_PROFILE["features/profile\n(ProfilePage & Language Selector)"]
-    MOB_SHARED["shared/widgets & l10n\n(AsyncValueWidget & EN/VI Localizations)"]
-  end
+Figure 4.4 outlines the Flutter Mobile Field Application package organization under lib/.
 
-  MOB_AUTH --> MOB_CORE
-  MOB_ASSETS --> MOB_CORE
-  MOB_CONTRACTS --> MOB_CORE
-  MOB_INSP --> MOB_CORE
-  MOB_DASH --> MOB_CORE
-  MOB_NOTIF --> MOB_CORE
-  MOB_PROFILE --> MOB_CORE
-  MOB_AUTH --> MOB_SHARED
-  MOB_ASSETS --> MOB_SHARED
-  MOB_CONTRACTS --> MOB_SHARED
-  MOB_INSP --> MOB_SHARED
-  MOB_DASH --> MOB_SHARED
-  MOB_NOTIF --> MOB_SHARED
-  MOB_PROFILE --> MOB_SHARED
-```
+![Mobile Field App Package Diagram](assets/diagrams/pkg-mobile-app.png)
+
+*Figure 4.4 — Mobile Field App Flutter Package Diagram (`lib/`).*
 
 **Package Descriptions**
 
