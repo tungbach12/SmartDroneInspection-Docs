@@ -100,29 +100,11 @@ The web client separates `app` (shell, router, access policy, theme) from nine f
 
 **Scope boundary.** The schema models buildings only. Flyway applies `V1__baseline.sql`, a consolidated baseline holding the complete schema and catalog seeds, followed by forward migrations `V2`–`V4` and `V60`–`V80`: including `V62`–`V65` (`DroneKnowledgeAI` `pgvector` 384d HNSW stores and historical case backfill), `V66` (`assets.ownership_information`), `V67`–`V68` (payment order timestamps and `gateway_inbound_transactions`), `V69` (1-to-1 `inspection_flight_permits` and `field_session_telemetry`), `V70` (`inspector_ratings`), `V72` (`field_session_flights` multi-sortie table), `V73` (`rating_criterion_configs`), `V76`–`V77` (`inspection_reports` `APPROVED` payout workflow state & backfill), `V78` (`inspector_payouts.payout_order_code` `SDIPAY`), `V79` (`service_request_partner_messages` & `_attachments`), and `V80` (`service_requests.inspection_items` checkpoint snapshot). `FullDatabaseSchemaMigrationTest` asserts all `55` relations in `public` (`53` application tables + `event_publication` outbox + `flyway_schema_history`; `52` `RUNTIME_ENTITY_TABLES`). Legacy table `prospective_customer_registrations` is retained untouched in PostgreSQL for schema stability and receives no new writes (`FE-07`).
 
-![Physical Schema Overview — PostgreSQL 17 V1 to V80](assets/diagrams/erd-physical-dbdiagram.png)
+![Complete SmartDroneInspection physical ERD in Compact layout](assets/diagrams/smartdrone-physical-erd-compact.png)
 
-*Figure 7.8 — SmartDroneInspection Physical Schema Overview (`smartdrone-physical-erd.dbml`, `53` application tables + Spring Modulith outbox across `V1`–`V80`).*
+*Figure 7.8 — PostgreSQL 17 physical ERD in dbdiagram Compact layout. It shows 53 application tables and the Spring Modulith outbox.*
 
-![Physical Schema Domain 1 — IAM and Onboarding](assets/diagrams/erd-dbml-1-iam-onboarding.png)
-
-*Figure 7.8a — Physical Schema Domain 1 (`DBML`): IAM, Sessions, OTP & Partner Onboarding (`9` tables).*
-
-![Physical Schema Domain 2 — Assets and Drones](assets/diagrams/erd-dbml-2-assets-drones.png)
-
-*Figure 7.8b — Physical Schema Domain 2 (`DBML`): Building Assets & Inspector-Owned Drones (`8` tables).*
-
-![Physical Schema Domain 3 — Requests and Field](assets/diagrams/erd-dbml-3-requests-field.png)
-
-*Figure 7.8c — Physical Schema Domain 3 (`DBML`): Service Requests, Partner/Order Chat, Dispatch & Multi-Sortie Field Sessions (`12` tables).*
-
-![Physical Schema Domain 4 — Evidence, AI and Reports](assets/diagrams/erd-dbml-4-evidence-reports.png)
-
-*Figure 7.8d — Physical Schema Domain 4 (`DBML`): Evidence, AI Detection, Knowledge RAG, Ratings & Reports (`10` tables).*
-
-![Physical Schema Domain 5 — Finance and Governance](assets/diagrams/erd-dbml-5-finance-governance.png)
-
-*Figure 7.8e — Physical Schema Domain 5 (`DBML`): Invoices, Sepay/VNPay Settlement, Payouts, Refunds, Config & Audit (`15` tables).*
+Open [smartdrone-physical-erd-compact.pdf](../../diagrams/smartdrone-physical-erd-compact.pdf) to inspect fields and relationships at full resolution.
 
 ![Logical ERD Domain 1 — Users and Governance](assets/diagrams/erd-logical-1-users-gov.png)
 
