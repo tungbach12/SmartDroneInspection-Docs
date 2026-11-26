@@ -10,7 +10,7 @@ source: "Report7_Final Project Report.docx"
 
 ### 1.1 Scope & Estimation
 
-The work was decomposed into twenty-four atomic product features (`FE-01`–`FE-24`) across the four main flows (`MF1`–`MF4`) and grouped by member ownership (`24%` Hiếu `50` md, `24%` Quốc `50` md, `28%` Bách `58` md, `24%` Như `50` md; `208` man-days total) at three complexity levels. Simple items are single-screen or single-endpoint changes with no new persistence; medium items add a workflow or a data model; complex items span several modules and a state machine, and carry their own test surface.
+The estimate covers 24 features across `MF1`–`MF4` and totals 208 man-days. Simple items change one screen or endpoint without adding persistence. Medium items add a workflow or data model, and complex items span modules and include state transitions.
 
 | # | WBS Item | Complexity | Est. Effort (man-days) |
 | --- | --- | --- | --- |
@@ -22,14 +22,14 @@ The work was decomposed into twenty-four atomic product features (`FE-01`–`FE-
 | 1.5 | `FE-05` Financial History & Revenue/Payment Ledger (`MF4` ledger views) | Medium | 7 |
 | 2 | Buildings, Commercial Service, Chat & Notifications (`MF2`, `FE-06`–`FE-12`) | Complex | 45 |
 | 2.1 | `FE-06` Building Asset Registry, Checkpoints & Reference Documents | Complex | 8 |
-| 2.2 | `FE-07` Restricted Airspace Review & Clearance Decision | Medium | 5 |
+| 2.2 | `FE-07` Restricted Airspace Advisory Warning & Immediate Onboarding | Medium | 5 |
 | 2.3 | `FE-08` Service Requests (One-Time & Recurring) & VND Quotations | Complex | 9 |
 | 2.4 | `FE-09` Offline Signed Contract & Occurrence Dispatch Scheduling | Complex | 8 |
-| 2.5 | `FE-10` Dual-Channel Messaging (Order Chat & Inspection Chat) | Medium | 6 |
+| 2.5 | `FE-10` Messaging (Order Chat, Partner Chat & Inspection Chat) | Medium | 6 |
 | 2.6 | `FE-11` Assignment Acceptance Timeout & Escalation Handling | Simple | 4 |
 | 2.7 | `FE-12` System Notifications & Alert Center | Medium | 5 |
 | 3 | Field Execution, AI Inference/RAG & Report Publication (`MF3` + `FE-18`, `FE-13`–`FE-18`) | Complex | 48 |
-| 3.1 | `FE-13` Flight Permit Upload & Independent Verification Gate (`MF3`) | Medium | 7 |
+| 3.1 | `FE-13` Flight Permit Upload & Self-Attestation Gate (`MF3`) | Medium | 7 |
 | 3.2 | `FE-14` On-Site Field Session & SmartDroneHub MAVLink Telemetry (`MF3`) | Complex | 8 |
 | 3.3 | `FE-15` Field Evidence Intake & Chunked Video Processing Pipeline (`MF3`) | Complex | 9 |
 | 3.4 | `FE-16` AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Confirmation (`MF3`) | Complex | 8 |
@@ -52,24 +52,24 @@ The work was decomposed into twenty-four atomic product features (`FE-01`–`FE-
 | 6.3 | Automated test reconciliation, Report 5 workbook & docs standardization | Medium | 8 |
 | | **Total** | | **208** |
 
-The estimate reconciles against capacity: four members over three and three-quarter months at twenty working days each gives `4 × 3.75 × 20 = 300` person-days, and `208` man-days represents roughly 70% effective capacity distributed accurately as **Trần Hoàng Trung Hiếu** `50` md (`43` feature + `4` mobile + `3` leadership/coordination = `24%`), **Phùng Trung Quốc** `50` md (`45` feature + `4` cross-module + `1` QA/docs = `24%`), **Trần Tùng Bách** `58` md (`48` feature + `6` backend/DB architecture + `4` mobile = `28%`), and **Trương Thái Như** `50` md (`42` feature + `8` QA/Report 5/docs = `24%`).
+Four members working 20 days a month for 3.75 months have a nominal capacity of 300 person-days. The estimate uses 208 man-days, about 69% of that capacity. The role and effort breakdown appears in Section 4.
 
 ### 1.2 Project Objectives
 
 The overall objective was to deliver a working, defensible platform covering the full inspection chain for buildings, with governance — not detection — as the differentiator. The measurable targets were:
 
 - All twenty-four atomic product features (`FE-01`–`FE-24`) accepted against their Report 3 acceptance criteria.
-- `0` unauthorized or cross-scope data disclosures, verified by role, organization, and assignment probing across all four portals.
+- `0` unauthorized or cross-scope data disclosures, verified by role, ownership, and assignment probing across all four portals.
 - `0` Spring Modulith module-boundary violations.
-- A verified database schema baseline of 48 application tables enforced by automated migration and persistence checks.
-- `0` open Critical or High severity defects at handover, with any remaining defect recorded rather than omitted.
+- A verified database schema baseline of 53 application tables (`55` total database tables across `V1`–`V4` and `V60`–`V80`) enforced by automated migration and persistence checks.
+- `0` open Critical or High severity defects at handover, with all identified scope defects resolved and regression-verified.
 
 **Quality**
 
 | # | Testing Stage | Test Coverage | No. of Defects | % of Defect | Notes |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Reviewing | Requirement, design, and code review of every feature before merge | 6 | 25.0% | Defects caught in review before the code reached a test environment. |
-| 2 | Unit Test | Domain rules, services, components, and widgets | 8 | 33.3% | Backend `971` tests passed (`0` failures, Modulith and JaCoCo gates met); frontend `724` tests (`720` passed, `4` skipped) across `97` files; mobile `56` tests passed (`0` failures). |
+| 2 | Unit Test | Domain rules, services, components, and widgets | 8 | 33.3% | Backend `1,052` tests passed (`0` failures, Modulith and migration gates met); frontend `830` tests (`826` passed, `4` pre-existing skipped) across `120` files; mobile `58` tests passed (`0` failures). |
 | 3 | Integration Test | Controllers, repositories, migrations, storage, and outbox | 7 | 29.2% | Schema, authorization, and object-storage defects. |
 | 4 | System Test | Connected end-to-end lifecycle across roles and clients | 3 | 12.5% | Cross-module sequencing and recovery-path defects. |
 | 5 | Acceptance Test | Business rules and acceptance criteria per feature | 0 | 0.0% | No accepted-scope defect remained at handover. |
@@ -98,7 +98,7 @@ Allocated Effort (man-days): 208
 
 ### 2.1 Project Process
 
-![Agile Scrum project management process](assets/charts/scrum-process.png)
+![Agile Scrum project management process](assets/diagrams/proc-agile-scrum.png)
 
 *Figure 7.1a — Agile Scrum project management process.*
 
@@ -117,7 +117,7 @@ To ensure project quality throughout development, the team continuously applied 
 
 - **Requirement Reviewing:** Every feature slice was reviewed against Report 3 functional requirements, role boundaries, and acceptance criteria before coding and during pull-request review.
 - **Code Review:** Every change required peer review by a non-author across the backend, web frontend, mobile, and documentation repositories before merge.
-- **Unit and Integration Testing:** Automated unit, architecture-boundary, schema-migration, and integration suites ran on every pull request — achieving `80.0%` backend line coverage (`16,178 / 20,210`) alongside `724` frontend tests and `56` mobile tests at handover.
+- **Unit and Integration Testing:** Automated unit, architecture-boundary, schema-migration, and integration suites ran on every pull request — reaching `1,052` backend tests (`0` failures), `826` passed (`830` total, `4` deprecated skipped) frontend tests, and `58` mobile tests (`0` failures) at handover.
 - **Daily Stand-ups:** Short daily syncs tracked sprint progress, coordinated cross-repository merge order, and kept automated vs. manual verification records strictly accurate.
 
 ### 2.3 Training Plan
@@ -144,8 +144,8 @@ Delivery ran as five gated increments between 15 September and 30 November 2026.
 | M1 Foundation | `2026-09-15` – `2026-10-08` | Four-repository skeleton, consolidated Flyway baseline, identity and admission, building catalogue, and the four-role access policy. | Backend unit suite, migration inventory assertion, and the four-portal route policy tests. |
 | M2 Core delivery | `2026-10-09` – `2026-10-22` | Requests and quotations, occurrence dispatch, permit gate, field sessions, evidence intake, YOLO11 detection, and inspection report management. | Integration suites across controllers, storage, detection, and report workflows. |
 | M3 Review baseline | `2026-10-23` – `2026-10-27` | Independent report review, publication, acceptance, and the retention decisions that retired maintenance capability. | Review-baseline walkthrough and scope-retirement verification. |
-| M4 Consolidation | `2026-10-28` – `2026-11-04` | Twenty-four-feature consolidation across `MF1`–`MF4`, PayOS and VNPay settlement, partner payout and refund ledgers, and re-inspection verification. | Connected lifecycle run and the finance lifecycle cases. |
-| M5 Release | `2026-11-05` – `2026-11-30` | Final regression, staging walkthrough, documentation export, and defence rehearsal. | Full suites, workbook reconciliation, and the exported report set. |
+| M4 Consolidation | `2026-10-28` – `2026-11-04` | Twenty-four-feature consolidation across `MF1`–`MF4`, Sepay (VietQR) and VNPay settlement, partner payout and refund ledgers, and re-inspection verification. | Connected lifecycle run and the finance lifecycle cases. |
+| M5 Release | `2026-11-05` – `2026-11-30` | Final regression, workflow streamlining (`V70`–`V80`), staging walkthrough, documentation export, and defence rehearsal. | Full suites, workbook reconciliation, and the exported report set. |
 
 Work was sliced vertically: a feature counted as complete only when its backend contract, its role-scoped client surface, and its tests landed together. The five windows therefore overlap in feature content but not in gate criteria — a later feature could start while an earlier one was still in review, but it could not pass its own gate on an incomplete slice.
 
@@ -154,13 +154,13 @@ Work was sliced vertically: a feature counted as complete only when its backend 
 | # | Deliverable | Due Date | Notes |
 | --- | --- | --- | --- |
 | D1 | Requirement specification (Report 3) | 2026-10-03 | Four roles, twenty-four atomic features (`FE-01`–`FE-24`), `BR-01`–`BR-55`, `MSG01`–`MSG50`. |
-| D2 | Design document (Report 4) | 2026-10-17 | Architecture, package diagrams, 46-table application schema, and detailed design per feature. |
+| D2 | Design document (Report 4) | 2026-10-17 | Architecture, package diagrams, 53-table application schema (`55` total database tables across `V1`–`V4`, `V60`–`V80`), and detailed design per feature. |
 | D3 | Working platform across four repositories | 2026-11-15 | Integrated backend service, four-portal web application, Customer mobile client, and documentation tooling. |
 | D4 | Automated test suites | 2026-11-17 | Backend, frontend, and mobile suites verified. |
-| D5 | Test documentation and workbook (Report 5) | 2026-11-18 | Twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `67` cases (`64` historical + `3` unexecuted breakout cases). |
+| D5 | Test documentation and workbook (Report 5) | 2026-11-18 | Twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `77` listed rows (`75` active test cases + `2` superseded `FE-13` cases). |
 | D6 | Release package and user guides (Report 6) | 2026-11-19 | Installation guide and illustrated role workflows mapped to `FE-01`–`FE-24`. |
 | D7 | Project introduction and management plan (Reports 1 and 2) | 2026-11-19 | Scope, comparators, weighted WBS estimation (`208` md), and process. |
-| D8 | Final project report (Report 7) | 2026-11-21 | Consolidated defence document covering all twenty-four product features across Chapters I–VI. |
+| D8 | Final project report (Report 7) | 2026-11-25 | Consolidated defence document covering all twenty-four product features across Chapters I–VI. |
 | D9 | Defence slide deck | 2026-11-24 | Summarises scope, design, evidence, and demonstration. |
 
 ## 4. Responsibility Assignments
@@ -175,13 +175,13 @@ Members are identified by initials matching weighted contributions (`24%` / `24%
 | `FE-04` Interactive Location Map & No-Fly Zone Airspace Screening | D | S | R | S | I |
 | `FE-05` Financial History & Revenue/Payment Ledger | D | S | R | S | I |
 | `FE-06` Building Asset Registry, Checkpoints & Reference Documents | S | D | R | S | R |
-| `FE-07` Restricted Airspace Review & Clearance Decision | S | D | R | S | I |
+| `FE-07` Restricted Airspace Advisory Warning & Immediate Onboarding | S | D | R | S | I |
 | `FE-08` Service Requests (One-Time & Recurring) & VND Quotations | R | D | S | S | R |
 | `FE-09` Offline Signed Contract & Occurrence Dispatch Scheduling | R | D | S | S | R |
-| `FE-10` Dual-Channel Messaging (Order Chat & Inspection Chat) | S | D | R | S | I |
+| `FE-10` Messaging (Order Chat, Partner Chat & Inspection Chat) | S | D | R | S | I |
 | `FE-11` Assignment Acceptance Timeout & Escalation Handling | S | D | R | S | I |
 | `FE-12` System Notifications & Alert Center | S | D | S | R | I |
-| `FE-13` Flight Permit Upload & Independent Verification Gate | S | R | S | D | R |
+| `FE-13` Flight Permit Upload & Self-Attestation Gate | S | R | S | D | R |
 | `FE-14` On-Site Field Session & SmartDroneHub MAVLink Telemetry | R | S | S | D | R |
 | `FE-15` Field Evidence Intake & Chunked Video Processing Pipeline | S | S | R | D | R |
 | `FE-16` AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Confirmation | S | R | S | D | R |
@@ -208,17 +208,17 @@ Members are identified by initials matching weighted contributions (`24%` / `24%
 | Requirement clarification | Owner and reviewers | Resolve ambiguity in Report 3 before coding | As needed | Issue thread with the requirement linked |
 | Defect triage | Feature owner and reviewer | Classify and assign a defect | Per defect | Issue tracker |
 | Milestone sign-off | Team and supervisors | Record the baseline for the next milestone | Per milestone | Written summary and tagged commit |
-| Documentation handoff | Documentation owner | Keep Reports 1–7 consistent with delivery | Per milestone and at handover | Repository commit with a change record |
+| Documentation handoff | Documentation owner | Keep Reports 1–7 consistent with delivery | Per milestone and at handover | Versioned report sources and final Word reports |
 
 ## 6. Configuration Management
 
 ### 6.1 Document Management
 
-Each report is maintained as Markdown under its own folder, with an appended row in its Record of Changes for every revision. Exported `.docx` files are generated from those sources against the untouched official templates, so an exported document is always reproducible from the repository. Screenshots and rendered diagrams live in each report's own `assets/` folder, which keeps a report self-contained when it is handed over.
+The team maintains report sources under version control and prepares the Word reports using the official templates. The Word reports embed the figures and screenshots used in each chapter.
 
 ### 6.2 Source Code Management
 
-The workspace is four independent repositories — backend, frontend, mobile, and documentation — each with its own history. Every change is a focused pull request on a branch, never a direct commit to the default branch. Cross-repository work is split into one pull request per repository with an explicit merge order recorded in each body. Generated files are not edited by hand, and no credential, token, secret, recovery code, or private key is committed.
+The backend, web, mobile, and documentation repositories have independent version histories. Each change goes through a branch and pull request. When changes span repositories, pull requests record their merge order.
 
 ### 6.3 Tools & Infrastructures
 
@@ -227,8 +227,8 @@ The workspace is four independent repositories — backend, frontend, mobile, an
 | Technology | Java 21, Spring Boot 4.1, Spring Modulith 2.1.1, React 19 with strict TypeScript, Flutter with Riverpod, Python FastAPI with Ultralytics YOLO11s |
 | Database | PostgreSQL 17 with Flyway migrations; MinIO for S3-compatible object storage |
 | IDEs/Editors | IntelliJ IDEA, Visual Studio Code, Android Studio |
-| Diagramming | Mermaid rendered to PNG; Draw.io for free-form diagrams |
-| Documentation | Markdown sources exported to `.docx` through a custom OOXML pipeline against the official templates |
+| Diagramming | Draw.io and dbdiagram |
+| Documentation | Versioned Markdown sources and official Word templates |
 | Version Control | Git with four independent repositories and pull-request review |
 | Deployment server | Docker Compose stack of database, object storage, detection service, hub service, and backend |
 | Project management | Issue tracker, milestone board, and a shared task backlog |

@@ -13,11 +13,11 @@ This section presents the detailed design for `FE-01`: Customer organization reg
 
 #### 3.1.1 Class Diagram
 
-Figure 4.11 models the authentication controllers, security filters, OTP/session services, and four-role user entities for `FE-01`.
+Figure 4.12 models the authentication controllers, security filters, OTP/session services, and four-role user entities for `FE-01`.
 
 ![FE-01 Account Authentication, OTP & 4-Role Access Control Class Diagram](assets/diagrams/cls-fe-01-auth-access.png)
 
-*Figure 4.11 — FE-01 Account Authentication, OTP & 4-Role Access Control Class Diagram.*
+*Figure 4.12 — FE-01 Account Authentication, OTP & 4-Role Access Control Class Diagram.*
 
 **Class Specifications**
 
@@ -31,19 +31,19 @@ Figure 4.11 models the authentication controllers, security filters, OTP/session
 
 #### 3.1.2 Customer Organization and Initial Asset Registration Sequence Diagram
 
-Figure 4.12 traces the self-registration, airspace zone evaluation (`NO_FLY_ZONE` gate vs `RESTRICTED_ZONE` `MSG28` advisory), and immediate account/building activation sequence.
+Figure 4.13 traces the self-registration, airspace zone evaluation (`NO_FLY_ZONE` gate vs `RESTRICTED_ZONE` `MSG28` advisory), and immediate account/building activation sequence.
 
 ![FE-01A Customer Organization Registration Sequence Diagram](assets/diagrams/seq-fe-01a-customer-registration.png)
 
-*Figure 4.12 — FE-01A Customer Organization Registration & Restricted Airspace Advisory Sequence Diagram.*
+*Figure 4.13 — FE-01A Customer Organization Registration & Restricted Airspace Advisory Sequence Diagram.*
 
 #### 3.1.3 User Sign-In, OTP Verification and Google OAuth 2.0 Sequence Diagram
 
-Figure 4.13 details credential sign-in, OTP verification, refresh token rotation, and Google OAuth 2.0 federation.
+Figure 4.14 details credential sign-in, OTP verification, refresh token rotation, and Google OAuth 2.0 federation.
 
 ![FE-01B Sign-In, OTP & Google OAuth 2.0 Sequence Diagram](assets/diagrams/seq-fe-01b-signin-otp-oauth.png)
 
-*Figure 4.13 — FE-01B Sign-In, OTP Challenge & Google OAuth 2.0 Sequence Diagram.*
+*Figure 4.14 — FE-01B Sign-In, OTP Challenge & Google OAuth 2.0 Sequence Diagram.*
 
 ---
 
@@ -53,11 +53,11 @@ This section presents the detailed design for `FE-02`: the public partner Inspec
 
 #### 3.2.1 Class Diagram
 
-Figure 4.14 illustrates the Inspector onboarding controllers, qualification services, pilot licence classes, and flight log entities.
+Figure 4.15 illustrates the Inspector onboarding controllers, qualification services, pilot licence classes, and flight log entities.
 
 ![FE-02 Partner Inspector Application Class Diagram](assets/diagrams/cls-fe-02-inspector-onboarding.png)
 
-*Figure 4.14 — FE-02 Partner Inspector Onboarding & Qualification Class Diagram.*
+*Figure 4.15 — FE-02 Partner Inspector Onboarding & Qualification Class Diagram.*
 
 **Class Specifications**
 
@@ -69,11 +69,11 @@ Figure 4.14 illustrates the Inspector onboarding controllers, qualification serv
 
 #### 3.2.2 Partner Inspector Application, Review and Account Provisioning Sequence Diagram
 
-Figure 4.15 captures the public application upload, staff approval review, and atomic account provisioning sequence.
+Figure 4.16 captures the public application upload, staff approval review, and atomic account provisioning sequence.
 
 ![FE-02 Partner Inspector Application Sequence Diagram](assets/diagrams/seq-fe-02-inspector-onboarding.png)
 
-*Figure 4.15 — FE-02 Partner Inspector Application & Onboarding Review Sequence Diagram.*
+*Figure 4.16 — FE-02 Partner Inspector Application & Onboarding Review Sequence Diagram.*
 
 ---
 
@@ -83,19 +83,19 @@ This section presents the detailed design for `FE-03`: Administrator configurati
 
 #### 3.3.1 Class Diagram & Specifications
 
-Figure 4.16 shows the configurable document/feature catalog, drone registration, and fleet inventory classes.
+Figure 4.17 shows the configurable document/feature catalog, drone registration, and fleet inventory classes.
 
 ![FE-03 Drone Registration & Fleet Management Class Diagram](assets/diagrams/cls-fe-03-drone-fleet.png)
 
-*Figure 4.16 — FE-03 Inspector-Owned Drone Registration & Fleet Class Diagram.*
+*Figure 4.17 — FE-03 Inspector-Owned Drone Registration & Fleet Class Diagram.*
 
 #### 3.3.2 Sequence Diagram
 
-Figure 4.17 traces drone photograph/document submission, structured specification parsing, and fleet approval.
+Figure 4.18 traces drone photograph/document submission, structured specification parsing, and fleet approval.
 
 ![FE-03 Drone Registration & Approval Sequence Diagram](assets/diagrams/seq-fe-03-drone-registration.png)
 
-*Figure 4.17 — FE-03 Drone Registration, Evidence Upload & Approval Sequence Diagram.*
+*Figure 4.18 — FE-03 Drone Registration, Evidence Upload & Approval Sequence Diagram.*
 
 **Class Specifications**
 
@@ -113,11 +113,11 @@ This section presents the detailed design for `FE-04`: interactive coordinate se
 
 #### 3.4.1 Sequence Diagram
 
-Figure 4.18 illustrates interactive coordinate evaluation across Web and Mobile against Vietnam prohibited and restricted zones.
+Figure 4.19 illustrates interactive coordinate evaluation across Web and Mobile against Vietnam prohibited and restricted zones.
 
 ![FE-04 Airspace Map & Screening Sequence Diagram](assets/diagrams/seq-fe-04-airspace-screening.png)
 
-*Figure 4.18 — FE-04 Interactive Airspace Map & Coordinate Screening Sequence Diagram.*
+*Figure 4.19 — FE-04 Interactive Airspace Map & Coordinate Screening Sequence Diagram.*
 
 **Class & UI Specifications**
 
@@ -136,17 +136,17 @@ This section presents the detailed design for `FE-05`: role-scoped financial led
 
 #### 3.5.1 Sequence Diagram
 
-Figure 4.19 outlines role-scoped financial history queries across Customer, Inspector, and Manager ledgers.
+Figure 4.20 outlines role-scoped financial history queries across Customer, Inspector, and Manager ledgers.
 
 ![FE-05 Scoped Financial Ledger Sequence Diagram](assets/diagrams/seq-fe-05-financial-ledger.png)
 
-*Figure 4.19 — FE-05 Role-Scoped Financial History & Ledger Query Sequence Diagram.*
+*Figure 4.20 — FE-05 Role-Scoped Financial History & Ledger Query Sequence Diagram.*
 
 **Class & UI Specifications**
 
 | No | Component / Class | Description |
 | :---: | :--- | :--- |
-| 01 | `ContractWorkflowController` (`finance-history/*` routes) | Exposes `GET /api/v1/contracts/requests/finance-history/customer`, `/inspector`, and `/manager?scope=REVENUE` or `PAYOUTS` (plus `/{occurrenceId}` detail endpoints) backed by `ContractWorkflowService` paged/filtered ledger queries (`REVENUE` for customer-paid receipts; `PAYOUTS` for report-published eligible/settled payouts). |
+| 01 | `ContractWorkflowController` (`finance-history/*` routes) | Exposes `GET /api/v1/contracts/requests/finance-history/customer`, `/inspector`, and `/manager` with `scope=REVENUE` or `scope=PAYOUTS` (plus `/{occurrenceId}` detail endpoints) backed by `ContractWorkflowService` paged/filtered ledger queries (`REVENUE` for customer-paid receipts; `PAYOUTS` for report-published eligible/settled payouts). |
 | 02 | `FinanceHistoryPageResponse`, `FinanceHistoryItemResponse`, `ManagerFinanceHistoryResponse` & `OccurrenceFinanceResponse` | DTOs projecting strict role-appropriate financial fields: Customer views payment amounts, receipts, and refundable status while masking partner payouts/receivables; Inspector views gross fee, commission/TNCN deductions, and net payout; Manager views platform inflows, commission, VAT/TNCN, and reconciliation state. |
 | 03 | Web `FinanceHistoryPage.tsx` & `OverviewFinanceSection.tsx` | Role-aware Web ledger views mounted at `/client/finance-history`, `/operations/finance-history`, and `/manager/finance-history`, paired with per-inspection overview financial cards. |
 
@@ -158,11 +158,11 @@ This section presents the detailed design for `FE-06`: the six building-only cat
 
 #### 3.6.1 Sequence Diagram
 
-Figure 4.20 details building creation under the No-Fly Zone gate, checkpoint seeding/locking, and SHA-256 document uploads.
+Figure 4.21 details building creation under the No-Fly Zone gate, checkpoint seeding/locking, and SHA-256 document uploads.
 
 ![FE-06 Building Asset Registry & Documents Sequence Diagram](assets/diagrams/seq-fe-06-building-asset-docs.png)
 
-*Figure 4.20 — FE-06 Building Asset Registry, Checkpoints & Reference Documents Sequence Diagram.*
+*Figure 4.21 — FE-06 Building Asset Registry, Checkpoints & Reference Documents Sequence Diagram.*
 
 **Class Specifications**
 
@@ -180,11 +180,11 @@ This section presents the detailed design for `FE-07`: surfacing `MSG28` amber r
 
 #### 3.7.1 Sequence Diagram
 
-Figure 4.21 models warning-only `RESTRICTED_ZONE` advisory evaluation across onboarding, building editing, and operational workflows (`NO_FLY_ZONE` still fails closed).
+Figure 4.22 models warning-only `RESTRICTED_ZONE` advisory evaluation across onboarding, building editing, and operational workflows (`NO_FLY_ZONE` still fails closed).
 
 ![FE-07 Restricted Airspace Warning Sequence Diagram](assets/diagrams/seq-fe-07-restricted-clearance.png)
 
-*Figure 4.21 — FE-07 Restricted Airspace Advisory & Warning Sequence Diagram.*
+*Figure 4.22 — FE-07 Restricted Airspace Advisory & Warning Sequence Diagram.*
 
 **Class & Workflow Specifications**
 
@@ -202,11 +202,11 @@ This section presents the detailed design for `FE-08`: one-time and recurring cu
 
 #### 3.8.1 Sequence Diagram
 
-Figure 4.22 traces one-time/recurring request creation, pessimistic Manager claim, checkpoint overrides, and VND quoting.
+Figure 4.23 traces one-time/recurring request creation, pessimistic Manager claim, checkpoint overrides, and VND quoting.
 
 ![FE-08 Service Request & VND Quotation Sequence Diagram](assets/diagrams/seq-fe-08-service-request-quote.png)
 
-*Figure 4.22 — FE-08 Service Request, Checkpoints Snapshot & VND Quotation Sequence Diagram.*
+*Figure 4.23 — FE-08 Service Request, Checkpoints Snapshot & VND Quotation Sequence Diagram.*
 
 **Class & UI Specifications**
 
@@ -224,17 +224,17 @@ This section presents the detailed design for `FE-09`: Customer quotation accept
 
 #### 3.9.1 Class & Sequence Diagrams
 
-Figure 4.23 shows the contract, occurrence dispatch, conflict-checking, and assignment adapter classes.
+Figure 4.24 shows the contract, occurrence dispatch, conflict-checking, and assignment adapter classes.
 
 ![FE-09 Offline Signed Contract & Occurrence Dispatch Class Diagram](assets/diagrams/cls-fe-09-contract-dispatch.png)
 
-*Figure 4.23 — FE-09 Contract Workflow & Occurrence Dispatch Class Diagram.*
+*Figure 4.24 — FE-09 Contract Workflow & Occurrence Dispatch Class Diagram.*
 
-Figure 4.24 captures quotation acceptance, signed paper agreement upload, bulk dispatch, and occurrence cancellation.
+Figure 4.25 captures quotation acceptance, signed paper agreement upload, bulk dispatch, and occurrence cancellation.
 
 ![FE-09 Quote Acceptance & Dispatch Sequence Diagram](assets/diagrams/seq-fe-09-quote-accept-dispatch.png)
 
-*Figure 4.24 — FE-09 Quote Acceptance, Signed Contract Upload & Dispatch Sequence Diagram.*
+*Figure 4.25 — FE-09 Quote Acceptance, Signed Contract Upload & Dispatch Sequence Diagram.*
 
 **Class & UI Specifications**
 
@@ -252,11 +252,11 @@ This section presents the detailed design for `FE-10`: strictly separated commer
 
 #### 3.10.1 Sequence Diagram
 
-Figure 4.25 illustrates the three isolated messaging channels (Order Chat, Partner Chat, and Inspection Chat) and attachment validation.
+Figure 4.26 illustrates the three isolated messaging channels (Order Chat, Partner Chat, and Inspection Chat) and attachment validation.
 
 ![FE-10 Order, Partner & Inspection Chat Sequence Diagram](assets/diagrams/seq-fe-10-dual-channel-messaging.png)
 
-*Figure 4.25 — FE-10 Scoped Order Chat, Partner Chat & Inspection Chat Sequence Diagram.*
+*Figure 4.26 — FE-10 Scoped Order Chat, Partner Chat & Inspection Chat Sequence Diagram.*
 
 **Class & UI Specifications**
 
@@ -276,11 +276,11 @@ This section presents the detailed design for `FE-11`: the Administrator-configu
 
 #### 3.11.1 Sequence Diagram
 
-Figure 4.26 traces the scheduled SLA timeout sweep releasing unaccepted reservations back to the Manager queue.
+Figure 4.27 traces the scheduled SLA timeout sweep releasing unaccepted reservations back to the Manager queue.
 
 ![FE-11 Assignment Acceptance Timeout Sequence Diagram](assets/diagrams/seq-fe-11-assignment-timeout.png)
 
-*Figure 4.26 — FE-11 Assignment Acceptance SLA Timeout & Escalation Sequence Diagram.*
+*Figure 4.27 — FE-11 Assignment Acceptance SLA Timeout & Escalation Sequence Diagram.*
 
 **Class & UI Specifications**
 
@@ -298,11 +298,11 @@ This section presents the detailed design for `FE-12`: transactional Spring Modu
 
 #### 3.12.1 Sequence Diagram
 
-Figure 4.27 details the Spring Modulith outbox listeners, deduplicated persistence, and safe deep-link delivery.
+Figure 4.28 details the Spring Modulith outbox listeners, deduplicated persistence, and safe deep-link delivery.
 
 ![FE-12 Event-Driven Notifications Sequence Diagram](assets/diagrams/seq-fe-12-notifications.png)
 
-*Figure 4.27 — FE-12 Event-Driven Notification Outbox & Inbox Sequence Diagram.*
+*Figure 4.28 — FE-12 Event-Driven Notification Outbox & Inbox Sequence Diagram.*
 
 **Class & UI Specifications**
 
@@ -320,47 +320,49 @@ This section presents the detailed design for `FE-13`: assigned-Inspector flight
 
 #### 3.13.1 Sequence Diagram
 
-Figure 4.28 captures assigned-Inspector permit upload, restricted-zone ceiling validation, immediate self-attestation, and decline handling.
+Figure 4.29 captures assigned-Inspector permit upload, restricted-zone ceiling validation, immediate self-attestation, and decline handling.
 
 ![FE-13 Flight Permit Upload & Self-Attestation Gate Sequence Diagram](assets/diagrams/seq-fe-13-flight-permit-gate.png)
 
-*Figure 4.28 — FE-13 Flight Permit Self-Attestation, Ceiling Check & Decline Gate Sequence Diagram.*
+*Figure 4.29 — FE-13 Flight Permit Self-Attestation, Ceiling Check & Decline Gate Sequence Diagram.*
 
 **Class & Workflow Specifications**
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
 | 01 | `InspectionController`, `InspectionListController` & `InspectionCreationService` | Expose `POST /inspections/{id}/flight-permit` (multipart & JSON, assigned `INSPECTOR` only, `SCHEDULED` lock), `GET /inspections/{id}/flight-permit/content`, and `POST /inspections/{id}/decline` (allowing Inspector to decline pending or accepted `SCHEDULED` missions when a permit is unobtainable). On valid upload, `InspectionCreationService` evaluates asset airspace via `AirspaceZoneAdvisor`, enforces the restricted ceiling, and records `APPROVED` immediately under Inspector legal responsibility. |
-| 02 | `FlightPermitPolicy` (`inspections.service`) | Validates binary magic bytes (`PDF`/`PNG`/`JPG`/`WEBP`, `<= 25 MB`), `permitNumber`, `issuingAuthority`, `validFrom`/`validTo` window covering planned flight time, assigned drone serial match, optional `maxAltitudeM` (`1–2000 m`), and `validateRestrictedAirspaceCeiling(maxAltitudeM, zoneInfo)` rejecting values exceeding a `RESTRICTED_ZONE` ceiling with `400 PERMIT_ALTITUDE_EXCEEDS_ZONE_LIMIT`. Resets `APPROVED` -> `PENDING_REVIEW` on drone swap or out-of-window reschedule (`BR-25`). |
+| 02 | `FlightPermitPolicy` (`inspections.service`) | Validates the file signature and size (`PDF`/`PNG`/`JPG`/`WEBP`, `<= 25 MB`), permit metadata, planned flight window, and assigned drone serial. A restricted zone with a configured ceiling requires `maxAltitudeM` (`400 PERMIT_ALTITUDE_REQUIRED`). Values above the ceiling produce `400 PERMIT_ALTITUDE_EXCEEDS_ZONE_LIMIT`. A drone swap or out-of-window reschedule resets the permit to `PENDING_REVIEW` (`BR-25`). |
 | 03 | Web `InspectionDetailPage.tsx`, `FieldSessionPage.tsx`, `FlightPermitVerificationPanel.tsx` & `FlightPermitPreviewDialog.tsx` | Assignment confirmation displays `RestrictedAirspaceAlert` + one-click `"Unable to obtain restricted-airspace flight permit"` decline chip; Stage 1 Permit (`showAirspace` enabled) adds `Max altitude (m)` validation against the restricted ceiling and a Stage 1 `"Unable to obtain permit / Decline"` flow before takeoff. |
 
 ---
 
 ### 3.14 `MF3` — `FE-14` On-Site Field Session & SmartDroneHub MAVLink Telemetry
 
+Live telemetry is available to the assigned Inspector during an active field session. The owning Customer can read flight summaries and traces only after the inspection report is published. Before publication, Customer field-session responses contain progress information and omit flight data.
+
 This section presents the detailed design for `FE-14`: drone-agnostic pre-flight/post-flight safety checklists (`V71`, `V74`), accountable `Start` / `Complete` / reasoned `Abort` field sessions, multi-flight sorties per session (`InspectionFlightController`, `FieldSessionFlight`, `V72`), read-only `SmartDroneHub` live MAVLink telemetry (`14551/udp`, `5762/tcp`) and mission video sync, non-MAVLink log import (`SRT`/`CSV`/`KML`/`GPX`), post-inspection Customer/Manager ratings with configurable criteria (`InspectorRatingController`, `RatingCriteriaConfigController`, `V70`, `V73`), abort recovery dispatch, and separated Admin vs Manager role dashboards (`#173`).
 
 #### 3.14.1 Class Diagram
 
-Figure 4.29 shows the field session, multi-sortie flight log, safety checklist, SmartDroneHub client, and rating entities.
+Figure 4.30 shows the field session, multi-sortie flight log, safety checklist, SmartDroneHub client, and rating entities.
 
 ![FE-14 Field Session & SmartDroneHub Class Diagram](assets/diagrams/cls-fe-14-field-session-hub.png)
 
-*Figure 4.29 — FE-14 Field Session, Multi-Sortie Flights, SmartDroneHub & Ratings Class Diagram.*
+*Figure 4.30 — FE-14 Field Session, Multi-Sortie Flights, SmartDroneHub & Ratings Class Diagram.*
 
 #### 3.14.2 Field Session, SmartDroneHub Sync & Abort Recovery Sequence Diagrams
 
-Figure 4.30 traces checklist verification, session start/completion, live MAVLink telemetry polling, and multi-flight sync.
+Figure 4.31 traces checklist verification, session start/completion, live MAVLink telemetry polling, and multi-flight sync.
 
 ![FE-14A Field Session & Hub Telemetry Sync Sequence Diagram](assets/diagrams/seq-fe-14a-field-session-hub.png)
 
-*Figure 4.30 — FE-14A Flight Session Execution & SmartDroneHub Telemetry Sync Sequence Diagram.*
+*Figure 4.31 — FE-14A Flight Session Execution & SmartDroneHub Telemetry Sync Sequence Diagram.*
 
-Figure 4.31 details mid-mission abort recording, crew release, and Manager replacement dispatch.
+Figure 4.32 details mid-mission abort recording, crew release, and Manager replacement dispatch.
 
 ![FE-14B Field Session Abort & Recovery Sequence Diagram](assets/diagrams/seq-fe-14b-session-abort-recovery.png)
 
-*Figure 4.31 — FE-14B Field Session Abort, Reliability Tracking & Re-dispatch Recovery Sequence Diagram.*
+*Figure 4.32 — FE-14B Field Session Abort, Reliability Tracking & Re-dispatch Recovery Sequence Diagram.*
 
 ---
 
@@ -370,11 +372,11 @@ This section presents the detailed design for `FE-15`: image EXIF extraction pri
 
 #### 3.15.1 Sequence Diagram
 
-Figure 4.32 models EXIF extraction, image normalization, resumable 10 MiB S3 multipart video upload, FFmpeg transcoding, and Range streaming.
+Figure 4.33 models EXIF extraction, image normalization, resumable 10 MiB S3 multipart video upload, FFmpeg transcoding, and Range streaming.
 
 ![FE-15 Evidence & Chunked Video Processing Sequence Diagram](assets/diagrams/seq-fe-15-evidence-chunked-video.png)
 
-*Figure 4.32 — FE-15 Evidence Intake, Chunked Multipart Upload & Video Transcoding Sequence Diagram.*
+*Figure 4.33 — FE-15 Evidence Intake, Chunked Multipart Upload & Video Transcoding Sequence Diagram.*
 
 **Class & Pipeline Specifications**
 
@@ -393,17 +395,17 @@ This section presents the detailed design for `FE-16`: Ultralytics `YOLO11s` (`M
 
 #### 3.16.1 Class Diagram & Sequence Diagram
 
-Figure 4.33 shows the YOLO11/Vision client ports, finding persistence entities, and configurable AI threshold settings.
+Figure 4.34 shows the YOLO11/Vision client ports, finding persistence entities, and configurable AI threshold settings.
 
 ![FE-16 AI Defect Detection Class Diagram](assets/diagrams/cls-fe-16-ai-defect-detection.png)
 
-*Figure 4.33 — FE-16 AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Class Diagram.*
+*Figure 4.34 — FE-16 AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Class Diagram.*
 
-Figure 4.34 traces defect inference, Vision LLM fallback, auto-confirmation threshold evaluation, and Inspector review.
+Figure 4.35 traces defect inference, Vision LLM fallback, auto-confirmation threshold evaluation, and Inspector review.
 
 ![FE-16 YOLO11 Detection & Confirmation Sequence Diagram](assets/diagrams/seq-fe-16-yolo11-detection.png)
 
-*Figure 4.34 — FE-16 YOLO11 Defect Inference & Inspector Confirmation Sequence Diagram.*
+*Figure 4.35 — FE-16 YOLO11 Defect Inference & Inspector Confirmation Sequence Diagram.*
 
 ---
 
@@ -413,17 +415,17 @@ This section presents the detailed design for `FE-17` (`DroneKnowledgeAI`): tena
 
 #### 3.17.1 Class Diagram & RAG Sequence Diagram
 
-Figure 4.35 illustrates the DroneKnowledgeAI ports, local fastembed embedding client, and pgvector HNSW stores.
+Figure 4.36 illustrates the DroneKnowledgeAI ports, local fastembed embedding client, and pgvector HNSW stores.
 
 ![FE-17 DroneKnowledgeAI pgvector RAG Class Diagram](assets/diagrams/cls-fe-17-knowledge-rag.png)
 
-*Figure 4.35 — FE-17 DroneKnowledgeAI `pgvector` RAG & Advisory Summary Class Diagram.*
+*Figure 4.36 — FE-17 DroneKnowledgeAI `pgvector` RAG & Advisory Summary Class Diagram.*
 
-Figure 4.36 captures hybrid/pgvector historical case retrieval, note drafting, and executive report summary generation.
+Figure 4.37 captures hybrid/pgvector historical case retrieval, note drafting, and executive report summary generation.
 
 ![FE-17 pgvector RAG & AI Draft Sequence Diagram](assets/diagrams/seq-fe-17-pgvector-rag-summary.png)
 
-*Figure 4.36 — FE-17 `pgvector` Retrieval, Advisory Draft & Summary Sequence Diagram.*
+*Figure 4.37 — FE-17 `pgvector` Retrieval, Advisory Draft & Summary Sequence Diagram.*
 
 ---
 
@@ -433,17 +435,17 @@ This section presents the detailed design for `FE-18`: deterministic fixed-secti
 
 #### 3.18.1 Class Diagram & Publication Sequence Diagram
 
-Figure 4.37 models inspection report versioning, non-author review separation, payout gating, and PDF rendering classes.
+Figure 4.38 models inspection report versioning, non-author review separation, payout gating, and PDF rendering classes.
 
 ![FE-18 Report Compilation, Review & PDF Publication Class Diagram](assets/diagrams/cls-fe-18-report-publication.png)
 
-*Figure 4.37 — FE-18 Inspection Report Review & PDF Publication Class Diagram.*
+*Figure 4.38 — FE-18 Inspection Report Review & PDF Publication Class Diagram.*
 
-Figure 4.38 traces deterministic report compilation, independent Manager approval, payout verification, and official publication.
+Figure 4.39 traces deterministic report compilation, independent Manager approval, payout verification, and official publication.
 
 ![FE-18 Report Review & Official Publication Sequence Diagram](assets/diagrams/seq-fe-18-report-review-pdf.png)
 
-*Figure 4.38 — FE-18 Inspection Report Review, Approval Gate & PDF Export Sequence Diagram.*
+*Figure 4.39 — FE-18 Inspection Report Review, Approval Gate & PDF Export Sequence Diagram.*
 
 ---
 
@@ -453,11 +455,11 @@ This section presents the detailed design for `FE-19`: Customer organization rev
 
 #### 3.19.1 Sequence Diagram
 
-Figure 4.39 details Customer report review, pre-acceptance clarification requests, and explicit acceptance triggering payment due.
+Figure 4.40 details Customer report review, pre-acceptance clarification requests, and explicit acceptance triggering payment due.
 
 ![FE-19 Report Acceptance & Clarification Sequence Diagram](assets/diagrams/seq-fe-19-report-acceptance.png)
 
-*Figure 4.39 — FE-19 Customer Report Acceptance & Clarification Sequence Diagram.*
+*Figure 4.40 — FE-19 Customer Report Acceptance & Clarification Sequence Diagram.*
 
 **Class & Workflow Specifications**
 
@@ -475,11 +477,11 @@ This section presents the detailed design for `FE-20`: configuration-gated VND c
 
 #### 3.20.1 Sequence Diagram
 
-Figure 4.40 illustrates Sepay VietQR polling and VNPay HMAC-SHA512 IPN/Return settlement with idempotent inbound logging.
+Figure 4.41 illustrates Sepay VietQR polling and VNPay HMAC-SHA512 IPN/Return settlement with idempotent inbound logging.
 
 ![FE-20 Sepay VietQR & VNPay Payment Sequence Diagram](assets/diagrams/seq-fe-20-sepay-vnpay-payment.png)
 
-*Figure 4.40 — FE-20 `Sepay` VietQR & `VNPay` Online Settlement Sequence Diagram.*
+*Figure 4.41 — FE-20 `Sepay` VietQR & `VNPay` Online Settlement Sequence Diagram.*
 
 **Class Specifications**
 
@@ -498,11 +500,11 @@ This section presents the detailed design for `FE-21`: per-occurrence `ServiceIn
 
 #### 3.21.1 Sequence Diagram
 
-Figure 4.41 captures configurable due-date stamping, one-time overdue alerts, and Notice/Receipt PDF generation.
+Figure 4.42 captures configurable due-date stamping, one-time overdue alerts, and Notice/Receipt PDF generation.
 
 ![FE-21 Payment Deadlines & Document Sequence Diagram](assets/diagrams/seq-fe-21-payment-deadlines.png)
 
-*Figure 4.41 — FE-21 Payment Deadlines, Overdue Alerts & Notice/Receipt PDF Sequence Diagram.*
+*Figure 4.42 — FE-21 Payment Deadlines, Overdue Alerts & Notice/Receipt PDF Sequence Diagram.*
 
 **Class & Service Specifications**
 
@@ -520,11 +522,11 @@ This section presents the detailed design for `FE-22`: enforcing a two-step repo
 
 #### 3.22.1 Sequence Diagram
 
-Figure 4.42 models the two-step report approval payout gate, Sepay partner VietQR settlement, and role masking.
+Figure 4.43 models the two-step report approval payout gate, Sepay partner VietQR settlement, and role masking.
 
 ![FE-22 Partner Inspector Payout Reconciliation Sequence Diagram](assets/diagrams/seq-fe-22-inspector-payout.png)
 
-*Figure 4.42 — FE-22 Partner Inspector Payout Eligibility & Settlement Sequence Diagram.*
+*Figure 4.43 — FE-22 Partner Inspector Payout Eligibility & Settlement Sequence Diagram.*
 
 **Class & UI Specifications**
 
@@ -542,11 +544,11 @@ This section presents the detailed design for `FE-23`: Manager-initiated refunds
 
 #### 3.23.1 Sequence Diagram
 
-Figure 4.43 traces refund initiation with payout hold, five-way completion allocations, and manual post-payout receivable recovery.
+Figure 4.44 traces refund initiation with payout hold, five-way completion allocations, and manual post-payout receivable recovery.
 
 ![FE-23 Evidence-Backed Refunds & Receivable Recovery Sequence Diagram](assets/diagrams/seq-fe-23-refunds-receivables.png)
 
-*Figure 4.43 — FE-23 Evidence-Backed Refunds & Inspector Receivable Recovery Sequence Diagram.*
+*Figure 4.44 — FE-23 Evidence-Backed Refunds & Inspector Receivable Recovery Sequence Diagram.*
 
 **Class & Ledger Specifications**
 
@@ -564,19 +566,19 @@ This section presents the detailed design for `FE-24`: opening follow-up `RE_INS
 
 #### 3.24.1 Class Diagram & Specifications
 
-Figure 4.44 shows the follow-up re-inspection, defect verification verdict, and validity expiry classes.
+Figure 4.45 shows the follow-up re-inspection, defect verification verdict, and validity expiry classes.
 
 ![FE-24 Re-inspection & Verdict Expiry Class Diagram](assets/diagrams/cls-fe-24-reinspection-verdict.png)
 
-*Figure 4.44 — FE-24 Post-Remediation Re-Inspection & Verdict Expiry Class Diagram.*
+*Figure 4.45 — FE-24 Post-Remediation Re-Inspection & Verdict Expiry Class Diagram.*
 
 #### 3.24.2 Sequence Diagram
 
-Figure 4.45 details post-remediation re-inspection creation, fresh evidence checks, three-way verdicts, and expiry enforcement.
+Figure 4.46 details post-remediation re-inspection creation, fresh evidence checks, three-way verdicts, and expiry enforcement.
 
 ![FE-24 Post-Remediation Re-Inspection Sequence Diagram](assets/diagrams/seq-fe-24-reinspection.png)
 
-*Figure 4.45 — FE-24 Post-Remediation Re-Inspection & Three-Way Defect Verification Sequence Diagram.*
+*Figure 4.46 — FE-24 Post-Remediation Re-Inspection & Three-Way Defect Verification Sequence Diagram.*
 
 **Class & Component Specifications**
 

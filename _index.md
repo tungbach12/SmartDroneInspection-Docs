@@ -25,7 +25,7 @@ SmartDroneInspection documentation defines the target for a platform-managed inf
 ## Documentation map
 
 - [Project reference](project-reference/): workflows, error-prevention checks, and mainflow references.
-- [Mainflows & Role Architecture](bao-cao-thay-doi-mainflows-5-roles.md): target workflow and implementation comparison for `MF1`–`MF4` and 8 features (`FE-01`–`FE-08`); the file keeps its historical name but the implemented login roles are the four listed above, with `MAINTENANCE_ENGINEER` planned.
+- [Main workflow guide](project-reference/mainflows-4-workflows-guideline-v3.md) outlines the inspection workflow from partner drone registration through report acceptance and settlement.
 - [Diagram assignments](phan-cong-ve-so-do.md): 35-diagram ownership map across the 8 features.
 - [Formal reports](reports/):
   - [Report 1 — Project Introduction](reports/report-1-project-introduction/)

@@ -12,6 +12,7 @@ from support import OFFICIAL, REPORTS, assert_word_export
 from report_ooxml import (Package, WordDocument, children, descendants,
                           parse_markdown, text_of)
 import export_report3
+import export_report7
 
 
 def exported_document():
@@ -39,6 +40,21 @@ def paragraphs(body):
 def style(node):
     styles = descendants(node, "pStyle")
     return styles[0].getAttribute("w:val") if styles else ""
+
+
+class CoverTests(unittest.TestCase):
+    def test_report7_cover_uses_real_project_and_team_details(self):
+        from export_common import original, project_metadata
+
+        document = WordDocument(original(OFFICIAL, export_report7.TEMPLATE_NAME))
+        metadata = project_metadata(REPORTS)
+        document.fill_cover(metadata["project"], metadata["location"])
+        export_report7.prepare_cover(REPORTS / export_report7.SOURCES[1], document, metadata)
+        cover = "\n".join(document.text(node) for node in document.cover)
+        for text in ("SmartDroneInspection", "FA26SE112", "GFA26SE139", "SE184212",
+                     "SE170027", "SE180220", "SE180082", "November 2026"):
+            self.assertIn(text, cover)
+        self.assertNotRegex(cover, r"\[Project name\]|<Group Name>|<Member name>|<month>")
 
 
 class ListMarkerTests(unittest.TestCase):
@@ -105,8 +121,61 @@ class TableContinuityTests(unittest.TestCase):
         self.assertNotIn('w:val="nil"', xml)
         self.assertNotIn('w:val="32"', xml)
 
+    def test_report7_body_tables_use_peach_headers(self):
+        from tempfile import TemporaryDirectory
+        from export_common import original
+
+        template = original(OFFICIAL, export_report7.TEMPLATE_NAME)
+        with TemporaryDirectory() as temp:
+            output = Path(temp) / export_report7.TEMPLATE_NAME
+            export_report7.export(template, REPORTS, output)
+            body = descendants(Package(output).xml("word/document.xml"), "body")[0]
+
+        elements = children(body)
+        start = next(i for i, node in enumerate(elements)
+                     if node.localName == "p" and WordDocument.text(node) == "Record of Changes")
+        tables = [node for node in elements[start:] if node.localName == "tbl"]
+        self.assertTrue(tables)
+        for table in tables:
+            header, *body_rows = children(table, "tr")
+            for cell in children(header, "tc"):
+                fills = [node.getAttribute("w:fill") for node in descendants(cell, "shd")]
+                self.assertEqual(fills, ["FFE8E1"], WordDocument.text(header))
+            for row in body_rows:
+                fills = [node.getAttribute("w:fill") for node in descendants(row, "shd")]
+                self.assertNotIn("FFE8E1", fills, WordDocument.text(header))
+
 
 class DiagramTests(unittest.TestCase):
+    def test_report7_manual_callouts_stay_with_their_figure(self):
+        from export_common import original
+
+        document = WordDocument(original(OFFICIAL, export_report7.TEMPLATE_NAME))
+        document.fill_cover("SmartDroneInspection", "")
+        chapter = export_report7.chapter_blocks(REPORTS / export_report7.SOURCES[-1])
+        figure_count = sum(
+            block.kind == "image" and block.text.startswith("assets/manual/")
+            for block in chapter
+        )
+        document.append(chapter)
+        manual_steps = []
+        active = None
+        for node, prose in paragraphs(children(document.body)):
+            if re.match(r"^Step \d+ — ", prose) and not style(node).startswith("Heading"):
+                self.assertTrue(descendants(node, "keepNext"))
+                active = [node]
+            elif active is not None:
+                if prose.startswith("Figure 7."):
+                    self.assertTrue(descendants(active[-1], "drawing"))
+                    self.assertTrue(all(descendants(p, "keepNext") for p in active))
+                    self.assertFalse(descendants(node, "keepNext"))
+                    manual_steps.append(active)
+                    active = None
+                else:
+                    active.append(node)
+        self.assertGreater(figure_count, 0)
+        self.assertEqual(len(manual_steps), figure_count)
+
     def test_mermaid_keeps_line_structure_and_is_marked_as_source(self):
         body = exported_document()
         placeholders = [

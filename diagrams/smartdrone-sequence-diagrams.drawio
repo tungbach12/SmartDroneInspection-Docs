@@ -3452,7 +3452,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_9" value="5b. Stamp report_accepted_at (unlock payout)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4912;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_0" target="act_6_2">
+        <mxCell id="m_9" value="5b. Stamp report_accepted_at &amp; set PAYMENT_DUE" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4912;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_0" target="act_6_2">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -3806,7 +3806,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_4" value="3b. Mark ServicePayment PAID &amp; Payout ELIGIBLE" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_0" target="act_6_1">
+        <mxCell id="m_4" value="3b. Mark ServicePayment PAID &amp; record settlement" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.4615;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_3_0" target="act_6_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -4234,7 +4234,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_9" value="10. updateVerification(REMEDIATED | STILL_PRESENT)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.5854;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_2" target="act_4_1">
+        <mxCell id="m_9" value="10. updateVerification(RESOLVED | UNRESOLVED | INCONCLUSIVE)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.8000;exitDx=0;exitDy=0;entryX=0;entryY=0.5854;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_2_2" target="act_4_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
@@ -4244,7 +4244,7 @@
             <mxPoint y="-10" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="m_11" value="12. requireNoExpiredResolutions() before report; PUT /inspector-rating" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9431;exitDx=0;exitDy=0;entryX=0;entryY=0.8000;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_1" target="act_5_1">
+        <mxCell id="m_11" value="12. Check verdict validity before report submission" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#000000;strokeWidth=1.1;fontColor=#000000;fontFamily=Helvetica;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9431;exitDx=0;exitDy=0;entryX=0;entryY=0.8000;entryDx=0;entryDy=0;" edge="1" parent="1" source="act_4_1" target="act_5_1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint y="-10" as="offset" />
           </mxGeometry>

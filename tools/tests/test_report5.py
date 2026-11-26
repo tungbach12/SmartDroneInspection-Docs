@@ -31,7 +31,7 @@ class Report5Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / TEMPLATE_NAME
             result = export(template, REPORTS, output)
-            self.assertEqual(result["cases"], 70)
+            self.assertEqual(result["cases"], 77)
             self.assertTrue(result["format_parts_preserved"])
             book, source = Spreadsheet(output), Spreadsheet(template)
             self.assertEqual(list(book.sheets)[:5],
@@ -66,8 +66,8 @@ class Report5Tests(unittest.TestCase):
             self.assertEqual(book.value("Feature 5", "L12"), "Pending")
             self.assertEqual(book.value("Feature 11", "A12"), "WF2-021")
             self.assertEqual(book.value("Feature 22", "A12"), "WF3-033")
-            self.assertEqual(book.value("Test Statistics", "H35"), "70")
-            self.assertEqual(book.value("Test Statistics", "D35"), "45")
+            self.assertEqual(book.value("Test Statistics", "H35"), "77")
+            self.assertEqual(book.value("Test Statistics", "D35"), "52")
             self.assertEqual(book.value("Test Statistics", "F35"), "9")
             self.assertEqual(book.value("Test Statistics", "G35"), "16")
             self.assertEqual(book.value("Test Statistics", "H36"), "56")
@@ -82,8 +82,8 @@ class Report5Tests(unittest.TestCase):
             self.assertEqual(book.value("Test Statistics", "D38"), "2")
             self.assertEqual(book.value("Test Statistics", "F38"), "0")
             self.assertEqual(book.value("Test Statistics", "G38"), "0")
-            self.assertAlmostEqual(float(book.value("Test Statistics", "E40")), 45 / 54 * 100, places=2)
-            self.assertAlmostEqual(float(book.value("Test Statistics", "E41")), 45 / 54 * 100, places=2)
+            self.assertAlmostEqual(float(book.value("Test Statistics", "E40")), 52 / 61 * 100, places=2)
+            self.assertAlmostEqual(float(book.value("Test Statistics", "E41")), 52 / 61 * 100, places=2)
             self.assertEqual(book.value("Cover", "E4"), "Creator")
             self.assertEqual(book.value("Test Statistics", "C3"), "SmartDroneInspection")
             self.assertNotIn("<List enviroment", book.value("Test Cases", "D5"))
