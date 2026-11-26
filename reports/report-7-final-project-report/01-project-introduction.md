@@ -67,13 +67,9 @@ Finally, the team thanks the open-source communities behind Spring Boot, Spring 
 
 ## 2. Product Background
 
-Buildings age, and the parts that age fastest — roofs, curtain walls, facades, balconies, rooftop equipment, and structural seams — are exactly the parts that are hardest to reach and safest to ignore. A leaking roof or a hairline facade crack is cheap to repair early and expensive to repair late, yet the routine check that would catch it demands scaffolding, rope access, or a cherry picker. For most building owners that means the inspection happens later than it should, is documented in photographs and notes that nobody can compare across years, and produces a recommendation that is difficult to act on.
+Roofs, facades, and other exterior building surfaces can be difficult to inspect from the ground. Drone imagery helps inspectors document these areas and compare observations across visits. When quotations, permits, evidence, and reports are handled separately, it is harder to trace a reported finding back to the inspection that produced it.
 
-Vietnam's building stock has grown faster than its maintenance discipline. High-rise offices, apartment towers, commercial podiums, and industrial sheds now dominate urban skylines, and facility teams are asked to keep them in service with budgets that assume the work is periodic and the records are complete. Neither assumption holds. The result is a familiar cycle: a visible defect is discovered by a tenant rather than by an inspection, the response is reactive, the repair is larger than it needed to be, and the record of what was found and when is lost when the technician who found it moves on.
-
-Drone photography has changed what is technically possible. A trained pilot can capture a facade at close range in minutes, and computer vision can scan those images for cracks, corrosion, leakage stains, bulging render, and detached cladding far faster than a human reviewer can. What has been missing is not the flight and not the detection, but the coordination layer between them: a place where a building owner can request an inspection, a platform can quote and schedule it, a licensed partner pilot can be dispatched with a registered drone and a verified flight permit, the resulting evidence can be turned into confirmed findings, and the whole chain can end in a report that a customer accepts and pays for.
-
-SmartDroneInspection is that coordination layer. It does not fly the aircraft and it does not replace the licensed pilot or the reviewing engineer. It makes the sequence between them auditable.
+SmartDroneInspection connects the service request, quotation, Inspector and drone assignment, permit record, field evidence, findings, published report, and payment. Partner Inspectors conduct the flights and verify findings. The platform records their work and supports review with image analysis.
 
 ## 3. Existing Systems
 

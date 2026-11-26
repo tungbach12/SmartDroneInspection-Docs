@@ -42,6 +42,21 @@ def style(node):
     return styles[0].getAttribute("w:val") if styles else ""
 
 
+class CoverTests(unittest.TestCase):
+    def test_report7_cover_uses_real_project_and_team_details(self):
+        from export_common import original, project_metadata
+
+        document = WordDocument(original(OFFICIAL, export_report7.TEMPLATE_NAME))
+        metadata = project_metadata(REPORTS)
+        document.fill_cover(metadata["project"], metadata["location"])
+        export_report7.prepare_cover(REPORTS / export_report7.SOURCES[1], document, metadata)
+        cover = "\n".join(document.text(node) for node in document.cover)
+        for text in ("SmartDroneInspection", "FA26SE112", "GFA26SE139", "SE184212",
+                     "SE170027", "SE180220", "SE180082", "November 2026"):
+            self.assertIn(text, cover)
+        self.assertNotRegex(cover, r"\[Project name\]|<Group Name>|<Member name>|<month>")
+
+
 class ListMarkerTests(unittest.TestCase):
     def test_no_body_paragraph_starts_with_a_literal_list_marker(self):
         body = exported_document()

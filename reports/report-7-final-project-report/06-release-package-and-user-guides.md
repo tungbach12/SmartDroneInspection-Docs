@@ -16,7 +16,7 @@ source: "Report7_Final Project Report.docx"
 | 4 | Database Script(s) | Automated schema migration scripts (`V1`–`V4` and `V60`–`V80`) defining the PostgreSQL 17 database (`53` application tables / `55` total database tables, including `inspector_ratings` `V70`, `field_session_flights` `V72`, `rating_criterion_configs` `V73`, `service_request_partner_messages` `V79`, and `V80` checkpoint snapshots), `pgvector` support for `DroneKnowledgeAI`, and plain-text building ownership details. |
 | 5 | Final Report Document | Reports 1–7, prepared using the official templates. |
 | 6 | Test Cases Document | `Report5_Test Report.xlsx` (`v3.15`) with twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `77` listed rows (`75` active cases + `2` superseded `FE-13` cases), plus the executed results in Report 5 §5. |
-| 7 | Defects List | The defect log, recording `DEF-01` as resolved (`PR #33`) and one low-severity open tooling defect (`DEF-02`). |
+| 7 | Defects List | The defect log records one resolved defect (`DEF-01`) and one open tooling defect (`DEF-02`). |
 | 8 | Issues List | Outstanding issues and known limitations, including the product limitations listed in Chapter III. |
 | 9 | Slide | The defence presentation used for the final review. |
 
@@ -58,7 +58,7 @@ If startup fails, use `docker compose logs backend` to find the failing check. F
 
 ### 3.1 Find the Right Workflow
 
-The six workflows use the web portal. Screenshots use example records, including staged examples of actions awaiting approval or payment. Keep using the same building, request and inspection as you switch roles. Match each numbered line to the red callout in its figure.
+Use the web portal and follow the same building, request, and inspection when switching roles. The numbered instructions match the red callouts in the figures.
 
 | If you want to | Start with | Finish when |
 | --- | --- | --- |
@@ -113,7 +113,7 @@ In **Assets**, select **Detail** on the building you added.
 
 *Figure 7.13 — Saved Customer building details.*
 
-#### Find an update from a notification
+#### Find an update from a notification (optional)
 
 **Step 4 — Open the linked request or inspection.**
 
@@ -283,7 +283,7 @@ Once the candidates load, choose an eligible Inspector and their drone, then sel
 
 *Figure 7.26 — Flight window and eligible team selection.*
 
-#### Customer verifies the dispatched inspection
+#### View the scheduled inspection as a Customer (optional)
 
 **Step 8 — Open the scheduled inspection.**
 
@@ -363,11 +363,9 @@ Record any site observations under **Pre-flight note**.
 
 **Step 6 — Record and finish a flight.**
 
-In **Flight Operation**, use **SmartDroneHub telemetry** to record or import the flight data according to the available controls. Use **Complete flight** after each sortie when telemetry is active. This closes the sortie so the session can proceed to post-flight checks.
+In **Flight Operation**, record telemetry with **SmartDroneHub** if connected. With telemetry active, select **Complete flight** after each sortie. Continue to **Post-flight & Items** after the final sortie.
 
-❶ Select **Choose log** to import a supported flight log when needed.
-
-The figure shows log import after the session is closed. During the session, continue to **Post-flight & Items** after the final sortie.
+❶ Use **Choose log** if you need to import a supported flight log. The control is shown here after session closure.
 
 ![Flight log import after the session closes](assets/manual/wf4-06-ins-flightsession.png)
 
@@ -377,7 +375,7 @@ The figure shows log import after the session is closed. During the session, con
 
 ❶ Open **Post-flight & Items**.
 
-❷ Complete the post-flight checklist and mark the **Target Building Inspection Items** you verified. The figure shows the building items after verification.
+❷ Complete the post-flight checklist and mark the **Target Building Inspection Items** you verified.
 
 Select **Complete session & Continue to Evidence**. Supply a reason if the app prompts for an explanation of remaining items. If field work cannot continue, use **Abort session** and record why.
 
@@ -451,7 +449,7 @@ If suggestions are awaiting a decision, as shown in the figure, use **Unconfirme
 
 ### 3.7 Workflow 6: Submit, Publish and Pay for the Report
 
-Start with a confirmed findings baseline for the same inspection. An independent Manager reviews the submitted report. The Customer can accept the report after publication.
+Before submitting the report, confirm the findings for the inspection.
 
 #### Inspector submits the report
 
@@ -535,13 +533,11 @@ Open **Service Payment** after accepting the report.
 
 ❷ Select **Download payment receipt (PDF)** if you need a copy.
 
-The figure shows a settled VNPay payment. The Customer can also use the rating card to leave or edit an Inspector rating.
-
 ![Confirmed Customer payment and receipt download](assets/manual/wf6-05-cus-report-pay.png)
 
 *Figure 7.47 — Confirmed Customer payment and receipt download.*
 
-#### Customer looks up a past payment
+#### Look up a past payment as a Customer (optional)
 
 **Step 9 — Find the payment record.**
 
@@ -553,7 +549,7 @@ The figure shows a settled VNPay payment. The Customer can also use the rating c
 
 *Figure 7.48 — Customer payment history and transaction details.*
 
-#### Manager reconciles an inspection payment
+#### Reconcile an inspection payment as a Manager (optional)
 
 **Step 10 — Check payment against the inspection invoice.**
 

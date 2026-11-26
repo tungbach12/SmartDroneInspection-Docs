@@ -208,13 +208,13 @@ Members are identified by initials matching weighted contributions (`24%` / `24%
 | Requirement clarification | Owner and reviewers | Resolve ambiguity in Report 3 before coding | As needed | Issue thread with the requirement linked |
 | Defect triage | Feature owner and reviewer | Classify and assign a defect | Per defect | Issue tracker |
 | Milestone sign-off | Team and supervisors | Record the baseline for the next milestone | Per milestone | Written summary and tagged commit |
-| Documentation handoff | Documentation owner | Keep Reports 1–7 consistent with delivery | Per milestone and at handover | Repository commit with a change record |
+| Documentation handoff | Documentation owner | Keep Reports 1–7 consistent with delivery | Per milestone and at handover | Versioned report sources and final Word reports |
 
 ## 6. Configuration Management
 
 ### 6.1 Document Management
 
-Each report is maintained as Markdown under its own folder, with an appended row in its Record of Changes for every revision. Exported `.docx` files are generated from those sources against the untouched official templates, so an exported document is always reproducible from the repository. Screenshots and rendered diagrams live in each report's own `assets/` folder, which keeps a report self-contained when it is handed over.
+The team maintains report sources under version control and prepares the Word reports using the official templates. The Word reports embed the figures and screenshots used in each chapter.
 
 ### 6.2 Source Code Management
 
@@ -227,8 +227,8 @@ The workspace is four independent repositories — backend, frontend, mobile, an
 | Technology | Java 21, Spring Boot 4.1, Spring Modulith 2.1.1, React 19 with strict TypeScript, Flutter with Riverpod, Python FastAPI with Ultralytics YOLO11s |
 | Database | PostgreSQL 17 with Flyway migrations; MinIO for S3-compatible object storage |
 | IDEs/Editors | IntelliJ IDEA, Visual Studio Code, Android Studio |
-| Diagramming | Draw.io (`.drawio`) and dbdiagram (`DBML`) sources exported to crisp white-background PNGs |
-| Documentation | Markdown sources exported to `.docx` through a custom OOXML pipeline against the official templates |
+| Diagramming | Draw.io and dbdiagram |
+| Documentation | Versioned Markdown sources and official Word templates |
 | Version Control | Git with four independent repositories and pull-request review |
 | Deployment server | Docker Compose stack of database, object storage, detection service, hub service, and backend |
 | Project management | Issue tracker, milestone board, and a shared task backlog |

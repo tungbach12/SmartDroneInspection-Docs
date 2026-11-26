@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Assemble the Report 7 source into the official Final Project Report format."""
+from functools import partial
 from pathlib import Path
+import re
 import sys
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from export_common import render_word
-from report_ooxml import parse_markdown
+from report_ooxml import children, descendants, parse_markdown, plain
 
 TEMPLATE_NAME = "Report7_Final Project Report.docx"
 SOURCES = ["report-7-final-project-report/" + name + ".md"
@@ -51,8 +53,61 @@ def blocks(reports):
     return result[start:]
 
 
+def prepare_cover(chapter, document, metadata):
+    team = next(block.rows[1:] for block in parse_markdown(chapter, strict_tables=False)
+                if block.kind == "table" and block.rows[0][:2] == ["Full Name", "Role"])
+    members = []
+    supervisors = {}
+    for name, role, *_ in team:
+        if role in {"Leader", "Member"}:
+            match = re.fullmatch(r"(.+) \((SE\d+)\)", plain(name))
+            if match is None:
+                raise ValueError(f"Missing student ID on the Report 7 cover: {name}")
+            members.append(f"{match[1]} ({match[2]})")
+        else:
+            supervisors[role] = plain(name)
+
+    cover_paragraphs = [p for node in document.cover if node.localName == "tbl"
+                        for p in descendants(node, "p")]
+    member_slots = [p for p in cover_paragraphs if document.text(p).startswith("<Member name>")]
+    if not 0 < len(members) <= len(member_slots):
+        raise ValueError("The Report 7 cover must have a slot for each student")
+
+    labeled_rows = {}
+    for table in (node for node in document.cover if node.localName == "tbl"):
+        for row in children(table, "tr"):
+            cells = children(row, "tc")
+            if len(cells) == 2:
+                labeled_rows[document.text(cells[0]).strip()] = children(cells[1], "p")[0]
+
+    values = {
+        "[Project name]": metadata["project"],
+        "<Group Name>": metadata["group"],
+    }
+    for placeholder, value in values.items():
+        paragraph = next(p for p in cover_paragraphs if document.text(p) == placeholder)
+        descendants(paragraph, "t")[0].firstChild.data = value
+    for paragraph, name in zip(member_slots, members):
+        first, *extra = descendants(paragraph, "t")
+        first.firstChild.data = name
+        for node in extra:
+            node.parentNode.removeChild(node)
+    for paragraph in member_slots[len(members):]:
+        paragraph.parentNode.removeChild(paragraph)
+    for label, value in {
+        "Supervisor": supervisors["Supervisor"],
+        "Ext Supervisor": supervisors["External Supervisor and Lecturer"],
+        "Capstone Project code": metadata["code"],
+    }.items():
+        paragraph = labeled_rows[label]
+        for run in children(paragraph, "r"):
+            paragraph.removeChild(run)
+        paragraph.appendChild(document.run(value))
+
+
 def export(template, reports, output):
-    return render_word(template, reports, output, blocks(reports))
+    return render_word(template, reports, output, blocks(reports),
+                       prepare_cover=partial(prepare_cover, reports / SOURCES[1]))
 
 
 if __name__ == "__main__":

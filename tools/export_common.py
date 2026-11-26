@@ -43,10 +43,12 @@ def project_metadata(reports):
             "location": location}
 
 
-def render_word(template, reports, output, blocks, warnings=()):
+def render_word(template, reports, output, blocks, warnings=(), *, prepare_cover=None):
     metadata = project_metadata(reports)
     document = WordDocument(template)
     document.fill_cover(metadata["project"], metadata["location"])
+    if prepare_cover is not None:
+        prepare_cover(document, metadata)
     document.warnings.extend(warnings)
     document.append(blocks)
     content = document.text(document.body)
