@@ -17,7 +17,7 @@ Four roles sign in. `ADMIN` is the Platform Administrator and `MANAGER` the Plat
 The lifecycle runs through four main flows organized into twenty-four atomic product features (`FE-01`–`FE-24`):
 
 - **`MF1` — Identity, Partner/Drone Onboarding & Airspace Screening (`FE-01`–`FE-04`):** A customer registers an account and initial building under live airspace screening, a partner inspector applies with licence details (`MANAGER`-approved), registers owned drones (`MANAGER`-approved), and role access is enforced across four portals (`ADMIN` read-only oversight).
-- **`MF2` — Buildings, Commercial Contracting & Occurrence Dispatch (`FE-06`–`FE-12`):** Customers manage buildings with plain-text ownership details, checkpoints (`V80` snapshot + `checkpointsLocked`), and duplicate-free reference documents while `RESTRICTED_ZONE` locations attach `MSG28` amber advisories without Admin approval holds (`FE-07`); customers submit one-time or recurring requests and negotiate VND quotations, record offline signed agreements, receive cross-organization crew dispatch, use separated Order Chat, Partner Chat (`V79`), and Inspection Chat channels, and stay updated via assignment timeout escalation and bilingual (`EN`/`VI`) deduplicated notifications.
+- **`MF2` — Buildings, Commercial Contracting & Occurrence Dispatch (`FE-06`–`FE-12`):** Customers manage buildings with plain-text ownership details and duplicate-free reference documents while `RESTRICTED_ZONE` locations attach `MSG28` amber advisories without Admin approval holds (`FE-07`); customers submit one-time or recurring requests and negotiate VND quotations, record offline signed agreements, receive cross-organization crew dispatch, use separated Order Chat, Partner Chat (`V79`), and Inspection Chat channels, and stay updated via assignment timeout escalation and bilingual (`EN`/`VI`) deduplicated notifications.
 - **`MF3` — Field Work, Evidence & Advisory AI (`FE-13`–`FE-17`):** Before flights begin, the assigned Inspector uploads the mission flight permit and immediately grants `APPROVED` readiness via self-attestation (reset to `PENDING_REVIEW` on drone/window change; Manager view read-only); inspectors record multi-sortie field sessions (`V72`) with SmartDroneHub live telemetry, upload photos and chunked video with background processing, review AI defect suggestions to confirm the findings baseline, and consult `DroneKnowledgeAI` historical-case and engineering-standard retrieval, AI note drafting, and summary references.
 - **`MF4` — Report Publication, Acceptance, Settlement & Re-inspection (`FE-05`, `FE-18`–`FE-24`):** Submitted reports undergo independent `MANAGER` review, `Approved -> Sepay VietQR Payout (SDIPAY, V78) -> Published` release, and ungated `PUBLISHED` PDF export; customers review Deliverables, submit structured Inspector Ratings (`V70`/`V73`), accept published reports, and settle fees online through Sepay VietQR or VNPay; payment due deadlines, notice/receipt PDFs, evidence-backed refunds/receivables, role-scoped financial ledgers, and three-way re-inspection defect verification complete the engagement.
 
@@ -36,7 +36,7 @@ The platform serves four human actors and a set of automated and external ones.
 
 `MANAGER` coordinates delivery: reviewing and approving partner Inspector applications and drone registrations (`MF1B`), claiming customer service requests, managing Partner Chat (`V79`) and Order Chat, issuing VND quotations, uploading signed contracts, dispatching crews, auditing flight operations, independently reviewing/approving reports, executing partner VietQR payouts (`SDIPAY`) and publication (`MF3`/`MF4`), and rating Inspectors.
 
-`CUSTOMER` acts for a building owner: registering an account and its first building, maintaining buildings, inspection checkpoints, and reference documents, raising one-time or recurring requests, negotiating and accepting quotations, following progress, rating Inspectors (`V70`), accepting published reports, and paying the service fee.
+`CUSTOMER` acts for a building owner: registering an account and its first building, maintaining buildings and reference documents, raising one-time or recurring requests, negotiating and accepting quotations, following progress, rating Inspectors (`V70`), accepting published reports, and paying the service fee.
 
 `INSPECTOR` is a partner pilot: applying publicly with licence details, registering owned drones against the required documents, uploading self-attested mission flight permits, conducting assigned multi-sortie field sessions, providing evidence, confirming findings, and preparing and submitting the report.
 
@@ -81,7 +81,7 @@ Supporting actors are the automated system, the external payment and identity se
 | UC-01 | Sign In and Manage Account | All roles | Users sign in by password, one-time code, or Google, manage their account information, and end their own sessions. |
 | UC-02 | Govern Platform Accounts and Catalogs | `ADMIN` | Platform Admin governs accounts, building categories, licence classes, drone document/feature configuration, and finance/operations/rating/AI settings. |
 | UC-03 | Register Customer Account and First Building | `CUSTOMER`, public | A prospective customer registers an account with a first building; `NO_FLY_ZONE` blocks (`403`) whereas `RESTRICTED_ZONE` attaches `MSG28` amber warning and activates immediately. |
-| UC-04 | Manage Buildings, Checkpoints and Documents | `CUSTOMER` | Customers maintain buildings, inspection checkpoints (locked read-only once an inspection exists), and reference documents, and may retire buildings no longer in service. |
+| UC-04 | Manage Buildings and Documents | `CUSTOMER` | Customers maintain buildings and reference documents and may retire buildings no longer in service. |
 | UC-05 | Submit and Review Partner Inspector Application | Public, `INSPECTOR`, `MANAGER` | A prospective inspector applies publicly with licence details and a scan; `MANAGER` reviews, approves, or rejects (`ADMIN` read-only view), and approval provisions the account. |
 | UC-06 | Register and Review Inspector-Owned Drones | `INSPECTOR`, `MANAGER` | An inspector registers an owned drone with photographs, capabilities, and required documents; `MANAGER` approves or rejects it (`ADMIN` read-only view) before dispatch. |
 | UC-07 | Request Inspection, Negotiate and Accept Quotation | `CUSTOMER`, `MANAGER` | A customer submits a one-time or recurring request (preserving `V80` checkpoint snapshot), exchanges messages in Order Chat with the Manager (while Manager coordinates crew via Partner Chat `V79`), and accepts the active VND quotation. |
@@ -137,7 +137,7 @@ The tables below inventory every implemented interface across the Web Applicatio
 | 7 | FE-06 | Customer Buildings Inventory | `CUSTOMER` | Searchable and filterable register of buildings owned by the Customer with status chips, dimensions, and inspection entry links. |
 | 8 | FE-04, FE-06 | New Building & Airspace Screening Form | `CUSTOMER` | Multi-field asset creation dialog (with plain-text ownership details) seeded by building category and live Vietnam airspace screening. |
 | 9 | FE-04 | Interactive Airspace Coordinate Picker | `CUSTOMER` | Interactive satellite/street map modal returning coordinates and advisory Clear/Restricted/No-Fly Zone classification. |
-| 10 | FE-06 | Customer Building Detail | `CUSTOMER` | Building metadata (including plain-text ownership details), editable inspection checkpoints, photo gallery, and duplicate-free reference documents. |
+| 10 | FE-06 | Customer Building Detail | `CUSTOMER` | Building metadata (including plain-text ownership details), photo gallery, and duplicate-free reference documents. |
 | 11 | FE-08 | Customer Service Requests | `CUSTOMER` | Compact 4-column list of one-time and recurring requests with concise titles showing commercial lifecycle stages. |
 | 12 | FE-08 | Create Service Request Dialog | `CUSTOMER` | Request form enforcing the 20-day lead time in `Asia/Ho_Chi_Minh` and monthly recurrence cadence (`2–100` occurrences). |
 | 13 | FE-08, FE-09 | Customer Request Detail & Quote Acceptance | `CUSTOMER` | Four-stage commercial progress view showing versioned VND quotations, quote acceptance, signed contract PDF, and occurrences. |
@@ -204,7 +204,7 @@ The tables below inventory every implemented interface across the Web Applicatio
 | 4 | FE-01 | Mobile Home Dashboard | Home Tab | Summary cards displaying registered buildings, active service requests, scheduled inspections, and quick navigation tiles. |
 | 5 | FE-12 | Mobile Notifications Inbox | Notifications View | Real-time notification feed with unread badges and deep links to requests and inspection deliverables. |
 | 6 | FE-06 | Mobile Buildings List | Buildings Tab | Customer building cards displaying airspace status, structure height, footprint, and active inspection badge. |
-| 7 | FE-06 | Mobile Building Detail | Building Detail View | Detailed building coordinates, plain-text ownership details, configured checkpoints list, photos, and reference documents. |
+| 7 | FE-06 | Mobile Building Detail | Building Detail View | Building coordinates, plain-text ownership details, photos, and reference documents. |
 | 8 | FE-08 | Mobile Service Requests List | Requests Tab | Customer request tracker grouped by commercial stage (`Open`, `Quoted`, `Accepted`, `Contract Signed`, `Assigned`). |
 | 9 | FE-08 | Mobile New Service Request | New Request View | One-time or monthly recurring request builder enforcing the 20-day minimum lead date. |
 | 10 | FE-08, FE-09 | Mobile Service Request Detail | Request Detail View | Quotation breakdown (`VND`), one-tap quote acceptance, signed contract status, and scheduled occurrences. |
@@ -435,14 +435,14 @@ The Customer portal (`CUSTOMER` role) scopes all reads and updates strictly to t
 *Figure 7.3.8 — Self-service profile, password security, session management, and preferences page.*
 
 #### 3.3.2 Building Inventory, Airspace Screening and Asset Details (`FE-04`, `FE-06`)
-- **Function trigger**: Customer views **Assets**, opens **New asset** with live map coordinate screening, or edits checkpoints/documents and plain-text ownership details on a building detail view.
+- **Function trigger**: Customer views **Assets**, opens **New asset** with live map coordinate screening, or updates documents and ownership details on a building detail view.
 - **Actors**: `CUSTOMER`, `ADMIN`, `MANAGER`.
 - **Requirements**:
-  - Only the six platform-managed building categories (`BR-07`) may be chosen; initial inspection checkpoints generate automatically from the chosen category.
-  - Selecting coordinates via the interactive map dialog runs airspace evaluation: **No-Fly Zone** coordinates block creation (`403`), whereas **Restricted Zone** coordinates display an amber `MSG28` advisory banner citing authority, ceiling, and `https://cambay.mod.gov.vn` while keeping saving enabled, and **Clear Zone** proceeds directly. Screening is advisory and does not confer legal aviation clearance (`BR-26`).
+  - Customers choose from six platform-managed building categories (`BR-07`).
+  - Selecting coordinates via the interactive map dialog runs airspace evaluation: **No-Fly Zone** coordinates block creation (`403`), whereas **Restricted Zone** coordinates display a short amber advisory about the permit requirement and a link to airspace rules while keeping saving enabled, and **Clear Zone** proceeds directly. Screening is advisory and does not confer legal aviation clearance (`BR-26`).
   - Building reference documents verify file integrity checksums and reject duplicate file uploads within the same building. Retiring a building preserves history while blocking new requests.
-  - Asset list and detail responses expose `checkpointsLocked`; once an inspection exists, the Customer checkpoint list is read-only and edits are rejected with `409 INSPECTION_HISTORY_EXISTS`.
-- **Normal cases**: Customer pins building coordinates on the airspace map, saves an active building, adjusts checkpoints, and uploads PDF/image blueprints.
+  - The system seeds checkpoints from the building category. Staff can read them in the building record. Managers can configure the request checkpoint list before dispatch.
+- **Normal cases**: Customer pins building coordinates on the airspace map, saves an active building and uploads PDF or image blueprints.
 - **Abnormal cases**: Out-of-domain category, duplicate asset code within the Customer account, duplicate document SHA-256, or prohibited NFZ coordinates are rejected.
 
 ![Customer building inventory](assets/screens/cus-assets.png)
@@ -459,7 +459,7 @@ The Customer portal (`CUSTOMER` role) scopes all reads and updates strictly to t
 
 ![Customer building detail](assets/screens/cus-asset-detail.png)
 
-*Figure 7.3.12 — Building detail dialog presenting inspection checkpoints (`ITEM-01`+), photo gallery, and reference documents.*
+*Figure 7.3.12 — Building detail dialog with location, photos, reference documents, and inspection history.*
 
 #### 3.3.3 Service Requests, Quotations and Order Chat (`FE-08`, `FE-09`, `FE-10`)
 - **Function trigger**: Customer creates a compact one-time or recurring request in **Service Requests** (generating concise recurring titles displayed cleanly in the four-column request list), negotiates in **Messages**, or reviews and accepts a VND quotation.
@@ -853,9 +853,9 @@ The cross-platform Customer Mobile Application serves the **`CUSTOMER` role excl
 - **Function trigger**: Customer browses the **Buildings** list and details, creates/tracks requests in **Requests**, or negotiates with the assigned Manager in **Order Chat**.
 - **Actors**: `CUSTOMER`, `MANAGER`.
 - **Requirements**:
-  - Read-only and operational parity with Web: buildings display checkpoints and attached documents; New Request enforces the 20-day minimum lead time and monthly recurrence rules (`2–100` occurrences).
+  - Read-only and operational parity with Web: buildings display location, specifications, and attached documents; New Request enforces the 20-day minimum lead time and monthly recurrence rules (`2–100` occurrences).
   - Request detail lets Customers inspect active VND quotations, accept the current quote version (preventing stale acceptance via optimistic version checks), view signed contracts, and open Order Chat with attachments.
-- **Normal cases**: Customer checks building checkpoints, submits a service request, negotiates via chat, and accepts the issued VND quote from mobile.
+- **Normal cases**: Customer checks building details, submits a service request, negotiates via chat, and accepts the issued VND quote from mobile.
 - **Abnormal cases**: Selecting an earlier date inside 20 days, submitting duplicate active requests on one building, or accepting a superseded quote version (`MSG13`) fails cleanly.
 
 ![Mobile buildings list](assets/screens/mob-assets.png)
@@ -864,7 +864,7 @@ The cross-platform Customer Mobile Application serves the **`CUSTOMER` role excl
 
 ![Mobile building detail](assets/screens/mob-asset-detail.png)
 
-*Figure 7.3.73 — Customer mobile building detail displaying coordinates, inspection checkpoints, and attached reference documents.*
+*Figure 7.3.73 — Customer mobile building detail displaying coordinates and attached reference documents.*
 
 ![Mobile service requests list](assets/screens/mob-requests.png)
 
@@ -1024,7 +1024,7 @@ Representative messages from the `MSG01`–`MSG50` catalogue:
 | 25 | `MSG25` | Info | Permit | The mission flight permit has been self-attested and activated (`APPROVED`). |
 | 26 | `MSG26` | Error | Field session | Complete the pre-flight safety checklist before starting the session. |
 | 27 | `MSG27` | Info | Field session | The session has been aborted and the manager has been notified. |
-| 28 | `MSG28` | Warning | Registration / Asset | Restricted airspace triggers an advisory about valid flight permission and the applicable altitude ceiling. Registration and asset saving can proceed. |
+| 28 | `MSG28` | Warning | Registration / Asset | Restricted airspace triggers an advisory about the permit requirement. Registration and asset saving can proceed. |
 | 29 | `MSG29` | Error | Evidence | This file type is not supported. |
 | 30 | `MSG30` | Info | Findings | Confirm the findings baseline before preparing the report. |
 | 31 | `MSG31` | Info | Report | The report has been submitted for review. |

@@ -24,5 +24,6 @@ source: "Report7_Final Project Report.docx"
 | 25 Nov 2026 | M | Project Team | Version 2.1 — corrected airspace and findings references, clarified the schema inventory, aligned payout and re-inspection sequence labels with the implemented workflow, and refreshed screenshots and guide callouts. References include Chapters I–VI and Workflow 1–6 figures. |
 | 25 Nov 2026 | M | Project Team | Version 2.2 — revised Chapter VI installation and workflow instructions, matched each numbered instruction to the marked control, and reordered the field procedure so the Manager audit follows post-flight checks. |
 | 25 Nov 2026 | M | Project Team | Version 2.3 — organized Chapter VI around user tasks and role handoffs. Corrected Customer registration, Inspector approval and findings confirmation, and separated lookup and reconciliation from execution. Removed redundant screenshots and updated the remaining callouts. |
+| 26 Nov 2026 | M | Project Team | Version 2.4 — updated the Customer building guide for the shorter Web airspace advisory and the simplified Web and Mobile building screens. Added images for the Inspector application, quotation, contract, site access, report decision, payout, and acceptance steps. |
 
 *A - Added M - Modified D - Deleted*

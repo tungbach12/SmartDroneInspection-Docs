@@ -89,7 +89,7 @@ The web client separates `app` (shell, router, access policy, theme) from nine f
 | :---: | :--- | :--- |
 | 01 | `lib/core` | Provides the shared Dio HTTP client with authentication, API-response, and locale-header interceptors (`network`), secure token storage (`flutter_secure_storage`), application routing (`app_router.dart`), environment configuration (`env`), and theme and localization providers. |
 | 02 | `lib/features/auth` | Implements mobile credential sign-in, Google OAuth 2.0 deep-link callback handling, and Riverpod session state. `session_provider.dart` enforces that only `CUSTOMER` accounts enter the application; the network layer raises `CUSTOMER_ONLY_MOBILE` for any other role. |
-| 03 | `lib/features/assets` | Displays the Customer’s building assets, coordinates, and inspection checkpoints, with `data`, `domain`, and `presentation` layers. |
+| 03 | `lib/features/assets` | Displays the Customer’s building assets, coordinates, and documents, with `data`, `domain`, and `presentation` layers. |
 | 04 | `lib/features/contracts` | Implements the customer service-request list, new-request submission, request detail, and order-chat conversation. |
 | 05 | `lib/features/inspections` | Implements the customer inspection list and inspection detail, including the published report and its findings. |
 | 06 | `lib/features/dashboard`, `lib/features/notifications` | Provide the customer home summary and the in-app notification list. |
@@ -299,7 +299,7 @@ This section presents the detailed design for `FE-04`: interactive coordinate se
 | 01 | `AirspaceController` (`assets.api`) | Exposes `GET /api/v1/airspace/zones` (`AirspaceZoneResponse`) and `GET`/`POST /api/v1/airspace/evaluate` (`EvaluateAirspaceRequest` -> `AirspaceEvaluationResponse`), enforcing `latitude` in `[-90, 90]` and `longitude` in `[-180, 180]`. |
 | 02 | `AirspaceAdvisoryService` (`assets.service`) | Performs Haversine distance calculations against active prohibited and restricted airspace zones, returning `CLEAR_ZONE`, `RESTRICTED_ZONE`, or `NO_FLY_ZONE` plus an advisory disclaimer (`MSG49`: screening never grants government aviation permission). |
 | 03 | `CustomerAirspacePolicyAdapter` (`assets.service`) | Adapter implementing `shared.api.CustomerAirspacePolicy` so `users` onboarding (`OrganizationRegistrationService`) blocks `NO_FLY_ZONE` (`403 ASSET_IN_NO_FLY_ZONE`) while allowing `RESTRICTED_ZONE` to activate immediately with structured `MSG28` advisory warning data. |
-| 04 | Web `AssetLocationPickerModal.tsx` & Mobile `AirspaceAdvisoryCard` | Interactive MapLibre/map picker displaying circle overlays, amber `MSG28` authority/ceiling banners, and altitude limits across Web registration/assets and Customer Mobile views. |
+| 04 | Web `AssetLocationPickerModal.tsx` & Mobile `AirspaceAdvisoryCard` | Web map picker with zone overlays and a short permit advisory. Mobile displays airspace information through `AirspaceAdvisoryCard`. |
 
 ---
 

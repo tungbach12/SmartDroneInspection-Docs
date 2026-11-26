@@ -58,11 +58,11 @@ If startup fails, use `docker compose logs backend` to find the failing check. F
 
 ### 3.1 Find the Right Workflow
 
-The six workflows use the web portal. Screenshots show example records. In your portal, keep using the same building, request and inspection when you switch roles. Match each numbered line to the red callout in its figure.
+The six workflows use the web portal. Screenshots use example records, including staged examples of actions awaiting approval or payment. Keep using the same building, request and inspection as you switch roles. Match each numbered line to the red callout in its figure.
 
 | If you want to | Start with | Finish when |
 | --- | --- | --- |
-| Create a Customer account and prepare a building | Workflow 1 · Customer | The building opens in **Assets** and its checkpoints are ready. |
+| Create a Customer account and add a building | Workflow 1 · Customer | The building appears as **Active** in **Assets**. |
 | Onboard a Partner Inspector and register a drone | Workflow 2 · Applicant, Manager, Inspector | The Inspector account is approved and the drone appears in the active fleet. |
 | Request, contract and schedule an inspection | Workflow 3 · Customer, Manager | The agreed occurrence has an assigned Inspector and drone. |
 | Prepare and complete a field session | Workflow 4 · Inspector | The session is complete and **Field Evidence** is available. |
@@ -89,55 +89,33 @@ Enter the six-digit code, then sign in when the portal returns you to the login 
 
 *Figure 7.11 — Customer registration form.*
 
-**Step 2 — Add and screen the building.**
+**Step 2 — Add the building.**
 
-In **Assets**, select **New asset**. Enter the building details and open **Pick on Google Maps**.
+In **Assets**, select **New asset** and enter the name and category. Pin the building with **Pick on Google Maps**.
 
-❶ Pin the building and check the airspace result.
+❶ Check the airspace result for the pin.
 
-❷ Select **Xác nhận vị trí này** (Confirm this location) when available.
+❷ Select **Xác nhận vị trí này** (Confirm this location), then save the building.
 
-A no-fly result blocks confirmation. For a restricted result, go to Step 3. For a clear location, finish the form, save and continue to Step 4.
+No-fly zones block confirmation. Restricted locations can be saved and require a permit for inspection flights.
 
 ![Building location and airspace result](assets/manual/wf1-03-airspace-map.png)
 
 *Figure 7.12 — Building location and airspace result.*
 
-**Step 3 — Review a restricted-zone warning.**
+**Step 3 — Verify the saved building.**
 
-Follow this step when the confirmed position shows the amber warning.
+In **Assets**, select **Detail** on the building you added.
 
-❶ Read the named authority, altitude limit and reference in the advisory.
+❶ Check that it is **Active** and the pinned location is correct.
 
-You can still save the building. Obtain and record the required flight permit before field work.
+![Saved Customer building details](assets/manual/wf1-06-customer-asset-detail.png)
 
-![Restricted-zone advisory on the building form](assets/manual/wf1-04-restricted-airspace-warning.png)
-
-*Figure 7.13 — Restricted-zone advisory on the building form.*
-
-**Step 4 — Open the building you just added.**
-
-❶ Select **Detail** on the building you just added to check its location and checkpoints.
-
-![Opening the newly added building record](assets/manual/wf1-05-customer-assets.png)
-
-*Figure 7.14 — Opening the newly added building record.*
-
-**Step 5 — Prepare checkpoints for the first inspection.**
-
-❶ Verify the building code and pinned location against the intended inspection site.
-
-❷ Review **Inspection Checkpoints** and any **Attached documents**. Update the checkpoints that the Inspector should verify before the first inspection is created.
-
-If an inspection already exists, the checkpoints are read-only, as shown in the example.
-
-![Building checkpoints and reference documents](assets/manual/wf1-06-customer-asset-detail.png)
-
-*Figure 7.15 — Building checkpoints and reference documents.*
+*Figure 7.13 — Saved Customer building details.*
 
 #### Find an update from a notification
 
-**Step 6 — Open the linked request or inspection.**
+**Step 4 — Open the linked request or inspection.**
 
 ❶ In the Customer portal, open **Notifications**.
 
@@ -145,7 +123,7 @@ If an inspection already exists, the checkpoints are read-only, as shown in the 
 
 ![Customer notification linking to a work item](assets/manual/wf1-07-notifications-settings.png)
 
-*Figure 7.16 — Customer notification linking to a work item.*
+*Figure 7.14 — Customer notification linking to a work item.*
 
 ### 3.3 Workflow 2: Approve a Partner Inspector and Register a Drone
 
@@ -163,7 +141,7 @@ On the Inspector sign-in page, select **Register as Inspector**.
 
 ![Partner Inspector application stages](assets/manual/wf2-01-inspector-apply.png)
 
-*Figure 7.17 — Partner Inspector application stages.*
+*Figure 7.15 — Partner Inspector application stages.*
 
 #### Manager reviews the application
 
@@ -171,7 +149,13 @@ On the Inspector sign-in page, select **Register as Inspector**.
 
 Open **Inspector applications**, locate the applicant and select **Review application**. Verify the licence details and scan.
 
-Use **Upload signed contract** to attach the signed partner agreement. Approve the application once the scan is attached. The approved Inspector can then sign in.
+❶ Select **Upload signed contract** to attach the signed partner agreement.
+
+❷ Select **Approve** once the scan is attached.
+
+![Signed partner contract upload in the Inspector application](assets/manual/wf2-inspector-contract.png)
+
+*Figure 7.16 — Signed partner contract upload in the Inspector application.*
 
 #### Inspector submits the drone registration
 
@@ -183,7 +167,7 @@ Sign in as the approved Inspector and open **My drones**.
 
 ![Opening the Register New Drone form](assets/manual/wf2-04-my-drones.png)
 
-*Figure 7.18 — Opening the Register New Drone form.*
+*Figure 7.17 — Opening the Register New Drone form.*
 
 **Step 4 — Submit the aircraft and supporting documents.**
 
@@ -193,7 +177,7 @@ Sign in as the approved Inspector and open **My drones**.
 
 ![Drone registration form and submit action](assets/manual/wf2-05-drone-register-form.png)
 
-*Figure 7.19 — Drone registration form and submit action.*
+*Figure 7.18 — Drone registration form and submit action.*
 
 #### Manager reviews the drone registration
 
@@ -207,7 +191,7 @@ Check the documents before approving the application. After approval, the Inspec
 
 ![Manager drone registration queue](assets/manual/wf2-02-review-queue.png)
 
-*Figure 7.20 — Manager drone registration queue.*
+*Figure 7.19 — Manager drone registration queue.*
 
 ### 3.4 Workflow 3: Request, Quote, Contract and Dispatch an Inspection
 
@@ -225,13 +209,19 @@ Open **Service requests → New service request**.
 
 ![Building, schedule and submit controls for a service request](assets/manual/wf3-02-cus-new-request.png)
 
-*Figure 7.21 — Building, schedule and submit controls for a service request.*
+*Figure 7.20 — Building, schedule and submit controls for a service request.*
 
 #### Manager claims the request and prepares the quotation
 
 **Step 2 — Claim the new request.**
 
-Open **Service requests** as Manager. On the new request, open the actions menu and select **Claim request**. The claimed request opens for review.
+Open **Service requests** as Manager.
+
+❶ Select **Claim request** on the new request.
+
+![Claim action for an open service request](assets/manual/wf3-claim.png)
+
+*Figure 7.21 — Claim action for an open service request.*
 
 **Step 3 — Clarify the scope if needed.**
 
@@ -245,19 +235,41 @@ Open **Service requests** as Manager. On the new request, open the actions menu 
 
 **Step 4 — Issue the quotation.**
 
-In the claimed request, open **Prepare quote**. Review the inspection checkpoints and complete the scope, dates and VND pricing. Select **Save quote**. The request waits for the Customer to review the quote.
+Open the claimed request. Enter the scope, dates and price.
+
+❶ Select **Configure checkpoints** if the inspection scope needs changes.
+
+❷ Select **Save quote** to send it for Customer review.
+
+![Manager quotation form and save action](assets/manual/wf3-prepare.png)
+
+*Figure 7.23 — Manager quotation form and save action.*
 
 #### Customer accepts the quoted terms
 
 **Step 5 — Accept the current quotation.**
 
-Open the same request and select **Review quote**. Verify the scope, first date and price, then select **Accept quote** and confirm. The Manager can now record the signed agreement.
+Open **Review quote** on the same request. Check the scope, date and price.
+
+❶ Select **Accept quote** and confirm.
+
+![Customer quotation acceptance](assets/manual/wf3-accept-quote.png)
+
+*Figure 7.24 — Customer quotation acceptance.*
 
 #### Manager records the contract and dispatches the team
 
 **Step 6 — Record the signed contract.**
 
-Once the paper agreement has been signed, open **Record contract** in the request and upload the signed scan. The occurrence is ready for team assignment once the contract is recorded.
+After both parties sign, open **Record contract**.
+
+❶ Select **Choose signed contract scan**.
+
+❷ Select **Upload signed scan**.
+
+![Manager uploads the signed agreement](assets/manual/wf3-contract.png)
+
+*Figure 7.25 — Manager uploads the signed agreement.*
 
 **Step 7 — Assign the Inspector and drone.**
 
@@ -269,7 +281,7 @@ Once the candidates load, choose an eligible Inspector and their drone, then sel
 
 ![Flight window and eligible team selection](assets/manual/wf3-06-mgr-quote-agreement.png)
 
-*Figure 7.23 — Flight window and eligible team selection.*
+*Figure 7.26 — Flight window and eligible team selection.*
 
 #### Customer verifies the dispatched inspection
 
@@ -281,7 +293,7 @@ Once the candidates load, choose an eligible Inspector and their drone, then sel
 
 ![Scheduled request and inspection link](assets/manual/wf3-07-cus-quote-review.png)
 
-*Figure 7.24 — Scheduled request and inspection link.*
+*Figure 7.27 — Scheduled request and inspection link.*
 
 ### 3.5 Workflow 4: Accept a Mission and Complete Field Work
 
@@ -291,33 +303,43 @@ Use the assigned Inspector account. Have the flight permit ready and confirm tha
 
 **Step 1 — Open and accept the assigned mission.**
 
-❶ In **Inspections**, open the row for the assigned building and date.
+In **Inspections**, open the assigned building and date.
 
-If the mission is awaiting a response, select **Accept mission** in the inspection. If you cannot take it, select **Decline mission** and enter a reason so the Manager can reassign it.
+❶ Select **Accept mission** when a response is pending.
 
-![Inspector assignment list](assets/manual/wf4-01-ins-inspections.png)
+If you cannot take the assignment, select **Decline mission** and give a reason.
 
-*Figure 7.25 — Inspector assignment list.*
+![Inspector accepts a pending assignment](assets/manual/wf4-accept-mission.png)
+
+*Figure 7.28 — Inspector accepts a pending assignment.*
 
 **Step 2 — Confirm site access if needed.**
 
-From the inspection’s **Messages** action, open the Customer conversation. Confirm the meeting point, access arrangements or any change before the visit.
+Open the Customer conversation from **Messages** in the inspection.
+
+❶ Confirm the meeting point or access arrangements.
+
+![Inspector message composer for the selected inspection](assets/manual/wf4-site-access.png)
+
+*Figure 7.29 — Inspector message composer for the selected inspection.*
 
 **Step 3 — Upload and verify the flight permit.**
 
-While the inspection is scheduled, select **Flight Permit** in the progress bar. Upload the permit (up to 25 MB), enter its authority, dates and other requested details, and attest to its validity. A valid upload immediately shows **Approved**.
+Open **Flight Permit** while the inspection is scheduled.
 
-❶ Check that the saved serial number matches the assigned drone and that the permit covers the flight window.
+❶ Select **Choose permit file** (up to 25 MB). Enter the permit details and confirm it covers the assigned drone and flight window.
 
-The figure shows the stored permit. Upload a new permit if a drone change or an out-of-window reschedule resets its status.
+❷ Select **Submit flight permit for verification**. Check that a valid upload shows **Approved**.
 
-![Stored permit and assigned aircraft details](assets/manual/wf4-04-ins-permit.png)
+Re-upload if a drone change or reschedule resets the permit status.
 
-*Figure 7.26 — Stored permit and assigned aircraft details.*
+![Flight permit upload form and submission action](assets/manual/wf4-permit-form.png)
+
+*Figure 7.30 — Flight permit upload form and submission action.*
 
 #### Inspector completes the field session
 
-**Step 4 — Complete pre-flight checks and start the session.**
+**Step 4 — Complete pre-flight checks.**
 
 ❶ Select **Pre-flight Check** in the progress bar.
 
@@ -325,13 +347,21 @@ The figure shows the stored permit. Upload a new permit if a drone change or an 
 
 ❸ Use **Check all** only after verifying every item it will mark.
 
-Record relevant site observations under **Pre-flight note**, then select **Start session & Continue to Flight**. The workspace opens **Flight Operation** when the session starts.
-
 ![Required pre-flight checks and checklist controls](assets/manual/wf4-05-ins-preflight.png)
 
-*Figure 7.27 — Required pre-flight checks and checklist controls.*
+*Figure 7.31 — Required pre-flight checks and checklist controls.*
 
-**Step 5 — Record and finish a flight.**
+**Step 5 — Start the field session.**
+
+Record any site observations under **Pre-flight note**.
+
+❶ Select **Start session & Continue to Flight** after completing the checks.
+
+![Start action at the end of pre-flight checks](assets/manual/wf4-start-session.png)
+
+*Figure 7.32 — Start action at the end of pre-flight checks.*
+
+**Step 6 — Record and finish a flight.**
 
 In **Flight Operation**, use **SmartDroneHub telemetry** to record or import the flight data according to the available controls. Use **Complete flight** after each sortie when telemetry is active. This closes the sortie so the session can proceed to post-flight checks.
 
@@ -341,9 +371,9 @@ The figure shows log import after the session is closed. During the session, con
 
 ![Flight log import after the session closes](assets/manual/wf4-06-ins-flightsession.png)
 
-*Figure 7.28 — Flight log import after the session closes.*
+*Figure 7.33 — Flight log import after the session closes.*
 
-**Step 6 — Complete post-flight checks and close the session.**
+**Step 7 — Complete post-flight checks and close the session.**
 
 ❶ Open **Post-flight & Items**.
 
@@ -353,11 +383,11 @@ Select **Complete session & Continue to Evidence**. Supply a reason if the app p
 
 ![Post-flight stage and building inspection items](assets/manual/wf4-07-ins-postflight.png)
 
-*Figure 7.29 — Post-flight stage and building inspection items.*
+*Figure 7.34 — Post-flight stage and building inspection items.*
 
 #### Manager checks the recorded field work
 
-**Step 7 — Audit the permit and flight record.**
+**Step 8 — Audit the permit and flight record.**
 
 ❶ Open **Field & Evidence Audit** in the Manager inspection workspace.
 
@@ -365,7 +395,7 @@ Select **Complete session & Continue to Evidence**. Supply a reason if the app p
 
 ![Manager audit of the permit and flight record](assets/manual/wf4-08-mgr-audit.png)
 
-*Figure 7.30 — Manager audit of the permit and flight record.*
+*Figure 7.35 — Manager audit of the permit and flight record.*
 
 ### 3.6 Workflow 5: Upload Evidence and Confirm Findings
 
@@ -381,7 +411,7 @@ Use the assigned Inspector account and the same inspection as in Workflow 4. Hav
 
 ![Evidence upload and registered captures](assets/manual/wf5-01-ins-evidence.png)
 
-*Figure 7.31 — Evidence upload and registered captures.*
+*Figure 7.36 — Evidence upload and registered captures.*
 
 **Step 2 — Run detection on the uploaded images.**
 
@@ -393,7 +423,7 @@ Review the evidence yourself before accepting a detection or an AI-drafted note.
 
 ![Batch detection and note drafting controls](assets/manual/wf5-02-ins-findings-toolbar.png)
 
-*Figure 7.32 — Batch detection and note drafting controls.*
+*Figure 7.37 — Batch detection and note drafting controls.*
 
 **Step 3 — Decide each suggested finding.**
 
@@ -407,7 +437,7 @@ Review the evidence yourself before accepting a detection or an AI-drafted note.
 
 ![Evidence, suggested note and finding decision](assets/manual/wf5-03-ins-findings-card.png)
 
-*Figure 7.33 — Evidence, suggested note and finding decision.*
+*Figure 7.38 — Evidence, suggested note and finding decision.*
 
 **Step 4 — Confirm the findings baseline.**
 
@@ -417,7 +447,7 @@ If suggestions are awaiting a decision, as shown in the figure, use **Unconfirme
 
 ![Findings confirmation awaiting review decisions](assets/manual/wf5-04-ins-findings-confirm.png)
 
-*Figure 7.34 — Findings confirmation awaiting review decisions.*
+*Figure 7.39 — Findings confirmation awaiting review decisions.*
 
 ### 3.7 Workflow 6: Submit, Publish and Pay for the Report
 
@@ -425,27 +455,39 @@ Start with a confirmed findings baseline for the same inspection. An independent
 
 #### Inspector submits the report
 
-**Step 1 — Review the report before submitting.**
+**Step 1 — Review and submit the report.**
 
-Open **Review & Submit** and compare the report preview with the confirmed findings and flight record.
+In **Review & Submit**, check the findings and flight operations previews. Review the AI summary against the evidence.
 
-❶ Expand **AI Executive Summary** and verify what it says against the inspection evidence.
+❶ Select **Submit for review**, then **Confirm and Submit**. Verify that the report is **Submitted**.
 
-The figure shows the location of the summary in a published report. In the submission view, select **Submit for review**, then **Confirm and Submit**. Verify that the report is **Submitted**.
+If the Manager returns it, address the reason, review the revised report and submit it again.
 
-![Where to review the AI executive summary](assets/manual/wf6-01-ins-report.png)
+![Inspector submission action in the report preview](assets/manual/wf6-submit-report.png)
 
-*Figure 7.35 — Where to review the AI executive summary.*
+*Figure 7.40 — Inspector submission action in the report preview.*
 
 #### Manager decides, settles payout and publishes
 
 **Step 2 — Review the submitted report.**
 
-Open **Reports**, select the same inspection with a submitted report and open **Report Decision**. Compare the report and summary with the evidence. Approve a correct report, or return it with a reason for the Inspector to address.
+Open the submitted report from **Reports → Report Decision** and check it against the evidence.
+
+❶ Approve the report or return it with a reason.
+
+![Manager report decision controls](assets/manual/wf6-decision.png)
+
+*Figure 7.41 — Manager report decision controls.*
 
 **Step 3 — Settle the Inspector payout.**
 
-For a commercial inspection, continue to **Inspector Payout** after approval. Select **Pay Inspector via SePay (VietQR)** and verify that the payout is settled before publishing.
+For a commercial inspection, open **Inspector Payout** after approval.
+
+❶ Select **Pay Inspector via SePay (VietQR)**. Verify settlement before publishing.
+
+![Inspector payout action before publication](assets/manual/wf6-payout.png)
+
+*Figure 7.42 — Inspector payout action before publication.*
 
 **Step 4 — Publish the official report.**
 
@@ -455,7 +497,7 @@ Select **Publish to Customer** and verify that the report is **Published**.
 
 ![Approved report with settled payout ready for publication](assets/manual/wf6-03-mgr-review.png)
 
-*Figure 7.36 — Approved report with settled payout ready for publication.*
+*Figure 7.43 — Approved report with settled payout ready for publication.*
 
 #### Customer accepts the report and pays
 
@@ -467,15 +509,27 @@ Select **Publish to Customer** and verify that the report is **Published**.
 
 ![Customer inspections list with the published report](assets/manual/wf6-04-cus-inspections.png)
 
-*Figure 7.37 — Customer inspections list with the published report.*
+*Figure 7.44 — Customer inspections list with the published report.*
 
 **Step 6 — Accept the published report.**
 
-Select **Accept Report**, then **Confirm & Accept Report**. Verify that **Service Payment** is available.
+❶ Select **Accept Report**, then **Confirm & Accept Report** to unlock payment.
 
-**Step 7 — Pay and verify settlement.**
+![Customer accepts the published report](assets/manual/wf6-accept-report.png)
 
-Open **Service Payment**, choose Sepay VietQR or VNPay and follow the payment instructions. Return to the inspection and check the result before paying again.
+*Figure 7.45 — Customer accepts the published report.*
+
+**Step 7 — Pay the service fee.**
+
+Open **Service Payment** after accepting the report.
+
+❶ Choose **Pay with VietQR (Sepay)** or **Pay with VNPay** and follow the gateway instructions.
+
+![Payment options after report acceptance](assets/manual/wf6-pay-options.png)
+
+*Figure 7.46 — Payment options after report acceptance.*
+
+**Step 8 — Verify payment.**
 
 ❶ Check **Payment confirmed** and verify the recorded method.
 
@@ -485,11 +539,11 @@ The figure shows a settled VNPay payment. The Customer can also use the rating c
 
 ![Confirmed Customer payment and receipt download](assets/manual/wf6-05-cus-report-pay.png)
 
-*Figure 7.38 — Confirmed Customer payment and receipt download.*
+*Figure 7.47 — Confirmed Customer payment and receipt download.*
 
 #### Customer looks up a past payment
 
-**Step 8 — Find the payment record.**
+**Step 9 — Find the payment record.**
 
 ❶ Open **Payment history** and verify the amount, method and status for the inspection.
 
@@ -497,11 +551,11 @@ The figure shows a settled VNPay payment. The Customer can also use the rating c
 
 ![Customer payment history and transaction details](assets/manual/wf6-06-cus-finance.png)
 
-*Figure 7.39 — Customer payment history and transaction details.*
+*Figure 7.48 — Customer payment history and transaction details.*
 
 #### Manager reconciles an inspection payment
 
-**Step 9 — Check payment against the inspection invoice.**
+**Step 10 — Check payment against the inspection invoice.**
 
 ❶ Open **Customer Settlement** in the inspection workspace.
 
@@ -509,9 +563,9 @@ The figure shows a settled VNPay payment. The Customer can also use the rating c
 
 ![Manager view of Customer settlement and invoice details](assets/manual/wf6-07-mgr-settlement.png)
 
-*Figure 7.40 — Manager view of Customer settlement and invoice details.*
+*Figure 7.49 — Manager view of Customer settlement and invoice details.*
 
-**Step 10 — Reconcile the same payment in the ledger.**
+**Step 11 — Reconcile the same payment in the ledger.**
 
 Open **Revenue & payments** in the Manager portal.
 
@@ -519,4 +573,4 @@ Open **Revenue & payments** in the Manager portal.
 
 ![Manager revenue ledger and per-inspection transactions](assets/manual/wf6-08-mgr-finance-history.png)
 
-*Figure 7.41 — Manager revenue ledger and per-inspection transactions.*
+*Figure 7.50 — Manager revenue ledger and per-inspection transactions.*
