@@ -8,24 +8,26 @@ source: "Report7_Final Project Report.docx"
 
 ## 1. Scope of Testing
 
-Testing covers the delivered platform across the web portals, the customer mobile application, the backend, and the AI, telemetry, and payment integrations, for all twenty-four atomic product features (`FE-01`–`FE-24`) organized across the four main operational flows (`MF1`–`MF4`) and business rules `BR-01`–`BR-55`. The inspection scope is buildings only.
+The test scope covers all 24 features across the web portal, Customer mobile app, backend, and AI, telemetry, and payment integrations.
 
-- **`MF1` — Identity, Partner/Drone Onboarding & Airspace Screening (`FE-01`–`FE-04`):** Customer registration, password/OTP/Google sign-in, session rotation, `/users/me` profile, bilingual localization, and four-role portal/API RBAC (`FE-01`); public partner application, admission, `inspector_profiles` licence credentials, and flight logs (`FE-02`); Admin drone document/feature config and Inspector-owned drone registration/fleet lifecycle (`FE-03`); and interactive Vietnam coordinate map and No-Fly Zone screening (`FE-04`).
-- **`MF2` — Buildings, Airspace Clearance, Commercial Service & Notifications (`FE-06`–`FE-12`):** Building assets (`V66` `ownership_information`), checkpoints, and MinIO reference documents (`FE-06`); restricted-airspace customer review (`FE-07`); minimal compact service requests (`PR #139`) with concise recurring titles (`PR #164`), monthly cadence bounds/month-end anchoring, Manager claim, and VND quotations (`FE-08`); offline signed agreements, occurrence materialization, and cross-organization dispatch (`FE-09`); separated Customer–Manager Order Chat and Customer–Inspector Inspection Chat (`FE-10`); Admin-configurable Step 4 assignment acceptance timeout (`FE-11`); and Spring Modulith outbox notifications (`FE-12`).
-- **`MF3` — Flight Permits, Field Telemetry, Evidence Pipeline & AI/RAG Analysis (`FE-13`–`FE-17`):** Mission flight-permit upload and independent Manager/Admin verification gate (`FE-13`); field sessions, SmartDroneHub MAVLink traces, log imports/declarations, dashboards, and calendar (`FE-14`); EXIF-first image normalization/thumbnails, duplicate auto-numbering, resumable `2 GiB` chunked MP4 upload, FFmpeg transcoding, and HMAC HTTP Range streaming (`FE-15`); YOLO11 (`70%` default per `V63`) + Vision fallback detection, filter chips, Inspector baseline confirmation, and fresh re-inspection evidence gating (`FE-16`); and tenant-isolated `DroneKnowledgeAI` local 384d `fastembed` RAG (`V64`/`V65`), single/batch AI note drafting (`Draft note with AI` / `Draft all notes`), Mobile `KnowledgeReferencesStrip`, and `ReportAiSummaryCard` references (`FE-17`).
-- **`MF4` — Report Publication, Acceptance, Payment Settlement, Ledger & Re-inspection (`FE-05`, `FE-18`–`FE-24`):** Role-scoped Customer/Inspector/Manager financial history ledgers (`FE-05`); 4-state inspection report compilation, independent Manager review banning self-publication, on-demand PDF export, and `/with-reports` queues (`FE-18`); Customer report acceptance gating invoicing and clarification workflow (`FE-19`); `V29` / `V67`–`V68` Sepay VietQR and VNPay v2.1.0 checkout, webhook auditing, cancel/expiry order release, and role-masked finance projections (`FE-20`); acceptance-stamped payment deadlines, daily single overdue reminders, and payment notice/receipt PDF downloads (`FE-21`); Partner Inspector payout reconciliation (`ELIGIBLE -> PAID`, idempotency, caps) (`FE-22`); evidence-backed refunds, payout holds, legacy reconciliation, and Inspector receivable recovery (`FE-23`); and post-remediation re-inspection with three-way verdicts (`RESOLVED`, `UNRESOLVED`, `INCONCLUSIVE`), `RESOLVED` verdict expiry tracking, and Mobile parity (`FE-24`).
+- **`MF1` — Onboarding and access.** Account registration, sign-in, role permissions, Inspector and drone registration, and airspace screening.
+- **`MF2` — Requests and dispatch.** Building records, quotations, signed contracts, Inspector and drone assignment, messaging, and notifications.
+- **`MF3` — Field work and findings.** Flight permit submission, field sessions and telemetry, evidence upload and processing, AI-assisted analysis, and findings confirmation.
+- **`MF4` — Reporting and settlement.** Independent review and publication, Customer acceptance, payments, Inspector payouts, refunds, and re-inspection.
 
-In scope: building inspection including tenant-isolated `DroneKnowledgeAI` advisory retrieval over engineering standards and historical finding cases (`BR-55`). Out of scope: physical aircraft control and flight-controller firmware; corrective maintenance execution and its repair knowledge base; non-building infrastructure; native push delivery and commercial mail relay; banking core systems behind the payment gateways; and mobile behaviour for roles other than `CUSTOMER`.
+Chapter III, Section 3.8 defines the product scope. Payment tests use test credentials and simulated gateway callbacks.
 
 Four levels were executed. Unit level verifies entities, services, components, and widgets in isolation. Integration level verifies controllers, repositories, migrations, the security filter chain, object storage, and the event outbox against containerized services. System level verifies connected flows and non-functional thresholds across the integrated stack. Acceptance level verifies business rules and acceptance criteria per feature.
 
-Constraints: integration tests need a running Docker daemon; when the inference container or the drafting gateway is unreachable the system routes to its fallbacks so workflows stay testable; payment verification uses signed test credentials rather than live debits; and permits, airspace results, and reports are governance records, not government clearance.
+Integration tests require Docker. The test strategy includes fallback behavior when AI services are unavailable.
 
 ## 2. Test Strategy
 
 ### 2.1 Testing Types
 
-Functional and business rule testing applies equivalence partitioning and boundary analysis to the stated limits — 10 MB photographs, 2 GB video in 10 MiB chunks, coordinate ranges, rate percentages, the twenty-day lead time, and the occurrence and interval bounds. Domain state machine testing walks every lifecycle entity along its valid edges and asserts that illegal edges are refused. Security and scope isolation testing probes cross-organization identifiers, permutes the four roles across the four portals, and simulates brute-force sign-in. AI testing verifies bounding-box parsing, automatic vision fallback, and the deterministic template path. Performance and payment testing covers response latency, tampered-signature webhook rejection, and published-report immutability. Interface, localization, and regression testing covers component rendering, `Accept-Language` negotiation, theme persistence, and repeated full-suite runs.
+Functional tests cover workflow rules, permitted status changes, and limits such as file sizes and scheduling dates. Security tests cover sign-in protection and access by role, ownership, and assignment.
+
+Integration and system tests cover evidence processing, AI fallbacks, payment callback verification, response times, and published-report integrity. Interface and regression tests cover localization, theme settings, and behavior across releases.
 
 ### 2.2 Test Levels
 
@@ -58,7 +60,7 @@ Functional and business rule testing applies equivalence partitioning and bounda
 | Worker/Doer | Role | Specific Responsibilities/Comments |
 | --- | --- | --- |
 | Trần Hoàng Trung Hiếu (`SE184212`) | Project Leader and Tester (`FE-01`–`FE-05`) | Owns the cases and regression runs for authentication/OTP/4-role RBAC (`FE-01`), partner admission (`FE-02`), owned-drone fleet (`FE-03`), airspace map (`FE-04`), and financial history ledger (`FE-05`), plus Customer Mobile co-testing. |
-| Phùng Trung Quốc (`SE170027`) | Backend and Mobile Engineer and Tester (`FE-06`–`FE-12`) | Owns the cases and regression runs for building assets (`FE-06`), restricted-airspace clearance (`FE-07`), service requests & VND quotes (`FE-08`), signed contracts & dispatch (`FE-09`), dual chat (`FE-10`), assignment timeout (`FE-11`), and notifications (`FE-12`). |
+| Phùng Trung Quốc (`SE170027`) | Backend and Mobile Engineer and Tester (`FE-06`–`FE-12`) | Owns the cases and regression runs for building assets (`FE-06`), restricted-airspace advisories (`FE-07`), service requests & VND quotes (`FE-08`), signed contracts & dispatch (`FE-09`), Order, Partner, and Inspection Chat (`FE-10`), assignment timeout (`FE-11`), and notifications (`FE-12`). |
 | Trần Tùng Bách (`SE180220`) | Full-Stack and AI Engineer and Tester (`FE-13`–`FE-18`) | Owns the cases and regression runs for flight permits (`FE-13`), field telemetry (`FE-14`), evidence/chunked video pipeline (`FE-15`), YOLO11 + fallback confirmation (`FE-16`), `DroneKnowledgeAI` RAG & drafting (`FE-17`), and report publication (`FE-18`), plus backend/DB architecture & Mobile co-testing. |
 | Trương Thái Như (`SE180082`) | Full-Stack Engineer and Tester (`FE-19`–`FE-24`) | Owns the cases and regression runs for customer acceptance (`FE-19`), Sepay VietQR/VNPay settlement (`FE-20`), payment deadlines/documents (`FE-21`), Inspector payouts (`FE-22`), refunds & receivables (`FE-23`), and re-inspection (`FE-24`), plus automated test reconciliation & Report 5 workbook maintenance. |
 | Supervisors | Reviewers | Review the strategy, audit traceability across Reports 3–5, and evaluate defence readiness. |
@@ -68,7 +70,7 @@ Functional and business rule testing applies equivalence partitioning and bounda
 | Purpose | Tool | Provider | Version |
 | --- | --- | --- | --- |
 | Application runtime | Java 21 with Spring Boot Modulith | Eclipse Temurin / Broadcom | `Java 21` / `4.1.0` |
-| Relational database | PostgreSQL (48 application tables / 50 total, migrations `V1`–`V4`, `V60`–`V69`) | PostgreSQL Global Development Group | `17` |
+| Relational database | PostgreSQL (`53` application tables / `55` total in `public`, migrations `V1`–`V4`, `V60`–`V80`) | PostgreSQL Global Development Group | `17` |
 | Object storage | MinIO (`inspection-evidence` bucket) | MinIO Inc. | `RELEASE.2025` |
 | Test containers | Testcontainers with `pgvector:pg17` and `adobe/s3mock` | AtomicJar / Docker | `PostgreSQL 17` |
 | Computer vision service | FastAPI with Ultralytics YOLO11s | Python / Ultralytics | `YOLO11s` |
@@ -88,9 +90,7 @@ Functional and business rule testing applies equivalence partitioning and bounda
 
 ## 4. Test Cases
 
-Unit test cases live in the repository suites. On 20 Nov 2026 the backend `.\mvnw.cmd verify` exited 0 with `971` tests passed, `0` failures, Spring Modulith boundary verification passed and JaCoCo coverage checks met (prior to `PR #164` adding `V66__asset_ownership_information.sql` and `PR #166` adding `V67`–`V68`). The frontend full `npm test` ran `97` files (`93` passed, `4` skipped) and `724` tests (`720` passed, `4` skipped, `0` failed), covering the four-portal access policy, the airspace map, the calendar, evidence/findings/report screens, the re-inspection verdict-expiry warning, quick status filter chips, and `DroneKnowledgeAI` note drafting (`DraftNoteAction` / `Draft all notes`) and references; after `PR #139` and `PR #140` merged on `main`, `npm run lint` (`0` errors), `npm run build`, and `npx vitest run src/features/auth` (`11` files / `60` tests) passed. Additionally, on 21–22 Nov 2026 for `FE-20` hardening (`backend PR #166`, `frontend PR #142`), focused verification passed `99/99` backend payment tests, `40/40` frontend finance tests (`tsc --noEmit` `0` errors), and `12/12` Playwright payment checks + `10/10` DS-04a/DS-04b dry-run on PostgreSQL 17 (`V67`–`V68`). The mobile suite (`PR #27`–`PR #28`) passed `56` tests with `0` failures, covering customer-only admission, localization, verdict expiry, payment-document PDF, Inspector–Customer chat, the knowledge strip, and the customer screens. Report 5 (`v3.10`) tracks `67` active case IDs across `FE-01`–`FE-24`: all `64` historical records preserved verbatim plus `3` honest unexecuted (`N/A / Pending / Pending`) standalone breakout cases (`WF3-032` in `FE-05`, `WF2-021` in `FE-11`, `WF3-033` in `FE-22`).
-
-Integration, system, and acceptance cases live in `Report5_Test Report.xlsx`, partitioned across twenty-four feature sheets (`Feature 1`–`Feature 24`, mapped 1-to-1 to `FE-01`–`FE-24`) with columns for the procedure, expected results, preconditions, three execution rounds, the test date, the tester, and a note recording the mode and the automated evidence.
+The backend, web, and mobile automated suites are summarized in Section 5.1. The Report 5 workbook (`Report5_Test Report.xlsx`, version 3.15) records 75 active integration, system, and acceptance cases and two superseded flight-permit cases. Its 24 feature sheets list the procedures, expected results, and results of each test round.
 
 ## 5. Test Reports
 
@@ -102,15 +102,15 @@ Integration, system, and acceptance cases live in `Report5_Test Report.xlsx`, pa
 
 | Suite | Command | Scope | Result |
 | --- | --- | --- | --- |
-| Backend | `.\mvnw.cmd verify` | Domain, service, controller, repository, migration, storage, architecture and knowledge retrieval tests | `971` tests passed, `0` failures, `0` errors; Spring Modulith boundary verification and JaCoCo coverage gate met. `spotless:check` passed (20 Nov 2026 full verification). |
-| Web portal | `npm test` / `npx vitest run src/features/auth` | Components, pages, access policy, API clients, verdict-expiry warnings, filter chips and DroneKnowledgeAI note drafting | Full suite (20 Nov 2026): `97` files (`93` passed, `4` skipped), `724` tests (`720` passed, `4` skipped), `0` failed; post-`PR #140` on `main`: `npm run lint` (`0` errors), `npm run build` exited `0`, auth Vitest `11` files / `60` tests passed. |
-| Mobile | `flutter test` | Customer-only session, localization, verdict expiry, payment PDF, chat, knowledge strip and screens (`PR #27`–`PR #28`) | `56` tests passed, `0` failures; `dart format --set-exit-if-changed .` and `flutter analyze` both passed. |
+| Backend | `.\mvnw.cmd test` | Domain, service, controller, repository, migration (`V1`–`V4`, `V60`–`V80`), storage, architecture and knowledge retrieval tests | `1,052` tests passed, `0` failures, `0` errors; Spring Modulith boundary verification and `55`-table schema migration gate passed (25 Nov 2026 verification). |
+| Web portal | `npm test` (`npx vitest run`) | Components, pages, access policy, API clients, Sepay/VNPay payout & settlement UI, ratings, bilingual notifications, and DroneKnowledgeAI note drafting | Full suite (25 Nov 2026): `120` files (`116` passed, `4` deprecated skipped), `830` tests (`826` passed, `4` skipped), `0` failed; `npm run lint` (`0` errors) and `npm run build` exited `0`. |
+| Mobile | `flutter test` | Customer-only access, localization, verdict expiry, payment PDF, chat, knowledge references, and Customer screens | `58` tests passed with `0` failures. `flutter analyze` passed. |
 
 ### 5.2 Acceptance Case Execution
 
 ![Acceptance case execution status](assets/charts/acceptance-status.png)
 
-*Figure 7.10 — Round 1 acceptance case status for the `67` active cases across `FE-01`–`FE-24`.*
+*Figure 7.10 — Round 1 acceptance case status for the 77 listed rows (75 active) across FE-01–FE-24 (Report 5 v3.15).*
 
 | Feature | Total cases | Passed | Failed | Pending | N/A | Coverage focus |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
@@ -119,51 +119,53 @@ Integration, system, and acceptance cases live in `Report5_Test Report.xlsx`, pa
 | `FE-03` | 3 | 3 | 0 | 0 | 0 | Admin drone checklists, owned-drone registration/renewal, photos, and serviceability states |
 | `FE-04` | 3 | 3 | 0 | 0 | 0 | Interactive coordinate map, coordinate bounds validation, and hard No-Fly Zone gate |
 | `FE-05` | 1 | 0 | 0 | 0 | 1 | Scoped Customer/Inspector/Manager financial history ledgers (`WF3-032`: `N/A / Pending / Pending`) |
-| `FE-06` | 3 | 3 | 0 | 0 | 0 | Building registry (`V66` `ownership_information`), checkpoints, MinIO docs, and retirement lock |
-| `FE-07` | 1 | 1 | 0 | 0 | 0 | Restricted-airspace onboarding queue review and mandatory rejection reason audit |
-| `FE-08` | 3 | 3 | 0 | 0 | 0 | Compact requests & concise recurring titles, cadence bounds/month-end anchoring, and VND quotes |
-| `FE-09` | 5 | 4 | 0 | 1 | 0 | Signed agreements, occurrence dispatch conflict/eligibility guards, abort recovery, Mobile E2E |
-| `FE-10` | 1 | 1 | 0 | 0 | 0 | Separated Customer–Manager Order Chat and Customer–Inspector Inspection Chat with attachments |
-| `FE-11` | 1 | 0 | 0 | 0 | 1 | Step 4 assignment acceptance timeout & escalation alert (`WF2-021`: `N/A / Pending / Pending`) |
-| `FE-12` | 1 | 1 | 0 | 0 | 0 | Deduplicated Modulith `event_publication` notifications and `targetPath` safety |
-| `FE-13` | 2 | 2 | 0 | 0 | 0 | Flight permit upload validation, independent review blocking self-review, and reschedule reset |
-| `FE-14` | 5 | 4 | 0 | 0 | 1 | Field session start/complete/abort, MAVLink telemetry, log import, KPI dashboards, and calendar |
+| `FE-06` | 3 | 3 | 0 | 0 | 0 | Building registry (`V66` `ownership_information`), checkpoints (`V80` + lock), MinIO docs, and retirement lock |
+| `FE-07` | 1 | 1 | 0 | 0 | 0 | Restricted-airspace `MSG28` amber advisory and immediate onboarding (`WF1-009` Passed) |
+| `FE-08` | 6 | 6 | 0 | 0 | 0 | Compact requests & concise recurring titles, cadence bounds/month-end anchoring, and VND quotes |
+| `FE-09` | 6 | 5 | 0 | 1 | 0 | Signed agreements, occurrence dispatch conflict/eligibility guards, abort recovery, Mobile E2E |
+| `FE-10` | 2 | 2 | 0 | 0 | 0 | Separated Customer–Manager Order Chat, Partner Chat (`V79`), and Customer–Inspector Inspection Chat |
+| `FE-11` | 1 | 0 | 0 | 0 | 1 | Assignment acceptance timeout and escalation alert (`WF2-021`: `N/A / Pending / Pending`) |
+| `FE-12` | 3 | 3 | 0 | 0 | 0 | Deduplicated bilingual (`EN`/`VI`) Modulith notifications (`WF2-028`) and `targetPath` safety |
+| `FE-13` | 5 | 2 | 0 | 0 | 3 | Self-attested flight permit gate (`APPROVED` on valid upload) and drone/window reset (`WF2-029`–`WF2-031`) |
+| `FE-14` | 5 | 4 | 0 | 0 | 1 | Multi-sortie field session start/complete/abort, MAVLink telemetry, log import, dashboards, calendar |
 | `FE-15` | 5 | 1 | 0 | 0 | 4 | EXIF image normalization/thumbnails, duplicate numbering, 2 GiB chunked MP4, FFmpeg, Range tickets |
 | `FE-16` | 7 | 6 | 0 | 1 | 0 | YOLO11 (`70%` default) + Vision fallback, filter chips, baseline confirmation, and fresh evidence |
 | `FE-17` | 2 | 0 | 0 | 0 | 2 | Tenant-isolated `DroneKnowledgeAI` local 384d RAG, note drafting, Mobile strip, and summary refs |
-| `FE-18` | 4 | 4 | 0 | 0 | 0 | Four-state report lifecycle, compilation, independent review banning self-publication, PDF export |
-| `FE-19` | 1 | 0 | 0 | 1 | 0 | Customer report acceptance (`ACCEPTED`), clarification paths, and staging handoff |
+| `FE-18` | 4 | 4 | 0 | 0 | 0 | Five-state report lifecycle, compilation, independent Manager review (`Approved -> Payout -> Published`), PDF export |
+| `FE-19` | 1 | 0 | 0 | 1 | 0 | Customer report acceptance (`ACCEPTED`), ratings (`V70`/`V73`), clarification paths, staging handoff |
 | `FE-20` | 2 | 0 | 0 | 0 | 2 | Normalized `V29`/`V67`–`V68` finance schema, Sepay VietQR & VNPay HMAC webhooks, and masked views |
 | `FE-21` | 2 | 0 | 0 | 2 | 0 | Payment due deadline (`payment_due_at`), single overdue reminder, and notice/receipt PDF |
-| `FE-22` | 1 | 0 | 0 | 0 | 1 | Partner Inspector payout reconciliation (`ELIGIBLE -> PAID`, idempotency; `WF3-033`: `N/A / Pending / Pending`) |
+| `FE-22` | 1 | 0 | 0 | 0 | 1 | Partner Inspector payout reconciliation (`ELIGIBLE -> PAID`, Sepay VietQR `SDIPAY`, idempotency; `WF3-033`) |
 | `FE-23` | 1 | 0 | 0 | 1 | 0 | Refund initiation holds, exact allocation, legacy reconciliation, and Inspector receivables |
 | `FE-24` | 2 | 0 | 0 | 1 | 1 | Post-remediation re-inspection verdicts (`RESOLVED`/`UNRESOLVED`/`INCONCLUSIVE`) & Mobile parity |
-| **Total** | **67** | **45** | **0** | **9** | **13** | All twenty-four atomic features (`64` historical + `3` unexecuted standalone cases) |
+| **Total** | **77** | **52** | **0** | **9** | **16** | Report 5 `v3.15` (`75` active cases + `2` historical superseded `FE-13` cases) |
 
-The Round 1 inventory recorded `45` passed and `0` failed cases across `67` active cases: `9` pending and `13` N/A (`45/54 = 83.33%` Round 1 coverage). The `13` N/A rows comprise `10` post-Round-1 additions (`WF3-018`–`WF3-020`, `WF3-022`–`WF3-025`, `WF3-029`–`WF3-031`) plus `3` newly unbundled standalone breakout cases (`WF3-032` in `FE-05`, `WF2-021` in `FE-11`, `WF3-033` in `FE-22`) kept honestly at `N/A / Pending / Pending`. Historical Round 1 remains unchanged (`45 Passed / 0 Failed / 8 Pending / 3 N/A = 56` cases).
+In Round 1, 52 of the 61 applicable cases passed and 9 were pending, with zero failures. The other 16 rows were marked N/A.
 
-Report 5 records `13` executed Round 3 cases with `0` failures: `WF3-005`, `WF3-006`, `WF3-009`, `WF3-016`, `WF3-018`, `WF3-019`, `WF3-021`, `WF3-026`, `WF3-027`, `WF3-028`, `WF3-029`, `WF3-030` and `WF3-031`; `WF3-020`, `WF3-022`–`WF3-025`, `WF3-032`, `WF2-021`, and `WF3-033` remain Pending. `PaymentDueAndDocumentApiIntegrationTest` supplies the connected-HTTP evidence for `WF3-026`/`WF3-027`; `WF3-028` records fresh re-inspection evidence, `WF3-019` the current payout contract, and `WF3-029`–`WF3-031` the `DroneKnowledgeAI` retrieval, advisory summary references and Customer Mobile parity.
+Report 5 records 13 passes and zero failures in Round 3 (`WF3-005`, `WF3-006`, `WF3-009`, `WF3-016`, `WF3-018`, `WF3-019`, `WF3-021`, and `WF3-026`–`WF3-031`). `WF3-020`, `WF3-022`–`WF3-025`, `WF3-032`, `WF2-021`, and `WF3-033` remain pending.
+
+The cases cover payouts (`WF3-019`), payment deadlines and documents (`WF3-026`, `WF3-027`), fresh re-inspection evidence (`WF3-028`), and knowledge references on web and mobile (`WF3-029`–`WF3-031`).
 
 ### 5.3 Cross-Cutting Assertions
 
-| Assertion | Test | What it proves |
+| Assertion | Test | What it verifies |
 | --- | --- | --- |
-| Schema baseline is exact | `FullDatabaseSchemaMigrationTest` | The applied migration set is `V1`–`V4` and `V60`–`V69` (`["1","2","3","4","60","61","62","63","64","65","66","67","68","69"]`); the inventory is 50 relations in `public` (48 application tables, the `event_publication` outbox and `flyway_schema_history`), with 47 JPA runtime entity tables including `assets.ownership_information`, `service_payments.gateway_order_created_at`, `gateway_inbound_transactions`, `inspection_flight_permits`, and `field_session_telemetry`. |
+| Database schema matches the release | `FullDatabaseSchemaMigrationTest` | Flyway applies `V1`–`V4` and `V60`–`V80`. The test checks all 55 expected tables in `public`, including the event outbox and the Flyway migration ledger. |
 | Module boundaries hold | `ModulithArchitectureTest` | No module reaches another outside its declared `allowedDependencies`. |
 | Lifecycle is connected | `ConnectedMainFlowE2eIntegrationTest` | Onboarding, building and drone registration, request and quotation, dispatch, evidence and detection, publication, and settlement execute in one run. |
-| A report author cannot publish | Reviewer-scope and role-policy tests | Publication requires a reviewer who is not the author. |
-| A permit uploader cannot verify | Permit review tests | Verification requires a distinct manager or administrator. |
+| A report author cannot publish | Reviewer-scope and role-policy tests | Publication requires a `MANAGER` reviewer who is not the author (`ADMIN` is read-only). |
+| Flight permit self-attestation holds | Permit policy and workflow tests | Valid permit upload immediately transitions the permit to `APPROVED`; drone change or out-of-window reschedule resets to `PENDING_REVIEW` (`ADMIN`/`MANAGER` cannot alter). |
 | Media is scoped | Evidence ticket tests | A signed ticket grants access to one evidence record and nothing else. |
-| Payment needs a signature | `SepayWebhookControllerTest`, `VnPayWebhookAndGatewayTest` & webhook tests | A browser redirect alone never settles a payment; missing/forged `Authorization: Apikey` or VNPay HMAC-SHA512 signatures are rejected, while Sepay outcomes persist idempotently in `gateway_inbound_transactions`. |
-| Knowledge retrieval & note drafting are tenant-isolated | `HistoricalCaseServiceTest`, `HistoricalCaseApiIntegrationTest`, `InspectionFindingsPage.test.tsx`, `KnowledgeRecommendationPanel.test.tsx`, `knowledge_recommendation_test.dart` | `DroneKnowledgeAI` returns `PGVECTOR_RAG` via local `fastembed` (`vector(384)`) when embeddings exist and deterministic `HYBRID_MATCH` otherwise, plus `AI_VISION_RAG` for note drafting; benchmark cases are anonymized, cross-organization cases and the current inspection are excluded, and the customer mobile strip hides when empty. |
-| Payment deadline and documents over HTTP | `PaymentDueAndDocumentApiIntegrationTest` | On Testcontainers PostgreSQL 17 and the real security filter chain: acceptance stamps `payment_due_at` once, the document endpoint returns `409` before acceptance, a notice PDF after acceptance and a receipt after verified payment, foreign-organization callers receive `404`, and a repeated overdue scan sends no second reminder. Report 5 records this as the Round 3 Passed evidence for `WF3-026` and `WF3-027`. |
+| Payment needs a signature | `SepayWebhookControllerTest`, `VnPayWebhookAndGatewayTest` & webhook tests | A browser redirect alone never settles a payment; missing/forged `Authorization: Apikey` or VNPay HMAC-SHA512 signatures are rejected, while Sepay inbound outcomes persist idempotently in `gateway_inbound_transactions`. |
+| Knowledge retrieval and note drafting | `HistoricalCaseServiceTest`, `HistoricalCaseApiIntegrationTest`, `InspectionFindingsPage.test.tsx`, `KnowledgeRecommendationPanel.test.tsx`, `knowledge_recommendation_test.dart` | Tests cover vector retrieval (`PGVECTOR_RAG`), keyword fallback (`HYBRID_MATCH`), and note drafting (`AI_VISION_RAG`). Results exclude the current inspection and other Customers' records. The mobile reference strip hides when empty. |
+| Payment deadline and documents over HTTP | `PaymentDueAndDocumentApiIntegrationTest` | Acceptance sets `payment_due_at` once. The document API returns `409` before acceptance, a notice after acceptance, and a receipt after payment. Another Customer receives `404`. Repeated scans send one overdue reminder. Report 5 records the results under `WF3-026` and `WF3-027`. |
 | Expired re-inspection verdict is surfaced early | `verdictExpiry.ts`, `VerdictExpiryBanner`, `ValidityNotice`, `ReinspectionWorkflow.test.tsx` | The Web client distinguishes lapsed `RESOLVED` verdicts from those lapsing within 14 days and warns before report authoring; the backend remains the authority that refuses an expired verdict with `RESOLUTION_EXPIRED`. |
 
 ### 5.4 Defects and Limitations
 
 | ID | Severity | Status | Description | Impact |
 | --- | --- | --- | --- | --- |
-| `DEF-01` | Low | Open | The mobile `UserRole` enumeration still parses the retired `MAINTENANCE_ENGINEER` role. | Harmless at runtime because the session gate admits `CUSTOMER` only, but the stale member should be removed. |
+| `DEF-01` | Low | Resolved | The mobile `UserRole` enumeration included the retired `MAINTENANCE_ENGINEER` role. The enumeration now matches the four platform roles. | `flutter analyze` and all 58 mobile tests passed. The mobile app restricts sign-in to Customers. |
 | `DEF-02` | Low | Open | The backend E2E runner script resolves its frontend root to a directory that does not exist in the workspace. | The script cannot execute as written; the connected lifecycle is verified by the integration test instead. |
 
 Neither defect affects a delivered feature path, and neither is claimed as passing. Cases not executed in this run remain `Pending` in the workbook.

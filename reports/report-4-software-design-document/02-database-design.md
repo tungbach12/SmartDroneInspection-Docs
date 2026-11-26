@@ -7,139 +7,26 @@ source: "report4-software-design-document.docx"
 
 ## 2. Database Design
 
-**Scope boundary:** The schema models buildings only. Flyway applies `V1__baseline.sql`, a consolidated baseline holding the complete current schema and the catalog seeds, followed by fifteen forward migrations: `V2__remove_finding_recommended_action.sql` (merges the former `recommended_action` text into `technical_notes`), `V3__reinspection_resolved_validity.sql` (adds `verified_at` and `valid_until` to re-inspection verdicts), `V4__payment_due_expiry.sql` (adds payment due and overdue-notice columns), `V60__quote_partner_assignment_optional.sql` (makes the quoted partner Inspector and drone optional), `V61__inspection_chat_and_dispatch_settings.sql` (Inspector–Customer chat, dispatch timeout settings and timeout tracking), `V62__inspection_knowledge_rag.sql` (DroneKnowledgeAI case/standard stores with `pgvector` embeddings), `V63__ai_auto_confirm_default_70.sql` (lowers default `auto_confirm_threshold` in `platform_ai_settings` from `85.00` to `70.00`), `V64__backfill_published_historical_cases.sql` (idempotently backfills existing published confirmed findings into `historical_finding_cases`), `V65__rag_local_embeddings_384.sql` (alters `embedding` columns to `vector(384)` and rebuilds HNSW cosine indexes for local multilingual `fastembed` embeddings), `V66__asset_ownership_information.sql` (adds plain-text `assets.ownership_information VARCHAR(1000)` and backfills existing values from `technical_profile jsonb`), `V67__gateway_order_created_at.sql` (adds `service_payments.gateway_order_created_at TIMESTAMPTZ` to enforce unresolved gateway order lifetimes), `V68__gateway_inbound_transactions.sql` (adds the `gateway_inbound_transactions` webhook audit table with unique `(gateway, external_id)` deduplication), `V69__split_inspection_flight_permits_and_field_session_telemetry.sql` (extracts 1-to-1 `inspection_flight_permits` and `field_session_telemetry` from `inspections` and `field_sessions`), `V70__service_request_partner_messages.sql` (adds private Manager ↔ Inspector partner-chat messages and attachments per `ServiceRequest`), and `V71__service_request_inspection_items.sql` (adds `inspection_items jsonb` on `service_requests` and `inspections` for Manager-configured per-request checkpoints). No maintenance table, index, or column exists in the delivered schema, and no destructive migration is performed on retained data. `FullDatabaseSchemaMigrationTest` asserts the applied migration set is exactly `["1","2","3","4","60","61","62","63","64","65","66","67","68","69","70","71"]`. The schema contains **50 application tables** (`48` JPA-mapped tables plus `audit_events` and `platform_ai_settings`); together with the `event_publication` outbox and `flyway_schema_history`, the `public` schema holds **52 tables** (`RUNTIME_ENTITY_TABLES` has 49 members because it also includes `event_publication`).
+**Scope boundary.** The PostgreSQL 17 schema covers building inspections. Flyway applies the consolidated `V1__baseline.sql` and forward migrations `V2`-`V4` and `V60`-`V80`. The `public` schema contains 53 application tables, the Spring Modulith `event_publication` outbox, and the `flyway_schema_history` migration ledger. The physical ERD shows the 54 tables for the application and outbox.
 
 **Files and Persistence Storage Description**
 
 SmartDroneInspection persists structured relational data in **PostgreSQL 17** and binary media and documents in **MinIO S3-compatible object storage**:
 
-- **Flyway Schema Migration Files (`SmartDroneInspection-backend/src/main/resources/db/migration/`)**: Versioned forward SQL migrations applied automatically by Flyway on startup. `V1__baseline.sql` is the single consolidated baseline containing the full current schema, all constraints, indexes, and catalog seed rows; `V2`, `V3`, `V4`, and `V60`–`V71` are the forward migrations layered on top of it. `FullDatabaseSchemaMigrationTest` asserts that all Flyway scripts apply cleanly and match the expected 52-table schema, so an accidental renumbering or an unstaged script fails the build. The schema includes the Spring Modulith `event_publication` transactional outbox, the request-level Manager assignment columns on `service_requests`, per-request and per-inspection `inspection_items jsonb` checkpoints (`V71`), the separated 1-to-1 flight-permit verification table `inspection_flight_permits` and SmartDroneHub telemetry table `field_session_telemetry` (`V69`), the `service_request_message_attachments` metadata table plus `service_request_partner_messages` and `service_request_partner_message_attachments` (`V70`), the evidence-media optimization and resumable upload session tables, the re-inspection verdict validity window (`V3`), the payment due/overdue-notice window (`V4`), optional quotation partner and drone references (`V60`), the Inspector–Customer chat and platform operations settings (`V61`), the `pgvector` case/standard stores (`V62`), the `70.00` default AI auto-confirm threshold (`V63`), historical published-case backfill (`V64`), `vector(384)` local multilingual embeddings (`V65`), dedicated plain-text `assets.ownership_information` (`V66`), gateway order creation timestamps (`V67`), and the idempotent inbound payment webhook audit log (`V68`). These records do not execute bank or payment-gateway transfers.
+- **Flyway migration scripts** in `SmartDroneInspection-backend/src/main/resources/db/migration/` define the schema, constraints, indexes, and catalog seed data. Migrations through `V80` cover the flight-permit and telemetry split, ratings, per-sortie flight records, report approval and payout, partner chat, and the request checkpoint snapshot.
 - **MinIO Object Storage Files (`inspection-evidence` bucket)**: Binary files are streamed through `MinioEvidenceObjectStore` using UUID-scoped object keys referenced by PostgreSQL columns:
   - `contracts/requests/{requestId}/{uuid}/{fileName}`: signed offline service agreement scans (`service_requests.contract_object_key`).
-  - `contracts/requests/{requestId}/messages/{uuid}/{fileName}` and `contracts/requests/{requestId}/partner-messages/{inspectorId}/{uuid}/{fileName}`: private service-request order-chat and Manager–Inspector partner-chat attachments (`service_request_message_attachments`, `service_request_partner_message_attachments` `V70`). Metadata records store the message foreign key, safe file name, verified MIME type, byte size, SHA-256, and object key. APIs recheck request/partner assignment scope before any read and never accept a client-supplied object key. Inspector–Customer chat attachments are handled analogously under `inspections/{inspectionId}/messages/{uuid}/{fileName}` (`inspection_messages`, `inspection_message_attachments`, `V61`), with a 4000-character body cap, verified MIME type, SHA-256, a 10 MiB per-file and 20 MiB total-per-message limit, and delivery only through `InspectionChatController` after the inspection read scope is rechecked.
+  - `contracts/requests/{requestId}/messages/{uuid}/{fileName}` and `contracts/requests/{requestId}/partner-messages/{inspectorId}/{uuid}/{fileName}`: private service-request order-chat and Manager–Inspector partner-chat attachments (`service_request_message_attachments`, `service_request_partner_message_attachments` `V79`). Metadata records store the message foreign key, safe file name, verified MIME type, byte size, SHA-256, and object key. APIs recheck request/partner assignment scope before any read and never accept a client-supplied object key. Inspector–Customer chat attachments are handled analogously under `inspections/{inspectionId}/messages/{uuid}/{fileName}` (`inspection_messages`, `inspection_message_attachments`, `V61`), with a 4000-character body cap, verified MIME type, SHA-256, a 10 MiB per-file and 20 MiB total-per-message limit, and delivery only through `InspectionChatController` after the inspection read scope is rechecked.
   - `licenses/{userId}/{uuid}-{fileName}` and `drone-registration-applications/{inspectorId}/evidence/{docType}/{uuid}.{ext}`: Inspector pilot-licence scans (`inspector_profiles.pilot_license_file_key`), configurable drone registration documents, and drone photographs referenced by `drone_registration_applications` and `drones`.
   - `assets/{assetId}/documents/{uuid}-{fileName}`: building engineering drawings and reference documents verified with SHA-256 checksums (`asset_documents.object_key`).
-  - `inspections/{inspectionId}/flight-permits/{uuid}-{fileName}` and `inspections/{inspectionId}/evidence/{uuid}-{fileName}` (with `.../raw/{uuid}-{fileName}`, `.../thumb/{uuid}.jpg`, `.../poster/{uuid}.jpg`): mission flight permits (`inspections.flight_permit_file_key`), normalized photographs up to 2048 px with 480 px JPEG thumbnails, and raw staged MP4 uploads retained until the FFmpeg outputs (a 1080p H.264 `+faststart` primary MP4 and a 480 px JPEG poster) are verified and committed `READY` (`evidence.object_key`, `raw_object_key`, `thumbnail_object_key`).
+  - `inspections/{inspectionId}/flight-permits/{uuid}-{fileName}` and `inspections/{inspectionId}/evidence/{uuid}-{fileName}` (with `.../raw/{uuid}-{fileName}`, `.../thumb/{uuid}.jpg`, `.../poster/{uuid}.jpg`): mission flight permits (`inspection_flight_permits.file_key`), normalized photographs up to 2048 px with 480 px JPEG thumbnails, and raw staged MP4 uploads retained until the FFmpeg outputs (a 1080p H.264 `+faststart` primary MP4 and a 480 px JPEG poster) are verified and committed `READY` (`evidence.object_key`, `raw_object_key`, `thumbnail_object_key`).
   - `reports/{reportVersionId}.pdf`: rendered A4 inspection reports produced by openhtmltopdf.
 
-```mermaid
-%% title: Database Entity Relationship Diagram (ERD)
-erDiagram
-  users ||--o{ prospective_customer_registrations : submits
-  users ||--o| inspector_profiles : has_profile
-  users ||--o{ inspector_applications : applies
-  users |o--o{ otp_challenges : verifies
-  users ||--o{ auth_sessions : opens
-  users ||--o{ inspector_flight_logs : logs
-  users ||--o{ drones : owns_drone
-  users ||--o{ drone_registration_applications : submits
-  drones |o--o{ drone_registration_applications : provisions
-  users ||--o{ inspection_finance_settings : configures
-  users ||--o{ platform_ai_settings : configures
-  users ||--o{ assets : owns
-  asset_categories ||--o{ assets : classifies
-  asset_categories ||--o{ inspection_items : defines
-  assets ||--o{ asset_documents : attaches
-  assets ||--o{ service_requests : targets
-  assets ||--o{ inspections : undergoes
-  users ||--o{ service_requests : creates
-  service_requests ||--o{ service_request_messages : discusses
-  service_request_messages ||--o{ service_request_message_attachments : carries
-  service_requests ||--o{ service_request_partner_messages : coordinates
-  service_request_partner_messages ||--o{ service_request_partner_message_attachments : carries
-  service_requests ||--o{ service_request_quotes : versions
-  service_requests ||--o{ service_request_occurrences : schedules
-  service_request_occurrences ||--o| service_invoices : prices
-  service_invoices ||--o| service_payments : settled_by
-  service_invoices ||--o| inspector_payouts : pays
-  service_payments ||--o{ service_refunds : refunds
-  service_refunds ||--o| inspector_receivables : assesses
-  inspector_receivables ||--o{ inspector_receivable_recoveries : recovers
-  service_request_occurrences |o--o| inspections : dispatches
-  users ||--o{ inspections : inspects
-  drones ||--o{ inspections : flies
-  inspections |o--o{ inspections : reinspects
-  inspections ||--o{ field_sessions : executes
-  inspections ||--o{ evidence : contains
-  field_sessions ||--o{ evidence : captures
-  inspections ||--o{ evidence_upload_sessions : stages
-  field_sessions ||--o{ evidence_upload_sessions : binds
-  users ||--o{ evidence_upload_sessions : uploads
-  evidence_upload_sessions |o--o| evidence : finalizes
-  evidence |o--o{ evidence : derives
-  inspections ||--o{ findings : records
-  evidence ||--o{ findings : locates
-  inspections ||--o| inspection_flight_permits : authorizes
-  field_sessions ||--o| field_session_telemetry : measures
-  inspections ||--o{ inspection_reports : delivers
-  inspections ||--o{ reinspection_defect_verifications : verifies
-  findings ||--o{ reinspection_defect_verifications : rechecks
-  inspections ||--o{ inspection_messages : discusses
-  inspection_messages ||--o{ inspection_message_attachments : carries
-  users ||--o{ platform_operations_settings : configures
-  findings |o--o| historical_finding_cases : indexed_as
-  inspections |o--o{ historical_finding_cases : publishes
-  users ||--o{ notifications : receives
-  users ||--o{ audit_events : acts
-  users ||--o{ inspector_reliability_events : causes
-  field_sessions ||--o{ inspector_reliability_events : evidences
-  asset_categories {
-    uuid id PK
-    varchar code
-  }
-  checklist_templates {
-    uuid id PK
-    varchar template_type
-  }
-  drone_document_configs {
-    uuid id PK
-    varchar code
-  }
-  drone_feature_configs {
-    uuid id PK
-    varchar code
-  }
-  pilot_license_classes {
-    uuid id PK
-    varchar name
-  }
-  reinspection_defect_verifications {
-    uuid id PK
-    timestamp verified_at
-    timestamp valid_until
-    varchar resolution_status
-  }
-  service_payments {
-    uuid occurrence_id PK
-    timestamp payment_due_at
-    timestamp payment_overdue_notified_at
-    timestamp gateway_order_created_at
-  }
-  gateway_inbound_transactions {
-    uuid id PK
-    varchar gateway
-    varchar external_id
-    bigint order_code
-    bigint amount
-    varchar status
-  }
-  inspection_knowledge_chunks {
-    uuid id PK
-    varchar standard_code
-    vector embedding
-  }
-  historical_finding_cases {
-    uuid id PK
-    vector embedding
-    boolean is_anonymized_benchmark
-    uuid organization_id
-  }
-  event_publication {
-    UUID id PK
-    String event_type
-    String listener_id
-  }
-```
+![Complete SmartDroneInspection physical ERD in Compact layout](assets/diagrams/smartdrone-physical-erd-compact.png)
+
+*Figure 4.1 — PostgreSQL 17 physical ERD in dbdiagram Compact layout. It shows all 54 tables defined in the Physical ERD DBML.*
+
+Open [smartdrone-physical-erd-compact.pdf](../../diagrams/smartdrone-physical-erd-compact.pdf) to inspect fields and relationships at full resolution.
 
 **Table Descriptions**
 
@@ -191,12 +78,15 @@ erDiagram
 | 44 | `inspection_knowledge_chunks` | Stores the eight seeded engineering-standard/guideline chunks that ground DroneKnowledgeAI (`V62`, updated to `vector(384)` by `V65`): standard code (for example `TCVN 9343:2012`, `TCVN 9361:2012`, `EN 1504-9`, `ISO 12944-5`, `ASTM C1583`), title, asset-category code, defect patterns, severity, guidance text, reference URL, and a `vector(384)` embedding generated by the local multilingual `fastembed` model (`paraphrase-multilingual-MiniLM-L12-v2`). Category and HNSW `vector_cosine_ops` indexes support cosine retrieval; the embedding is read and written with parameterized JDBC rather than JPA.<br>- Primary keys: `id`<br>- Foreign keys: None |
 | 45 | `historical_finding_cases` | Stores six anonymized benchmark cases with no customer PII plus confirmed findings backfilled (`V64`) and indexed automatically when a report is published (`V62`, updated to `vector(384)` by `V65`): source finding/inspection and organization/asset references, asset category and label, defect label, severity, technical notes, report outcome (including re-inspection resolution status), anonymized-benchmark flag, publication time, and a `vector(384)` embedding with an HNSW `vector_cosine_ops` index. Missing embeddings are backfilled asynchronously on startup (`ApplicationReadyEvent`). Retrieval enforces tenant isolation through `(organization_id = actor org OR is_anonymized_benchmark = TRUE) AND (source_inspection_id IS NULL OR source_inspection_id <> current inspection)`, so no cross-organization PII leaks and an inspection cannot recommend itself.<br>- Primary keys: `id`<br>- Foreign keys: None (logical links to `findings`, `inspections`, `assets`, `users`) |
 | 46 | `gateway_inbound_transactions` | Audit log for authenticated inbound payment-gateway notifications (`V68`), uniquely deduplicated on `(gateway, external_id)` when `external_id` is non-null: records `gateway`, `external_id`, `order_code`, `amount`, `account_number`, raw `payload`, processing `status` (`APPLIED`, `AMOUNT_MISMATCH`, `ORDER_NOT_FOUND`, `REJECTED`, `ERROR`), diagnostic `detail`, `received_at`, and `updated_at`. Persisted in `REQUIRES_NEW` transactions by `GatewayInboundTransactionService` so rejected/mismatched transfers stay auditable even when payment application rolls back.<br>- Primary keys: `id`<br>- Foreign keys: None |
-| 47 | `inspection_flight_permits` | Stores the 1-to-1 flight-permit document and independent verification gate split from `inspections` (`V69`): `file_key`, `file_name`, `permit_number`, `authority`, `valid_from`, `valid_to`, `drone_serial`, `max_altitude_m`, `file_sha256`, `file_size_bytes`, `content_type`, `uploaded_at`, `uploaded_by`, `verification_status`, `verified_by`, `verified_at`, `rejection_reason`, and `review_notes`.<br>- Primary keys: `inspection_id`<br>- Foreign keys: `inspection_id` → `inspections.id`, `uploaded_by`, `verified_by` → `users.id` |
+| 47 | `inspection_flight_permits` | Stores the 1-to-1 flight-permit document and Inspector self-attestation record split from `inspections` (`V69`): `file_key`, `file_name`, `permit_number`, `authority`, `valid_from`, `valid_to`, `drone_serial`, `max_altitude_m`, `file_sha256`, `file_size_bytes`, `content_type`, `uploaded_at`, `uploaded_by`, `verification_status`, `verified_by`, `verified_at`, `rejection_reason`, and `review_notes`.<br>- Primary keys: `inspection_id`<br>- Foreign keys: `inspection_id` → `inspections.id`, `uploaded_by`, `verified_by` → `users.id` |
 | 48 | `field_session_telemetry` | Stores the 1-to-1 SmartDroneHub telemetry payload and metrics split from `field_sessions` (`V69`): `telemetry_source`, `flight_duration_seconds`, `distance_flown_meters`, `max_altitude_meters`, `start_battery_percent`, `end_battery_percent`, `flight_final_state`, `flight_report_note`, `flight_trace_json`, and `flight_video_evidence_id`.<br>- Primary keys: `field_session_id`<br>- Foreign keys: `field_session_id` → `field_sessions.id`, `flight_video_evidence_id` → `evidence.id` |
-| 49 | `service_request_partner_messages` | Stores private Manager ↔ Inspector coordination chat messages per `(request_id, inspector_id)` (`V70`): body text, read receipt, creation time, and author.<br>- Primary keys: `id`<br>- Foreign keys: `request_id` → `service_requests.id`, `inspector_id`, `author_user_id` → `users.id` |
-| 50 | `service_request_partner_message_attachments` | Stores private attachment metadata for Manager ↔ Inspector partner-chat messages (`V70`): safe file name, verified MIME type, byte size, SHA-256, object key, and creation time.<br>- Primary keys: `id`<br>- Foreign keys: `message_id` → `service_request_partner_messages.id` |
+| 49 | `service_request_partner_messages` | Stores private Manager ↔ Inspector coordination chat messages per `(request_id, inspector_id)` (`V79`): body text, read receipt, creation time, and author.<br>- Primary keys: `id`<br>- Foreign keys: `request_id` → `service_requests.id`, `inspector_id`, `author_user_id` → `users.id` |
+| 50 | `service_request_partner_message_attachments` | Stores private attachment metadata for Manager ↔ Inspector partner-chat messages (`V79`): safe file name, verified MIME type, byte size, SHA-256, object key, and creation time.<br>- Primary keys: `id`<br>- Foreign keys: `message_id` → `service_request_partner_messages.id` |
+| 51 | `inspector_ratings` | Stores Customer and Manager ratings of an Inspector for an inspection, including criterion scores and an optional comment (`V70`).<br>- Primary key: `id`<br>- Foreign keys: `inspection_id` to `inspections.id`, and `inspector_id` and `rater_user_id` to `users.id` |
+| 52 | `field_session_flights` | Stores each sortie within a field session, including flight timing, telemetry, track, and linked video evidence (`V72`).<br>- Primary key: `id`<br>- Foreign keys: `field_session_id` to `field_sessions.id`, `inspection_id` to `inspections.id`, and `flight_video_evidence_id` to `evidence.id` |
+| 53 | `rating_criterion_configs` | Stores localized rating criteria, display order, and active status by rater role (`V73`).<br>- Primary key: `id`<br>- Foreign keys: None |
 
-**Framework tables (not counted among the 50 application tables):** `event_publication` stores the Spring Modulith transactional outbox — listener identifier, event type, serialized event payload, publication and completion times, status, completion attempts, and last resubmission time — providing reliable asynchronous delivery of domain events to `notifications` (primary key `id`, no foreign keys). `flyway_schema_history` is Flyway's own migration ledger. Together with the 50 application tables, these bring the `public` schema to 52 tables.
+**Framework tables (not counted among the 53 application tables):** `event_publication` stores the Spring Modulith transactional outbox — listener identifier, event type, serialized event payload, publication and completion times, status, completion attempts, and last resubmission time — providing reliable asynchronous delivery of domain events to `notifications` (primary key `id`, no foreign keys). `flyway_schema_history` is Flyway's own migration ledger. Together with the 53 application tables, these bring the `public` schema to 55 tables.
 
 **Logical schema conventions**
 

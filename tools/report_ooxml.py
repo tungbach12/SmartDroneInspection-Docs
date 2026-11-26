@@ -115,6 +115,7 @@ class Block:
     rows: list[list[str]] | None = None
     language: str = ""
     source: Path | None = None
+    keep_with_next: bool = False
 
 
 def split_row(line):
@@ -256,8 +257,9 @@ def key_values(path, first_header="Field"):
 
 
 class WordDocument:
-    def __init__(self, template):
+    def __init__(self, template, *, fallback_table_header_fill=None):
         self.package = Package(template)
+        self.fallback_table_header_fill = fallback_table_header_fill
         self.doc = self.package.xml("word/document.xml")
         self.body = descendants(self.doc, "body")[0]
         original = children(self.body)
@@ -548,11 +550,16 @@ class WordDocument:
                 row.appendChild(tr_pr)
                 for col, value in enumerate(row_values):
                     cell = element(self.doc, W, "w:tc")
-                    cell.appendChild(element(self.doc, W, "w:tcPr"))
+                    cell_pr = element(self.doc, W, "w:tcPr")
+                    cell.appendChild(cell_pr)
                     if len(widths) > col:
-                        cell_pr = children(cell, "tcPr")[0]
                         cell_pr.appendChild(element(self.doc, W, "w:tcW", {
                             "w:w": str(widths[col]), "w:type": "dxa"}))
+                    if index == 0 and self.fallback_table_header_fill:
+                        cell_pr.appendChild(element(self.doc, W, "w:shd", {
+                            "w:val": "clear", "w:color": "auto",
+                            "w:fill": self.fallback_table_header_fill,
+                        }))
                     p = self.plain_paragraph(value, bold=index == 0,
                                              centered=index > 0 and col == 0)
                     cell.appendChild(p)
@@ -852,6 +859,17 @@ class WordDocument:
             else:
                 self.body.appendChild(self.paragraph(block.text))
                 page_lines += max(1, len(block.text) // 80)
+
+            if block.keep_with_next:
+                paragraph = self.body.lastChild
+                properties = (children(paragraph, "pPr") or [None])[0]
+                if properties is None:
+                    properties = element(self.doc, W, "w:pPr")
+                    paragraph.insertBefore(properties, paragraph.firstChild)
+                if not children(properties, "keepNext"):
+                    following = next((child for child in children(properties)
+                                      if child.localName != "pStyle"), None)
+                    properties.insertBefore(element(self.doc, W, "w:keepNext"), following)
 
             if page_lines >= 38:
                 current_page += page_lines // 38

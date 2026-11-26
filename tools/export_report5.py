@@ -27,6 +27,13 @@ BLANK_SPACER_ROW = 15
 V29_ROUND3_CASE_IDS = {"WF3-018", "WF3-019"}
 POST_ROUND1_CASE_IDS = V29_ROUND3_CASE_IDS | {
     "WF2-021",
+    "WF2-022",
+    "WF2-023",
+    "WF2-024",
+    "WF2-025",
+    "WF2-026",
+    "WF2-027",
+    "WF2-028",
     "WF2-029",
     "WF2-030",
     "WF2-031",

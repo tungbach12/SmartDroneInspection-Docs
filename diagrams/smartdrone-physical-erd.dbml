@@ -56,7 +56,7 @@ Table prospective_customer_registrations {
   id uuid [pk]
   user_id uuid [unique, not null]
   organization_name varchar(200) [not null]
-  organization_code varchar(64) [unique, not null]
+  organization_code varchar(64) [not null, note: 'partial unique WHERE status = PENDING']
   asset_category_id uuid [not null]
   asset_code varchar(64) [not null]
   asset_name varchar(200) [not null]
@@ -218,6 +218,7 @@ Table asset_documents {
   file_name varchar(500) [not null]
   content_type varchar(160) [not null]
   size_bytes bigint [not null]
+  checksum_sha256 char(64) [not null]
   object_key varchar(1000) [unique, not null]
   document_date date
   created_at timestamptz [not null]
@@ -253,7 +254,7 @@ Table drones {
 Table drone_registration_applications {
   id uuid [pk]
   inspector_user_id uuid [not null]
-  serial_number varchar(128) [unique, not null]
+  serial_number varchar(128) [not null, note: 'partial unique WHERE status = PENDING']
   model varchar(1000)
   manufacturer varchar(200)
   registration_number varchar(100) [not null]
@@ -353,6 +354,7 @@ Table service_request_message_attachments {
   file_name varchar(255) [not null]
   content_type varchar(128) [not null]
   size_bytes bigint [not null]
+  checksum_sha256 varchar(64) [not null]
   object_key varchar(512) [unique, not null]
   created_at timestamptz [not null]
 }
@@ -394,6 +396,10 @@ Table service_request_quotes {
   updated_at timestamptz [not null]
   updated_by_user_id uuid [not null]
   row_version bigint [not null]
+
+  indexes {
+    (id, request_id) [unique]
+  }
 }
 
 Table service_request_occurrences {
@@ -649,6 +655,7 @@ Table inspection_message_attachments {
   file_name varchar(255) [not null]
   content_type varchar(120) [not null]
   size_bytes bigint [not null]
+  checksum_sha256 varchar(64) [not null]
   object_key varchar(512) [not null]
   created_at timestamptz [not null]
 }
@@ -891,81 +898,109 @@ Table event_publication {
 }
 
 Ref: auth_sessions.user_id > users.id
-Ref: otp_challenges.user_id > users.id
-Ref: prospective_customer_registrations.user_id > users.id
+Ref: otp_challenges.user_id >? users.id
+Ref: prospective_customer_registrations.user_id - users.id
 Ref: prospective_customer_registrations.asset_category_id > asset_categories.id
-Ref: inspector_applications.reviewed_by_user_id > users.id
+Ref: prospective_customer_registrations.reviewed_by_user_id >? users.id
+Ref: inspector_applications.reviewed_by_user_id >? users.id
+Ref: inspector_applications.approved_user_id >? users.id
 Ref: inspector_profiles.user_id - users.id
+Ref: inspector_profiles.approved_by_user_id >? users.id
 Ref: inspector_flight_logs.inspector_user_id > users.id
+Ref: inspector_flight_logs.recorded_by_user_id >? users.id
 Ref: inspection_items.category_id > asset_categories.id
 Ref: assets.category_id > asset_categories.id
 Ref: assets.owner_customer_id > users.id
 Ref: asset_documents.asset_id > assets.id
-Ref: drones.inspector_owner_id > users.id
-Ref: drones.owner_customer_id > users.id
+Ref: asset_documents.uploaded_by_user_id > users.id
+Ref: drones.inspector_owner_id >? users.id
+Ref: drones.owner_customer_id >? users.id
 Ref: drone_registration_applications.inspector_user_id > users.id
-Ref: drone_registration_applications.drone_id > drones.id
+Ref: drone_registration_applications.reviewed_by_user_id >? users.id
+Ref: drone_registration_applications.drone_id >? drones.id
 Ref: service_requests.asset_id > assets.id
-Ref: service_requests.accepted_quote_id > service_request_quotes.id
+Ref: service_requests.(accepted_quote_id, id) >? service_request_quotes.(id, request_id)
 Ref: service_requests.owner_customer_id > users.id
-Ref: service_requests.source_inspection_id > inspections.id
-Ref: service_requests.assigned_manager_id > users.id
+Ref: service_requests.source_inspection_id >? inspections.id
+Ref: service_requests.assigned_manager_id >? users.id
+Ref: service_requests.accepted_by_user_id >? users.id
+Ref: service_requests.manager_assigned_by_user_id >? users.id
 Ref: service_request_messages.request_id > service_requests.id
+Ref: service_request_messages.author_user_id > users.id
 Ref: service_request_message_attachments.message_id > service_request_messages.id
 Ref: service_request_partner_messages.request_id > service_requests.id
 Ref: service_request_partner_messages.inspector_id > users.id
 Ref: service_request_partner_messages.author_user_id > users.id
 Ref: service_request_partner_message_attachments.message_id > service_request_partner_messages.id
-Ref: service_request_quotes.request_id > service_requests.id
-Ref: service_request_quotes.inspector_id > users.id
-Ref: service_request_quotes.drone_id > drones.id
+Ref: service_request_quotes.request_id - service_requests.id
+Ref: service_request_quotes.inspector_id >? users.id
+Ref: service_request_quotes.drone_id >? drones.id
+Ref: service_request_quotes.issued_by_user_id > users.id
+Ref: service_request_quotes.updated_by_user_id > users.id
 Ref: service_request_occurrences.request_id > service_requests.id
-Ref: service_request_occurrences.inspector_id > users.id
-Ref: service_request_occurrences.drone_id > drones.id
-Ref: service_request_occurrences.inspection_id > inspections.id
+Ref: service_request_occurrences.inspector_id >? users.id
+Ref: service_request_occurrences.drone_id >? drones.id
+Ref: service_request_occurrences.inspection_id - inspections.id
+Ref: service_request_occurrences.last_timeout_inspector_id >? users.id
 Ref: inspections.asset_id > assets.id
-Ref: inspections.inspector_id > users.id
-Ref: inspections.drone_id > drones.id
+Ref: inspections.inspector_id >? users.id
+Ref: inspections.drone_id >? drones.id
 Ref: inspections.owner_customer_id > users.id
+Ref: inspections.declined_by_inspector_id >? users.id
+Ref: inspections.source_inspection_id >? inspections.id
 Ref: inspection_flight_permits.inspection_id - inspections.id
+Ref: inspection_flight_permits.uploaded_by >? users.id
+Ref: inspection_flight_permits.verified_by >? users.id
 Ref: field_sessions.inspection_id > inspections.id
+Ref: field_sessions.aborted_by_user_id >? users.id
 Ref: field_session_telemetry.field_session_id - field_sessions.id
-Ref: field_session_telemetry.flight_video_evidence_id > evidence.id
+Ref: field_session_telemetry.flight_video_evidence_id >? evidence.id
 Ref: field_session_flights.field_session_id > field_sessions.id
 Ref: field_session_flights.inspection_id > inspections.id
-Ref: field_session_flights.flight_video_evidence_id > evidence.id
+Ref: field_session_flights.flight_video_evidence_id >? evidence.id
 Ref: evidence.inspection_id > inspections.id
-Ref: evidence.field_session_id > field_sessions.id
+Ref: evidence.field_session_id >? field_sessions.id
+Ref: evidence.source_video_evidence_id >? evidence.id
 Ref: evidence_upload_sessions.inspection_id > inspections.id
-Ref: evidence_upload_sessions.field_session_id > field_sessions.id
-Ref: evidence_upload_sessions.evidence_id > evidence.id
+Ref: evidence_upload_sessions.field_session_id >? field_sessions.id
+Ref: evidence_upload_sessions.created_by_user_id > users.id
+Ref: evidence_upload_sessions.evidence_id >? evidence.id
 Ref: findings.inspection_id > inspections.id
-Ref: findings.evidence_id > evidence.id
+Ref: findings.evidence_id >? evidence.id
 Ref: reinspection_defect_verifications.reinspection_id > inspections.id
 Ref: reinspection_defect_verifications.source_finding_id > findings.id
-Ref: reinspection_defect_verifications.new_evidence_id > evidence.id
+Ref: reinspection_defect_verifications.new_evidence_id >? evidence.id
 Ref: inspection_reports.inspection_id > inspections.id
+Ref: inspection_reports.reviewer_user_id >? users.id
 Ref: inspector_ratings.inspection_id > inspections.id
 Ref: inspector_ratings.inspector_id > users.id
 Ref: inspector_ratings.rater_user_id > users.id
 Ref: inspection_messages.inspection_id > inspections.id
+Ref: inspection_messages.author_user_id > users.id
 Ref: inspection_message_attachments.message_id > inspection_messages.id
 Ref: service_invoices.occurrence_id - service_request_occurrences.id
 Ref: service_payments.occurrence_id - service_invoices.occurrence_id
 Ref: service_refunds.occurrence_id > service_payments.occurrence_id
+Ref: service_refunds.allocation_reconciled_by_user_id >? users.id
+Ref: service_refunds.initiated_by_user_id > users.id
+Ref: service_refunds.completed_by_user_id >? users.id
+Ref: service_refunds.cancelled_by_user_id >? users.id
 Ref: inspector_payouts.occurrence_id - service_invoices.occurrence_id
-Ref: inspector_payouts.inspector_id > users.id
-Ref: inspector_receivables.refund_id > service_refunds.id
+Ref: inspector_payouts.inspector_id >? users.id
+Ref: inspector_payouts.payout_recorded_by_user_id >? users.id
+Ref: inspector_receivables.refund_id - service_refunds.id
 Ref: inspector_receivables.occurrence_id > service_request_occurrences.id
 Ref: inspector_receivables.inspector_id > users.id
+Ref: inspector_receivables.recorded_by_user_id > users.id
 Ref: inspector_receivable_recoveries.receivable_id > inspector_receivables.id
+Ref: inspector_receivable_recoveries.recorded_by_user_id > users.id
 Ref: inspector_reliability_events.inspector_id > users.id
 Ref: inspector_reliability_events.inspection_id > inspections.id
-Ref: inspector_reliability_events.field_session_id > field_sessions.id
+Ref: inspector_reliability_events.field_session_id >? field_sessions.id
 Ref: notifications.recipient_user_id > users.id
-Ref: audit_events.actor_user_id > users.id
-Ref: inspection_finance_settings.updated_by_user_id > users.id
-Ref: platform_ai_settings.updated_by > users.id
-Ref: platform_operations_settings.updated_by_user_id > users.id
+Ref: audit_events.actor_user_id >? users.id
+Ref: inspection_finance_settings.updated_by_user_id >? users.id
+Ref: platform_ai_settings.updated_by >? users.id
+Ref: platform_operations_settings.updated_by_user_id >? users.id
 Ref: historical_finding_cases.source_finding_id - findings.id
-Ref: historical_finding_cases.source_inspection_id > inspections.id
+Ref: historical_finding_cases.source_inspection_id >? inspections.id

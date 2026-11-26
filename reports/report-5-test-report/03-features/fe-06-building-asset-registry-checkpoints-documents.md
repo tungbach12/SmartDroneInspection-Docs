@@ -9,7 +9,7 @@ Values for the `Feature 6` summary block (`A2:E8` in the workbook).
 | Cell | Label | Value |
 | --- | --- | --- |
 | `B2` | Feature | Building Asset Registry, Checkpoints & Reference Documents |
-| `B3` | Test requirement | Verifies Customer building asset creation with plain-text ownership information (`assets.ownership_information` per `V66`) alongside `technical_profile jsonb`, `inspection_items` checkpoints, the `checkpointsLocked` response flag and read-only Customer lock after the first inspection, MinIO reference documents with SHA-256 duplicate guards, NFZ creation guard, and `ACTIVE -> RETIRED` terminal lock. |
+| `B3` | Test requirement | Covers Customer building asset creation with plain-text ownership, structural specifications, and stored inspection checkpoints. It covers the asset API checkpoint lock, role-specific checkpoint visibility in the web building detail, MinIO reference documents and duplicate-file checks, the no-fly-zone creation guard, and retirement. |
 
 ## Test case execution records
 
@@ -20,3 +20,5 @@ Values for the `Feature 6` summary block (`A2:E8` in the workbook).
 | WF1-013 | Customer retires an asset (`ACTIVE -> RETIRED`) and system blocks subsequent modifications or new service requests. | 1. Call POST /api/v1/assets/{assetId}/retire as `CUSTOMER`.<br>2. Attempt PUT /api/v1/assets/{assetId} or new `ServiceRequest` creation on the retired asset.<br>3. Attempt POST /retire as `INSPECTOR`. | Asset transitions `ACTIVE -> RETIRED` (200 OK) while preserving historical inspections/reports; subsequent edits or service requests on a `RETIRED` asset are rejected (400/404/409); `INSPECTOR` is rejected with 403. | Active `Asset` fixture in PostgreSQL 17. | Passed | 2026-10-26 | Trần Hoàng Trung Hiếu | Pending |  |  | Pending |  |  | [Target: FE-02 Exception/RBAC & State AssetStatus] [Mode: Automated (AssetApiIntegrationTest, AssetTest, AssetsPage.resources.test.tsx)] [Owner: Trần Hoàng Trung Hiếu] |
 
 > **Checkpoint lock contract (2026-11-23):** `AssetResponse.checkpointsLocked` is `false` at creation and `true` once any inspection row exists. Verified by backend `AssetApiIntegrationTest#exposesCheckpointLockOnceAnInspectionExists` (1/1: false -> true on GET detail and list, and `409 INSPECTION_HISTORY_EXISTS` on a post-inspection edit) and Frontend `AssetsPage.checkpoints.test.tsx` (2/2: Customer sees the editor before inspection and the lock message after). Case counts and execution statuses are unchanged; the full multi-round WF1-011 scenario remains Pending beyond its Round 1 Passed record.
+
+> **Web building detail (2026-11-26):** `npm test -- src/features/assets/pages/AssetsPage.checkpoints.test.tsx` passed all three checks. Customer detail hides checkpoints both before and after the lock, and Manager detail shows the read-only checkpoint list. This updates the web evidence above. The `WF1-011` API scenario and round results are unchanged.
