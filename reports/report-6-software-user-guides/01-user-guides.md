@@ -330,11 +330,11 @@ Open the Customer conversation from **Messages** in the inspection.
 
 Open **Flight Permit** while the inspection is scheduled.
 
-Select **Choose permit file** (up to 25 MB). To update an existing permit, select **Replace permit** and **Choose replacement permit file**. Enter the permit details and check the assigned drone and flight window.
+❶ Select **Choose permit file** (up to 25 MB). To update an existing permit, select **Replace permit** and **Choose replacement permit file**. Enter the permit details and check the assigned drone and flight window.
 
-Select **Save flight permit** (**Lưu giấy phép bay**). Check that a valid upload shows **Approved**. If a drone change or reschedule resets the permit, save a replacement.
+❷ Select **Save flight permit** (**Lưu giấy phép bay**). Check that a valid upload shows **Approved**. If a drone change or reschedule resets the permit, save a replacement.
 
-If you have accepted the assignment and field work has yet to start, select **Withdraw from assignment** (**Rút khỏi phân công**), enter the reason and select **Confirm withdrawal** (**Xác nhận rút**). The inspections list opens and the Manager can reassign or cancel the scheduled inspection. After starting a session, contact the Manager to change the schedule, even if you have since aborted the session.
+❸ If you have accepted the assignment and field work has yet to start, select **Withdraw from assignment** (**Rút khỏi phân công**), enter the reason and select **Confirm withdrawal** (**Xác nhận rút**). The inspections list opens and the Manager can reassign or cancel the scheduled inspection. After starting a session, contact the Manager to change the schedule, even if you have since aborted the session.
 
 ![Flight Permit screen with save and withdrawal actions](assets/manual/wf4-permit-form.png)
 
@@ -346,9 +346,9 @@ If you have accepted the assignment and field work has yet to start, select **Wi
 
 ❶ Select **Pre-flight Check** in the progress bar.
 
-❷ Verify each item under **Required checks**. Check applicable optional items below that list.
+❷ Verify and tick each item under **Required checks**, along with any applicable optional items below.
 
-❸ Use **Check all** only after verifying every item it will mark.
+*Note:* Use **Check all** only after verifying every item it will mark.
 
 ![Required pre-flight checks and checklist controls](assets/manual/wf4-05-ins-preflight.png)
 
