@@ -180,7 +180,7 @@ These capabilities have no dedicated screen of their own; they run inside a user
 
 #### 3.1.5 Entity Relationship Diagram
 
-The persisted model comprises **53 application tables** (plus the Spring Modulith `event_publication` outbox = 54 runtime entities, and `flyway_schema_history` = 55 total PostgreSQL tables) spanning identity, buildings, partner compliance, commercial workflows, field operations, evidence/AI analysis, reporting, ratings, and financial settlement (described technically in Report 4 §2). Figure 3.11 shows the high-level conceptual entities and relationships (`Conceptual Overview (Chen)`), while all 53 application tables and `event_publication` are listed in the Entities Description table below.
+The schema contains **53 application tables**, the Spring Modulith `event_publication` outbox, and the `flyway_schema_history` ledger, for **55 PostgreSQL tables**. The backend maps 52 of those tables at runtime. Figure 3.11 shows the conceptual relationships. The table below lists the application tables and the outbox. Report 4 §2 describes the physical schema.
 
 ![Conceptual Entity Relationship Diagram (Chen)](assets/erd.png)
 
