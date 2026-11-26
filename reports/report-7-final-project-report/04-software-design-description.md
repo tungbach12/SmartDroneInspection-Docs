@@ -12,7 +12,7 @@ source: "Report7_Final Project Report.docx"
 
 SmartDroneInspection uses a modular client-server architecture that separates the client presentation sub-systems, the modular monolith backend (`FE-01`–`FE-24` across `MF1`–`MF4`), the persistence and object storage layer, and the external services.
 
-The clients are a React 19 web application serving four role-scoped portals and a Flutter mobile application that admits customer accounts only. The backend is a Spring Boot 4.1 modular monolith across eight modules whose permitted collaborators are declared per module and enforced by an architecture test. Persistence is PostgreSQL 17 with `53` application tables (`55` total tables in `public` including `event_publication` and `flyway_schema_history`, applied via `V1`–`V4` and `V60`–`V80`) and `pgvector` support for `DroneKnowledgeAI`, and binary content lives in MinIO. External services are the self-hosted YOLO11 detector, an OpenAI-compatible vision and drafting gateway, an optional ground-station hub, Sepay VietQR (for both customer collections and `SDIPAY` partner payouts) and VNPay for settlement, and Google OAuth2 for federated sign-in.
+The web portal serves all four roles, and the mobile app serves Customers. Both use a Spring Boot backend that stores records in PostgreSQL and files in MinIO. The component table below describes the services used for AI analysis, telemetry, payment, and sign-in.
 
 ![System architecture](assets/diagrams/arch-system-architecture.png)
 
@@ -25,9 +25,9 @@ The clients are a React 19 web application serving four role-scoped portals and 
 | Application Server | Java 21, Spring Boot 4.1.0, Spring Modulith 2.1.1 | Domain logic, authorization, state transitions, report management, audit, events. |
 | YOLO11 & FastEmbed Service | Python FastAPI, Ultralytics YOLO11s, FastEmbed | Primary building-defect candidate detection and local 384-dimension multilingual embeddings (`POST /v1/embeddings`). |
 | Vision and Drafting Gateway | OpenAI-compatible HTTP API | Vision fallback, single-shot narrative drafting, and AI finding note drafting. |
-| Knowledge Advisor (`DroneKnowledgeAI`) | `HistoricalCaseService` + `DroneKnowledgeClient` | Tenant-isolated historical-case and engineering-standard retrieval over `pgvector` (`vector(384)` HNSW) + `POST .../draft-note`, with deterministic `HYBRID_MATCH` fallback, historical backfill (`V64`), and startup embedding backfill. |
+| Knowledge Advisor (`DroneKnowledgeAI`) | `HistoricalCaseService` and `DroneKnowledgeClient` | Finds relevant engineering standards and comparable defect cases for review and report drafting. |
 | SmartDroneHub | External ground station | Read-only telemetry, flight traces, and mission video. |
-| PostgreSQL | PostgreSQL 17 | `53` application tables (`V1`–`V4`, `V60`–`V80`) and `pgvector` case/standard stores; `55` total tables in `public` (`event_publication` outbox + `flyway_schema_history`), gateway webhook log, and audit trail. |
+| PostgreSQL | PostgreSQL 17 | Stores application records, audit events, and vectors for similarity search. |
 | MinIO | S3-compatible object storage | Private storage of documents, evidence, and published report artefacts. |
 | Sepay, VNPay, Google OAuth2 | External HTTPS services | Settlement (`SDI` / `SDIPAY`) and federated sign-in. |
 
@@ -98,7 +98,9 @@ The web client separates `app` (shell, router, access policy, theme) from nine f
 
 ## 2. Database Design
 
-**Scope boundary.** The schema models buildings only. Flyway applies `V1__baseline.sql`, a consolidated baseline holding the complete schema and catalog seeds, followed by forward migrations `V2`–`V4` and `V60`–`V80`: including `V62`–`V65` (`DroneKnowledgeAI` `pgvector` 384d HNSW stores and historical case backfill), `V66` (`assets.ownership_information`), `V67`–`V68` (payment order timestamps and `gateway_inbound_transactions`), `V69` (1-to-1 `inspection_flight_permits` and `field_session_telemetry`), `V70` (`inspector_ratings`), `V72` (`field_session_flights` multi-sortie table), `V73` (`rating_criterion_configs`), `V76`–`V77` (`inspection_reports` `APPROVED` payout workflow state & backfill), `V78` (`inspector_payouts.payout_order_code` `SDIPAY`), `V79` (`service_request_partner_messages` & `_attachments`), and `V80` (`service_requests.inspection_items` checkpoint snapshot). `FullDatabaseSchemaMigrationTest` asserts all `55` relations in `public` (`53` application tables + `event_publication` outbox + `flyway_schema_history`; `52` `RUNTIME_ENTITY_TABLES`). Legacy table `prospective_customer_registrations` is retained untouched in PostgreSQL for schema stability and receives no new writes (`FE-07`).
+The database supports building inspections. It stores the records that link each building and service request to its inspections, evidence, reports, and payments.
+
+Figure 7.8 shows the physical schema. The release has 53 application tables and two framework tables in PostgreSQL's `public` schema.
 
 ![SmartDroneInspection physical database schema](assets/diagrams/smartdrone-physical-erd-compact.png)
 
@@ -124,7 +126,7 @@ The web client separates `app` (shell, router, access policy, theme) from nine f
 
 *Figure 7.8j — Logical Crow's-Foot ERD: Service Invoices, Payments, Payouts, Refunds & Receivables.*
 
-**Framework tables:** `event_publication` stores the Spring Modulith transactional outbox and `flyway_schema_history` is Flyway's migration ledger (`55` total relations in `public`). Additional `V70`–`V80` entities (`field_session_flights`, `inspector_ratings`, `rating_criterion_configs`, `service_request_partner_messages`, `service_request_partner_message_attachments`) appear in Domains 3–5 above.
+The framework tables are `event_publication` for the event outbox and `flyway_schema_history` for migration tracking. See Chapter V, Section 5.3 for the schema verification. The table below describes selected records.
 
 | No | Table | Description |
 | :---: | :--- | :--- |
@@ -533,7 +535,7 @@ This section presents the detailed design for `FE-16`: Ultralytics `YOLO11s` (`M
 
 ### 3.17 `MF3` — `FE-17` AI Case/Standard Retrieval (`pgvector` RAG), Note Drafting & Report Summary
 
-This section presents the detailed design for `FE-17` (`DroneKnowledgeAI`): tenant-isolated `pgvector` `vector(384)` HNSW cosine search over `inspection_knowledge_chunks` and `historical_finding_cases` (`V62`, `V64` published-case backfill, `V65` local `fastembed` `paraphrase-multilingual-MiniLM-L12-v2` embeddings in `ai-inference`), automatic `HYBRID_MATCH` fallback, `POST .../draft-note` (`Draft note with AI` + batch `Draft all notes`), `ReportAiSummaryResponse.knowledgeReferences`, and Customer Mobile `KnowledgeReferencesStrip`.
+DroneKnowledgeAI finds relevant engineering standards and past defect cases to support finding notes and report summaries. It uses vector similarity search with a keyword-based fallback. The diagrams below show how the inspection workspace requests and displays the references.
 
 #### 3.17.1 Class & RAG Sequence Diagrams
 
@@ -549,7 +551,7 @@ This section presents the detailed design for `FE-17` (`DroneKnowledgeAI`): tena
 
 ### 3.18 `MF4` — `FE-18` Inspection Report Compilation, Independent Review, Payouts & Publication
 
-This section presents the detailed design for `FE-18`: deterministic fixed-section report compilation from confirmed findings (`SUBMITTED`, `RETURNED`, `APPROVED`, `PUBLISHED`, `SUPERSEDED` via `V76`–`V77`), single-shot advisory narrative drafting (`ReportDraftClient` + `Matched Cases & Standards`), strict non-author independent `MANAGER` approval (`ADMIN` read-only), integrated Partner Sepay VietQR payout (`V78` `SDIPAY`) prior to official publication, ungated `PUBLISHED` A4 PDF rendering without video buffering, and version supersession.
+The system compiles the report from confirmed findings. A Manager who did not author the report reviews it, and any required Inspector payout is settled before publication. A published report can be downloaded as a PDF.
 
 #### 3.18.1 Class, State & Publication Sequence Diagrams
 
@@ -691,9 +693,9 @@ This section presents the detailed design for `FE-24`: opening follow-up `RE_INS
 
 ### 3.25 Design Constraints and Exclusions
 
-**No maintenance design exists.** Corrective maintenance — work orders, repair scope advisory, repair execution, completion reporting, and cost close-out — is absent from the delivered codebase. There is no maintenance package, class, endpoint, or table, so there is no retained schema to document. `reinspection_defect_verifications` is part of the inspection design, not of a maintenance design: it records the three-way comparison (`RESOLVED`, `UNRESOLVED`, `INCONCLUSIVE`) between an original finding and fresh re-observed evidence during a re-inspection, including the `V3` `valid_until` expiry of a `RESOLVED` verdict, designed under `FE-24`.
+**Re-inspection.** The design records a verdict for each confirmed defect revisited after repair. The assigned Inspector compares the original finding with new evidence and marks it as resolved, unresolved, or inconclusive. A resolved verdict can expire. See Section 3.24 for the verification rules.
 
-**DroneKnowledgeAI is advisory, tenant-isolated and degradation-tolerant.** `V62` creates the `pgvector` extension, `V64` backfills published historical cases, and `V65` persists `vector(384)` embeddings in `inspection_knowledge_chunks` (eight seeded engineering standards) and `historical_finding_cases` (six anonymized benchmarks plus published confirmed findings), each with an HNSW `vector_cosine_ops` index. `HistoricalCaseService` (`FE-17`) backfills missing vectors on `ApplicationReadyEvent` and queries these stores behind `HistoricalCaseAdvisorPort`, using `PGVECTOR_RAG` via local `fastembed` `/v1/embeddings` when available and deterministic `HYBRID_MATCH` otherwise, as well as `AI_VISION_RAG` for note drafting (`POST .../draft-note`). Retrieval is scoped by `(organization_id = owning Customer ID OR is_anonymized_benchmark = TRUE) AND (source_inspection_id IS NULL OR source_inspection_id <> current inspection)`, so no cross-organization PII leaks. Recommendations, drafted notes, and knowledge references never confirm a finding, publish a report, clear a location for flight, or authorize maintenance.
+**Knowledge retrieval and review.** DroneKnowledgeAI searches engineering standards, anonymized benchmarks, and eligible cases belonging to the same Customer. It excludes the current inspection from its past-case results. Suggested references and draft text support the Inspector's review.
 
 **Buildings only.** Building-defect classes, inspection checkpoints, and asset categories are all building-specific. No design element addresses bridges, transmission towers, solar farms, roads, dams, tunnels, ports, or pipelines.
 
