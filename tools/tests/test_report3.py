@@ -8,7 +8,7 @@ class Report3Tests(unittest.TestCase):
         self.assertEqual(len(export_report3.SOURCES), 6)
         result = assert_word_export(self, export_report3)
         self.assertGreater(result["tables"], 9)
-        self.assertTrue(any("Mermaid" in warning for warning in result["warnings"]))
+        self.assertFalse(any("Mermaid" in warning for warning in result["warnings"]))
 
     def test_section_order_is_explicit(self):
         headings = [b.text for b in export_report3.blocks(REPORTS) if b.kind == "heading"]

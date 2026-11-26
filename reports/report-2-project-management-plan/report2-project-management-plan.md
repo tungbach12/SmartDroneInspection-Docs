@@ -17,6 +17,7 @@ source_docx: report2-project-management-plan.docx
 | 20 Nov 2026 | M | Team | Version 3.3: Extended the schema and AI tooling baseline through `V63`–`V65` (applied Flyway set `V1`–`V4` and `V60`–`V65`, retaining 45 application tables / 47 total PostgreSQL tables): `70.00` default AI auto-confirm threshold (`V63`), historical published-case backfill (`V64`), local `fastembed` `vector(384)` multilingual embeddings hosted in `ai-inference` (`V65`), finding/batch AI note drafting (`Draft note with AI` / `Draft all notes`), and finding confirmation status filter chips. |
 | 21 Nov 2026 | M | Team | Version 3.4: Split the WBS and RACI matrix into twenty-four atomic product features (`FE-01`–`FE-24`) plus four cross-cutting workstreams aligned to member ownership and weighted contribution (`24%` Hiếu / `50` md, `24%` Quốc / `50` md, `28%` Bách / `58` md, `24%` Như / `50` md; `208` man-days total), and synchronized plain-text building ownership details, concise recurring request titles, and streamlined service-request and quotation workflows. |
 | 22 Nov 2026 | M | Team | Version 3.5: Synchronized `FE-20` to `Sepay` VietQR & `VNPay` v2.1.0 hardening and the `48`-application-table (`50`-total PostgreSQL table) schema baseline (`V67`–`V69`, splitting `inspection_flight_permits` and `field_session_telemetry`). |
+| 25 Nov 2026 | M | Team | Version 3.6: Synchronized the delivered persistence baseline to `53` application tables (`55` total PostgreSQL tables) across Flyway `V1`–`V4` and `V60`–`V80`, aligned `FE-07` and `FE-13` names and `D5`/`D6` counts (`53` tables / `77` workbook cases) with Report 3 and Report 5, and replaced Figure 1 with the exported Draw.io `Agile Scrum Process` diagram. |
 
 *A - Added M - Modified D - Deleted
 
@@ -30,7 +31,7 @@ SmartDroneInspection is a platform-operated service for infrastructure inspectio
 
 The delivered scope covers four main flows — onboarding (`MF1`), buildings and commercial agreement through dispatch (`MF2`), field work through evidence and findings (`MF3`), and report review through payment settlement (`MF4`) — organised as twenty-four atomic product features (`FE-01`–`FE-24`) without grouping unrelated workflows. Work is decomposed below by owner workstream and cross-cutting tracks; complexity uses `Simple`, `Medium`, and `Complex`, and effort is expressed in man-days.
 
-The delivered persistence baseline covers 48 application tables (50 total PostgreSQL tables) managed through forward-only migrations and verified by automated schema checks. It encompasses plain-text building ownership details alongside structural specifications, the tenant-isolated `DroneKnowledgeAI` case and engineering-standard advisor with automatic keyword fallback when embeddings are unavailable, configurable AI auto-confirm defaults (`70%`), historical case indexing, re-inspection verdict expiry and payment-due deadlines, optional quotation-stage partner assignment, private Inspector–Customer inspection chat, streamlined service-request and quotation screens, and full Customer mobile app parity. The total effort remains reconciled at **208 man-days** (`50 / 50 / 58 / 50` = `24% / 24% / 28% / 24%`) against 300 raw person-days.
+The delivered persistence baseline covers 53 application tables (55 total PostgreSQL tables) managed through forward-only migrations (`V1`–`V4` and `V60`–`V80`) and verified by automated schema checks. It encompasses plain-text building ownership details alongside structural specifications, immediate restricted-airspace onboarding with `MSG28` advisory warnings, Inspector self-attested flight permits, multi-flight field sorties and detailed safety checklists, Customer/Manager Inspector ratings against Administrator-configured criteria, dedicated Step-3 `SePay` VietQR partner payouts gating official report publication, private Manager–Inspector Partner Chat and per-request checkpoints, bilingual notifications with critical SMTP email alerts, the tenant-isolated `DroneKnowledgeAI` case and engineering-standard advisor with automatic keyword fallback, configurable AI auto-confirm defaults (`70%`), historical case indexing, re-inspection verdict expiry and payment-due deadlines, streamlined service-request and quotation screens, and Customer mobile app parity. The total effort remains reconciled at **208 man-days** (`50 / 50 / 58 / 50` = `24% / 24% / 28% / 24%`) against 300 raw person-days.
 
 | # | WBS Item | Complexity | Est. Effort (man-days) |
 | --- | --- | --- | --- |
@@ -42,14 +43,14 @@ The delivered persistence baseline covers 48 application tables (50 total Postgr
 | 1.5 | `FE-05` Financial History & Revenue/Payment Ledger (`MF4` ledger views) | Medium | 7 |
 | 2 | Buildings, Commercial Service, Chat & Notifications (`MF2`, `FE-06`–`FE-12`) | Complex | 45 |
 | 2.1 | `FE-06` Building Asset Registry, Checkpoints & Reference Documents | Complex | 8 |
-| 2.2 | `FE-07` Restricted Airspace Review & Clearance Decision | Medium | 5 |
+| 2.2 | `FE-07` Restricted Airspace Advisory Warning & Immediate Onboarding | Medium | 5 |
 | 2.3 | `FE-08` Service Requests (One-Time & Recurring) & VND Quotations | Complex | 9 |
 | 2.4 | `FE-09` Offline Signed Contract & Occurrence Dispatch Scheduling | Complex | 8 |
 | 2.5 | `FE-10` Dual-Channel Messaging (Order Chat & Inspection Chat) | Medium | 6 |
 | 2.6 | `FE-11` Assignment Acceptance Timeout & Escalation Handling | Simple | 4 |
 | 2.7 | `FE-12` System Notifications & Alert Center | Medium | 5 |
 | 3 | Field Execution, AI Inference/RAG & Report Publication (`MF3` + `FE-18`, `FE-13`–`FE-18`) | Complex | 48 |
-| 3.1 | `FE-13` Flight Permit Upload & Independent Verification Gate (`MF3`) | Medium | 7 |
+| 3.1 | `FE-13` Flight Permit Upload & Inspector Self-Attestation Gate (`MF3`) | Medium | 7 |
 | 3.2 | `FE-14` On-Site Field Session & SmartDroneHub MAVLink Telemetry (`MF3`) | Complex | 8 |
 | 3.3 | `FE-15` Field Evidence Intake & Chunked Video Processing Pipeline (`MF3`) | Complex | 9 |
 | 3.4 | `FE-16` AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Confirmation (`MF3`) | Complex | 8 |
@@ -111,7 +112,7 @@ Allocated Effort (man-days): requirements and project management 20; architectur
 
 ### 2.1 Project Process
 
-![Agile Scrum project management process](assets/image13.png)
+![Agile Scrum project management process](assets/agile-scrum-process.png)
 
 Figure 1. Agile Scrum project management process.
 
@@ -150,8 +151,8 @@ To ensure project quality throughout development, the team continuously applies 
 | D2 | Report 2 — Project Management Plan | Week 3 | 24-feature work breakdown (`208` md), risk register, weighted RACI, and quality plan. |
 | D3 | Review 1 Gate Package | Week 4 | Registration form, management plan, draft requirements, and architecture baseline. |
 | D4 | Report 3 — Software Requirement Specification | Week 8 | Complete requirements for four roles and 24 atomic features (`FE-01`–`FE-24`), with screen and authorization matrices. |
-| D5 | Report 4 — Software Design Document | Week 8 | System architecture, package and 45-table database design, and per-feature detailed design diagrams. |
-| D6 | Report 5 — Test Documentation and Test Report | Week 8, updated Week 13 | Testing plan plus the 24-sheet, 67-case executed test workbook (`Feature 1`–`Feature 24`). |
+| D5 | Report 4 — Software Design Document | Week 8 | System architecture, package and 53-table database design (`V1`–`V4`, `V60`–`V80`), and per-feature detailed design diagrams. |
+| D6 | Report 5 — Test Documentation and Test Report | Week 8, updated Week 13 | Testing plan plus the 24-sheet, 77-case executed test workbook (`Feature 1`–`Feature 24`). |
 | D7 | Review 2 Submission Package | Week 8 | The four review artefacts required at the second review. |
 | D8 | Integrated Release and Verification | Week 13 | All four flows demonstrated on the deployed build. |
 | D9 | Final Submission Package (Reports 1–7) | Weeks 14–15 | Final release, deployed demonstration, and complete documentation. |
@@ -170,13 +171,13 @@ D~Do; R~Review; S~Support; I~Informed; <blank>- Omitted
 | `FE-04` Interactive Location Map & No-Fly Zone Airspace Screening | D | S | R | S | I |
 | `FE-05` Financial History & Revenue/Payment Ledger | D | S | R | S | I |
 | `FE-06` Building Asset Registry, Checkpoints & Reference Documents | S | D | R | S | R |
-| `FE-07` Restricted Airspace Review & Clearance Decision | S | D | R | S | I |
+| `FE-07` Restricted Airspace Advisory Warning & Immediate Onboarding | S | D | R | S | I |
 | `FE-08` Service Requests (One-Time & Recurring) & VND Quotations | R | D | S | S | R |
 | `FE-09` Offline Signed Contract & Occurrence Dispatch Scheduling | R | D | S | S | R |
 | `FE-10` Dual-Channel Messaging (Order Chat & Inspection Chat) | S | D | R | S | I |
 | `FE-11` Assignment Acceptance Timeout & Escalation Handling | S | D | R | S | I |
 | `FE-12` System Notifications & Alert Center | S | D | S | R | I |
-| `FE-13` Flight Permit Upload & Independent Verification Gate | S | R | S | D | R |
+| `FE-13` Flight Permit Upload & Inspector Self-Attestation Gate | S | R | S | D | R |
 | `FE-14` On-Site Field Session & SmartDroneHub MAVLink Telemetry | R | S | S | D | R |
 | `FE-15` Field Evidence Intake & Chunked Video Processing Pipeline | S | S | R | D | R |
 | `FE-16` AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Confirmation | S | R | S | D | R |
@@ -220,7 +221,7 @@ Source code is managed in four independent GitHub repositories — backend, web 
 | Technology | Java 21, Spring Boot 4.1, Spring Modulith, Spring Security with JWT and Google OAuth2, Hibernate/JPA, Flyway; Python with FastAPI and Ultralytics for the vision service; React 19, TypeScript, Vite, Material UI, TanStack Query; Flutter with Riverpod and GoRouter |
 | Database | PostgreSQL 17 with pgcrypto and pgvector (`vector(384)`, HNSW cosine index for the `DroneKnowledgeAI` `inspection_knowledge_chunks` and `historical_finding_cases` retrieval layer powered by local `fastembed` `paraphrase-multilingual-MiniLM-L12-v2` embeddings; `HYBRID_MATCH` fallback when the embedding endpoint is unavailable) |
 | IDEs/Editors | Visual Studio Code, IntelliJ IDEA, Android Studio |
-| Diagramming | Mermaid and Draw.io sources kept in version control alongside the reports |
+| Diagramming | Draw.io multi-tab XML sources (`diagrams/*.drawio`) and exported PNG assets kept in version control alongside the reports |
 | Documentation | Markdown in the documentation repository with automated OOXML export to the official Word and Excel templates |
 | Version Control | Git and GitHub, with protected branches and pull-request review |
 | Deployment server | Docker Compose on a Linux host, Nginx for the web client, object storage for evidence media |

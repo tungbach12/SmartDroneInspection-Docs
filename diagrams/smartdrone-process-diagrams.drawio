@@ -1,35 +1,153 @@
-<mxfile host="app.diagrams.net" pages="1">
+<mxfile host="app.diagrams.net" pages="2">
   <diagram id="83n6dg3poX-HR_07IO_L" name="Agile Scrum Process">
-    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="540" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="jVK7xuovN8KA7p4wh3S3-9" edge="1" parent="1" source="jVK7xuovN8KA7p4wh3S3-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="jVK7xuovN8KA7p4wh3S3-6" value="">
+        <mxCell id="scrum-start" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="24" width="24" x="40" y="108" as="geometry" />
+        </mxCell>
+        <mxCell id="scrum-backlog" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" value="&lt;b&gt;Product Backlog&lt;/b&gt;&lt;br&gt;MF1–MF4 &amp;amp; FE-01–FE-24&lt;br&gt;Requirements Baseline" vertex="1">
+          <mxGeometry height="80" width="160" x="100" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="scrum-p1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" value="&lt;b&gt;1. Plan Iteration&lt;/b&gt;&lt;br&gt;Prioritize sprint backlog,&lt;br&gt;risks &amp;amp; cross-repo order" vertex="1">
+          <mxGeometry height="80" width="220" x="310" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="scrum-p2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" value="&lt;b&gt;2. Refine &amp;amp; Design&lt;/b&gt;&lt;br&gt;Acceptance criteria,&lt;br&gt;DB migrations, API &amp;amp; UI" vertex="1">
+          <mxGeometry height="80" width="220" x="620" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="scrum-p3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" value="&lt;b&gt;3. Build &amp;amp; Verify&lt;/b&gt;&lt;br&gt;Implement vertical slice,&lt;br&gt;PR review &amp;amp; automated tests" vertex="1">
+          <mxGeometry height="80" width="220" x="620" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="scrum-p4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" value="&lt;b&gt;4. Demonstrate &amp;amp; Adapt&lt;/b&gt;&lt;br&gt;Sprint review, Report 5 sync&lt;br&gt;&amp;amp; supervisor feedback" vertex="1">
+          <mxGeometry height="80" width="220" x="310" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="scrum-center" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEEEEE;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;Daily Scrum &amp;amp; Sprint Loop&lt;/b&gt;&lt;br&gt;Repeat across Review 1 (W4), Review 2 (W8),&lt;br&gt;Defense (W13) &amp;amp; Final Release (W15)" vertex="1">
+          <mxGeometry height="64" width="250" x="450" y="193" as="geometry" />
+        </mxCell>
+        <mxCell id="scrum-release" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=12;fontColor=#000000;" value="&lt;b&gt;Verified Increment&lt;/b&gt;&lt;br&gt;Deployed Build &amp;amp;&lt;br&gt;Reports 1–7" vertex="1">
+          <mxGeometry height="80" width="160" x="100" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="scrum-end" parent="1" style="ellipse;shape=doubleEllipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" value="" vertex="1">
+          <mxGeometry height="24" width="24" x="40" y="318" as="geometry" />
+        </mxCell>
+        <mxCell id="e-start-backlog" edge="1" parent="1" source="scrum-start" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;exitPerimeter=0;entryX=0;entryY=0.5;entryPerimeter=0;" target="scrum-backlog" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="jVK7xuovN8KA7p4wh3S3-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;b&gt;1. Plan interation&lt;/b&gt;&lt;br&gt;Prioritize backlog and risks" vertex="1">
-          <mxGeometry height="60" width="200" x="200" y="280" as="geometry" />
-        </mxCell>
-        <mxCell id="jVK7xuovN8KA7p4wh3S3-10" edge="1" parent="1" source="jVK7xuovN8KA7p4wh3S3-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="jVK7xuovN8KA7p4wh3S3-7" value="">
+        <mxCell id="e-backlog-p1" edge="1" parent="1" source="scrum-backlog" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;exitPerimeter=0;entryX=0;entryY=0.5;entryPerimeter=0;" target="scrum-p1" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="jVK7xuovN8KA7p4wh3S3-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;b&gt;2. Refine and design&lt;/b&gt;&lt;br&gt;Acceptance criteria&amp;nbsp; API | UI" vertex="1">
-          <mxGeometry height="60" width="200" x="480" y="280" as="geometry" />
-        </mxCell>
-        <mxCell id="jVK7xuovN8KA7p4wh3S3-11" edge="1" parent="1" source="jVK7xuovN8KA7p4wh3S3-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="jVK7xuovN8KA7p4wh3S3-8" value="">
+        <mxCell id="e-p1-p2" edge="1" parent="1" source="scrum-p1" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=1;exitY=0.5;exitPerimeter=0;entryX=0;entryY=0.5;entryPerimeter=0;" target="scrum-p2" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="jVK7xuovN8KA7p4wh3S3-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;b&gt;3.Build and verify&lt;/b&gt;&lt;br&gt;Implement | review | test" vertex="1">
-          <mxGeometry height="60" width="200" x="480" y="440" as="geometry" />
-        </mxCell>
-        <mxCell id="jVK7xuovN8KA7p4wh3S3-12" edge="1" parent="1" source="jVK7xuovN8KA7p4wh3S3-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="jVK7xuovN8KA7p4wh3S3-5" value="">
+        <mxCell id="e-p2-p3" edge="1" parent="1" source="scrum-p2" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitPerimeter=0;entryX=0.5;entryY=0;entryPerimeter=0;" target="scrum-p3" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="jVK7xuovN8KA7p4wh3S3-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;b&gt;4. Demonstrate and adapt&lt;/b&gt;&lt;br&gt;Review increment | record feedback" vertex="1">
-          <mxGeometry height="60" width="200" x="200" y="440" as="geometry" />
+        <mxCell id="e-p3-p4" edge="1" parent="1" source="scrum-p3" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=0;exitY=0.5;exitPerimeter=0;entryX=1;entryY=0.5;entryPerimeter=0;" target="scrum-p4" value="">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="jVK7xuovN8KA7p4wh3S3-14" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b&gt;Repeat implementation interations release after acceptance&lt;/b&gt;" vertex="1">
-          <mxGeometry height="30" width="210" x="330" y="380" as="geometry" />
+        <mxCell id="e-p4-p1" edge="1" parent="1" source="scrum-p4" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=0.5;exitY=0;exitPerimeter=0;entryX=0.5;entryY=1;entryPerimeter=0;" target="scrum-p1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-p4-rel" edge="1" parent="1" source="scrum-p4" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=0;exitY=0.5;exitPerimeter=0;entryX=1;entryY=0.5;entryPerimeter=0;" target="scrum-release" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-rel-end" edge="1" parent="1" source="scrum-release" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1;endArrow=classic;endFill=1;exitX=0;exitY=0.5;exitPerimeter=0;entryX=1;entryY=0.5;entryPerimeter=0;" target="scrum-end" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="sdi-end-to-end-flow" name="End-to-End Operational Flow">
+    <mxGraphModel dx="1450" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1380" pageHeight="620" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="mf1-lane" parent="1" style="swimlane;startSize=36;fillColor=#EEEEEE;swimlaneFillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=12;fontStyle=1;fontColor=#000000;rounded=0;" value="MF1 · Identity, Airspace &amp; Readiness" vertex="1">
+          <mxGeometry height="440" width="300" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mf1-s1" parent="mf1-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-01 · Auth &amp;amp; 4-Role Access&lt;/b&gt;&lt;br&gt;Password/OTP/Google OAuth2 across&lt;br&gt;ADMIN, MANAGER, CUSTOMER, INSPECTOR" vertex="1">
+          <mxGeometry height="76" width="260" x="20" y="56" as="geometry" />
+        </mxCell>
+        <mxCell id="mf1-s2" parent="mf1-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-04 &amp;amp; FE-07 · Vietnam Airspace Map&lt;/b&gt;&lt;br&gt;No-Fly Zone blocked · Restricted Zone&lt;br&gt;amber MSG28 warning + immediate signup" vertex="1">
+          <mxGeometry height="76" width="260" x="20" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="mf1-s3" parent="mf1-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-02 · Partner Inspector Onboarding&lt;/b&gt;&lt;br&gt;Public licence application, MANAGER approval,&lt;br&gt;signed partner contract &amp;amp; expiry sweep" vertex="1">
+          <mxGeometry height="76" width="260" x="20" y="264" as="geometry" />
+        </mxCell>
+        <mxCell id="mf1-s4" parent="mf1-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-03 · Owned Drone Fleet&lt;/b&gt;&lt;br&gt;Photos, Decree 288 weight class, 3-doc rules,&lt;br&gt;MANAGER review &amp;amp; serviceability status" vertex="1">
+          <mxGeometry height="72" width="260" x="20" y="356" as="geometry" />
+        </mxCell>
+        <mxCell id="mf2-lane" parent="1" style="swimlane;startSize=36;fillColor=#EEEEEE;swimlaneFillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=12;fontStyle=1;fontColor=#000000;rounded=0;" value="MF2 · Buildings, Commercial &amp; Dispatch" vertex="1">
+          <mxGeometry height="440" width="300" x="370" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mf2-s1" parent="mf2-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-06 · Building Assets &amp;amp; Checkpoints&lt;/b&gt;&lt;br&gt;6 building categories, plain-text ownership,&lt;br&gt;reference docs &amp;amp; post-inspection lock" vertex="1">
+          <mxGeometry height="76" width="260" x="20" y="56" as="geometry" />
+        </mxCell>
+        <mxCell id="mf2-s2" parent="mf2-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-08 · Service Requests &amp;amp; VND Quotes&lt;/b&gt;&lt;br&gt;1-time or recurring (&amp;gt;=20d lead, 2–100x),&lt;br&gt;MANAGER claim, checkpoints &amp;amp; VND quote" vertex="1">
+          <mxGeometry height="76" width="260" x="20" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="mf2-s3" parent="mf2-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-09 · Contract &amp;amp; Crew Dispatch&lt;/b&gt;&lt;br&gt;Accept quote, upload signed paper contract,&lt;br&gt;cross-org conflict check &amp;amp; bulk assignment" vertex="1">
+          <mxGeometry height="76" width="260" x="20" y="264" as="geometry" />
+        </mxCell>
+        <mxCell id="mf2-s4" parent="mf2-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-10–12 · Chat, Timeout &amp;amp; Alerts&lt;/b&gt;&lt;br&gt;Order / Partner / Inspection chat, 24h timeout&lt;br&gt;escalation &amp;amp; bilingual alerts/SMTP email" vertex="1">
+          <mxGeometry height="72" width="260" x="20" y="356" as="geometry" />
+        </mxCell>
+        <mxCell id="mf3-lane" parent="1" style="swimlane;startSize=36;fillColor=#EEEEEE;swimlaneFillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=12;fontStyle=1;fontColor=#000000;rounded=0;" value="MF3 · Permit, Field Work &amp; AI Analysis" vertex="1">
+          <mxGeometry height="440" width="300" x="700" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mf3-s1" parent="mf3-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-13 · Self-Attested Flight Permit&lt;/b&gt;&lt;br&gt;Inspector upload (&amp;lt;=25 MB) validated&lt;br&gt;immediately; MANAGER/ADMIN read-only audit" vertex="1">
+          <mxGeometry height="76" width="260" x="20" y="56" as="geometry" />
+        </mxCell>
+        <mxCell id="mf3-s2" parent="mf3-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-14 · Field Session &amp;amp; Telemetry&lt;/b&gt;&lt;br&gt;Pre/post-flight checklists, multi-flight sorties,&lt;br&gt;SmartDroneHub MAVLink or log/manual entry" vertex="1">
+          <mxGeometry height="76" width="260" x="20" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="mf3-s3" parent="mf3-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-15 · Evidence &amp;amp; Video Pipeline&lt;/b&gt;&lt;br&gt;EXIF/2048px photo normalization, chunked&lt;br&gt;2 GiB MP4 transcode &amp;amp; signed 5m playback" vertex="1">
+          <mxGeometry height="76" width="260" x="20" y="264" as="geometry" />
+        </mxCell>
+        <mxCell id="mf3-s4" parent="mf3-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-16 &amp;amp; FE-17 · AI &amp;amp; Confirmed Findings&lt;/b&gt;&lt;br&gt;YOLO11 + Vision fallback, human baseline,&lt;br&gt;DroneKnowledgeAI RAG &amp;amp; AI note/summary" vertex="1">
+          <mxGeometry height="72" width="260" x="20" y="356" as="geometry" />
+        </mxCell>
+        <mxCell id="mf4-lane" parent="1" style="swimlane;startSize=36;fillColor=#EEEEEE;swimlaneFillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=12;fontStyle=1;fontColor=#000000;rounded=0;" value="MF4 · Reporting, Payout &amp; Settlement" vertex="1">
+          <mxGeometry height="440" width="300" x="1030" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mf4-s1" parent="mf4-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-18 · Independent Report Publication&lt;/b&gt;&lt;br&gt;Non-author MANAGER approves (APPROVED),&lt;br&gt;gates on payout, then publishes PDF (PUBLISHED)" vertex="1">
+          <mxGeometry height="76" width="260" x="20" y="56" as="geometry" />
+        </mxCell>
+        <mxCell id="mf4-s2" parent="mf4-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-22 · Partner Payout (SePay VietQR)&lt;/b&gt;&lt;br&gt;Inspector bank setup (VIETQR_BANKS),&lt;br&gt;Step 3 SDIPAY payout &amp;amp; outgoing webhook" vertex="1">
+          <mxGeometry height="76" width="260" x="20" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="mf4-s3" parent="mf4-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-19–21 · Acceptance, Rating &amp;amp; Checkout&lt;/b&gt;&lt;br&gt;Customer accepts report, rates Inspector,&lt;br&gt;pays via Sepay VietQR / VNPay + PDF receipt" vertex="1">
+          <mxGeometry height="76" width="260" x="20" y="264" as="geometry" />
+        </mxCell>
+        <mxCell id="mf4-s4" parent="mf4-lane" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-23, FE-24 &amp;amp; FE-05 · Refunds &amp;amp; Ledger&lt;/b&gt;&lt;br&gt;5-part refund &amp;amp; receivables, re-inspection&lt;br&gt;(Resolved/Unresolved/Inconclusive) &amp;amp; ledger" vertex="1">
+          <mxGeometry height="72" width="260" x="20" y="356" as="geometry" />
+        </mxCell>
+        <mxCell id="e-mf1-mf2" edge="1" parent="1" source="mf1-lane" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;exitX=1;exitY=0.5;exitPerimeter=0;entryX=0;entryY=0.5;entryPerimeter=0;" target="mf2-lane" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-mf2-mf3" edge="1" parent="1" source="mf2-lane" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;exitX=1;exitY=0.5;exitPerimeter=0;entryX=0;entryY=0.5;entryPerimeter=0;" target="mf3-lane" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-mf3-mf4" edge="1" parent="1" source="mf3-lane" style="edgeStyle=none;html=1;strokeColor=#000000;strokeWidth=1.5;endArrow=classic;endFill=1;exitX=1;exitY=0.5;exitPerimeter=0;entryX=0;entryY=0.5;entryPerimeter=0;" target="mf4-lane" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="reinsp-note" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EEEEEE;strokeColor=#000000;strokeWidth=1;fontFamily=Helvetica;fontSize=11;fontColor=#000000;" value="&lt;b&gt;FE-24 Re-inspection Loop:&lt;/b&gt; Linked post-remediation request reuses MF2 dispatch, MF3 field/evidence, and MF4 verification" vertex="1">
+          <mxGeometry height="44" width="630" x="535" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="e-mf4-reinsp" edge="1" parent="1" source="mf4-lane" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.2;dashed=1;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitPerimeter=0;entryX=1;entryY=0.5;entryPerimeter=0;" target="reinsp-note" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1180" y="542" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-reinsp-mf2" edge="1" parent="1" source="reinsp-note" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;strokeWidth=1.2;dashed=1;endArrow=classic;endFill=1;exitX=0;exitY=0.5;exitPerimeter=0;entryX=0.5;entryY=1;entryPerimeter=0;" target="mf2-lane" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="520" y="542" />
+            </Array>
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>

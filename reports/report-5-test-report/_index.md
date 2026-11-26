@@ -11,4 +11,4 @@ working source for current test cases, execution rounds, and statistics across f
 
 See [README.md](README.md) for the editing workflow.
 
-Current scope revision: **3.16** (2026-11-26). Report 5 lists 77 cases across 24 feature sheets, including 75 active cases and two superseded flight-permit cases. Current Round 1 records 52 Passed, 0 Failed, 9 Pending, and 16 N/A. Round 3 records 13 Passed executions. The FE-06 evidence records three passing web checks for Customer and Manager checkpoint visibility. See the [test statistics](02-test-statistics/test-statistics.md) for round totals.
+Current scope revision: **3.17** (2026-11-26). Report 5 lists 77 cases across 24 feature sheets, including 75 active cases and two superseded flight-permit cases. Current Round 1 records 52 Passed, 0 Failed, 9 Pending, and 16 N/A. Round 3 records 13 Passed executions. The FE-06 evidence records three passing web checks for Customer and Manager checkpoint visibility. FE-14 records Customer flight-data access checks before and after report publication. See the [test statistics](02-test-statistics/test-statistics.md) for round totals.
