@@ -386,17 +386,17 @@ The table summarizes the domain's core persisted entities across identity, build
 
 ### 3.7 `MF2` — `FE-06` Building Asset Registry, Checkpoints & Reference Documents
 
-- **Function trigger**: `ADMIN` maintains the six building categories, or a `CUSTOMER` creates, updates, inspects checkpoints on, uploads reference documents for, or retires a building, or `MANAGER`/`ADMIN` views authorized building records.
+- **Function trigger**: `ADMIN` maintains the six building categories. `CUSTOMER` creates, updates, uploads reference documents for, or retires a building. `MANAGER` or `ADMIN` views authorized building records.
 - **Actors**: `CUSTOMER`, `ADMIN`, `MANAGER`.
 - **Function description**: Maintain the building-only asset inventory, category-seeded inspection checkpoints, plain-text ownership metadata, and duplicate-free engineering reference documents under the airspace gate.
 - **Screen layout (mock-up)**: Customer `Assets` register and detail view, New/Edit Building modal, Admin `Asset Catalog` and category dialog, and Admin/Manager building directories. See Figure 3.8.
 - **Requirements**:
   - Supported asset categories are restricted exclusively to the six platform-managed **building categories**. Non-building infrastructure categories cannot be registered (`BR-07`, `MSG23`). Updating a category does not retroactively mutate existing buildings' checkpoints.
   - Building ownership details are stored as dedicated plain text (up to `1,000` characters) alongside structural specifications so users can enter readable ownership notes without JSON formatting.
-  - Asset creation validates a unique building code within the owning organization, enforces the No-Fly Zone gate (`FE-04`), and seeds default inspection checkpoints from the chosen category. Customers may adjust checkpoints only before the first inspection is created; once any inspection exists, checkpoints lock automatically. Asset list and detail responses expose a `checkpointsLocked` flag; once true, the Customer detail renders the checkpoint list read-only with an explanatory lock and the checkpoint endpoint rejects edits with `409 INSPECTION_HISTORY_EXISTS`.
+  - Asset creation validates a unique building code within the owning organization, enforces the No-Fly Zone gate (`FE-04`), and seeds default inspection checkpoints from the chosen category. The Customer building screens on web and mobile omit checkpoints. Authorized staff can view the checkpoint list in the web building detail. The asset API exposes `checkpointsLocked` in list and detail responses and accepts checkpoint edits from the owning Customer only before the first inspection. Once an inspection exists, the API rejects edits with `409 INSPECTION_HISTORY_EXISTS`.
   - Reference documents compute cryptographic file checksums, reject empty or duplicate-checksum files for the same building, store binaries in private object storage, and allow download exclusively after ownership/role authorization checks.
   - Retiring an active building preserves all historical inspections while blocking new service requests (`MSG46`).
-- **Normal cases**: Customer creates an active building with plain-text ownership details, customizes pre-inspection checkpoints, uploads unique PDF/PNG CAD blueprints, and later retires end-of-life structures cleanly.
+- **Normal cases**: Customer creates an active building with plain-text ownership details, uploads unique PDF/PNG CAD blueprints, and later retires it. The system seeds checkpoints from the selected category, and authorized staff can review them in the web building detail.
 - **Abnormal cases**: Duplicate asset code, duplicate SHA-256 document checksum, empty file, prohibited coordinates, post-inspection checkpoint mutation, foreign-organization document read, or service request on a retired asset is rejected.
 
 ---
