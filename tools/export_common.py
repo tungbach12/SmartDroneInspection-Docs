@@ -43,9 +43,10 @@ def project_metadata(reports):
             "location": location}
 
 
-def render_word(template, reports, output, blocks, warnings=(), *, prepare_cover=None):
+def render_word(template, reports, output, blocks, warnings=(), *,
+                prepare_cover=None, fallback_table_header_fill=None):
     metadata = project_metadata(reports)
-    document = WordDocument(template)
+    document = WordDocument(template, fallback_table_header_fill=fallback_table_header_fill)
     document.fill_cover(metadata["project"], metadata["location"])
     if prepare_cover is not None:
         prepare_cover(document, metadata)

@@ -107,7 +107,8 @@ def prepare_cover(chapter, document, metadata):
 
 def export(template, reports, output):
     return render_word(template, reports, output, blocks(reports),
-                       prepare_cover=partial(prepare_cover, reports / SOURCES[1]))
+                       prepare_cover=partial(prepare_cover, reports / SOURCES[1]),
+                       fallback_table_header_fill="FFE8E1")
 
 
 if __name__ == "__main__":

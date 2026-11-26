@@ -121,6 +121,30 @@ class TableContinuityTests(unittest.TestCase):
         self.assertNotIn('w:val="nil"', xml)
         self.assertNotIn('w:val="32"', xml)
 
+    def test_report7_body_tables_use_peach_headers(self):
+        from tempfile import TemporaryDirectory
+        from export_common import original
+
+        template = original(OFFICIAL, export_report7.TEMPLATE_NAME)
+        with TemporaryDirectory() as temp:
+            output = Path(temp) / export_report7.TEMPLATE_NAME
+            export_report7.export(template, REPORTS, output)
+            body = descendants(Package(output).xml("word/document.xml"), "body")[0]
+
+        elements = children(body)
+        start = next(i for i, node in enumerate(elements)
+                     if node.localName == "p" and WordDocument.text(node) == "Record of Changes")
+        tables = [node for node in elements[start:] if node.localName == "tbl"]
+        self.assertTrue(tables)
+        for table in tables:
+            header, *body_rows = children(table, "tr")
+            for cell in children(header, "tc"):
+                fills = [node.getAttribute("w:fill") for node in descendants(cell, "shd")]
+                self.assertEqual(fills, ["FFE8E1"], WordDocument.text(header))
+            for row in body_rows:
+                fills = [node.getAttribute("w:fill") for node in descendants(row, "shd")]
+                self.assertNotIn("FFE8E1", fills, WordDocument.text(header))
+
 
 class DiagramTests(unittest.TestCase):
     def test_report7_manual_callouts_stay_with_their_figure(self):
