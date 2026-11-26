@@ -33,11 +33,11 @@ The web portal serves all four roles, and the mobile app serves Customers. Both 
 
 ### 1.2 Package Diagram
 
-SmartDroneInspection comprises three application sub-systems: the backend application server (`com.smartdroneinspection`), the web portal (`SmartDroneInspection-frontend/src`), and the mobile field application (`SmartDroneInspection-mobile/lib`).
+The package diagrams show how the backend, web portal, and Customer mobile app organise their code.
 
 #### 1.2.1 Backend Application Server Package Diagram
 
-The backend is organised into `users`, `contracts`, `assets`, `inspections`, `notifications`, `dashboard`, `infrastructure`, and `shared`. Each declares its permitted collaborators, so `contracts` may reach `assets::domain`, `assets::enums`, `assets::repository`, `users`, and `inspections::spi`, while `notifications` may reach only `inspections::events` and `users::events`. Directional control therefore passes through narrow named sub-packages rather than whole modules.
+The backend has eight Spring Modulith modules. Each module declares which packages it can call. For example, `contracts` uses the inspection integration interface, and `notifications` consumes events from `inspections` and `users`.
 
 ![Backend package diagram](assets/diagrams/pkg-backend.png)
 
@@ -46,34 +46,34 @@ The backend is organised into `users`, `contracts`, `assets`, `inspections`, `no
 | No | Package | Description |
 | :---: | :--- | :--- |
 | 01 | `com.smartdroneinspection.users` | Authentication, sessions, profiles, `MANAGER`-owned partner applications, audit, and platform administration. |
-| 02 | `com.smartdroneinspection.contracts` | Service requests (`V80` checkpoint snapshot), Order Chat + Partner Chat (`V79`) with attachments, VND quotations, agreements, occurrence dispatch, finance settings, Sepay payouts (`V78`), and payment webhooks. |
+| 02 | `com.smartdroneinspection.contracts` | Manages service requests, quotations, contracts, assignment, and commercial messages. It also handles invoices, payments, and Inspector payouts. |
 | 03 | `com.smartdroneinspection.assets` | Building categories, buildings (`V66`), inspection checkpoints, reference documents, airspace advisory screening (`MSG28`), drone configuration, and owned drones. |
-| 04 | `com.smartdroneinspection.inspections` | Missions, self-attested flight permits, multi-sortie field sessions (`V72`), telemetry sync, evidence, findings, Inspector ratings (`V70`/`V73`), and versioned inspection reports (`V76`–`V77`). |
+| 04 | `com.smartdroneinspection.inspections` | Manages inspection permits, field sessions, evidence, findings, ratings, and versioned reports. |
 | 05 | `com.smartdroneinspection.notifications` | Deduplicated bilingual (`EN`/`VI`) in-app and critical SMTP notifications driven by domain events. |
 | 06 | `com.smartdroneinspection.dashboard` | Role-scoped operational metrics and Admin oversight views. |
 | 07 | `com.smartdroneinspection.infrastructure` | Outbound adapters for object storage, detection and drafting clients, the ground-station hub, FFmpeg, and payment gateways. |
 | 08 | `com.smartdroneinspection.shared` | Security configuration, response wrappers, role constants, cross-module ports, upload validation, error handling, and localization. |
 
-The web client separates `app` (shell, router, access policy, theme) from nine feature folders — `auth`, `admin`, `landing`, `assets`, `contracts`, `inspections`, `reports`, `dashboard`, and `notifications` — over a shared layer providing the HTTP client, airspace mapping, localization, and the UI kit. The mobile client separates `core` (network, token storage, router, theme) from `auth`, `assets`, `contracts`, `inspections`, `dashboard`, `notifications`, and `profile`, each with `data`, `domain`, and `presentation` layers where it holds state.
+In the web portal, `src/app` contains the shell, routing, theme, and access policy. Feature packages own their screens and requests. Shared code handles HTTP, maps, localization, and reusable controls.
 
 #### 1.2.2 Web Portal Application Package Diagram
 
 ![Web Portal Application Package Diagram](assets/diagrams/pkg-web-portal.png)
 
-*Figure 7.7a — Web Portal subsystem package structure (`SmartDroneInspection-frontend/src`).*
+*Figure 7.7a — Web portal packages.*
 
 **Package Descriptions**
 
 | No | Package | Description |
 | :---: | :--- | :--- |
-| 01 | `src/app` | Contains the application shell (`AppShell`), route configuration (`router.tsx`), the four-portal route access policy (`accessPolicy.ts`), capability helpers (`capability.ts`), portal selection (`PortalSelectionPage`), and design tokens and theme (`tokens.ts`, `theme.ts`, `ColorModeContext`). |
+| 01 | `src/app` | Owns the application shell, portal selection, theme, and route configuration. `accessPolicy.ts` defines the four portal access policies. |
 | 02 | `src/features/auth` | Implements Customer account registration (`RESTRICTED_ZONE` `MSG28` amber warning), partner Inspector application submission, email/password and OTP sign-in, Google OAuth 2.0 callback handling, session bootstrapping, and route guards (`RequireAuth`). |
 | 03 | `src/features/admin` | Provides platform account administration, pilot-licence class maintenance, drone document and feature configuration, platform finance/operations/rating-criteria/AI settings, Manager onboarding reviews, and read-only Admin oversight views. |
 | 04 | `src/features/landing` | Provides the public landing experience and the role-aware entry point into the four portals. |
 | 05 | `src/features/assets` | Provides building asset management (`checkpointsLocked`), reference document streaming, interactive airspace modal, and Inspector-owned drone registration and inventory. |
 | 06 | `src/features/contracts` | Implements one-time and recurring service requests (`V80` checkpoints), in-context Order Chat + Partner Chat (`V79`) with attachments, VND quotation issuance and acceptance, signed contract upload, and occurrence dispatch. |
-| 07 | `src/features/inspections` | Implements the Inspector schedule calendar, the customer inspection progress view, on-site multi-sortie field sessions and `SmartDroneHub` telemetry controls, self-attested flight permits, photo and MP4 evidence upload, YOLO11 defect review, Inspector Rating dialogs (`V70`), and re-inspection verdict-expiry warnings. |
-| 08 | `src/features/reports` | Implements pre-submission report drafting, independent Manager review -> Sepay VietQR Payout (`V78`) -> publication, Customer rating/clarification/acceptance, and ungated `PUBLISHED` PDF downloads. |
+| 07 | `src/features/inspections` | Covers schedules and progress tracking, flight permits and field sessions, evidence uploads, and findings review. It also shows re-inspection verdict warnings. |
+| 08 | `src/features/reports` | Covers report preparation, Manager review, payout and publication, and Customer clarification and acceptance. Customers can download the published PDF before paying. |
 | 09 | `src/features/dashboard`, `src/features/notifications` | Provide four-role operational metrics and the bilingual in-app notification inbox with unread badge and `read-all`. |
 | 10 | `src/shared` | Provides the Axios HTTP client with automatic token refresh, CSRF handling, and RFC 7807 problem parsing (`api`), the interactive Vietnam airspace planner and map (`airspace`), bilingual EN/VI localization (`i18n`), and the shared UI kit (`AuthenticatedImage`, `AuthenticatedMedia`). |
 
@@ -81,13 +81,13 @@ The web client separates `app` (shell, router, access policy, theme) from nine f
 
 ![Customer Mobile App package diagram](assets/diagrams/pkg-mobile-app.png)
 
-*Figure 7.7b — Customer Mobile Application package structure (`SmartDroneInspection-mobile/lib`).*
+*Figure 7.7b — Customer mobile app packages.*
 
 **Package Descriptions**
 
 | No | Package | Description |
 | :---: | :--- | :--- |
-| 01 | `lib/core` | Provides the shared Dio HTTP client with authentication, API-response, and locale-header interceptors (`network`), secure token storage (`flutter_secure_storage`), application routing (`app_router.dart`), environment configuration (`env`), and theme and localization providers. |
+| 01 | `lib/core` | Configures the Dio HTTP client, authentication and locale headers, secure token storage, routing, and app-wide settings. |
 | 02 | `lib/features/auth` | Implements mobile credential sign-in, Google OAuth 2.0 deep-link callback handling, and Riverpod session state. `session_provider.dart` enforces that only `CUSTOMER` accounts enter the application; the network layer raises `CUSTOMER_ONLY_MOBILE` for any other role. |
 | 03 | `lib/features/assets` | Displays the Customer’s building assets, coordinates, and documents, with `data`, `domain`, and `presentation` layers. |
 | 04 | `lib/features/contracts` | Implements the customer service-request list, new-request submission, request detail, and order-chat conversation. |
@@ -174,9 +174,9 @@ The framework tables are `event_publication` for the event outbox and `flyway_sc
 | 42 | `audit_events` | Append-only decision record. |
 | 43 | `inspector_reliability_events` | Inspector reliability events. |
 | 44 | `event_publication` | The transactional outbox. |
-| 45 | `inspection_knowledge_chunks` | Stores the eight seeded engineering-standard/guideline chunks that ground `DroneKnowledgeAI` (`V62`, updated to `vector(384)` by `V65`): standard code, title, asset-category code, defect patterns, severity, guidance text, reference URL, and a `vector(384)` embedding with an HNSW `vector_cosine_ops` index for cosine retrieval via local `fastembed`. |
-| 46 | `historical_finding_cases` | Stores six anonymized benchmark cases and confirmed findings backfilled (`V64`) and indexed automatically at report publication (`V62`, updated to `vector(384)` by `V65`), with organization/asset references, defect label, severity, notes, outcome (including re-inspection resolution status), anonymized flag, and a `vector(384)` embedding; retrieval is tenant-isolated and excludes the current inspection. |
-| 47 | `gateway_inbound_transactions` | Idempotent inbound payment-gateway webhook audit table (`V68`) keyed uniquely on `(gateway, external_id)` when present, recording `order_code`, `amount`, `account_number`, raw `payload`, status (`APPLIED`, `AMOUNT_MISMATCH`, `ORDER_NOT_FOUND`, `REJECTED`, `ERROR`), and diagnostic `detail` across `REQUIRES_NEW` transactions. |
+| 45 | `inspection_knowledge_chunks` | Stores engineering guidance and its source references. A `vector(384)` embedding and a cosine HNSW index support similarity search. |
+| 46 | `historical_finding_cases` | Stores anonymized benchmarks and confirmed findings indexed at publication. Search uses `vector(384)` embeddings and excludes the current inspection. |
+| 47 | `gateway_inbound_transactions` | Audits each incoming payment callback, including its payload and processing result. A unique `(gateway, external_id)` key deduplicates callbacks when an external ID is available. |
 | 48 | `inspection_flight_permits` | One-to-one self-attested flight permit metadata keyed on `inspection_id` (`V69`), with read-only Manager and Admin audit access. |
 | 49 | `field_session_telemetry` | 1-to-1 SmartDroneHub telemetry metrics, GPS `flight_trace_json`, and synced `flight_video_evidence_id` split from `field_sessions` (`V69`), keyed on `field_session_id`. |
 
@@ -186,13 +186,13 @@ Endpoint paths in Section IV.3 omit the common /api/v1 prefix.
 
 ### 3.1 `MF1` — `FE-01` Account Authentication, OTP & 4-Role Access Control
 
-This section presents the detailed design for `FE-01`: Customer account registration (with No-Fly Zone airspace gate), Argon2id credential sign-in, consolidated `REGISTRATION`/`LOGIN`/`PASSWORD_RESET` OTP challenges, Google OAuth 2.0 federation, HS256 JWT and HmacSHA256 refresh-token rotation, self-service user profile updates, platform user administration, and strict four-role access control (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`).
+The authentication services register Customers, verify email or Google credentials, and create sessions for the four roles. Password verification uses Argon2id. Web and mobile clients use HS256 access tokens and rotate refresh tokens, with HMAC-SHA256 verification.
 
 #### 3.1.1 Class Diagram
 
 ![FE-01 Class Diagram](assets/diagrams/cls-fe01.png)
 
-*Figure 7.8k — `FE-01` Account Authentication, OTP & 4-Role Access Control Class Diagram.*
+*Figure 7.8k — FE-01 Account Authentication, OTP & 4-Role Access Control Class Diagram.*
 
 **Class Specifications**
 
@@ -201,38 +201,38 @@ This section presents the detailed design for `FE-01`: Customer account registra
 | 01 | `BrowserAuthController` & `MobileAuthController` | Handle customer registration, email/password sign-in, OTP verification and password reset, password change, and token refresh for web (`HttpOnly` cookie CSRF-protected chain) and mobile (`Bearer` / refresh token) clients. |
 | 02 | `OAuth2Controller` | Handles federated Google OAuth 2.0 sign-in and callback redirection for web browsers and mobile deep links (`smartdrone://auth`). |
 | 03 | `UserProfileController`, `PlatformUserController` & `AdminAuditLogController` | Allow signed-in users to manage their own profile (`/api/v1/users/me`, `vision_fallback_enabled`), let `ADMIN` provision/activate single-role platform accounts (`Last-Admin` protected), and expose append-only `audit_events`. |
-| 04 | `AuthService`, `AuthRateLimitFilter` & `LoginFailureService` | Coordinates Argon2id verification, 5-failure 15-minute lockout, per-IP OTP/login throttling, and JWT issuance/rotation (`AccessTokenService`, `RefreshCookieService`). |
+| 04 | `AuthService`, `AuthRateLimitFilter` & `LoginFailureService` | Verify Argon2id passwords and issue and rotate tokens. Rate limits apply per IP to login and OTP requests. Five failed attempts lock the account for 15 minutes. |
 | 05 | `User`, `OtpChallenge` & `AuthSession` | Domain entities representing single-role users across `ADMIN`, `MANAGER`, `CUSTOMER`, and `INSPECTOR`, time-limited OTP challenges, and rotated refresh sessions. |
 
 #### 3.1.2 Customer Account and Initial Asset Registration Sequence Diagram
 
 ![FE-01A Registration Sequence Diagram](assets/diagrams/seq-fe01a.png)
 
-*Figure 7.8l — `FE-01A` Customer Registration, `RESTRICTED_ZONE` `MSG28` Amber Warning & Immediate Onboarding Sequence.*
+*Figure 7.8l — FE-01A Customer Registration, RESTRICTED_ZONE MSG28 Amber Warning & Immediate Onboarding Sequence.*
 
 #### 3.1.3 User Sign-In, OTP Verification and Google OAuth 2.0 Sequence Diagram
 
 ![FE-01B Sign-in Sequence Diagram](assets/diagrams/seq-fe01b.png)
 
-*Figure 7.8m — `FE-01B` Password, OTP & Google OAuth 2.0 Sign-In Sequence.*
+*Figure 7.8m — FE-01B Password, OTP & Google OAuth 2.0 Sign-In Sequence.*
 
 ---
 
 ### 3.2 `MF1` — `FE-02` Partner Inspector Application & Qualification Management
 
-This section presents the detailed design for `FE-02`: the public partner Inspector application with licence scan, platform review and atomic account provisioning, the signed partner contract record, Administrator-managed UAV pilot-licence classes, pilot licence renewal, and Inspector flight logs.
+A prospective Inspector submits licence details and supporting documents for Manager review. Approval provisions the Inspector account and profile. The profile also stores licence renewals, the partner contract, and flight history.
 
 #### 3.2.1 Class Diagram
 
 ![FE-02 Class Diagram](assets/diagrams/cls-fe02.png)
 
-*Figure 7.8n — `FE-02` Partner Inspector Application & Qualification Class Diagram.*
+*Figure 7.8n — FE-02 Partner Inspector Application & Qualification Class Diagram.*
 
 **Class Specifications**
 
 | No | Class | Description |
 | :---: | :--- | :--- |
-| 01 | `InspectorApplicationController` & `InspectorApplicationService` | Accept unauthenticated partner applications and MinIO licence scans (`PENDING_REVIEW`), expose approval/rejection strictly to `MANAGER` (and read-only view to `ADMIN`), provision `INSPECTOR` user + `InspectorProfile` upon approval (requiring no drone at signup), record mandatory rejection reasons, and persist signed partner contracts. |
+| 01 | `InspectorApplicationController` & `InspectorApplicationService` | Save public applications and MinIO licence scans as `PENDING_REVIEW`. Manager approval creates the `INSPECTOR` account and profile. Rejection requires a reason. Administrators can read review records, and the service stores signed partner contracts. |
 | 02 | `InspectorProfileController` & `InspectorProfileService` | Maintain pilot credentials in `inspector_profiles`, handle licence scan renewals, and store attribution flight history in `inspector_flight_logs` (`InspectorProfileController` also emits `PilotLicenseUpdatedEvent`). |
 | 03 | `PilotLicenseClassController`, `PilotLicenseClassService` & `PilotLicenseExpiryCheckService` | Maintain recognized licence classes (`pilot_license_classes`) mapped to Decree 288 rules and run scheduled expiry checks notifying Inspectors and staff when licences lapse. |
 
@@ -240,23 +240,23 @@ This section presents the detailed design for `FE-02`: the public partner Inspec
 
 ![FE-02 Sequence Diagram](assets/diagrams/seq-fe02.png)
 
-*Figure 7.8o — `FE-02` Partner Inspector Application, `MANAGER` Review & Account Provisioning Sequence.*
+*Figure 7.8o — FE-02 Partner Inspector Application, MANAGER Review & Account Provisioning Sequence.*
 
 ---
 
 ### 3.3 `MF1` — `FE-03` Inspector-Owned Drone Registration & Fleet Management
 
-This section presents the detailed design for `FE-03`: Administrator configuration of required drone documents and safety/capability features, Inspector submission of owned drones with real photographs and documents, Decree 288/2025/ND-CP weight classification, `MANAGER` review and approval (`ADMIN` read-only view), renewal, and serviceability transitions (`ACTIVE <-> IN_MAINTENANCE -> RETIRED`).
+An Inspector submits an owned drone with a photograph and the required documents. A Manager reviews the submission. The fleet records registration renewal and maintenance. A drone can return from `IN_MAINTENANCE` to `ACTIVE`. Retirement is permanent.
 
 #### 3.3.1 Class & Sequence Diagrams
 
 ![FE-03 Class Diagram](assets/diagrams/cls-fe03.png)
 
-*Figure 7.8p — `FE-03` Inspector-Owned Drone Registration & Fleet Class Diagram.*
+*Figure 7.8p — FE-03 Inspector-Owned Drone Registration & Fleet Class Diagram.*
 
 ![FE-03 Sequence Diagram](assets/diagrams/seq-fe03.png)
 
-*Figure 7.8q — `FE-03` Inspector-Owned Drone Application, `MANAGER` Review & Renewal Sequence.*
+*Figure 7.8q — FE-03 Inspector-Owned Drone Application, MANAGER Review & Renewal Sequence.*
 
 | No | Class | Description |
 | :---: | :--- | :--- |
@@ -268,18 +268,18 @@ This section presents the detailed design for `FE-03`: Administrator configurati
 
 ### 3.4 `MF1` — `FE-04` Interactive Location Map & No-Fly Zone Airspace Screening
 
-This section presents the detailed design for `FE-04`: interactive coordinate selection on Web (`AssetLocationPickerModal` / `AirspaceNoFlyMap`) and Mobile (`AirspaceAdvisoryCard`), Vietnam restricted/no-fly zone polygon definitions, and deterministic coordinate/altitude evaluation (`AirspaceController`, `AirspaceAdvisoryService`) gating registration (`403 NO_FLY_ZONE` block) and surfacing `MSG28` amber advisories for `RESTRICTED_ZONE`.
+The airspace service evaluates a building location against published zones. Registration blocks a `NO_FLY_ZONE` and returns an advisory for a `RESTRICTED_ZONE`. The web map and mobile advisory display the result.
 
 ![FE-04 Sequence Diagram](assets/diagrams/seq-fe04.png)
 
-*Figure 7.8r — `FE-04` Airspace Zone Screening Sequence.*
+*Figure 7.8r — FE-04 Airspace Zone Screening Sequence.*
 
 **Class & UI Specifications**
 
 | No | Component / Class | Description |
 | :---: | :--- | :--- |
 | 01 | `AirspaceController` (`assets.api`) | Exposes `GET /api/v1/airspace/zones` (`AirspaceZoneResponse`) and `GET`/`POST /api/v1/airspace/evaluate` (`EvaluateAirspaceRequest` -> `AirspaceEvaluationResponse`), enforcing `latitude` in `[-90, 90]` and `longitude` in `[-180, 180]`. |
-| 02 | `AirspaceAdvisoryService` (`assets.service`) | Performs Haversine distance calculations against active prohibited and restricted airspace zones, returning `CLEAR_ZONE`, `RESTRICTED_ZONE`, or `NO_FLY_ZONE` plus an advisory disclaimer (`MSG49`: screening never grants government aviation permission). |
+| 02 | `AirspaceAdvisoryService` (`assets.service`) | Compare coordinates with active zones using Haversine distance. The response classifies the location as `CLEAR_ZONE`, `RESTRICTED_ZONE`, or `NO_FLY_ZONE`. Restrictions include an `MSG28` advisory. The message catalogue records the planning-only disclaimer under `MSG49`. |
 | 03 | `CustomerAirspacePolicyAdapter` (`assets.service`) | Adapter implementing `shared.api.CustomerAirspacePolicy` so `users` onboarding (`OrganizationRegistrationService`) blocks `NO_FLY_ZONE` (`403 ASSET_IN_NO_FLY_ZONE`) while allowing `RESTRICTED_ZONE` to activate immediately with structured `MSG28` advisory warning data. |
 | 04 | Web `AssetLocationPickerModal.tsx` & Mobile `AirspaceAdvisoryCard` | Web map picker with zone overlays and a short permit advisory. Mobile displays airspace information through `AirspaceAdvisoryCard`. |
 
@@ -287,11 +287,11 @@ This section presents the detailed design for `FE-04`: interactive coordinate se
 
 ### 3.5 `MF4` — `FE-05` Financial History & Revenue/Payment Ledger
 
+The finance API returns a different ledger for each role. Customers see their service payments, Inspectors see their payouts, and Managers reconcile collections, taxes, fees, and refunds.
+
 ![FE-05 Sequence Diagram](assets/diagrams/seq-fe05.png)
 
-*Figure 7.8s — `FE-05` Role-Scoped Financial History & Ledger Query Sequence.*
-
-This section presents the detailed design for `FE-05`: role-scoped financial ledgers querying settled payments, VAT breakdowns, platform commissions (`15%`), TNCN withholdings, partner payout statuses, and refund impacts across Customer, Inspector, and Manager portals.
+*Figure 7.8s — FE-05 Role-Scoped Financial History & Ledger Query Sequence.*
 
 **Class & UI Specifications**
 
@@ -305,19 +305,19 @@ This section presents the detailed design for `FE-05`: role-scoped financial led
 
 ### 3.6 `MF2` — `FE-06` Building Asset Registry, Checkpoints & Reference Documents
 
-This section presents the detailed design for `FE-06`: the six building-only categories (`AssetCategory`), customer building creation and lifecycle management (`Asset`, with dedicated `ownership_information VARCHAR(1000)` added in `V66`), category-seeded inspection checkpoints (`inspection_items`), and SHA-256 deduplicated MinIO reference documents (`AssetDocument`).
+The building registry stores ownership details, reference documents, and checkpoints based on the building category. The API locks checkpoint edits when an inspection exists and deduplicates reference documents by SHA-256.
 
 #### 3.6.1 Sequence Diagram
 
 ![FE-06 Sequence Diagram](assets/diagrams/seq-fe06.png)
 
-*Figure 7.8t — `FE-06` Building Asset Registration & Document Upload Sequence.*
+*Figure 7.8t — FE-06 Building Asset Registration & Document Upload Sequence.*
 
 **Class Specifications**
 
 | No | Class | Description |
 | :---: | :--- | :--- |
-| 01 | `AssetController`, `AssetService` & `Asset` (`assets`) | Manage customer buildings under the `NO_FLY_ZONE` gate; persist plain-text ownership in `assets.ownership_information` (`varchar(1000)`, `V66__asset_ownership_information.sql`) separate from `technical_profile jsonb`, enforce checkpoint edits only prior to the first inspection (`InspectionAssetUsageAdapter`), expose `AssetResponse.checkpointsLocked` from one bulk `AssetInspectionUsagePort.inspectedAssetIds` lookup per page and reject post-inspection edits with `409 INSPECTION_HISTORY_EXISTS`, and support terminal retirement (`RETIRED`). |
+| 01 | `AssetController`, `AssetService` & `Asset` (`assets`) | Store ownership text in `assets.ownership_information` (`VARCHAR(1000)`) and building specifications in `technical_profile`. A bulk inspection lookup populates `AssetResponse.checkpointsLocked`. Checkpoint changes after the first inspection return `409 INSPECTION_HISTORY_EXISTS`. The service also manages airspace screening and retirement. |
 | 02 | `AssetCatalogController` & `AssetCatalogService` | Maintain the six building-only `AssetCategory` templates and default `InspectionItem` checkpoints without retroactively rewriting checkpoints on existing buildings. |
 | 03 | `AssetDocumentController` & `AssetDocumentService` | Validate non-empty building reference documents (`PDF`/images/drawings), enforce per-asset `SHA-256` uniqueness, store binaries under `assets/{assetId}/documents/` in MinIO, and stream downloads strictly to authorized Customer/Manager/Admin actors. |
 
@@ -325,11 +325,11 @@ This section presents the detailed design for `FE-06`: the six building-only cat
 
 ### 3.7 `MF2` — `FE-07` Restricted Airspace Advisory Warning & Immediate Onboarding
 
-This section presents the detailed design for `FE-07`: unified `RESTRICTED_ZONE` `MSG28` amber advisory warning and immediate onboarding behavior across public registration (`OrganizationRegistrationService`) and post-login building creation (`AssetService`), replacing the legacy Admin pending-airspace review queue (removed endpoints and UI routes).
+Public registration and building creation use the same restricted-airspace rule. A `RESTRICTED_ZONE` result returns `MSG28` and allows the building record to be saved. The warning identifies the authority and permit requirements.
 
 ![FE-07 Sequence Diagram](assets/diagrams/seq-fe07.png)
 
-*Figure 7.8u — `FE-07` Restricted Airspace Advisory (`MSG28`) & Immediate Activation Sequence.*
+*Figure 7.8u — FE-07 Restricted Airspace Advisory (MSG28) & Immediate Activation Sequence.*
 
 **Class & Workflow Specifications**
 
@@ -343,23 +343,23 @@ This section presents the detailed design for `FE-07`: unified `RESTRICTED_ZONE`
 
 ### 3.8 `MF2` — `FE-08` Service Requests (One-Time & Recurring) & VND Quotations
 
-This section presents the detailed design for `FE-08`: one-time and recurring customer service requests (`>= 20` calendar-day lead time in `Asia/Ho_Chi_Minh`, `1–120` month cadence, `2–100` occurrences, `V80` `inspection_items` checkpoint snapshot, concise titles `<Building> · Monthly inspection`), pessimistic Manager self-claim with immediate detail navigation, ADMIN assignment oversight, and active VND quotation negotiation.
+Customers request one-time or recurring inspections. The first date must be at least 20 calendar days ahead in `Asia/Ho_Chi_Minh`. Recurrence supports a 1–120 month interval and 2–100 occurrences. The request stores a checkpoint snapshot and its active VND quotation.
 
 #### 3.8.1 Sequence & State Diagrams
 
 ![FE-08 Sequence Diagram](assets/diagrams/seq-fe08.png)
 
-*Figure 7.8v — `FE-08` Service Request, Manager Claim & VND Quotation Sequence.*
+*Figure 7.8v — FE-08 Service Request, Manager Claim & VND Quotation Sequence.*
 
 ![ServiceRequest State Diagram](assets/diagrams/state-service-request.png)
 
-*Figure 7.8w — `ServiceRequest` State Machine Diagram.*
+*Figure 7.8w — ServiceRequest State Machine Diagram.*
 
 **Class & UI Specifications**
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `ContractWorkflowController` & `ContractWorkflowService` | Enforce 20-day lead time, generate concise recurring titles (`Monthly inspection` / `Every N-month inspection`), serialize `claimRequest` under DB locking, restrict commercial actions to `assignedManagerId`, expose `ADMIN` assignment registry (`PUT`/`DELETE /manager-assignment`), and project assigned Manager read-only contact info (`ServiceManagerContactResponse`) solely to the owning Customer. |
+| 01 | `ContractWorkflowController` & `ContractWorkflowService` | Enforce the first-date rule and lock the request during `claimRequest` to prevent simultaneous claims. Only the `assignedManagerId` can take commercial actions. Administrators manage assignments through `PUT` or `DELETE /manager-assignment`. Only the owning Customer sees the assigned Manager's contact details. |
 | 02 | `ServiceRequest` & `ServiceRequestQuote` | Store request cadence/bounds, Manager assignment audit metadata, and single active VND quotation (`V60` nullable `inspector_id`/`drone_id`, empty `requiredDroneFeatureCodes` compatible). |
 | 03 | Web `ServiceRequestListView.tsx`, `useContracts.ts`, `ManagerQuoteWorkspace.tsx`, `QuoteTermsSummary.tsx` | Shows the schedule, status, and available actions for each request. Claiming a request opens its quotation workspace, which sends an empty list for optional drone capabilities. |
 
@@ -367,21 +367,21 @@ This section presents the detailed design for `FE-08`: one-time and recurring cu
 
 ### 3.9 `MF2` — `FE-09` Offline Signed Contract & Occurrence Dispatch Scheduling
 
-This section presents the detailed design for `FE-09`: Customer quotation acceptance (freezing terms snapshot & materializing month-end anchored occurrences), offline signed paper agreement upload to MinIO, partner eligibility & cross-organization schedule-conflict checks, bulk `Apply to remaining` occurrence dispatch, and abort recovery (`reschedule`, `reassign`, `cancel`).
+Accepting the quotation freezes its terms and creates the scheduled occurrences. The Manager records the signed agreement before assigning eligible teams. The dispatch workflow supports rescheduling, reassignment, and cancellation after an aborted session.
 
 #### 3.9.1 Class, Sequence & State Diagrams
 
 ![FE-09 Class Diagram](assets/diagrams/cls-fe09.png)
 
-*Figure 7.8x — `FE-09` Signed Contract Upload, Occurrence Dispatch & Recovery Class Diagram.*
+*Figure 7.8x — FE-09 Signed Contract Upload, Occurrence Dispatch & Recovery Class Diagram.*
 
 ![FE-09 Sequence Diagram](assets/diagrams/seq-fe09.png)
 
-*Figure 7.8y — `FE-09` Quote Acceptance, Signed Contract Upload & Occurrence Dispatch Sequence.*
+*Figure 7.8y — FE-09 Quote Acceptance, Signed Contract Upload & Occurrence Dispatch Sequence.*
 
 ![ServiceRequestOccurrence State Diagram](assets/diagrams/state-occurrence.png)
 
-*Figure 7.8z — `ServiceRequestOccurrence` State Machine Diagram.*
+*Figure 7.8z — ServiceRequestOccurrence State Machine Diagram.*
 
 **Class & UI Specifications**
 
@@ -395,18 +395,18 @@ This section presents the detailed design for `FE-09`: Customer quotation accept
 
 ### 3.10 `MF2` — `FE-10` Multi-Channel Messaging (Order Chat, Partner Chat & Inspection Chat)
 
-This section presents the detailed design for `FE-10`: strictly separated commercial Order Chat (`service_request_messages`, Customer <-> assigned Manager), Manager <-> Partner Inspector pre-dispatch coordination chat (`service_request_partner_messages` added in `V79`), and operational Inspection Chat (`inspection_messages` added in `V61`, Customer <-> assigned Inspector) with private MinIO attachment storage and Mobile parity.
+Order Chat connects the Customer and assigned Manager. Partner Chat connects the Manager and Inspector during dispatch planning. Inspection Chat connects the Customer and assigned Inspector. The backend checks participants before serving messages or attachments.
 
 ![FE-10 Messaging Sequence Diagram](assets/diagrams/seq-fe10.png)
 
-*Figure 7.8aa — `FE-10` Separated Order Chat, Partner Chat (`V79`) & Inspection Chat Sequence.*
+*Figure 7.8aa — FE-10 Separated Order Chat, Partner Chat (V79) & Inspection Chat Sequence.*
 
 **Class & UI Specifications**
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
 | 01 | `ContractWorkflowController` (`/requests/{id}/messages*` & `/requests/{id}/partner-messages*`) | Serves Customer <-> assigned `MANAGER` commercial Order Chat and `MANAGER` <-> `INSPECTOR` Partner Chat (`V79`, `service_request_partner_messages*`: up to 5 files, `10 MiB` per file / `20 MiB` per message, `PNG`/`JPG`/`WEBP`/`PDF`/`DOCX`), refusing `ADMIN` and unrelated callers. |
-| 02 | `InspectionChatController` & `InspectionChatService` (`inspections.api/service`, `V61`) | Exposes `GET /inspections/messages/threads`, `GET /inspections/{id}/messages`, `POST /{id}/messages`, `POST /{id}/messages/read`, and `GET /{id}/messages/{msgId}/attachments/{attId}` scoped solely to owning `CUSTOMER` and assigned `INSPECTOR` (`ADMIN` and `MANAGER` denied), capping message text at `4000` chars and attachments at `10 MiB` per file and `20 MiB` total per message in MinIO (`inspections/{id}/messages/`). |
+| 02 | `InspectionChatController` & `InspectionChatService` (`V61`) | Only the owning Customer and assigned Inspector can read or post messages. Under `/inspections`, `GET /messages/threads` lists threads, and `GET` or `POST /{id}/messages` reads or posts messages. `POST /{id}/messages/read` marks messages as read. `GET /{id}/messages/{msgId}/attachments/{attId}` downloads attachments. Text is limited to 4,000 characters, and attachments to 10 MiB per file and 20 MiB per message. |
 | 03 | `ChatAttachmentValidator` (`shared.storage`) | Validates real file magic signatures, declared MIME types, safe filenames, and size caps prior to object upload. |
 | 04 | Web `RequestChatPanel.tsx`, `/messages` & Mobile `RequestChat`, `InspectionChatPage` | Separate conversations by request or inspection and by participant. Customer Mobile includes request and inspection threads. |
 
@@ -414,31 +414,31 @@ This section presents the detailed design for `FE-10`: strictly separated commer
 
 ### 3.11 `MF2` — `FE-11` Assignment Acceptance Timeout & Escalation Handling
 
-This section presents the detailed design for `FE-11`: the Administrator-configurable Step 4 assignment acceptance SLA (`platform_operations_settings`, `V61`) and the scheduled timeout monitor that releases unaccepted crew reservations and notifies stakeholders.
+The Administrator sets the deadline for an Inspector to accept a mission. If the assignment expires, a scheduled job releases the crew reservation and notifies the Manager to dispatch a replacement.
 
 ![FE-11 Timeout Escalation Sequence Diagram](assets/diagrams/seq-fe11.png)
 
-*Figure 7.8ab — `FE-11` Assignment Acceptance Timeout & Escalation Sequence.*
+*Figure 7.8ab — FE-11 Assignment Acceptance Timeout & Escalation Sequence.*
 
 **Class & UI Specifications**
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
 | 01 | `PlatformOperationsSettingsController`, `PlatformOperationsSettingsService` & `PlatformOperationsSettings` (`V61`) | Admin-only endpoints (`GET/PUT /api/v1/platform/operations-settings`) configuring `assignment_acceptance_timeout_hours` (`1–720`, default `24` hours). |
-| 02 | `InspectionAssignmentTimeoutMonitor` (`inspections.service`) | Scheduled monitor scanning `SCHEDULED` inspections in `PENDING_ACCEPTANCE` past `assignmentRequestedAt + timeoutHours`; atomically cancels the inspection, clears crew reservations, reverts `ServiceRequestOccurrence` to `PENDING_ASSIGNMENT` (reopening `ASSIGNED` request to `CONTRACT_SIGNED`), stamps `lastTimeoutCancelledAt`/`lastTimeoutInspectorId`, and emits `InspectionAssignmentTimedOutEvent`. |
+| 02 | `InspectionAssignmentTimeoutMonitor` (`inspections.service`) | When a `PENDING_ACCEPTANCE` assignment passes its deadline, one transaction cancels the inspection and releases the crew reservation. The occurrence returns to `PENDING_ASSIGNMENT`, and the request returns to `CONTRACT_SIGNED` when it reopens. The monitor records the timeout and emits `InspectionAssignmentTimedOutEvent`. |
 | 03 | Web `PlatformOperationsSettingsPage.tsx` & Deep-Link Notification | Admin settings page plus actionable notifications routing the owning `MANAGER` directly to `/manager/contracts?requestId=...` to dispatch a replacement team. |
 
 ---
 
 ### 3.12 `MF2` — `FE-12` System Notifications & Alert Center
 
-This section presents the detailed design for `FE-12`: transactional Spring Modulith outbox-driven notifications across all five workflow pillars, bilingual Vietnamese and English formatting, SMTP critical alerts, `PATCH /api/v1/notifications/read-all`, database-level deduplication (`uq_notifications_deduplication_key`), and XSS/open-redirect safe deep linking.
+Domain events create English and Vietnamese notifications through the Spring Modulith outbox. The system deduplicates notices and can email critical alerts. Each recipient can mark individual notices or all notices as read.
 
 #### 3.12.1 Sequence Diagram
 
 ![FE-12 Notification Sequence Diagram](assets/diagrams/seq-fe12.png)
 
-*Figure 7.8ac — `FE-12` Event-Driven Bilingual Notification & Outbox Delivery Sequence.*
+*Figure 7.8ac — FE-12 Event-Driven Bilingual Notification & Outbox Delivery Sequence.*
 
 **Class & UI Specifications**
 
@@ -452,59 +452,59 @@ This section presents the detailed design for `FE-12`: transactional Spring Modu
 
 ### 3.13 `MF3` — `FE-13` Flight Permit Upload & Self-Attestation Gate
 
-This section presents the detailed design for `FE-13`: assigned-Inspector flight permit submission (`<= 25 MB`, verified binary signature & `SHA-256`, structured permit metadata), immediate `APPROVED` activation via Inspector self-attestation (no Manager/Admin permit approval), pre-session gate enforcement, automatic reset to `PENDING_REVIEW` when the drone changes or the schedule moves outside the permit validity window (`BR-25`), and read-only Manager/Admin audit views.
+The assigned Inspector uploads a permit and self-attests it before starting the session. A valid upload sets `APPROVED`. Changing the drone or moving the flight outside the permit window resets it to `PENDING_REVIEW` (`BR-25`).
 
 ![FE-13 Flight Permit Self-Attestation Sequence Diagram](assets/diagrams/seq-fe13.png)
 
-*Figure 7.8ad — `FE-13` Self-Attested Flight Permit Upload, Reset & Pre-Session Gate Sequence.*
+*Figure 7.8ad — FE-13 Self-Attested Flight Permit Upload, Reset & Pre-Session Gate Sequence.*
 
 **Class & Workflow Specifications**
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
 | 01 | `InspectionController`, `InspectionListController` & `InspectionCreationService` | Expose `POST /inspections/{id}/flight-permit` (assigned `INSPECTOR` only, `SCHEDULED` lock — immediately activates `APPROVED` via self-attestation) and scoped `GET /inspections/{id}/flight-permit/content`. Manager/Admin approval endpoints are retired; staff audit permit records read-only. |
-| 02 | `FlightPermitPolicy` (`inspections.service`) | Validates binary magic bytes (`PDF`/`PNG`/`JPG`/`WEBP`, `<= 25 MB`), `permitNumber`, `issuingAuthority`, `validFrom`/`validTo` window covering planned flight time, assigned drone serial match, optional `maxAltitudeM` (`1–2000 m`), and resets `APPROVED` -> `PENDING_REVIEW` on drone swap or out-of-window reschedule (`BR-25`). |
+| 02 | `FlightPermitPolicy` (`inspections.service`) | Verify the file signature for PDF, PNG, JPG, or WEBP and enforce the 25 MB limit. Check the permit number, issuing authority, assigned drone serial, and validity window. The optional `maxAltitudeM` accepts 1–2000 m. A drone change or flight outside the permit window resets approval (`BR-25`). |
 | 03 | Web `FlightPermitVerificationPanel.tsx` & `FlightPermitPreviewDialog.tsx` | Workspace Stage 1 self-attestation metadata form/viewer and read-only Manager Permit & Flight Trace Audit view inside `/audit`. |
 
 ---
 
 ### 3.14 `MF3` — `FE-14` On-Site Field Session & SmartDroneHub MAVLink Telemetry
 
-This section presents the detailed design for `FE-14`: pre-flight safety checklists, accountable `Start` / `Complete` / reasoned `Abort` field sessions, read-only `SmartDroneHub` live MAVLink telemetry (`14551/udp`, `5762/tcp`) and mission video sync, non-MAVLink log import (`SRT`/`CSV`/`KML`/`GPX`), manual flight declarations, abort recovery dispatch, and role dashboards/calendar.
+The Inspector completes the safety checks and records each flight in a field session. SmartDroneHub records read-only MAVLink telemetry and can sync mission video. The Inspector can import SRT, CSV, KML, or GPX logs or record a manual declaration. An aborted session requires a reason and allows Manager recovery.
 
 #### 3.14.1 Class & State Diagrams
 
 ![FE-14 Class Diagram](assets/diagrams/cls-fe14.png)
 
-*Figure 7.8ae — `FE-14` Multi-Sortie Field Session (`V72`), SmartDroneHub Telemetry & Dashboards Class Diagram.*
+*Figure 7.8ae — FE-14 Multi-Sortie Field Session (V72), SmartDroneHub Telemetry & Dashboards Class Diagram.*
 
 ![Inspection State Diagram](assets/diagrams/state-inspection.png)
 
-*Figure 7.8af — `Inspection` Lifecycle State Machine Diagram.*
+*Figure 7.8af — Inspection Lifecycle State Machine Diagram.*
 
 ![FieldSession State Diagram](assets/diagrams/state-field-session.png)
 
-*Figure 7.8ag — `FieldSession` Execution State Machine Diagram.*
+*Figure 7.8ag — FieldSession Execution State Machine Diagram.*
 
 #### 3.14.2 Field Session, SmartDroneHub Sync & Abort Recovery Sequence Diagrams
 
 ![FE-14A Field Session Execution Sequence Diagram](assets/diagrams/seq-fe14a.png)
 
-*Figure 7.8ah — `FE-14A` Self-Attested Permit Gate, Multi-Sortie Field Session & SmartDroneHub Telemetry Sync.*
+*Figure 7.8ah — FE-14A Self-Attested Permit Gate, Multi-Sortie Field Session & SmartDroneHub Telemetry Sync.*
 
 ![FE-14B Abort Recovery Sequence Diagram](assets/diagrams/seq-fe14b.png)
 
-*Figure 7.8ai — `FE-14B` Field Session Abort & Manager Reschedule / Reassign / Cancel Recovery Sequence.*
+*Figure 7.8ai — FE-14B Field Session Abort & Manager Reschedule / Reassign / Cancel Recovery Sequence.*
 
 ---
 
 ### 3.15 `MF3` — `FE-15` Field Evidence Intake & Chunked Video Processing Pipeline
 
-This section presents the detailed design for `FE-15`: image EXIF extraction prior to decoding and `2048 px` / `480 px` normalization, resumable `10 MiB` S3 multipart MP4 uploads up to `2 GiB`, durable async FFmpeg `<= 1080p` faststart + poster transcoding, duplicate filename disambiguation (`name (1).ext`), video keyframe extraction, and short-lived HMAC ticketed HTTP Range playback.
+Inspectors upload photos or MP4 video as evidence. The upload service supports resumable video uploads up to 2 GiB in 10 MiB chunks. A background worker prepares video for playback, and signed tickets scope access to the evidence record.
 
 ![FE-15 Evidence Upload Sequence Diagram](assets/diagrams/seq-fe15.png)
 
-*Figure 7.8aj — `FE-15` Evidence Intake, Resumable Chunked MP4 Transcode & Ticketed Streaming Sequence.*
+*Figure 7.8aj — FE-15 Evidence Intake, Resumable Chunked MP4 Transcode & Ticketed Streaming Sequence.*
 
 **Class & Pipeline Specifications**
 
@@ -512,24 +512,24 @@ This section presents the detailed design for `FE-15`: image EXIF extraction pri
 | :---: | :--- | :--- |
 | 01 | `EvidenceService`, `ExifMetadataExtractor` & `ImageNormalizer` | Extract EXIF GPS/time/orientation first, normalize oversized (`> 2048 px`) or rotated photos (`<= 10 MB`), emit `480 px` JPEG thumbnails (`?variant=thumb`), disambiguate duplicate filenames sequentially (`MSG17`), promote video keyframes (`<= 1280x720`), and enforce inspection read scope (`EvidenceOwnershipService`). |
 | 02 | `EvidenceUploadSessionService` (`evidence_upload_sessions`) | Manages `OPEN -> COMPLETING -> COMPLETED`/`FAILED`/`CANCELLED`/`EXPIRED` resumable multipart uploads up to `2 GiB` in `10 MiB` chunks directly via MinIO S3 multipart without full-file JVM buffering. |
-| 03 | `VideoProcessingWorker`, `FfmpegVideoTranscoder` & `MediaTicketService` | Poll `PENDING` video jobs (`max-concurrent-jobs: 2`), transcode via argument-array `ffmpeg` (`<= 1080p` H.264 `+faststart` MP4 + `480 px` poster) retaining `raw_object_key` until verified `READY` (retryable on `FAILED`), and mint 5-minute HMAC streaming tickets (`GET/HEAD .../stream?ticket=...` supporting `200`/`206`/`416`/`If-Range`). |
+| 03 | `VideoProcessingWorker`, `FfmpegVideoTranscoder` & `MediaTicketService` | Process up to two video jobs at a time. FFmpeg produces up to 1080p H.264 MP4 with fast start and a 480 px poster. The worker retains the source until `READY` and can retry `FAILED` jobs. `GET` and `HEAD` playback use five-minute HMAC tickets and support HTTP Range requests. |
 | 04 | Web `InspectionEvidencePage.tsx`, `EvidenceCaptureGroup.tsx`, `VideoFrameCropDialog.tsx` & `EvidenceGpsMapDialog.tsx` | Workspace Stage 5 upload queue, native `<video>` Range player (`AuthenticatedMedia`), EXIF map inspection, and frame promotion UI. |
 
 ---
 
 ### 3.16 `MF3` — `FE-16` AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Confirmation
 
-This section presents the detailed design for `FE-16`: Ultralytics `YOLO11s` (`MBDD2025`, 5 building classes: `crack`, `leakage`, `abscission`, `corrosion`, `bulge`), Vision LLM fallback respecting per-user opt-out (`vision_fallback_enabled`), `V63` `70.00` default auto-confirm threshold (`platform_ai_settings`), confirmation status filter chips, manual finding entry (`confidence = null`), normalized `[0, 1]` bounding boxes, and explicit baseline confirmation.
+YOLO11s, trained on MBDD2025, proposes cracks, leakage, abscission, corrosion, and bulges. Vision fallback respects the user's `vision_fallback_enabled` setting. Detection uses a default auto-confirm threshold of 70%, and the Inspector confirms the final set of findings for the report.
 
 #### 3.16.1 Class & Sequence Diagrams
 
 ![FE-16 Class Diagram](assets/diagrams/cls-fe16.png)
 
-*Figure 7.8ak — `FE-16` AI Defect Detection & Findings Baseline Confirmation Class Diagram.*
+*Figure 7.8ak — FE-16 AI Defect Detection & Findings Baseline Confirmation Class Diagram.*
 
 ![FE-16 Sequence Diagram](assets/diagrams/seq-fe16.png)
 
-*Figure 7.8al — `FE-16` YOLO11 + Fallback Defect Detection & Findings Confirmation Sequence.*
+*Figure 7.8al — FE-16 YOLO11 + Fallback Defect Detection & Findings Confirmation Sequence.*
 
 ---
 
@@ -541,41 +541,41 @@ DroneKnowledgeAI finds relevant engineering standards and past defect cases to s
 
 ![FE-17 Class Diagram](assets/diagrams/cls-fe17.png)
 
-*Figure 7.8am — `FE-17` `DroneKnowledgeAI` Retrieval, AI Note Drafting & Summary Grounding Class Diagram.*
+*Figure 7.8am — FE-17 DroneKnowledgeAI Retrieval, AI Note Drafting & Summary Grounding Class Diagram.*
 
 ![FE-17 Sequence Diagram](assets/diagrams/seq-fe17.png)
 
-*Figure 7.8an — `FE-17` Tenant-Isolated `pgvector` RAG Lookup & AI Finding Note Drafting Sequence.*
+*Figure 7.8an — FE-17 Tenant-Isolated pgvector RAG Lookup & AI Finding Note Drafting Sequence.*
 
 ---
 
 ### 3.18 `MF4` — `FE-18` Inspection Report Compilation, Independent Review, Payouts & Publication
 
-The system compiles the report from confirmed findings. A Manager who did not author the report reviews it, and any required Inspector payout is settled before publication. A published report can be downloaded as a PDF.
+The system compiles the report from confirmed findings. An independent Manager reviews and approves it. The Manager publishes it once any required Inspector payout settles. Customers can download the published PDF. Each correction creates a new version and preserves the earlier one.
 
 #### 3.18.1 Class, State & Publication Sequence Diagrams
 
 ![FE-18 Class Diagram](assets/diagrams/cls-fe18.png)
 
-*Figure 7.8ao — `FE-18` Report Compilation, Approval, Payout-Before-Publish & PDF Export Class Diagram.*
+*Figure 7.8ao — FE-18 Report Compilation, Approval, Payout-Before-Publish & PDF Export Class Diagram.*
 
 ![InspectionReport State Diagram](assets/diagrams/state-inspection-report.png)
 
-*Figure 7.8ap — `InspectionReport` Lifecycle State Machine Diagram (`V76`–`V77`).*
+*Figure 7.8ap — InspectionReport Lifecycle State Machine Diagram (V76–V77).*
 
 ![FE-18 Sequence Diagram](assets/diagrams/seq-fe18.png)
 
-*Figure 7.8aq — `FE-18` Report Submission, `MANAGER` Approval -> Sepay VietQR Payout -> Publication & Ungated PDF Export Sequence.*
+*Figure 7.8aq — FE-18 Report Submission, MANAGER Approval -> Sepay VietQR Payout -> Publication & Ungated PDF Export Sequence.*
 
 ---
 
 ### 3.19 `MF4` — `FE-19` Customer Report Acceptance, Ratings & Clarification Workflow
 
-This section presents the detailed design for `FE-19`: Customer review of published inspection deliverables across Web and Flutter Mobile, Customer and Manager structured Inspector Ratings (`inspector_ratings` `V70`, configurable EN/VI criteria `rating_criterion_configs` `V73`), explicit acceptance against the exact published report version (`PAYMENT_DUE`), and owning-Customer-only pre-acceptance clarification requests.
+The Customer reviews and accepts the exact published report version. Before acceptance, the owning Customer can request clarification. Acceptance starts the payment window and sets the occurrence payment status to `PAYMENT_DUE`. The workflow also records Inspector ratings.
 
 ![FE-19 Acceptance and Rating Sequence Diagram](assets/diagrams/seq-fe19.png)
 
-*Figure 7.8ar — `FE-19` Published Report Acceptance, Inspector Ratings & Clarification Sequence.*
+*Figure 7.8ar — FE-19 Published Report Acceptance, Inspector Ratings & Clarification Sequence.*
 
 **Class & Workflow Specifications**
 
@@ -589,36 +589,36 @@ This section presents the detailed design for `FE-19`: Customer review of publis
 
 ### 3.20 `MF4` — `FE-20` Online Service Fee Payment (`Sepay` VietQR & `VNPay`)
 
-This section presents the detailed design for `FE-20`: configuration-gated VND checkout, VietQR transfer-code matching (`SDI<orderCode>`) and `Authorization: Apikey` webhook verification for `Sepay` VietQR (backed by `V68` `gateway_inbound_transactions`), `VNPay v2.1.0` (`HMAC-SHA512`) IPN/Return handling with automatic terminal cancel/expiry order release (`V67` `gateway_order_created_at`), unresolved gateway order locks (`BR-47`), 3-second Web QR status polling, and authorized manual confirmation fallback.
+Customers pay in VND through enabled Sepay VietQR or VNPay gateways. A verified callback or authorized manual confirmation records settlement. Switching gateways replaces the previous unpaid online order while retaining an audit trail for late callbacks.
 
 #### 3.20.1 Sequence & State Diagrams
 
 ![FE-20 Sepay and VNPay Settlement Sequence Diagram](assets/diagrams/seq-fe20.png)
 
-*Figure 7.8as — `FE-20` Sepay VietQR (`SDI`) & VNPay v2.1.0 Online Settlement Sequence.*
+*Figure 7.8as — FE-20 Sepay VietQR (SDI) & VNPay v2.1.0 Online Settlement Sequence.*
 
 ![ServicePayment State Diagram](assets/diagrams/state-service-payment.png)
 
-*Figure 7.8at — `ServicePayment` State Machine Diagram.*
+*Figure 7.8at — ServicePayment State Machine Diagram.*
 
 **Class Specifications**
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `SepayWebhookController`, `SepayPaymentGateway`, `SepayProperties` & `DisabledSepayGateway` | Generate public VietQR image URLs embedding `SDI<orderCode>`, verify `Authorization: Apikey` via constant-time SHA-256 comparison plus receiving account number and whole-VND checks, and settle `ServicePayment`; returns `HTTP 500` on unexpected runtime exceptions so Sepay retries transient failures while persisting outcomes safely via `GatewayInboundTransactionService`. |
-| 02 | `GatewayInboundTransactionService` & `GatewayInboundTransaction` (`gateway_inbound_transactions`) | Persists inbound gateway outcomes (`APPLIED`, `AMOUNT_MISMATCH`, `ORDER_NOT_FOUND`, `REJECTED`, `ERROR`) in `Propagation.REQUIRES_NEW` transactions (`V68`) so audit records survive rolled-back payment attempts and deduplicate redeliveries. |
-| 03 | `VnPayWebhookController`, `VnPayPaymentGateway`, `VnPayCrypto` & `DisabledVnPayGateway` | Generate signed `VNPay v2.1.0` payment URLs and verify `HMAC-SHA512` IPN/Return params (`BR-45`); browser `/return` redirects directly back to `/settlement` without settling on its own, and terminal failure codes `24` (cancelled) or `11` (timed out) release the unresolved order via `releaseVnPayOrderAfterFailure`. |
-| 04 | `ContractWorkflowService` & Web `SepayQrDialog.tsx` | Prevent overwriting an active unresolved gateway order across providers (`MSG49`) using `gateway_order_created_at` (`V67`) for automatic expiry release, allow attributable Manager cancellation (`cancelUnpaidPaymentOrder`), support manual confirmation when gateways are disabled, and poll every 3 seconds in the Web UI to close `SepayQrDialog` automatically upon `PAID`. |
+| 01 | `SepayWebhookController`, `SepayPaymentGateway`, `SepayProperties` & `DisabledSepayGateway` | Include `SDI<orderCode>` in VietQR. Verify `Authorization: Apikey` in constant time, then check the receiving account and whole-VND amount. A valid callback settles `ServicePayment`. An unexpected error returns HTTP `500` so Sepay can retry. |
+| 02 | `GatewayInboundTransactionService` & `GatewayInboundTransaction` (`gateway_inbound_transactions`) | Record results such as `APPLIED`, `AMOUNT_MISMATCH`, `ORDER_NOT_FOUND`, `REJECTED`, and `ERROR`. The audit record persists in a separate `REQUIRES_NEW` transaction, including when a payment rolls back. This also supports deduplication on callback retries. |
+| 03 | `VnPayWebhookController`, `VnPayPaymentGateway`, `VnPayCrypto` & `DisabledVnPayGateway` | Sign VNPay v2.1.0 checkout URLs and verify callbacks with `HMAC-SHA512` (`BR-45`). The browser return redirects to `/settlement`. Terminal codes `24` (cancelled) and `11` (timed out) release the unresolved order. |
+| 04 | `ContractWorkflowService` & Web `SepayQrDialog.tsx` | Switching between Sepay and VNPay, or retrying VNPay, replaces the unpaid online order. A pending manual order blocks online checkout with `PAYMENT_ORDER_ALREADY_OPEN`. The owning Customer or assigned Manager can cancel an unpaid due order. The browser polls every three seconds until `PAID`. |
 
 ---
 
 ### 3.21 `MF4` — `FE-21` Payment Deadlines, Invoices & Payment Document Management
 
-This section presents the detailed design for `FE-21`: per-occurrence `ServiceInvoice` commission/VAT/TNCN snapshots (`InspectionFinanceSettings`), `V4` configurable payment-due window (default `15` days) with one-time overdue notification (`PaymentDueExpiryService`), and downloadable non-tax-invoice notice/receipt PDFs (`PaymentDocumentService`, `PaymentDocumentRenderer`) across Web and Mobile.
+Each occurrence invoice snapshots its commission and tax rates. Accepting the report starts the payment window, which defaults to 15 days. Customers can download a payment notice before payment or a receipt once payment is verified.
 
 ![FE-21 Invoices and Overdue Reminders Sequence Diagram](assets/diagrams/seq-fe21.png)
 
-*Figure 7.8au — `FE-21` Payment Deadline, Daily Overdue Notification & Notice/Receipt PDF Sequence.*
+*Figure 7.8au — FE-21 Payment Deadline, Daily Overdue Notification & Notice/Receipt PDF Sequence.*
 
 **Class & Service Specifications**
 
@@ -632,61 +632,61 @@ This section presents the detailed design for `FE-21`: per-occurrence `ServiceIn
 
 ### 3.22 `MF4` — `FE-22` Partner Inspector Payout Reconciliation (`Sepay` VietQR `SDIPAY`)
 
-This section presents the detailed design for `FE-22`: Partner Inspector payout reconciliation supporting integrated `Approved -> Sepay VietQR Payout (SDIPAY, V78) -> Published` release and explicit Manager-recorded disbursements (`PAID`), refund-hold blocking, final capped payout computation, and role-based financial masking.
+The Manager settles the Inspector payout before publishing a commercial report. The payout service applies refund holds and caps the disbursement at the adjusted amount. Each role sees only the settlement details it needs.
 
 ![FE-22 Partner Payout Sequence Diagram](assets/diagrams/seq-fe22.png)
 
-*Figure 7.8av — `FE-22` Partner Inspector Sepay VietQR (`SDIPAY`) & Manual Payout Sequence.*
+*Figure 7.8av — FE-22 Partner Inspector Sepay VietQR (SDIPAY) & Manual Payout Sequence.*
 
 ![InspectorPayout State Diagram](assets/diagrams/state-inspector-payout.png)
 
-*Figure 7.8aw — `InspectorPayout` State Machine Diagram.*
+*Figure 7.8aw — InspectorPayout State Machine Diagram.*
 
 **Class & UI Specifications**
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
 | 01 | `ContractWorkflowController.recordOccurrencePayout` & `InspectorPayout` | Transitions payout from `ELIGIBLE` to `PAID` only when a `MANAGER` supplies a unique external transfer reference (`payout_reference`, actor attribution, timestamp), enforcing active refund holds and post-reduction payout caps (`BR-46`). |
-| 02 | `OccurrenceFinanceResponse` & Role Masking | Projects net payout, commission/TNCN deductions, refund holds, masked `inspectorRefundSummaries` (exposing payout reduction and receivable impact while omitting platform absorption, commission/VAT adjustments, and internal notes), and recovery ledgers to assigned `INSPECTOR`, full rows to `MANAGER`, while stripping internal partner settlement details from `CUSTOMER` payloads. |
+| 02 | `OccurrenceFinanceResponse` | The assigned Inspector sees the net payout, deductions, holds, and a limited refund summary in `inspectorRefundSummaries`. Managers see the full reconciliation rows. Customers see their payment details, with partner settlement fields omitted. |
 | 03 | Web `OccurrenceFinanceDrawer.tsx`, `InspectorPayoutStatementCard.tsx` & `InspectorPayoutSummaryBar.tsx` | Render eligible/held/paid states, net disbursement breakdown, and Manager payout recording forms inside Workspace Settlement (`/settlement`). |
 
 ---
 
 ### 3.23 `MF4` — `FE-23` Evidence-Backed Refunds & Receivable Recovery
 
-This section presents the detailed design for `FE-23`: Manager-initiated refunds holding unpaid payouts, external transfer completion with exact five-way accounting allocations (`service_refunds`), untransferred cancellation, individual legacy refund reconciliation, and immutable post-payout `InspectorReceivable` recovery ledgers.
+A Manager can initiate a refund against a captured payment. An active refund holds any unpaid Inspector payout. If a payout has already settled, completion leaves its record intact and creates a receivable for recovery.
 
 ![FE-23 Refund and Receivable Sequence Diagram](assets/diagrams/seq-fe23.png)
 
-*Figure 7.8ax — `FE-23` Five-Way Refund Allocation & Inspector Receivable Recovery Sequence.*
+*Figure 7.8ax — FE-23 Five-Way Refund Allocation & Inspector Receivable Recovery Sequence.*
 
 **Class & Ledger Specifications**
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `ContractWorkflowController` & `ServiceRefund` (`service_refunds`) | `POST .../refunds` validates captured balance (`BR-49`) and unique case-insensitive request reference to create `INITIATED` refund and hold unpaid payouts (`BR-48`); `POST .../complete` enforces a unique external reference and exact five-part sum (`inspectorPayoutReduction + platformCommission + vat + tncn + platformAbsorption == amount`); `POST .../cancel` allows cancellation only prior to completion with mandatory reason; `POST .../reconcile-allocation` reconciles legacy `COMPLETED` rows individually by refund ID. |
-| 02 | `InspectorReceivable` & `InspectorReceivableRecovery` (`inspector_receivables*`) | When a completed refund follows an already-`PAID` payout, the historical payout stays immutable (`BR-50`) and an attributable `InspectorReceivable` row is created. `POST .../receivables/{id}/recover` appends manual collections under `@Version` concurrency control, capped at outstanding balance, with zero automatic future payout offsets. |
+| 01 | `ContractWorkflowController` & `ServiceRefund` (`service_refunds`) | `POST .../refunds` checks the captured balance and the unique, case-insensitive request reference, then creates an `INITIATED` refund and holds unpaid payouts (`BR-48`, `BR-49`). `POST .../complete` requires a unique transfer reference and checks that payout reduction, commission, VAT, TNCN, and platform absorption sum to the refund. `POST .../cancel` requires a reason and applies before completion. `POST .../reconcile-allocation` updates one legacy completed refund by ID. |
+| 02 | `InspectorReceivable` & `InspectorReceivableRecovery` | A refund after a `PAID` payout creates a receivable and preserves the original payout (`BR-50`). `POST .../receivables/{id}/recover` records a manual collection up to the outstanding balance. `@Version` prevents competing updates from overwriting that balance. Future payouts remain separate. |
 | 03 | Web `RefundControls.tsx` | Exposes four distinct Manager UI panels inside `/settlement` for refund initiation, external completion/cancellation, legacy ID reconciliation, and manual receivable collection. |
 
 ---
 
 ### 3.24 `MF4` — `FE-24` Post-Remediation Re-inspection & Defect Verification
 
-This section presents the detailed design for `FE-24`: opening follow-up `RE_INSPECTION` occurrences linked via `source_inspection_id` against a completed published inspection, recording three-way defect comparisons (`RESOLVED`, `UNRESOLVED`, `INCONCLUSIVE`), enforcing fresh in-session evidence (`V2`), and surfacing/enforcing `RESOLVED` verdict validity expiry (`V3`, `valid_until`).
+A follow-up `RE_INSPECTION` links to the original inspection through `source_inspection_id`. The assigned Inspector compares fresh evidence with the original confirmed findings and records a `RESOLVED`, `UNRESOLVED`, or `INCONCLUSIVE` verdict. A `RESOLVED` verdict expires at `valid_until`.
 
 #### 3.24.1 Class & Sequence Diagrams
 
 ![FE-24 Re-inspection Class Diagram](assets/diagrams/cls-fe24.png)
 
-*Figure 7.8ay — `FE-24` Post-Remediation Re-inspection & Verdict Validity Class Diagram.*
+*Figure 7.8ay — FE-24 Post-Remediation Re-inspection & Verdict Validity Class Diagram.*
 
 ![FE-24 Re-inspection Sequence Diagram](assets/diagrams/seq-fe24.png)
 
-*Figure 7.8az — `FE-24` Re-inspection Creation, Fresh Evidence Gate & Three-Way Verification Sequence.*
+*Figure 7.8az — FE-24 Re-inspection Creation, Fresh Evidence Gate & Three-Way Verification Sequence.*
 
 | No | Class / Component | Description |
 | :---: | :--- | :--- |
-| 01 | `InspectionController`, `ReinspectionVerificationService` & `ReinspectionDefectVerification` (`V2`, `V3`) | Authorize re-inspection creation strictly for owning `CUSTOMER` or `MANAGER`, initialize one verification row per source `CONFIRMED` finding, restrict verdict updates to the assigned `INSPECTOR` only after `FIELD_COMPLETED` (and lock once report `SUBMITTED`/`PUBLISHED`), enforce fresh evidence from a completed field session of the current re-inspection (`EVIDENCE_NOT_FRESH`, `EVIDENCE_SESSION_MISMATCH`, `EVIDENCE_SESSION_NOT_COMPLETED`, `EVIDENCE_OUTSIDE_SESSION`, `EVIDENCE_REUSED`), and reject expired `RESOLVED` verdicts (`valid_until < now`) via `requireNoExpiredResolutions` (`RESOLUTION_EXPIRED`). |
+| 01 | `InspectionController`, `ReinspectionVerificationService` & `ReinspectionDefectVerification` (`V2`, `V3`) | The owning Customer or a Manager opens a re-inspection and creates one verification per confirmed source finding. The assigned Inspector records verdicts after `FIELD_COMPLETED` and before report submission. The service checks that evidence comes from the current completed field session, falls within its capture window, and has not been reused. Expired `RESOLVED` verdicts return `RESOLUTION_EXPIRED`. |
 | 02 | Web `ReinspectionVerificationSection.tsx`, `verdictExpiry.ts` (`VerdictExpiryBanner`, `ValidityNotice`) & Mobile `verdict_expiry.dart` | Compare evidence before and after remediation and flag `RESOLVED` verdicts that have expired or expire within 14 days. |
 
 ---
@@ -699,6 +699,6 @@ This section presents the detailed design for `FE-24`: opening follow-up `RE_INS
 
 **Buildings only.** Building-defect classes, inspection checkpoints, and asset categories are all building-specific. No design element addresses bridges, transmission towers, solar farms, roads, dams, tunnels, ports, or pipelines.
 
-**Separation of duties is a design constraint, not a UI convention.** The `MANAGER` reviewer of an inspection report (`FE-18`) must differ from its `INSPECTOR` author (`ADMIN` holds read-only view), whereas flight permits (`FE-13`) transition immediately to `APPROVED` upon valid assigned-Inspector self-attestation (`BR-24`, `BR-38`). All authorization boundaries execute inside server transactions rather than only in client routing.
+**Server-side authorization.** The Manager who reviews and publishes a report must be distinct from its author (`BR-38`). The assigned Inspector submits and self-attests the permit (`BR-24`). Managers and Administrators can audit the permit record.
 
-**External services never substitute for human authority.** The detection service, vision fallback, narrative drafter, DroneKnowledgeAI advisor, SmartDroneHub telemetry bridge, and airspace advisory all produce advisory or read-only outputs; official transitions require authenticated human decisions recorded with actor and timestamp.
+**Decision records.** AI services supply suggestions, and telemetry and airspace services supply observations. Approval and publication decisions record the authenticated actor and timestamp.

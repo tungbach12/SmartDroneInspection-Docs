@@ -10,7 +10,7 @@ source: "Report7_Final Project Report.docx"
 
 ### 1.1 Scope & Estimation
 
-The work was decomposed into twenty-four atomic product features (`FE-01`–`FE-24`) across the four main flows (`MF1`–`MF4`) and grouped by member ownership (`24%` Hiếu `50` md, `24%` Quốc `50` md, `28%` Bách `58` md, `24%` Như `50` md; `208` man-days total) at three complexity levels. Simple items are single-screen or single-endpoint changes with no new persistence; medium items add a workflow or a data model; complex items span several modules and a state machine, and carry their own test surface.
+The estimate covers 24 features across `MF1`–`MF4` and totals 208 man-days. Simple items change one screen or endpoint without adding persistence. Medium items add a workflow or data model, and complex items span modules and include state transitions.
 
 | # | WBS Item | Complexity | Est. Effort (man-days) |
 | --- | --- | --- | --- |
@@ -52,7 +52,7 @@ The work was decomposed into twenty-four atomic product features (`FE-01`–`FE-
 | 6.3 | Automated test reconciliation, Report 5 workbook & docs standardization | Medium | 8 |
 | | **Total** | | **208** |
 
-The estimate reconciles against capacity: four members over three and three-quarter months at twenty working days each gives `4 × 3.75 × 20 = 300` person-days, and `208` man-days represents roughly 70% effective capacity distributed accurately as **Trần Hoàng Trung Hiếu** `50` md (`43` feature + `4` mobile + `3` leadership/coordination = `24%`), **Phùng Trung Quốc** `50` md (`45` feature + `4` cross-module + `1` QA/docs = `24%`), **Trần Tùng Bách** `58` md (`48` feature + `6` backend/DB architecture + `4` mobile = `28%`), and **Trương Thái Như** `50` md (`42` feature + `8` QA/Report 5/docs = `24%`).
+Four members working 20 days a month for 3.75 months have a nominal capacity of 300 person-days. The estimate uses 208 man-days, about 69% of that capacity. The role and effort breakdown appears in Section 4.
 
 ### 1.2 Project Objectives
 
@@ -218,7 +218,7 @@ The team maintains report sources under version control and prepares the Word re
 
 ### 6.2 Source Code Management
 
-The workspace is four independent repositories — backend, frontend, mobile, and documentation — each with its own history. Every change is a focused pull request on a branch, never a direct commit to the default branch. Cross-repository work is split into one pull request per repository with an explicit merge order recorded in each body. Generated files are not edited by hand, and no credential, token, secret, recovery code, or private key is committed.
+The backend, web, mobile, and documentation repositories have independent version histories. Each change goes through a branch and pull request. When changes span repositories, pull requests record their merge order.
 
 ### 6.3 Tools & Infrastructures
 

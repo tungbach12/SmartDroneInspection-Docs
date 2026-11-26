@@ -110,7 +110,7 @@ The backend, web, and mobile automated suites are summarized in Section 5.1. The
 
 ![Acceptance case execution status](assets/charts/acceptance-status.png)
 
-*Figure 7.10 — Round 1 acceptance case status for the `77` listed rows (`75` active) across `FE-01`–`FE-24` (`Report 5 v3.15`).*
+*Figure 7.10 — Round 1 acceptance case status for the 77 listed rows (75 active) across FE-01–FE-24 (Report 5 v3.15).*
 
 | Feature | Total cases | Passed | Failed | Pending | N/A | Coverage focus |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
@@ -142,7 +142,9 @@ The backend, web, and mobile automated suites are summarized in Section 5.1. The
 
 In Round 1, 52 of the 61 applicable cases passed and 9 were pending, with zero failures. The other 16 rows were marked N/A.
 
-Report 5 records `13` executed Round 3 cases with `0` failures: `WF3-005`, `WF3-006`, `WF3-009`, `WF3-016`, `WF3-018`, `WF3-019`, `WF3-021`, `WF3-026`, `WF3-027`, `WF3-028`, `WF3-029`, `WF3-030` and `WF3-031`; `WF3-020`, `WF3-022`–`WF3-025`, `WF3-032`, `WF2-021`, and `WF3-033` remain Pending. `PaymentDueAndDocumentApiIntegrationTest` supplies the connected-HTTP evidence for `WF3-026`/`WF3-027`; `WF3-028` records fresh re-inspection evidence, `WF3-019` the current payout contract, and `WF3-029`–`WF3-031` the `DroneKnowledgeAI` retrieval, advisory summary references and Customer Mobile parity.
+Report 5 records 13 passes and zero failures in Round 3 (`WF3-005`, `WF3-006`, `WF3-009`, `WF3-016`, `WF3-018`, `WF3-019`, `WF3-021`, and `WF3-026`–`WF3-031`). `WF3-020`, `WF3-022`–`WF3-025`, `WF3-032`, `WF2-021`, and `WF3-033` remain pending.
+
+The cases cover payouts (`WF3-019`), payment deadlines and documents (`WF3-026`, `WF3-027`), fresh re-inspection evidence (`WF3-028`), and knowledge references on web and mobile (`WF3-029`–`WF3-031`).
 
 ### 5.3 Cross-Cutting Assertions
 
@@ -155,8 +157,8 @@ Report 5 records `13` executed Round 3 cases with `0` failures: `WF3-005`, `WF3-
 | Flight permit self-attestation holds | Permit policy and workflow tests | Valid permit upload immediately transitions the permit to `APPROVED`; drone change or out-of-window reschedule resets to `PENDING_REVIEW` (`ADMIN`/`MANAGER` cannot alter). |
 | Media is scoped | Evidence ticket tests | A signed ticket grants access to one evidence record and nothing else. |
 | Payment needs a signature | `SepayWebhookControllerTest`, `VnPayWebhookAndGatewayTest` & webhook tests | A browser redirect alone never settles a payment; missing/forged `Authorization: Apikey` or VNPay HMAC-SHA512 signatures are rejected, while Sepay inbound outcomes persist idempotently in `gateway_inbound_transactions`. |
-| Knowledge retrieval & note drafting are tenant-isolated | `HistoricalCaseServiceTest`, `HistoricalCaseApiIntegrationTest`, `InspectionFindingsPage.test.tsx`, `KnowledgeRecommendationPanel.test.tsx`, `knowledge_recommendation_test.dart` | `DroneKnowledgeAI` returns `PGVECTOR_RAG` via local `fastembed` (`vector(384)`) when embeddings exist and deterministic `HYBRID_MATCH` otherwise, plus `AI_VISION_RAG` for note drafting; benchmark cases are anonymized, cross-organization cases and the current inspection are excluded, and the customer mobile strip hides when empty. |
-| Payment deadline and documents over HTTP | `PaymentDueAndDocumentApiIntegrationTest` | On Testcontainers PostgreSQL 17 and the real security filter chain: acceptance stamps `payment_due_at` once, the document endpoint returns `409` before acceptance, a notice PDF after acceptance and a receipt after verified payment, foreign-organization callers receive `404`, and a repeated overdue scan sends no second reminder. Report 5 records this as the Round 3 Passed evidence for `WF3-026` and `WF3-027`. |
+| Knowledge retrieval and note drafting | `HistoricalCaseServiceTest`, `HistoricalCaseApiIntegrationTest`, `InspectionFindingsPage.test.tsx`, `KnowledgeRecommendationPanel.test.tsx`, `knowledge_recommendation_test.dart` | Tests cover vector retrieval (`PGVECTOR_RAG`), keyword fallback (`HYBRID_MATCH`), and note drafting (`AI_VISION_RAG`). Results exclude the current inspection and other Customers' records. The mobile reference strip hides when empty. |
+| Payment deadline and documents over HTTP | `PaymentDueAndDocumentApiIntegrationTest` | Acceptance sets `payment_due_at` once. The document API returns `409` before acceptance, a notice after acceptance, and a receipt after payment. Another Customer receives `404`. Repeated scans send one overdue reminder. Report 5 records the results under `WF3-026` and `WF3-027`. |
 | Expired re-inspection verdict is surfaced early | `verdictExpiry.ts`, `VerdictExpiryBanner`, `ValidityNotice`, `ReinspectionWorkflow.test.tsx` | The Web client distinguishes lapsed `RESOLVED` verdicts from those lapsing within 14 days and warns before report authoring; the backend remains the authority that refuses an expired verdict with `RESOLUTION_EXPIRED`. |
 
 ### 5.4 Defects and Limitations

@@ -13,7 +13,7 @@ source: "Report7_Final Project Report.docx"
 | 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking against the weighted plan in Report 2 (`208` md). |
 | 2 | Project Backlog | The twenty-four atomic feature backlog (`FE-01`–`FE-24`) across `MF1`–`MF4`. |
 | 3 | Source Codes | Four independent repositories: backend service (`SmartDroneInspection-backend`), web portals (`SmartDroneInspection-frontend`), Customer mobile client (`SmartDroneInspection-mobile`), and documentation (`SmartDroneInspection-docs`). |
-| 4 | Database Script(s) | Automated schema migration scripts (`V1`–`V4` and `V60`–`V80`) defining the PostgreSQL 17 database (`53` application tables / `55` total database tables, including `inspector_ratings` `V70`, `field_session_flights` `V72`, `rating_criterion_configs` `V73`, `service_request_partner_messages` `V79`, and `V80` checkpoint snapshots), `pgvector` support for `DroneKnowledgeAI`, and plain-text building ownership details. |
+| 4 | Database Script(s) | Flyway migrations `V1`–`V4` and `V60`–`V80` build the PostgreSQL 17 schema. See Chapter IV, Section 2 for the database design. |
 | 5 | Final Report Document | Reports 1–7, prepared using the official templates. |
 | 6 | Test Cases Document | `Report5_Test Report.xlsx` (`v3.15`) with twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `77` listed rows (`75` active cases + `2` superseded `FE-13` cases), plus the executed results in Report 5 §5. |
 | 7 | Defects List | The defect log records one resolved defect (`DEF-01`) and one open tooling defect (`DEF-02`). |
@@ -36,7 +36,7 @@ source: "Report7_Final Project Report.docx"
 
 #### Step 1 — Configure and Start the Backend
 
-Clone the backend, frontend, mobile and documentation repositories into sibling directories. In the backend directory, copy `.env.example` to `.env`. Set credentials for PostgreSQL and MinIO, the signing secrets, the web origin and the bootstrap Administrator. Configure mail if you need to exercise public registration with email verification.
+Clone the backend, frontend, mobile, and documentation repositories into sibling directories. In the backend folder, copy `.env.example` to `.env` and set the PostgreSQL and MinIO credentials, signing secrets, web origin, and bootstrap Administrator. Configure mail to test registration with email verification.
 
 Run `docker compose up -d --build` in the backend directory. Use `docker compose ps` and open `http://localhost:8080/actuator/health`. Wait for `UP` before connecting either client. Flyway applies the migrations during startup.
 
@@ -277,7 +277,7 @@ Open **Assign team** for the occurrence after the contract is recorded.
 
 ❶ In **Scheduled flight & assignment**, set the flight window and select **Find eligible partners**.
 
-Once the candidates load, choose an eligible Inspector and their drone, then select **Assign occurrence**. Verify the assigned pair and flight window. If the mission is awaiting the Inspector’s response, continue with **Accept mission** in Workflow 4.
+Choose an eligible Inspector and drone, then select **Assign occurrence**. Check the assigned team and flight window. If the assignment is awaiting a response, continue with **Accept mission** in Workflow 4.
 
 ![Flight window and eligible team selection](assets/manual/wf3-06-mgr-quote-agreement.png)
 

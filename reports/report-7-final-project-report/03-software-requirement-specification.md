@@ -32,9 +32,9 @@ The system context diagram shows the four roles and the supporting services they
 
 The platform serves four human actors and a set of automated and external ones.
 
-`ADMIN` governs the platform: accounts, the building category catalogue, pilot-licence classes, required drone document and safety configurations, finance settings, operations settings (including Inspector Rating criteria `V73`), and AI inference settings, while holding strictly read-only oversight on partner applications and drone registrations.
+`ADMIN` manages platform accounts, building categories, and qualification and safety settings. The role also configures finance, operations, Rating criteria, and AI settings. Partner applications and drone registration reviews are read-only for Administrators.
 
-`MANAGER` coordinates delivery: reviewing and approving partner Inspector applications and drone registrations (`MF1B`), claiming customer service requests, managing Partner Chat (`V79`) and Order Chat, issuing VND quotations, uploading signed contracts, dispatching crews, auditing flight operations, independently reviewing/approving reports, executing partner VietQR payouts (`SDIPAY`) and publication (`MF3`/`MF4`), and rating Inspectors.
+`MANAGER` reviews Partner Inspector applications and drone registrations, claims service requests, and issues quotations. The Manager records signed contracts, dispatches crews, and audits field work. The Manager also independently reviews reports, settles Inspector payouts, publishes reports, and can rate Inspectors.
 
 `CUSTOMER` acts for a building owner: registering an account and its first building, maintaining buildings and reference documents, raising one-time or recurring requests, negotiating and accepting quotations, following progress, rating Inspectors (`V70`), accepting published reports, and paying the service fee.
 
@@ -56,23 +56,23 @@ Supporting actors are the automated system, the external payment and identity se
 
 ![Use Case 1 — Public and Authentication](assets/diagrams/uc-1-auth-public.png)
 
-*Figure 7.2a — Use Case Diagram (`UC-1`): Public Entry, Authentication, OTP & Account Governance.*
+*Figure 7.2a — Use Case Diagram (UC-1): Public Entry, Authentication, OTP & Account Governance.*
 
 ![Use Case 2 — Assets, Drones and Partner Onboarding](assets/diagrams/uc-2-assets-drones-onboard.png)
 
-*Figure 7.2b — Use Case Diagram (`UC-2`): Customer Buildings, Airspace Screening, Partner Inspector & Owned Drone Onboarding.*
+*Figure 7.2b — Use Case Diagram (UC-2): Customer Buildings, Airspace Screening, Partner Inspector & Owned Drone Onboarding.*
 
 ![Use Case 3 — Commercial Contracting and Field Execution](assets/diagrams/uc-3-contracting-field.png)
 
-*Figure 7.2c — Use Case Diagram (`UC-3`): Requests, VND Quotations, Contracts, Dispatch & Field Telemetry.*
+*Figure 7.2c — Use Case Diagram (UC-3): Requests, VND Quotations, Contracts, Dispatch & Field Telemetry.*
 
 ![Use Case 4 — AI Analysis, Reporting and Settlement](assets/diagrams/uc-4-ai-reporting-payment.png)
 
-*Figure 7.2d — Use Case Diagram (`UC-4`): AI Detection, DroneKnowledgeAI, Report Review/Payout/Publication, Ratings & Settlement.*
+*Figure 7.2d — Use Case Diagram (UC-4): AI Detection, DroneKnowledgeAI, Report Review/Payout/Publication, Ratings & Settlement.*
 
 ![Use Case 5 — Platform Administration](assets/diagrams/uc-5-platform-admin.png)
 
-*Figure 7.2e — Use Case Diagram (`UC-5`): Platform Administration, Governance Settings & Audit Oversight.*
+*Figure 7.2e — Use Case Diagram (UC-5): Platform Administration, Governance Settings & Audit Oversight.*
 
 **Use Cases**
 
@@ -118,7 +118,7 @@ The application separates its web portals from its native Customer mobile client
 
 ![Mobile Application Screen Flow Diagram](assets/diagrams/flow-mobile-screens.png)
 
-*Figure 7.2g — Customer Mobile Application Screen Flow (Flutter, `CUSTOMER` role only).*
+*Figure 7.2g — Customer Mobile Application Screen Flow (Flutter, CUSTOMER role only).*
 
 #### 3.1.2 Screen Descriptions
 
@@ -283,7 +283,7 @@ These capabilities have no dedicated screen of their own; they run inside a user
 
 #### 3.1.5 Entity Relationship Diagram
 
-The domain data model comprises `53` core application entities (`55` total database tables across `V1`–`V4` and `V60`–`V80`) across identity, buildings, partner onboarding, commercial workflow, field operations, evidence/AI analysis, reporting, ratings, and financial settlement. The conceptual Chen diagram below summarizes the principal entities and their relationships; domain-specific physical schema models appear in Part IV §2, and all entities are listed in the Entities Description table.
+The conceptual diagram shows the principal records and their relationships across onboarding, building management, inspections, and finance. Chapter IV, Section 2 shows the physical schema. The table below lists the database records.
 
 ![Conceptual Entity Relationship Diagram](assets/diagrams/erd-conceptual-chen.png)
 
@@ -349,7 +349,6 @@ The domain data model comprises `53` core application entities (`55` total datab
 | 54 | `service_request_partner_message_attachments` | Attachments scoped to Partner Chat threads (`V79`). |
 | 55 | `inspector_applications` | Public Partner Inspector application with licence details and Manager review outcome. |
 
-The model separates four coordinated areas. **Identity and onboarding** covers accounts, sessions, one-time codes, the two application records, and the building catalogue. **Commercial** covers the request, its quotation, its negotiation messages, its occurrences, and the recorded agreement. **Inspection** covers the occurrence, its field sessions and flight logs, its evidence and upload sessions, its findings, and its report versions. **Finance** covers the invoice, the customer payment, the Inspector payout, refunds with their allocations, receivables and their recovery, and the settings that parameterize the split.
 
 ---
 
@@ -447,7 +446,7 @@ The Customer portal (`CUSTOMER` role) scopes all reads and updates strictly to t
 
 ![Customer building inventory](assets/screens/cus-assets.png)
 
-*Figure 7.3.9 — Customer building inventory (`Assets`) displaying status filter, airspace clear badge, building cards, and inspection shortcuts.*
+*Figure 7.3.9 — Customer building inventory (Assets) displaying status filter, airspace clear badge, building cards, and inspection shortcuts.*
 
 ![New building registration dialog](assets/screens/cus-new-asset-airspace.png)
 
@@ -493,14 +492,16 @@ The Customer portal (`CUSTOMER` role) scopes all reads and updates strictly to t
 - **Requirements**:
   - Customers view only `Published` report versions, accompanied by the AI Executive Summary and confirmed evidence/findings; internal `Draft`, `Submitted`, and `Returned` states remain hidden (`BR-39`).
   - Before acceptance, only the owning Customer may submit a clarification request (returning the report for clarification/review). Accepting the published report starts the payment due window (default 15 days).
-  - Checkout via Sepay VietQR or VNPay verifies gateway confirmation callbacks (`Authorization: Apikey` constant-time check + receiving-account/amount checks with idempotent `gateway_inbound_transactions` audit persistence for Sepay, and `HMAC-SHA512` `vnp_SecureHash` for VNPay, `BR-45`) before marking payment `Paid`; `V67` tracks `gateway_order_created_at` so terminal VNPay cancel/timeout codes (`24`/`11`) and expired orders release cleanly with a direct `/settlement` return redirect, while Web Sepay QR dialogs poll every 3 seconds and close automatically once `PAID`. Overdue notices never revoke report access or mutate payment status automatically.
-  - Internal PDF Payment Notice (post-acceptance) and Payment Receipt (post-payment) downloads remain scoped to the owning Customer.
+  - Checkout marks a payment `PAID` after a verified Sepay VietQR or VNPay callback (`BR-45`). See Chapter IV, Section 3.20 for the verification rules.
+  - Switching online gateways or retrying VNPay replaces the earlier unpaid online order. A cancelled or timed-out VNPay order also releases checkout.
+  - The Sepay QR view closes once payment reaches `PAID`. Overdue notices leave the published report accessible and preserve the payment state.
+  - The owning Customer can download the payment notice after acceptance and the receipt after payment. The API also enforces access rules for inspection staff as described in Chapter IV, Section 3.21.
 - **Normal cases**: Customer previews the official published report, clicks **Accept official report**, pays via Sepay VietQR/VNPay (or authorized manual confirmation), and archives receipts in **Finance History**.
 - **Abnormal cases**: Viewing an unpublished report, forging a gateway callback header/signature, double-paying an already settled invoice, or accessing another Customer’s PDF receipt is rejected.
 
 ![Customer inspections list](assets/screens/cus-inspections.png)
 
-*Figure 7.3.17 — Customer inspections table displaying schedule windows, publication readiness (`v1`), and fee settlement links.*
+*Figure 7.3.17 — Customer inspections table displaying schedule windows, publication readiness (v1), and fee settlement links.*
 
 ![Customer inspection tracking](assets/screens/cus-inspection-tracking.png)
 
@@ -508,7 +509,7 @@ The Customer portal (`CUSTOMER` role) scopes all reads and updates strictly to t
 
 ![Customer official report viewer](assets/screens/cus-inspection-report.png)
 
-*Figure 7.3.19 — Published building inspection report (`v1`) showing AI Executive Summary, matched cases/standards, and confirmed defects.*
+*Figure 7.3.19 — Published building inspection report (v1) showing AI Executive Summary, matched cases/standards, and confirmed defects.*
 
 ![Customer acceptance and payment](assets/screens/cus-inspection-settlement.png)
 
@@ -592,11 +593,11 @@ The Partner Operations portal (`INSPECTOR` role) is strictly scoped to the Inspe
 
 ![Live SmartDroneHub telemetry session](assets/screens/ins-ws-flightsession.png)
 
-*Figure 7.3.31 — Active Flight Operation console streaming live ArduPilot/Mission Planner MAVLink telemetry (`IN_FLIGHT`, `Mode: AUTO`, GPS, battery, waypoint, and `Gimbal Active`) with fallback log import.*
+*Figure 7.3.31 — Active Flight Operation console streaming live ArduPilot/Mission Planner MAVLink telemetry (IN_FLIGHT, Mode: AUTO, GPS, battery, waypoint, and Gimbal Active) with fallback log import.*
 
 ![Post-flight and target checkpoints](assets/screens/ins-ws-postflight.png)
 
-*Figure 7.3.32 — Post-flight completion view confirming building checkpoint coverage (`ITEM-01`+) and safety checks.*
+*Figure 7.3.32 — Post-flight completion view confirming building checkpoint coverage (ITEM-01+) and safety checks.*
 
 #### 3.4.4 Evidence Intake, AI Defect Detection, `DroneKnowledgeAI` Advisor and Report Authoring (`FE-15`, `FE-16`, `FE-17`, `FE-18`)
 - **Function trigger**: Inspector uploads field photos/MP4 videos in Stage 5 (**Evidence**), triggers AI detection and drafts technical notes with `DroneKnowledgeAI` in Stage 6 (**Findings**), and prepares/submits the report in Stage 7 (**Report**).
@@ -615,11 +616,11 @@ The Partner Operations portal (`INSPECTOR` role) is strictly scoped to the Inspe
 
 ![AI defect findings toolbar and candidates](assets/screens/ins-ws-findings.png)
 
-*Figure 7.3.34 — Defect findings screen featuring status chips, batch `Draft all notes` / `Analyze all images`, confidence badges, and confirmation gates.*
+*Figure 7.3.34 — Defect findings screen featuring status chips, batch Draft all notes / Analyze all images, confidence badges, and confirmation gates.*
 
 ![Finding card with AI drafted note](assets/screens/ins-ws-findings-ai-note.png)
 
-*Figure 7.3.35 — Annotated defect card illustrating AI-drafted ASTM-referenced technical note (`Draft note with AI`) and human `Confirm` / `Edit` / `Remove` actions.*
+*Figure 7.3.35 — Annotated defect card illustrating AI-drafted ASTM-referenced technical note (Draft note with AI) and human Confirm / Edit / Remove actions.*
 
 ![Inspector report authoring workspace](assets/screens/ins-ws-report.png)
 
@@ -627,7 +628,7 @@ The Partner Operations portal (`INSPECTOR` role) is strictly scoped to the Inspe
 
 ![Inspector reports overview](assets/screens/ins-reports.png)
 
-*Figure 7.3.37 — Inspector reports register tracking `DRAFT`, `SUBMITTED`, `RETURNED`, and `PUBLISHED` versions.*
+*Figure 7.3.37 — Inspector reports register tracking DRAFT, SUBMITTED, RETURNED, and PUBLISHED versions.*
 
 ![Inspector earnings and payout ledger](assets/screens/ins-finance-history.png)
 
@@ -706,7 +707,7 @@ The Platform Manager portal (`MANAGER` role) coordinates onboarding approvals, s
 
 ![Manager reports review queue](assets/screens/mgr-reports.png)
 
-*Figure 7.3.48 — Manager report queue filtering `SUBMITTED` versions awaiting independent publication or return.*
+*Figure 7.3.48 — Manager report queue filtering SUBMITTED versions awaiting independent publication or return.*
 
 ![Manager independent report review](assets/screens/mgr-ws-review.png)
 
@@ -745,7 +746,7 @@ The Platform Admin portal (`ADMIN` role) governs user account provisioning, mast
 
 ![Admin platform accounts directory](assets/screens/adm-platform-accounts.png)
 
-*Figure 7.3.54 — Administrator user management table across `ADMIN`, `MANAGER`, `CUSTOMER`, and `INSPECTOR` accounts.*
+*Figure 7.3.54 — Administrator user management table across ADMIN, MANAGER, CUSTOMER, and INSPECTOR accounts.*
 
 ![Provision platform account dialog](assets/screens/adm-platform-account-dialog.png)
 
@@ -783,11 +784,11 @@ The Platform Admin portal (`ADMIN` role) governs user account provisioning, mast
 
 ![Admin operations governance settings](assets/screens/adm-operations-settings.png)
 
-*Figure 7.3.61 — Platform operations settings configuring partner assignment acceptance timeout (`1–720` hours, default `24` hours).*
+*Figure 7.3.61 — Platform operations settings configuring partner assignment acceptance timeout (1–720 hours, default 24 hours).*
 
 ![Admin AI inference settings](assets/screens/adm-ai-settings.png)
 
-*Figure 7.3.62 — Platform singleton AI configuration governing auto-confirm confidence threshold (`70%`) and Vision LLM fallback behavior.*
+*Figure 7.3.62 — Platform singleton AI configuration governing auto-confirm confidence threshold (70%) and Vision LLM fallback behavior.*
 
 #### 3.6.3 Request Governance, Building Registry and Activity Audit Log (`FE-01`, `FE-06`, `FE-08`, `FE-09`)
 - **Function trigger**: Administrator reassigns Manager ownership in **Service Requests**, reviews cross-tenant buildings in **Assets**, or queries immutable activity records in **Audit Logs**.
@@ -868,7 +869,7 @@ The cross-platform Customer Mobile Application serves the **`CUSTOMER` role excl
 
 ![Mobile service requests list](assets/screens/mob-requests.png)
 
-*Figure 7.3.74 — Customer mobile service request list displaying status pills (`ASSIGNED`, `QUOTED`, `OPEN`) and building details.*
+*Figure 7.3.74 — Customer mobile service request list displaying status pills (ASSIGNED, QUOTED, OPEN) and building details.*
 
 ![Mobile create service request](assets/screens/mob-new-request.png)
 
@@ -902,11 +903,11 @@ The cross-platform Customer Mobile Application serves the **`CUSTOMER` role excl
 
 ![Mobile inspection official report tab](assets/screens/mob-inspection-report.png)
 
-*Figure 7.3.80 — Mobile Report tab presenting published `v1` PDF download, `AI Executive Summary`, and matched historical cases & standards (`TCVN 9343:2012`, `TCVN 9361:2012`).*
+*Figure 7.3.80 — Mobile Report tab presenting published v1 PDF download, AI Executive Summary, and matched historical cases & standards (TCVN 9343:2012, TCVN 9361:2012).*
 
 ![Mobile inspection settlement tab](assets/screens/mob-inspection-settlement.png)
 
-*Figure 7.3.81 — Mobile Settlement tab showing 3-step closure progress, VAT service invoice (`11,000,000 đ`), Accept report, and clarification actions.*
+*Figure 7.3.81 — Mobile Settlement tab showing 3-step closure progress, VAT service invoice (11,000,000 đ), Accept report, and clarification actions.*
 
 
 ### 3.8 Out-of-Scope Domains and Retired Capability
@@ -939,7 +940,7 @@ Where maintenance-related records remain in the data store from earlier developm
 - **Usability.** Each stage communicates its purpose, status, responsible role, and required next action. Candidate findings and drafted summaries are visibly advisory, and a manual finding is distinguishable from a detected one. Users can work in English or Vietnamese.
 - **Reliability.** Signed documents, building documents, and published reports keep their integrity, and unauthorised in-place changes are prevented. A retried event does not create a duplicate occurrence, evidence record, payment, or notice. A large video upload resumes after interruption, and a failed transcode retains its source.
 - **Performance.** Standard actions, searches, and paged lists respond within two seconds at the 95th percentile under fifty concurrent users, and a single-image defect suggestion completes within five seconds. Report rendering never reads video into memory, so generation cost does not scale with evidence size.
-- **Security and data protection.** Users see only what their role, Customer ownership, partner relationship, and assignment permit; a direct link or a known identifier grants nothing extra. A denied section has no route. Report approval and publication require a Manager distinct from the author. Assigned Inspectors self-attest their permits, and Managers and Administrators can view permit records. Media is served only through short-lived scoped tickets. Credentials are supplied as configuration and never committed.
+- **Security and data protection.** Server APIs enforce access by role, Customer ownership, assignment, and chat participation. Report review and publication require a Manager distinct from the author. The assigned Inspector self-attests the permit, which Managers and Administrators can view. Media tickets are short-lived and scoped to one evidence record. Credentials are provided through configuration.
 - **Maintainability and portability.** Module boundaries are enforced by an architecture test. Schema evolution is forward-only, and a test asserts the exact applied migration set. The service runs from container images with the database, storage, detection service, and application as separate services.
 
 | NFR ID | Category | Requirement Statement | Metric | Target Threshold |
@@ -981,7 +982,7 @@ Representative rules from the `BR-01`–`BR-55` set:
 | `BR-40` | A published report is immutable, and a correction is issued as a new version that supersedes the previous one. |
 | `BR-47` | A retried event does not create a duplicate occurrence, evidence record, payment, or notice. |
 | `BR-54` | Corrective maintenance execution, aircraft control, and photogrammetric reconstruction are out of scope; inspection knowledge retrieval is in scope (see `BR-55`). |
-| `BR-55` | `DroneKnowledgeAI` advisory retrieval is in scope: matches are strictly isolated to the current Customer account plus anonymized benchmark cases (excluding the current inspection from matching itself), retrieval uses semantic similarity with automatic keyword fallback, and all recommendations remain advisory and human-confirmed. Confirmed findings are indexed automatically at report publication. A corrective-maintenance repair knowledge base, external CMMS integration, and work-order execution are out of scope. |
+| `BR-55` | DroneKnowledgeAI searches engineering standards, the Customer's eligible cases, and anonymized benchmarks. It excludes the current inspection and falls back to keyword matching when needed. Confirmed findings enter the case index at publication. Suggestions support review, while the Inspector decides which findings to confirm. |
 
 ### 5.2 Common Requirements
 

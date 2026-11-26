@@ -96,21 +96,20 @@ Three existing products were studied as comparators. Each solves part of the pro
 - **Pros:** Strong automation of the capture-to-model pipeline; useful volumetric and progress analytics; designed to feed existing project-management systems rather than replace them; industry-specific reporting.
 - **Cons:** Mining and earthworks focus means building envelope defects such as facade cracks and leakage are not its primary detection target; no inspection-specific lifecycle from permit submission to independent report publication; not aimed at a marketplace of partner inspectors.
 
-The gap across all three is the same. They are strong at capturing and analysing imagery and weak at governing a multi-party inspection: who applied to be a partner, whose licence is still valid on the mission date, which assigned Inspector submitted and self-attested the permit, who wrote the report and who was allowed to publish it, and whether the customer has accepted and settled it. SmartDroneInspection addresses that governance layer and treats detection as one advisory input to it.
+The three products reviewed focus on capturing or analysing drone imagery. SmartDroneInspection focuses on coordinating a building inspection between independent parties, from partner qualification and assignment to report publication and payment.
 
 ## 4. Business Opportunity
 
-The opportunity sits between two groups that need each other and currently find each other informally.
 
-On one side are building owners and facility operators — office landlords, apartment management boards, retail and industrial park operators, hospitals, hotels, and telecom tower owners — who need periodic envelope and structural inspections but do not own drones or employ pilots. On the other side are licensed drone pilots who own serviceable equipment and want recurring, well-documented work rather than one-off jobs sourced through personal contacts.
+Building owners and facility operators need periodic inspections of roofs, facades, and other exterior surfaces. Licensed drone pilots can provide this service using their own equipment.
 
-Today that match is made over the phone. There is no standard quotation, no record of what was agreed, no verification that the pilot's licence and the drone's registration are valid on the day of the flight, no structured evidence trail, and no report format a customer can rely on or an insurer will accept.
+When quotations, flight records, and reports are shared separately, it is harder for an owner to verify what was agreed or trace a finding back to its evidence.
 
-A platform that standardises the chain — request, quotation in VND, signed agreement, dispatch, Inspector permit self-attestation, field execution, evidence, confirmed findings, published report, accepted and settled — turns an ad-hoc arrangement into a repeatable service. That repeatability is the commercial proposition: it lets an owner budget for inspections instead of discovering them, it lets a pilot build a portfolio of documented work, and it lets the platform charge for coordination rather than for flight hours.
+A shared inspection record helps owners plan repeat inspections and gives Inspectors a record of completed work.
 
 ## 5. Software Product Vision
 
-For building owners who need to know the true condition of their structures, and for licensed drone pilots who need dependable work, SmartDroneInspection is a coordination platform that turns a building inspection from an informal arrangement into an auditable service. Unlike aerial-mapping tools that stop at imagery and analytics, SmartDroneInspection governs the whole chain — partner admission, quotation, agreement, dispatch, Inspector permit self-attestation, field execution, confirmed findings, independent publication, and settlement — and treats machine detection as advisory input that a human must confirm before it becomes an official finding.
+SmartDroneInspection gives building owners, Managers, and Partner Inspectors a shared record from quotation and assignment through report publication and payment. AI suggests defects from uploaded evidence. The Inspector confirms findings before they appear in an official report.
 
 ## 6. Project Scope & Limitations
 
