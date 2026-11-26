@@ -6,7 +6,7 @@ weight: 10
 
 # Report 3 - Software Requirement Specification
 
-This folder is the team-maintained Markdown source of Report 3. **Current revision: 23 November 2026 — Platform Inspection Service model, 4 implemented login roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`), 24 atomic product features (`FE-01`–`FE-24`) across 4 connected Main Flows (`MF1`–`MF4`), and Flyway `V1`–`V4` + `V60`–`V71` (`assets.ownership_information`, `service_payments.gateway_order_created_at`, `gateway_inbound_transactions`, `inspection_flight_permits`, `field_session_telemetry`, `service_request_partner_messages` / `service_request_partner_message_attachments`, `service_requests.inspection_items` / `inspections.inspection_items`, the `FE-06` `AssetResponse.checkpointsLocked` contract, per-request Manager checkpoints configuration, role-scoped Overview dialogs, and Manager–Inspector partner chat).** `MAINTENANCE_ENGINEER` and the corrective-maintenance capability are planned and out of the current release scope; the four implemented roles are the only login roles in the backend enum, JWT constants, and account administration. Maintenance is outside current application scope; legacy maintenance schema and data remain preserved but are not exposed by the application.
+This folder is the maintained source of Report 3. It documents 24 features across the four main flows and four login roles. The persistence baseline comprises Flyway V1–V4 and V60–V80. Customer building screens omit checkpoint editing, and access to flight data follows official report publication.
 
 ## Sections
 

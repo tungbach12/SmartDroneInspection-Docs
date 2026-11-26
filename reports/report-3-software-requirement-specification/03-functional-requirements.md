@@ -84,9 +84,9 @@ The screens below are the implemented application surfaces. Screenshots were cap
 
 Figure 3.1 Public landing page.
 
-![Customer organization registration](assets/screens/public-register-customer.png)
+![Customer account registration](assets/screens/public-register-customer.png)
 
-Figure 3.2 Customer organization registration with initial building.
+Figure 3.2 Customer registration at the account details step.
 
 ![Partner Inspector application](assets/screens/public-register-inspector.png)
 
@@ -96,9 +96,9 @@ Figure 3.3 Public partner Inspector application.
 
 Figure 3.4 Administrator dashboard.
 
-![Onboarding reviews](assets/screens/admin-onboarding-reviews.png)
+![Manager onboarding reviews](assets/screens/admin-onboarding-reviews.png)
 
-Figure 3.5 Platform onboarding review queue.
+Figure 3.5 Manager partner onboarding review queue.
 
 ![Partner inspectors roster](assets/screens/manager-partner-inspectors.png)
 
@@ -118,7 +118,115 @@ Figure 3.9 Inspection workspace findings review.
 
 ![Manager report review](assets/screens/manager-ws-review.png)
 
-Figure 3.10 Manager report review and settlement.
+Figure 3.10 Manager report decision and publication readiness.
+
+##### Role-specific screen examples
+
+These screen examples use demonstration accounts and building data. The images include current web captures and retained demonstration states from Report 7. Each screen appears only for an authorized role and an applicable inspection or request state.
+
+![Administrator account directory](assets/screens/adm-platform-accounts.png)
+
+*Figure 3.11 — Administrator account directory (demo data).*
+
+![Administrator building category catalog](assets/screens/adm-asset-catalog.png)
+
+*Figure 3.12 — Administrator building category catalog (demo data).*
+
+![Administrator flight-document configuration](assets/screens/adm-flight-config-documents.png)
+
+*Figure 3.13 — Administrator flight-document configuration (demo data).*
+
+![Administrator audit log](assets/screens/adm-audit-logs.png)
+
+*Figure 3.14 — Administrator audit log (demo data).*
+
+![Manager request and dispatch workspace](assets/screens/mgr-request-quote-dispatch.png)
+
+*Figure 3.15 — Manager request and dispatch workspace (demo data).*
+
+![Manager request conversations](assets/screens/mgr-messages.png)
+
+*Figure 3.16 — Manager request conversations (demo data).*
+
+![Manager inspection queue](assets/screens/mgr-inspections.png)
+
+*Figure 3.17 — Manager inspection queue (demo data).*
+
+![Manager field audit](assets/screens/mgr-ws-audit.png)
+
+*Figure 3.18 — Manager field audit (demo data).*
+
+![Manager financial history](assets/screens/mgr-finance-history.png)
+
+*Figure 3.19 — Manager financial history (demo data).*
+
+![Inspector drone inventory](assets/screens/ins-my-drones.png)
+
+*Figure 3.20 — Inspector drone inventory (demo data).*
+
+![Inspector inspection queue](assets/screens/ins-inspections.png)
+
+*Figure 3.21 — Inspector inspection queue (demo data).*
+
+![Inspector flight permit stage](assets/screens/ins-ws-permit.png)
+
+*Figure 3.22 — Inspector flight permit stage (demo data).*
+
+![Inspector pre-flight checklist](assets/screens/ins-ws-preflight.png)
+
+*Figure 3.23 — Inspector pre-flight checklist (demo data).*
+
+![Inspector field session](assets/screens/ins-ws-flightsession.png)
+
+*Figure 3.24 — Inspector field session (demo data).*
+
+![Inspector post-flight checks](assets/screens/ins-ws-postflight.png)
+
+*Figure 3.25 — Inspector post-flight checks (demo data).*
+
+![Inspector evidence workspace](assets/screens/ins-ws-evidence.png)
+
+*Figure 3.26 — Inspector evidence workspace (demo data).*
+
+![Inspector view of a published report](assets/screens/ins-ws-report.png)
+
+*Figure 3.27 — Inspector view of a published report (demo data).*
+
+![Customer building detail](assets/screens/cus-asset-detail.png)
+
+*Figure 3.28 — Customer building detail (demo data).*
+
+![Customer service requests](assets/screens/cus-service-requests.png)
+
+*Figure 3.29 — Customer service requests (demo data).*
+
+![Customer inspection progress](assets/screens/cus-inspection-tracking.png)
+
+*Figure 3.30 — Customer inspection progress before Manager publication (demo data).*
+
+![Customer published report](assets/screens/cus-inspection-report.png)
+
+*Figure 3.31 — Customer published report (demo data).*
+
+![Customer settlement](assets/screens/cus-inspection-settlement.png)
+
+*Figure 3.32 — Customer settlement (demo data).*
+
+![Mobile Customer home](assets/screens/mob-home.png)
+
+*Figure 3.33 — Mobile Customer home (demo data).*
+
+![Mobile Customer service requests](assets/screens/mob-requests.png)
+
+*Figure 3.34 — Mobile Customer service requests (demo data).*
+
+![Mobile Customer inspection progress](assets/screens/mob-inspection-detail.png)
+
+*Figure 3.35 — Mobile Customer inspection progress (demo data).*
+
+![Mobile Customer published report](assets/screens/mob-inspection-report.png)
+
+*Figure 3.36 — Mobile Customer published report (demo data).*
 
 #### 3.1.3 Screen Authorization
 
@@ -180,11 +288,11 @@ These capabilities have no dedicated screen of their own; they run inside a user
 
 #### 3.1.5 Entity Relationship Diagram
 
-The schema contains **53 application tables**, the Spring Modulith `event_publication` outbox, and the `flyway_schema_history` ledger, for **55 PostgreSQL tables**. The backend maps 52 of those tables at runtime. Figure 3.11 shows the conceptual relationships. The table below lists the application tables and the outbox. Report 4 §2 describes the physical schema.
+The schema contains **53 application tables**, the Spring Modulith `event_publication` outbox, and the `flyway_schema_history` ledger, for **55 PostgreSQL tables**. The backend maps 52 of those tables at runtime. Figure 3.37 shows the conceptual relationships. The table below lists the application tables and the outbox. Report 4 §2 describes the physical schema.
 
 ![Conceptual Entity Relationship Diagram (Chen)](assets/erd.png)
 
-Figure 3.11 Conceptual Entity Relationship Diagram (Chen).
+Figure 3.37 Conceptual Entity Relationship Diagram (Chen).
 
 **Entities Description**
 
@@ -253,29 +361,29 @@ The five activity diagrams below illustrate the end-to-end operational behavior 
 
 ![MF1A Customer Onboarding Activity Diagram](assets/diagrams/act-mf1a-customer-onboarding.png)
 
-Figure 3.12 Activity Diagram — `MF1A` Customer Onboarding & Airspace Screening.
+Figure 3.38 Activity Diagram — `MF1A` Customer Onboarding & Airspace Screening.
 
 ![MF1B Partner and Drone Onboarding Activity Diagram](assets/diagrams/act-mf1b-partner-drone.png)
 
-Figure 3.13 Activity Diagram — `MF1B` Partner Inspector & Drone Onboarding.
+Figure 3.39 Activity Diagram — `MF1B` Partner Inspector & Drone Onboarding.
 
 ![MF2 Commercial Contracting and Dispatch Activity Diagram](assets/diagrams/act-mf2-commercial-dispatch.png)
 
-Figure 3.14 Activity Diagram — `MF2` Commercial Contracting & Dispatch.
+Figure 3.40 Activity Diagram — `MF2` Commercial Contracting & Dispatch.
 
 ![MF3 Permit, Field Execution and AI Activity Diagram](assets/diagrams/act-mf3-permit-field-ai.png)
 
-Figure 3.15 Activity Diagram — `MF3` Self-Attested Permit, Field Execution & AI Analysis.
+Figure 3.41 Activity Diagram — `MF3` Self-Attested Permit, Field Execution & AI Analysis.
 
 ![MF4 Report, Finance and Reinspection Activity Diagram](assets/diagrams/act-mf4-report-finance-reinspection.png)
 
-Figure 3.16 Activity Diagram — `MF4` Report Publication, Payout, Settlement & Re-inspection.
+Figure 3.42 Activity Diagram — `MF4` Report Publication, Payout, Settlement & Re-inspection.
 
 ---
 
 ### 3.2 `MF1` — `FE-01` Account Authentication, OTP & 4-Role Access Control
 
-- **Function trigger**: A prospective Customer registers an organization and its first building, a user signs in by password/OTP/Google, updates profile information, resets password, or ends an active session, or `ADMIN` manages platform accounts.
+- **Function trigger**: A prospective Customer registers a Customer account and its first building, a user signs in by password/OTP/Google, updates profile information, resets password, or ends an active session, or `ADMIN` manages platform accounts.
 - **Actors**: All Roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`); prospective Customer; automated identity service.
 - **Function description**: Authenticate users securely across web and mobile portals, maintain refresh-token rotation and IP lockout controls, and enforce strict four-role access and scope separation across every route and endpoint.
 - **Screen layout (mock-up)**: Public landing, customer registration, credential/OTP/Google sign-in, password reset, Admin platform accounts console, and Account settings (`Profile` / `Security` / `Notification` tabs). See Figure 3.2 and Figure 3.4.
@@ -366,7 +474,7 @@ Figure 3.16 Activity Diagram — `MF4` Report Publication, Payout, Settlement & 
 - **Requirements**:
   - Supported asset categories are restricted exclusively to the six platform-managed **building categories**. Non-building infrastructure categories cannot be registered (`BR-07`, `MSG23`). Updating a category does not retroactively mutate existing buildings' checkpoints.
   - Building ownership details are stored as dedicated plain text (up to `1,000` characters) alongside structural specifications so users can enter readable ownership notes without JSON formatting.
-  - Asset creation validates a unique building code within the owning organization, enforces the No-Fly Zone gate (`FE-04`), and seeds default inspection checkpoints from the chosen category. The Customer building screens on web and mobile omit checkpoints. Authorized staff can view the checkpoint list in the web building detail. The asset API exposes `checkpointsLocked` in list and detail responses and accepts checkpoint edits from the owning Customer only before the first inspection. Once an inspection exists, the API rejects edits with `409 INSPECTION_HISTORY_EXISTS`.
+  - Asset creation validates a unique building code for the owning Customer, enforces the No-Fly Zone gate (`FE-04`), and seeds default inspection checkpoints from the chosen category. The Customer building screens on web and mobile omit checkpoints. Authorized staff can view the checkpoint list in the web building detail. The asset API exposes `checkpointsLocked` in list and detail responses and accepts checkpoint edits from the owning Customer only before the first inspection. Once an inspection exists, the API rejects edits with `409 INSPECTION_HISTORY_EXISTS`.
   - Reference documents compute cryptographic file checksums, reject empty or duplicate-checksum files for the same building, store binaries in private object storage, and allow download exclusively after ownership/role authorization checks.
   - Retiring an active building preserves all historical inspections while blocking new service requests (`MSG46`).
 - **Normal cases**: Customer creates an active building with plain-text ownership details, uploads unique PDF/PNG CAD blueprints, and later retires it. The system seeds checkpoints from the selected category, and authorized staff can review them in the web building detail.
@@ -376,7 +484,7 @@ Figure 3.16 Activity Diagram — `MF4` Report Publication, Payout, Settlement & 
 
 ### 3.8 `MF1` — `FE-07` Restricted Airspace Advisory Warning & Immediate Onboarding
 
-- **Function trigger**: A prospective Customer registers an organization with an initial building in a `RESTRICTED_ZONE`, a Customer creates/edits a building or service request in a `RESTRICTED_ZONE`, or `MANAGER`/`INSPECTOR` views building and inspection airspace advisories.
+- **Function trigger**: A prospective Customer registers a Customer account with an initial building in a `RESTRICTED_ZONE`, a Customer creates/edits a building or service request in a `RESTRICTED_ZONE`, or `MANAGER`/`INSPECTOR` views building and inspection airspace advisories.
 - **Actors**: Prospective Customer, `CUSTOMER`, `MANAGER`, `INSPECTOR`, `SYSTEM`.
 - **Function description**: Surface amber `MSG28` advisory warnings (zone name, governing authority, ceiling altitude `<= X m AGL`, and `https://cambay.mod.gov.vn` reference) whenever building coordinates lie in a `RESTRICTED_ZONE` without requiring an Administrator pre-registration clearance queue, while continuing to enforce the hard `NO_FLY_ZONE` gate (`FE-04`) and the Inspector mission flight-permit gate (`FE-13`).
 - **Screen layout (mock-up)**: Coordinate picker and Customer registration map amber `Alert` banner (`MSG28`), post-registration notice on Sign-In (`Web` & `Mobile`), Service Request inline alert, and Building/Overview `Restricted airspace · <= Xm AGL` badge (`AssetsPage` & `AssetOverviewDialog`).
@@ -462,13 +570,13 @@ Figure 3.16 Activity Diagram — `MF4` Report Publication, Payout, Settlement & 
 
 - **Function trigger**: Platform domain events occur across the full lifecycle — Contracts & Finance (`SERVICE_REQUEST_CREATED`, Manager assigned/reassigned/unassigned, quote issued/updated/accepted, signed contract uploaded, customer report accepted, inspector payout settled via manual transfer or SePay webhook, refund initiated/completed/cancelled, inspector receivable recovered), Inspections & Reports (`INSPECTION_ASSIGNED`/`ACCEPTED`/`CANCELLED`/`DECLINED`/`RESCHEDULED`/`REVOKED`/`OVERDUE`/`TIMED_OUT`, `FLIGHT_PERMIT_SUBMITTED`, `FIELD_SESSION_COMPLETED`/`HUNG`/`ABORTED`/`FORCE_ABORTED`, video transcode `READY`/`FAILED`, `REPORT_SUBMITTED`/`RETURNED`/`WITHDRAWN`/`APPROVED_FOR_PAYOUT`/`PUBLISHED`/`CLARIFICATION_REQUESTED`, `INSPECTOR_RATED`), Fleet & Drone Applications (drone submitted/approved/rejected and scheduled daily 30/7/1/0-day drone registration expiry alerts), Onboarding & Security Alerts (prospective customer airspace requested/approved/rejected, inspector onboarding updated/approved/rejected, license expiry reminders, bulk logout/password change/OTP reset/role or status changes), payment deadlines & settlement — or a user opens Notifications or switches chat/inbox views.
 - **Actors**: All Login Roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`), `SYSTEM`.
-- **Function description**: Deliver reliable, deduplicated, role- and tenant-scoped in-app notifications backed by a transactional Spring Modulith event outbox, bilingual message formatting (`"Tiếng Việt | English"`), single-action bulk read synchronization (`PATCH /api/v1/notifications/read-all`), localized 3-channel chat badge routing (Request Order Chat, Customer–Inspector Inspection Chat, and Manager–Inspector Partner Chat), and best-effort email alerts for critical security, airspace-clearance, onboarding, and drone registration expiry milestones.
+- **Function description**: Deliver reliable, deduplicated, role- and tenant-scoped in-app notifications backed by a transactional Spring Modulith event outbox, bilingual message formatting (`"Vietnamese and English separated by U+007C"`), single-action bulk read synchronization (`PATCH /api/v1/notifications/read-all`), localized 3-channel chat badge routing (Request Order Chat, Customer–Inspector Inspection Chat, and Manager–Inspector Partner Chat), and best-effort email alerts for critical security, airspace-clearance, onboarding, and drone registration expiry milestones.
 - **Screen layout (mock-up)**: Top-bar Notification Bell unread badge & popover, localized Notifications inbox on Web and Customer Mobile, category badges, `Mark all as read` action (covering In-App alerts and all 3 unread chat channels), and safe deep links (`/contracts`, `/inspections`, `/messages`, `/manager/drone-applications`, `/operations/drones`, `/operations/partner-onboarding`, `/manager/onboarding-reviews`, `/profile?tab=security`).
 - **Requirements**:
   - Event-driven notification listeners consume transactional platform events asynchronously via `@ApplicationModuleListener` (publishing inside committed transactions) and store deduplicated notifications so retried events never send duplicate alerts (`BR-47`).
-  - Critical bilingual (`"Tiếng Việt | English"`) in-app alerts cover all 5 workflow pillars: Contracts & Finance (`ContractWorkflowService`), Inspections/Video/Report lifecycle (`InspectionCreationService`, `ReportService`, `InspectionFieldSessionService`, `VideoProcessingWorker`), Drone registration review & scheduled daily expiry reminders (`DroneRegistrationApplicationService`, `DroneRegistrationExpiryCheckService`), Customer airspace & Inspector onboarding review (`OrganizationRegistrationService`, `ProspectiveCustomerReviewService`, `InspectorProfileService`), and Account Security alerts (`AuthService`, `PasswordResetService`, `AdminUserService`).
+  - Critical bilingual (`"Vietnamese and English separated by U+007C"`) in-app alerts cover all 5 workflow pillars: Contracts & Finance (`ContractWorkflowService`), Inspections/Video/Report lifecycle (`InspectionCreationService`, `ReportService`, `InspectionFieldSessionService`, `VideoProcessingWorker`), Drone registration review & scheduled daily expiry reminders (`DroneRegistrationApplicationService`, `DroneRegistrationExpiryCheckService`), Customer airspace & Inspector onboarding review (`OrganizationRegistrationService`, `ProspectiveCustomerReviewService`, `InspectorProfileService`), and Account Security alerts (`AuthService`, `PasswordResetService`, `AdminUserService`).
   - For critical events (prospective customer airspace approve/reject, drone registration 30/7/1/0-day expiry reminders, inspector onboarding approve/reject, and account security changes), `NotificationEmailHelper` additionally sends best-effort bilingual SMTP emails when `JavaMailSender` is configured, without rolling back or failing core transactions if mail delivery is unavailable.
-  - Web notification lists render bilingual titles/bodies cleanly according to the user's active locale (`vi` or `en`) while keeping the `"Tiếng Việt | English"` API payload compatible with Mobile clients; notification polling invalidates list queries whenever `unreadCount` changes; `PATCH /api/v1/notifications/read-all` (`PUT`/`POST` aliases) transitions unread notifications to `READ` with `sent_at` and `read_at` satisfied per `ck_notifications_read_state`.
+  - Web notification lists render bilingual titles/bodies cleanly according to the user's active locale (`vi` or `en`) while keeping the `"Vietnamese and English separated by U+007C"` API payload compatible with Mobile clients; notification polling invalidates list queries whenever `unreadCount` changes; `PATCH /api/v1/notifications/read-all` (`PUT`/`POST` aliases) transitions unread notifications to `READ` with `sent_at` and `read_at` satisfied per `ck_notifications_read_state`.
   - Notification Bell and `NotificationsPage` aggregate all 3 unread chat channels (`ORDER`, `INSPECTION`, `PARTNER`) into dedicated channel-specific routes and mark-as-read API calls, preserve safe whitelisted query tabs (`dashboard?tab=...`, `messages?requestId=...`/`inspectionId=...`/`partnerRequestId=...&inspectorId=...`), and enforce server-side role, organization, and assignment authorization (`BR-52`).
 - **Normal cases**: Domain transitions produce exactly one bilingual notice per intended recipient even on retry; critical events also dispatch best-effort emails; Web renders the active locale segment cleanly; user views live unread count, clicks `Mark all as read`, navigates to deep-linked records across all roles/tabs, and Admin review/settings workspaces surface toast confirmation feedback.
 - **Abnormal cases**: Replayed domain events or daily expiry scans never insert duplicate rows; unavailable SMTP/mail failure logs a warning without failing business or In-App persistence; attempting to read/mark another user's notification or open unsafe external redirect targets is blocked.

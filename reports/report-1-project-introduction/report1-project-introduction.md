@@ -16,8 +16,48 @@ source_docx: report1-project-introduction.docx
 | 19 Nov 2026 | M | Team | Version 3.2: Documented the human-in-the-loop `DroneKnowledgeAI` retrieval boundary (`LI-9`) and synchronized FE-06/FE-07/FE-08, mobile scope, and the main flows with delivered re-inspection verdict validity, payment notice/receipt PDF, and Inspector–Customer chat. |
 | 21 Nov 2026 | M | Team | Version 3.3: Decomposed the delivered product scope from eight grouped features into twenty-four atomic features (`FE-01`–`FE-24`) aligned across the four main flows (`MF1`–`MF4`), updated `LI-9` references to `FE-16`/`FE-17`/`FE-18`, and synced plain-text building ownership details, concise recurring request titles, and streamlined service-request workflows. |
 | 25 Nov 2026 | M | Team | Version 3.4: Synchronized `MF1`–`MF4` and `FE-01`–`FE-24` with the current `main` baseline (`V70`–`V80`, `#175`): immediate restricted-airspace onboarding with `MSG28` warning (`FE-07`), Manager-only `MF1B`/`MF3` review and publication with Administrator read-only oversight, Inspector self-attested flight permits (`FE-13`), `Sepay` VietQR + `VNPay` checkout (`FE-20`), Step-3 `SePay` VietQR partner payout gate (`FE-22`), multi-flight sessions (`FE-14`), Inspector ratings (`FE-19`), per-request checkpoints (`FE-08`), Partner Chat (`FE-10`), bilingual notifications/emails (`FE-12`), and replaced Figure 1 with the exported Draw.io `End-to-End Operational Flow` diagram. |
+| 26 Nov 2026 | M | Project Team | Aligned the product introduction, limits, and feature descriptions with the release and refreshed the operational overview. |
 
 *A - Added M - Modified D - Deleted
+
+# Acknowledgement
+
+The team thanks its supervisors for their guidance across the planning, design, build, and testing phases of this capstone project. Their reviews of the requirement specification and the design document shaped both the scope and the rigour of the delivered system.
+
+The team also thanks the lecturers of the Software Engineering programme at FPT University for the foundation on which this work rests, and the customer and partner organisations that reviewed early builds and gave the feedback that turned an inspection concept into a working service.
+
+Finally, the team thanks the open-source communities behind Spring Boot, Spring Modulith, React, Flutter, PostgreSQL, MinIO, Ultralytics YOLO, and FFmpeg. This product is built on their work.
+
+# Definition and Acronyms
+
+| Acronym | Definition |
+| --- | --- |
+| `ADMIN` | Platform Administrator |
+| AI | Artificial Intelligence |
+| API | Application Programming Interface |
+| `BR` | Business Rule |
+| CDD | Containerized Database Deployment |
+| `CUSTOMER` | Building owner or customer account holder |
+| ERD | Entity Relationship Diagram |
+| `FE` | Feature |
+| FFmpeg | Fast Forward Moving Picture Experts Group (media toolkit) |
+| HMAC | Hash-based Message Authentication Code |
+| `INSPECTOR` | Partner Drone Inspector |
+| JWT | JSON Web Token |
+| `MANAGER` | Platform Manager |
+| `MF` | Main Flow |
+| MinIO | High-performance S3-compatible object storage |
+| MP4 | MPEG-4 Part 14 (video container) |
+| NFR | Non-Functional Requirement |
+| OAuth | Open Authorization |
+| PDF | Portable Document Format |
+| RBAC | Role-Based Access Control |
+| SDD | Software Design Description |
+| SRS | Software Requirement Specification |
+| `UC` | Use Case |
+| VND | Vietnamese Dong |
+| VNPay | Vietnam Payment Solution Joint Stock Company gateway |
+| YOLO | You Only Look Once (object detection model family) |
 
 # II. Project Introduction
 
@@ -25,147 +65,124 @@ source_docx: report1-project-introduction.docx
 
 ### 1.1 Project Information
 
-- Project name: SmartDroneInspection: AI-powered Infrastructure Inspection Management Platform
+- Project name: SmartDroneInspection: AI-Powered Infrastructure Inspection Coordination Platform
 - Project code: GFA26SE139
 - Group name: FA26SE112
-- Software type: Web portals and mobile application for platform-managed building inspection services
-
-The project is delivered by the team based in Ho Chi Minh City, Vietnam, under the supervision of the listed lecturers.
+- Location: Ho Chi Minh City, Vietnam
+- **Software type:** Web application, native mobile application, and self-hosted AI detection service
 
 ### 1.2 Project Team
 
 | Full Name | Role | Email | Mobile |
 | --- | --- | --- | --- |
-| Phạm Minh Trí | Lecturer | tripm14@fpt.edu.vn |  |
-| Đặng Ngọc Minh Đức | Lecturer | ducdnm2@fpt.edu.vn |  |
-| Trần Hoàng Trung Hiếu | Leader | hieuthtse184212@fpt.edu.vn | 0963832382 |
-| Phùng Trung Quốc | Member | quocptse170027@fpt.edu.vn | 0896986551 |
-| Trương Thái Như | Member | nhuttse180082@fpt.edu.vn | 0328416716 |
-| Trần Tùng Bách | Member | bachttse180220@fpt.edu.vn | 0378351050 |
+| Trần Hoàng Trung Hiếu (`SE184212`) | Leader | hieuthtse184212@fpt.edu.vn | 0963832382 |
+| Phùng Trung Quốc (`SE170027`) | Member | quocptse170027@fpt.edu.vn | 0896986551 |
+| Trần Tùng Bách (`SE180220`) | Member | bachttse180220@fpt.edu.vn | 0378351050 |
+| Trương Thái Như (`SE180082`) | Member | nhuttse180082@fpt.edu.vn | 0328416716 |
+| Phạm Minh Trí | Supervisor | tripm14@fpt.edu.vn | — |
+| Đặng Ngọc Minh Đức | External Supervisor and Lecturer | ducdnm2@fpt.edu.vn | — |
 
 ## 2. Product Background
 
-Organizations that own critical civil, industrial, and energy infrastructure — bridges, commercial buildings, transmission towers, solar farms, and industrial facilities — must inspect their assets periodically to detect structural defects, assess asset health, satisfy aviation and workplace-safety regulations, and confirm that previous repairs have held. These inspections are increasingly performed with camera-equipped drones, because aerial capture reaches surfaces that are slow, expensive, or unsafe to inspect from scaffolding or rope access.
+Roofs, facades, and other exterior building surfaces can be difficult to inspect from the ground. Drone imagery helps inspectors document these areas and compare observations across visits. When quotations, permits, evidence, and reports are handled separately, it is harder to trace a reported finding back to the inspection that produced it.
 
-In practice, however, the commercial side and the technical side of inspection are handled separately. A customer asks several partner drone operators for quotes through messaging apps; contracts are signed on paper; flight scheduling is coordinated by phone; photographs and video are returned on memory cards or shared folders; defect findings are written up in spreadsheets; and the resulting report is circulated as an email attachment. No single record connects a defect photographed on a given day to the contract that commissioned the flight, the partner who flew it, the permit that authorised it, the report that published it, and the invoice that was settled.
-
-That fragmentation has concrete consequences for Vietnamese infrastructure owners. Flight permissions and no-fly-zone requirements are difficult to evidence after the fact. Partner pilots cannot be verified as currently qualified, and the same pilot can be double-booked across two customer organizations. Defects cannot be traced back to the geotagged photograph or video frame that demonstrates them. Reports are revised without version history, so a customer cannot prove which version was approved. Fees, commissions, and partner payouts are reconciled by hand.
-
-SmartDroneInspection addresses this by treating inspection as a governed service rather than a one-off file transfer. The platform brings customer asset onboarding, partner qualification, service requests, priced quotations, signed agreements, partner dispatch, flight-permit readiness, field execution, photographic and video evidence, defect findings, report publication, and payment settlement into a single connected record, while leaving the actual flying to qualified partner pilots.
+SmartDroneInspection connects the service request, quotation, Inspector and drone assignment, permit record, field evidence, findings, published report, and payment. Partner Inspectors conduct the flights and verify findings. The platform records their work and supports review with image analysis.
 
 ## 3. Existing Systems
 
-Several commercial platforms already manage drone-captured data. Three were reviewed as benchmarks for data handling, visual review, and reporting.
+Three existing products were studied as comparators. Each solves part of the problem; none of them solves the coordination problem that this project targets.
 
 ### 3.1 DroneDeploy
 
-**Description:** DroneDeploy is a cloud platform for drone flight planning, image processing, visual inspection, analysis, and reporting.
-
-**Link:** https://www.dronedeploy.com/
-
-**Actors:** Organization Owner/Admin, Coordinator, Pilot, Analyst, Member, External User, and Viewer.
-
-**Features:** Automated flight planning, drone media upload, orthomosaic and 3D model processing, measurement tools, visual issue tagging, inspection-report generation, and workspace permission management.
-
-**Pros:** Mature visual inspection interface, strong two- and three-dimensional spatial visualisation, flexible collaboration inside a workspace, and broad support for many drone models.
-
-**Cons:** Oriented toward aerial mapping and visual issue tagging inside a single organization's workspace. It does not model a multi-party commercial service: there is no customer request and quotation negotiation, no partner-pilot qualification and dispatch across customer organizations, no Vietnam-specific flight-permit readiness gate, no independent review before publication, and no Vietnamese payment settlement.
+- **Description:** A cloud platform for drone-based aerial mapping and site documentation, widely used in construction and agriculture, with photogrammetry, progress tracking, and machine-learning analysis of aerial imagery.
+- **Link:** https://www.dronedeploy.com
+- **Pros:** Mature flight planning and automated capture; strong photogrammetric reconstruction and site-accuracy tooling; a large integration ecosystem; well-suited to comparing site progress across time.
+- **Cons:** Oriented toward the organisation that operates its own drones, so a building owner without a flight operation is not the primary user; no partner-marketplace model for dispatching an independent licensed inspector; the commercial chain from request to quotation to signed agreement to settlement sits outside the product.
 
 ### 3.2 Flyability Inspector
 
-**Description:** Flyability Inspector is companion software for organising, reviewing, and reporting indoor and confined-space inspection data captured by Elios drones.
-
-**Link:** https://www.flyability.com/inspector
-
-**Actors:** Inspection teams, structural engineers, and asset owners.
-
-**Features:** Asset-based organisation of inspection data, visual review with points of interest, spatial localisation, comparison of inspection history over time, and structured report generation.
-
-**Pros:** Strong visual context for reviewing localised structural defects, and effective side-by-side comparison of the same asset across successive inspections.
-
-**Cons:** Closely coupled to proprietary Elios hardware and its capture format. It does not accept arbitrary uploaded photographs and video from any aircraft, and it offers no commercial workflow — no service request, quotation, signed agreement, partner dispatch, payment settlement, or multi-tenant customer separation.
+- **Description:** A software suite and collision-tolerant indoor drone offering for confined-space and indoor inspection, with a structured inspection workflow and reporting aimed at asset owners and inspection service companies.
+- **Link:** https://www.flyability.com
+- **Pros:** Excellent fit for confined and indoor spaces where a conventional drone cannot safely fly; a structured, checklist-driven inspection flow; inspection-grade image and video capture; report generation built into the workflow.
+- **Cons:** Hardware-coupled, so adopting it means adopting a specific aircraft; aimed mainly at industrial assets rather than the broader building portfolio; no cross-organisation dispatch of independent partner pilots and no customer-facing settlement process.
 
 ### 3.3 Skycatch
 
-**Description:** Skycatch is an enterprise drone-data platform aimed at construction and industrial sites, offering automated capture, cloud processing, and progress analytics.
+- **Description:** An enterprise drone data platform focused on construction and mining, providing automated capture, 3D reconstruction, volumetric analysis, and integration with project management systems.
+- **Link:** https://www.skycatch.com
+- **Pros:** Strong automation of the capture-to-model pipeline; useful volumetric and progress analytics; designed to feed existing project-management systems rather than replace them; industry-specific reporting.
+- **Cons:** Mining and earthworks focus means building envelope defects such as facade cracks and leakage are not its primary detection target; no inspection-specific lifecycle from permit submission to independent report publication; not aimed at a marketplace of partner inspectors.
 
-**Link:** https://www.skycatch.com/
-
-**Actors:** Site managers, surveyors, project engineers, and enterprise administrators.
-
-**Features:** Automated mission capture with supported aircraft, photogrammetric processing, volumetric and progress analysis, site dashboards, and integration with construction-management systems.
-
-**Pros:** Strong automation across capture and processing, and good project-level analytics for measuring progress against a site model.
-
-**Cons:** Optimised for construction progress tracking rather than periodic structural condition inspection. Its outputs are site models and measurements, not per-defect findings tied to evidence and to an independently published report, and it does not model a marketplace of partner pilots supplying inspection services to multiple customer organizations.
+The three products reviewed focus on capturing or analysing drone imagery. SmartDroneInspection focuses on coordinating a building inspection between independent parties, from partner qualification and assignment to report publication and payment.
 
 ## 4. Business Opportunity
 
-Infrastructure-owning enterprises across Vietnam and Southeast Asia increasingly buy drone inspection as an external service rather than maintaining an in-house aviation capability. That creates a real market for an operator that coordinates qualified partner pilots — but only if the operator can demonstrate control over the things customers and auditors care about: who flew, with which aircraft and documents, under which permit, over which asset, producing which evidence, supporting which findings, published in which report version, and settled for which amount.
 
-No existing product covers that chain end to end for the Vietnamese market. Mapping tools capture data but do not govern commercial service. Document-management and CMMS products record contracts and work orders but have no notion of aerial capture, flight permission, or defect evidence. This gap is the opportunity: a platform that a Vietnamese inspection operator can run as its operating system, where the compliance and commercial records are the product rather than an afterthought.
+Building owners and facility operators need periodic inspections of roofs, facades, and other exterior surfaces. Licensed drone pilots can provide this service using their own equipment.
 
-The resulting product is also commercially attractive to the operator. Recurring service requests turn one-off inspections into predictable revenue; versioned quotations and signed agreements shorten the sales cycle; partner dispatch with qualification and schedule checks raises aircraft utilisation; and an auditable evidence-to-report chain is a defensible differentiator when tendering to enterprise customers.
+When quotations, flight records, and reports are shared separately, it is harder for an owner to verify what was agreed or trace a finding back to its evidence.
+
+A shared inspection record helps owners plan repeat inspections and gives Inspectors a record of completed work.
 
 ## 5. Software Product Vision
 
-For infrastructure-owning organizations that need auditable, regulation-aware structural inspections, SmartDroneInspection is a multi-portal web and mobile platform that connects commercial inspection contracts and vetted partner drone pilots to field execution, human-confirmed AI defect findings, independently published inspection reports, and settled payment — so that every finding can be traced back to the evidence that supports it and the contract that commissioned it.
-
-Unlike generic cloud-storage or mapping tools, the platform separates responsibilities across four login roles — Platform Administrator (`ADMIN`), Platform Manager (`MANAGER`), Customer organization user (`CUSTOMER`), and Partner Drone Inspector (`INSPECTOR`) — and keeps automated services such as the vision model, the language model, and the payment gateways firmly in a supporting role. Automated detection proposes; a human Inspector confirms; a Manager who did not author the report decides publication; the Customer accepts and pays.
+SmartDroneInspection gives building owners, Managers, and Partner Inspectors a shared record from quotation and assignment through report publication and payment. AI suggests defects from uploaded evidence. The Inspector confirms findings before they appear in an official report.
 
 ## 6. Project Scope & Limitations
 
-The product is organised as four connected main flows (`MF1`–`MF4`), decomposed into twenty-four atomic product features (`FE-01`–`FE-24`) so each engineering capability, owner, test sheet, and acceptance criterion is tracked without grouping unrelated workflows.
 
-**`MF1` — Identity, onboarding, airspace screening & partner readiness (`FE-01`–`FE-04`, `FE-07`, plus `FE-05` financial ledger).** A prospective customer registers an organization and its first building while location coordinates are screened on an interactive Vietnam map against airspace zones (`FE-04`): prohibited locations are blocked and restricted locations attach an amber flight-permit warning (`MSG28`) while activating immediately (`FE-07`). Partner Inspectors are admitted through a platform-governed application and qualification process reviewed by Managers with Administrator read-only oversight (`FE-02`), and approved Inspectors register owned drones with required documents (`FE-03`), while Platform Administrators maintain roles, accounts, and platform rules (`FE-01`), and every operational role tracks its own scoped financial history (`FE-05`).
 
-**`MF2` — Buildings, commercial requests, agreements, chat & dispatch (`FE-06`, `FE-08`–`FE-12`).** Customers maintain buildings, inspection checkpoints, plain-text ownership details, and verified reference documents (`FE-06`). Customers submit one-time or recurring service requests and receive VND quotations alongside Manager-configured per-request checkpoints (`FE-08`), confirm acceptance, record offline signed paper contracts, and receive cross-organization occurrence dispatch (`FE-09`). Dedicated three-channel messaging separates commercial Manager–Customer negotiations, private Manager–Inspector partner coordination, and private Inspector–Customer field coordination (`FE-10`), while configurable acceptance deadlines escalate unaccepted assignments (`FE-11`) and reliable bilingual in-app notifications and critical SMTP emails alert responsible actors (`FE-12`).
+![Inspection service workflow](assets/operational-flow.png)
 
-**`MF3` — Flight readiness, field work, evidence & AI analysis (`FE-13`–`FE-17`).** Before field work starts, the assigned Inspector submits a validated, self-attested mission flight permit that becomes effective immediately with Manager/Administrator read-only audit visibility (`FE-13`), executes multi-flight on-site field sessions with detailed safety checklists and read-only telemetry from SmartDroneHub or imported flight logs (`FE-14`), and uploads photographs and large videos that are prepared smoothly in the background (`FE-15`). Automated vision analysis proposes candidate building defects for Inspector confirmation (`FE-16`), supported by a tenant-isolated historical-case and engineering-standard advisor, editable AI note drafting, and executive summary references (`FE-17`).
+*Figure 1.1 — Inspection workflow from onboarding to report publication and settlement.*
 
-**`MF4` — Report publication, acceptance, settlement & re-inspection (`FE-18`–`FE-24`, plus `FE-05` ledger view).** Compiled inspection reports undergo independent Manager review (`APPROVED`) followed by Step-3 `SePay` VietQR partner payout reconciliation (`PAID`) before official publication (`PUBLISHED`, `FE-18`, `FE-22`), Customer acceptance, pre-acceptance clarification, and configurable Inspector rating (`FE-19`), online checkout via Sepay VietQR or VNPay (`FE-20`), payment deadline tracking and downloadable notice/receipt PDFs (`FE-21`), evidence-backed refunds and receivable recovery (`FE-23`), and a three-way post-remediation re-inspection verification loop (`FE-24`).
+### 6.1 Major Features (`FE-01`–`FE-24`)
 
-### 6.1 Major Features
+Twenty-four atomic product features define the delivered scope across the four main operational flows (`MF1`–`MF4`):
 
-Twenty-four atomic product features define the delivered scope across the four main operational flows (`MF1`–`MF4`) and are traced individually through Reports 2–5 and Report 7.
+**Main Flow 1 (`MF1`) — Identity, Partner/Drone Onboarding & Airspace Screening (`FE-01`–`FE-04`)**
 
-- **`MF1` FE-01: Account Authentication, OTP & 4-Role Access Control** — Secure password sign-in with failed-attempt lockout and rate limiting, email one-time-code verification, Google sign-in, session refresh controls, self-service profile updates, and strict four-role access boundaries across Administrators, Managers, Customers, and Inspectors.
-- **`MF1` FE-02: Partner Inspector Application & Qualification Management** — Public self-service Inspector application with pilot-licence scan (drone ownership is optional at application time), Manager approval/rejection and account creation (with Administrator read-only oversight), Manager-recorded signed partner contracts, licence class/expiry tracking, and flight logs.
-- **`MF1` FE-03: Inspector-Owned Drone Registration & Fleet Management** — Administrator-configurable document and capability requirements, Inspector drone registration with photographs, flight capabilities, and required ownership/registration/inspection files, Vietnamese weight-category qualification rules, Manager approval (with Administrator read-only oversight), renewal, maintenance holds, and retirement.
-- **`MF1` FE-04: Interactive Location Map & No-Fly Zone Airspace Screening** — Interactive Vietnam map coordinate picker across web and customer mobile, checking coordinates against configured clear, restricted, and prohibited airspace zones before allowing customer signup, building registration, or mission planning, with clear advisory warnings.
-- **`MF4` FE-05: Financial History & Revenue/Payment Ledger** — Role-scoped financial ledgers across Customer, Inspector, and Manager web portals showing verified payments, platform commission (`15%`), VAT/personal tax deductions, and net partner payout history without cross-organization leakage.
-- **`MF2` FE-06: Building Asset Registry, Checkpoints & Reference Documents** — Support for six building categories, automatic category-based inspection checkpoints (locked once any inspection exists), dedicated plain-text ownership details, duplicate-free reference documents in secure cloud storage, and permanent retirement for out-of-service buildings.
-- **`MF1` FE-07: Restricted Airspace Advisory Warning & Immediate Onboarding** — Amber `MSG28` flight-permit advisory banners (zone name, governing authority, ceiling altitude, and `cambay.mod.gov.vn` reference) on restricted-airspace coordinates across customer registration, building management, and service requests with immediate account/building activation and no pre-registration review hold.
-- **`MF2` FE-08: Service Requests (One-Time & Recurring) & VND Quotations** — Compact customer request creation (`>= 20` calendar days lead time, `1–120` month recurrence intervals, `2–100` occurrences, and concise recurring titles), single-Manager request claiming with direct detail navigation, Administrator reassignment oversight, Manager-configured per-request checkpoints, and VND quotation negotiation.
-- **`MF2` FE-09: Offline Signed Contract & Occurrence Dispatch Scheduling** — Frozen agreed terms snapshot upon quotation acceptance, automatic creation of recurring inspection occurrences, offline signed paper contract upload, cross-organization Inspector and drone schedule-conflict validation, bulk assignment to remaining occurrences, and Manager recovery options after aborted field sessions.
-- **`MF2` FE-10: Dual-Channel Messaging (Order Chat & Inspection Chat)** — Isolated Customer–Manager commercial order chat, private Manager–Inspector partner coordination chat, and private Inspector–Customer mission chat supporting up to five verified file attachments, excluding Administrators from private negotiation/field chats, and mirroring Customer access on the mobile app.
-- **`MF2` FE-11: Assignment Acceptance Timeout & Escalation Handling** — Administrator-configurable partner acceptance deadline (`1–720` hours, default `24` hours) monitored automatically so unaccepted assignments are cancelled in time, crew schedules are freed, occurrences return for re-dispatch, and the owning Manager is alerted.
-- **`MF2` FE-12: System Notifications & Alert Center** — Reliable, duplicate-free bilingual (`"Tiếng Việt | English"`) in-app notification center across all lifecycle pillars, bulk mark-as-read, 3-channel chat badge routing, best-effort SMTP email alerts for critical events, and permission-safe navigation links.
-- **`MF3` FE-13: Flight Permit Upload & Inspector Self-Attestation Gate** — Assigned-Inspector self-attested permit upload (up to `25 MB` verified documents with permit number, authority, validity dates, and drone serial), becoming effective immediately once validation passes without Manager or Administrator approval, read-only audit visibility for Managers and Administrators, and automatic reset to re-upload required if the drone or schedule changes.
-- **`MF3` FE-14: On-Site Field Session & SmartDroneHub MAVLink Telemetry** — Detailed pre/post-flight safety checklists, accountable session `Start` / `Complete` / reasoned `Abort` tracking with multi-flight sortie support, read-only live flight telemetry and GPS traces from SmartDroneHub, imported flight log support, manual flight declarations without fabricated metrics, role dashboards, and Inspector schedule calendar.
-- **`MF3` FE-15: Field Evidence Intake & Chunked Video Processing Pipeline** — Inspection photo upload with preserved capture metadata and thumbnails, resumable chunked large MP4 video uploads up to `2 GiB`, background video optimization and poster generation, video frame capture, duplicate filename auto-numbering, and secure time-limited media playback.
-- **`MF3` FE-16: AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Confirmation** — Automated detection of five building defect types with secondary vision fallback (respecting user opt-out settings), configurable auto-confirm threshold (`70%` default), editable defect regions, quick status filters (`All active`, `Unconfirmed`, `Confirmed`), and explicit Inspector baseline confirmation.
-- **`MF3` FE-17: AI Case/Standard Retrieval (`pgvector` RAG), Note Drafting & Report Summary** — Tenant-isolated historical-case and engineering-standard advisor (`DroneKnowledgeAI`) with resilient keyword fallback, finding-level `Draft note with AI` and batch `Draft all notes`, single-shot AI Executive Summary grounded with matched standards/cases, and a collapsible reference strip on Customer Mobile.
-- **`MF4` FE-18: Inspection Report Compilation, Independent Review & Official Publication** — Consistent report compilation strictly from confirmed findings, independent review strictly by a non-author Manager (`ADMIN` retains read-only oversight), mandatory written reasons when returning drafts, version-preserved official publication gated on Step-3 partner payout settlement, and on-demand A4 PDF downloads.
-- **`MF4` FE-19: Customer Report Acceptance & Clarification Workflow** — Customer deliverable review across web and mobile, explicit acceptance of the published report version before billing settlement, Customer-only pre-acceptance clarification requests, and configurable post-completion Inspector rating by Customer and Manager.
-- **`MF4` FE-20: Online Service Fee Payment (`Sepay` VietQR & `VNPay`)** — Integrated `Sepay` VietQR and `VNPay` checkout with verified payment gateway callbacks, bidirectional gateway switching and unresolved-order protection, authorized manual confirmation fallback for offline environments, and Customer Mobile deep-link/QR parity.
-- **`MF4` FE-21: Payment Deadlines, Invoices & Payment Document Management** — Per-occurrence financial rate snapshots (VND fee, commission, VAT, personal income tax), configurable payment-due countdown (`15` days default), single overdue reminder without revoking report access, and downloadable PDF payment notices and receipts across web and mobile.
-- **`MF4` FE-22: Partner Inspector Payout Reconciliation** — Dedicated Step-3 Manager payout workflow (`1. Field Audit -> 2. Report Decision -> 3. Inspector Payout -> 4. Customer Settlement`) gating report publication (`APPROVED -> PAID -> PUBLISHED`), standardized Inspector `VIETQR_BANKS` bank details, automatic `SePay` VietQR (`SDIPAY`) payout generation and outgoing webhook settlement, role-masked financial views for Customers, and payout holds during active refund reviews.
-- **`MF4` FE-23: Evidence-Backed Refunds & Receivable Recovery** — Two-step refund lifecycle (initiating and holding unpaid payouts, then completing after external transfer with balanced multi-part financial allocations), untransferred refund cancellation, legacy refund reconciliation, and separate Inspector receivable recovery tracking when refunds occur after partner payout.
-- **`MF4` FE-24: Post-Remediation Re-inspection & Defect Verification** — Follow-up re-inspection creation linked to a published report, three-way defect verification (`Resolved`, `Unresolved`, `Inconclusive`), fresh evidence requirement from the new completed field session, automatic `Resolved` verdict validity expiry checks, and early expiry warning banners across web and mobile.
+1. **`MF1` `FE-01` — Account Authentication, OTP & 4-Role Access Control.** Customer account and initial building onboarding, password sign-in with lockout and email one-time-code verification, Google sign-in across web and mobile, session refresh management, self-service profile updates, bilingual UI, and strict four-role access boundaries across Administrators, Managers, Customers, and Inspectors.
+2. **`MF1` `FE-02` — Partner Inspector Application & Qualification Management.** Public partner application with pilot-licence scan, safe duplicate-email handling, platform review and account creation upon approval, pilot-licence qualification profiles, flight history logs, and automated expiry readiness checks.
+3. **`MF1` `FE-03` — Inspector-Owned Drone Registration & Fleet Management.** Administrator-configurable document and capability requirements, Inspector drone submission/renewal with required documents, at least one real photograph, weight classification, and active, maintenance, or retired serviceability states.
+4. **`MF1` `FE-04` — Interactive Location Map & No-Fly Zone Airspace Screening.** Interactive Vietnam map coordinate picker across web and customer mobile, coordinate validation, and airspace zone screening refusing prohibited locations while displaying advisory restricted-zone warnings (`MSG28`).
+5. **`MF4` `FE-05` — Financial History & Revenue/Payment Ledger.** Role-scoped Customer payment history, Inspector payout/receivable ledger, and Manager platform revenue, commission, and tax views without cross-organization data leakage.
 
-![End-to-End Operational Flow across MF1–MF4](assets/operational-flow.png)
+**Main Flow 2 (`MF2`) — Buildings, Airspace Screening, Commercial Service, Messaging & Notifications (`FE-06`–`FE-12`)**
 
-Figure 1. End-to-end operational flow across the four main flows (`MF1`–`MF4`) and twenty-four atomic features (`FE-01`–`FE-24`), from onboarding and airspace screening through commercial dispatch, field capture, AI-assisted confirmation, partner payout, report publication, and payment settlement.
+6. **`MF2` `FE-06` — Building Asset Registry, Checkpoints & Reference Documents.** Building registry across six supported structural categories with plain-text ownership details, structural specifications, default inspection checkpoints (locked read-only once an inspection exists), duplicate-free reference documents, and permanent retirement locking.
+7. **`MF2` `FE-07` — Restricted Airspace Advisory Warning & Immediate Onboarding.** Customers can save buildings in clear and restricted zones. The restricted-zone advisory explains the permit requirement and links to airspace rules. No-fly zones block building registration.
+8. **`MF2` `FE-08` — Service Requests (One-Time & Recurring) & VND Quotations.** Compact commercial request and quotation workflow with concise recurring titles, checkpoint snapshots (`V80`), monthly cadence rules (2–100 occurrences, 20-day lead time), month-end date anchoring, single-Manager claim with direct detail view, and VND quotation negotiation.
+9. **`MF2` `FE-09` — Offline Signed Contract & Occurrence Dispatch Scheduling.** Signed paper agreement recording, automatic creation of recurring inspection occurrences, cross-organization schedule-conflict and qualification checks before dispatch, bulk crew assignment, abort recovery, and mobile tracking parity.
+10. **`MF2` `FE-10` — Messaging (Order Chat, Partner Chat & Inspection Chat).** Separated Customer–Manager commercial order chat, Manager–Partner Inspector pre-dispatch coordination chat (`V79`), and private Customer–Inspector per-inspection coordination chat supporting up to five verified attachments (`10 MiB`/file, `20 MiB`/message), Administrator exclusion, and read-only Manager contact cards.
+11. **`MF2` `FE-11` — Assignment Acceptance Timeout & Escalation Handling.** Administrator-configurable assignment acceptance deadline (default 24 hours) enforced automatically to cancel unaccepted dispatches, free crew schedules, return occurrences for reassignment, and notify the owning Manager.
+12. **`MF2` `FE-12` — System Notifications & Alert Center.** Reliable, duplicate-free bilingual (Vietnamese and English) in-app and SMTP critical notification center across all five workflow pillars, supporting `PATCH /api/v1/notifications/read-all`, unread badge counters, and safe deep links respecting access boundaries.
+
+**Main Flow 3 (`MF3`) — Flight Permits, Field Execution, Evidence Pipeline & AI Defect Analysis (`FE-13`–`FE-17`)**
+
+13. **`MF3` `FE-13` — Flight Permit Upload & Self-Attestation Gate.** Mission flight permit upload (`<= 25 MB` verified file with permit number, issuing authority, validity dates, and drone serial) immediately granting `APPROVED` readiness via assigned Inspector self-attestation, automatic reset to `PENDING_REVIEW` if the drone swaps or schedule moves outside validity, pre-session enforcement, and read-only Manager permit audit views.
+14. **`MF3` `FE-14` — On-Site Field Session & SmartDroneHub MAVLink Telemetry.** Field session lifecycle (start, complete, or reasoned abort reopening the occurrence), multi-sortie flight tracking (`field_session_flights`, `V72`), read-only SmartDroneHub telemetry and GPS trace capture during the assigned Inspector's active session, imported flight-log and manual flight declarations, role dashboards, and Inspector schedule calendar. The owning Customer can view flight data once the inspection report is published.
+15. **`MF3` `FE-15` — Field Evidence Intake & Chunked Video Processing Pipeline.** Metadata-preserving photo intake with automatic upright sizing and thumbnails, duplicate filename auto-numbering, resumable `2 GiB` chunked MP4 video uploads, background playback optimization, and secure time-limited video streaming.
+16. **`MF3` `FE-16` — AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Confirmation.** Automated detection of five building defect classes on photos and video frames (`70%` default auto-confirm setting), optional secondary vision fallback respecting user opt-out, confirmation status filters (`All active`, `Unconfirmed`, `Confirmed`), explicit Inspector baseline confirmation, and fresh re-inspection evidence checks.
+17. **`MF3` `FE-17` — AI Case/Standard Retrieval (`pgvector` RAG), Note Drafting & Report Summary.** Tenant-isolated `DroneKnowledgeAI` recommendation advisor retrieving relevant historical defect cases and engineering standards with keyword fallback, finding-level `Draft note with AI` and batch `Draft all notes`, collapsible mobile references, and AI executive summary grounding.
+18. **`MF4` `FE-18` — Inspection Report Compilation, Independent Review & Official Publication.** Four-state report lifecycle (`Submitted`, `Returned`, `Approved`, `Published`, `Superseded`), consistent compilation from confirmed findings, independent Manager review banning self-publication (`MANAGER`-only adjudication; `ADMIN` read-only), on-demand A4 PDF export once `PUBLISHED`, and version history preservation.
+
+**Main Flow 4 (`MF4`) — Report Publication, Acceptance, Payment Settlement, Financial Ledger & Re-inspection (`FE-05`, `FE-18`–`FE-24`)**
+
+19. **`MF4` `FE-19` — Customer Report Acceptance & Clarification Workflow.** Customer review of published inspection reports, structured Customer/Manager Inspector Rating (`inspector_ratings` `V70`, configurable criteria `V73`), formal deliverable acceptance gating commercial invoicing, and Customer-only pre-acceptance clarification requests.
+20. **`MF4` `FE-20` — Online Service Fee Payment (`Sepay` VietQR & `VNPay`).** Online checkout via Sepay (VietQR) and VNPay with verified gateway callbacks (`V67`–`V68`), authorized manual payment fallback when gateways are disabled, and automatic payout eligibility updates.
+21. **`MF4` `FE-21` — Payment Deadlines, Invoices & Payment Document Management.** Acceptance-stamped payment due deadline (default 15 days), single daily overdue reminder without revoking report access, and downloadable non-tax-invoice payment notice and receipt PDFs across web and mobile.
+22. **`MF4` `FE-22` — Partner Inspector Payout Reconciliation.** Integrated `Approved -> Sepay VietQR Payout (SDIPAY, V78) -> Published` release sequence and Manager payout reconciliation turning eligible balances into recorded disbursements with bank transfer references, duplicate-payout prevention, and active refund-hold caps.
+23. **`MF4` `FE-23` — Evidence-Backed Refunds & Receivable Recovery.** Refund initiation holding unpaid payouts, completion after external bank transfer with balanced multi-part financial allocations, legacy refund reconciliation, and separate Inspector receivable recovery tracking without automatically deducting future payouts.
+24. **`MF4` `FE-24` — Post-Remediation Re-inspection & Defect Verification.** Follow-up re-inspection creation linked to a published report, three-way defect verification (`Resolved`, `Unresolved`, `Inconclusive`), `Resolved` verdict expiry tracking with early warning banners, and Customer Mobile parity.
 
 ### 6.2 Limitations & Exclusions
 
-- **LI-1 (No Flight Control):** The platform does not pilot aircraft and does not act as a ground control station. It does not perform autonomous flight, manual remote-control piloting, or live autopilot command. Flights are conducted by qualified partner Inspectors using their own aircraft and equipment.
-- **LI-2 (Human Accountability for Automated Output):** Vision-detected defect proposals, the AI report summary, and any automated assessment support professional judgement only. They never replace Inspector confirmation of findings or Manager approval of publication.
-- **LI-3 (No Legal Clearance):** A successful airspace screening, an approved flight permit record, or a recorded status is a platform record. It does not grant legal permission to fly and does not certify regulatory compliance.
-- **LI-4 (Controlled Onboarding):** Customer self-registration is gated by airspace screening of the first asset. Inspector and drone registration are platform-governed and reviewed; they are not open self-service.
-- **LI-5 (Organization and Assignment Boundaries):** Customer records are separated by organization, and an Inspector can reach only the inspections assigned to them. Visibility in a screen is never by itself permission to act.
-- **LI-6 (Corrective Maintenance Excluded):** Repair planning, work orders, budgets, change orders, repair execution, maintenance completion reporting, maintenance acceptance, and cost reconciliation are **not** part of the delivered application scope. What the platform does provide is a re-inspection loop: a customer or manager may open a re-inspection against a published report and re-assess each originally confirmed defect as resolved, unresolved, or inconclusive. That loop reuses the request, dispatch, field, and reporting flows rather than adding a maintenance flow. Customers arrange repairs outside the platform. Where maintenance-related records still exist in the data store, they are retained for data preservation only and are not exposed as a workflow.
-- **LI-7 (No Photogrammetry Reconstruction):** General-purpose three-dimensional point-cloud reconstruction and digital-twin mesh generation are outside the capstone scope. The platform stores two-dimensional photographs and video and their derived defect annotations.
-- **LI-8 (Mobile Scope):** The mobile application serves the Customer role only. Inspectors and platform staff use the web portals. The Customer app mirrors the delivered web features: a collapsible knowledge-references strip, re-inspection verdict-expiry warnings, payment-due status with downloadable payment notice and receipt PDFs, in-app `Sepay` VietQR and `VNPay` deep-link checkout, post-completion Inspector rating, and Inspector–Customer inspection chat.
-- **LI-9 (Human-in-the-Loop Retrieval Boundary):** `DroneKnowledgeAI` maintains a retrieval library containing seeded Vietnamese and international engineering standards (`TCVN 9343:2012`, `TCVN 9361:2012`, `EN 1504-9`, `ISO 12944-5`, `ASTM C1583`) and anonymized historical finding cases, using semantic similarity search with an automatic keyword-matching fallback when AI embeddings are unavailable. Similar past findings and matched standards appear as advisory guidance inside defect review (`FE-16`, `FE-17`) and inside the inspection report summary (`FE-18`) on web and customer mobile. Every recommendation remains strictly advisory: the human Inspector confirms, edits, or rejects each finding, and customer records stay strictly separated by organization so no customer ever sees another organization's private data.
+- **`LI-1` — No aircraft control.** The platform does not pilot, steer, or command any aircraft. It records the governance around a flight — who is assigned, whose licence is valid, which permit the Inspector self-attested — and leaves the flight itself to the licensed human pilot.
+- **`LI-2` — Buildings only.** The supported categories are high-rise office and curtain-wall towers, residential apartment towers, commercial malls and podiums, industrial factories and warehouses, hotel, hospital and public complexes, and telecom rooftop masts with antenna structures. Bridges, transmission towers, solar farms, roads, dams, tunnels, ports, and pipelines are outside the delivered scope, and the defect classes and inspection checkpoints shipped with this release are building-specific.
+- **`LI-3` — No corrective maintenance module.** Work orders, repair-scope advisory, repair execution, completion reporting, maintenance acceptance, and cost reconciliation are outside the delivered scope. What the platform does provide is a re-inspection loop opened against a published report, in which each originally confirmed defect is re-assessed as resolved, unresolved, or inconclusive. That loop reuses the request, dispatch, field, and reporting flows rather than adding a maintenance flow.
+- **`LI-4` — Detection is advisory.** Candidate findings and the drafted narrative summary are advisory output. A human must confirm every finding, verify every permit, and publish every report. No automated output becomes an official decision.
+- **`LI-5` — No photogrammetric reconstruction.** Evidence is reviewed as individual photographs and video. Three-dimensional modelling, volumetric measurement, and change detection across flights are not provided.
+- **`LI-6` — Advisory use of DroneKnowledgeAI.** The system suggests relevant inspection standards and similar defect cases during findings review and in the report summary. Retrieval is scoped to each Customer, with anonymized benchmarks available as references. The Inspector decides which findings to confirm.
+- **`LI-7` — Mobile is Customer-only.** The native mobile application admits `CUSTOMER` accounts only. Field capture, permit handling, and report preparation are performed by inspectors in the operations web portal.
+- **`LI-8` — Recorded status is not legal clearance.** An airspace screening result, a self-attested permit, and a published report are the platform's own governance records. They are not government flight authorisation, and they do not transfer any aviation or structural obligation away from the licensed pilot or the responsible engineer.

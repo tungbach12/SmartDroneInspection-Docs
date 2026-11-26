@@ -38,6 +38,7 @@ try {
                 # ConfirmConversions=false, ReadOnly=true, AddToRecentFiles=false.
                 Write-Output ($artifact.report + ': opening in Word')
                 $document = $word.Documents.Open($path, $false, $true, $false)
+                $document.Repaginate()
                 Write-Output ($artifact.report + ': updating table of contents')
                 for ($tocIndex = 1; $tocIndex -le $document.TablesOfContents.Count; $tocIndex++) {
                     $toc = $document.TablesOfContents.Item($tocIndex)
@@ -45,6 +46,7 @@ try {
                     [void][Runtime.InteropServices.Marshal]::ReleaseComObject($toc)
                 }
                 Write-Output ($artifact.report + ': reading page count')
+                $document.Repaginate()
                 $pages = $document.ComputeStatistics(2)
                 if ($ExportPdf) {
                     Write-Output ($artifact.report + ': exporting PDF')
@@ -90,24 +92,26 @@ try {
                     pdf = $(if ($ExportPdf) { $pdfPath } else { $null })
                 }
                 if ($artifact.report -eq 'report5') {
-                    $featureSheets = @($sheetNames | Where-Object { $_ -match '^Feature [1-8]$' })
-                    if ($featureSheets.Count -ne 8) {
-                        throw ('Expected eight Report 5 feature sheets; found ' + $featureSheets.Count)
+                    $featureSheets = @(1..24 | ForEach-Object { "Feature $_" })
+                    $missingFeatureSheets = @($featureSheets | Where-Object { $_ -notin $sheetNames })
+                    if ($missingFeatureSheets.Count -gt 0) {
+                        throw ('Missing Report 5 feature sheets: ' + ($missingFeatureSheets -join ', '))
                     }
                     $statistics = $workbook.Worksheets.Item('Test Statistics')
                     $feature = $workbook.Worksheets.Item('Feature 3')
                     # Totals are read from the Sub total row and cross-checked
                     # against the per-sheet sum rather than against literals, so
                     # the workbook can grow without the verifier going stale.
-                    $result['totalCases'] = $statistics.Range('H17').Value2
-                    $result['passed'] = $statistics.Range('D17').Value2
-                    $result['coverage'] = $statistics.Range('E22').Value2
-                    $result['successfulCoverage'] = $statistics.Range('E23').Value2
-                    $result['round1Passed'] = $statistics.Range('D17').Value2
+                    $subtotalRow = 11 + $featureSheets.Count
+                    $result['totalCases'] = [int]$statistics.Range("H$subtotalRow").Value2
+                    $result['passed'] = [int]$statistics.Range("D$subtotalRow").Value2
+                    $result['coverage'] = $statistics.Range("E$($subtotalRow + 5)").Value2
+                    $result['successfulCoverage'] = $statistics.Range("E$($subtotalRow + 6)").Value2
+                    $result['round1Passed'] = $result['passed']
                     $result['round2Pending'] = 0
                     $result['round3Pending'] = 0
                     $sheetCases = 0
-                    foreach ($sheetName in @('Feature 1', 'Feature 2', 'Feature 3', 'Feature 4', 'Feature 5', 'Feature 6', 'Feature 7', 'Feature 8')) {
+                    foreach ($sheetName in $featureSheets) {
                         $featureRound = $workbook.Worksheets.Item($sheetName)
                         $result['round2Pending'] += $featureRound.Range('D7').Value2
                         $result['round3Pending'] += $featureRound.Range('D8').Value2
@@ -115,10 +119,14 @@ try {
                     }
                     $result['date'] = $feature.Range('G12').Text
                     $result['tester'] = $feature.Range('H12').Text
-                    $outcomeTotal = $statistics.Range('D17').Value2 +
-                        $statistics.Range('E17').Value2 +
-                        $statistics.Range('F17').Value2 +
-                        $statistics.Range('G17').Value2
+                    $outcomeTotal = 0
+                    foreach ($column in @('D', 'E', 'F', 'G')) {
+                        $outcomeTotal += [int]$statistics.Range("$column$subtotalRow").Value2
+                    }
+                    if ($sheetCases -ne $result.totalCases) {
+                        throw ('Report 5 feature sheet case count (' + $sheetCases +
+                            ') differs from the statistics total (' + $result.totalCases + ')')
+                    }
                     if ($outcomeTotal -ne $result.totalCases) {
                         throw ('Report 5 Sub total outcomes (' + $outcomeTotal +
                             ') do not equal its case total (' + $result.totalCases + ')')
