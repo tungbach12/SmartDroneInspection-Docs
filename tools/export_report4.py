@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Assemble four Report 4 sources into the official SDD document format."""
 from pathlib import Path
+import re
 import sys
 
 if __package__ in (None, ""):
@@ -18,6 +19,18 @@ def blocks(reports):
     result = []
     for relative in SOURCES:
         result.extend(parse_markdown(reports / relative, strict_tables=False))
+    for index, block in enumerate(result):
+        if block.kind == "heading" and re.match(r"[34]\.\d+\s", block.text):
+            block.page_break_before = True
+        if block.kind == "heading" and block.level == 4 and "Sequence Diagram" in block.text:
+            block.page_break_before = True
+        if block.kind == "paragraph" and re.fullmatch(r"\*\*Class.*Specifications\*\*", block.text):
+            block.page_break_before = True
+            block.keep_with_next = True
+        if block.kind == "image" and index + 1 < len(result):
+            caption = result[index + 1]
+            if caption.kind == "paragraph" and caption.text.lstrip("*").startswith("Figure 4."):
+                block.keep_with_next = True
     return result
 
 

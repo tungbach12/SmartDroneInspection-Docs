@@ -90,7 +90,7 @@ Integration and system tests cover evidence processing, AI fallbacks, payment ca
 
 ## 4. Test Cases
 
-The backend, web, and mobile automated suites are summarized in Section 5.1. The Report 5 workbook (`Report5_Test Report.xlsx`, version 3.15) records 75 active integration, system, and acceptance cases and two superseded flight-permit cases. Its 24 feature sheets list the procedures, expected results, and results of each test round.
+The backend, web, and mobile automated suites are summarized in Section 5.1. The Report 5 workbook (`Report5_Test Report.xlsx`, version 3.19) records 78 active integration, system, and acceptance cases and two superseded flight-permit cases. Its 24 feature sheets list the procedures, expected results, and results of each test round.
 
 ## 5. Test Reports
 
@@ -110,7 +110,7 @@ The backend, web, and mobile automated suites are summarized in Section 5.1. The
 
 ![Acceptance case execution status](assets/charts/acceptance-status.png)
 
-*Figure 7.10 — Round 1 acceptance case status for the 77 listed rows (75 active) across FE-01–FE-24 (Report 5 v3.15).*
+*Figure 7.10 — Round 1 status for the 77-case baseline before the three assignment-withdrawal cases were added.*
 
 | Feature | Total cases | Passed | Failed | Pending | N/A | Coverage focus |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
@@ -122,11 +122,11 @@ The backend, web, and mobile automated suites are summarized in Section 5.1. The
 | `FE-06` | 3 | 3 | 0 | 0 | 0 | Building registry (`V66` `ownership_information`), checkpoints (`V80` + lock), MinIO docs, and retirement lock |
 | `FE-07` | 1 | 1 | 0 | 0 | 0 | Restricted-airspace `MSG28` amber advisory and immediate onboarding (`WF1-009` Passed) |
 | `FE-08` | 6 | 6 | 0 | 0 | 0 | Compact requests & concise recurring titles, cadence bounds/month-end anchoring, and VND quotes |
-| `FE-09` | 6 | 5 | 0 | 1 | 0 | Signed agreements, occurrence dispatch conflict/eligibility guards, abort recovery, Mobile E2E |
+| `FE-09` | 7 | 5 | 0 | 1 | 1 | Signed agreements, occurrence dispatch conflict/eligibility guards, abort recovery, Mobile E2E |
 | `FE-10` | 2 | 2 | 0 | 0 | 0 | Separated Customer–Manager Order Chat, Partner Chat (`V79`), and Customer–Inspector Inspection Chat |
-| `FE-11` | 1 | 0 | 0 | 0 | 1 | Assignment acceptance timeout and escalation alert (`WF2-021`: `N/A / Pending / Pending`) |
+| `FE-11` | 2 | 0 | 0 | 0 | 2 | Assignment acceptance timeout and escalation alert (`WF2-021`: `N/A / Pending / Pending`) |
 | `FE-12` | 3 | 3 | 0 | 0 | 0 | Deduplicated bilingual (`EN`/`VI`) Modulith notifications (`WF2-028`) and `targetPath` safety |
-| `FE-13` | 5 | 2 | 0 | 0 | 3 | Self-attested flight permit gate (`APPROVED` on valid upload) and drone/window reset (`WF2-029`–`WF2-031`) |
+| `FE-13` | 6 | 2 | 0 | 0 | 4 | Self-attested flight permit gate (`APPROVED` on valid upload) and drone/window reset (`WF2-029`–`WF2-031`) |
 | `FE-14` | 5 | 4 | 0 | 0 | 1 | Multi-sortie field session start/complete/abort, MAVLink telemetry, log import, dashboards, calendar |
 | `FE-15` | 5 | 1 | 0 | 0 | 4 | EXIF image normalization/thumbnails, duplicate numbering, 2 GiB chunked MP4, FFmpeg, Range tickets |
 | `FE-16` | 7 | 6 | 0 | 1 | 0 | YOLO11 (`70%` default) + Vision fallback, filter chips, baseline confirmation, and fresh evidence |
@@ -138,13 +138,19 @@ The backend, web, and mobile automated suites are summarized in Section 5.1. The
 | `FE-22` | 1 | 0 | 0 | 0 | 1 | Partner Inspector payout reconciliation (`ELIGIBLE -> PAID`, Sepay VietQR `SDIPAY`, idempotency; `WF3-033`) |
 | `FE-23` | 1 | 0 | 0 | 1 | 0 | Refund initiation holds, exact allocation, legacy reconciliation, and Inspector receivables |
 | `FE-24` | 2 | 0 | 0 | 1 | 1 | Post-remediation re-inspection verdicts (`RESOLVED`/`UNRESOLVED`/`INCONCLUSIVE`) & Mobile parity |
-| **Total** | **77** | **52** | **0** | **9** | **16** | Report 5 `v3.15` (`75` active cases + `2` historical superseded `FE-13` cases) |
+| **Total** | **80** | **52** | **0** | **9** | **19** | Report 5 `v3.19` (`78` active cases + `2` historical superseded `FE-13` cases) |
 
-In Round 1, 52 of the 61 applicable cases passed and 9 were pending, with zero failures. The other 16 rows were marked N/A.
+In Round 1, 52 of the 61 applicable cases passed and 9 were pending, with zero failures. The other 19 rows were marked N/A.
 
-Report 5 records 13 passes and zero failures in Round 3 (`WF3-005`, `WF3-006`, `WF3-009`, `WF3-016`, `WF3-018`, `WF3-019`, `WF3-021`, and `WF3-026`–`WF3-031`). `WF3-020`, `WF3-022`–`WF3-025`, `WF3-032`, `WF2-021`, and `WF3-033` remain pending.
+Report 5 records 16 passes and zero failures in Round 3 (`WF3-005`, `WF3-006`, `WF3-009`, `WF3-016`, `WF3-018`, `WF3-019`, `WF3-021`, `WF3-026`–`WF3-031`, and the three cases below). `WF3-020`, `WF3-022`–`WF3-025`, `WF3-032`, `WF2-021`, and `WF3-033` remain pending.
 
 The cases cover payouts (`WF3-019`), payment deadlines and documents (`WF3-026`, `WF3-027`), fresh re-inspection evidence (`WF3-028`), and knowledge references on web and mobile (`WF3-029`–`WF3-031`).
+
+The assignment-withdrawal regression ran on Backend revision 9dd0d67. The recovery integration suite and inspection lifecycle suite passed all 15 checks.
+
+- **WF2-032 (FE-11)** The assigned Inspector withdrew before field work. The scheduled occurrence required reassignment.
+- **WF2-033 (FE-13)** Withdrawal after abort was rejected with HTTP 409 ASSIGNMENT_FIELD_WORK_STARTED.
+- **WF2-034 (FE-09)** The Manager cancelled after withdrawal. The two reasons were retained and the reassignment flag cleared.
 
 ### 5.3 Cross-Cutting Assertions
 

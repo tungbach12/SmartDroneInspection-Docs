@@ -4,9 +4,7 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-Version 3.16 (2026-11-26) records the FE-06 web checkpoint visibility checks and restores the workbook export for the 77-case inventory. The round totals below still apply.
-
-**Scope and status (updated 2026-11-25, `v3.15`):** The current Report 5 inventory holds **77 listed rows (75 active test cases + 2 historical superseded `FE-13` cases `WF2-008`/`WF2-009`)** mapped 1-to-1 to twenty-four atomic product features (`FE-01`–`FE-24`, `Feature 1`–`Feature 24` across `MF1`–`MF4` and member ownership workstreams: `24%` Hiếu `FE-01`–`FE-05`, `24%` Quốc `FE-06`–`FE-12`, `28%` Bách `FE-13`–`FE-18`, `24%` Như `FE-19`–`FE-24`), aligned with Flyway `V1`–`V4` and `V60`–`V80` (`53` application tables, `52` `RUNTIME_ENTITY_TABLES`, `55` total tables). Current-scope Round 1 totals are 52 `Passed`, 0 `Failed`, 9 `Pending`, and 16 `N/A` (retaining historical cases plus 3 unexecuted standalone cases `WF3-032` in `FE-05`, `WF2-021` in `FE-11`, `WF3-033` in `FE-22` as `N/A / Pending / Pending`, 7 executed MF2 cases `WF2-022`–`WF2-028`, and 3 `FE-13` cases `WF2-029`–`WF2-031`). Round 3 has 13 executed `Passed` cases, including `WF3-029` (DroneKnowledgeAI note drafting, local `fastembed` `vector(384)` retrieval, `70%` default auto-confirm, status filter chips & tenant isolation), `WF3-030` (advisory knowledge references in the AI summary) and `WF3-031` (Customer Mobile parity from `PR #27`). Version 3.15 adds `WF2-028` (full-lifecycle bilingual `"Tiếng Việt \| English"` In-App notifications across all 5 workflow pillars, best-effort critical emails, `PATCH /api/v1/notifications/read-all`, 3-channel chat badge routing/mark-as-read, locale splitting, safe query deep-links, and Admin toast confirmations), verified with `71/71` Backend Modulith + Notification unit/Testcontainers PostgreSQL 17 integration tests, `160/160` modified service tests, `oxlint` (`0` errors), `vite build`, and full Frontend Vitest (`114` files / `812` tests passed, `4` deprecated files skipped). `WF3-020` and `WF3-022`–`WF3-025` remain `Pending` in Round 3 pending live Nginx/Docker Compose E2E verification; `WF2-001` Round 2 remains `Pending` pending connected cross-role verification; `WF3-032`, `WF2-021`, and `WF3-033` remain `N/A / Pending / Pending` pending standalone walkthroughs.
+Version 3.19 lists 80 cases across 24 features, with 78 active and two superseded FE-13 cases. Round 1 records 52 Passed, 0 Failed, 9 Pending and 19 N/A. Round 3 records 16 executed passes. The three latest cases cover Inspector withdrawal, the block after abort, and Manager cancellation. See the [regression evidence](regression-evidence-2026-11-26.md) for the executed checks.
 
 The original workbook template remains unchanged; generated copies contain twenty-four active feature sheets (`Feature 1`–`Feature 24`). Maintenance feature sheets and cases are retired historical material, not current coverage.
 
@@ -40,11 +38,11 @@ current Report 3 feature (`FE-01`–`FE-24`). Sheet `Feature N` contains SRS fea
 | Folder/file | Workbook area | Purpose |
 | --- | --- | --- |
 | `00-cover/` | `Cover` | Project metadata and record of changes. |
-| `01-test-cases/` | `Test Cases` | Complete index of all 77 listed test cases (75 active) across `Feature 1`–`Feature 24`. |
+| `01-test-cases/` | `Test Cases` | Complete index of all 80 listed test cases (78 active) across `Feature 1`–`Feature 24`. |
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary across active `Feature 1`–`Feature 24`. |
 | `03-features/fe-01-*.md` – `fe-05-*.md` | `Feature 1`–`5` sheets | Owner: Trần Hoàng Trung Hiếu (`WF1-001`..`WF3-032`, 18 cases). |
-| `03-features/fe-06-*.md` – `fe-12-*.md` | `Feature 6`–`12` sheets | Owner: Phùng Trung Quốc (`WF1-009`..`WF2-028`, 22 cases). |
-| `03-features/fe-13-*.md` – `fe-18-*.md` | `Feature 13`–`18` sheets | Owner: Trần Tùng Bách (`WF2-008`..`WF3-030`, 25 cases). |
+| `03-features/fe-06-*.md` – `fe-12-*.md` | `Feature 6`–`12` sheets | Owner: Phùng Trung Quốc (24 cases). |
+| `03-features/fe-13-*.md` – `fe-18-*.md` | `Feature 13`–`18` sheets | Owner: Trần Tùng Bách (29 cases). |
 | `03-features/fe-19-*.md` – `fe-24-*.md` | `Feature 19`–`24` sheets | Owner: Trương Thái Như (`WF3-012`..`WF3-033`, 9 cases). |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
 | `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |

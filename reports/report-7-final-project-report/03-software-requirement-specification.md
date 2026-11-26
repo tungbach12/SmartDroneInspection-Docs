@@ -143,7 +143,7 @@ The tables below inventory every implemented interface across the Web Applicatio
 | 13 | FE-08, FE-09 | Customer Request Detail & Quote Acceptance | `CUSTOMER` | Four-stage commercial progress view showing versioned VND quotations, quote acceptance, signed contract PDF, and occurrences. |
 | 14 | FE-10 | Customer Messages (Order & Mission Chat) | `CUSTOMER` | Shared messaging inbox switching between Manager order-negotiation threads and Inspector field-coordination threads. |
 | 15 | FE-14 | Customer Inspections List | `CUSTOMER` | Customer-owned inspections with stage status (`Scheduled`, `Field Completed`, `Published`) and fee/settlement links. |
-| 16 | FE-14 | Customer Inspection Tracking | `CUSTOMER` | Occurrence progress view displaying planned schedule, flight permit status, and telemetry summary without internal drafts. |
+| 16 | FE-14, FE-18 | Customer Inspection Tracking | `CUSTOMER` | The owning Customer sees the planned schedule and workflow progress. Stored flight summaries and traces become available after Manager publication. |
 | 17 | FE-18 | Customer Inspection Report Deliverable | `CUSTOMER` | Read-only official published report viewer (`v1+`) displaying AI Executive Summary, matched references, and confirmed findings. |
 | 18 | FE-19, FE-20, FE-21 | Customer Report Acceptance & Settlement | `CUSTOMER` | Three-step closure wizard (`Accept Report -> Settle Fee -> Fulfilled`) with invoice breakdown, PDF notice, and Sepay VietQR / VNPay checkout. |
 | 19 | FE-18 | Customer Reports Archive | `CUSTOMER` | Filtered register of finalized inspection deliverables available for PDF preview, download, and acceptance tracking. |
@@ -156,7 +156,7 @@ The tables below inventory every implemented interface across the Web Applicatio
 | 26 | FE-14 | Inspector Assigned Inspections | `INSPECTOR` | Filterable schedule of partner assignments with Accept/Decline actions and workspace launch buttons. |
 | 27 | FE-10 | Inspector Mission Messages | `INSPECTOR` | Dedicated inspection chat thread between the assigned Inspector and Customer with attachment support. |
 | 28 | FE-14 | Inspector Workspace — Tracking | `INSPECTOR` | Seven-stage mission workspace header and lifecycle progress tracker. |
-| 29 | FE-13 | Inspector Workspace — Flight Permit | `INSPECTOR` | Structured self-attestation permit upload form (number, authority, validity dates, serial, max altitude) granting immediate `APPROVED` readiness. |
+| 29 | FE-11, FE-13 | Inspector Workspace — Flight Permit | `INSPECTOR` | **Save flight permit** validates self-attestation. **Withdraw from assignment** appears for an accepted scheduled assignment when the server confirms eligibility. |
 | 30 | FE-14 | Inspector Workspace — Pre-flight Check | `INSPECTOR` | Configurable pre-flight safety checklist and mandatory site condition note required before starting a session. |
 | 31 | FE-14 | Inspector Workspace — Field Session & Live Telemetry | `INSPECTOR` | Active multi-sortie console (`V72`) connecting live MAVLink telemetry (`SmartDroneHub`), gimbal status, fallback SRT/CSV/KML/GPX log import, and manual declaration. |
 | 32 | FE-14 | Inspector Workspace — Post-flight & Building Items | `INSPECTOR` | Post-flight checklist verification and per-checkpoint coverage confirmation prior to sealing `FIELD_COMPLETED`. |
@@ -555,10 +555,10 @@ The Partner Operations portal (`INSPECTOR` role) is strictly scoped to the Inspe
 - **Actors**: `INSPECTOR`, `CUSTOMER`, Automated Timeout Monitor.
 - **Requirements**:
   - New assignments arrive as `Pending Acceptance` and enforce the administrator-configured confirmation window (`1–720` hours, default `24` hours); unaccepted assignments automatically return for re-dispatch and notify the Manager.
-  - Inspectors accept or decline with a mandatory reason; declining clears assignment and logs an attributable reliability event.
+  - An Inspector can decline a pending assignment with a reason. After accepting, the assigned Inspector can withdraw from a `SCHEDULED` inspection with a reason before field work starts. The server exposes eligibility as `canWithdrawAssignment` in the workflow-state response. A closed session from a prior assignment does not count as field work on the new assignment.
   - Per-inspection chat threads connect only the assigned Inspector with the owning Customer.
 - **Normal cases**: Inspector accepts assignment before the deadline, coordinates access in mission chat, and enters the seven-stage Inspection Workspace.
-- **Abnormal cases**: Accepting after deadline cancellation, declining without a reason, or reading unassigned inspection messages is rejected.
+- **Abnormal cases**: The system rejects acceptance after timeout, a blank decline or withdrawal reason, and access to another assignment's messages. An active field session returns HTTP 409 `SESSION_ALREADY_IN_PROGRESS`. Once field work starts on the current assignment, withdrawal remains blocked even after abort with HTTP 409 `ASSIGNMENT_FIELD_WORK_STARTED`.
 
 ![Inspector assigned inspections](assets/screens/ins-inspections.png)
 
@@ -574,6 +574,8 @@ The Partner Operations portal (`INSPECTOR` role) is strictly scoped to the Inspe
 - **Requirements**:
   - **Stage 1 (Permit)**: Non-empty PDF/PNG/JPG/WEBP `<= 25 MB` with verified file signature, permit number, authority, validity timestamps covering planned start/end, max altitude (`1–2,000 m`), and matching assigned drone serial. Valid upload immediately grants `APPROVED` status via assigned Inspector self-attestation; changing the drone or moving the schedule outside the validity window resets status to `PENDING_REVIEW` for Inspector re-upload (no Manager/Admin permit approval exists; `ADMIN`/`MANAGER` inspect permit records read-only).
   - **Stage 2 (Pre-flight)**: Configurable pre-flight safety checklist plus mandatory safety note; starting the field session verifies active licence, active drone, and valid self-attested `APPROVED` permit at both current and planned flight timestamps before moving the session to active progress.
+  - The Flight Permit stage shows **Withdraw from assignment** when `canWithdrawAssignment=true`. Confirmation requires a reason and returns the Inspector to the inspections list.
+  - Once the assignment is accepted, the restricted-airspace header shows the compact **Restricted Zone** badge. The form and server still enforce the permit altitude where a zone has a configured ceiling.
   - **Stage 3 (Flight Operation)**: Inspector may create and monitor multi-sortie flight runs (`field_session_flights`, `V72`) or click **Connect Flight Operations** to stream live read-only flight telemetry (flight status, mode, armed state, live GPS, altitude, speed, heading, battery, waypoint, and gimbal status) via SmartDroneHub—which never arms or controls the aircraft (`BR-30`)—or import `SRT`, `CSV`, `KML`, or `GPX` flight logs (`<= 15 MB`), or submit a disclosed manual flight declaration. Aborting captures a mandatory reason and notifies Managers.
   - **Stage 4 (Post-flight & Items)**: Inspector verifies target building checkpoints (`ITEM-01`+) and post-flight checklist, completing the field session alongside the saved GPS flight trace and Flight Operations Report.
 - **Normal cases**: Permit self-attested (`APPROVED`) -> pre-flight verified -> live telemetry/sorties recorded -> post-flight checkpoints verified -> session completes cleanly.
@@ -585,7 +587,7 @@ The Partner Operations portal (`INSPECTOR` role) is strictly scoped to the Inspe
 
 ![Flight permit panel](assets/screens/ins-ws-permit.png)
 
-*Figure 7.3.29 — Inspector self-attested flight permit panel displaying structured permit metadata and uploaded scan.*
+*Figure 7.3.29 — Inspector flight permit panel with saved permit details and the withdrawal action.*
 
 ![Pre-flight safety checklist](assets/screens/ins-ws-preflight.png)
 
@@ -671,6 +673,7 @@ The Platform Manager portal (`MANAGER` role) coordinates onboarding approvals, s
 - **Requirements**:
   - Only an unassigned Manager claiming an open request gains write scope; `ADMIN` may assign/reassign/unassign Managers (`§3.6.3`) but never quotes or dispatches (`BR-05`).
   - Dispatch validates both pilot qualification (active account, current licence matching MTOW class, zero schedule conflict across all customer organizations) and drone readiness (owned by the selected Inspector, approved registration, current expiry). Recurring occurrences support `Apply to remaining` with per-occurrence validation (`FE-09`).
+  - After pre-field withdrawal, the inspection remains `SCHEDULED`, the assignment is `DECLINED`, and `reassignmentRequired` is true. The assigned Manager can reassign or cancel with a reason. A cancellation changes the inspection to `CANCELLED`, clears the reassignment flag, and retains both reasons.
   - Following an aborted field session, Manager executes attributable reschedule, reassign, or cancellation recovery (`§3.5.3`).
 - **Normal cases**: Manager claims request, issues VND quote anchored to requested start date, records customer-signed paper contract scan, and dispatches crew.
 - **Abnormal cases**: Competing claim by another Manager, shifting first occurrence date on a recurring quote, dispatching unapproved/unowned drone, or schedule collision fails closed.

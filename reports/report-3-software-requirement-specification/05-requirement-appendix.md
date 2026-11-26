@@ -56,7 +56,7 @@ The following rules govern the building-inspection service. Rule identifiers are
 | BR-41 | Commercial and reporting approvals require explicit, attributable human decisions. Silence or the passage of time is not approval. |
 | BR-42 | Returning a report requires review reasons, preserves the prior version, and returns it to its author for revision. |
 | BR-43 | The AI-drafted report summary is advisory and must remain visibly distinguished from confirmed findings. Official report sections are assembled deterministically from confirmed records rather than model-generated text. |
-| BR-44 | When a Customer accepts a published report, the applicable service fee becomes due. The official deliverable is released according to the agreed payment rule after confirmation. |
+| BR-44 | The owning Customer can open the official report after Manager publication. Customer acceptance makes the service fee due. Verified payment completes settlement and makes the receipt available. |
 | BR-45 | A payment is settled only after its gateway callback signature is verified or an authorised confirmation is recorded. An unsettled payment cannot be presented as settled. |
 | BR-46 | Verified customer payment makes the Inspector payout eligible but does not record disbursement. A Manager records the actual payout with its external reference and actor attribution. |
 | BR-47 | Non-online unresolved payment orders (`MANUAL_WIRE`) cannot be overwritten when starting online checkout until resolved; unpaid online gateway orders (`SEPAY`/`VNPAY`) auto-release when switching gateways or retrying VNPay, and any late or superseded gateway callbacks are recorded in `gateway_inbound_transactions` for reconciliation without double-settling. |

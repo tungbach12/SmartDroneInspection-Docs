@@ -414,6 +414,8 @@ Order Chat connects the Customer and assigned Manager. Partner Chat connects the
 
 ### 3.11 `MF2` — `FE-11` Assignment Acceptance Timeout & Escalation Handling
 
+The workflow-state service evaluates the assigned Inspector, the scheduled inspection, the accepted assignment, and session history to return `canWithdrawAssignment`. The decline endpoint rechecks the same guard before recording withdrawal. A started session on the current assignment still blocks withdrawal after abort. When the Manager later cancels a withdrawn occurrence, cancellation clears `reassignmentRequired` and preserves the withdrawal and cancellation reasons.
+
 The Administrator sets the deadline for an Inspector to accept a mission. If the assignment expires, a scheduled job releases the crew reservation and notifies the Manager to dispatch a replacement.
 
 ![FE-11 Timeout Escalation Sequence Diagram](assets/diagrams/seq-fe11.png)

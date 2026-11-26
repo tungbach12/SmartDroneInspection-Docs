@@ -7,6 +7,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from export_common import render_word
+from export_report7 import chapter_blocks
 from report_ooxml import parse_markdown
 
 TEMPLATE_NAME = "Report6_Software User Guides.docx"
@@ -15,10 +16,14 @@ SOURCES = ["report-6-software-user-guides/" + name + ".md"
 
 
 def blocks(reports):
-    result = []
-    for relative in SOURCES:
-        result.extend(parse_markdown(reports / relative, strict_tables=False))
-    return result
+    history = parse_markdown(reports / SOURCES[0], strict_tables=False)
+    manual = chapter_blocks(reports / SOURCES[1])
+    previous_step = False
+    for block in manual:
+        if block.kind == "paragraph" and block.text.startswith("**Step "):
+            block.page_break_before = previous_step
+            previous_step = True
+    return history + manual
 
 
 def export(template, reports, output):

@@ -116,6 +116,7 @@ class Block:
     language: str = ""
     source: Path | None = None
     keep_with_next: bool = False
+    page_break_before: bool = False
 
 
 def split_row(line):
@@ -534,11 +535,30 @@ class WordDocument:
     def table(self, rows):
         template = self.choose_table(rows[0])
         ncols = len(rows[0])
+        prototypes = children(template, "tr")
+        wanted_headers = {plain(value).strip().lower() for value in rows[0] if plain(value).strip()}
+        merged_header = (
+            len(prototypes) >= 3
+            and bool(descendants(prototypes[0], "gridSpan"))
+            and bool(descendants(prototypes[1], "vMerge"))
+        )
+        header_rows = prototypes[:2] if merged_header else prototypes[:1]
+        tpl_labels = {
+            self.text(cell).strip().lower()
+            for row in header_rows
+            for cell in children(row, "tc")
+            if self.text(cell).strip()
+        }
+        has_two_row_merged_header = (
+            merged_header
+            and len(children(prototypes[2], "tc")) == ncols
+            and wanted_headers <= tpl_labels
+        )
         # The template (notably Report 7's) may not have a table with the same
         # column count as this header: cloning the nearest prototype would then
-        # inherit heading borders, merged cells and negative indents.
-        if not any(len(children(tr, "tc")) == ncols
-                   for tr in children(template, "tr")):
+        # inherit borders, merges and negative indents from an unrelated table.
+        if (merged_header and not has_two_row_merged_header
+                or not any(len(children(row, "tc")) == ncols for row in prototypes)):
             table = self.clean_table(ncols)
             widths = self.column_widths(rows, 9000)
             for index, row_values in enumerate(rows):
@@ -568,20 +588,10 @@ class WordDocument:
             self.table_count += 1
             return table
         table = template.cloneNode(True)
-        prototypes = children(template, "tr")
-        has_two_row_merged_header = (
-            len(prototypes) >= 3
-            and bool(descendants(prototypes[0], "gridSpan"))
-            and bool(descendants(prototypes[1], "vMerge"))
-            and len(children(prototypes[2], "tc")) == len(rows[0])
-        )
         old_grid = children(template, "tblGrid")
         widths = [int(c.getAttribute("w:w") or 1000)
                   for c in children(old_grid[0], "gridCol")] if old_grid else []
         total = sum(widths) or 9000
-        wanted_headers = {plain(x).strip().lower() for x in rows[0] if plain(x).strip()}
-        tpl_hdr_trs = prototypes[:2] if len(prototypes) >= 3 and descendants(prototypes[0], "gridSpan") else prototypes[:1]
-        tpl_labels = {self.text(c).strip().lower() for r in tpl_hdr_trs for c in children(r, "tc") if self.text(c).strip()}
         headers_match = len(wanted_headers & tpl_labels) >= max(2, len(rows[0]) // 2)
         if len(rows[0]) == 3 and wanted_headers <= {"#", "no", "no.", "package", "table", "class", "entity", "actor", "description"}:
             widths = [650, 2750, max(4500, total - 3400)]
@@ -870,6 +880,17 @@ class WordDocument:
                     following = next((child for child in children(properties)
                                       if child.localName != "pStyle"), None)
                     properties.insertBefore(element(self.doc, W, "w:keepNext"), following)
+
+            if block.page_break_before:
+                paragraph = self.body.lastChild
+                properties = (children(paragraph, "pPr") or [None])[0]
+                if properties is None:
+                    properties = element(self.doc, W, "w:pPr")
+                    paragraph.insertBefore(properties, paragraph.firstChild)
+                if not children(properties, "pageBreakBefore"):
+                    following = next((child for child in children(properties)
+                                      if child.localName not in {"pStyle", "keepNext", "keepLines"}), None)
+                    properties.insertBefore(element(self.doc, W, "w:pageBreakBefore"), following)
 
             if page_lines >= 38:
                 current_page += page_lines // 38

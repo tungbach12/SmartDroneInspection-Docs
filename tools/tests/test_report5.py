@@ -31,7 +31,7 @@ class Report5Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / TEMPLATE_NAME
             result = export(template, REPORTS, output)
-            self.assertEqual(result["cases"], 77)
+            self.assertEqual(result["cases"], 80)
             self.assertTrue(result["format_parts_preserved"])
             book, source = Spreadsheet(output), Spreadsheet(template)
             self.assertEqual(list(book.sheets)[:5],
@@ -65,16 +65,24 @@ class Report5Tests(unittest.TestCase):
             self.assertEqual(book.value("Feature 5", "I12"), "Pending")
             self.assertEqual(book.value("Feature 5", "L12"), "Pending")
             self.assertEqual(book.value("Feature 11", "A12"), "WF2-021")
+            for sheet, row, case_id in (
+                ("Feature 11", 13, "WF2-032"),
+                ("Feature 13", 17, "WF2-033"),
+                ("Feature 9", 18, "WF2-034"),
+            ):
+                self.assertEqual(book.value(sheet, f"A{row}"), case_id)
+                self.assertEqual(book.value(sheet, f"F{row}"), "N/A")
+                self.assertEqual(book.value(sheet, f"L{row}"), "Passed")
             self.assertEqual(book.value("Feature 22", "A12"), "WF3-033")
-            self.assertEqual(book.value("Test Statistics", "H35"), "77")
+            self.assertEqual(book.value("Test Statistics", "H35"), "80")
             self.assertEqual(book.value("Test Statistics", "D35"), "52")
             self.assertEqual(book.value("Test Statistics", "F35"), "9")
-            self.assertEqual(book.value("Test Statistics", "G35"), "16")
+            self.assertEqual(book.value("Test Statistics", "G35"), "19")
             self.assertEqual(book.value("Test Statistics", "H36"), "56")
             self.assertEqual(book.value("Test Statistics", "D36"), "45")
             self.assertEqual(book.value("Test Statistics", "F36"), "8")
-            self.assertEqual(book.value("Test Statistics", "H37"), "13")
-            self.assertEqual(book.value("Test Statistics", "D37"), "13")
+            self.assertEqual(book.value("Test Statistics", "H37"), "16")
+            self.assertEqual(book.value("Test Statistics", "D37"), "16")
             self.assertEqual(book.value("Test Statistics", "C36"), "Historical Round 1")
             self.assertEqual(book.value("Test Statistics", "C37"), "Round 3 executed")
             self.assertEqual(book.value("Test Statistics", "C38"), "V29 Round 3")

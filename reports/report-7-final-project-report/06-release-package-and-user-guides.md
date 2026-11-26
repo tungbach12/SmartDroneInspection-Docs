@@ -15,7 +15,7 @@ source: "Report7_Final Project Report.docx"
 | 3 | Source Codes | Four independent repositories: backend service (`SmartDroneInspection-backend`), web portals (`SmartDroneInspection-frontend`), Customer mobile client (`SmartDroneInspection-mobile`), and documentation (`SmartDroneInspection-docs`). |
 | 4 | Database Script(s) | Flyway migrations `V1`–`V4` and `V60`–`V80` build the PostgreSQL 17 schema. See Chapter IV, Section 2 for the database design. |
 | 5 | Final Report Document | Reports 1–7, prepared using the official templates. |
-| 6 | Test Cases Document | `Report5_Test Report.xlsx` (`v3.15`) with twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `77` listed rows (`75` active cases + `2` superseded `FE-13` cases), plus the executed results in Report 5 §5. |
+| 6 | Test Cases Document | `Report5_Test Report.xlsx` (`v3.19`) with twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `80` listed rows (`78` active cases + `2` superseded `FE-13` cases), plus the executed results in Report 5 §5. |
 | 7 | Defects List | The defect log records one resolved defect (`DEF-01`) and one open tooling defect (`DEF-02`). |
 | 8 | Issues List | Outstanding issues and known limitations, including the product limitations listed in Chapter III. |
 | 9 | Slide | The defence presentation used for the final review. |
@@ -323,19 +323,19 @@ Open the Customer conversation from **Messages** in the inspection.
 
 *Figure 7.29 — Inspector message composer for the selected inspection.*
 
-**Step 3 — Upload and verify the flight permit.**
+**Step 3 — Save the flight permit or withdraw before field work.**
 
 Open **Flight Permit** while the inspection is scheduled.
 
-❶ Select **Choose permit file** (up to 25 MB). Enter the permit details and confirm it covers the assigned drone and flight window.
+Select **Choose permit file** (up to 25 MB). To update an existing permit, select **Replace permit** and **Choose replacement permit file**. Enter the permit details and check the assigned drone and flight window.
 
-❷ Select **Submit flight permit for verification**. Check that a valid upload shows **Approved**.
+Select **Save flight permit** (**Lưu giấy phép bay**). Check that a valid upload shows **Approved**. If a drone change or reschedule resets the permit, save a replacement.
 
-Re-upload if a drone change or reschedule resets the permit status.
+If you have accepted the assignment and field work has yet to start, select **Withdraw from assignment** (**Rút khỏi phân công**), enter the reason and select **Confirm withdrawal** (**Xác nhận rút**). The inspections list opens and the Manager can reassign or cancel the scheduled inspection. After starting a session, contact the Manager to change the schedule, even if you have since aborted the session.
 
-![Flight permit upload form and submission action](assets/manual/wf4-permit-form.png)
+![Flight Permit screen with save and withdrawal actions](assets/manual/wf4-permit-form.png)
 
-*Figure 7.30 — Flight permit upload form and submission action.*
+*Figure 7.30 — Flight Permit save and withdrawal actions before field work (demo data).*
 
 #### Inspector completes the field session
 
