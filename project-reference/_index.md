@@ -9,7 +9,7 @@ This section holds the stable references that implementation and formal reports 
 
 ## Start here
 
-- [5-Role & 8-Feature Mainflows Reference](../bao-cao-thay-doi-mainflows-5-roles.md): current five-role (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`, `MAINTENANCE_ENGINEER`) and eight-feature (`FE-01`–`FE-08`) flows `MF1`–`MF4` synchronized with the live codebase.
+- [Main workflow guide](mainflows-4-workflows-guideline-v3.md) covers partner drone registration, quotations and dispatch, field work, and report acceptance and settlement.
 - [Diagram Ownership Map](../phan-cong-ve-so-do.md): 35-diagram assignment across the 4 team members and 8 features.
 - [Error-prevention guide](error-prevention.md): practical documentation, testing, and demo checks.
 
