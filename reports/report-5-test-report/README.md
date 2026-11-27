@@ -4,7 +4,7 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-Version 3.19 lists 80 cases across 24 features, with 78 active and two superseded FE-13 cases. Round 1 records 52 Passed, 0 Failed, 9 Pending and 19 N/A. Round 3 records 16 executed passes. The three latest cases cover Inspector withdrawal, the block after abort, and Manager cancellation. See the [regression evidence](regression-evidence-2026-11-26.md) for the executed checks.
+Version 3.20 lists 80 cases across 24 features, with 78 active and two superseded FE-13 cases. Round 1 records 52 Passed, 0 Failed, 9 Pending and 19 N/A. Round 3 records 16 executed passes. The FE-24 case notes track follow-up verification for duplicate re-inspection and verdict expiry. See the [26 November regression evidence](regression-evidence-2026-11-26.md) and [Test Documentation, Section 5](../report-5-test-documentation/01-testing-documentation.md#5-test-reports) for suite results.
 
 The original workbook template remains unchanged; generated copies contain twenty-four active feature sheets (`Feature 1`–`Feature 24`). Maintenance feature sheets and cases are retired historical material, not current coverage.
 

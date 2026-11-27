@@ -46,10 +46,10 @@ Follow the hardware, software, and component setup instructions below to run the
 | Container Runtime | Docker Engine 27+ with Docker Compose v2 | Runs PostgreSQL 17 (`pgvector`), MinIO, FastAPI YOLO11s, SmartDroneHub, and the Spring Boot API. |
 | Java Development Kit | Eclipse Temurin Java 21 (LTS) | Required to build and run the Spring Boot 4.1 Modulith backend and Maven tests. |
 | Relational Database | PostgreSQL 17 with `pgvector` extension | Stores all 53 application tables and 384-dimensional knowledge embeddings. |
-| Object Storage | MinIO (`RELEASE.2025`) | S3-compatible storage hosting inspection photos, chunked video, permits, and signed contracts in `inspection-evidence`. |
+| Object Storage | MinIO (Docker Compose image) | S3-compatible storage hosting inspection photos, chunked video, permits, and signed contracts in `inspection-evidence`. |
 | Node.js Runtime | Node.js 22+ and npm 10+ | Runs the React 19 + TypeScript + Vite web portal development server and Vitest suite. |
 | Mobile SDK | Flutter 3.x and Android SDK (API 34+) | Builds and runs the Customer-only Android mobile application. |
-| AI Vision Service | Python 3.12+ with FastAPI and Ultralytics YOLO11s | Runs automated building-defect detection (`crack`, `leakage`, `abscission`, `corrosion`, `bulge`). |
+| AI Vision Service | Python 3.11 with FastAPI and Ultralytics YOLO11s | Runs automated building-defect detection (`crack`, `leakage`, `abscission`, `corrosion`, `bulge`). |
 | Web Browser | Google Chrome or Microsoft Edge (Evergreen) | Desktop browser for the four role-scoped web portals. |
 
 ### 2.2 Installation Instruction
@@ -70,10 +70,10 @@ docker compose up -d --build
 
 #### 2.2.2 Database (PostgreSQL 17 & Flyway)
 
-PostgreSQL 17 with `pgvector` starts automatically inside Docker Compose. During Spring Boot startup, Flyway applies all release migrations (`V1` to `V4` and `V60` to `V80`) and seeds baseline reference tables. To verify schema integrity locally without Docker Compose, run:
+PostgreSQL 17 with `pgvector` starts automatically inside Docker Compose. During Spring Boot startup, Flyway applies the release migrations (`V1` to `V4` and `V60` to `V80`) and seeds baseline reference tables. For the schema integrity test, start the Docker engine so Testcontainers can create an isolated PostgreSQL instance. Run the Maven wrapper from the backend directory.
 
 ```bash
-./mvnw.cmd test -Dtest=FullDatabaseSchemaMigrationTest
+.\mvnw.cmd test -Dtest=FullDatabaseSchemaMigrationTest
 ```
 
 #### 2.2.3 Web Portal (React & Vite)
@@ -602,7 +602,9 @@ Open **Service Payment** after accepting the report.
 
 ❷ Select **Download payment receipt (PDF)** if you need a copy.
 
-If the published report contains confirmed defects, select **Schedule Re-inspection** in the **Post-Remediation Re-inspection** card to open a linked follow-up request once site repairs finish. Only one active re-inspection may be open per source inspection at a time. On re-inspection deliverables, both the Web portal (Inspector, Manager, and Customer views) and the Customer Mobile app display an early warning banner 14 days before any `RESOLVED` verdict expires.
+After completing the site repairs, open **Service Payment** on the original published report. When it is paid and contains confirmed defects, select **Schedule Re-inspection** in the **Post-Remediation Re-inspection** card to create a linked follow-up request. If a follow-up is already active, continue with the existing request or inspection.
+
+Inspector, Manager, and Customer Web views and the Customer Mobile app warn when a `RESOLVED` verdict expires within 14 days. If a verdict has expired and a new verification is needed, the Customer can return to the original paid report to request another re-inspection.
 
 ![Confirmed Customer payment and receipt download](assets/manual/wf6-05-cus-report-pay.png)
 
