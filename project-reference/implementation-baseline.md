@@ -117,7 +117,7 @@ Module dependency rules live in each module's `package-info.java` (`@Application
 | 39 | `inspector_flight_logs` | 14 | Flight log intake (including non-MAVLink) |
 | 40 | `notifications` | 12 | In-app/email notification with dedupe and read state |
 | 41 | `platform_ai_settings` | 6 | Singleton AI settings: auto-confirm flag and threshold (`default 70.00` since `V63`, lowered from `85.00`) |
-| 42 | `platform_operations_settings` | 4 | Singleton operations settings: Step 4 assignment acceptance timeout (`V61`) |
+| 42 | `platform_operations_settings` | 5 | Singleton operations settings: Step 4 assignment acceptance timeout (`V61`) and Service Request lead days (`V81`) |
 | 43 | `inspection_messages` | — | Inspector–Customer per-inspection chat thread (`V61`) |
 | 44 | `inspection_message_attachments` | — | Private MinIO chat attachments (`V61`) |
 | 45 | `inspection_knowledge_chunks` | — | Seeded engineering standards/guidelines with `vector(384)` HNSW (`V62`, `V65`) |
