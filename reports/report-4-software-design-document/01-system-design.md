@@ -19,6 +19,20 @@ SmartDroneInspection uses a modular client-server architecture that separates th
 
 *Figure 4.1 — SmartDroneInspection System Architecture Diagram.*
 
+**Component responsibilities**
+
+| Component | Technology | Responsibility |
+| :--- | :--- | :--- |
+| Web Portal Application | React 19, strict TypeScript, Vite, Material UI | Four role-scoped portals; route-level denial; all administrative, commercial, field, and review work. |
+| Mobile Field Application | Flutter, Dart, Riverpod, GoRouter, Dio | Customer-only mobile access to buildings, requests, tracking, reports, and notifications. |
+| Application Server | Java 21, Spring Boot 4.1.0, Spring Modulith 2.1.1 | Domain logic, authorization, state transitions, report management, audit, and event publication. |
+| YOLO11 Detection Service | Python FastAPI, Ultralytics YOLO11s | Primary building-defect candidate detection over photographs and video keyframes. |
+| Vision, Drafting & Knowledge Gateway | `ai-inference` `/v1/embeddings` & OpenAI-compatible HTTP API | Vision fallback detection, single-shot narrative drafting, advisory finding note drafting, and local 384-dimension `fastembed` (`paraphrase-multilingual-MiniLM-L12-v2`) embeddings. |
+| SmartDroneHub | External ground station | Read-only telemetry, flight traces, and mission video. |
+| PostgreSQL | PostgreSQL 17 | 53 application tables (55 total), pgvector case/standard retrieval, audit trail, gateway webhook log, ratings/multi-sortie records, and event outbox. |
+| MinIO | S3-compatible object storage | Private storage of documents, evidence media, and published report artefacts. |
+| Sepay / VNPay / Google OAuth 2.0 | External HTTPS services | Service-fee settlement and federated sign-in. |
+
 **Explanation of Architecture Components**
 
 1. **Web Portal Application (`SmartDroneInspection-frontend`)**: Single-page web sub-system built with React 19, strict TypeScript, Vite, and Material UI. It delivers four role-scoped portals (`/admin`, `/manager`, `/client`, `/operations`) for the four human roles. A section a role may not use has no route at all, so denial is enforced at the routing boundary by `accessPolicy.ts` as well as at the API. The web application is the only client for `ADMIN`, `MANAGER`, and `INSPECTOR`; every field, commercial, and review task is performed here.
@@ -34,20 +48,6 @@ SmartDroneInspection uses a modular client-server architecture that separates th
 8. **Object Storage (MinIO)**: S3-compatible private bucket (`inspection-evidence`) managed through `MinioEvidenceObjectStore` to store signed service agreements, chat attachments, pilot licence scans, three-document drone registration files, building engineering documents, flight permits, field photographs and MP4 videos, and published inspection report artefacts. Binary content is served only through short-lived HMAC media tickets and HTTP Range streaming.
 9. **Online Payment Gateways (Sepay VietQR and VNPay v2.1.0) & Google OAuth 2.0**: External payment gateways (`SepayPaymentGateway` generating public VietQR images with `SDI<orderCode>` transfer content and authenticating webhooks via constant-time `Authorization: Apikey` header check backed by `GatewayInboundTransactionService`, plus `VnPayPaymentGateway` v2.1.0 with HMAC-SHA512 IPN/Return verification and terminal cancel/expiry order release) for VND inspection fee settlement, and Google OAuth 2.0 (`OAuth2Controller`, `GoogleOAuthService`) for federated identity. Both payment gateways are configuration-gated and disabled by default; the application starts and remains operable without them.
 
-**Component responsibilities**
-
-| Component | Technology | Responsibility |
-| :--- | :--- | :--- |
-| Web Portal Application | React 19, strict TypeScript, Vite, Material UI | Four role-scoped portals; route-level denial; all administrative, commercial, field, and review work. |
-| Mobile Field Application | Flutter, Dart, Riverpod, GoRouter, Dio | Customer-only mobile access to buildings, requests, tracking, reports, and notifications. |
-| Application Server | Java 21, Spring Boot 4.1.0, Spring Modulith 2.1.1 | Domain logic, authorization, state transitions, report management, audit, and event publication. |
-| YOLO11 Detection Service | Python FastAPI, Ultralytics YOLO11s | Primary building-defect candidate detection over photographs and video keyframes. |
-| Vision, Drafting & Knowledge Gateway | `ai-inference` `/v1/embeddings` & OpenAI-compatible HTTP API | Vision fallback detection, single-shot narrative drafting, advisory finding note drafting, and local 384-dimension `fastembed` (`paraphrase-multilingual-MiniLM-L12-v2`) embeddings. |
-| SmartDroneHub | External ground station | Read-only telemetry, flight traces, and mission video. |
-| PostgreSQL | PostgreSQL 17 | 53 application tables (55 total), pgvector case/standard retrieval, audit trail, gateway webhook log, ratings/multi-sortie records, and event outbox. |
-| MinIO | S3-compatible object storage | Private storage of documents, evidence media, and published report artefacts. |
-| Sepay / VNPay / Google OAuth 2.0 | External HTTPS services | Service-fee settlement and federated sign-in. |
-
 ### 1.2 Package Diagram
 
 SmartDroneInspection comprises three application sub-systems: the **Backend Application Server** (`com.smartdroneinspection`), the **Web Portal Application** (`SmartDroneInspection-frontend/src`), and the **Mobile Field Application** (`SmartDroneInspection-mobile/lib`). The package diagrams and package descriptions for each sub-system are presented below.
@@ -59,8 +59,6 @@ Figure 4.2 shows the Spring Modulith backend module layout under com.smartdronei
 ![Backend Spring Modulith Package Diagram](assets/diagrams/pkg-backend.png)
 
 *Figure 4.2 — Backend Spring Modulith Package Diagram (`com.smartdroneinspection`).*
-
-The eight modules declare their permitted collaborators in `@ApplicationModule(allowedDependencies = {...})`. `contracts` may reach `assets::domain`, `assets::enums`, `assets::repository`, `users`, and `inspections::spi`; `inspections` may reach `assets::domain`, `assets::enums`, `assets::repository`, `assets::reportcontext`, `users`, and its own `reportcontext`; `notifications` may reach `assets`, `assets::events`, `contracts::events`, `inspections::events`, `users`, and `users::events`; `dashboard` may reach `users`, `assets`, `inspections`, and `shared`; `infrastructure` may reach `inspections::spi` and `contracts::gateway`. Cross-module advisory interfaces live in `shared::api` (`CustomerAirspacePolicy`, `AirspaceZoneAdvisor`, `AirspaceZoneInfo`), keeping `assets` airspace zone definitions decoupled from `users` and `inspections`. Directional control therefore passes through narrow named sub-packages rather than whole modules.
 
 **Package Descriptions**
 
@@ -74,6 +72,8 @@ The eight modules declare their permitted collaborators in `@ApplicationModule(a
 | 06 | `com.smartdroneinspection.dashboard` | Aggregates separated Admin platform governance metrics and Manager/Customer/Inspector operational summaries (`DashboardController`, `DashboardAnalyticsService`). |
 | 07 | `com.smartdroneinspection.infrastructure` | Implements technical outbound adapters for MinIO object storage (`MinioEvidenceObjectStore`), YOLO11 and OpenAI-compatible AI clients (`YoloInferenceClient`, `OpenAiCompatibleInferenceClient`, `PrimaryWithFallbackInference`, `ReportDraftClient`), the optional embeddings adapter (`DroneKnowledgeClient`, enabled by `DroneKnowledgeConfiguration` and configured by `DroneKnowledgeProperties`) implementing the inspections-owned `HistoricalCaseAdvisorPort`, `SmartDroneHub` telemetry and video integration (`SmartDroneHubClient`), FFmpeg video processing, and Sepay/VNPay payment gateways (`SepayPaymentGateway`, `VnPayPaymentGateway`). |
 | 08 | `com.smartdroneinspection.shared` | Provides cross-cutting HTTP security configuration (`SecurityConfig`), shared API response wrappers (`ApiResponse`, `Result`), role constants (`Roles`), cross-module service ports (`EvidenceObjectStore`, `AiInferencePort`, `SmartDroneHubPort`, `AirspaceZoneAdvisor`, `AirspaceZoneInfo`, payment ports), upload validation (`EvidenceUploadValidator`), RFC 7807 error handling (`GlobalExceptionHandler`), and bilingual localization (`RequestLocale`). |
+
+The eight modules declare their permitted collaborators in `@ApplicationModule(allowedDependencies = {...})`. `contracts` may reach `assets::domain`, `assets::enums`, `assets::repository`, `users`, and `inspections::spi`; `inspections` may reach `assets::domain`, `assets::enums`, `assets::repository`, `assets::reportcontext`, `users`, and its own `reportcontext`; `notifications` may reach `assets`, `assets::events`, `contracts::events`, `inspections::events`, `users`, and `users::events`; `dashboard` may reach `users`, `assets`, `inspections`, and `shared`; `infrastructure` may reach `inspections::spi` and `contracts::gateway`. Cross-module advisory interfaces live in `shared::api` (`CustomerAirspacePolicy`, `AirspaceZoneAdvisor`, `AirspaceZoneInfo`), keeping `assets` airspace zone definitions decoupled from `users` and `inspections`. Directional control therefore passes through narrow named sub-packages rather than whole modules.
 
 #### 1.2.2 Web Portal Application Package Diagram
 

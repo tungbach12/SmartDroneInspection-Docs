@@ -6,7 +6,7 @@ from support import OFFICIAL, REPORTS, assert_word_export, original
 import export_project_tracking
 import export_report4
 import export_report5_doc
-from report_ooxml import Spreadsheet
+from report_ooxml import Package, Spreadsheet, WordDocument, children, descendants
 
 
 class Report4And5DocTests(unittest.TestCase):
@@ -15,6 +15,48 @@ class Report4And5DocTests(unittest.TestCase):
         self.assertGreaterEqual(result["tables"], 10)
         self.assertEqual(result["source_images"], 51)
         self.assertFalse(any("Mermaid" in w for w in result["warnings"]))
+
+    def test_report4_tables_follow_architecture_figures_and_use_school_format(self):
+        template = original(OFFICIAL, export_report4.TEMPLATE_NAME)
+        with tempfile.TemporaryDirectory() as temp:
+            output = Path(temp) / export_report4.TEMPLATE_NAME
+            export_report4.export(template, REPORTS, output)
+            package = Package(output)
+            document = package.xml("word/document.xml")
+            settings = package.xml("word/settings.xml")
+
+        compression = descendants(settings, "doNotAutoCompressPictures")
+        self.assertEqual(compression[0].getAttribute("w:val"), "true")
+
+        body = children(descendants(document, "body")[0])
+        tables = [node for node in body if node.localName == "tbl"]
+        self.assertEqual(len(tables), 31)
+        for table in tables:
+            header, *data = children(table, "tr")
+            fills = [cell.getAttribute("w:fill") for cell in descendants(header, "shd")]
+            self.assertEqual(fills, ["FFE8E1"] * len(children(header, "tc")))
+            self.assertTrue(descendants(header, "tblHeader"))
+            for row in data:
+                self.assertFalse(descendants(row, "shd"))
+                for paragraph in descendants(row, "p"):
+                    self.assertEqual(len(children(paragraph, "pPr")), 1)
+                    self.assertNotIn("comment", [s.getAttribute("w:val")
+                                                 for s in descendants(paragraph, "pStyle")])
+
+        captions = [(i, node) for i, node in enumerate(body) if node.localName == "p"
+                    and WordDocument.text(node).startswith("Figure 4.")
+                    and descendants(body[i - 1], "drawing")]
+        self.assertEqual(len(captions), 51)
+        for i, caption in captions:
+            self.assertFalse(WordDocument.text(caption).endswith("*"))
+            self.assertEqual(descendants(caption, "jc")[0].getAttribute("w:val"), "center")
+            self.assertTrue(descendants(body[i - 1], "keepNext"))
+        for i, caption in captions[:4]:
+            table = body[i + 2]
+            self.assertEqual(table.localName, "tbl", WordDocument.text(caption))
+            widths = [int(col.getAttribute("w:w")) for col in descendants(table, "gridCol")]
+            self.assertEqual(sum(widths), 9350)
+            self.assertEqual(max(widths), widths[-1])
 
     def test_report5_documentation_preserves_merged_header_table_and_styles(self):
         result = assert_word_export(self, export_report5_doc)

@@ -54,7 +54,7 @@ def render_word(template, reports, output, blocks, warnings=(), *,
     document.append(blocks)
     content = document.text(document.body)
     for block in blocks:
-        if block.kind in {"heading", "paragraph", "list"} and plain(block.text) not in content:
+        if block.kind in {"heading", "paragraph", "list", "caption"} and plain(block.text) not in content:
             raise ValueError(f"Missing exported content from {block.source}: {block.text[:80]}")
     audit = document.save(output)
     return {**audit, "source_blocks": len(blocks), "content_complete": True}
