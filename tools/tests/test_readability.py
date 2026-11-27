@@ -11,6 +11,7 @@ from pathlib import Path
 from support import OFFICIAL, REPORTS, assert_word_export
 from report_ooxml import (Package, WordDocument, children, descendants,
                           parse_markdown, text_of)
+import export_report1
 import export_report3
 import export_report6
 import export_report7
@@ -50,10 +51,11 @@ class CoverTests(unittest.TestCase):
         document = WordDocument(original(OFFICIAL, export_report7.TEMPLATE_NAME))
         metadata = project_metadata(REPORTS)
         document.fill_cover(metadata["project"], metadata["location"])
-        export_report7.prepare_cover(REPORTS / export_report7.SOURCES[1], document, metadata)
+        export_report7.prepare_cover(REPORTS / export_report1.SOURCES[0], document, metadata)
         cover = "\n".join(document.text(node) for node in document.cover)
         for text in ("SmartDroneInspection", "FA26SE112", "GFA26SE139", "SE184212",
-                     "SE170027", "SE180220", "SE180082", "November 2026"):
+                     "SE170027", "SE180220", "SE180082", "Phạm Minh Trí",
+                     "Đặng Ngọc Minh Đức", "November 2026"):
             self.assertIn(text, cover)
         self.assertNotRegex(cover, r"\[Project name\]|<Group Name>|<Member name>|<month>")
 
