@@ -5,6 +5,6 @@
 | Project Name | SmartDroneInspection |
 | Project Code | GFA26SE139 |
 | Creator | FA26SE112 (Trần Hoàng Trung Hiếu, Phùng Trung Quốc, Trương Thái Như, Trần Tùng Bách) |
-| Issue Date | 2026-11-26 |
-| Document Code | GFA26SE139_Test_Report_v3.19 |
-| Version | 3.19 |
+| Issue Date | 2026-11-27 |
+| Document Code | GFA26SE139_Test_Report_v3.20 |
+| Version | 3.20 |

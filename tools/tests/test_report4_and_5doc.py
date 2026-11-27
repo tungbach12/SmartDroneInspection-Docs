@@ -18,7 +18,7 @@ class Report4And5DocTests(unittest.TestCase):
 
     def test_report5_documentation_preserves_merged_header_table_and_styles(self):
         result = assert_word_export(self, export_report5_doc)
-        self.assertEqual(result["tables"], 10)
+        self.assertEqual(result["tables"], 13)
         self.assertTrue(result["format_parts_preserved"])
 
     def test_project_tracking_workbook_populates_all_four_sheets(self):
