@@ -21,8 +21,8 @@ def blocks(reports):
     for index, block in enumerate(result):
         if block.kind == "heading":
             block.keep_with_next = True
-        if block.kind == "paragraph" and block.text == "**Explanation of Architecture Components**":
-            block.keep_with_next = True
+            if block.level == 1 and block.text == "II. Software Design Document":
+                block.page_break_before = True
         if block.kind == "table":
             header = block.rows[0][0]
             if header == "Component":
@@ -31,7 +31,7 @@ def blocks(reports):
                 block.table_widths = (650, 3250, 5450)
             elif header == "No":
                 block.table_widths = (650, 2750, 5950)
-            elif header == "Boundary":
+            elif header == "Step":
                 block.table_widths = (2400, 2800, 4150)
             elif header == "Date":
                 block.table_widths = (1175, 810, 1234, 5585)
@@ -45,9 +45,6 @@ def blocks(reports):
                 caption.kind = "caption"
                 if block.source == reports / SOURCES[1]:
                     caption.keep_with_next = True
-                    previous = result[index - 1]
-                    if previous.kind == "paragraph" and previous.text.startswith("Figure 4."):
-                        previous.keep_with_next = True
     return result
 
 
