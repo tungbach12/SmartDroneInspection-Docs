@@ -19,6 +19,7 @@ import export_report6
 
 TEMPLATE_NAME = "Report7_Final Project Report.docx"
 HISTORY = "report-7-final-project-report/00-record-of-changes.md"
+FRONT_MATTER = "report-7-final-project-report/01-acknowledgement-and-acronyms.md"
 INDEX = "report-7-final-project-report/07-submission-index.md"
 CHAPTERS = (
     ("I. Project Introduction", export_report1),
@@ -28,19 +29,16 @@ CHAPTERS = (
     ("V. Software Testing Documentation", export_report5_doc),
     ("VI. Release Package & User Guides", export_report6),
 )
-SOURCES = [HISTORY, *(path for _, exporter in CHAPTERS for path in exporter.SOURCES), INDEX]
+SOURCES = [HISTORY, FRONT_MATTER, *(path for _, exporter in CHAPTERS for path in exporter.SOURCES), INDEX]
 
 
 def blocks(reports):
     result = parse_markdown(reports / HISTORY)
+    result.extend(parse_markdown(reports / FRONT_MATTER))
     for number, (title, exporter) in enumerate(CHAPTERS, 1):
         chapter = exporter.blocks(reports)
         start = next(i for i, block in enumerate(chapter)
                      if block.kind == "heading" and block.level == 1 and block.text.startswith("II. "))
-        if number == 1:
-            front = next(i for i, block in enumerate(chapter)
-                         if block.kind == "heading" and block.text == "Acknowledgement")
-            result.extend(chapter[front:start])
         chapter[start].text = title
         chapter[start].page_break_before = True
         result.extend(chapter[start:])
@@ -52,15 +50,22 @@ def prepare_cover(chapter, document, metadata):
     team = next(block.rows[1:] for block in parse_markdown(chapter, strict_tables=False)
                 if block.kind == "table" and block.rows[0][:2] == ["Full Name", "Role"])
     members = []
-    supervisors = {}
-    for name, role, *_ in team:
+    supervisors = []
+    ext_supervisors = []
+    for name, role, email, *_ in team:
         if role in {"Leader", "Member"}:
-            match = re.fullmatch(r"(.+) \((SE\d+)\)", plain(name))
-            if match is None:
+            name_match = re.fullmatch(r"(.+) \((SE\d+)\)", plain(name))
+            if name_match is not None:
+                members.append(f"{name_match[1]} ({name_match[2]})")
+                continue
+            email_match = re.search(r"(se\d+)@", plain(email), re.IGNORECASE)
+            if email_match is None:
                 raise ValueError(f"Missing student ID on the Report 7 cover: {name}")
-            members.append(f"{match[1]} ({match[2]})")
+            members.append(f"{plain(name)} ({email_match[1].upper()})")
+        elif "external" in plain(role).lower():
+            ext_supervisors.append(plain(name))
         else:
-            supervisors[role] = plain(name)
+            supervisors.append(plain(name))
 
     cover_paragraphs = [p for node in document.cover if node.localName == "tbl"
                         for p in descendants(node, "p")]
@@ -90,8 +95,8 @@ def prepare_cover(chapter, document, metadata):
     for paragraph in member_slots[len(members):]:
         paragraph.parentNode.removeChild(paragraph)
     for label, value in {
-        "Supervisor": supervisors["Supervisor"],
-        "Ext Supervisor": supervisors["External Supervisor and Lecturer"],
+        "Supervisor": "\n".join(supervisors),
+        "Ext Supervisor": "\n".join(ext_supervisors),
         "Capstone Project code": metadata["code"],
     }.items():
         paragraph = labeled_rows[label]
@@ -102,7 +107,7 @@ def prepare_cover(chapter, document, metadata):
 
 def export(template, reports, output):
     return render_word(template, reports, output, blocks(reports),
-                       prepare_cover=partial(prepare_cover, reports / SOURCES[1]),
+                       prepare_cover=partial(prepare_cover, reports / export_report1.SOURCES[0]),
                        fallback_table_header_fill="FFE8E1")
 
 
