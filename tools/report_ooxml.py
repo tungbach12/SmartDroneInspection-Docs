@@ -606,6 +606,12 @@ class WordDocument:
         remove_children(grid)
         for width in widths:
             grid.appendChild(element(self.doc, W, "w:gridCol", {"w:w": width}))
+        tbl_pr = (children(table, "tblPr") or [None])[0]
+        if tbl_pr is not None:
+            for tbl_w in children(tbl_pr, "tblW"):
+                if tbl_w.getAttribute("w:type") == "pct":
+                    tbl_w.setAttributeNS(W, "w:w", str(sum(widths)))
+                    tbl_w.setAttributeNS(W, "w:type", "dxa")
         start_index = 0
         if has_two_row_merged_header:
             for proto_row in prototypes[:2]:
@@ -644,6 +650,7 @@ class WordDocument:
                             properties.removeChild(valign)
                     for width in children(properties, "tcW"):
                         width.setAttributeNS(W, "w:w", str(widths[col]))
+                        width.setAttributeNS(W, "w:type", "dxa")
                 ps = children(cell, "p")
                 cell_p = ps[0].cloneNode(True) if ps else self.paragraph_prototype.cloneNode(True)
                 hdr_lower = plain(rows[0][col]).strip().lower() if col < len(rows[0]) else ""

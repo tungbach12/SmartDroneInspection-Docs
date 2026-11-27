@@ -80,6 +80,23 @@ The screens below are the implemented application surfaces. Screenshots were cap
 | 43 | FE-01 | Settings | Profile, security, and notification preferences for the signed-in user. |
 | 44 | FE-05 | Financial history ledger | Role-scoped financial ledgers for the Customer (payments and receipts), Inspector (mission fees and net payouts), and Manager (platform revenue, commissions, and taxes). |
 
+**Customer Mobile Application Screens (`CUSTOMER` role only)**
+
+The native Flutter mobile client mirrors the Customer portal across ten focused screens without exposing staff operations or field-capture functions:
+
+| # | Feature | Mobile Screen | Description |
+| --- | --- | --- | --- |
+| M1 | FE-01 | Mobile sign-in & password reset | Credential sign-in, OTP verification, Google Sign-In, and password reset using encrypted device secure storage. |
+| M2 | FE-01, FE-04, FE-07 | Mobile Customer registration | Two-step onboarding capturing Customer details, building selection, interactive airspace screening, and `MSG28` restricted warnings. |
+| M3 | FE-01, FE-14 | Mobile home dashboard | Summary cards for active buildings, pending requests, upcoming inspections, and payment alerts. |
+| M4 | FE-04, FE-06 | Mobile buildings & detail | Customer building directory and detail view showing location/airspace advisory and reference documents (omitting internal checkpoints). |
+| M5 | FE-08, FE-09, FE-10 | Mobile service requests & Order Chat | Create one-time/recurring requests, review VND quotations, accept terms, and exchange Order Chat messages with the assigned Manager. |
+| M6 | FE-10, FE-14, FE-17, FE-24 | Mobile inspection detail & tracking | Lifecycle timeline, Inspection Chat with assigned Inspector, `Resolved` verdict expiry banner, and collapsible `DroneKnowledgeAI` matched-references strip. |
+| M7 | FE-18, FE-19 | Mobile official report viewer | Read-only view of the `PUBLISHED` inspection report, PDF export action, and pre-acceptance clarification / explicit report acceptance controls. |
+| M8 | FE-19, FE-20, FE-21 | Mobile settlement & Inspector rating | In-app `Sepay` VietQR dialog, `VNPay` deep-link checkout, downloadable Payment Notice / Receipt PDFs, and dynamic Inspector rating card. |
+| M9 | FE-12 | Mobile notifications | Bilingual in-app notification feed with unread badges, mark-all-as-read sync, and deep links to in-scope screens. |
+| M10 | FE-01 | Mobile profile & language settings | Account summary, English/Vietnamese language switch, dark/light theme preference, and sign-out. |
+
 ![Public landing page](assets/screens/public-landing.png)
 
 Figure 3.1 Public landing page.
@@ -373,6 +390,42 @@ Figure 3.41 Activity Diagram — `MF3` Self-Attested Permit, Field Execution & A
 ![MF4 Report, Finance and Reinspection Activity Diagram](assets/diagrams/act-mf4-report-finance-reinspection.png)
 
 Figure 3.42 Activity Diagram — `MF4` Report Publication, Payout, Settlement & Re-inspection.
+
+#### 3.1.7 Lifecycle State Transitions
+
+The table below consolidates the authoritative business states and permitted transitions across the platform's core operational, reporting, and financial lifecycles. Every transition is guarded by role, ownership, assignment, and precondition rules defined in §3.2–§3.25 and §5.1.
+
+| Lifecycle Entity | Canonical States | Permitted Transitions & Governing Gates |
+| --- | --- | --- |
+| **Service Request** (`FE-08`, `FE-09`) | `OPEN`, `QUOTED`, `ACCEPTED`, `CONTRACT_SIGNED`, `ASSIGNED`, `CANCELLED` | `OPEN -> QUOTED` when the claiming `MANAGER` issues a VND quotation; `QUOTED -> ACCEPTED` on owning `CUSTOMER` acceptance (locking terms and materializing occurrences); `ACCEPTED -> CONTRACT_SIGNED` when `MANAGER` uploads the executed offline agreement; `CONTRACT_SIGNED -> ASSIGNED` once planned occurrences are dispatched (reopens to `CONTRACT_SIGNED` if an unaccepted or withdrawn occurrence returns to unassigned); `OPEN / QUOTED -> CANCELLED` by assigned `MANAGER` before acceptance (`CONTRACT_SIGNED -> CANCELLED` if all contracted occurrences are cancelled). |
+| **Planned Occurrence** (`FE-09`, `FE-11`) | `PENDING_ASSIGNMENT`, `ASSIGNED`, `CANCELLED` | `PENDING_ASSIGNMENT -> ASSIGNED` when `MANAGER` dispatches an eligible Inspector and owned drone after signed agreement verification; `ASSIGNED -> PENDING_ASSIGNMENT` on assignment acceptance timeout (`FE-11`), Inspector pre-field withdrawal (`FE-09`), or Manager unassignment; `PENDING_ASSIGNMENT / ASSIGNED -> CANCELLED` on attributable Manager cancellation. |
+| **Inspection Occurrence** (`FE-13`–`FE-24`) | `SCHEDULED`, `IN_PROGRESS`, `FIELD_COMPLETED`, `UNDER_REVIEW`, `COMPLETED`, `CANCELLED` | `SCHEDULED -> IN_PROGRESS` on field session start (gated by effective self-attested permit, active credentials, and pre-flight checklist); `IN_PROGRESS -> FIELD_COMPLETED` on normal session completion (or `IN_PROGRESS -> SCHEDULED` on reasoned abort for Manager recovery); `FIELD_COMPLETED -> IN_PROGRESS` when opening an additional multi-day field sortie prior to findings confirmation; `FIELD_COMPLETED -> UNDER_REVIEW` when the assigned `INSPECTOR` confirms the findings baseline and explicitly submits a report; `UNDER_REVIEW -> FIELD_COMPLETED` if an independent `MANAGER` returns the report with reasons; `UNDER_REVIEW -> COMPLETED` on independent `MANAGER` publication; `SCHEDULED -> CANCELLED` on Manager cancellation. |
+| **Inspection Report Version** (`FE-18`, `FE-19`) | `SUBMITTED`, `RETURNED`, `APPROVED`, `PUBLISHED`, `SUPERSEDED` | `SUBMITTED -> RETURNED` when an independent non-author `MANAGER` rejects the submission with written review reasons; `SUBMITTED -> APPROVED` when an independent `MANAGER` approves the report (unlocking Partner Inspector payout eligibility); `APPROVED -> PUBLISHED` once the linked Partner Inspector payout is recorded as `PAID` (`FE-22`); `PUBLISHED -> SUPERSEDED` when a newer report version for the same occurrence is published (`BR-40`). |
+| **Customer Occurrence Payment** (`FE-19`–`FE-21`) | `PENDING`, `PAYMENT_DUE`, `PAID` | `PENDING -> PAYMENT_DUE` when the owning `CUSTOMER` accepts the `PUBLISHED` report (stamping the invoice due date); `PAYMENT_DUE -> PAID` only upon verified `Sepay` VietQR / `VNPay` gateway confirmation or an authorized `MANAGER` manual wire confirmation (`BR-45`). Overdue status triggers a single reminder without altering `PAYMENT_DUE` state or revoking report access. |
+| **Partner Inspector Payout** (`FE-22`, `FE-23`) | `PENDING`, `ELIGIBLE`, `PAID` | `PENDING -> ELIGIBLE` when an independent `MANAGER` approves the inspection report (`APPROVED`); `ELIGIBLE -> PAID` via verified `Sepay` VietQR outgoing disbursement or attributable `MANAGER` manual transfer recording (held automatically if an active pending refund or unreconciled historical refund exists). |
+| **Service Refund Record** (`FE-23`) | `INITIATED`, `COMPLETED`, `CANCELLED` | `INITIATED` reserves refundable balance and holds any unpaid payout (`BR-48`); `INITIATED -> COMPLETED` after offline external transfer with a globally unique reference and balanced five-part allocation (creating an Inspector receivable if the payout was already `PAID`, `BR-50`); `INITIATED -> CANCELLED` with a mandatory written reason only while no external transfer has occurred (`BR-49`). |
+
+#### 3.1.8 Key Validation and Operational Thresholds
+
+The table below lists the quantitative validation rules, capacity caps, and configurable policy defaults enforced across the system so testers and reviewers can trace acceptance checks directly to §3.2–§3.25.
+
+| Domain & Feature | Parameter / Rule | Required Bound / Default | Governing Policy & Verification Scope |
+| --- | --- | --- | --- |
+| **Account Lockout & Throttling** (`FE-01`) | Consecutive failed password attempts; sign-in burst limit | Lockout for `15` minutes after `5` failed attempts; block `> 10` sign-in requests/minute/IP | Prevents credential stuffing while allowing recovery after cooldown (`NFR-04`). |
+| **Building Ownership Notes** (`FE-06`) | Plain-text ownership description length | `<= 1,000` characters | Stored as plain text alongside building metadata; rejects excess length (`MSG03`). |
+| **Service Request Lead Time** (`FE-08`) | Earliest requested inspection start date | `>= 20` calendar days ahead (`Asia/Ho_Chi_Minh`) | Internal commercial preparation lead time (`BR-18`); non-statutory. |
+| **Recurring Schedule Bounds** (`FE-08`) | Monthly interval & occurrence count | Interval `1–120` months; `2–100` occurrences (month-end clamped) | Rejects single-occurrence recurring requests or intervals outside bounds (`BR-17`). |
+| **Contextual Chat Limits** (`FE-10`) | Message text & attachment payload | Body `<= 4,000` chars; `<= 5` files (`PNG/JPG/WEBP/PDF/DOCX`), `<= 10 MiB`/file, `<= 20 MiB` total | Enforced identically across Order Chat, Inspection Chat, and Partner Chat (`MSG34`). |
+| **Assignment Timeout** (`FE-11`) | Partner acceptance response deadline | Configurable `1–720` hours (default `24` hours) | Auto-cancels unaccepted dispatches and notifies owning `MANAGER` and `INSPECTOR`. |
+| **Mission Flight Permit** (`FE-13`) | File size, types & altitude ceiling | `<= 25 MB` (`PDF/PNG/JPG/WEBP`); optional max altitude `1–2,000 m` (mandatory & capped in restricted zones) | Effective immediately on self-attested validation; `MANAGER`/`ADMIN` read-only (`BR-23`, `BR-24`). |
+| **Field Safety Checklists** (`FE-14`) | Mandatory pre-flight & post-flight items | `8` pre-flight safety checks + note; `4` post-flight safety checks | Drone-agnostic checks required before session start and at field completion (`FE-14`). |
+| **Offline Flight Log Import** (`FE-14`) | Supported telemetry file size & formats | `<= 15 MB` (`SRT`, `CSV`, `KML`, `GPX`) | Absent sensor columns remain `unavailable`; rejects position-less files (`MSG45`, `BR-28`). |
+| **Photo & Video Evidence** (`FE-15`) | Upload limits, resizing & media tickets | Photos `<= 10 MB` (max `2,048 px`, `480 px` thumb); Video `<= 2 GiB` in `10 MiB` chunks (`1080p` transcode); `5-minute` signed playback ticket | Resumable upload with duplicate suffix numbering (`MSG17`, `BR-32`, `NFR-06`). |
+| **AI Detection & Retrieval** (`FE-16`, `FE-17`) | Auto-confirm threshold & reference caps | Default `70%` confidence threshold (Admin-configurable); up to `3` refs/finding, `4` refs/summary, `6` anonymized benchmark cases | Advisory only; manual findings never invent confidence scores (`BR-34`–`BR-36`, `BR-55`). |
+| **Compliance Expiry Alerts** (`FE-02`, `FE-03`, `FE-12`) | Pilot licence & drone registration warning tiers | Deduplicated notifications at `30`, `7`, `1`, and `0` days before expiry | Covers both in-app alerts and best-effort bilingual email notices (`BR-10`, `BR-13`). |
+| **Inspector Rating Window** (`FE-19`) | Score scale & post-submission edit window | Overall & Admin-configured criteria `1–5`; editable within `7` days of creation | Available once occurrence is `COMPLETED`; max 1 rating each for owning `CUSTOMER` & `MANAGER`. |
+| **Invoice Due & Platform Fee** (`FE-05`, `FE-21`) | Payment due window & commission rate | Due window default `15` days post-acceptance; platform commission `15%` | Single overdue reminder after due date; never revokes published report access (`FE-21`). |
+| **Re-inspection Verdict Validity** (`FE-24`) | `Resolved` outcome validity & warning lead | Valid for `90` days from verification (`14`-day early expiry warning on Web & Mobile) | Blocks report preparation, submission, or publication once any `Resolved` verdict expires. |
 
 ---
 
