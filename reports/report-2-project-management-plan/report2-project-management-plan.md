@@ -9,9 +9,19 @@ source_docx: report2-project-management-plan.docx
 
 | Date | A* / M, D | In charge | Change Description |
 | --- | --- | --- | --- |
-| 25 Nov 2026 | M | Team | Version 3.6: Synchronized the delivered database baseline (`53` application tables), aligned `FE-07` and `FE-13` names and `D5`/`D6` counts (`53` tables / `80` workbook rows) with Report 3 and Report 5, and replaced Figure 1 with the exported Draw.io `Agile Scrum Process` diagram. |
-| 26 Nov 2026 | M | Project Team | Aligned the delivery scope, work allocation, and milestone presentation with the final project report. |
-| 27 Nov 2026 | M | Project Team | Aligned management objectives, risk language, deliverables, and automated test totals with Report 5 and management-level phrasing. |
+| 08 Oct 2026 | A | Project Team | Initial Project Management Plan covering Agile Scrum process, WBS estimation, milestones, and team allocation. |
+| 27 Nov 2026 | M | Project Team | Final release update synchronizing 24-feature scope, deliverables, risks, and test milestones. |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
 
 *A - Added M - Modified D - Deleted
 

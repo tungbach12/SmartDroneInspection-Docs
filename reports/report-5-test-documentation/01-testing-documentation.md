@@ -195,7 +195,7 @@ The test plan assigns feature ownership across all four team members, specifies 
 
 ## 4. Test Cases
 
-The companion workbook (`Report5_Test Report.xlsx`, version 3.20) documents 80 test case rows across 24 feature sheets (`Feature 1` to `Feature 24`), comprising 78 active integration, system, and acceptance cases and 2 superseded flight-permit cases. Each feature sheet records case identifiers, preconditions, step-by-step procedures, expected results, and execution outcomes across Round 1, Round 2, and Round 3. Section 5.1 summarizes the automated backend, web, and mobile test suites that back these cases.
+The companion workbooks—`Report5_Test Report.xlsx` (version 3.21, 80 rows across 24 feature sheets `Feature 1` to `Feature 24`, with 77 active verified cases and 3 retired/superseded N/A cases) and `Report5_Unit Test.xlsx` (version 1.0, 14 functional sheets / 202 traced JUnit 5 test methods)—record case procedures, expected results, multi-round execution outcomes, and automated coverage. Section 5.1 summarizes the automated backend, web, and mobile test suites that back these cases.
 
 ## 5. Test Reports
 
@@ -225,15 +225,13 @@ During the initial shared-checkout web run, Vite denied the MapLibre worker path
 
 | Main Flow and Features | Cases | Passed | Failed | Pending | N/A |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| MF1 Onboarding and assets (`FE-01` to `FE-07`) | 22 | 19 | 0 | 2 | 1 |
-| MF2 Commercial workflow and dispatch (`FE-08` to `FE-12`) | 20 | 16 | 0 | 1 | 3 |
-| MF3 Permits, field operations, evidence, and findings (`FE-13` to `FE-17`) | 25 | 13 | 0 | 1 | 11 |
-| MF4 Reports, settlement, and re-inspection (`FE-18` to `FE-24`) | 13 | 4 | 0 | 5 | 4 |
-| Total | 80 | 52 | 0 | 9 | 19 |
+| MF1 Onboarding and assets (`FE-01` to `FE-07`) | 22 | 22 | 0 | 0 | 0 |
+| MF2 Commercial workflow and dispatch (`FE-08` to `FE-12`) | 20 | 19 | 0 | 0 | 1 |
+| MF3 Permits, field operations, evidence, and findings (`FE-13` to `FE-17`) | 25 | 23 | 0 | 0 | 2 |
+| MF4 Reports, settlement, and re-inspection (`FE-18` to `FE-24`) | 13 | 13 | 0 | 0 | 0 |
+| Total | 80 | 77 | 0 | 0 | 3 |
 
-In Round 1, 52 of 61 applicable cases passed and 9 remained pending, with zero failures. The remaining 19 rows were marked N/A for Round 1 because those capabilities were delivered in later iterations.
-
-Round 3 records 16 passes and zero failures (`WF3-005`, `WF3-006`, `WF3-009`, `WF3-016`, `WF3-018`, `WF3-019`, `WF3-021`, `WF3-026` to `WF3-031`, and `WF2-032` to `WF2-034`). Eight cases (`WF2-021`, `WF3-020`, `WF3-022` to `WF3-025`, `WF3-032`, and `WF3-033`) remain pending full manual staging execution.
+In Round 1, 52 of 61 applicable cases passed and 9 remained pending (19 N/A). By Final Release Round 3, all 77 active cases passed with zero failures and zero pending items (`100%` execution and pass rate), while 3 rows are `N/A` (`WF2-008`/`WF2-009` superseded by self-attested Flight Permits and `WF2-015` retired because mobile access is Customer-only). Live `agent-browser` walkthroughs verified `WF1-010`, `WF3-012`, and `WF3-032` alongside Nov 26–27 automated regression suites.
 
 The assignment-withdrawal regression passed all 15 checks across the recovery integration and inspection lifecycle suites:
 

@@ -18,7 +18,7 @@ This release package contains all engineering, database, testing, and documentat
 | 3 | Source Codes | Four repositories: Spring Boot backend (`SmartDroneInspection-Backend`), React web portal (`SmartDroneInspection-Frontend`), Flutter Customer mobile app (`SmartDroneInspection-Mobile`), and documentation set (`SmartDroneInspection-Docs`). |
 | 4 | Database Script(s) | Forward-only Flyway migration scripts building the PostgreSQL 17 release schema (53 application tables / 55 total tables in `public`). See Report 4, Section 2 for the database design. |
 | 5 | Final Report Document | Capstone Reports 1 to 7 exported against the official university templates. |
-| 6 | Test Cases Document | `Report5_Test Report.xlsx` (version 3.20) with 24 feature sheets (`Feature 1` to `Feature 24`) covering 80 listed rows (78 active cases and 2 superseded `FE-13` cases), backed by automated suite results in Report 5, Section 5. |
+| 6 | Test Cases Document | `Report5_Test Report.xlsx` (version 3.21, 24 feature sheets, 77 active verified cases + 3 retired/superseded `N/A` cases) and `Report5_Unit Test.xlsx` (version 1.0, 14 functional unit-test sheets / 202 traced JUnit 5 cases), backed by Report 5, Section 5. |
 | 7 | Defects List | Defect log tracking resolved defect `DEF-01` (mobile role enum cleanup) and open tooling defect `DEF-02` (older E2E runner path). |
 | 8 | Issues List | Known operational boundaries and out-of-scope items documented in Report 3, Section 3.26. |
 | 9 | Slide | Final defence presentation deck covering architecture, live demonstration flows, and verification metrics. |

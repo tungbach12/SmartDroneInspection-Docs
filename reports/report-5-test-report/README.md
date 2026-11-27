@@ -58,11 +58,11 @@ The `FE-01`–`FE-24` codes and their Report 3 sections are:
 | `FE-05` | `3.6` | Financial History & Revenue/Payment Ledger | Trần Hoàng Trung Hiếu (`SE184212`) | 1 |
 | `FE-06` | `3.7` | Building Asset Registry, Checkpoints & Reference Documents | Phùng Trung Quốc (`SE170027`) | 3 |
 | `FE-07` | `3.8` | Restricted Airspace Advisory Warning & Immediate Onboarding | Phùng Trung Quốc (`SE170027`) | 1 |
-| `FE-08` | `3.9` | Service Requests (One-Time & Recurring) & VND Quotations | Pham Trung Quoc (`SE170027`) | 6 |
-| `FE-09` | `3.10` | Offline Signed Contract & Occurrence Dispatch Scheduling | Pham Trung Quoc (`SE170027`) | 6 |
+| `FE-08` | `3.9` | Service Requests (One-Time & Recurring) & VND Quotations | Phùng Trung Quốc (`SE170027`) | 6 |
+| `FE-09` | `3.10` | Offline Signed Contract & Occurrence Dispatch Scheduling | Phùng Trung Quốc (`SE170027`) | 6 |
 | `FE-10` | `3.11` | Dual-Channel Messaging (Order Chat & Inspection Chat) | Phùng Trung Quốc (`SE170027`) | 2 |
 | `FE-11` | `3.12` | Assignment Acceptance Timeout & Escalation Handling | Phùng Trung Quốc (`SE170027`) | 1 |
-| `FE-12` | `3.13` | System Notifications & Alert Center | Pham Trung Quoc (`SE170027`) | 3 |
+| `FE-12` | `3.13` | System Notifications & Alert Center | Phùng Trung Quốc (`SE170027`) | 3 |
 | `FE-13` | `3.14` | Flight Permit Upload & Independent Verification Gate | Trần Tùng Bách (`SE180220`) | 2 |
 | `FE-14` | `3.15` | On-Site Field Session & SmartDroneHub MAVLink Telemetry | Trần Tùng Bách (`SE180220`) | 5 |
 | `FE-15` | `3.16` | Field Evidence Intake & Chunked Video Processing Pipeline | Trần Tùng Bách (`SE180220`) | 5 |

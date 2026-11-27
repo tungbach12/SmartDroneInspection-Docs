@@ -49,12 +49,12 @@ class CommonTests(unittest.TestCase):
                 build(REPORTS, OFFICIAL, output, {"report1"})
             self.assertFalse(output.exists())
 
-    def test_missing_source_is_not_exported_as_a_completed_report(self):
+    def test_unit_test_workbook_exports_via_build(self):
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / "output"
             result = build(REPORTS, OFFICIAL, output, {"report5-unit"})
-            self.assertEqual(result["artifacts"][0]["status"], "missing_source")
-            self.assertEqual([p.name for p in output.iterdir()], ["manifest.json"])
+            self.assertEqual(result["artifacts"][0]["status"], "generated")
+            self.assertTrue((output / "Report5_Unit Test.xlsx").is_file())
 
     def test_each_independent_exporter_runs_in_isolated_python(self):
         for name in ("report1", "report2", "report3", "report5", "report6", "report7", "weekly"):

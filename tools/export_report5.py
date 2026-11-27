@@ -121,6 +121,9 @@ def validate_cases(report_dir):
     round1_counts = Counter(
         row[5] for group in cases.values() for _, row, _ in group if row[5] in STATUS
     )
+    round3_counts = Counter(
+        row[11] for group in cases.values() for _, row, _ in group if row[11] in STATUS
+    )
     historical_round1_counts = Counter(
         row[5]
         for group in cases.values()
@@ -157,6 +160,17 @@ def validate_cases(report_dir):
     current_round1_expected = [round1_counts[s] for s in ("Passed", "Failed", "Pending", "N/A")] + [len(ids)]
     if current_round1_recorded != current_round1_expected:
         raise ValueError(f"Recorded current Round 1 statistics {current_round1_recorded} differ from source statuses {current_round1_expected}")
+    current_round3 = next(
+        (row for row in stats[1:] if plain(row[0]).lower().replace(" ", "") == "currentround3subtotal"),
+        None,
+    )
+    if current_round3 is not None:
+        current_round3_recorded = [int(plain(value)) for value in current_round3[2:]]
+        current_round3_expected = [round3_counts[s] for s in ("Passed", "Failed", "Pending", "N/A")] + [len(ids)]
+        if current_round3_recorded != current_round3_expected:
+            raise ValueError(
+                f"Recorded current Round 3 statistics {current_round3_recorded} differ from source statuses {current_round3_expected}"
+            )
     recorded = [int(plain(value)) for value in subtotal[2:]]
     expected = [historical_round1_counts[s] for s in ("Passed", "Failed", "Pending", "N/A")] + [len(ids) - len(POST_ROUND1_CASE_IDS)]
     if recorded != expected:
@@ -230,7 +244,8 @@ def export(template, reports, output):
     index_meta = key_values(report / "01-test-cases/test-case-list.md")
     history = find_table(report / "00-cover/record-of-changes.md", "Effective Date")
     version = re.match(r"\d+\.\d+", cover["Version"])[0]
-    date = history[-1][0]
+    non_empty_dates = [plain(r[0]) for r in history[1:] if plain(r[0])]
+    date = non_empty_dates[-1] if non_empty_dates else cover.get("Issue Date", "")
     book, warnings = Spreadsheet(template), []
     # The template ships two feature sheets; clone Feature 2 until every Report 3
     # feature has one. Clones keep the original column widths, merges, validations
@@ -257,12 +272,21 @@ def export(template, reports, output):
     for coord, value in {"D3": cover["Project Name"], "D4": cover["Project Code"],
                          "D5": index_meta.get("Test environment", "Not supplied")}.items():
         book.put("Test Cases", coord, value)
+        book.cell("Test Cases", coord).setAttribute("s", "42")
     proto = book.row_template("Test Cases", 9)
     book.clear_rows("Test Cases", 9)
     for row_no, row in enumerate(index[1:], 9):
         book.clone_row("Test Cases", row_no, proto)
         for col, value in enumerate(row, 2):
-            book.put("Test Cases", f"{chr(64 + col)}{row_no}", number(value))
+            coord = f"{chr(64 + col)}{row_no}"
+            if col == 4 and str(value).startswith("Feature "):
+                book.put("Test Cases", coord, value, f"HYPERLINK(\"#'{value}'!A1\",\"{value}\")")
+                book.cell("Test Cases", coord).setAttribute("t", "str")
+                book.cell("Test Cases", coord).setAttribute("s", "101")
+            else:
+                book.put("Test Cases", coord, number(value))
+                if col == 5:
+                    book.cell("Test Cases", coord).setAttribute("s", "21")
         book.fit_height("Test Cases", row_no, row, [6, 45, 16, 75, 60])
     book.dimensions("Test Cases", "F", len(index) + 7)
     summary_counts = {}
@@ -281,7 +305,10 @@ def export(template, reports, output):
                 current_fe = feature
             book.clone_row(sheet, row_no, proto_case)
             for col, value in enumerate(row, 1):
-                book.put(sheet, f"{chr(64 + col)}{row_no}", plain(value))
+                coord = f"{chr(64 + col)}{row_no}"
+                book.put(sheet, coord, plain(value))
+                if col in (2, 3, 4, 5):
+                    book.cell(sheet, coord).setAttribute("s", "42")
             if book.fit_height(sheet, row_no, row, [17, 34, 34, 34, 28, 9, 11, 7, 9, 11, 7, 9, 11, 7, 29]):
                 warnings.append(f"Case {row[0]} reaches Excel's row-height limit; review for clipping")
             row_no += 1
@@ -319,13 +346,19 @@ def export(template, reports, output):
                 else:
                     parts.append(part)
             validation.setAttribute("sqref", " ".join(parts))
-    for coord, value in {
+    reviewer = cover.get("Reviewer/Approver", "").strip()
+    header_cells = {
         "C3": cover["Project Name"], "C4": cover["Project Code"],
         "C5": cover.get("Document Code", "Not supplied"),
-        "G3": cover.get("Creator", "Not supplied"), "G4": "Not supplied in report sources",
-        "H5": date, "C6": stats_meta.get("Test round", "MF3-only executed slice"),
-    }.items():
+        "G3": cover.get("Creator", "Not supplied"), "G4": reviewer or "Not supplied in report sources",
+        "H5": date, "C6": stats_meta.get("Test round", "Final Release — Round 3 (All 24 modules)"),
+    }
+    for coord, value in header_cells.items():
         book.put("Test Statistics", coord, value)
+        if coord in ("C3", "C4", "C5", "C6"):
+            book.cell("Test Statistics", coord).setAttribute("s", "42")
+        elif coord in ("G3", "G4", "H5"):
+            book.cell("Test Statistics", coord).setAttribute("s", "56")
     # Test Statistics layout for N modules: header row 10, module rows,
     # current/historical Round 1 subtotals, Round 3 totals/subset, spacer, coverage.
     module_proto = book.row_template("Test Statistics", 12)
@@ -346,14 +379,14 @@ def export(template, reports, output):
     for offset, sheet in enumerate(FEATURE_SHEETS):
         stat_row = first_module_row + offset
         book.clone_row("Test Statistics", stat_row, module_proto)
-        counts = summary_counts[sheet][0]
+        counts = summary_counts[sheet][2]
         totals.update(counts)
         total_cases += len(cases[sheet])
         book.put("Test Statistics", f"B{stat_row}", offset + 1)
         book.put("Test Statistics", f"C{stat_row}", summaries[sheet]["B2"], f"'{sheet}'!B2")
         book.cell("Test Statistics", f"C{stat_row}").setAttribute("t", "str")
         for target_col, source_col, status in zip("DEFG", "BCDE", ("Passed", "Failed", "Pending", "N/A")):
-            book.put("Test Statistics", f"{target_col}{stat_row}", counts[status], f"'{sheet}'!{source_col}6")
+            book.put("Test Statistics", f"{target_col}{stat_row}", counts[status], f"'{sheet}'!{source_col}8")
         book.put("Test Statistics", f"H{stat_row}", len(cases[sheet]), f"'{sheet}'!B4")
     book.clone_row("Test Statistics", subtotal_row, subtotal_proto)
     book.put("Test Statistics", f"C{subtotal_row}", "Sub total")
@@ -378,9 +411,9 @@ def export(template, reports, output):
     book.clone_row("Test Statistics", success_row, success_proto)
     for column, status in zip("DEFG", ("Passed", "Failed", "Pending", "N/A")):
         book.put("Test Statistics", f"{column}{subtotal_row}", totals[status],
-                 f"SUM({column}9:{column}{last_module_row})")
+                 f"SUM({column}{first_module_row}:{column}{last_module_row})")
     book.put("Test Statistics", f"H{subtotal_row}", total_cases,
-             f"SUM(H9:H{last_module_row})")
+             f"SUM(H{first_module_row}:H{last_module_row})")
     denominator = total_cases - totals["N/A"]
     for row, label, numerator, formula in (
         (coverage_row, "Test coverage", totals["Passed"] + totals["Failed"],
@@ -404,7 +437,8 @@ def export(template, reports, output):
     audit = book.save(output, discard_stale_calculation_chain(book))
     unresolved = [key for key, value in cover.items() if "Enter " in value or "confirm with" in value]
     warnings.extend(f"Unresolved source metadata: {key}" for key in unresolved)
-    warnings.append("Reviewer/Approver has no source value; not invented")
+    if not reviewer:
+        warnings.append("Reviewer/Approver has no source value; not invented")
     return {**audit, "cases": total_cases, "round1": dict(totals),
             "case_ids": sorted(row[0] for group in cases.values() for _, row, _ in group),
             "warnings": warnings, "content_complete": True,

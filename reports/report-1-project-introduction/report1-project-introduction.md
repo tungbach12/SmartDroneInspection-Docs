@@ -9,9 +9,19 @@ source_docx: report1-project-introduction.docx
 
 | Date | A* / M, D | In charge | Change Description |
 | --- | --- | --- | --- |
-| 25 Nov 2026 | M | Team | Version 3.4: Synchronized `MF1`–`MF4` and `FE-01`–`FE-24` with the current release baseline: immediate restricted-airspace onboarding with permit advisory warnings (`FE-07`), Manager-only onboarding and report publication with Administrator read-only oversight, Inspector self-attested flight permits (`FE-13`), Sepay VietQR + VNPay checkout (`FE-20`), Step-3 Sepay VietQR partner payout gate (`FE-22`), multi-flight sessions (`FE-14`), Inspector ratings (`FE-19`), per-request checkpoints (`FE-08`), Partner Chat (`FE-10`), bilingual notifications/emails (`FE-12`), and replaced Figure 1 with the exported `End-to-End Operational Flow` diagram. |
-| 26 Nov 2026 | M | Project Team | Aligned the product introduction, limits, and feature descriptions with the release and refreshed the operational overview. |
-| 27 Nov 2026 | M | Project Team | Aligned product introduction, major features, and limitations with business-stakeholder language and resolved terminology inconsistencies. |
+| 05 Oct 2026 | A | Project Team | Initial Project Introduction covering problem context, scope, stakeholders, and product overview. |
+| 27 Nov 2026 | M | Project Team | Final release alignment covering MF1–MF4, four human roles, major features, and operational overview. |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
 
 *A - Added M - Modified D - Deleted
 

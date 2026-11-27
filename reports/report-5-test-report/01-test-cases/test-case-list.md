@@ -10,7 +10,7 @@ fixed: `No`, `Function Name`, `Sheet Name`, `Description`, `Pre-Condition`.
 | Project Name | SmartDroneInspection |
 | Project Code | GFA26SE139 |
 | Test environment | Cloud Staging (https://smartdroneinspection.duckdns.org) and local Docker/Testcontainers environment with PostgreSQL 17 (pgvector:pg17, Flyway V1–V4 and V60–V80, 53 application tables / 55 total tables), MinIO S3 Object Storage, FFmpeg/FFprobe media transcoding runtime, FastAPI Ultralytics YOLO11 (MBDD2025) + OpenAI-Compatible Vision Inference Fallback, SmartDroneHub Telemetry Service, Sepay VietQR & VNPay v2.1.0, Spring Boot 4.1.0 (Java 21), React 19.2.8, and Flutter 3.13.2. |
-| Baseline | Version 3.20 lists 80 cases across 24 features, with 78 active and two superseded FE-13 cases. Round 1 contains 52 Passed, 0 Failed, 9 Pending, and 19 N/A. |
+| Baseline | Version 3.21 lists 80 cases across 24 features, comprising 77 active verified cases and 3 retired/superseded N/A cases (`WF2-008`, `WF2-009`, `WF2-015`). Round 1 retains 52 Passed, 0 Failed, 9 Pending, 19 N/A; Final Release Round 3 has 77 Passed, 0 Failed, 0 Pending, 3 N/A. |
 
 ## Case index
 
