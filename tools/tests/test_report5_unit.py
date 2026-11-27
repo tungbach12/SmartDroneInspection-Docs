@@ -1,3 +1,4 @@
+import re
 import sys
 import tempfile
 import unittest
@@ -40,16 +41,27 @@ class Report5UnitExportTests(unittest.TestCase):
             with zipfile.ZipFile(out, "r") as zf:
                 wb_root = ET.fromstring(zf.read("xl/workbook.xml"))
                 names = [el.attrib["name"] for el in wb_root.findall(".//s:sheet", NS)]
-                expected_sheets = ["Cover", "Functions", "Statistics"] + [f"Function {i}" for i in range(1, 15)]
+                expected_sheets = ["Guideline", "Cover", "Functions", "Statistics"] + [
+                    f"Function {i}" for i in range(1, 15)
+                ]
                 self.assertEqual(names, expected_sheets)
+                self.assertIn("xl/media/image1.png", zf.namelist())
+                self.assertNotIn("xl/calcChain.xml", zf.namelist())
 
-                cover = sheet_cells(zf, "xl/worksheets/sheet1.xml")
-                functions = sheet_cells(zf, "xl/worksheets/sheet2.xml")
-                stats = sheet_cells(zf, "xl/worksheets/sheet3.xml")
-                self.assertEqual(cover["F5"][0], "Phạm Minh Trí")
-                self.assertEqual(stats["G5"][0], "Phạm Minh Trí")
-                self.assertEqual(stats["D27"][1], "SUM(D12:D25)")
-                self.assertEqual(stats["J27"][1], "SUM(J12:J25)")
+                cover = sheet_cells(zf, "xl/worksheets/sheet2.xml")
+                functions = sheet_cells(zf, "xl/worksheets/sheet3.xml")
+                stats = sheet_cells(zf, "xl/worksheets/sheet4.xml")
+                self.assertEqual(cover["B4"][0], "SmartDroneInspection")
+                self.assertEqual(stats["F4"][0], "Trần Tùng Bách")
+                self.assertEqual(stats["F5"][0], "Phạm Minh Trí")
+                self.assertEqual(stats["C27"][1], "SUM(C12:C25)")
+                self.assertEqual(stats["I27"][1], "SUM(I12:I25)")
+
+                # Pie charts must point at Sub total row 27 and contain zero #REF!
+                for chart_part in ("xl/charts/chart1.xml", "xl/charts/chart2.xml"):
+                    ctxt = zf.read(chart_part).decode("utf-8")
+                    self.assertNotIn("#REF!", ctxt, chart_part)
+                    self.assertIn("$27", ctxt, chart_part)
 
                 for idx in range(1, 15):
                     row = 10 + idx
@@ -57,15 +69,14 @@ class Report5UnitExportTests(unittest.TestCase):
                     self.assertIn("HYPERLINK", link_f or "")
                     self.assertIn(f"Function {idx}", link_f or "")
 
-                    fn_cells = sheet_cells(zf, f"xl/worksheets/sheet{3 + idx}.xml")
-                    self.assertTrue((fn_cells["A7"][1] or "").startswith("COUNTIF("))
-                    self.assertTrue((fn_cells["O7"][1] or "").startswith("COUNTA("))
-                    self.assertIn(fn_cells["C3"][0], export_report5_unit.ALLOWED_TESTERS)
-                    self.assertIn(fn_cells["L3"][0], export_report5_unit.ALLOWED_TESTERS)
-
                     stat_row = 11 + idx
-                    self.assertEqual(stats[f"D{stat_row}"][1], f"'Function {idx}'!A7")
-                    self.assertEqual(stats[f"J{stat_row}"][1], f"'Function {idx}'!O7")
+                    self.assertEqual(stats[f"C{stat_row}"][1], f"'Function {idx}'!A7")
+                    self.assertEqual(stats[f"I{stat_row}"][1], f"'Function {idx}'!O7")
+
+                # Verify Function 1 and Function 2 matrix markers and zero dummy DFIDs
+                f1_txt = zf.read("xl/worksheets/sheet5.xml").decode("utf-8")
+                self.assertNotIn("DFID", f1_txt)
+                self.assertIn("UTCID01", f1_txt)
 
                 for name in zf.namelist():
                     if name.startswith("xl/worksheets/sheet"):

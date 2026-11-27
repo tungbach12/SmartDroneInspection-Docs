@@ -32,7 +32,7 @@ class Report5Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             output = Path(temp) / TEMPLATE_NAME
             result = export(template, REPORTS, output)
-            self.assertEqual(result["cases"], 80)
+            self.assertEqual(result["cases"], 90)
             self.assertTrue(result["format_parts_preserved"])
             book, source = Spreadsheet(output), Spreadsheet(template)
             self.assertEqual(list(book.sheets)[:5],
@@ -79,15 +79,15 @@ class Report5Tests(unittest.TestCase):
                 self.assertEqual(book.value(sheet, f"L{row}"), "Passed")
             self.assertEqual(book.value("Feature 22", "A12"), "WF3-033")
             self.assertEqual(book.value("Test Statistics", "G4"), "Phạm Minh Trí")
-            self.assertEqual(book.value("Test Statistics", "H35"), "80")
-            self.assertEqual(book.value("Test Statistics", "D35"), "77")
+            self.assertEqual(book.value("Test Statistics", "H35"), "90")
+            self.assertEqual(book.value("Test Statistics", "D35"), "87")
             self.assertEqual(book.value("Test Statistics", "F35"), "0")
             self.assertEqual(book.value("Test Statistics", "G35"), "3")
             self.assertEqual(book.value("Test Statistics", "H36"), "56")
             self.assertEqual(book.value("Test Statistics", "D36"), "45")
             self.assertEqual(book.value("Test Statistics", "F36"), "8")
-            self.assertEqual(book.value("Test Statistics", "H37"), "77")
-            self.assertEqual(book.value("Test Statistics", "D37"), "77")
+            self.assertEqual(book.value("Test Statistics", "H37"), "87")
+            self.assertEqual(book.value("Test Statistics", "D37"), "87")
             self.assertEqual(book.value("Test Statistics", "C36"), "Historical Round 1")
             self.assertEqual(book.value("Test Statistics", "C37"), "Round 3 executed")
             self.assertEqual(book.value("Test Statistics", "C38"), "V29 Round 3")
@@ -104,8 +104,17 @@ class Report5Tests(unittest.TestCase):
             self.assertEqual(book.cell("Feature 15", "C13").getAttribute("s"), "42")
             self.assertEqual(book.cell("Feature 15", "A11").getAttribute("s"),
                              source.cell("Feature 2", "A11").getAttribute("s"))
+            self.assertEqual(book.cell("Test Cases", "C9").getAttribute("s"), "42")
             self.assertEqual(book.cell("Test Cases", "D9").getAttribute("s"), "101")
-            self.assertEqual(book.cell("Test Cases", "E9").getAttribute("s"), "21")
+            self.assertEqual(book.cell("Test Cases", "E9").getAttribute("s"), "42")
+            self.assertEqual(book.cell("Test Cases", "F9").getAttribute("s"), "42")
+            self.assertEqual(book.cell("Test Statistics", "C11").getAttribute("s"), "42")
+            cases, _, _, _ = validate_cases(REPORTS / "report-5-test-report")
+            for sheet_grp in cases.values():
+                for _, row, _ in sheet_grp:
+                    self.assertTrue(row[2].startswith("1. "), f"Missing step numbering in {row[0]}")
+                    self.assertNotRegex(row[2], r"(?<!^)(?<!<br>)\s+\d+\.\s+", f"Unsplit step in {row[0]}")
+                    self.assertLessEqual(len(row[14]), 140, f"Note too long on {row[0]}: {row[14]}")
             with ZipFile(template) as original_zip, ZipFile(output) as output_zip:
                 for part in ("xl/styles.xml", "xl/sharedStrings.xml", "xl/theme/theme1.xml"):
                     self.assertEqual(original_zip.read(part), output_zip.read(part), part)

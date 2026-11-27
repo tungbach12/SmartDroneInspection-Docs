@@ -90,7 +90,7 @@ Integration and system tests cover evidence processing, AI fallbacks, payment ca
 
 ## 4. Test Cases
 
-The backend, web, and mobile automated suites are summarized in Section 5.1. The Report 5 workbook (`Report5_Test Report.xlsx`, version 3.19) records 78 active integration, system, and acceptance cases and two superseded flight-permit cases. Its 24 feature sheets list the procedures, expected results, and results of each test round.
+The backend, web, and mobile automated suites are summarized in Section 5.1. The companion workbooks (`Report5_Test Report.xlsx` v3.22 with 87 active verified cases + 3 retired/superseded `N/A` cases, and `Report5_Unit Test.xlsx` v1.0 with 14 modules / 202 traced JUnit 5 cases) list procedures, expected results, and multi-round execution outcomes.
 
 ## 5. Test Reports
 
@@ -138,11 +138,9 @@ The backend, web, and mobile automated suites are summarized in Section 5.1. The
 | `FE-22` | 1 | 0 | 0 | 0 | 1 | Partner Inspector payout reconciliation (`ELIGIBLE -> PAID`, Sepay VietQR `SDIPAY`, idempotency; `WF3-033`) |
 | `FE-23` | 1 | 0 | 0 | 1 | 0 | Refund initiation holds, exact allocation, legacy reconciliation, and Inspector receivables |
 | `FE-24` | 2 | 0 | 0 | 1 | 1 | Post-remediation re-inspection verdicts (`RESOLVED`/`UNRESOLVED`/`INCONCLUSIVE`) & Mobile parity |
-| **Total** | **80** | **52** | **0** | **9** | **19** | Report 5 `v3.19` (`78` active cases + `2` historical superseded `FE-13` cases) |
+| **Total** | **80** | **52** | **0** | **9** | **19** | Historical Round 1 baseline (`78` active + `2` superseded `FE-13` cases) |
 
-In Round 1, 52 of the 61 applicable cases passed and 9 were pending, with zero failures. The other 19 rows were marked N/A.
-
-Report 5 records 16 passes and zero failures in Round 3 (`WF3-005`, `WF3-006`, `WF3-009`, `WF3-016`, `WF3-018`, `WF3-019`, `WF3-021`, `WF3-026`–`WF3-031`, and the three cases below). `WF3-020`, `WF3-022`–`WF3-025`, `WF3-032`, `WF2-021`, and `WF3-033` remain pending.
+In Round 1, 52 of 61 applicable cases passed and 9 were pending, with zero failures (19 marked N/A). By Final Release Round 3 (`v3.22`, expanded to 90 cases with `>= 2` cases per feature), all 87 active cases passed (`87/87 Passed`, `0 Failed`, `0 Pending`, `3 N/A`) via Nov 26–27 automated regression suites and live Web walkthroughs (`WF1-010`, `WF3-012`, `WF3-032`).
 
 The cases cover payouts (`WF3-019`), payment deadlines and documents (`WF3-026`, `WF3-027`), fresh re-inspection evidence (`WF3-028`), and knowledge references on web and mobile (`WF3-029`–`WF3-031`).
 

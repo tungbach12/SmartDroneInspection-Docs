@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-"""Export Report 5 Unit Test workbook from structured JSON backed by JUnit tests."""
+"""Export Report 5 Unit Test workbook following the official SEP490 .xls template."""
 from __future__ import annotations
 
 import json
+import re
 import sys
-import zipfile
 from pathlib import Path
-from xml.sax.saxutils import escape
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from export_common import run_single
+from report_ooxml import Spreadsheet, descendants
 
 TEMPLATE_NAME = "Report5_Unit Test.xls"
 OUTPUT_NAME = "Report5_Unit Test.xlsx"
+TEMPLATE_SHELL = Path(__file__).resolve().parent / "templates" / "Report5_Unit Test.template.xlsx"
 DATA_PATH = Path("report-5-unit-test/unit-test-data.json")
 SOURCES = [str(DATA_PATH)]
 ALLOWED_TESTERS = {
@@ -20,29 +24,6 @@ ALLOWED_TESTERS = {
     "Trần Tùng Bách",
     "Trương Thái Như",
 }
-
-# Predefined style indexes in _STYLES_XML below:
-S_DEFAULT = 0       # Tahoma 10 black
-S_TITLE = 1         # Tahoma 18 bold center
-S_LABEL = 2         # Tahoma 10 bold, band fill, border, left
-S_TEXT = 3          # Tahoma 10, white fill, border, left wrap
-S_CENTER = 4        # Tahoma 10, white fill, border, center wrap
-S_HEADER_NAVY = 5   # Tahoma 10 bold white on #000080, border, center
-S_HEADER_SLATE = 6  # Tahoma 10 bold white on #333399, border, center
-S_LINK = 7          # Tahoma 10 blue underline, white fill, border, center
-S_LINK_LEFT = 8     # Tahoma 10 blue underline, white fill, border, left
-S_SUBTOTAL = 9      # Tahoma 10 bold black on #D9E1F2, border, center
-S_SUBTOTAL_L = 10   # Tahoma 10 bold black on #D9E1F2, border, left
-S_PCT = 11          # Tahoma 10 bold black, border, right, 0.00
-S_SM_LABEL = 12     # Tahoma 9 bold black, band fill, border, left wrap
-S_SM_BAND_C = 13    # Tahoma 9 bold black, band fill, border, center wrap
-S_SM_TEXT = 14      # Tahoma 9 black, white fill, border, left wrap
-S_SM_CENTER = 15    # Tahoma 9 black, white fill, border, center wrap
-S_SM_HDR_NAVY = 16  # Tahoma 9 bold white on #000080, border, center
-S_SM_HDR_SLATE = 17 # Tahoma 9 bold white on #333399, border, center
-S_PASS = 18         # Tahoma 9 bold black on #E2EFDA, border, center
-S_FAIL = 19         # Tahoma 9 bold black on #FCE4D6, border, center
-S_BOLD_C = 20       # Tahoma 10 bold black, white fill, border, center
 
 
 def col_letter(idx: int) -> str:
@@ -88,204 +69,277 @@ def validate_data(data: dict) -> list[str]:
     return []
 
 
-class SheetBuilder:
-    def __init__(self, title: str):
-        self.title = title
-        self.cells: dict[tuple[int, int], tuple[object, int, str | None]] = {}
-        self.merges: list[str] = []
-        self.col_widths: dict[int, float] = {}
-        self.row_heights: dict[int, float] = {}
-
-    def put(self, row: int, col: int, value: object = None, style: int = S_TEXT, formula: str | None = None) -> None:
-        self.cells[(row, col)] = (value, style, formula)
-
-    def put_range_empty(self, r1: int, c1: int, r2: int, c2: int, style: int) -> None:
-        for r in range(r1, r2 + 1):
-            for c in range(c1, c2 + 1):
-                if (r, c) not in self.cells:
-                    self.cells[(r, c)] = (None, style, None)
-
-    def merge(self, r1: int, c1: int, r2: int, c2: int, style: int | None = None) -> None:
-        self.merges.append(f"{col_letter(c1)}{r1}:{col_letter(c2)}{r2}")
-        if style is not None:
-            self.put_range_empty(r1, c1, r2, c2, style)
-
-    def to_xml(self) -> str:
-        cols_xml = ""
-        if self.col_widths:
-            col_tags = "".join(
-                f'<col min="{c}" max="{c}" width="{w}" customWidth="1"/>'
-                for c, w in sorted(self.col_widths.items())
-            )
-            cols_xml = f"<cols>{col_tags}</cols>"
-
-        rows_by_no: dict[int, list[int]] = {}
-        for r, c in self.cells:
-            rows_by_no.setdefault(r, []).append(c)
-
-        row_parts: list[str] = []
-        for r in sorted(rows_by_no):
-            ht = f' ht="{self.row_heights[r]}" customHeight="1"' if r in self.row_heights else ""
-            c_parts: list[str] = []
-            for c in sorted(rows_by_no[r]):
-                val, style, formula = self.cells[(r, c)]
-                ref = f"{col_letter(c)}{r}"
-                if formula is not None:
-                    f_xml = f"<f>{escape(formula)}</f>"
-                    if isinstance(val, (int, float)) and not isinstance(val, bool):
-                        c_parts.append(f'<c r="{ref}" s="{style}">{f_xml}<v>{val}</v></c>')
-                    elif val is not None:
-                        c_parts.append(f'<c r="{ref}" t="str" s="{style}">{f_xml}<v>{escape(str(val))}</v></c>')
-                    else:
-                        c_parts.append(f'<c r="{ref}" s="{style}">{f_xml}</c>')
-                elif val is None:
-                    c_parts.append(f'<c r="{ref}" s="{style}"/>')
-                elif isinstance(val, (int, float)) and not isinstance(val, bool):
-                    c_parts.append(f'<c r="{ref}" s="{style}"><v>{val}</v></c>')
-                else:
-                    s_val = escape(str(val))
-                    c_parts.append(f'<c r="{ref}" t="inlineStr" s="{style}"><is><t xml:space="preserve">{s_val}</t></is></c>')
-            row_parts.append(f'<row r="{r}"{ht}>{"".join(c_parts)}</row>')
-
-        merges_xml = ""
-        if self.merges:
-            m_tags = "".join(f'<mergeCell ref="{m}"/>' for m in self.merges)
-            merges_xml = f'<mergeCells count="{len(self.merges)}">{m_tags}</mergeCells>'
-
-        return (
-            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
-            ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-            '<sheetViews><sheetView workbookViewId="0"/></sheetViews>'
-            '<sheetFormatPr defaultRowHeight="18"/>'
-            f"{cols_xml}<sheetData>{''.join(row_parts)}</sheetData>{merges_xml}"
-            "</worksheet>"
-        )
+def discard_calc_chain(book: Spreadsheet) -> None:
+    if "xl/calcChain.xml" in book.package.parts:
+        del book.package.parts["xl/calcChain.xml"]
+        rels = book.package.xml("xl/_rels/workbook.xml.rels")
+        for rel in list(descendants(rels, "Relationship")):
+            if rel.getAttribute("Target") == "calcChain.xml":
+                rel.parentNode.removeChild(rel)
+        book.package.set_xml("xl/_rels/workbook.xml.rels", rels)
+    workbook = book.package.xml("xl/workbook.xml")
+    for calc in descendants(workbook, "calcPr"):
+        calc.setAttribute("fullCalcOnLoad", "1")
+        calc.setAttribute("forceFullCalc", "1")
+    # Update _xlnm.Print_Area so Statistics prints rows 1..53 (including both Pie Charts)
+    # and Function sheets / Functions are never cropped by sample template ranges.
+    sheet_names = list(book.sheets.keys())
+    stats_sid = str(sheet_names.index("Statistics")) if "Statistics" in sheet_names else None
+    fns_sid = str(sheet_names.index("Functions")) if "Functions" in sheet_names else None
+    for dn in list(descendants(workbook, "definedName")):
+        name = dn.getAttribute("name")
+        val = "".join(t.data for t in dn.childNodes if getattr(t, "data", None))
+        lsid = dn.getAttribute("localSheetId")
+        if "[1]Function3" in val or "#REF!" in val or ".wvu." in name:
+            dn.parentNode.removeChild(dn)
+        elif name == "_xlnm.Print_Area":
+            if lsid == stats_sid:
+                for ch in list(dn.childNodes):
+                    dn.removeChild(ch)
+                dn.appendChild(workbook.createTextNode("Statistics!$A$1:$I$53"))
+            elif lsid == fns_sid:
+                for ch in list(dn.childNodes):
+                    dn.removeChild(ch)
+                dn.appendChild(workbook.createTextNode("Functions!$A$1:$H$30"))
+            elif lsid not in ("0", "1") and lsid != stats_sid and lsid != fns_sid:
+                dn.parentNode.removeChild(dn)
+    book.package.set_xml("xl/workbook.xml", workbook)
 
 
-def build_cover(data: dict) -> SheetBuilder:
-    ws = SheetBuilder("Cover")
-    cover = data["cover"]
-    ws.put(2, 2, "UNIT TEST DOCUMENT", S_TITLE)
-    ws.merge(2, 2, 2, 6)
-    ws.row_heights[2] = 34
+def strip_sheet_comments(book: Spreadsheet, sheet_name: str) -> None:
+    """Remove sticky comments / VML drawings inherited from sample sheets."""
+    sheet = book.sheet(sheet_name)
+    for node in list(descendants(sheet, "legacyDrawing")):
+        node.parentNode.removeChild(node)
+    part_path = book.sheets[sheet_name][0]
+    rels_path = part_path.replace("xl/worksheets/", "xl/worksheets/_rels/") + ".rels"
+    if rels_path in book.package.parts:
+        rels = book.package.xml(rels_path)
+        removed_any = False
+        for rel in list(descendants(rels, "Relationship")):
+            rtype = rel.getAttribute("Type")
+            if rtype.endswith("/comments") or rtype.endswith("/vmlDrawing"):
+                rel.parentNode.removeChild(rel)
+                removed_any = True
+        if removed_any:
+            if not descendants(rels, "Relationship"):
+                del book.package.parts[rels_path]
+            else:
+                book.package.set_xml(rels_path, rels)
 
-    meta_rows = [
-        (4, "Project Name", cover["project_name"], None, "Creator", cover["creator"]),
-        (5, "Project Code", cover["project_code"], None, "Reviewer/Approver", cover["reviewer_approver"]),
-        (6, "Document Code", cover["document_code"], 'B5&"_Unit Test_v"&F7', "Issue Date", cover["issue_date"]),
-        (7, "Notes", cover["notes"], None, "Version", cover["version"]),
-    ]
-    for r, l1, v1, f1, l2, v2 in meta_rows:
-        ws.put(r, 1, l1, S_LABEL)
-        ws.put(r, 2, v1, S_TEXT, f1)
-        ws.merge(r, 2, r, 4, S_TEXT)
-        ws.put(r, 5, l2, S_LABEL)
-        ws.put(r, 6, v2, S_TEXT)
-        ws.row_heights[r] = 42 if r == 7 else 22
 
-    ws.put(9, 1, "Record of change", S_DEFAULT)
-    headers = ["Effective Date", "Version", "Change Item", "*A,D,M", "Change description", "Reference"]
-    for idx, label in enumerate(headers, 1):
-        ws.put(10, idx, label, S_HEADER_NAVY)
-    ws.row_heights[10] = 24
+def set_row_height(book: Spreadsheet, sheet_name: str, row_no: int, height: float) -> None:
+    target = str(row_no)
+    for row in descendants(book.sheet(sheet_name), "row"):
+        if row.getAttribute("r") == target:
+            row.setAttribute("ht", str(height))
+            row.setAttribute("customHeight", "1")
+            return
+
+
+def set_fit_to_page(book: Spreadsheet, sheet_name: str, width: int = 1, height: int = 0) -> None:
+    """Scale worksheet columns cleanly onto landscape/portrait page width without clipping."""
+    sheet = book.sheet(sheet_name)
+    root = sheet.documentElement
+    ns = root.namespaceURI
+    spr_list = [n for n in root.childNodes if getattr(n, "localName", None) == "sheetPr"]
+    if spr_list:
+        spr = spr_list[0]
+    else:
+        spr = sheet.createElementNS(ns, "sheetPr")
+        root.insertBefore(spr, root.firstChild)
+    psp_list = [n for n in spr.childNodes if getattr(n, "localName", None) == "pageSetUpPr"]
+    psp = psp_list[0] if psp_list else sheet.createElementNS(ns, "pageSetUpPr")
+    if not psp_list:
+        spr.appendChild(psp)
+    psp.setAttribute("fitToPage", "1")
+    for ps in descendants(sheet, "pageSetup"):
+        ps.setAttribute("fitToWidth", str(width))
+        ps.setAttribute("fitToHeight", str(height))
+        if ps.hasAttribute("scale"):
+            ps.removeAttribute("scale")
+
+
+def set_col_widths(book: Spreadsheet, sheet_name: str, widths: dict[int, float]) -> None:
+    sheet = book.sheet(sheet_name)
+    cols_nodes = [n for n in sheet.documentElement.childNodes if getattr(n, "localName", None) == "cols"]
+    if not cols_nodes:
+        return
+    cols_el = cols_nodes[0]
+    doc = sheet
+    ns = cols_el.namespaceURI
+    new_specs = []
+    for node in list(cols_el.childNodes):
+        if getattr(node, "localName", None) != "col":
+            continue
+        cmin = int(node.getAttribute("min"))
+        cmax = int(node.getAttribute("max"))
+        attrs = {node.attributes.item(i).name: node.attributes.item(i).value for i in range(node.attributes.length)}
+        cuts = sorted(c for c in widths if cmin <= c <= cmax)
+        if not cuts:
+            new_specs.append(attrs)
+        else:
+            cur = cmin
+            for c in cuts:
+                if cur < c:
+                    new_specs.append(dict(attrs, min=str(cur), max=str(c - 1)))
+                new_specs.append(dict(attrs, min=str(c), max=str(c), width=str(widths[c]), customWidth="1"))
+                cur = c + 1
+            if cur <= cmax:
+                new_specs.append(dict(attrs, min=str(cur), max=str(cmax)))
+        cols_el.removeChild(node)
+    for spec in new_specs:
+        el = doc.createElementNS(ns, "col")
+        for k, v in spec.items():
+            el.setAttribute(k, v)
+        cols_el.appendChild(el)
+
+
+def ensure_cols_up_to(book: Spreadsheet, sheet_name: str, max_col: int, width: float = 4.2) -> None:
+    """Ensure UTCID matrix columns F..max_col exist with compact uniform width."""
+    sheet = book.sheet(sheet_name)
+    cols_nodes = [n for n in sheet.documentElement.childNodes if getattr(n, "localName", None) == "cols"]
+    if not cols_nodes:
+        return
+    cols_el = cols_nodes[0]
+    doc = sheet
+    ns = cols_el.namespaceURI
+    widths = {col_idx: width for col_idx in range(6, max_col + 1)}
+    set_col_widths(book, sheet_name, widths)
+    # Check highest defined column in <cols>; extend if < max_col
+    highest = 0
+    for node in descendants(cols_el, "col"):
+        highest = max(highest, int(node.getAttribute("max")))
+    if highest < max_col:
+        el = doc.createElementNS(ns, "col")
+        el.setAttribute("min", str(highest + 1))
+        el.setAttribute("max", str(max_col))
+        el.setAttribute("width", str(width))
+        el.setAttribute("customWidth", "1")
+        cols_el.appendChild(el)
+
+
+def extend_top_merges(book: Spreadsheet, sheet_name: str, right_col_idx: int) -> None:
+    """Extend Function N header/counter merges from col T to right_col_idx when cases > 15."""
+    if right_col_idx <= 20:
+        return
+    right_letter = col_letter(right_col_idx)
+    sheet = book.sheet(sheet_name)
+    for mc in descendants(sheet, "mergeCell"):
+        ref = mc.getAttribute("ref")
+        if ":T" in ref:
+            mc.setAttribute("ref", re.sub(r":T(\d+)$", f":{right_letter}\\1", ref))
+
+
+def ensure_cell_with_style(book: Spreadsheet, sheet_name: str, coord: str, template_coord: str) -> None:
+    """Create cell if missing and copy style attribute from template_coord."""
+    c = book.cell(sheet_name, coord)
+    src = book.cell(sheet_name, template_coord)
+    if src.hasAttribute("s"):
+        c.setAttribute("s", src.getAttribute("s"))
+
+
+def populate_cover(book: Spreadsheet, cover: dict) -> None:
+    set_fit_to_page(book, "Cover", width=1, height=1)
+    set_col_widths(book, "Cover", {3: 22, 5: 46, 6: 56})
+    book.put("Cover", "B4", cover["project_name"])
+    book.put("Cover", "B5", cover["project_code"])
+    book.put("Cover", "B6", cover["document_code"], 'B5&"_Unit Test_v"&F6')
+    book.cell("Cover", "B6").setAttribute("t", "str")
+    book.put("Cover", "F4", cover["creator"])
+    book.put("Cover", "F5", cover["issue_date"])
+    book.put("Cover", "F6", cover["version"])
 
     changelog = cover.get("changelog", [])
-    for idx in range(5):
+    for idx in range(7):
         row_no = 11 + idx
         if idx < len(changelog):
             entry = changelog[idx]
             vals = [entry["date"], entry["version"], entry["item"], entry["action"], entry["description"], entry["reference"]]
+            for col_i, val in enumerate(vals, 1):
+                book.put("Cover", f"{col_letter(col_i)}{row_no}", val)
+                if col_i in (3, 5, 6):
+                    book.cell("Cover", f"{col_letter(col_i)}{row_no}").setAttribute("s", "163")
+            book.fit_height("Cover", row_no, vals, [18, 9, 20, 7, 44, 52])
         else:
-            vals = ["", "", "", "", "", ""]
-        for col, val in enumerate(vals, 1):
-            ws.put(row_no, col, val, S_CENTER if col in (1, 2, 4) else S_TEXT)
-        ws.row_heights[row_no] = 36 if idx < len(changelog) else 20
-
-    for col, w in enumerate([18, 18, 22, 12, 48, 26], 1):
-        ws.col_widths[col] = w
-    return ws
+            for col_i in range(1, 7):
+                book.put("Cover", f"{col_letter(col_i)}{row_no}", "")
 
 
-def build_functions(data: dict) -> SheetBuilder:
-    ws = SheetBuilder("Functions")
+def populate_functions(book: Spreadsheet, data: dict) -> None:
+    set_fit_to_page(book, "Functions", width=1, height=0)
     cover = data["cover"]
-    ws.put(2, 1, "Function List", S_TITLE)
-    ws.merge(2, 1, 2, 8)
-    ws.row_heights[2] = 32
-
     env_text = "\n".join(f"{i}. {line}" for i, line in enumerate(cover.get("environment", []), 1))
-    info_rows = [
-        (4, "Project Name", cover["project_name"], "Cover!B4", 22),
-        (5, "Project Code", cover["project_code"], "Cover!B5", 22),
-        (6, "Normal number of Test cases/KLOC", cover.get("normal_tcs_per_kloc", 15), None, 22),
-        (7, "Test Environment Setup Description", env_text, None, 54),
-    ]
-    for r, label, val, formula, height in info_rows:
-        ws.put(r, 1, label, S_LABEL)
-        ws.merge(r, 1, r, 4, S_LABEL)
-        ws.put(r, 5, val, S_TEXT, formula)
-        ws.merge(r, 5, r, 8, S_TEXT)
-        ws.row_heights[r] = height
+    book.put("Functions", "E4", cover["project_name"], "Cover!B4")
+    book.cell("Functions", "E4").setAttribute("t", "str")
+    book.put("Functions", "E5", cover["project_code"], "Cover!B5")
+    book.cell("Functions", "E5").setAttribute("t", "str")
+    book.put("Functions", "E6", int(cover.get("normal_tcs_per_kloc", 15)))
+    book.put("Functions", "E7", env_text)
+    book.cell("Functions", "E7").setAttribute("s", "53")
+    book.fit_height("Functions", 7, [env_text], [95])
 
-    headers = ["No", "Requirement Name", "Class Name", "Function Name", "Function Code", "Sheet Name", "Description", "Pre-Condition"]
-    for col, title in enumerate(headers, 1):
-        ws.put(10, col, title, S_HEADER_SLATE)
-    ws.row_heights[10] = 26
+    set_col_widths(book, "Functions", {1: 5, 2: 26, 3: 32, 4: 34, 5: 13, 6: 12, 7: 42, 8: 34})
 
-    for r_idx, fn in enumerate(data["functions"], 11):
+    proto = book.row_template("Functions", 11)
+    book.clear_rows("Functions", 11)
+    for idx, fn in enumerate(data["functions"]):
+        r_no = 11 + idx
         sheet = fn["sheet_name"]
-        ws.put(r_idx, 1, fn["no"], S_CENTER)
-        ws.put(r_idx, 2, fn["requirement_name"], S_TEXT)
-        ws.put(r_idx, 3, fn["class_name"], S_TEXT)
-        ws.put(r_idx, 4, fn["function_name"], S_TEXT)
-        ws.put(r_idx, 5, fn["code"], S_CENTER)
-        ws.put(r_idx, 6, sheet, S_LINK, f'HYPERLINK("#\'{sheet}\'!A1","{sheet}")')
-        ws.put(r_idx, 7, fn["description"], S_TEXT)
-        ws.put(r_idx, 8, fn["precondition"], S_TEXT)
-        ws.row_heights[r_idx] = 40
+        book.clone_row("Functions", r_no, proto)
+        vals = [
+            fn["no"],
+            fn["requirement_name"],
+            fn["class_name"],
+            fn["function_name"],
+            fn["code"],
+            sheet,
+            fn["description"],
+            fn["precondition"],
+        ]
+        for col_i, val in enumerate(vals, 1):
+            coord = f"{col_letter(col_i)}{r_no}"
+            if col_i == 6:
+                book.put("Functions", coord, sheet, f'HYPERLINK("#\'{sheet}\'!A1","{sheet}")')
+                book.cell("Functions", coord).setAttribute("t", "str")
+                book.cell("Functions", coord).setAttribute("s", "54")
+            else:
+                book.put("Functions", coord, val)
+                if col_i in (2, 3, 4, 5, 7, 8):
+                    book.cell("Functions", coord).setAttribute("s", "53")
+        book.fit_height("Functions", r_no, [str(v) for v in vals], [5, 24, 29, 24, 11, 11, 38, 31])
+    book.dimensions("Functions", "H", 10 + len(data["functions"]))
 
-    for col, w in enumerate([6, 30, 34, 30, 14, 14, 42, 34], 1):
-        ws.col_widths[col] = w
-    return ws
 
-
-def build_statistics(data: dict) -> SheetBuilder:
-    ws = SheetBuilder("Statistics")
+def populate_statistics(book: Spreadsheet, data: dict) -> dict:
+    set_fit_to_page(book, "Statistics", width=1, height=1)
     cover = data["cover"]
-    ws.put(2, 2, "UNIT TEST REPORT", S_TITLE)
-    ws.merge(2, 2, 2, 10)
-    ws.row_heights[2] = 32
+    book.put("Statistics", "B4", cover["project_name"], "Cover!B4")
+    book.cell("Statistics", "B4").setAttribute("t", "str")
+    book.put("Statistics", "B5", cover["project_code"], "Cover!B5")
+    book.cell("Statistics", "B5").setAttribute("t", "str")
+    book.put("Statistics", "B6", cover["document_code"], 'B5&"_Unit Test_v"&Cover!F6')
+    book.cell("Statistics", "B6").setAttribute("t", "str")
+    book.put("Statistics", "B7", cover["notes"])
+    book.cell("Statistics", "B7").setAttribute("s", "41")
+    book.fit_height("Statistics", 7, [cover["notes"]], [85])
+    book.put("Statistics", "F4", cover["creator"])
+    book.put("Statistics", "F5", cover["reviewer_approver"])
+    book.put("Statistics", "F6", cover["issue_date"])
 
-    meta = [
-        (4, "Project Name", cover["project_name"], "Cover!B4", "Creator", cover["creator"]),
-        (5, "Project Code", cover["project_code"], "Cover!B5", "Reviewer/Approver", cover["reviewer_approver"]),
-        (6, "Document Code", cover["document_code"], 'C5&"_Unit Test_v"&Cover!F7', "Issue Date", cover["issue_date"]),
-    ]
-    for r, l1, v1, f1, l2, v2 in meta:
-        ws.put(r, 2, l1, S_LABEL)
-        ws.put(r, 3, v1, S_TEXT, f1)
-        ws.merge(r, 3, r, 4, S_TEXT)
-        ws.put(r, 5, l2, S_LABEL)
-        ws.merge(r, 5, r, 6, S_LABEL)
-        ws.put(r, 7, v2, S_TEXT)
-        ws.merge(r, 7, r, 10, S_TEXT)
-        ws.row_heights[r] = 22
+    set_col_widths(book, "Statistics", {1: 16, 2: 26, 3: 11, 4: 10, 5: 11, 6: 8, 7: 8, 8: 8, 9: 18, 10: 9})
 
-    ws.put(7, 2, "Notes", S_LABEL)
-    ws.put(7, 3, cover["notes"], S_TEXT)
-    ws.merge(7, 3, 7, 10, S_TEXT)
-    ws.row_heights[7] = 38
-
-    headers = ["No", "Function code", "Passed", "Failed", "Untested", "N", "A", "B", "Total Test Cases"]
-    for col, title in enumerate(headers, 2):
-        ws.put(11, col, title, S_HEADER_NAVY)
-    ws.row_heights[11] = 24
+    proto_mod = book.row_template("Statistics", 12)
+    proto_sub = book.row_template("Statistics", 17)
+    proto_spc = book.row_template("Statistics", 18)
+    proto_pct1 = book.row_template("Statistics", 19)
+    proto_pct2 = book.row_template("Statistics", 21)
+    book.clear_rows("Statistics", 12)
 
     first_row = 12
     tot = {"P": 0, "F": 0, "U": 0, "N": 0, "A": 0, "B": 0, "total": 0}
     for offset, fn in enumerate(data["functions"]):
-        r = first_row + offset
+        r_no = first_row + offset
         sheet = fn["sheet_name"]
         cases = fn["cases"]
         p = sum(1 for c in cases if c["result"] == "P")
@@ -298,53 +352,86 @@ def build_statistics(data: dict) -> SheetBuilder:
         for k, v in (("P", p), ("F", f), ("U", u), ("N", n), ("A", a), ("B", b), ("total", total)):
             tot[k] += v
 
-        ws.put(r, 2, fn["no"], S_CENTER)
-        ws.put(r, 3, sheet, S_LINK_LEFT, f'HYPERLINK("#\'{sheet}\'!A1","{sheet}")')
-        ws.put(r, 4, p, S_CENTER, f"'{sheet}'!A7")
-        ws.put(r, 5, f, S_CENTER, f"'{sheet}'!C7")
-        ws.put(r, 6, u, S_CENTER, f"'{sheet}'!F7")
-        ws.put(r, 7, n, S_CENTER, f"'{sheet}'!L7")
-        ws.put(r, 8, a, S_CENTER, f"'{sheet}'!M7")
-        ws.put(r, 9, b, S_CENTER, f"'{sheet}'!N7")
-        ws.put(r, 10, total, S_CENTER, f"'{sheet}'!O7")
-        ws.row_heights[r] = 20
+        book.clone_row("Statistics", r_no, proto_mod)
+        book.put("Statistics", f"A{r_no}", fn["no"])
+        book.put("Statistics", f"B{r_no}", f"{fn['code']} ({sheet})", f'HYPERLINK("#\'{sheet}\'!A1","{sheet}")')
+        book.cell("Statistics", f"B{r_no}").setAttribute("t", "str")
+        book.put("Statistics", f"C{r_no}", p, f"'{sheet}'!A7")
+        book.put("Statistics", f"D{r_no}", f, f"'{sheet}'!C7")
+        book.put("Statistics", f"E{r_no}", u, f"'{sheet}'!F7")
+        book.put("Statistics", f"F{r_no}", n, f"'{sheet}'!L7")
+        book.put("Statistics", f"G{r_no}", a, f"'{sheet}'!M7")
+        book.put("Statistics", f"H{r_no}", b, f"'{sheet}'!N7")
+        book.put("Statistics", f"I{r_no}", total, f"'{sheet}'!O7")
 
     last_row = first_row + len(data["functions"]) - 1
-    sub_row = last_row + 2
-    ws.put(sub_row, 2, "", S_SUBTOTAL)
-    ws.put(sub_row, 3, "Sub total", S_SUBTOTAL_L)
-    for col_idx, val in zip(range(4, 11), (tot["P"], tot["F"], tot["U"], tot["N"], tot["A"], tot["B"], tot["total"])):
-        cl = col_letter(col_idx)
-        ws.put(sub_row, col_idx, val, S_SUBTOTAL, f"SUM({cl}{first_row}:{cl}{last_row})")
-    ws.row_heights[sub_row] = 22
+    sub_row = last_row + 2  # row 27 for 14 functions
+    book.clone_row("Statistics", sub_row - 1, proto_spc)
+    book.clone_row("Statistics", sub_row, proto_sub)
+    book.put("Statistics", f"B{sub_row}", "Sub total")
+    for col_l, val in zip("CDEFGHI", (tot["P"], tot["F"], tot["U"], tot["N"], tot["A"], tot["B"], tot["total"])):
+        book.put("Statistics", f"{col_l}{sub_row}", val, f"SUM({col_l}{first_row}:{col_l}{last_row})")
 
+    book.clone_row("Statistics", sub_row + 1, proto_spc)
     metrics = [
-        ("Test coverage", round((tot["P"] + tot["F"]) * 100.0 / tot["total"], 2), f"=(D{sub_row}+E{sub_row})*100/J{sub_row}".lstrip("=")),
-        ("Test successful coverage", round(tot["P"] * 100.0 / tot["total"], 2), f"D{sub_row}*100/J{sub_row}"),
-        ("Normal case", round(tot["N"] * 100.0 / tot["total"], 2), f"G{sub_row}*100/J{sub_row}"),
-        ("Abnormal case", round(tot["A"] * 100.0 / tot["total"], 2), f"H{sub_row}*100/J{sub_row}"),
-        ("Boundary case", round(tot["B"] * 100.0 / tot["total"], 2), f"I{sub_row}*100/J{sub_row}"),
+        ("Test coverage", round((tot["P"] + tot["F"]) * 100.0 / tot["total"], 2), f"(C{sub_row}+D{sub_row})*100/I{sub_row}", proto_pct1),
+        ("Test successful coverage", round(tot["P"] * 100.0 / tot["total"], 2), f"C{sub_row}*100/I{sub_row}", proto_pct1),
+        ("Normal case", round(tot["N"] * 100.0 / tot["total"], 2), f"F{sub_row}*100/I{sub_row}", proto_pct2),
+        ("Abnormal case", round(tot["A"] * 100.0 / tot["total"], 2), f"G{sub_row}*100/I{sub_row}", proto_pct2),
+        ("Boundary case", round(tot["B"] * 100.0 / tot["total"], 2), f"H{sub_row}*100/I{sub_row}", proto_pct2),
     ]
-    for offset, (label, val, formula) in enumerate(metrics, sub_row + 2):
-        ws.put(offset, 3, label, S_LABEL)
-        ws.merge(offset, 3, offset, 4, S_LABEL)
-        ws.put(offset, 5, val, S_PCT, formula)
-        ws.put(offset, 6, "%", S_CENTER)
-        ws.row_heights[offset] = 20
+    for offset, (label, val, formula, proto_row) in enumerate(metrics, sub_row + 2):
+        book.clone_row("Statistics", offset, proto_row)
+        book.put("Statistics", f"B{offset}", label)
+        book.put("Statistics", f"D{offset}", val, formula)
+        book.put("Statistics", f"E{offset}", "%")
+    book.dimensions("Statistics", "I", sub_row + 6)
 
-    for col, w in enumerate([4, 14, 18, 12, 12, 12, 10, 10, 10, 18], 1):
-        ws.col_widths[col] = w
-    return ws
+    # Shift the two Pie Chart anchors below row 33 so they never overlap rows 24..33
+    drawing_path = "xl/drawings/drawing2.xml"
+    if drawing_path in book.package.parts:
+        txt = book.package.parts[drawing_path].decode("utf-8")
+        txt = txt.replace("<xdr:row>24</xdr:row>", "<xdr:row>35</xdr:row>")
+        txt = txt.replace("<xdr:row>39</xdr:row>", "<xdr:row>51</xdr:row>")
+        book.package.parts[drawing_path] = txt.encode("utf-8")
+
+    # Point Pie Charts at sub_row (27) and strip template #REF! caches
+    for chart_path, old_ref, new_ref, new_vals in (
+        ("xl/charts/chart2.xml", "Statistics!$C$17:$E$17", f"Statistics!$C${sub_row}:$E${sub_row}", (tot["P"], tot["F"], tot["U"])),
+        ("xl/charts/chart1.xml", "Statistics!$F$17:$H$17", f"Statistics!$F${sub_row}:$H${sub_row}", (tot["N"], tot["A"], tot["B"])),
+    ):
+        if chart_path in book.package.parts:
+            ctxt = book.package.parts[chart_path].decode("utf-8")
+            ctxt = ctxt.replace(old_ref, new_ref)
+            ctxt = ctxt.replace("Statistics!$C$16:$E$16", f"Statistics!$C${sub_row - 1}:$E${sub_row - 1}")
+            ctxt = ctxt.replace("Statistics!$F$16:$H$16", f"Statistics!$F${sub_row - 1}:$H${sub_row - 1}")
+            ctxt = ctxt.replace("Statistics!#REF!", new_ref)
+            ctxt = ctxt.replace('<c:numFmt formatCode="0%" sourceLinked="0"/>', '<c:numFmt formatCode="0%;;&quot;&quot;" sourceLinked="0"/>')
+            ctxt = ctxt.replace('<c:showCatName val="1"/>', '<c:showCatName val="0"/>')
+            # Refresh the cached pt idx=0..2 numbers cleanly
+            for idx_v, num_v in enumerate(new_vals):
+                ctxt = re.sub(
+                    rf'(<c:pt idx="{idx_v}"><c:v>)\d+(?:\.\d+)?(</c:v></c:pt>)',
+                    rf"\g<1>{num_v}\g<2>",
+                    ctxt,
+                )
+            book.package.parts[chart_path] = ctxt.encode("utf-8")
+    return tot
 
 
-def build_function_sheet(fn: dict, kloc_target: int) -> SheetBuilder:
-    ws = SheetBuilder(fn["sheet_name"])
+def populate_function_sheet(book: Spreadsheet, fn: dict, kloc_target: int) -> None:
+    sheet = fn["sheet_name"]
+    set_fit_to_page(book, sheet, width=1, height=0)
     r_fn = 10 + fn["no"]
     cases = fn["cases"]
-    start_col = 6  # F
-    end_col = start_col + len(cases) - 1
-    end_letter = col_letter(end_col)
-    right_span = max(end_col, 15)
+    n_cases = len(cases)
+    end_col_idx = 5 + n_cases  # F is col 6
+    end_letter = col_letter(end_col_idx)
+    right_col_idx = max(end_col_idx, 20)
+
+    ensure_cols_up_to(book, sheet, right_col_idx, width=4.8)
+    set_col_widths(book, sheet, {1: 7.5, 2: 13.0, 3: 10.5, 4: 48.0, 5: 1.8})
+    extend_top_merges(book, sheet, right_col_idx)
 
     p = sum(1 for c in cases if c["result"] == "P")
     f = sum(1 for c in cases if c["result"] == "F")
@@ -352,252 +439,145 @@ def build_function_sheet(fn: dict, kloc_target: int) -> SheetBuilder:
     n = sum(1 for c in cases if c["type"] == "N")
     a = sum(1 for c in cases if c["type"] == "A")
     b = sum(1 for c in cases if c["type"] == "B")
-    total = len(cases)
-    lack = max(0, round(fn["loc"] * kloc_target / 1000.0 - total))
+    lack = max(0, round(fn["loc"] * kloc_target / 1000.0 - n_cases))
 
-    ws.put(2, 1, "Function Code", S_SM_LABEL)
-    ws.put(2, 3, fn["code"], S_SM_TEXT, f"Functions!E{r_fn}")
-    ws.put(2, 6, "Function Name", S_SM_LABEL)
-    ws.put(2, 12, fn["function_name"], S_SM_TEXT, f"Functions!D{r_fn}")
+    book.put(sheet, "C2", fn["code"], f"Functions!E{r_fn}")
+    book.cell(sheet, "C2").setAttribute("t", "str")
+    book.put(sheet, "L2", fn["function_name"], f"Functions!D{r_fn}")
+    book.cell(sheet, "L2").setAttribute("t", "str")
+    book.put(sheet, "C3", fn["created_by"])
+    book.put(sheet, "L3", fn["executed_by"])
+    book.put(sheet, "C4", fn["loc"])
+    book.put(sheet, "L4", lack, f'IF(Functions!$E$6<>"N/A",MAX(0,ROUND(C4*Functions!$E$6/1000-O7,0)),"N/A")')
+    book.put(sheet, "C5", fn["description"])
+    set_row_height(book, sheet, 5, 24)
 
-    ws.put(3, 1, "Created By", S_SM_LABEL)
-    ws.put(3, 3, fn["created_by"], S_SM_TEXT)
-    ws.put(3, 6, "Executed By", S_SM_LABEL)
-    ws.put(3, 12, fn["executed_by"], S_SM_TEXT)
+    book.put(sheet, "A7", p, f'COUNTIF(F40:{end_letter}40,"P")')
+    book.put(sheet, "C7", f, f'COUNTIF(F40:{end_letter}40,"F")')
+    book.put(sheet, "F7", u, f"SUM(O7,-A7,-C7)")
+    book.put(sheet, "L7", n, f'COUNTIF(F39:{end_letter}39,"N")')
+    book.put(sheet, "M7", a, f'COUNTIF(F39:{end_letter}39,"A")')
+    book.put(sheet, "N7", b, f'COUNTIF(F39:{end_letter}39,"B")')
+    book.put(sheet, "O7", n_cases, f"COUNTA(F9:{end_letter}9)")
 
-    ws.put(4, 1, "Lines of code", S_SM_LABEL)
-    ws.put(4, 3, fn["loc"], S_SM_TEXT)
-    ws.put(4, 6, "Lack of test cases", S_SM_LABEL)
-    ws.put(4, 12, lack, S_SM_TEXT, f'IF(Functions!$E$6<>"N/A",MAX(0,ROUND(C4*Functions!$E$6/1000-O7,0)),"N/A")')
+    # Clear dummy cells across rows 9..42 cols D..end_max cleanly
+    sheet_el = book.sheet(sheet)
+    for r_no in range(9, 43):
+        for col_i in range(4, 24):
+            c_ref = f"{col_letter(col_i)}{r_no}"
+            if r_no == 9 or col_i >= 6:
+                book.put(sheet, c_ref, "")
+            elif r_no in range(10, 39):
+                book.put(sheet, c_ref, "")
+        # Clear any hardcoded label in B14..B30 except structural headings
+        if r_no in (14, 18, 22, 26):
+            book.put(sheet, f"B{r_no}", "")
 
-    ws.put(5, 1, "Test requirement", S_SM_LABEL)
-    ws.put(5, 3, fn["description"], S_SM_TEXT)
+    # Populate Precondition & grouped Decision-Table Conditions matching official layout
+    book.put(sheet, "D11", fn["precondition"])
+    book.cell(sheet, "D11").setAttribute("s", "382")
+    book.fit_height(sheet, 11, [fn["precondition"]], [45])
+    book.put(sheet, "B14", "Test Scope & Scenario")
+    book.put(sheet, "D15", "Happy path / valid workflow")
+    book.put(sheet, "D16", "Invalid / rejected input")
+    book.put(sheet, "D17", "Boundary / state transition")
 
-    ws.put(6, 1, "Passed", S_SM_BAND_C)
-    ws.put(6, 3, "Failed", S_SM_BAND_C)
-    ws.put(6, 6, "Untested", S_SM_BAND_C)
-    ws.put(6, 12, "N/A/B", S_SM_BAND_C)
-    ws.put(6, 15, "Total Test Cases", S_SM_BAND_C)
+    book.put(sheet, "B18", "JUnit 5 Suites")
+    suites = fn.get("source_tests", [])
+    for idx_s, s_name in enumerate(suites[:3]):
+        book.put(sheet, f"D{19 + idx_s}", s_name)
 
-    ws.put(7, 1, p, S_BOLD_C, f'COUNTIF(F21:{end_letter}21,"P")')
-    ws.put(7, 3, f, S_BOLD_C, f'COUNTIF(F21:{end_letter}21,"F")')
-    ws.put(7, 6, u, S_BOLD_C, f'COUNTIF(F21:{end_letter}21,"U")')
-    ws.put(7, 12, n, S_BOLD_C, f'COUNTIF(F20:{end_letter}20,"N")')
-    ws.put(7, 13, a, S_BOLD_C, f'COUNTIF(F20:{end_letter}20,"A")')
-    ws.put(7, 14, b, S_BOLD_C, f'COUNTIF(F20:{end_letter}20,"B")')
-    ws.put(7, 15, total, S_BOLD_C, f"COUNTA(F9:{end_letter}9)")
+    # Confirm block (rows 31..38)
+    book.put(sheet, "D32", "Expected output asserted")
+    book.put(sheet, "D33", "Fallback / edge state asserted")
+    book.put(sheet, "D35", "Guard / exception raised")
+    book.put(sheet, "D37", "Verified pass in JUnit 5")
+    book.put(sheet, "D38", "Error path verified in JUnit 5")
 
-    top_merges = [
-        (2, 1, 2, 2, S_SM_LABEL), (2, 3, 2, 5, S_SM_TEXT), (2, 6, 2, 11, S_SM_LABEL), (2, 12, 2, right_span, S_SM_TEXT),
-        (3, 1, 3, 2, S_SM_LABEL), (3, 3, 3, 5, S_SM_TEXT), (3, 6, 3, 11, S_SM_LABEL), (3, 12, 3, right_span, S_SM_TEXT),
-        (4, 1, 4, 2, S_SM_LABEL), (4, 3, 4, 5, S_SM_TEXT), (4, 6, 4, 11, S_SM_LABEL), (4, 12, 4, right_span, S_SM_TEXT),
-        (5, 1, 5, 2, S_SM_LABEL), (5, 3, 5, right_span, S_SM_TEXT),
-        (6, 1, 6, 2, S_SM_BAND_C), (6, 3, 6, 5, S_SM_BAND_C), (6, 6, 6, 11, S_SM_BAND_C), (6, 12, 6, 14, S_SM_BAND_C), (6, 15, 6, right_span, S_SM_BAND_C),
-        (7, 1, 7, 2, S_BOLD_C), (7, 3, 7, 5, S_BOLD_C), (7, 6, 7, 11, S_BOLD_C), (7, 15, 7, right_span, S_BOLD_C),
-    ]
-    for r1, c1, r2, c2, st in top_merges:
-        ws.merge(r1, c1, r2, c2, st)
-    for r in range(2, 8):
-        ws.row_heights[r] = 30 if r == 5 else 20
-
-    ws.put(9, 1, "Suite: " + ", ".join(fn["source_tests"]), S_SM_LABEL)
-    ws.merge(9, 1, 9, 5, S_SM_LABEL)
-    for idx in range(len(cases)):
-        ws.put(9, start_col + idx, f"UTCID{idx + 1:02d}", S_SM_HDR_SLATE)
-    ws.row_heights[9] = 22
-
-    # Section labels
-    sections = [
-        (10, 15, "Condition"),
-        (16, 19, "Confirm"),
-        (20, 22, "Result"),
-    ]
-    for r1, r2, title in sections:
-        ws.put(r1, 1, title, S_SM_HDR_NAVY)
-        ws.merge(r1, 1, r2, 1, S_SM_HDR_NAVY)
-
-    ws.put(10, 2, "Precondition", S_SM_LABEL)
-    ws.merge(10, 2, 10, 3, S_SM_LABEL)
-    ws.put(10, 4, fn["precondition"], S_SM_TEXT)
-    ws.merge(10, 4, 10, 5, S_SM_TEXT)
-
-    sub_rows = [
-        (11, "JUnit @Test Method"),
-        (12, "Input / Scenario"),
-        (13, "Module Scope"),
-        (14, "Class Under Test"),
-        (15, "Test Suite File"),
-        (16, "Expected Output / Assertion"),
-        (17, "Exception / Guard"),
-        (18, "Verification Note"),
-        (19, "Execution Evidence"),
-        (20, "Type (N : Normal, A : Abnormal, B : Boundary)"),
-        (21, "Passed/Failed"),
-        (22, "Executed Date"),
-    ]
-    for r, label in sub_rows:
-        ws.put(r, 2, label, S_SM_LABEL)
-        ws.merge(r, 2, r, 5, S_SM_LABEL)
-
+    # Populate UTCID columns F..{end}
+    exec_short = fn["executed_date"][8:10] + "/" + fn["executed_date"][5:7]
     for idx, case in enumerate(cases):
-        col = start_col + idx
-        ws.put(10, col, "Ready", S_SM_CENTER)
-        ws.put(11, col, case["method"], S_SM_TEXT)
-        ws.put(12, col, case["input"], S_SM_TEXT)
-        ws.put(13, col, fn["requirement_name"], S_SM_TEXT)
-        ws.put(14, col, fn["class_name"], S_SM_TEXT)
-        ws.put(15, col, ", ".join(fn["source_tests"]), S_SM_TEXT)
-        ws.put(16, col, case["expected"], S_SM_TEXT)
-        ws.put(17, col, "Asserted" if case["type"] in ("A", "B") else "-", S_SM_CENTER)
-        ws.put(18, col, "Executed cleanly in JUnit 5", S_SM_TEXT)
-        ws.put(19, col, "./mvnw test (Nov 26, 2026)", S_SM_TEXT)
-        ws.put(20, col, case["type"], S_SM_CENTER)
-        res_style = S_PASS if case["result"] == "P" else (S_FAIL if case["result"] == "F" else S_SM_CENTER)
-        ws.put(21, col, case["result"], res_style)
-        ws.put(22, col, fn["executed_date"], S_SM_CENTER)
+        col_i = 6 + idx
+        cl = col_letter(col_i)
+        # Clone styles from col F (if col > T) cleanly for every matrix row 9..42
+        if col_i > 20:
+            for r_no in range(9, 43):
+                ensure_cell_with_style(book, sheet, f"{cl}{r_no}", f"F{r_no}")
 
-    for r in (11, 12, 16):
-        ws.row_heights[r] = 38
-    for r in (10, 13, 14, 15, 17, 18, 19, 20, 21, 22):
-        ws.row_heights[r] = 22
+        book.put(sheet, f"{cl}9", f"UTCID{idx + 1:02d}")
+        book.put(sheet, f"{cl}11", "O")
 
-    for idx, w in enumerate([12, 14, 10, 10, 10], 1):
-        ws.col_widths[idx] = w
-    for col in range(start_col, right_span + 1):
-        ws.col_widths[col] = 24
-    return ws
+        ctype = case["type"]
+        if ctype == "N":
+            book.put(sheet, f"{cl}15", "O")
+            book.put(sheet, f"{cl}32", "O")
+            book.put(sheet, f"{cl}37", "O")
+        elif ctype == "B":
+            book.put(sheet, f"{cl}17", "O")
+            book.put(sheet, f"{cl}33", "O")
+            book.put(sheet, f"{cl}37", "O")
+        else:
+            book.put(sheet, f"{cl}16", "O")
+            book.put(sheet, f"{cl}35", "O")
+            book.put(sheet, f"{cl}38", "O")
 
+        # Mark corresponding JUnit suite row (row 19..21)
+        suite_offset = idx % max(1, min(3, len(suites)))
+        book.put(sheet, f"{cl}{19 + suite_offset}", "O")
 
-_STYLES_XML = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-  <numFmts count="1">
-    <numFmt numFmtId="164" formatCode="0.00"/>
-  </numFmts>
-  <fonts count="7">
-    <font><sz val="10"/><color rgb="FF000000"/><name val="Tahoma"/></font>
-    <font><b/><sz val="18"/><color rgb="FF000000"/><name val="Tahoma"/></font>
-    <font><b/><sz val="10"/><color rgb="FF000000"/><name val="Tahoma"/></font>
-    <font><b/><sz val="10"/><color rgb="FFFFFFFF"/><name val="Tahoma"/></font>
-    <font><u/><sz val="10"/><color rgb="FF0000FF"/><name val="Tahoma"/></font>
-    <font><sz val="9"/><color rgb="FF000000"/><name val="Tahoma"/></font>
-    <font><b/><sz val="9"/><color rgb="FF000000"/><name val="Tahoma"/></font>
-  </fonts>
-  <fills count="8">
-    <fill><patternFill patternType="none"/></fill>
-    <fill><patternFill patternType="gray125"/></fill>
-    <fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/><bgColor indexed="64"/></patternFill></fill>
-    <fill><patternFill patternType="solid"><fgColor rgb="FFF2F4F8"/><bgColor indexed="64"/></patternFill></fill>
-    <fill><patternFill patternType="solid"><fgColor rgb="FF000080"/><bgColor indexed="64"/></patternFill></fill>
-    <fill><patternFill patternType="solid"><fgColor rgb="FF333399"/><bgColor indexed="64"/></patternFill></fill>
-    <fill><patternFill patternType="solid"><fgColor rgb="FFD9E1F2"/><bgColor indexed="64"/></patternFill></fill>
-    <fill><patternFill patternType="solid"><fgColor rgb="FFE2EFDA"/><bgColor indexed="64"/></patternFill></fill>
-  </fills>
-  <borders count="2">
-    <border><left/><right/><top/><bottom/><diagonal/></border>
-    <border>
-      <left style="thin"><color rgb="FFBFBFBF"/></left>
-      <right style="thin"><color rgb="FFBFBFBF"/></right>
-      <top style="thin"><color rgb="FFBFBFBF"/></top>
-      <bottom style="thin"><color rgb="FFBFBFBF"/></bottom>
-      <diagonal/>
-    </border>
-  </borders>
-  <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
-  <cellXfs count="21">
-    <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
-    <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
-    <xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf>
-    <xf numFmtId="0" fontId="0" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf>
-    <xf numFmtId="0" fontId="0" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
-    <xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
-    <xf numFmtId="0" fontId="3" fillId="5" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
-    <xf numFmtId="0" fontId="4" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
-    <xf numFmtId="0" fontId="4" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf>
-    <xf numFmtId="0" fontId="2" fillId="6" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
-    <xf numFmtId="0" fontId="2" fillId="6" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>
-    <xf numFmtId="164" fontId="2" fillId="2" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="center"/></xf>
-    <xf numFmtId="0" fontId="6" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf>
-    <xf numFmtId="0" fontId="6" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
-    <xf numFmtId="0" fontId="5" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf>
-    <xf numFmtId="0" fontId="5" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
-    <xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
-    <xf numFmtId="0" fontId="3" fillId="5" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
-    <xf numFmtId="0" fontId="6" fillId="7" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
-    <xf numFmtId="0" fontId="6" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
-    <xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
-  </cellXfs>
-</styleSheet>
-"""
+        book.put(sheet, f"{cl}39", ctype)
+        book.put(sheet, f"{cl}40", case["result"])
+        book.put(sheet, f"{cl}41", exec_short)
+        book.cell(sheet, f"{cl}41").setAttribute("s", "118")
+        book.put(sheet, f"{cl}42", "")
 
-
-def write_xlsx(sheets: list[SheetBuilder], output_path: Path) -> None:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    sheet_entries = []
-    rel_entries = []
-    ct_entries = [
-        '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>',
-        '<Default Extension="xml" ContentType="application/xml"/>',
-        '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>',
-        '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>',
-    ]
-    for idx, sheet in enumerate(sheets, 1):
-        sheet_entries.append(f'<sheet name="{escape(sheet.title)}" sheetId="{idx}" r:id="rId{idx}"/>')
-        rel_entries.append(f'<Relationship Id="rId{idx}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet{idx}.xml"/>')
-        ct_entries.append(f'<Override PartName="/xl/worksheets/sheet{idx}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>')
-
-    rel_entries.append(
-        f'<Relationship Id="rId{len(sheets) + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
-    )
-    workbook_xml = (
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-        '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
-        ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-        f'<sheets>{"".join(sheet_entries)}</sheets>'
-        '</workbook>'
-    )
-    wb_rels_xml = (
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-        f'{"".join(rel_entries)}'
-        '</Relationships>'
-    )
-    root_rels_xml = (
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-        '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
-        '</Relationships>'
-    )
-    content_types_xml = (
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-        '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
-        f'{"".join(ct_entries)}'
-        '</Types>'
-    )
-
-    with zipfile.ZipFile(output_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-        zf.writestr("[Content_Types].xml", content_types_xml)
-        zf.writestr("_rels/.rels", root_rels_xml)
-        zf.writestr("xl/workbook.xml", workbook_xml)
-        zf.writestr("xl/_rels/workbook.xml.rels", wb_rels_xml)
-        zf.writestr("xl/styles.xml", _STYLES_XML)
-        for idx, sheet in enumerate(sheets, 1):
-            zf.writestr(f"xl/worksheets/sheet{idx}.xml", sheet.to_xml())
+    set_row_height(book, sheet, 41, 18)
+    set_row_height(book, sheet, 42, 18)
+    book.dimensions(sheet, col_letter(right_col_idx), 42)
+    del sheet_el  # unused reference
 
 
 def export(template: Path, reports_root: Path, output_path: Path) -> dict:
-    """Generate Report5_Unit Test.xlsx from code-backed unit-test-data.json."""
-    del template  # Binary .xls template is tracked as presence input only; clean .xlsx built directly.
+    """Generate Report5_Unit Test.xlsx preserving official SEP490 .xls template styles & charts."""
+    shell = template if template.suffix.lower() == ".xlsx" else TEMPLATE_SHELL
     source_path = reports_root / DATA_PATH
     data = json.loads(source_path.read_text(encoding="utf-8"))
     warnings = validate_data(data)
 
+    book = Spreadsheet(shell)
+    for clean_target in ("Function 1", "Function 2"):
+        strip_sheet_comments(book, clean_target)
+
+    for to_drop in ("Function3", "Example"):
+        if to_drop in book.sheets:
+            book.remove_sheet(to_drop)
+
+    for n in range(3, 15):
+        book.duplicate_sheet("Function 2", f"Function {n}")
+
     kloc_target = int(data["cover"].get("normal_tcs_per_kloc", 15))
-    sheets = [build_cover(data), build_functions(data), build_statistics(data)]
+    populate_cover(book, data["cover"])
+    populate_functions(book, data)
+    populate_statistics(book, data)
     for fn in data["functions"]:
-        sheets.append(build_function_sheet(fn, kloc_target))
-    write_xlsx(sheets, output_path)
+        populate_function_sheet(book, fn, kloc_target)
+
+    discard_calc_chain(book)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    allowed_extra = {
+        "xl/workbook.xml",
+        "xl/calcChain.xml",
+        "xl/_rels/workbook.xml.rels",
+        "xl/charts/chart1.xml",
+        "xl/charts/chart2.xml",
+        "xl/drawings/drawing2.xml",
+        "xl/worksheets/_rels/sheet5.xml.rels",
+        "xl/worksheets/_rels/sheet6.xml.rels",
+    }
+    audit = book.save(output_path, allowed_extra)
     total_cases = sum(len(fn["cases"]) for fn in data["functions"])
     return {
+        **audit,
         "warnings": warnings,
         "functions": len(data["functions"]),
         "cases": total_cases,

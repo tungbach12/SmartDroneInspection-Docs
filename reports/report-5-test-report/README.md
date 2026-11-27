@@ -4,7 +4,7 @@ This folder separates the contents of the supplied `Report5_Test Report.xlsx`
 template so the team can update test cases without repeatedly rebuilding the
 whole workbook.
 
-Version 3.20 lists 80 cases across 24 features, with 78 active and two superseded FE-13 cases. Round 1 records 52 Passed, 0 Failed, 9 Pending and 19 N/A. Round 3 records 16 executed passes. The FE-24 case notes track follow-up verification for duplicate re-inspection and verdict expiry. See the [26 November regression evidence](regression-evidence-2026-11-26.md) and [Test Documentation, Section 5](../report-5-test-documentation/01-testing-documentation.md#5-test-reports) for suite results.
+Version 3.22 lists 90 cases across 24 features, with 87 active verified cases and 3 retired/superseded N/A cases (`WF2-008`, `WF2-009`, `WF2-015`). Round 1 records 52 Passed, 0 Failed, 9 Pending and 29 N/A. Final Release Round 3 records 87 Passed, 0 Failed, 0 Pending, and 3 N/A (`100%` active pass rate). See the [26 November regression evidence](regression-evidence-2026-11-26.md) and [Test Documentation, Section 5](../report-5-test-documentation/01-testing-documentation.md#5-test-reports) for suite results.
 
 The original workbook template remains unchanged; generated copies contain twenty-four active feature sheets (`Feature 1`–`Feature 24`). Maintenance feature sheets and cases are retired historical material, not current coverage.
 
@@ -38,12 +38,12 @@ current Report 3 feature (`FE-01`–`FE-24`). Sheet `Feature N` contains SRS fea
 | Folder/file | Workbook area | Purpose |
 | --- | --- | --- |
 | `00-cover/` | `Cover` | Project metadata and record of changes. |
-| `01-test-cases/` | `Test Cases` | Complete index of all 80 listed test cases (78 active) across `Feature 1`–`Feature 24`. |
+| `01-test-cases/` | `Test Cases` | Complete index of all 90 listed test cases (87 active) across `Feature 1`–`Feature 24`. |
 | `02-test-statistics/` | `Test Statistics` | Module totals, coverage, and execution summary across active `Feature 1`–`Feature 24`. |
-| `03-features/fe-01-*.md` – `fe-05-*.md` | `Feature 1`–`5` sheets | Owner: Trần Hoàng Trung Hiếu (`WF1-001`..`WF3-032`, 18 cases). |
-| `03-features/fe-06-*.md` – `fe-12-*.md` | `Feature 6`–`12` sheets | Owner: Phùng Trung Quốc (24 cases). |
-| `03-features/fe-13-*.md` – `fe-18-*.md` | `Feature 13`–`18` sheets | Owner: Trần Tùng Bách (29 cases). |
-| `03-features/fe-19-*.md` – `fe-24-*.md` | `Feature 19`–`24` sheets | Owner: Trương Thái Như (`WF3-012`..`WF3-033`, 9 cases). |
+| `03-features/fe-01-*.md` – `fe-05-*.md` | `Feature 1`–`5` sheets | Owner: Trần Hoàng Trung Hiếu (`WF1-001`..`WF3-034`, 19 cases). |
+| `03-features/fe-06-*.md` – `fe-12-*.md` | `Feature 6`–`12` sheets | Owner: Phùng Trung Quốc (26 cases). |
+| `03-features/fe-13-*.md` – `fe-18-*.md` | `Feature 13`–`18` sheets | Owner: Trần Tùng Bách (30 cases). |
+| `03-features/fe-19-*.md` – `fe-24-*.md` | `Feature 19`–`24` sheets | Owner: Trương Thái Như (`WF3-012`..`WF3-041`, 15 cases). |
 | `template-layout.md` | All sheets | Exact sheet, column, and section reference. |
 | `template/Report5_Test Report.xlsx` | All sheets | Original-format workbook copy. |
 
