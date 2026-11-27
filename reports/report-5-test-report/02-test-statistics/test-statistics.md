@@ -11,7 +11,7 @@ round.
 | Project Name | SmartDroneInspection |
 | Project Code | GFA26SE139 |
 | Test round | Final Release — Round 3 (All 24 modules). Inventory comprises 90 rows across 24 features: 87 active verified cases and 3 retired/superseded N/A cases (`WF2-008`, `WF2-009`, `WF2-015`). Round 1 retains 52 Passed, 0 Failed, 9 Pending, 29 N/A; Round 3 records 87 Passed, 0 Failed, 0 Pending, 3 N/A. |
-| Last updated | 2026-11-27 (Report 5 v3.22). Expanded coverage to 90 cases (minimum 2 per feature), simplified procedures/notes, and fixed workbook text wrapping. |
+| Last updated | 2026-11-27 (Report 5 v3.23). Updated `FE-08` / `WF1-019` for Admin-configurable Service Request scheduling lead days (`0–365`, default `20`) and re-verified Backend, Web, and Mobile suites. |
 
 ### Round scope
 

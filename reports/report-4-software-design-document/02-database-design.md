@@ -91,7 +91,7 @@ The physical diagram covers the 53 application tables and the event outbox.
 | 38 | `notifications` | Stores each user's alerts and records when they are read.<br>Primary key: `id`<br>Foreign keys: `recipient_user_id` to `users.id` |
 | 39 | `audit_events` | Records important actions, the actor, and the resulting change.<br>Primary key: `id`<br>Foreign keys: `actor_user_id` to `users.id` |
 | 40 | `inspector_reliability_events` | Records reliability events such as an aborted or overdue field session.<br>Primary key: `id`<br>Foreign keys: `inspector_id` to `users.id`, `inspection_id` to `inspections.id`, `field_session_id` to `field_sessions.id` |
-| 41 | `platform_operations_settings` | Stores the time an Inspector has to accept an assignment.<br>Primary key: `id`<br>Foreign keys: `updated_by_user_id` to `users.id` |
+| 41 | `platform_operations_settings` | Stores platform-wide operational policies configured by Admin: Inspector assignment acceptance timeout hours (`V61`) and Service Request minimum scheduling lead days (`V81`).<br>Primary key: `id`<br>Foreign keys: `updated_by_user_id` to `users.id` |
 | 42 | `inspection_messages` | Stores messages between the owning Customer and assigned Inspector for an inspection.<br>Primary key: `id`<br>Foreign keys: `inspection_id` to `inspections.id`, `author_user_id` to `users.id` |
 | 43 | `inspection_message_attachments` | Links a private file to a message in an inspection.<br>Primary key: `id`<br>Foreign keys: `message_id` to `inspection_messages.id` |
 | 44 | `inspection_knowledge_chunks` | Stores searchable extracts from engineering standards used to support findings.<br>Primary key: `id`<br>Foreign keys: None |
