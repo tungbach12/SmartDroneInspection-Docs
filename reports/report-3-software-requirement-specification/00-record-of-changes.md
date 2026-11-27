@@ -11,7 +11,7 @@ source: "report3-software-requirement-specification.docx"
 | --- | --- | --- | --- |
 | 15 Oct 2026 | A | Project Team | Initial Software Requirement Specification covering FE-01 to FE-24, user roles, business rules, and non-functional requirements. |
 | 27 Nov 2026 | M | Project Team | Final release revision covering Inspector withdrawal recovery, self-attested flight permits, re-inspection workflow, and SRS terminology alignment. |
-|  |  |  |  |
+| 27 Nov 2026 | M | Project Team | Added detailed core use-case specifications, Customer mobile screen inventory, lifecycle state-transition matrix, verifiable operational threshold table, structured IEEE-style external interfaces, and Vietnamese UAV regulatory reference mapping. |
 |  |  |  |  |
 |  |  |  |  |
 |  |  |  |  |

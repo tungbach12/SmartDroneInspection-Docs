@@ -179,7 +179,21 @@ This traceability matrix maps all twenty-four atomic product features (`FE-01` t
 
 #### 5.4.3 Research Basis and References
 
-- **Building inspection and non-destructive assessment.** Requirements reflect reproducible inspection methods, relevant evidence, and attributable technical reporting for building façades, roofs, and rooftop structures.
-- **Building-defect datasets.** The detection model is trained on the MBDD2025 UAV building-defect dataset (CC BY 4.0), covering crack, leakage, abscission, corrosion, and bulge defects.
-- **Artificial intelligence governance.** Automated defect suggestions and narrative summaries remain advisory and subject to human review.
-- **Civil aviation responsibilities.** Airspace and permit records support readiness review but do not grant flight authorization. Aircraft weight categories and pilot-licence classes follow Article 4 and Article 27 of Decree 288/2025/ND-CP.
+The functional rules, compliance checks, defect taxonomy, and requirement structure in this SRS are grounded in the Vietnamese UAV legal framework, public building-defect datasets, engineering inspection standards, and software specification standards summarized below.
+
+| Reference Source | Issuing Body / Origin | Scope & Requirements Mapped in SmartDroneInspection |
+| --- | --- | --- |
+| **Law No. 49/2024/QH15** (Law on People's Air Defence, amended by Law No. `98/2025/QH15`) | National Assembly of Vietnam | Articles 29–30 establish mandatory registration of civil UAVs prior to operation and require commercial/survey flights (including building inspection) to obtain statutory flight permits (`FE-03`, `FE-13`, `BR-26`). |
+| **Decree No. 288/2025/ND-CP** (05 Nov 2025) | Government of Vietnam | Article 4 defines the five MTOW aircraft categories and `2.0 kg` threshold; Articles 18–22 and 27–28 govern Class A (visual, `< 2.0 kg`) vs. Class B (`>= 2.0 kg` or programmed/BVLOS, 10-year validity) pilot licences, registration dossiers, and flight-permit submission/validity rules (`FE-02`, `FE-03`, `FE-13`, `BR-12`). |
+| **Resolution No. 24/2026/NQ-CP** (29 Apr 2026) | Government of Vietnam | Simplifies administrative procedures and processing timelines for UAV pilot-licence issuance and compliance workflows referenced in partner onboarding (`FE-02`). |
+| **Circular No. 78/2026/TT-BCA** (05 Jun 2026) | Ministry of Public Security | Governs civil drone registration certificates, electronic identification tagging, and registration authority partitioning between Department A05 and provincial police (`FE-03`, `BR-11`). |
+| **Decision No. 18/2020/QD-TTg** (10 Jun 2020) | Prime Minister of Vietnam | Establishes prohibited (`No-Fly`) and restricted airspace zones around defence, security, and aviation facilities surfaced via interactive screening and `https://cambay.mod.gov.vn` advisories (`FE-04`, `FE-07`, `MSG28`). |
+| **MBDD2025** (Multi-view Building Defect Dataset, CC BY 4.0) | Academic UAV Building-Defect Benchmark | Provides annotated building-surface imagery across the five supported structural defect classes (`crack`, `leakage`, `abscission`, `corrosion`, `bulge`) used by the primary detection service (`FE-16`). |
+| **TCVN 9343:2012, TCVN 9361:2012, EN 1504-9, ISO 12944-5, ASTM C1583** | Vietnam & International Engineering Standards | Seeded structural concrete, façade, corrosion, and adhesion reference standards retrieved by `DroneKnowledgeAI` to ground advisory finding notes and report summaries (`FE-17`, `BR-55`). |
+| **ISO/IEC/IEEE 29148 / IEEE Std 830** | ISO / IEEE | Governs requirement structuring, external interface categorization (§4.1), verifiable NFR thresholds (§4.2), and bidirectional feature-to-use-case traceability (§5.4.2). |
+
+In addition to the normative references above:
+
+- **Building inspection and non-destructive assessment.** Requirements reflect reproducible inspection methods, attributable photographic/video evidence, and versioned technical reporting for building façades, roofs, and rooftop structures (`FE-15`, `FE-18`, `FE-24`).
+- **Artificial intelligence governance.** Automated defect suggestions, drafted finding notes, and narrative summaries remain strictly advisory and subject to explicit human confirmation prior to official publication (`BR-34`–`BR-36`, `BR-43`, `BR-55`).
+- **Civil aviation non-substitution.** Platform airspace checks, drone document records, and self-attested flight permits support internal operational readiness only and never substitute for government flight clearance (`BR-26`, `MSG27`, `MSG28`).

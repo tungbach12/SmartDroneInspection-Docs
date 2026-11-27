@@ -9,12 +9,38 @@ source: "report3-software-requirement-specification.docx"
 
 ### 4.1 External Interfaces
 
-- **Web interface.** The service is available through a responsive web experience on current, commonly used desktop and mobile browsers. User-facing labels and guidance support English and Vietnamese.
-- **Mobile interface.** The Customer role has a native mobile application on supported Android and iOS devices covering sign-in, registration, buildings, service requests with negotiation, inspection tracking, published reports, and notifications. Field capture and field-session recording are performed by Inspectors through the operations web portal, not the mobile application.
-- **Detection service.** Building-defect detection is served by a self-hosted inference service. When that service cannot process an image, an OpenAI-compatible vision model is used as a fallback, and a user may opt out of the fallback for their own account.
-- **Narrative drafting service.** An OpenAI-compatible language model drafts the report narrative once per draft from the confirmed inspection context. The service returns structured output and is instructed not to invent facts.
-- **Payment and identity services.** Sepay VietQR and VNPay process service-payment settlement, and Google OAuth2 provides federated sign-in. Both payment gateways are configuration-gated and can be disabled; the application still starts and records payment through an authorised manual confirmation when they are off.
-- **Ground-station integration.** An optional hub integration supplies read-only telemetry, flight traces, and mission video. A response from any external service does not replace the platform's own authorization or human review obligations.
+This section defines the external boundary interfaces through which human actors, drone telemetry sources, and third-party services interact with SmartDroneInspection. External responses inform platform workflows but never bypass internal authorization, validation, or human confirmation rules.
+
+#### 4.1.1 User Interfaces
+
+- **Responsive Web Portals (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`).** The service operates through four role-dedicated web portals supporting desktop (`1600×1000` reference layout) and mobile browser viewports across current Chromium, Firefox, Safari, and Edge releases.
+- **Role-Isolated Navigation & Bilingual Presentation.** Navigation routes are filtered strictly by the authenticated user's single role; unauthorized routes are absent rather than merely visually hidden. All user-facing labels, validation hints, toast messages (`MSG01`–`MSG50`), and notifications support English (`en`) and Vietnamese (`vi`) without altering authorization or route identifiers.
+- **Customer Native Mobile Interface (`CUSTOMER` only).** A native Android and iOS application provides Customer self-registration, sign-in/OTP/Google OAuth2, building registration with airspace screening, service request creation and quotation acceptance, Order/Inspection chat, inspection tracking, published report viewing, Inspector rating, VietQR/VNPay settlement, downloadable payment-notice/receipt PDFs, and collapsible `DroneKnowledgeAI` references. Field-session control, evidence upload, and staff workflows remain exclusively on Web portals.
+- **Advisory vs. Official Visual Separation.** AI-generated defect bounding boxes, drafted finding notes, report executive summaries, and airspace screening banners are visually badged as advisory, distinguishing them from human-confirmed findings, published reports, and statutory aviation permits.
+
+#### 4.1.2 Hardware and Telemetry Interfaces
+
+- **Aircraft Photographic & Video Sensors (Indirect File Intake).** The service imposes no proprietary drone hardware lock-in and accepts standard JPEG/PNG/WEBP building photographs (`<= 10 MB`) and MP4 mission video (`<= 2 GiB`). Available EXIF capture timestamps, camera orientation, and GPS coordinates are preserved when present and disclosed as unavailable when absent (`BR-31`, `BR-33`).
+- **Offline Flight Log Formats.** Where live telemetry is unavailable, the platform ingests exported `SRT`, `CSV`, `KML`, and `GPX` flight logs (`<= 15 MB`), normalizing available latitude, longitude, altitude, speed, heading, battery, and timestamp series while preserving absent sensor fields without fabrication (`BR-28`).
+- **SmartDroneHub Ground-Station Integration.** During an active field session, an optional ground-station hub supplies read-only flight status, flight mode, GPS coordinates, altitude, speed, heading, battery level, waypoint progress, gimbal state, and mission MP4 video. The interface is strictly unidirectional: SmartDroneInspection never transmits flight actuation, takeoff, landing, or waypoint commands to aircraft (`BR-30`).
+
+#### 4.1.3 Software and External Service Interfaces
+
+| External Interface | Role in Lifecycle | Contract & Degraded-Mode Behaviour |
+| --- | --- | --- |
+| **Primary AI Defect Detection Service** | Candidate defect inference (`FE-16`) | Accepts inspection imagery and returns bounding boxes, labels across the five building defect classes (`crack`, `leakage`, `abscission`, `corrosion`, `bulge`), and confidence scores. Failures degrade gracefully to secondary fallback or manual finding entry (`BR-36`). |
+| **OpenAI-Compatible Vision & Narrative LLM** | Secondary detection fallback (`FE-16`) & advisory drafting (`FE-17`, `FE-18`) | Invoked for secondary detection only when the primary detector returns empty/unavailable and the acting user has not opted out in Account Settings; drafts bilingual finding notes and single-shot report summaries strictly marked advisory (`BR-43`). |
+| **Semantic Vector Retrieval (`DroneKnowledgeAI`)** | Historical case & engineering standard retrieval (`FE-17`) | Indexes confirmed findings at report publication and performs customer-isolated similarity lookup over prior cases and seeded standards; automatically falls back to keyword matching when vector search is unavailable (`BR-55`). |
+| **Sepay VietQR & VNPay Gateways** | Online Customer settlement (`FE-20`) & Inspector VietQR payout (`FE-22`) | Configuration-gated online gateways. Generates VietQR / hosted checkout payloads, verifies cryptographic signatures or authenticated transfer notifications before marking `PAID`, records superseded/late callbacks idempotently, and supports authorized manual settlement when disabled (`BR-45`, `BR-47`). |
+| **Google OAuth2 Identity Service** | Federated sign-in (`FE-01`) | Authenticates verified active accounts for Web and Customer Mobile without bypassing platform role assignment, account status checks, or session-rotation controls. |
+| **Private Object Storage & SMTP Mail** | Document/media persistence & email notices (`FE-02`–`FE-21`) | Private bucket storage isolates permits, contracts, evidence, and PDFs behind server authorization and signed media tickets; SMTP email alerts run best-effort asynchronously so mail outages never roll back business transactions (`FE-12`). |
+
+#### 4.1.4 Communications and Data Exchange Interfaces
+
+- **Transport & API Boundary.** Client-to-server traffic runs over HTTPS/TLS using typed JSON request/response payloads and standardized problem-detail error responses with localized user messages.
+- **Webhook & Callback Integrity.** Payment gateway notifications (`Sepay` and `VNPay`) are accepted only after cryptographic signature or credential verification, receiving-account validation, exact whole-VND amount verification, and idempotent order-reference matching (`BR-45`, `BR-47`).
+- **Large-Media Transfer & Streaming.** Video uploads up to `2 GiB` use resumable `10 MiB` chunked transfers that resume from confirmed offsets after network interruption; playback uses HTTP byte-range streaming authorized by `5-minute` evidence-scoped signed tickets (`NFR-06`).
+- **Asynchronous Processing Decoupling.** Video transcoding, semantic knowledge indexing, scheduled expiry/timeout sweeps, and transactional notification fan-out execute asynchronously outside interactive request threads so heavy background jobs do not block user portals.
 
 ### 4.2 Quality Attributes
 
@@ -73,3 +99,13 @@ The thresholds below are requirements and acceptance targets. They are not evide
 | `NFR-06` | Reliability | Large video evidence survives an interrupted upload and a failed transcode. | Resume success and retry availability. | `100%` of interrupted uploads resumable; `100%` of failed transcodes retained for retry. | Upload interruption and transcode-failure assessment. |
 | `NFR-07` | Maintainability | Core business rules and all twenty-four atomic product features (`FE-01`–`FE-24`) have repeatable verification, and module boundaries hold. | Business-rule and feature verification coverage; boundary violations. | All twenty-four features have applicable verification cases; `0` module boundary violations. | Review of test evidence and architecture-boundary test. |
 | `NFR-08` | Portability | The service can be rebuilt and started reliably from its stated container dependencies. | Clean-environment startup and schema readiness. | Starts cleanly from the container stack with all required application database migrations applied automatically and verified against the release schema baseline. | Clean-environment deployment assessment and schema verification tests. |
+
+### 4.3 Design and Operational Constraints
+
+The following operational constraints and system-level assumptions govern how requirements in §3 and §4 are delivered and verified:
+
+- **Single Canonical Role & Direct Customer Ownership.** Every human account holds exactly one of the four login roles (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`), and building ownership attaches directly to a `CUSTOMER` account without intermediate organizational hierarchies.
+- **Single-Currency VND Accounting.** All commercial quotations, invoices, VAT, personal income tax (TNCN) withholdings, platform commissions, payouts, refunds, and receivable recoveries are denominated and rounded in Vietnamese Dong (`VND`).
+- **Vietnam Time-Zone Business Anchoring.** Commercial lead times (`>= 20` calendar days), recurring month-end clamping, permit validity windows, and daily expiry/overdue scans evaluate business dates in `Asia/Ho_Chi_Minh` (`UTC+07:00`).
+- **Client Token Storage Boundaries.** Web clients keep short-lived access tokens strictly in memory and rely on HTTP-only cookies for refresh rotation; the Customer Mobile client stores session credentials exclusively in platform-encrypted secure storage (`NFR-04`).
+- **Regulatory & Professional Non-Substitution.** Platform onboarding approvals, airspace classifications, self-attested permit records, AI defect suggestions, and published inspection reports constitute internal operational records only and never substitute for statutory civil-aviation permits or licensed structural-engineering certification (`BR-26`, `BR-40`).
