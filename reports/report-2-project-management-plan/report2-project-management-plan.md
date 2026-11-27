@@ -11,7 +11,7 @@ source_docx: report2-project-management-plan.docx
 | --- | --- | --- | --- |
 | 08 Oct 2026 | A | Project Team | Initial Project Management Plan covering Agile Scrum process, WBS estimation, milestones, and team allocation. |
 | 27 Nov 2026 | M | Project Team | Final release update synchronizing 24-feature scope, deliverables, risks, and test milestones. |
-| 27 Nov 2026 | M | Project Team | Updated weighted member contributions (`24%` / `26%` / `23%` / `27%`) in responsibility assignments. |
+|  |  |  |  |
 |  |  |  |  |
 |  |  |  |  |
 |  |  |  |  |
@@ -156,7 +156,7 @@ Work was sliced vertically: a feature counted as complete only when its backend 
 
 ## 4. Responsibility Assignments
 
-Members are identified by initials matching weighted contributions (`24%` / `26%` / `23%` / `27%`): **H** — Trần Hoàng Trung Hiếu (`SE184212`, `24%`), **Q** — Phùng Trung Quốc (`SE170027`, `26%`), **N** — Trương Thái Như (`SE180082`, `23%`), **B** — Trần Tùng Bách (`SE180220`, `27%`). The legend is `D`~Do; `R`~Review; `S`~Support; `I`~Informed.
+Members are identified by initials: **H** — Trần Hoàng Trung Hiếu (`SE184212`), **Q** — Phùng Trung Quốc (`SE170027`), **N** — Trương Thái Như (`SE180082`), **B** — Trần Tùng Bách (`SE180220`). The legend is `D`~Do; `R`~Review; `S`~Support; `I`~Informed.
 
 | Responsibility | H | Q | N | B | Supervisors |
 | --- | :---: | :---: | :---: | :---: | :---: |
