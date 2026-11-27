@@ -16,10 +16,10 @@ This release package contains all engineering, database, testing, and documentat
 | 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking against the weighted plan in Report 2 (`208` man-days). |
 | 2 | Project Backlog | Twenty-four atomic features (`FE-01` to `FE-24`) organized across four connected main flows (`MF1` to `MF4`). |
 | 3 | Source Codes | Four repositories: Spring Boot backend (`SmartDroneInspection-Backend`), React web portal (`SmartDroneInspection-Frontend`), Flutter Customer mobile app (`SmartDroneInspection-Mobile`), and documentation set (`SmartDroneInspection-Docs`). |
-| 4 | Database Script(s) | Flyway migration scripts (`V1` to `V4` and `V60` to `V80`) building the PostgreSQL 17 schema (53 application tables / 55 total tables in `public`). See Report 4, Section 2 for the database design. |
+| 4 | Database Script(s) | Forward-only Flyway migration scripts building the PostgreSQL 17 release schema (53 application tables / 55 total tables in `public`). See Report 4, Section 2 for the database design. |
 | 5 | Final Report Document | Capstone Reports 1 to 7 exported against the official university templates. |
 | 6 | Test Cases Document | `Report5_Test Report.xlsx` (version 3.20) with 24 feature sheets (`Feature 1` to `Feature 24`) covering 80 listed rows (78 active cases and 2 superseded `FE-13` cases), backed by automated suite results in Report 5, Section 5. |
-| 7 | Defects List | Defect log tracking resolved defect `DEF-01` (mobile role enum cleanup) and open tooling defect `DEF-02` (legacy E2E path). |
+| 7 | Defects List | Defect log tracking resolved defect `DEF-01` (mobile role enum cleanup) and open tooling defect `DEF-02` (older E2E runner path). |
 | 8 | Issues List | Known operational boundaries and out-of-scope items documented in Report 3, Section 3.26. |
 | 9 | Slide | Final defence presentation deck covering architecture, live demonstration flows, and verification metrics. |
 
@@ -70,7 +70,7 @@ docker compose up -d --build
 
 #### 2.2.2 Database (PostgreSQL 17 & Flyway)
 
-PostgreSQL 17 with `pgvector` starts automatically inside Docker Compose. During Spring Boot startup, Flyway applies the release migrations (`V1` to `V4` and `V60` to `V80`) and seeds baseline reference tables. For the schema integrity test, start the Docker engine so Testcontainers can create an isolated PostgreSQL instance. Run the Maven wrapper from the backend directory.
+PostgreSQL 17 with `pgvector` starts automatically inside Docker Compose. During Spring Boot startup, Flyway applies the forward release migrations and seeds baseline reference tables. For the schema integrity test, start the Docker engine so Testcontainers can create an isolated PostgreSQL instance. Run the Maven wrapper from the backend directory.
 
 ```bash
 .\mvnw.cmd test -Dtest=FullDatabaseSchemaMigrationTest
@@ -124,10 +124,10 @@ SmartDroneInspection separates operational duties across four canonical roles. E
 
 | Actor | Platform | Primary Responsibilities |
 | --- | --- | --- |
-| **Administrator (`ADMIN`)** | Web Portal (`/admin`) | Manages platform accounts, drone document and feature catalogs, pilot licence classes, rating criteria, asset categories, and audit logs. Has read-only access to inspection reports and re-inspection verifications. |
-| **Manager (`MANAGER`)** | Web Portal (`/manager`) | Reviews Partner Inspector applications and drone registrations, claims service requests, prepares VND quotations, uploads signed contracts, dispatches eligible crews, reviews and approves technical reports, settles Inspector payouts, publishes reports to Customers, and manages refunds. |
-| **Inspector (`INSPECTOR`)** | Web Portal (`/operations`) | Registers and maintains owned drones, accepts or withdraws from scheduled assignments before field work, submits flight permits, executes field sessions, uploads evidence, reviews AI defect detections, verifies re-inspection defects with fresh evidence, and authors technical reports. |
-| **Customer (`CUSTOMER`)** | Web Portal (`/client`) and Mobile App (Android) | Registers buildings with airspace screening, creates one-time, recurring, or post-remediation re-inspection requests, accepts quotations, tracks inspection progress, reviews and accepts published reports, pays service fees via Sepay VietQR or VNPay, downloads payment notices and receipts, and rates Inspectors. |
+| **Administrator (`ADMIN`)** | Web Portal (Administrator) | Manages platform accounts, drone document and feature catalogs, pilot licence classes, rating criteria, asset categories, and audit logs. Has read-only access to inspection reports and re-inspection verifications. |
+| **Manager (`MANAGER`)** | Web Portal (Manager) | Reviews Partner Inspector applications and drone registrations, claims service requests, prepares VND quotations, uploads signed contracts, dispatches eligible crews, reviews and approves technical reports, settles Inspector payouts, publishes reports to Customers, and manages refunds. |
+| **Inspector (`INSPECTOR`)** | Web Portal (Operations) | Registers and maintains owned drones, accepts or withdraws from scheduled assignments before field work, submits flight permits, executes field sessions, uploads evidence, reviews AI defect detections, verifies re-inspection defects with fresh evidence, and authors technical reports. |
+| **Customer (`CUSTOMER`)** | Web Portal (Customer) and Mobile App (Android) | Registers buildings with airspace screening, creates one-time, recurring, or post-remediation re-inspection requests, accepts quotations, tracks inspection progress, reviews and accepts published reports, pays service fees via Sepay VietQR or VNPay, downloads payment notices and receipts, and rates Inspectors. |
 
 Use the quick-start guide below to jump directly to the workflow for your task. Red numbered callouts (`❶`, `❷`, …) in each screenshot correspond directly to the numbered actions in that step.
 
@@ -604,7 +604,7 @@ Open **Service Payment** after accepting the report.
 
 After completing the site repairs, open **Service Payment** on the original published report. When it is paid and contains confirmed defects, select **Schedule Re-inspection** in the **Post-Remediation Re-inspection** card to create a linked follow-up request. If a follow-up is already active, continue with the existing request or inspection.
 
-Inspector, Manager, and Customer Web views and the Customer Mobile app warn when a `RESOLVED` verdict expires within 14 days. If a verdict has expired and a new verification is needed, the Customer can return to the original paid report to request another re-inspection.
+Inspector, Manager, and Customer Web views and the Customer Mobile app warn when a **Resolved** verdict expires within 14 days. If a verdict has expired and a new verification is needed, the Customer can return to the original paid report to request another re-inspection.
 
 ![Confirmed Customer payment and receipt download](assets/manual/wf6-05-cus-report-pay.png)
 
@@ -655,7 +655,7 @@ Enter the Customer email and password, then sign in. Use the password recovery a
 
 ![Sign in on mobile](assets/manual/mob-login.png)
 
-*Figure 6.41 — Customer sign-in in the Flutter web preview.*
+*Figure 6.41 — Customer sign-in on the mobile app.*
 
 **Step 2 — Find work that needs attention.**
 

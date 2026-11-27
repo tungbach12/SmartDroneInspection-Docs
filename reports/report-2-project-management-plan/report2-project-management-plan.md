@@ -9,8 +9,9 @@ source_docx: report2-project-management-plan.docx
 
 | Date | A* / M, D | In charge | Change Description |
 | --- | --- | --- | --- |
-| 25 Nov 2026 | M | Team | Version 3.6: Synchronized the delivered persistence baseline to `53` application tables (`55` total PostgreSQL tables) across Flyway `V1`–`V4` and `V60`–`V80`, aligned `FE-07` and `FE-13` names and `D5`/`D6` counts (`53` tables / `77` workbook cases) with Report 3 and Report 5, and replaced Figure 1 with the exported Draw.io `Agile Scrum Process` diagram. |
+| 25 Nov 2026 | M | Team | Version 3.6: Synchronized the delivered database baseline (`53` application tables), aligned `FE-07` and `FE-13` names and `D5`/`D6` counts (`53` tables / `80` workbook rows) with Report 3 and Report 5, and replaced Figure 1 with the exported Draw.io `Agile Scrum Process` diagram. |
 | 26 Nov 2026 | M | Project Team | Aligned the delivery scope, work allocation, and milestone presentation with the final project report. |
+| 27 Nov 2026 | M | Project Team | Aligned management objectives, risk language, deliverables, and automated test totals with Report 5 and management-level phrasing. |
 
 *A - Added M - Modified D - Deleted
 
@@ -40,8 +41,8 @@ The overall objective was to deliver a working, defensible platform covering the
 
 - All twenty-four atomic product features (`FE-01`–`FE-24`) accepted against their Report 3 acceptance criteria.
 - `0` unauthorized or cross-scope data disclosures, verified by role, ownership, and assignment probing across all four portals.
-- `0` Spring Modulith module-boundary violations.
-- A verified database schema baseline of 53 application tables (`55` total database tables across `V1`–`V4` and `V60`–`V80`) enforced by automated migration and persistence checks.
+- `0` architectural module-boundary violations across backend domain modules, enforced by automated architecture checks.
+- A verified database schema baseline of 53 application tables enforced by automated migration and persistence checks.
 - `0` open Critical or High severity defects at handover, with all identified scope defects resolved and regression-verified.
 
 **Quality**
@@ -49,7 +50,7 @@ The overall objective was to deliver a working, defensible platform covering the
 | # | Testing Stage | Test Coverage | No. of Defects | % of Defect | Notes |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Reviewing | Requirement, design, and code review of every feature before merge | 6 | 25.0% | Defects caught in review before the code reached a test environment. |
-| 2 | Unit Test | Domain rules, services, components, and widgets | 8 | 33.3% | Backend `1,052` tests passed (`0` failures, Modulith and migration gates met); frontend `830` tests (`826` passed, `4` pre-existing skipped) across `120` files; mobile `58` tests passed (`0` failures). |
+| 2 | Unit Test | Domain rules, services, components, and widgets | 8 | 33.3% | Backend `1,066` tests passed (`0` failures, module-boundary and migration gates met); frontend `846` passed (`4` pre-existing skipped); mobile `58` tests passed (`0` failures). |
 | 3 | Integration Test | Controllers, repositories, migrations, storage, and outbox | 7 | 29.2% | Schema, authorization, and object-storage defects. |
 | 4 | System Test | Connected end-to-end lifecycle across roles and clients | 3 | 12.5% | Cross-module sequencing and recovery-path defects. |
 | 5 | Acceptance Test | Business rules and acceptance criteria per feature | 0 | 0.0% | No accepted-scope defect remained at handover. |
@@ -69,7 +70,7 @@ Allocated Effort (man-days): 208
 | 4 | Contract drift between the four repositories | High | Medium | Keep one focused PR per repository with an explicit merge order; treat the OpenAPI surface as the contract and regression-test it. |
 | 5 | Scope creep toward corrective maintenance | High | High | Bound scope explicitly to the twenty-four atomic inspection features (`FE-01`–`FE-24`); record maintenance and non-building domains explicitly as out of scope rather than partially implementing them. |
 | 6 | Large video evidence destabilises upload or report rendering | Medium | Medium | Chunked resumable uploads, asynchronous transcoding with source retention, range-based streaming, and report rendering that never reads video into memory. |
-| 7 | Module boundaries erode into a tangled monolith | Medium | Medium | Declare `allowedDependencies` per module and enforce them with an architecture test that fails the build. |
+| 7 | Module boundaries erode into a tangled monolith | Medium | Medium | Declare explicit inter-module dependency boundaries and enforce them with an architecture test that fails the build. |
 | 8 | Test evidence becomes overstated | High | Medium | Report only executed runs with their actual counts; keep unexecuted cases `Pending`; record known defects rather than omitting them. |
 | 9 | Team members unavailable during review periods | Medium | Medium | Cross-review ownership so no single person is the only holder of a feature's context. |
 | 10 | Local environment inconsistency between members | Low | High | Containerise the database, storage, detection, and hub services so every member runs the same stack. |
@@ -97,7 +98,7 @@ To ensure project quality throughout development, the team continuously applied 
 
 - **Requirement Reviewing:** Every feature slice was reviewed against Report 3 functional requirements, role boundaries, and acceptance criteria before coding and during pull-request review.
 - **Code Review:** Every change required peer review by a non-author across the backend, web frontend, mobile, and documentation repositories before merge.
-- **Unit and Integration Testing:** Automated unit, architecture-boundary, schema-migration, and integration suites ran on every pull request — reaching `1,052` backend tests (`0` failures), `826` passed (`830` total, `4` deprecated skipped) frontend tests, and `58` mobile tests (`0` failures) at handover.
+- **Unit and Integration Testing:** Automated unit, architecture-boundary, schema-migration, and integration suites ran on every pull request — reaching `1,066` backend tests (`0` failures), `846` passed (`4` skipped) frontend tests, and `58` mobile tests (`0` failures) at handover.
 - **Daily Stand-ups:** Short daily syncs tracked sprint progress, coordinated cross-repository merge order, and kept automated vs. manual verification records strictly accurate.
 
 ### 2.3 Training Plan
@@ -121,11 +122,11 @@ Delivery ran as five gated increments between 15 September and 30 November 2026.
 
 | Milestone | Window | Increment delivered | Evidence at the gate |
 | --- | --- | --- | --- |
-| M1 Foundation | `2026-09-15` – `2026-10-08` | Four-repository skeleton, consolidated Flyway baseline, identity and admission, building catalogue, and the four-role access policy. | Backend unit suite, migration inventory assertion, and the four-portal route policy tests. |
-| M2 Core delivery | `2026-10-09` – `2026-10-22` | Requests and quotations, occurrence dispatch, permit gate, field sessions, evidence intake, YOLO11 detection, and inspection report management. | Integration suites across controllers, storage, detection, and report workflows. |
+| M1 Foundation | `2026-09-15` – `2026-10-08` | Four-repository skeleton, consolidated database schema baseline, identity and admission, building catalogue, and the four-role access policy. | Backend unit suite, migration inventory assertion, and the four-portal route policy tests. |
+| M2 Core delivery | `2026-10-09` – `2026-10-22` | Requests and quotations, occurrence dispatch, permit gate, field sessions, evidence intake, AI defect detection, and inspection report management. | Integration suites across controllers, storage, detection, and report workflows. |
 | M3 Review baseline | `2026-10-23` – `2026-10-27` | Independent report review, publication, acceptance, and the retention decisions that retired maintenance capability. | Review-baseline walkthrough and scope-retirement verification. |
 | M4 Consolidation | `2026-10-28` – `2026-11-04` | Twenty-four-feature consolidation across `MF1`–`MF4`, Sepay (VietQR) and VNPay settlement, partner payout and refund ledgers, and re-inspection verification. | Connected lifecycle run and the finance lifecycle cases. |
-| M5 Release | `2026-11-05` – `2026-11-30` | Final regression, workflow streamlining (`V70`–`V80`), staging walkthrough, documentation export, and defence rehearsal. | Full suites, workbook reconciliation, and the exported report set. |
+| M5 Release | `2026-11-05` – `2026-11-30` | Final regression, workflow streamlining, staging walkthrough, documentation export, and defence rehearsal. | Full suites, workbook reconciliation, and the exported report set. |
 
 Work was sliced vertically: a feature counted as complete only when its backend contract, its role-scoped client surface, and its tests landed together. The five windows therefore overlap in feature content but not in gate criteria — a later feature could start while an earlier one was still in review, but it could not pass its own gate on an incomplete slice.
 
@@ -134,7 +135,7 @@ Work was sliced vertically: a feature counted as complete only when its backend 
 | # | Deliverable | Due Date | Notes |
 | --- | --- | --- | --- |
 | D1 | Requirement specification (Report 3) | 2026-10-03 | Four roles, twenty-four atomic features (`FE-01`–`FE-24`), `BR-01`–`BR-55`, `MSG01`–`MSG50`. |
-| D2 | Design document (Report 4) | 2026-10-17 | Architecture, package diagrams, 53-table application schema (`55` total database tables across `V1`–`V4`, `V60`–`V80`), and detailed design per feature. |
+| D2 | Design document (Report 4) | 2026-10-17 | Architecture, package diagrams, 53-table database schema, and detailed design per feature. |
 | D3 | Working platform across four repositories | 2026-11-15 | Integrated backend service, four-portal web application, Customer mobile client, and documentation tooling. |
 | D4 | Automated test suites | 2026-11-17 | Backend, frontend, and mobile suites verified. |
 | D5 | Test documentation and workbook (Report 5) | 2026-11-18 | Twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `80` listed rows (`78` active test cases + `2` superseded `FE-13` cases). |
@@ -162,10 +163,10 @@ Members are identified by initials matching weighted contributions (`24%` / `24%
 | `FE-11` Assignment Acceptance Timeout & Escalation Handling | S | D | R | S | I |
 | `FE-12` System Notifications & Alert Center | S | D | S | R | I |
 | `FE-13` Flight Permit Upload & Self-Attestation Gate | S | R | S | D | R |
-| `FE-14` On-Site Field Session & SmartDroneHub MAVLink Telemetry | R | S | S | D | R |
+| `FE-14` On-Site Field Session & Flight Telemetry | R | S | S | D | R |
 | `FE-15` Field Evidence Intake & Chunked Video Processing Pipeline | S | S | R | D | R |
-| `FE-16` AI Defect Detection (`YOLO11` + Vision Fallback) & Findings Confirmation | S | R | S | D | R |
-| `FE-17` AI Case/Standard Retrieval (`pgvector` RAG), Note Drafting & Report Summary | R | S | S | D | R |
+| `FE-16` AI Defect Detection & Findings Confirmation | S | R | S | D | R |
+| `FE-17` AI Case & Standard Retrieval, Note Drafting & Report Summary | R | S | S | D | R |
 | `FE-18` Inspection Report Compilation, Independent Review & Official Publication | R | S | R | D | R |
 | `FE-19` Customer Report Acceptance & Clarification Workflow | R | S | D | S | R |
 | `FE-20` Online Service Fee Payment (`Sepay` VietQR & `VNPay`) | S | S | D | R | R |

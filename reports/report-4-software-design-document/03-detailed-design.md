@@ -703,7 +703,7 @@ These scenarios describe expected behavior. See Report 5 for the execution resul
 | Case | Scenario | Expected behavior |
 | --- | --- | --- |
 | WF2-011 | Start a field session with a permit and then complete or abort the session. | Check the permit dates and aircraft before starting. Preserve the recorded session outcome and flight data source. |
-| WF2-012 | Start field work without a valid permit or checklist. | Reject a missing, pending, rejected or expired permit, a blank required checklist note, or a concurrent session. No new session is created. |
+| WF2-012 | Start field work without a valid permit or checklist. | Reject a missing, invalidated, or expired permit, a blank required checklist note, or a concurrent session. No new session is created. |
 | WF2-017 | Open inspection metrics in each role's dashboard. | Show scoped metrics and count only confirmed findings in the official defect charts. |
 | WF2-018 | Open a visit from the Inspector schedule. | Show its schedule and warnings and open the relevant step in the visit. |
 | WF3-020 | Import flight data or record a manual declaration. | Label the data source. Keep unavailable fields empty and show no fabricated GPS trace for manual entries. Reject access outside the assigned inspection. |

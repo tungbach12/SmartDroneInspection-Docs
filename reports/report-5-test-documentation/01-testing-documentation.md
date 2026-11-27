@@ -25,7 +25,7 @@ This document defines the testing scope, strategy, plan, and execution results f
 | `FE-10` Messaging | Order Chat, Partner Chat, and Inspection Chat | Customer, Manager, Inspector | Verify channel isolation, 10 MiB per-file and 20 MiB per-message attachment limits, and unread badge synchronization. |
 | `FE-11` Assignment Acceptance | Inspector Acceptance, Decline, Pre-Field Withdrawal, and Timeout | Inspector, Manager | Verify pending-acceptance workflow, pre-field withdrawal flagging reassignment, post-abort withdrawal rejection, and timeout recovery. |
 | `FE-12` Notifications | In-App Bilingual Feed and Critical Email Delivery | All Roles | Verify bilingual notification generation across all workflow events, mark-as-read state checks, and Simple Mail Transfer Protocol (SMTP) email fallbacks. |
-| `FE-13` Flight Permits | Self-Attested Flight Permit Upload and Validity Resets | Inspector | Verify permit attachment moves status to `APPROVED` and drone change or out-of-window reschedule resets to `PENDING_REVIEW`. |
+| `FE-13` Flight Permits | Self-Attested Flight Permit Upload and Validity Resets | Inspector | Verify valid permit attachment takes effect immediately via Inspector self-attestation and drone change or out-of-window reschedule invalidates the permit for re-upload. |
 | `FE-14` Field Sessions and Telemetry | Multi-Flight Sessions, MAVLink Logs, and Abort Recovery | Inspector, Manager, Customer | Verify session start, telemetry ingestion, completion, and Customer visibility of stored flight logs only after report publication. |
 | `FE-15` Evidence Pipeline | Image Upload, Chunked Video Upload, and Signed Media Tickets | Inspector, Manager, Customer | Verify upload validation, single-use scoped media tickets, and cross-customer access denial. |
 | `FE-16` Defect Detection | YOLO11 Inference, Fallback Review, and Findings Confirmation | Inspector | Verify automated candidate detection, graceful fallback when AI is offline, manual bounding boxes, and findings baseline lock. |
@@ -38,7 +38,7 @@ This document defines the testing scope, strategy, plan, and execution results f
 | `FE-23` Refunds and Receivables | Offline Refund Allocation and Post-Payout Inspector Receivables | Manager, Inspector | Verify five-way refund allocation balance, immutable paid payouts, receivable recovery tracking, and masked Inspector projections. |
 | `FE-24` Post-Remediation Re-inspection | Linked Re-inspection Creation, Three-Way Verification, and Verdict Expiry | Customer, Manager, Inspector, Admin | Verify role guards, duplicate open re-inspection blocking (`REINSPECTION_ALREADY_OPEN`), fresh in-session evidence checks, report locks, and 14-day verdict expiry warnings. |
 
-Chapter III, Section 3.8 of the Software Requirement Specification (SRS) defines out-of-scope boundaries, including corrective maintenance execution, live aircraft piloting, and 3D reconstruction. Payment tests run against sandbox credentials and simulated gateway callbacks.
+Chapter III, Section 3.26 of the Software Requirement Specification (SRS) defines out-of-scope boundaries, including corrective maintenance execution, live aircraft piloting, and 3D reconstruction. Payment tests run against sandbox credentials and simulated gateway callbacks.
 
 ### 1.1 Test Model
 
@@ -104,14 +104,14 @@ UAT executes role-scoped walkthroughs across the four web portals (`ADMIN`, `MAN
 | `inspections` | Inspector, Manager, Customer, Admin | Permits, multi-flight sessions, evidence tickets, AI findings, RAG notes, reports, re-inspection verifications | `ReinspectionWorkflowIntegrationTest`, `InspectionRecoveryFlowIntegrationTest`, `InspectionCreationLifecycleTest`, `ReportServiceReviewerScopeTest`, `ReinspectionWorkflow.test.tsx` |
 | `notifications` | All Roles | Bilingual in-app notifications, read-all guard, critical SMTP emails | `NotificationWorkflowIntegrationTest`, `NotificationsPage.test.tsx`, `notificationFeed.test.ts` |
 | `dashboard` | All Roles | Role-scoped analytics, queues, revenue charts | `DashboardAnalyticsServiceTest`, `DashboardPage.test.tsx` |
-| `shared` and `database` | System | Spring Modulith boundaries, Flyway `V1` to `V4` and `V60` to `V80` migrations, 55-table inventory | `ModulithArchitectureTest`, `FullDatabaseSchemaMigrationTest`, `RuntimePersistenceInventoryTest` |
+| `shared` and `database` | System | Spring Modulith boundaries, Flyway schema migrations, 55-table inventory | `ModulithArchitectureTest`, `FullDatabaseSchemaMigrationTest`, `RuntimePersistenceInventoryTest` |
 | `mobile` | Customer | Customer-only sign-in, building list, requests, chat, report view, payment PDFs, verdict expiry chips | `flutter test` (58 tests), `flutter analyze` |
 
 ### 1.5 Non-Screen System Functions
 
 | No. | Non-Screen System Function |
 | --- | --- |
-| 1 | Flyway automated schema migration (`V1` to `V4` and `V60` to `V80`) across 53 application tables (55 total tables in `public`). |
+| 1 | Flyway automated schema migration across 53 application tables (55 total tables in `public`). |
 | 2 | Spring Modulith event publication registry and transactional outbox delivery between domain modules. |
 | 3 | Scheduled drone registration and pilot licence expiry scanner triggering 30-, 7-, 1-, and 0-day reminders. |
 | 4 | Scheduled pending-acceptance timeout monitor flagging expired Inspector assignments for Manager reassignment. |
@@ -175,7 +175,7 @@ The test plan assigns feature ownership across all four team members, specifies 
 | Purpose | Tool | Provider | Version |
 | --- | --- | --- | --- |
 | Application runtime | Java 21 with Spring Boot Modulith | Eclipse Temurin / Broadcom | `Java 21` / `4.1.0` |
-| Relational database | PostgreSQL (`53` application tables / `55` total in `public`, migrations `V1` to `V4`, `V60` to `V80`) | PostgreSQL Global Development Group | `17` |
+| Relational database | PostgreSQL (`53` application tables / `55` total in `public`, forward Flyway release baseline) | PostgreSQL Global Development Group | `17` |
 | Object storage | MinIO (`inspection-evidence` bucket) | MinIO Inc. | `RELEASE.2025` |
 | Test containers | Testcontainers with `pgvector:pg17` and `adobe/s3mock` | AtomicJar / Docker | `PostgreSQL 17` |
 | Computer vision service | FastAPI with Ultralytics YOLO11s | Python / Ultralytics | `YOLO11s` |
@@ -283,6 +283,6 @@ The Manager approves the submitted report, settles the partner payout fixture, a
 | ID | Severity | Status | Description | Impact |
 | --- | --- | --- | --- | --- |
 | `DEF-01` | Low | Resolved | The mobile `UserRole` enum previously included the retired `MAINTENANCE_ENGINEER` value. It now matches the four canonical platform roles. | `flutter analyze` and all 58 mobile tests pass, restricting mobile sign-in to Customers. |
-| `DEF-02` | Low | Open | The legacy backend E2E runner script resolves its frontend root to a directory that does not exist in the current multi-repo workspace. | `ConnectedMainFlowE2eIntegrationTest` and Playwright web checks provide the active end-to-end verification path. |
+| `DEF-02` | Low | Open | The older backend E2E runner script resolves its frontend root to a directory that does not exist in the current multi-repo workspace. | `ConnectedMainFlowE2eIntegrationTest` and Playwright web checks provide the active end-to-end verification path. |
 
 The companion workbook preserves all historical acceptance round results, including pending cases. Automated Surefire and Vitest suites verify the underlying service, controller, and UI assertions, while full manual walkthroughs remain tracked in the workbook.
