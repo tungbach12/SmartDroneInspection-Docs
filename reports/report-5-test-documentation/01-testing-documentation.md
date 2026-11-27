@@ -38,7 +38,14 @@ This document defines the testing scope, strategy, plan, and execution results f
 | `FE-23` Refunds and Receivables | Offline Refund Allocation and Post-Payout Inspector Receivables | Manager, Inspector | Verify five-way refund allocation balance, immutable paid payouts, receivable recovery tracking, and masked Inspector projections. |
 | `FE-24` Post-Remediation Re-inspection | Linked Re-inspection Creation, Three-Way Verification, and Verdict Expiry | Customer, Manager, Inspector, Admin | Verify role guards, duplicate open re-inspection blocking (`REINSPECTION_ALREADY_OPEN`), fresh in-session evidence checks, report locks, and 14-day verdict expiry warnings. |
 
-Chapter III, Section 3.26 of the Software Requirement Specification (SRS) defines out-of-scope boundaries, including corrective maintenance execution, live aircraft piloting, and 3D reconstruction. Payment tests run against sandbox credentials and simulated gateway callbacks.
+**Non-Functional Requirements (NFRs) In Scope:**
+
+- **Security and Access Control (`NFR-03`, `NFR-04`):** Four-role RBAC isolation across web portals and APIs, JWT authentication, refresh-token rotation, IP rate limiting, account lockout, single-use signed media tickets, and webhook signature verification (Sepay `Authorization: Apikey` and VNPay HMAC-SHA512).
+- **Reliability and Fault Tolerance:** Deterministic fallback when external AI inference (YOLO11s) or embedding services are offline, transactional outbox delivery, idempotent payment webhook handling, and Flyway forward-only schema integrity across 55 tables.
+- **Usability and Localization:** Bilingual English/Vietnamese interface consistency, dark-mode rendering, and role-appropriate empty/error states across Web and Customer Mobile.
+- **Maintainability and Architecture:** Spring Modulith module boundary compliance (`ModulithArchitectureTest`), static analysis (`spotless:check`, `npm run lint`, `tsc --noEmit`, `flutter analyze`), and JaCoCo coverage thresholds.
+
+**Out-of-Scope Boundaries:** Chapter III, Section 3.26 of the Software Requirement Specification (SRS) defines out-of-scope boundaries, including corrective maintenance execution, live aircraft piloting, civil aviation authority portal integration, and 3D reconstruction. Payment tests run against sandbox credentials and simulated gateway callbacks rather than live banking transfers, and native mobile testing is scoped exclusively to the `CUSTOMER` role.
 
 ### 1.1 Test Model
 
@@ -55,17 +62,37 @@ SmartDroneInspection uses a workflow-driven test model organized around the four
 
 Unit tests verify domain entities, value objects, state machines, service business rules, React components, and Flutter widgets in isolation with mocked dependencies.
 
+- **In-charge:** All four developers (`Trần Hoàng Trung Hiếu`, `Phùng Trung Quốc`, `Trần Tùng Bách`, `Trương Thái Như`) for their owned modules.
+- **Inputs / Time:** Feature source code, SRS business rules (`BR-01` to `BR-55`), and Report 4 class specifications; executed continuously during development and on every commit (Milestones 1–5).
+- **Focuses:** Domain invariants, state transitions, validation guards, quotation/payout/refund math, React component rendering, and Flutter widget logic.
+- **Acceptance criteria:** 100% of unit tests pass (`0` failures, `0` errors), JaCoCo coverage gate passes, and all 202 traced backend unit cases in `Report5_Unit Test.xlsx` pass.
+
 #### 1.2.2 Integration Testing
 
 Integration tests verify REST controllers, JPA repositories, Flyway schema migrations, Spring Security filters, object storage tickets, payment webhooks, and the event outbox against containerized PostgreSQL 17 (`pgvector:pg17`) and S3Mock services.
+
+- **In-charge:** Backend and Full-Stack engineers (`Phùng Trung Quốc`, `Trần Tùng Bách`, `Trương Thái Như`).
+- **Inputs / Time:** Integrated domain modules, Flyway migration scripts, API contracts, and Testcontainers fixtures; executed after module completion and before every PR merge (Milestones 1–5).
+- **Focuses:** HTTP status codes, `@PreAuthorize` role enforcement, SQL/pgvector persistence, MinIO signed ticket scoping, and Sepay/VNPay webhook idempotency.
+- **Acceptance criteria:** Full Maven verification (`.\mvnw.cmd verify`) completes with `0` failures and `0` errors, and all 55 database tables migrate cleanly.
 
 #### 1.2.3 System Testing
 
 System tests verify end-to-end connected main flows (`ConnectedMainFlowE2eIntegrationTest`), cross-module Spring Modulith boundaries, AI service degradation paths, and non-functional thresholds across the integrated stack.
 
+- **In-charge:** Project Team (`Trần Tùng Bách`, `Trương Thái Như`, `Trần Hoàng Trung Hiếu`, `Phùng Trung Quốc`).
+- **Inputs / Time:** Full backend, web portal, mobile build, and staging/Docker Compose stack; executed at Milestones 3–5 prior to release packaging.
+- **Focuses:** Cross-module `MF1`–`MF4` handoffs, `ModulithArchitectureTest` boundaries, AI-offline fallback continuity, and cross-role visibility gates before/after report publication.
+- **Acceptance criteria:** All connected E2E flows and architectural boundary tests pass with zero critical or high-severity open defects.
+
 #### 1.2.4 Acceptance Testing
 
 Acceptance tests validate every product feature (`FE-01` to `FE-24`) against SRS business rules (`BR-01` to `BR-55`) and record multi-round execution outcomes in `Report5_Test Report.xlsx`.
+
+- **In-charge:** Feature owners across all 4 team members (`FE-01`–`FE-05` Hiếu; `FE-06`–`FE-12` Quốc; `FE-13`–`FE-18` Bách; `FE-19`–`FE-24` Như), reviewed by Supervisor `Phạm Minh Trí`.
+- **Inputs / Time:** SRS functional/non-functional requirements, `Report5_Test Report.xlsx` test procedures, and release builds; executed across Rounds 1–3 (Milestones 3–5).
+- **Focuses:** Role-scoped user journeys across the 4 web portals and Customer mobile app, regulatory compliance (Decree 288/2025/ND-CP), payment settlement, and post-remediation re-inspection.
+- **Acceptance criteria:** 100% of active acceptance test cases (`87/87`) pass in Final Release Round 3 with `0` failed and `0` pending cases.
 
 #### 1.2.5 Definition of Done (DoD)
 
@@ -128,11 +155,40 @@ The test strategy balances fast isolated checks with containerized integration s
 
 ### 2.1 Testing Types
 
-Functional tests verify workflow rules, permitted state transitions, duplicate guards, and input limits such as attachment sizes and 20-day scheduling lead times. Security tests verify authentication protection, JWT validation, and data isolation by role, ownership, and assignment.
+The project applies seven testing types aligned with the Test Levels matrix in Section 2.2:
 
-Integration and system tests verify evidence pipelines, AI fallback behavior, payment webhook signature checks, response times, and published-report integrity. Interface and regression tests verify English and Vietnamese localization, dark-mode theme behavior, and cross-release stability.
+- **1. Functional and Business Rule Testing**
+  - *Objective:* Verify that all 24 product features (`FE-01` to `FE-24`) implement SRS functional requirements and business rules (`BR-01` to `BR-55`), including 20-day scheduling lead times, attachment size limits (10 MiB/file, 20 MiB/message), MTOW compliance, and duplicate-request guards.
+  - *Technique:* Black-box equivalence partitioning, boundary value analysis, and positive/negative scenario execution across JUnit 5, Vitest, Flutter Test, and manual acceptance rounds.
+  - *Completion Criteria:* 100% of active functional acceptance cases (`87/87`) and automated feature tests pass with zero critical/high defects.
+- **2. Domain State Machine Transition Testing**
+  - *Objective:* Verify that lifecycle entities (partner applications, drones, service requests, inspections, flight permits, reports, payouts, refunds, and re-inspections) allow only valid transitions and reject illegal or concurrent transitions.
+  - *Technique:* State-transition testing with valid path traversal, invalid transition assertions (`409 Conflict` / `400 Bad Request`), and concurrency guards (e.g., duplicate open re-inspection blocking `REINSPECTION_ALREADY_OPEN`).
+  - *Completion Criteria:* All permitted and forbidden state-transition unit and integration tests pass with zero unhandled state errors.
+- **3. API and Database Persistence Testing**
+  - *Objective:* Verify REST endpoint contracts, serialization, Flyway forward migrations (`55` tables in `public`), JPA queries, `pgvector` indexing, and transactional outbox event delivery.
+  - *Technique:* MockMvc / Spring Boot integration tests running against containerized PostgreSQL 17 (`pgvector:pg17`) and `adobe/s3mock` via Testcontainers.
+  - *Completion Criteria:* Schema migration, persistence inventory, and all repository/controller integration tests pass cleanly in `.\mvnw.cmd verify`.
+- **4. Security and Scope Isolation Testing**
+  - *Objective:* Verify authentication (JWT, OTP, OAuth2, refresh rotation, IP rate limiting, account lockout), 4-role RBAC separation of duties (`ADMIN`, `MANAGER`, `CUSTOMER`, `INSPECTOR`), cross-tenant data isolation, and scoped single-use MinIO media tickets.
+  - *Technique:* Negative authorization matrix testing (`401`/`403`/`404` checks across roles and organizations), frontend route-guard tests (`accessPolicy.ts`), and Customer-only mobile role enforcement tests.
+  - *Completion Criteria:* Zero unauthorized data leaks or privilege escalations across all security and route-guard test suites.
+- **5. AI Vision, Narrative Drafting and Fallback Testing**
+  - *Objective:* Verify automated YOLO11s defect detection, `DroneKnowledgeAI` `pgvector` RAG retrieval, AI report drafting, and graceful degradation when AI or embedding services are unavailable.
+  - *Technique:* Stubbed/mocked HTTP client tests simulating both healthy AI responses and offline/timeout failures, verifying manual bounding-box fallback and `HYBRID_MATCH` keyword retrieval.
+  - *Completion Criteria:* Both AI-online and AI-offline fallback paths complete without blocking inspection or report workflows.
+- **6. Performance, Payment Webhook and Report Integrity Testing**
+  - *Objective:* Verify cryptographic payment webhook validation (Sepay `Authorization: Apikey`, VNPay HMAC-SHA512), idempotent ledger recording, amount-mismatch rejection, payout-before-publish gates, PDF notice/receipt states, and acceptable API response times.
+  - *Technique:* Signed and tampered webhook replay tests, duplicate callback idempotency checks, PDF state-gate integration tests, and staging walkthrough timing checks.
+  - *Completion Criteria:* All tampered/duplicate webhooks are safely rejected or deduplicated, and report publication/settlement invariants pass 100%.
+- **7. User Interface, Localization and Regression Testing**
+  - *Objective:* Verify web portal and mobile UI rendering, English/Vietnamese localization parity, dark-mode behavior, and absence of regressions across releases.
+  - *Technique:* Automated Vitest + React Testing Library suites (`846` web tests), `flutter test` (`58` mobile tests), static checks (`eslint`, `tsc --noEmit`, `flutter analyze`), and end-to-end staging walkthroughs.
+  - *Completion Criteria:* Zero lint/type/analyzer errors and 100% pass rate on the final release regression baseline.
 
 ### 2.2 Test Levels
+
+Testing is executed progressively across four levels: **Unit Testing** (isolated domain, service, component, and widget verification), **Integration Testing** (API, PostgreSQL/pgvector, S3Mock, security filter, and webhook verification), **System Testing** (connected `MF1`–`MF4` end-to-end flows and Spring Modulith architecture verification), and **Acceptance Testing** (full 24-feature validation against SRS requirements across Rounds 1–3). The matrix below maps each testing type from Section 2.1 to the test levels where it is performed.
 
 | Type of Tests | Unit | Integration | System | Acceptance |
 | --- | :---: | :---: | :---: | :---: |

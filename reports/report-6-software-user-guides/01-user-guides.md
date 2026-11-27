@@ -13,15 +13,15 @@ This release package contains all engineering, database, testing, and documentat
 
 | No. | Deliverable Item | Description |
 | --- | --- | --- |
-| 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking against the weighted plan in Report 2 (`208` man-days). |
-| 2 | Project Backlog | Twenty-four atomic features (`FE-01` to `FE-24`) organized across four connected main flows (`MF1` to `MF4`). |
-| 3 | Source Codes | Four repositories: Spring Boot backend (`SmartDroneInspection-Backend`), React web portal (`SmartDroneInspection-Frontend`), Flutter Customer mobile app (`SmartDroneInspection-Mobile`), and documentation set (`SmartDroneInspection-Docs`). |
-| 4 | Database Script(s) | Forward-only Flyway migration scripts building the PostgreSQL 17 release schema (53 application tables / 55 total tables in `public`). See Report 4, Section 2 for the database design. |
-| 5 | Final Report Document | Capstone Reports 1 to 7 exported against the official university templates. |
-| 6 | Test Cases Document | `Report5_Test Report.xlsx` (version 3.22, 24 feature sheets, 87 active verified cases + 3 retired/superseded `N/A` cases) and `Report5_Unit Test.xlsx` (version 1.0, 14 functional unit-test sheets / 202 traced JUnit 5 cases), backed by Report 5, Section 5. |
-| 7 | Defects List | Defect log tracking resolved defect `DEF-01` (mobile role enum cleanup) and open tooling defect `DEF-02` (older E2E runner path). |
-| 8 | Issues List | Known operational boundaries and out-of-scope items documented in Report 3, Section 3.26. |
-| 9 | Slide | Final defence presentation deck covering architecture, live demonstration flows, and verification metrics. |
+| 1 | Project Schedule/Tracking (`v1.0`) | Task schedule, milestone dates, and effort tracking (`Report3_Project Tracking.xlsx`) against the weighted plan in Report 2 (`208` man-days). |
+| 2 | Project Backlog (`v1.0`) | Twenty-four atomic features (`FE-01` to `FE-24`) organized across four connected main flows (`MF1` to `MF4`), traced in Report 3 SRS. |
+| 3 | Source Codes (`v1.0 Final Release`) | Four repositories on `main`: Spring Boot 4.1 backend (`SmartDroneInspection-Backend`), React 19 web portal (`SmartDroneInspection-Frontend`), Flutter 3.x Customer mobile app (`SmartDroneInspection-Mobile`), and documentation set (`SmartDroneInspection-Docs`). |
+| 4 | Database Script(s) (`Flyway Release v1.0`) | Forward-only Flyway SQL migration scripts building the PostgreSQL 17 (`pgvector`) release schema (53 application tables / 55 total tables in `public`). See Report 4, Section 2 for the database design. |
+| 5 | Final Report Document (`Reports 1–7, Final Release`) | Complete Capstone Reports 1 to 7 (`Report1`–`Report7`, including `Report6_Software User Guides.docx` v1.3) exported against the official university templates. |
+| 6 | Test Cases Document (`v3.22` / `v1.0`) | `Report5_Test Documentation.docx` (v3.10), `Report5_Test Report.xlsx` (v3.22, 24 feature sheets, 87 active verified cases + 3 retired/superseded `N/A` cases), and `Report5_Unit Test.xlsx` (v1.0, 14 functional unit-test sheets / 202 traced JUnit 5 cases). |
+| 7 | Defects List (`v1.0`) | Defect log in `Report3_Project Tracking.xlsx` and `Report5_Test Documentation.docx` §5.5 tracking resolved defect `DEF-01` (mobile role enum cleanup) and open tooling defect `DEF-02` (legacy E2E runner path). |
+| 8 | Issues List (`v1.0`) | Issue tracker in `Report3_Project Tracking.xlsx` and operational boundaries documented in Report 3, Section 3.26. |
+| 9 | Slide (`v1.0`) | Final defence presentation deck covering system architecture, live demonstration flows, and verification metrics. |
 
 ## 2. Installation Guides
 
