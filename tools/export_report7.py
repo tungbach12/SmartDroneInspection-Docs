@@ -53,12 +53,16 @@ def prepare_cover(chapter, document, metadata):
                 if block.kind == "table" and block.rows[0][:2] == ["Full Name", "Role"])
     members = []
     supervisors = {}
-    for name, role, *_ in team:
+    for name, role, email, *_ in team:
         if role in {"Leader", "Member"}:
-            match = re.fullmatch(r"(.+) \((SE\d+)\)", plain(name))
-            if match is None:
+            name_match = re.fullmatch(r"(.+) \((SE\d+)\)", plain(name))
+            if name_match is not None:
+                members.append(f"{name_match[1]} ({name_match[2]})")
+                continue
+            email_match = re.search(r"(se\d+)@", plain(email), re.IGNORECASE)
+            if email_match is None:
                 raise ValueError(f"Missing student ID on the Report 7 cover: {name}")
-            members.append(f"{match[1]} ({match[2]})")
+            members.append(f"{plain(name)} ({email_match[1].upper()})")
         else:
             supervisors[role] = plain(name)
 

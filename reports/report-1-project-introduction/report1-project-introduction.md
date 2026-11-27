@@ -79,12 +79,12 @@ Finally, the team thanks the open-source communities behind Spring Boot, Spring 
 
 | Full Name | Role | Email | Mobile |
 | --- | --- | --- | --- |
-| Trần Hoàng Trung Hiếu (`SE184212`) | Leader | hieuthtse184212@fpt.edu.vn | 0963832382 |
-| Phùng Trung Quốc (`SE170027`) | Member | quocptse170027@fpt.edu.vn | 0896986551 |
-| Trần Tùng Bách (`SE180220`) | Member | bachttse180220@fpt.edu.vn | 0378351050 |
-| Trương Thái Như (`SE180082`) | Member | nhuttse180082@fpt.edu.vn | 0328416716 |
 | Phạm Minh Trí | Supervisor | tripm14@fpt.edu.vn | — |
 | Đặng Ngọc Minh Đức | External Supervisor and Lecturer | ducdnm2@fpt.edu.vn | — |
+| Trần Hoàng Trung Hiếu | Leader | hieuthtse184212@fpt.edu.vn | 0963832382 |
+| Phùng Trung Quốc | Member | quocptse170027@fpt.edu.vn | 0896986551 |
+| Trần Tùng Bách | Member | bachttse180220@fpt.edu.vn | 0378351050 |
+| Trương Thái Như | Member | nhuttse180082@fpt.edu.vn | 0328416716 |
 
 ## 2. Product Background
 
