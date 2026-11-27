@@ -12,6 +12,7 @@ from support import OFFICIAL, REPORTS, assert_word_export
 from report_ooxml import (Package, WordDocument, children, descendants,
                           parse_markdown, text_of)
 import export_report3
+import export_report6
 import export_report7
 
 
@@ -152,7 +153,7 @@ class DiagramTests(unittest.TestCase):
 
         document = WordDocument(original(OFFICIAL, export_report7.TEMPLATE_NAME))
         document.fill_cover("SmartDroneInspection", "")
-        chapter = export_report7.chapter_blocks(REPORTS / export_report7.SOURCES[-1])
+        chapter = export_report6.chapter_blocks(REPORTS / export_report6.SOURCES[-1])
         figure_count = sum(
             block.kind == "image" and block.text.startswith("assets/manual/")
             for block in chapter
@@ -165,7 +166,7 @@ class DiagramTests(unittest.TestCase):
                 self.assertTrue(descendants(node, "keepNext"))
                 active = [node]
             elif active is not None:
-                if prose.startswith("Figure 7."):
+                if prose.startswith("Figure 6."):
                     self.assertTrue(descendants(active[-1], "drawing"))
                     self.assertTrue(all(descendants(p, "keepNext") for p in active))
                     self.assertFalse(descendants(node, "keepNext"))
@@ -175,6 +176,15 @@ class DiagramTests(unittest.TestCase):
                     active.append(node)
         self.assertGreater(figure_count, 0)
         self.assertEqual(len(manual_steps), figure_count)
+
+    def test_report7_uses_all_six_standalone_report_bodies(self):
+        assembled = export_report7.blocks(REPORTS)
+        for title, exporter in export_report7.CHAPTERS:
+            start = next(i for i, b in enumerate(assembled) if b.kind == "heading" and b.text == title)
+            source = exporter.blocks(REPORTS)
+            main = next(i for i, b in enumerate(source)
+                        if b.kind == "heading" and b.level == 1 and b.text.startswith("II. "))
+            self.assertEqual(assembled[start + 1:start + len(source) - main], source[main + 1:])
 
     def test_mermaid_keeps_line_structure_and_is_marked_as_source(self):
         body = exported_document()

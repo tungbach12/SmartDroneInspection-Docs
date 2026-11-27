@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Assemble four Report 4 sources into the official SDD document format."""
 from pathlib import Path
+import re
 import sys
 
 if __package__ in (None, ""):
@@ -21,7 +22,10 @@ def blocks(reports):
     for index, block in enumerate(result):
         if block.kind == "heading":
             block.keep_with_next = True
-            if block.level == 1 and block.text == "II. Software Design Document":
+            # Each page groups a design view with its explanation, or a full
+            # set of checks for one feature. The diagrams stay at reading size.
+            if (block.text == "II. Software Design Document"
+                    or re.match(r"^(?:3\.\d+ FE-|3\.\d+\.[234] |[56]\. |[45]\.[2-9] )", block.text)):
                 block.page_break_before = True
         if block.kind == "table":
             header = block.rows[0][0]
@@ -33,6 +37,10 @@ def blocks(reports):
                 block.table_widths = (650, 2750, 5950)
             elif header == "Step":
                 block.table_widths = (2400, 2800, 4150)
+            elif header == "Case":
+                block.table_widths = (1150, 3350, 4850)
+            elif header == "Feature":
+                block.table_widths = (1150, 4300, 3900)
             elif header == "Date":
                 block.table_widths = (1175, 810, 1234, 5585)
             previous = result[index - 1]

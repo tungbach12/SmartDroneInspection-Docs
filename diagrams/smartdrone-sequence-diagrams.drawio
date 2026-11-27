@@ -4252,4 +4252,1492 @@
       </root>
     </mxGraphModel>
   </diagram>
+<diagram id="fe01-alternate" name="FE-01 Expired Sign-In Challenge">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="User" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="AuthService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="OtpChallenge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Submit a verification code after the challenge expires." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Read the challenge and check its expiry before issuing a session." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Reject the expired challenge and keep the account signed out." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The user must obtain a fresh challenge and verify it before the portal opens a workspace." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe02-alternate" name="FE-02 Application Rejected at Review">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="InspectorApplicationService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="InspectorApplication" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Open an application and record a rejection reason." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Check that the application is reviewable by the Manager." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Record the rejection and reason on the application." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The application can be reviewed as rejected without creating an Inspector account." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe03-alternate" name="FE-03 Drone Unavailable at Dispatch">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="PartnerRegistryService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="Drone" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Select an approved Inspector and a drone that is unavailable for the flight window." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Check drone ownership, serviceability, and registration for the planned dates." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Reject the proposed pair and retain the occurrence for dispatch." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The Manager selects another eligible aircraft or revises the schedule." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe04-alternate" name="FE-04 Building Pin Inside No-Fly Zone">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Customer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="AirspaceAdvisoryService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="AssetService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Choose a location marked as a no-fly zone and try to save the building." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Evaluate the submitted coordinates against the published zone definitions." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Refuse building creation when the location is prohibited." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The Customer sees an explanation and can choose a different location." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe05-alternate" name="FE-05 Financial Ledger Outside Owner Scope">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Customer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="ContractWorkflowService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="ServiceRequestOccurrence" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Open a financial detail for an occurrence owned by another Customer." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Check the request and occurrence against the authenticated account." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Withhold the occurrence and its payment details." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The ledger continues to show only financial records the Customer may read." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe06-alternate" name="FE-06 Checkpoint Changes After Inspection Use">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Customer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="AssetService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="Asset" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Edit checkpoint selections on a building already used in an inspection." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Check for inspection history before applying the change." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Reject the checkpoint edit and preserve the existing record." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The current checklist remains available to review with the building." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe07-alternate" name="FE-07 Restricted Location With a Ceiling">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Customer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="CustomerAirspacePolicyAdapter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="AirspaceZoneAdvisor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Select a location in restricted airspace and verify the account." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Read the zone advisory and any configured altitude ceiling." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Allow registration and show the restricted-airspace warning." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The permit stage retains the altitude requirement for the assigned Inspector." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe08-alternate" name="FE-08 Quotation Changes Before Acceptance">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Customer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="ContractWorkflowService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="ServiceRequestQuote" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Try to accept a quotation after the Manager has changed it." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Compare the submitted quotation version with the current terms." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Reject stale acceptance and retain the current quotation." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The Customer opens the current quotation and makes a fresh decision." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe09-alternate" name="FE-09 Cancel a Visit After Inspector Withdrawal">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="InspectionCreationService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="Inspection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Open the withdrawn assignment and cancel with a reason." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Check the Manager scope and the scheduled occurrence that requires reassignment." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Cancel the inspection and preserve both withdrawal and cancellation reasons." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The visit closes and its reassignment flag clears." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe10-alternate" name="FE-10 Attachment Request Outside Conversation Scope">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="User" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="InspectionChatService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="InspectionMessageAttachment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Request an attachment under an inspection conversation outside the user's scope." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Check the inspection owner or assigned Inspector before resolving the attachment." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Deny the read and leave the stored file private." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. A later request by an authorized participant can download the file." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe11-alternate" name="FE-11 Withdraw an Accepted Assignment Before Field Work">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Assigned Inspector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="InspectionCreationService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="Inspection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Check withdrawal eligibility and submit a reason while the accepted inspection is scheduled." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Verify the assigned Inspector and that field work has never started for the current assignment." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Mark the assignment declined and require Manager reassignment." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The inspection remains scheduled. The Manager can reassign or cancel the occurrence." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe12-alternate" name="FE-12 Notification Event Delivered Again">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Event listener" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="NotificationService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="Notification" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Handle the same notification-producing event after a retry." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Resolve the recipient and the deduplication key." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Keep one stored alert for that recipient and event." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The recipient sees one alert and the existing read state is retained." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe13-alternate" name="FE-13 Drone Change Invalidates the Permit">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="InspectionCreationService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="FlightPermitPolicy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Replace the drone on a scheduled inspection with a valid uploaded permit." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Re-evaluate the permit against the changed aircraft." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Reset the permit to pending review and require an upload for the new drone." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The field-start gate remains closed until a valid permit is recorded." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe14-alternate" name="FE-14 Reject Withdrawal After Field Abort">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Assigned Inspector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="InspectionCreationService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="FieldSession" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Abort a started field session, then attempt to withdraw the assignment." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Check the session history for the current assignment even though the inspection has reopened." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Reject withdrawal because field work already started." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The Manager uses the field recovery flow to reschedule, reassign, or cancel." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe15-alternate" name="FE-15 Resume an Interrupted Video Upload">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Assigned Inspector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="EvidenceUploadSessionService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="EvidenceUploadSession" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Reconnect to an open upload after sending only part of the video." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Read the recorded upload session and its uploaded parts." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Resume the unfinished upload and finish processing after all required parts arrive." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The evidence becomes playable only when processing succeeds." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe16-alternate" name="FE-16 Primary Detection Unavailable">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Assigned Inspector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="PrimaryWithFallbackInference" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="FindingService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Request analysis while the primary detector is unavailable." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Check whether the configured vision fallback is available for the account." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Use the fallback when permitted and return the detection outcome to finding review." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The Inspector reviews the resulting candidates or enters a finding manually." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe17-alternate" name="FE-17 Embeddings Endpoint Unavailable">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Assigned Inspector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="HistoricalCaseService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="HistoricalCaseAdvisorPort" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Request related cases while the embeddings service is unavailable." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Apply the same case visibility rules and use the available text-based retrieval." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Return scoped recommendations without relying on a vector response." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The Inspector can review the reference list and keep working on the finding." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe18-alternate" name="FE-18 Report Returned for Correction">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="ReportService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="InspectionReport" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Review a submitted version and record the reason it needs correction." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Check review authority and ensure the reviewer is not the report author." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Return the version for revision rather than publishing it." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The Inspector can prepare and submit a corrected version for another review." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe19-alternate" name="FE-19 Clarification Before Acceptance">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Owning Customer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="ReportService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="InspectionReport" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Ask for clarification on the published version before accepting it." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Check Customer ownership, the published version, and whether it is still awaiting acceptance." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Record the clarification without marking the version accepted." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. Payment does not open just because a clarification was requested." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe20-alternate" name="FE-20 Gateway Amount Does Not Match">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Payment gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="GatewayInboundTransactionService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="ServicePayment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Send an authenticated notification with the current order reference and an incorrect amount." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Match the order and compare the reported amount with the amount due." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Record the mismatch for audit and leave the payment unsettled." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The Customer does not receive a paid status for the mismatch." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe21-alternate" name="FE-21 Issue One Alert After Payment Deadline">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Scheduled job" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="PaymentDueExpiryService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="ServicePayment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Scan an unpaid accepted inspection after its payment due date." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Check whether an overdue notice has already been recorded." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Record and emit the overdue alert only once." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The owning Customer can still view the payment notice while payment is due." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe22-alternate" name="FE-22 Report Publication Waits for Payout">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="ReportService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="InspectorPayout" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Attempt to publish an approved report whose applicable payout is unsettled." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Check the approval state and the linked payout settlement." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Keep the version approved without publishing it." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. Publication is available once the applicable payout settles." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe23-alternate" name="FE-23 Refund After Payout Settlement">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="ContractWorkflowService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="InspectorReceivable" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Complete a refund with a recorded allocation after the Inspector has already been paid." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Validate the refundable amount and reconcile the allocation total." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Preserve the payout and record the recoverable share in the receivable ledger." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The Manager can record later collections against that receivable." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+<diagram id="fe24-alternate" name="FE-24 Reject Expired Resolved Verdict">
+    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="1000">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="participant-0" value="Manager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="38" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-0" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="229" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-1" value="ReinspectionVerificationService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="518" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-1" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="709" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="participant-2" value="ReinspectionDefectVerification" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="998" y="30" width="384" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lifeline-2" value="" style="strokeColor=#A5B6C8;fillColor=#A5B6C8;" vertex="1" parent="1">
+          <mxGeometry x="1189" y="141" width="2" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="message-1" value="1. Attempt publication while a resolved follow-up verdict is outside its validity period." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="209" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-1" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="322" as="sourcePoint" />
+            <mxPoint x="710" y="322" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-2" value="2. Check the verdict and the fresh evidence associated with the follow-up inspection." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="386" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-2" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="499" as="sourcePoint" />
+            <mxPoint x="1190" y="499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-3" value="3. Block publication until missing or expired resolution evidence is addressed." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="719" y="563" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-3" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1190" y="676" as="sourcePoint" />
+            <mxPoint x="710" y="676" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="message-4" value="4. The assigned Inspector can capture fresh evidence and update the verdict." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;fillColor=#F4F7FB;fontSize=23;" vertex="1" parent="1">
+          <mxGeometry x="239" y="740" width="462" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-4" value="" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="853" as="sourcePoint" />
+            <mxPoint x="230" y="853" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
 </mxfile>

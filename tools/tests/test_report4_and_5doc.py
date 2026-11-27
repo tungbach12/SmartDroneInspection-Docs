@@ -13,7 +13,7 @@ class Report4And5DocTests(unittest.TestCase):
     def test_report4_sdd_exports_with_embedded_diagrams_and_tables(self):
         result = assert_word_export(self, export_report4)
         self.assertGreaterEqual(result["tables"], 10)
-        self.assertEqual(result["source_images"], 51)
+        self.assertEqual(result["source_images"], 92)
         self.assertFalse(any("Mermaid" in w for w in result["warnings"]))
 
     def test_report4_tables_follow_architecture_figures_and_use_school_format(self):
@@ -30,7 +30,7 @@ class Report4And5DocTests(unittest.TestCase):
 
         body = children(descendants(document, "body")[0])
         tables = [node for node in body if node.localName == "tbl"]
-        self.assertEqual(len(tables), 31)
+        self.assertEqual(len(tables), 60)
         for table in tables:
             header, *data = children(table, "tr")
             fills = [cell.getAttribute("w:fill") for cell in descendants(header, "shd")]
@@ -46,7 +46,7 @@ class Report4And5DocTests(unittest.TestCase):
         captions = [(i, node) for i, node in enumerate(body) if node.localName == "p"
                     and WordDocument.text(node).startswith("Figure 4.")
                     and descendants(body[i - 1], "drawing")]
-        self.assertEqual(len(captions), 51)
+        self.assertEqual(len(captions), 92)
         for i, caption in captions:
             self.assertFalse(WordDocument.text(caption).endswith("*"))
             self.assertEqual(descendants(caption, "jc")[0].getAttribute("w:val"), "center")
@@ -57,6 +57,17 @@ class Report4And5DocTests(unittest.TestCase):
             widths = [int(col.getAttribute("w:w")) for col in descendants(table, "gridCol")]
             self.assertEqual(sum(widths), 9350)
             self.assertEqual(max(widths), widths[-1])
+
+    def test_report4_each_feature_has_design_views_and_verification(self):
+        blocks = export_report4.blocks(REPORTS)
+        for feature in range(1, 25):
+            prefix = f"3.{feature}."
+            headings = [b.text.removeprefix(prefix) for b in blocks
+                        if b.kind == "heading" and b.text.startswith(prefix)]
+            self.assertEqual(headings, ["1 Components and Responsibilities", "2 Main Sequence",
+                                        "3 Alternative Sequence", "4 Design Verification"])
+        self.assertEqual(sum(b.kind == "image" and b.text.endswith("-alternate.png")
+                             for b in blocks), 24)
 
     def test_report5_documentation_preserves_merged_header_table_and_styles(self):
         result = assert_word_export(self, export_report5_doc)
