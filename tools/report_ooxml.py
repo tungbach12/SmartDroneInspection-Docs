@@ -637,8 +637,11 @@ class WordDocument:
                 cell = cells[min(col, len(cells) - 1)].cloneNode(True)
                 properties = (children(cell, "tcPr") or [None])[0]
                 if properties is not None:
-                    for span in children(properties, "gridSpan") + children(properties, "vMerge"):
+                    for span in children(properties, "gridSpan") + children(properties, "vMerge") + children(properties, "noWrap"):
                         properties.removeChild(span)
+                    for valign in children(properties, "vAlign"):
+                        if valign.getAttribute("w:val") == "bottom":
+                            properties.removeChild(valign)
                     for width in children(properties, "tcW"):
                         width.setAttributeNS(W, "w:w", str(widths[col]))
                 ps = children(cell, "p")

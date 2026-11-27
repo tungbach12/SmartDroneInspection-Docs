@@ -146,6 +146,18 @@ class TableContinuityTests(unittest.TestCase):
                 fills = [node.getAttribute("w:fill") for node in descendants(row, "shd")]
                 self.assertNotIn("FFE8E1", fills, WordDocument.text(header))
 
+    def test_report3_table_cells_allow_wrapping_and_avoid_bottom_alignment(self):
+        body = exported_document()
+        tables = [node for node in body if node.localName == "tbl"]
+        self.assertTrue(tables)
+        for tbl in tables:
+            self.assertEqual(descendants(tbl, "noWrap"), [])
+            bottom_aligns = [
+                va for va in descendants(tbl, "vAlign")
+                if va.getAttribute("w:val") == "bottom"
+            ]
+            self.assertEqual(bottom_aligns, [])
+
 
 class DiagramTests(unittest.TestCase):
     def test_report7_manual_callouts_stay_with_their_figure(self):
