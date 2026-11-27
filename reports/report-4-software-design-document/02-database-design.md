@@ -7,13 +7,13 @@ source: "report4-software-design-document.docx"
 
 ## 2. Database Design
 
-### 2.1 Data Storage
+**Files and Persistence Storage Description**
 
 PostgreSQL stores structured records for building inspections. Flyway manages the schema as it changes. The database contains 53 application tables, an event outbox, and a migration history table.
 
 MinIO stores private files such as signed contracts, chat attachments, licence and drone documents, flight permits, evidence, and report PDFs. PostgreSQL links each file to its related record. The backend checks access to that record before serving a file.
 
-### 2.2 Database Diagrams
+**Database Relationships**
 
 ![Conceptual Entity Relationship Overview](assets/diagrams/erd-conceptual-overview.png)
 
@@ -47,7 +47,7 @@ The next five diagrams group related tables by the work they support.
 
 The physical diagram covers the 53 application tables and the event outbox.
 
-### 2.3 Table Descriptions
+**Table Descriptions**
 
 | No | Table | Description |
 | :---: | :--- | :--- |

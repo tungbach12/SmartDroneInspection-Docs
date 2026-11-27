@@ -1931,287 +1931,476 @@
     </mxGraphModel>
   </diagram>
 <diagram id="fe04-class-slice" name="FE-04 Airspace Screening and Advisories">
-    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="component-0" value="&lt;b&gt;AirspaceController&lt;/b&gt;&lt;hr&gt;Receives a location and returns the airspace result" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-1" value="&lt;b&gt;AirspaceAdvisoryService&lt;/b&gt;&lt;hr&gt;Evaluates the location against active zones" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-2" value="&lt;b&gt;CustomerAirspacePolicyAdapter&lt;/b&gt;&lt;hr&gt;Makes the result available to registration and inspection flows" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-3" value="&lt;b&gt;AssetService&lt;/b&gt;&lt;hr&gt;Applies the result to building creation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="link-1" value="queries zones" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-0" target="component-1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="link-2" value="checks location" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-3" target="component-1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="792" width="1300" height="56" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
+  <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880" background="#ffffff">
+    <root>
+      <mxCell id="0" />
+      <mxCell id="1" parent="0" />
+      <mxCell id="component-0" value="AirspaceController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-0-body" value="Receives a location and returns the airspace result" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-0">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1" value="AirspaceAdvisoryService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1-body" value="Evaluates the location against active zones" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-1">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2" value="CustomerAirspacePolicyAdapter" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2-body" value="Makes the result available to registration and inspection flows" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-2">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3" value="AssetService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3-body" value="Applies the result to building creation" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-3">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6569767441860465;exitDx=0;exitDy=0;entryX=0;entryY=0.6569767441860465;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-0" target="component-1">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1-label" value="queries zones" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="598" y="201" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="link-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-3" target="component-1">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-2-label" value="checks location" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="1083" y="380" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=23;" vertex="1" parent="1">
+        <mxGeometry x="60" y="760" width="1300" height="60" as="geometry" />
+      </mxCell>
+    </root>
+  </mxGraphModel>
+</diagram>
 <diagram id="fe05-class-slice" name="FE-05 Financial History">
-    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="component-0" value="&lt;b&gt;ContractWorkflowController&lt;/b&gt;&lt;hr&gt;Accepts scoped ledger queries" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-1" value="&lt;b&gt;ContractWorkflowService&lt;/b&gt;&lt;hr&gt;Composes the allowed payment and payout details" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-2" value="&lt;b&gt;ServiceRequestOccurrence&lt;/b&gt;&lt;hr&gt;Connects the commercial request and its visit" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-3" value="&lt;b&gt;ServicePayment&lt;/b&gt;&lt;hr&gt;Records the Customer payment state" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="link-1" value="requests history" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-0" target="component-1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="link-2" value="reads visit" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-1" target="component-2">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="link-3" value="reads settlement" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-1" target="component-3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="792" width="1300" height="56" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
+  <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880" background="#ffffff">
+    <root>
+      <mxCell id="0" />
+      <mxCell id="1" parent="0" />
+      <mxCell id="component-0" value="ContractWorkflowController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-0-body" value="Accepts scoped ledger queries" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-0">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1" value="ContractWorkflowService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1-body" value="Composes the allowed payment and payout details" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-1">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2" value="ServiceRequestOccurrence" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2-body" value="Connects the commercial request and its visit" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-2">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3" value="ServicePayment" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3-body" value="Records the Customer payment state" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-3">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6569767441860465;exitDx=0;exitDy=0;entryX=0;entryY=0.6569767441860465;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-0" target="component-1">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1-label" value="requests history" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="598" y="201" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="link-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=0.42857142857142855;exitY=1;exitDx=0;exitDy=0;entryX=0.5714285714285714;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-1" target="component-2">
+        <mxGeometry relative="1" as="geometry">
+          <Array as="points">
+            <mxPoint x="1056" y="393" />
+            <mxPoint x="363" y="393" />
+          </Array>
+        </mxGeometry>
+      </mxCell>
+      <mxCell id="link-2-label" value="reads visit" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="597" y="366" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="link-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-1" target="component-3">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-3-label" value="reads settlement" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="1083" y="380" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=23;" vertex="1" parent="1">
+        <mxGeometry x="60" y="760" width="1300" height="60" as="geometry" />
+      </mxCell>
+    </root>
+  </mxGraphModel>
+</diagram>
 <diagram id="fe06-class-slice" name="FE-06 Buildings and Documents">
-    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="component-0" value="&lt;b&gt;AssetService&lt;/b&gt;&lt;hr&gt;Manages a building and protects its checkpoints" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-1" value="&lt;b&gt;AssetCatalogService&lt;/b&gt;&lt;hr&gt;Supplies category checkpoints" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-2" value="&lt;b&gt;AssetDocumentService&lt;/b&gt;&lt;hr&gt;Manages private building documents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-3" value="&lt;b&gt;Asset&lt;/b&gt;&lt;hr&gt;Identifies the owner and selected checkpoints" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="link-1" value="maintains building" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-0" target="component-3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="link-2" value="attaches documents" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-2" target="component-3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="792" width="1300" height="56" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
+  <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880" background="#ffffff">
+    <root>
+      <mxCell id="0" />
+      <mxCell id="1" parent="0" />
+      <mxCell id="component-0" value="AssetService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-0-body" value="Manages a building and protects its checkpoints" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-0">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1" value="AssetCatalogService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1-body" value="Supplies category checkpoints" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-1">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2" value="AssetDocumentService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2-body" value="Manages private building documents" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-2">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3" value="Asset" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3-body" value="Identifies the owner and selected checkpoints" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-3">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=0.42857142857142855;exitY=1;exitDx=0;exitDy=0;entryX=0.5714285714285714;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-0" target="component-3">
+        <mxGeometry relative="1" as="geometry">
+          <Array as="points">
+            <mxPoint x="286" y="393" />
+            <mxPoint x="1133" y="393" />
+          </Array>
+        </mxGeometry>
+      </mxCell>
+      <mxCell id="link-1-label" value="maintains building" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="597" y="366" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="link-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6569767441860465;exitDx=0;exitDy=0;entryX=0;entryY=0.6569767441860465;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-2" target="component-3">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-2-label" value="attaches documents" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="598" y="586" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=23;" vertex="1" parent="1">
+        <mxGeometry x="60" y="760" width="1300" height="60" as="geometry" />
+      </mxCell>
+    </root>
+  </mxGraphModel>
+</diagram>
 <diagram id="fe10-class-slice" name="FE-10 Scoped Conversations">
-    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="component-0" value="&lt;b&gt;ContractWorkflowController&lt;/b&gt;&lt;hr&gt;Handles the Customer and Manager order conversation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-1" value="&lt;b&gt;ServiceRequestPartnerChatService&lt;/b&gt;&lt;hr&gt;Handles the Manager and Inspector conversation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-2" value="&lt;b&gt;InspectionChatService&lt;/b&gt;&lt;hr&gt;Handles the Customer and Inspector conversation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-3" value="&lt;b&gt;ChatAttachmentValidator&lt;/b&gt;&lt;hr&gt;Checks attachment files before storage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="link-1" value="validates uploads" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-1" target="component-3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="link-2" value="validates uploads" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-2" target="component-3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="792" width="1300" height="56" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
+  <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880" background="#ffffff">
+    <root>
+      <mxCell id="0" />
+      <mxCell id="1" parent="0" />
+      <mxCell id="component-0" value="ContractWorkflowController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-0-body" value="Handles the Customer and Manager order conversation" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-0">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1" value="ServiceRequestPartnerChatService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1-body" value="Handles the Manager and Inspector conversation" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-1">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2" value="InspectionChatService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2-body" value="Handles the Customer and Inspector conversation" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-2">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3" value="ChatAttachmentValidator" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3-body" value="Checks attachment files before storage" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-3">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-1" target="component-3">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1-label" value="validates uploads" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="1083" y="380" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="link-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6569767441860465;exitDx=0;exitDy=0;entryX=0;entryY=0.6569767441860465;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-2" target="component-3">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-2-label" value="validates uploads" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="598" y="586" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=23;" vertex="1" parent="1">
+        <mxGeometry x="60" y="760" width="1300" height="60" as="geometry" />
+      </mxCell>
+    </root>
+  </mxGraphModel>
+</diagram>
 <diagram id="fe11-class-slice" name="FE-11 Assignment Eligibility and Permits">
-    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="component-0" value="&lt;b&gt;InspectionWorkflowService&lt;/b&gt;&lt;hr&gt;Reports the actions available to the assigned Inspector" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-1" value="&lt;b&gt;InspectionCreationService&lt;/b&gt;&lt;hr&gt;Checks assignment and scheduling changes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-2" value="&lt;b&gt;InspectionAssignmentTimeoutMonitor&lt;/b&gt;&lt;hr&gt;Releases expired pending offers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-3" value="&lt;b&gt;FlightPermitPolicy&lt;/b&gt;&lt;hr&gt;Checks the aircraft, dates, and applicable ceiling" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="link-1" value="validates permit" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-1" target="component-3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="792" width="1300" height="56" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
+  <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880" background="#ffffff">
+    <root>
+      <mxCell id="0" />
+      <mxCell id="1" parent="0" />
+      <mxCell id="component-0" value="InspectionWorkflowService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-0-body" value="Reports the actions available to the assigned Inspector" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-0">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1" value="InspectionCreationService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1-body" value="Checks assignment and scheduling changes" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-1">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2" value="InspectionAssignmentTimeoutMonitor" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2-body" value="Releases expired pending offers" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-2">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3" value="FlightPermitPolicy" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3-body" value="Checks the aircraft, dates, and applicable ceiling" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-3">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-1" target="component-3">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1-label" value="validates permit" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="1083" y="380" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=23;" vertex="1" parent="1">
+        <mxGeometry x="60" y="760" width="1300" height="60" as="geometry" />
+      </mxCell>
+    </root>
+  </mxGraphModel>
+</diagram>
 <diagram id="fe12-class-slice" name="FE-12 Lifecycle Notifications">
-    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="component-0" value="&lt;b&gt;InspectionNotificationListener&lt;/b&gt;&lt;hr&gt;Receives inspection events" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-1" value="&lt;b&gt;NotificationService&lt;/b&gt;&lt;hr&gt;Creates recipient alerts and tracks read state" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-2" value="&lt;b&gt;CriticalLifecycleEmailService&lt;/b&gt;&lt;hr&gt;Sends email for selected events" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-3" value="&lt;b&gt;Notification&lt;/b&gt;&lt;hr&gt;Stores the recipient and event identity" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="link-1" value="records notification" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-1" target="component-3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="792" width="1300" height="56" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
+  <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880" background="#ffffff">
+    <root>
+      <mxCell id="0" />
+      <mxCell id="1" parent="0" />
+      <mxCell id="component-0" value="InspectionNotificationListener" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-0-body" value="Receives inspection events" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-0">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1" value="NotificationService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1-body" value="Creates recipient alerts and tracks read state" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-1">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2" value="CriticalLifecycleEmailService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2-body" value="Sends email for selected events" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-2">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3" value="Notification" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3-body" value="Stores the recipient and event identity" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-3">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-1" target="component-3">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1-label" value="records notification" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="1083" y="380" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=23;" vertex="1" parent="1">
+        <mxGeometry x="60" y="760" width="1300" height="60" as="geometry" />
+      </mxCell>
+    </root>
+  </mxGraphModel>
+</diagram>
 <diagram id="fe15-class-slice" name="FE-15 Evidence Intake and Streaming">
-    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="component-0" value="&lt;b&gt;EvidenceService&lt;/b&gt;&lt;hr&gt;Registers evidence and its inspection scope" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-1" value="&lt;b&gt;EvidenceUploadSessionService&lt;/b&gt;&lt;hr&gt;Tracks resumable uploads" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-2" value="&lt;b&gt;VideoProcessingWorker&lt;/b&gt;&lt;hr&gt;Prepares ready video and its preview" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-3" value="&lt;b&gt;MediaTicketService&lt;/b&gt;&lt;hr&gt;Issues limited access for playback" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="link-1" value="registers evidence" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-1" target="component-0">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="792" width="1300" height="56" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
+  <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880" background="#ffffff">
+    <root>
+      <mxCell id="0" />
+      <mxCell id="1" parent="0" />
+      <mxCell id="component-0" value="EvidenceService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-0-body" value="Registers evidence and its inspection scope" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-0">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1" value="EvidenceUploadSessionService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1-body" value="Tracks resumable uploads" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-1">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2" value="VideoProcessingWorker" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2-body" value="Prepares ready video and its preview" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-2">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3" value="MediaTicketService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3-body" value="Issues limited access for playback" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-3">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=0;exitY=0.6569767441860465;exitDx=0;exitDy=0;entryX=1;entryY=0.6569767441860465;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-1" target="component-0">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1-label" value="registers evidence" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="598" y="201" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=23;" vertex="1" parent="1">
+        <mxGeometry x="60" y="760" width="1300" height="60" as="geometry" />
+      </mxCell>
+    </root>
+  </mxGraphModel>
+</diagram>
 <diagram id="fe19-class-slice" name="FE-19 Report Acceptance and Invoicing">
-    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="component-0" value="&lt;b&gt;ReportService&lt;/b&gt;&lt;hr&gt;Checks the current published version" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-1" value="&lt;b&gt;ContractWorkflowService&lt;/b&gt;&lt;hr&gt;Records Customer acceptance and opens settlement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-2" value="&lt;b&gt;ServiceInvoice&lt;/b&gt;&lt;hr&gt;Keeps the occurrence fee and rate snapshots" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-3" value="&lt;b&gt;PaymentDueExpiryService&lt;/b&gt;&lt;hr&gt;Sets and monitors the payment deadline" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="link-1" value="opens settlement" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-1" target="component-2">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="link-2" value="uses accepted visit" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-3" target="component-2">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="792" width="1300" height="56" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
+  <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880" background="#ffffff">
+    <root>
+      <mxCell id="0" />
+      <mxCell id="1" parent="0" />
+      <mxCell id="component-0" value="ReportService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-0-body" value="Checks the current published version" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-0">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1" value="ContractWorkflowService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1-body" value="Records Customer acceptance and opens settlement" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-1">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2" value="ServiceInvoice" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2-body" value="Keeps the occurrence fee and rate snapshots" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-2">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3" value="PaymentDueExpiryService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3-body" value="Sets and monitors the payment deadline" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-3">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=0.42857142857142855;exitY=1;exitDx=0;exitDy=0;entryX=0.5714285714285714;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-1" target="component-2">
+        <mxGeometry relative="1" as="geometry">
+          <Array as="points">
+            <mxPoint x="1056" y="393" />
+            <mxPoint x="363" y="393" />
+          </Array>
+        </mxGeometry>
+      </mxCell>
+      <mxCell id="link-1-label" value="opens settlement" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="597" y="366" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="link-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=0;exitY=0.6569767441860465;exitDx=0;exitDy=0;entryX=1;entryY=0.6569767441860465;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-3" target="component-2">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-2-label" value="uses accepted visit" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="598" y="586" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=23;" vertex="1" parent="1">
+        <mxGeometry x="60" y="760" width="1300" height="60" as="geometry" />
+      </mxCell>
+    </root>
+  </mxGraphModel>
+</diagram>
 <diagram id="fe20-class-slice" name="FE-20 Online Settlement">
-    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="component-0" value="&lt;b&gt;ContractWorkflowService&lt;/b&gt;&lt;hr&gt;Maintains the current settlement order" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-1" value="&lt;b&gt;SepayPaymentGateway&lt;/b&gt;&lt;hr&gt;Builds VietQR details and handles provider data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-2" value="&lt;b&gt;VnPayPaymentGateway&lt;/b&gt;&lt;hr&gt;Creates signed checkout requests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-3" value="&lt;b&gt;GatewayInboundTransactionService&lt;/b&gt;&lt;hr&gt;Records provider notifications and their outcomes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="link-1" value="through Sepay port" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-0" target="component-1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="link-2" value="through VNPay port" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-0" target="component-2">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="792" width="1300" height="56" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
+  <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880" background="#ffffff">
+    <root>
+      <mxCell id="0" />
+      <mxCell id="1" parent="0" />
+      <mxCell id="component-0" value="ContractWorkflowService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-0-body" value="Maintains the current settlement order" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-0">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1" value="SepayPaymentGateway" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1-body" value="Builds VietQR details and handles provider data" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-1">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2" value="VnPayPaymentGateway" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2-body" value="Creates signed checkout requests" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-2">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3" value="GatewayInboundTransactionService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3-body" value="Records provider notifications and their outcomes" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-3">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6569767441860465;exitDx=0;exitDy=0;entryX=0;entryY=0.6569767441860465;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-0" target="component-1">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1-label" value="through Sepay port" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="598" y="201" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="link-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-0" target="component-2">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-2-label" value="through VNPay port" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="313" y="380" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=23;" vertex="1" parent="1">
+        <mxGeometry x="60" y="760" width="1300" height="60" as="geometry" />
+      </mxCell>
+    </root>
+  </mxGraphModel>
+</diagram>
 <diagram id="fe22-class-slice" name="FE-22 Payouts and Refund Recovery">
-    <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="component-0" value="&lt;b&gt;ReportService&lt;/b&gt;&lt;hr&gt;Checks the payout gate before publication" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-1" value="&lt;b&gt;InspectorPayout&lt;/b&gt;&lt;hr&gt;Records eligibility, holds, and settlement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="90" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-2" value="&lt;b&gt;ServiceRefund&lt;/b&gt;&lt;hr&gt;Records the amount, state, and allocation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="component-3" value="&lt;b&gt;InspectorReceivable&lt;/b&gt;&lt;hr&gt;Tracks recovery separately from paid settlement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAF1F8;strokeColor=#A5B6C8;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="785" y="503" width="575" height="220" as="geometry" />
-        </mxCell>
-        <mxCell id="link-1" value="checks publication gate" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-0" target="component-1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="link-2" value="can create a receivable" style="endArrow=block;endFill=1;html=1;strokeColor=#233B59;fontColor=#172334;fontSize=23;" edge="1" parent="1" source="component-2" target="component-3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontColor=#172334;fontSize=27;" vertex="1" parent="1">
-          <mxGeometry x="60" y="792" width="1300" height="56" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
+  <mxGraphModel grid="1" gridSize="10" page="1" pageWidth="1420" pageHeight="880" background="#ffffff">
+    <root>
+      <mxCell id="0" />
+      <mxCell id="1" parent="0" />
+      <mxCell id="component-0" value="ReportService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-0-body" value="Checks the payout gate before publication" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-0">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1" value="InspectorPayout" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="115" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-1-body" value="Records eligibility, holds, and settlement" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-1">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2" value="ServiceRefund" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="55" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-2-body" value="Records the amount, state, and allocation" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-2">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3" value="InspectorReceivable" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=54;horizontalStack=0;resizeParent=0;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;fillColor=#ffffff;swimlaneFillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;fontFamily=Helvetica;fontSize=26;" vertex="1" parent="1">
+        <mxGeometry x="825" y="500" width="540" height="172" as="geometry" />
+      </mxCell>
+      <mxCell id="component-3-body" value="Tracks recovery separately from paid settlement" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=15;spacingRight=15;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;fontColor=#000000;fontStyle=0;fontFamily=Helvetica;fontSize=24;whiteSpace=wrap;" vertex="1" parent="component-3">
+        <mxGeometry x="0" y="54" width="540" height="118" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6569767441860465;exitDx=0;exitDy=0;entryX=0;entryY=0.6569767441860465;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-0" target="component-1">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-1-label" value="checks publication gate" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="598" y="201" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="link-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#000000;strokeWidth=2;endArrow=open;endFill=0;endSize=10;fontColor=#000000;fontFamily=Helvetica;fontSize=17;labelBackgroundColor=#ffffff;exitX=1;exitY=0.6569767441860465;exitDx=0;exitDy=0;entryX=0;entryY=0.6569767441860465;entryDx=0;entryDy=0;" edge="1" parent="1" source="component-2" target="component-3">
+        <mxGeometry relative="1" as="geometry" />
+      </mxCell>
+      <mxCell id="link-2-label" value="can create a receivable" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=17;" vertex="1" parent="1">
+        <mxGeometry x="598" y="586" width="224" height="22" as="geometry" />
+      </mxCell>
+      <mxCell id="legend" value="Classes are grouped by responsibility. Arrows show selected collaborations or access to a record." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#000000;fontFamily=Helvetica;fontSize=23;" vertex="1" parent="1">
+        <mxGeometry x="60" y="760" width="1300" height="60" as="geometry" />
+      </mxCell>
+    </root>
+  </mxGraphModel>
+</diagram>
 </mxfile>

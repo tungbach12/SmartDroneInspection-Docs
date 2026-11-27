@@ -11,7 +11,7 @@ source: "report4-software-design-document.docx"
 
 ### 1.1 System Architecture
 
-The web portal and mobile app reach the inspection backend through Nginx.
+The web portal and mobile app reach the inspection backend through Nginx. The system coordinates building inspections and follow-up visits.
 
 ![SmartDroneInspection system architecture](assets/diagrams/arch-system-architecture.png)
 

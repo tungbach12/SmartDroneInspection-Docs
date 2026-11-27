@@ -29,8 +29,12 @@ class Report4And5DocTests(unittest.TestCase):
         self.assertEqual(compression[0].getAttribute("w:val"), "true")
 
         body = children(descendants(document, "body")[0])
+        history = next(i for i, node in enumerate(body)
+                       if node.localName == "p" and WordDocument.text(node) == "I. Record of Changes")
+        self.assertEqual(body[history - 1].localName, "sdt")
+        self.assertTrue(descendants(body[history], "pageBreakBefore"))
         tables = [node for node in body if node.localName == "tbl"]
-        self.assertEqual(len(tables), 60)
+        self.assertEqual(len(tables), 59)
         for table in tables:
             header, *data = children(table, "tr")
             fills = [cell.getAttribute("w:fill") for cell in descendants(header, "shd")]
@@ -60,14 +64,28 @@ class Report4And5DocTests(unittest.TestCase):
 
     def test_report4_each_feature_has_design_views_and_verification(self):
         blocks = export_report4.blocks(REPORTS)
-        for feature in range(1, 25):
+        self.assertEqual(
+            [b.text for b in blocks if b.kind == "heading" and b.level == 2],
+            ["1. System Design", "2. Database Design", "3. Detailed Design"],
+        )
+        feature_starts = [i for i, b in enumerate(blocks) if b.kind == "heading"
+                          and b.level == 3 and " FE-" in b.text]
+        self.assertEqual(len(feature_starts), 24)
+        for feature, (start, end) in enumerate(zip(feature_starts, feature_starts[1:] + [len(blocks)]), 1):
+            design = blocks[start:end]
             prefix = f"3.{feature}."
-            headings = [b.text.removeprefix(prefix) for b in blocks
+            headings = [b.text.removeprefix(prefix) for b in design
                         if b.kind == "heading" and b.text.startswith(prefix)]
-            self.assertEqual(headings, ["1 Components and Responsibilities", "2 Main Sequence",
-                                        "3 Alternative Sequence", "4 Design Verification"])
-        self.assertEqual(sum(b.kind == "image" and b.text.endswith("-alternate.png")
-                             for b in blocks), 24)
+            self.assertEqual(headings[0], "1 Class Diagram")
+            self.assertTrue(headings[1].startswith("2 ") and "Sequence" in headings[1])
+            self.assertEqual(headings[-1].split(" ", 1)[1], "Design Rules and Test References")
+            self.assertTrue(any(b.kind == "paragraph" and b.text == "**Class Specifications**"
+                                for b in design))
+            alternative, = [i for i, b in enumerate(design)
+                            if b.kind == "image" and b.text.endswith("-alternate.png")]
+            self.assertEqual(design[alternative - 1].kind, "heading")
+            self.assertTrue(design[alternative + 1].text.endswith(
+                design[alternative - 1].text.split(" ", 1)[1] + "*"))
 
     def test_report5_documentation_preserves_merged_header_table_and_styles(self):
         result = assert_word_export(self, export_report5_doc)

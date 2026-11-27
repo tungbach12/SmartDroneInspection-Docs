@@ -8,7 +8,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from export_common import render_word
-from report_ooxml import parse_markdown
+from report_ooxml import descendants, parse_markdown
 
 TEMPLATE_NAME = "Report4_Software Design Document.docx"
 SOURCES = ["report-4-software-design-document/" + name + ".md" for name in (
@@ -24,8 +24,8 @@ def blocks(reports):
             block.keep_with_next = True
             # Each page groups a design view with its explanation, or a full
             # set of checks for one feature. The diagrams stay at reading size.
-            if (block.text == "II. Software Design Document"
-                    or re.match(r"^(?:3\.\d+ FE-|3\.\d+\.[234] |[56]\. |[45]\.[2-9] )", block.text)):
+            if (block.level == 1
+                    or re.match(r"^(?:3\.\d+ FE-|3\.\d+\.(?:[2-9]|\d{2,}) )", block.text)):
                 block.page_break_before = True
         if block.kind == "table":
             header = block.rows[0][0]
@@ -33,14 +33,14 @@ def blocks(reports):
                 block.table_widths = (2510, 2185, 4655)
             elif block.rows[0][:2] == ["No", "Package"]:
                 block.table_widths = (650, 3250, 5450)
-            elif header == "No":
-                block.table_widths = (650, 2750, 5950)
+            elif block.rows[0][:2] == ["No", "Table"]:
+                block.table_widths = (650, 3900, 4800)
+            elif block.rows[0][:2] == ["No", "Class or Component"]:
+                block.table_widths = (650, 3700, 5000)
             elif header == "Step":
                 block.table_widths = (2400, 2800, 4150)
             elif header == "Case":
                 block.table_widths = (1150, 3350, 4850)
-            elif header == "Feature":
-                block.table_widths = (1150, 4300, 3900)
             elif header == "Date":
                 block.table_widths = (1175, 810, 1234, 5585)
             previous = result[index - 1]
@@ -56,9 +56,18 @@ def blocks(reports):
     return result
 
 
+def prepare_cover(document, _metadata):
+    # The first heading starts its own page. A separate break paragraph
+    # can overflow a full table of contents and create a blank page.
+    separator = document.cover[-1]
+    if (separator.localName == "p" and not document.text(separator).strip()
+            and [br.getAttribute("w:type") for br in descendants(separator, "br")] == ["page"]):
+        document.body.removeChild(document.cover.pop())
+
+
 def export(template, reports, output):
     warnings = ["Historical change rows with extra reference cells are retained in the final description cell"]
-    return render_word(template, reports, output, blocks(reports), warnings)
+    return render_word(template, reports, output, blocks(reports), warnings, prepare_cover=prepare_cover)
 
 
 if __name__ == "__main__":

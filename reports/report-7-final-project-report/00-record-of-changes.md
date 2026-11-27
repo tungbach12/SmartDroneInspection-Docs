@@ -9,6 +9,6 @@ source: "Report7_Final Project Report.docx"
 
 | Date | A*M, D | In charge | Change Description |
 | --- | --- | --- | --- |
-|  |  |  |  |
+| 27 Nov 2026 | A | Project Team | Compiled Reports 1–6 using the SEP490 final report template and incorporated the revised software design document. |
 
 *A - Added M - Modified D - Deleted*
