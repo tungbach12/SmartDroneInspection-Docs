@@ -11,7 +11,7 @@ round.
 | Project Name | SmartDroneInspection |
 | Project Code | GFA26SE139 |
 | Test round | Current inventory is 80 rows across 24 features, with 78 active and two superseded FE-13 cases. Round 1 has 52 Passed, 0 Failed, 9 Pending and 19 N/A. Round 3 has 16 Passed including WF2-032–WF2-034. |
-| Last updated | 2026-11-26 (Report 5 v3.19). Added three executed assignment-withdrawal cases. |
+| Last updated | 2026-11-27 (Report 5 v3.20). Updated the FE-24 procedures and linked the follow-up verification. |
 
 ### Round scope
 

@@ -9,68 +9,136 @@ source: "Report6_Software User Guides.docx"
 
 ## 1. Deliverable Package
 
+This release package contains all engineering, database, testing, and documentation deliverables produced for SmartDroneInspection (`GFA26SE139`, Team `FA26SE112`).
+
 | No. | Deliverable Item | Description |
 | --- | --- | --- |
-| 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking against the weighted plan in Report 2 (`208` md). |
-| 2 | Project Backlog | The twenty-four atomic feature backlog (`FE-01`–`FE-24`) across `MF1`–`MF4`. |
-| 3 | Source Codes | Four independent repositories: backend service (`SmartDroneInspection-backend`), web portals (`SmartDroneInspection-frontend`), Customer mobile client (`SmartDroneInspection-mobile`), and documentation (`SmartDroneInspection-docs`). |
-| 4 | Database Script(s) | Flyway migrations `V1`–`V4` and `V60`–`V80` build the PostgreSQL 17 schema. See Chapter IV, Section 2 for the database design. |
-| 5 | Final Report Document | Reports 1–7, prepared using the official templates. |
-| 6 | Test Cases Document | `Report5_Test Report.xlsx` (`v3.19`) with twenty-four feature sheets (`Feature 1`–`Feature 24`) covering `80` listed rows (`78` active cases + `2` superseded `FE-13` cases), plus the executed results in Report 5 §5. |
-| 7 | Defects List | The defect log records one resolved defect (`DEF-01`) and one open tooling defect (`DEF-02`). |
-| 8 | Issues List | Outstanding issues and known limitations, including the product limitations listed in Chapter III. |
-| 9 | Slide | The defence presentation used for the final review. |
+| 1 | Project Schedule/Tracking | Task schedule, milestone dates, and effort tracking against the weighted plan in Report 2 (`208` man-days). |
+| 2 | Project Backlog | Twenty-four atomic features (`FE-01` to `FE-24`) organized across four connected main flows (`MF1` to `MF4`). |
+| 3 | Source Codes | Four repositories: Spring Boot backend (`SmartDroneInspection-Backend`), React web portal (`SmartDroneInspection-Frontend`), Flutter Customer mobile app (`SmartDroneInspection-Mobile`), and documentation set (`SmartDroneInspection-Docs`). |
+| 4 | Database Script(s) | Flyway migration scripts (`V1` to `V4` and `V60` to `V80`) building the PostgreSQL 17 schema (53 application tables / 55 total tables in `public`). See Report 4, Section 2 for the database design. |
+| 5 | Final Report Document | Capstone Reports 1 to 7 exported against the official university templates. |
+| 6 | Test Cases Document | `Report5_Test Report.xlsx` (version 3.20) with 24 feature sheets (`Feature 1` to `Feature 24`) covering 80 listed rows (78 active cases and 2 superseded `FE-13` cases), backed by automated suite results in Report 5, Section 5. |
+| 7 | Defects List | Defect log tracking resolved defect `DEF-01` (mobile role enum cleanup) and open tooling defect `DEF-02` (legacy E2E path). |
+| 8 | Issues List | Known operational boundaries and out-of-scope items documented in Report 3, Section 3.26. |
+| 9 | Slide | Final defence presentation deck covering architecture, live demonstration flows, and verification metrics. |
 
 ## 2. Installation Guides
 
+Follow the hardware, software, and component setup instructions below to run the complete SmartDroneInspection stack locally.
+
 ### 2.1 System Requirements
 
-| Component | Minimum Setup | Notes |
+#### 2.1.1 Hardware Requirements
+
+| Resource | Minimum | Recommended |
 | --- | --- | --- |
-| Host | 64-bit x86 processor with 4 logical cores, 8 GB RAM and 40 GB free disk | Allow additional CPU, memory and storage for detection and video processing. Use 16 GB RAM and 60 GB free for the recommended setup. |
-| Backend and storage | Docker Engine 27+ with Docker Compose | Runs PostgreSQL, MinIO, AI inference, SmartDroneHub and the Spring Boot API. Java 21 is required for local backend builds and tests. |
-| Web development | Node.js 22+ and npm | Runs the Vite development server. Use Chrome or Edge. |
-| Customer mobile app | Flutter SDK and Android toolchain | Run on an emulator or physical Android device. |
-| Optional integrations | Network access for configured services | SmartDroneHub receives MAVLink on UDP 14551 by default. Its default TCP connection targets the host on port 5762. |
+| Processor (CPU) | 64-bit x86 processor, 4 logical cores | 64-bit x86 or Apple Silicon processor, 8+ logical cores |
+| Memory (RAM) | 8 GB RAM | 16 GB RAM (for concurrent Docker, YOLO11 inference, and Android emulator) |
+| Disk Space | 40 GB free SSD storage | 60 GB+ free SSD storage |
+| Network | Local loopback plus outbound HTTPS for npm, Maven, and payment sandboxes | Broadband connection; UDP port `14551` and TCP port `5762` open locally if testing MAVLink telemetry |
 
-### 2.2 Installation Procedure
+#### 2.1.2 Software Requirements
 
-#### Step 1 — Configure and Start the Backend
+| Software | Name / Version | Description |
+| --- | --- | --- |
+| Operating System | Windows 11, macOS 14+, or Ubuntu 22.04+ | Host platform supporting Docker Engine and local client toolchains. |
+| Container Runtime | Docker Engine 27+ with Docker Compose v2 | Runs PostgreSQL 17 (`pgvector`), MinIO, FastAPI YOLO11s, SmartDroneHub, and the Spring Boot API. |
+| Java Development Kit | Eclipse Temurin Java 21 (LTS) | Required to build and run the Spring Boot 4.1 Modulith backend and Maven tests. |
+| Relational Database | PostgreSQL 17 with `pgvector` extension | Stores all 53 application tables and 384-dimensional knowledge embeddings. |
+| Object Storage | MinIO (Docker Compose image) | S3-compatible storage hosting inspection photos, chunked video, permits, and signed contracts in `inspection-evidence`. |
+| Node.js Runtime | Node.js 22+ and npm 10+ | Runs the React 19 + TypeScript + Vite web portal development server and Vitest suite. |
+| Mobile SDK | Flutter 3.x and Android SDK (API 34+) | Builds and runs the Customer-only Android mobile application. |
+| AI Vision Service | Python 3.11 with FastAPI and Ultralytics YOLO11s | Runs automated building-defect detection (`crack`, `leakage`, `abscission`, `corrosion`, `bulge`). |
+| Web Browser | Google Chrome or Microsoft Edge (Evergreen) | Desktop browser for the four role-scoped web portals. |
 
-Clone the backend, frontend, mobile, and documentation repositories into sibling directories. In the backend folder, copy `.env.example` to `.env` and set the PostgreSQL and MinIO credentials, signing secrets, web origin, and bootstrap Administrator. Configure mail to test registration with email verification.
+### 2.2 Installation Instruction
 
-Run `docker compose up -d --build` in the backend directory. Use `docker compose ps` and open `http://localhost:8080/actuator/health`. Wait for `UP` before connecting either client. Flyway applies the migrations during startup.
+Clone the four sibling repositories (`SmartDroneInspection-Backend`, `SmartDroneInspection-Frontend`, `SmartDroneInspection-Mobile`, and `SmartDroneInspection-Docs`) into the same workspace folder before running the component steps below.
 
-#### Step 2 — Start the Web Portal
+#### 2.2.1 Backend and Infrastructure (Docker Compose & Spring Boot)
 
-From the frontend directory, run `npm install` and then `npm run dev`. Open `http://localhost:3000` and check that the sign-in page loads. The development server proxies `/api` to `http://localhost:8080` by default.
+1. Open a terminal in `SmartDroneInspection-Backend`.
+2. Copy `.env.example` to `.env` and set PostgreSQL credentials, MinIO keys, JWT signing secrets, web origin (`http://localhost:3000`), and the bootstrap Administrator email and password. Configure SMTP variables if you want live registration emails.
+3. Start the full backend stack:
 
-#### Step 3 — Start the Customer Mobile App
+```bash
+docker compose up -d --build
+```
 
-From the mobile directory, run `flutter doctor` and `flutter pub get`. Start an Android emulator and run `flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080/api/v1`. On a physical device, use a backend address that the device can reach. Verify that a Customer can sign in and open the home screen.
+4. Check container status with `docker compose ps` and open `http://localhost:8080/actuator/health`. Wait until the endpoint returns `{"status":"UP"}` before connecting the web or mobile clients.
 
-#### Step 4 — Verify the First Web Login
+#### 2.2.2 Database (PostgreSQL 17 & Flyway)
 
-Use the bootstrap Administrator credentials to sign in to the web portal. Change the initial password and check that **Platform users** opens.
+PostgreSQL 17 with `pgvector` starts automatically inside Docker Compose. During Spring Boot startup, Flyway applies the release migrations (`V1` to `V4` and `V60` to `V80`) and seeds baseline reference tables. For the schema integrity test, start the Docker engine so Testcontainers can create an isolated PostgreSQL instance. Run the Maven wrapper from the backend directory.
 
-If startup fails, use `docker compose logs backend` to find the failing check. For a signing error, check the secret lengths against `.env.example`. If uploads fail after sign-in, check that MinIO is healthy and the configured buckets are available.
+```bash
+.\mvnw.cmd test -Dtest=FullDatabaseSchemaMigrationTest
+```
+
+#### 2.2.3 Web Portal (React & Vite)
+
+1. Open a terminal in `SmartDroneInspection-Frontend`.
+2. Install packages and launch the development server:
+
+```bash
+npm install
+npm run dev
+```
+
+3. Open `http://localhost:3000` in Chrome or Edge and confirm that the public landing and sign-in pages load. Vite proxies `/api` requests to `http://localhost:8080` by default.
+
+#### 2.2.4 Customer Mobile App (Flutter)
+
+1. Open a terminal in `SmartDroneInspection-Mobile`.
+2. Verify your Flutter environment and install dependencies:
+
+```bash
+flutter doctor
+flutter pub get
+```
+
+3. Start an Android emulator and launch the application pointing to the local backend:
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080/api/v1
+```
+
+On a physical Android device, replace `10.0.2.2` with your host machine's local IP address on the same network.
+
+#### 2.2.5 First Sign-In Verification and Troubleshooting
+
+Sign in to `http://localhost:3000` using the bootstrap Administrator credentials configured in `.env`. Change the initial password immediately and confirm that **Platform users** opens.
+
+- **Backend fails to start:** Run `docker compose logs backend` to inspect the failing health check or missing environment variable.
+- **JWT signing error:** Verify that the secret lengths in `.env` match the minimum bit length documented in `.env.example`.
+- **Evidence or contract upload fails:** Confirm that the MinIO container is healthy and that the `inspection-evidence` bucket exists.
 
 ## 3. User Manual
 
-The figures use demonstration accounts and building data. A caption marked as an illustration shows an example of the named workflow state.
+The screenshots in this manual use demonstration accounts and sample building records. Captions marked as workflow illustrations depict representative system states.
 
-### 3.1 Find the Right Workflow
+### 3.1 Overview
 
-Use the web portal and follow the same building, request, and inspection when switching roles. The numbered instructions match the red callouts in the figures.
+SmartDroneInspection separates operational duties across four canonical roles. Each role signs in to its own dedicated web portal, while the mobile application serves Customers exclusively.
+
+| Actor | Platform | Primary Responsibilities |
+| --- | --- | --- |
+| **Administrator (`ADMIN`)** | Web Portal (`/admin`) | Manages platform accounts, drone document and feature catalogs, pilot licence classes, rating criteria, asset categories, and audit logs. Has read-only access to inspection reports and re-inspection verifications. |
+| **Manager (`MANAGER`)** | Web Portal (`/manager`) | Reviews Partner Inspector applications and drone registrations, claims service requests, prepares VND quotations, uploads signed contracts, dispatches eligible crews, reviews and approves technical reports, settles Inspector payouts, publishes reports to Customers, and manages refunds. |
+| **Inspector (`INSPECTOR`)** | Web Portal (`/operations`) | Registers and maintains owned drones, accepts or withdraws from scheduled assignments before field work, submits flight permits, executes field sessions, uploads evidence, reviews AI defect detections, verifies re-inspection defects with fresh evidence, and authors technical reports. |
+| **Customer (`CUSTOMER`)** | Web Portal (`/client`) and Mobile App (Android) | Registers buildings with airspace screening, creates one-time, recurring, or post-remediation re-inspection requests, accepts quotations, tracks inspection progress, reviews and accepts published reports, pays service fees via Sepay VietQR or VNPay, downloads payment notices and receipts, and rates Inspectors. |
+
+Use the quick-start guide below to jump directly to the workflow for your task. Red numbered callouts (`❶`, `❷`, …) in each screenshot correspond directly to the numbered actions in that step.
 
 | If you want to | Start with | Finish when |
 | --- | --- | --- |
 | Create a Customer account and add a building | Workflow 1 · Customer | The building appears as **Active** in **Assets**. |
 | Onboard a Partner Inspector and register a drone | Workflow 2 · Applicant, Manager, Inspector | The Inspector account is approved and the drone appears in the active fleet. |
-| Request, contract and schedule an inspection | Workflow 3 · Customer, Manager | The agreed occurrence has an assigned Inspector and drone. |
+| Request, contract, and schedule an inspection | Workflow 3 · Customer, Manager | The agreed occurrence has an assigned Inspector and drone. |
 | Prepare and complete a field session | Workflow 4 · Inspector | The session is complete and **Field Evidence** is available. |
 | Upload evidence and confirm findings | Workflow 5 · Inspector | The findings are confirmed and **Review & Submit** opens. |
-| Publish a report and settle payment | Workflow 6 · Inspector, Manager, Customer | The Customer accepts the published report and sees **Payment confirmed**. |
+| Publish a report, settle payment, and schedule re-inspection | Workflow 6 · Inspector, Manager, Customer | The Customer accepts the published report, sees **Payment confirmed**, and can schedule a post-remediation re-inspection if defects were confirmed. |
 
 ### 3.2 Workflow 1: Set Up a Customer Account and Building
 
@@ -533,6 +601,10 @@ Open **Service Payment** after accepting the report.
 ❶ Check **Payment confirmed** and verify the recorded method.
 
 ❷ Select **Download payment receipt (PDF)** if you need a copy.
+
+After completing the site repairs, open **Service Payment** on the original published report. When it is paid and contains confirmed defects, select **Schedule Re-inspection** in the **Post-Remediation Re-inspection** card to create a linked follow-up request. If a follow-up is already active, continue with the existing request or inspection.
+
+Inspector, Manager, and Customer Web views and the Customer Mobile app warn when a `RESOLVED` verdict expires within 14 days. If a verdict has expired and a new verification is needed, the Customer can return to the original paid report to request another re-inspection.
 
 ![Confirmed Customer payment and receipt download](assets/manual/wf6-05-cus-report-pay.png)
 

@@ -11,5 +11,6 @@ source: "report3-software-requirement-specification.docx"
 | --- | --- | --- | --- |
 | 26 Nov 2026 | M | Project Team | Updated the functional screen descriptions and examples for the release baseline. Customer progress is visible in their own inspection. FE-14 and BR-44 distinguish Manager publication, which opens the official report and stored flight data, from Customer acceptance and subsequent payment settlement. |
 | 26 Nov 2026 | M | Project Team | FE-09, FE-11 and FE-13 now document pre-field Inspector withdrawal, the server eligibility flag, the block after field work starts, and Manager cancellation with both reasons retained. |
+| 27 Nov 2026 | M | Project Team | FE-24 defines one active follow-up per source inspection across MF2 and quick re-inspection, the conflict response, and the Customer entry point on the original paid report. |
 
 *A - Added M - Modified D - Deleted
