@@ -20,8 +20,11 @@ tools/
   export_report2.py    Project Management Plan
   export_report3.py    Seven-part SRS
   export_report4.py    Software design and feature verification index
-  export_report5.py    Test workbook and three-round evidence
-  export_report7.py    Final report assembled from Reports 1–6
+  export_report5_doc.py  Test Documentation Word report
+  export_report5.py    Test Report workbook and three-round evidence (FE-01..FE-24)
+  export_report5_unit.py  Unit Test workbook (14 functions / 202 JUnit 5 cases)
+  export_report6.py    Release Package & User Guides Word report (66 annotated screenshots)
+  export_report7.py    Final report assembled directly from Reports 1–6 sources
   export_weekly.py     Weekly tables, one workbook per week
   export_all.py        Calls exporters and collects the manifest only
   export_common.py     Shared input/output safety and Word rendering
@@ -60,8 +63,10 @@ avoids overwriting an Office workbook already open or edited by someone.
 | Report 3 Project Tracking | `project-tracking/project-tracking.md` | Generated XLSX |
 | Report 4 SDD | Record of changes, architecture, database design, detailed design and diagram assets | Generated DOCX |
 | Report 5 Test Documentation | Two ordered sources in `report-5-test-documentation/` | Generated DOCX |
-| Report 5 Test Report (`Feature 1`–`Feature 24`) | Cover, history, case index, statistics and feature sheets | Generated XLSX |
-| Report 7 Final Project Report | Bodies of Reports 1–6, plus the Report 7 change table and submission index | Generated DOCX |
+| Report 5 Test Report (`Feature 1`–`Feature 24`) | Cover, history, case index, statistics and 24 feature sheets (`90` cases) | Generated XLSX |
+| Report 5 Unit Test (`Function 1`–`Function 14`) | `report-5-unit-test/unit-test-data.json` (`14` modules / `202` JUnit 5 cases) | Generated XLSX |
+| Report 6 User Guides | `report-6-software-user-guides/` (Cover, history, deliverable package, install, 66 annotated user-guide screenshots) | Generated DOCX |
+| Report 7 Final Project Report | Assembled directly from Reports 1–6 sources, plus `report-7-final-project-report/00-record-of-changes.md` and `07-submission-index.md` | Generated DOCX |
 | Review 2 Submission Pack (`BM01`–`BM04`) | `review-2-registration/`, `review-2-design-brief/`, `review-2-self-review/` (`export_review2_pack.py`) | Generated DOCX |
 | Project Weekly Report | `weekly-project-reports/week-01.md` through `week-07.md` | One XLSX per week |
 
@@ -94,14 +99,15 @@ reported separately from package/style preservation.
 ### Report 5 safeguards
 
 - The supplied template has two feature sheets. Generated copies clone this
-  layout to eight sheets, `Feature 1`–`Feature 8`, mapped one-to-one to Report 3
-  `FE-01`–`FE-08`. The original workbook is read-only and is never modified.
-  Zero-case sheets remain present so the generated workbook matches the SRS.
+  layout to 24 sheets, `Feature 1`–`Feature 24`, mapped one-to-one to Report 3
+  `FE-01`–`FE-24`. The original workbook is read-only and is never modified.
 - Each generated sheet keeps its own worksheet relationships; comments and
   their VML anchors from the source sheet are not copied to the clones.
-- Test Statistics has eight module rows, Sub total at row 19 and coverage at
-  rows 21–22. The Office verifier checks all eight sheets and recomputes the
-  totals from the source statuses.
+- `Test Statistics` tracks all 24 modules (`87` Passed, `0` Failed, `0` Pending,
+  `3` N/A, `90` Total in `v3.22`) plus historical Round 1 and Round 3 breakdowns.
+- Companion `Report5_Unit Test.xlsx` (`export_report5_unit.py`) uses
+  `tools/templates/Report5_Unit Test.template.xlsx` and populates 14 functional
+  sheets (`202` JUnit 5 cases) with decision-table `"O"` matrices and Pie Charts.
 - Execution rows are positional: all 15 fields survive, including repeated
   `Test date` and `Tester` fields for each of the three rounds.
 - The case index determines the destination sheet and FE ownership. Duplicate,
@@ -189,5 +195,5 @@ files and checks their hashes stayed unchanged.
 Generated directories are ignored by Git. Commit the tools and documentation,
 not previews, PDFs, caches or generated Office packages.
 
-## Review 2 Deliverables Synchronization
-Reports 1-5, Project Tracking, Weekly Reports, and Review 2 Forms synchronized with the 12-feature architecture and full 31-table typed ERD.
+## Current Deliverables Synchronization
+Reports 1–7, Unit Test, Project Tracking, Weekly Reports, and Review 2 Forms are synchronized with the 24-feature (`MF1`–`MF4`) architecture and PostgreSQL 17 release schema (53 application tables / 55 total tables).

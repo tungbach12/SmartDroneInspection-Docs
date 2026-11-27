@@ -5,7 +5,7 @@ type: "docs"
 
 # SmartDroneInspection
 
-SmartDroneInspection documentation defines the target for a platform-managed infrastructure inspection and corrective maintenance service across `MF1`–`MF4` and 8 features (`FE-01`–`FE-08`). This target description is not a claim that all workflows are implemented.
+SmartDroneInspection documentation defines the building infrastructure inspection platform across four main workflows (`MF1`–`MF4`) and twenty-four atomic features (`FE-01`–`FE-24`), covering onboarding, quoting, dispatch, flight permits, field sessions, AI defect detection, report publication, Sepay VietQR / VNPay settlement, and post-remediation re-inspection. Direct flight control, 3D photogrammetry, and corrective maintenance execution remain out of scope.
 
 ## Architecture at a glance
 
@@ -24,16 +24,16 @@ SmartDroneInspection documentation defines the target for a platform-managed inf
 
 ## Documentation map
 
-- [Project reference](project-reference/): workflows, error-prevention checks, and mainflow references.
-- [Main workflow guide](project-reference/mainflows-4-workflows-guideline-v3.md) outlines the inspection workflow from partner drone registration through report acceptance and settlement.
-- [Diagram assignments](phan-cong-ve-so-do.md): 35-diagram ownership map across the 8 features.
+- [Main workflow guide](bao-cao-thay-doi-mainflows-5-roles.md) outlines the active lifecycle from partner drone registration and customer onboarding through report acceptance and settlement.
 - [Formal reports](reports/):
   - [Report 1 — Project Introduction](reports/report-1-project-introduction/)
   - [Report 2 — Project Management Plan](reports/report-2-project-management-plan/)
   - [Report 3 — Software Requirement Specification (SRS)](reports/report-3-software-requirement-specification/)
   - [Report 4 — Software Design Document (SDD)](reports/report-4-software-design-document/)
-  - [Report 5 — Software Test Report](reports/report-5-test-report/)
-- [Development guide](development/): Git/PR rules and implementation plans.
+  - [Report 5 — Test Documentation](reports/report-5-test-documentation/) & [Report 5 — Software Test Report](reports/report-5-test-report/) & [Unit Tests](reports/report-5-unit-test/)
+  - [Report 6 — Software User Guides](reports/report-6-software-user-guides/)
+  - [Report 7 — Final Project Report (Assembled wrapper)](reports/report-7-final-project-report/)
+- [Development guide](development/): Git/PR rules and conventions.
 - [Export & verification tools](tools/): Python OOXML exporters and verification suites.
 
 Repository-specific setup commands are maintained in the `README.md` and `AGENTS.md` files of the backend, frontend, and mobile repositories.

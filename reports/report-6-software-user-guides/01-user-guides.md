@@ -651,7 +651,9 @@ Use the Customer account from Workflow 1. A Manager or Inspector uses the web po
 
 **Step 1 — Sign in on mobile.**
 
-Enter the Customer email and password, then sign in. Use the password recovery action if needed. A successful sign-in opens the Customer home screen.
+❶ Enter your Customer email and password, then review the sign-in fields.
+
+❷ Select **Sign in** to open the Customer home screen, or use **Forgot password?** if needed.
 
 ![Sign in on mobile](assets/manual/mob-login.png)
 
@@ -659,7 +661,9 @@ Enter the Customer email and password, then sign in. Use the password recovery a
 
 **Step 2 — Find work that needs attention.**
 
-Use the home view to open buildings, requests or inspections. Start from the relevant record if a notification asks you to review an update.
+❶ Review the KPI cards on the home dashboard to see active assets, in-progress work, and settled fees.
+
+❷ Open a record under **Recent inspections & fees** or start from the bottom navigation tabs.
 
 ![Find work that needs attention](assets/manual/mob-home.png)
 
@@ -667,7 +671,9 @@ Use the home view to open buildings, requests or inspections. Start from the rel
 
 **Step 3 — Open the building list.**
 
-Open Assets from the bottom navigation. Choose the building used in the inspection request. Check the name and address before continuing.
+❶ Use the search box and status chips (**All**, **Active**, **Pending review**, **Inactive**) to filter buildings.
+
+❷ Select a building card from the list, or tap **+ Register asset** to add a new building.
 
 ![Open the building list](assets/manual/mob-assets.png)
 
@@ -675,7 +681,9 @@ Open Assets from the bottom navigation. Choose the building used in the inspecti
 
 **Step 4 — Check a building record.**
 
-Review the building location and attached material in the asset detail. Go back to Assets to select a different building.
+❶ Review the building summary and use **Edit asset** or **Retire asset** when changes are allowed.
+
+❷ Inspect **Asset documents** or tap **Upload document** to manage attached files.
 
 ![Check a building record](assets/manual/mob-asset-detail.png)
 
@@ -683,7 +691,9 @@ Review the building location and attached material in the asset detail. Go back 
 
 **Step 5 — Review service requests.**
 
-Open Requests to find the current commercial stage. Select the request that belongs to the building and planned inspection date.
+❶ Use the search field and stage chips to filter commercial requests by status.
+
+❷ Select a request card to check progress, or tap **+ New service request** to create a request.
 
 ![Review service requests](assets/manual/mob-requests.png)
 
@@ -691,7 +701,9 @@ Open Requests to find the current commercial stage. Select the request that belo
 
 **Step 6 — Prepare a new service request.**
 
-Choose the building, service dates and recurrence as applicable. Review the request information before submitting. The Manager takes over quotation preparation.
+❶ Choose the active building, schedule type (**One-time** or **Recurring**), preferred date, hours, and scope.
+
+❷ Tap **Confirm** to submit the request so the Manager can prepare a quotation.
 
 ![Prepare a new service request](assets/manual/mob-new-request.png)
 
@@ -699,7 +711,9 @@ Choose the building, service dates and recurrence as applicable. Review the requ
 
 **Step 7 — Review the quotation.**
 
-Open the current request version and review the agreed scope, dates and price. Use the available review action when the quotation is ready, or open the request conversation for clarification.
+❶ Review the current **Quotation** window and per-inspection fee summary.
+
+❷ Open **Order Chat** to ask commercial questions or confirm changes with the Manager.
 
 ![Review the quotation](assets/manual/mob-request-detail.png)
 
@@ -707,7 +721,9 @@ Open the current request version and review the agreed scope, dates and price. U
 
 **Step 8 — Send a request message.**
 
-Open the conversation from the request. Keep commercial questions in the request thread so the assigned Manager can review them with the quotation.
+❶ Read recent messages in the **Order Chat** thread.
+
+❷ Enter your question at the bottom composer and tap the send button.
 
 ![Send a request message](assets/manual/mob-request-chat.png)
 
@@ -715,7 +731,9 @@ Open the conversation from the request. Keep commercial questions in the request
 
 **Step 9 — Find the scheduled inspection.**
 
-Open Inspections and choose the occurrence for the building and requested date. A recurring request can have several separate inspections.
+❶ Use the search bar and stage filters (**All**, **In progress**, **Report ready**) to locate an occurrence.
+
+❷ Select the matching inspection card to view field progress or its published report.
 
 ![Find the scheduled inspection](assets/manual/mob-inspections.png)
 
@@ -723,7 +741,9 @@ Open Inspections and choose the occurrence for the building and requested date. 
 
 **Step 10 — Follow inspection progress.**
 
-Read the inspection milestone and assigned team. Return after the Manager publishes the report to open its findings. Flight data becomes available after publication.
+❶ Check **Inspection lifecycle** milestones from dispatch through Manager review and publication.
+
+❷ Review **Field sessions** notes and **Captured evidence** attachments once completed.
 
 ![Follow inspection progress](assets/manual/mob-inspection-detail.png)
 
@@ -731,7 +751,9 @@ Read the inspection milestone and assigned team. Return after the Manager publis
 
 **Step 11 — Open the published report.**
 
-Open the Report view when publication is available. Review the findings and request clarification if needed. Accept the report when the contents are agreed.
+❶ Check the published report version and tap **Download official PDF** for the signed deliverable.
+
+❷ Review the **AI Executive Summary** before accepting the report or requesting clarification.
 
 ![Open the published report](assets/manual/mob-inspection-report.png)
 
@@ -739,7 +761,9 @@ Open the Report view when publication is available. Review the findings and requ
 
 **Step 12 — Open payment and receipt actions.**
 
-Open Settlement after acceptance. Use an available checkout method and return to the app to check the recorded status. Open the receipt after payment is confirmed.
+❶ Review the **Service invoice** breakdown (base amount, VAT, total) and tap **Receipt PDF** when available.
+
+❷ Confirm payment status or tap **Download official PDF** and **Edit rating** once settled.
 
 ![Open payment and receipt actions](assets/manual/mob-inspection-settlement.png)
 
@@ -747,7 +771,9 @@ Open Settlement after acceptance. Use an available checkout method and return to
 
 **Step 13 — Open a notification.**
 
-Open Notifications and select the update about your own request or inspection. Check the record title and stage when the app opens the work item.
+❶ Toggle **Unread only** to focus on unacknowledged system alerts.
+
+❷ Tap a notification card to jump directly to the referenced request or inspection.
 
 ![Open a notification](assets/manual/mob-notifications.png)
 
@@ -755,7 +781,9 @@ Open Notifications and select the update about your own request or inspection. C
 
 **Step 14 — Manage your account settings.**
 
-Open Profile for personal details and app preferences. Sign out from a shared device after use.
+❶ Update **Language** and **Appearance** preferences under **Preferences**.
+
+❷ Use **Security** options to change your password, sign out all devices, or tap **Sign out**.
 
 ![Manage your account settings](assets/manual/mob-profile.png)
 
@@ -767,7 +795,9 @@ Use these screens to recover a workflow or find records after the main handoff. 
 
 **Step 1 — Review the account used for this session.**
 
-Open Settings on the Customer portal. Check the signed-in account when a request or inspection you expected is missing.
+❶ Open **Settings** from the Customer portal navigation menu.
+
+❷ Verify your **Full Name**, **Email address**, and **Role** in **Account Details** before troubleshooting missing items.
 
 ![Review the account used for this session](assets/manual/cus-settings.png)
 
@@ -775,7 +805,9 @@ Open Settings on the Customer portal. Check the signed-in account when a request
 
 **Step 2 — Review customer buildings.**
 
-Open Assets, then Detail on the matching building. Confirm the location and attached documents. Customer building screens omit the staff checkpoint editor.
+❶ Inspect **Photos & Media** and **Asset specifications** inside the building detail dialog.
+
+❷ Review **Attached documents** and **Inspection history**, then edit, archive, or request a new inspection.
 
 ![Review customer buildings](assets/manual/cus-asset-detail.png)
 
@@ -783,7 +815,9 @@ Open Assets, then Detail on the matching building. Confirm the location and atta
 
 **Step 3 — Resolve a question about the requested scope.**
 
-Open Messages from the Customer portal and select the matching commercial request. Keep details such as changes to the requested area or schedule in that thread.
+❶ Switch between **Manager** and **Inspector** tabs and choose the relevant conversation thread.
+
+❷ Review past updates and send follow-up details or attachments in the message panel.
 
 ![Resolve a question about the requested scope](assets/manual/cus-messages.png)
 
@@ -791,7 +825,9 @@ Open Messages from the Customer portal and select the matching commercial reques
 
 **Step 4 — Find the partner record.**
 
-Open the Manager partner list and check the matching Inspector. Review the qualification and contract context before returning to dispatch.
+❶ Filter partner Inspectors by search text, **License class**, **License status**, or **Onboarding** status.
+
+❷ Check flight experience and license validity in the roster table or open **Pilot profile**.
 
 ![Find the partner record](assets/manual/mgr-partner-inspectors.png)
 
@@ -799,7 +835,9 @@ Open the Manager partner list and check the matching Inspector. Review the quali
 
 **Step 5 — Check a scheduled or cancelled occurrence.**
 
-Open the inspection listing and find the building and occurrence date. If a permit cannot be obtained, review the state and available cancellation or reassignment actions on the dispatch workflow.
+❶ Use the search box, status dropdown, and sort control to filter inspection occurrences.
+
+❷ Inspect the **STAGE** progress and open the **ACTION** menu to reschedule, reassign, or cancel dispatch.
 
 ![Check a scheduled or cancelled occurrence](assets/manual/mgr-inspections.png)
 
@@ -807,7 +845,9 @@ Open the inspection listing and find the building and occurrence date. If a perm
 
 **Step 6 — Review the aircraft documentation catalog.**
 
-Open the Admin flight configuration and review the configured document types. Inspectors use those types when submitting registration, ownership and inspection evidence for a drone.
+❶ Open the **Drone Documents** tab under **Drone & Flight config** (use **+ Add Document** to define new types).
+
+❷ Review each document code, **REQUIREMENT** (`Required` / `Optional`), and **STATUS** (`Active` / `Inactive`).
 
 ![Review the aircraft documentation catalog](assets/manual/adm-flight-config-documents.png)
 
@@ -815,7 +855,9 @@ Open the Admin flight configuration and review the configured document types. In
 
 **Step 7 — Inspect the configured licence classes.**
 
-Open the licence classes section and review the relevant class. The Manager checks partner eligibility again at dispatch for the concrete occurrence.
+❶ Open the **UAV License Classes** tab (use **+ Add license class** to configure a new class).
+
+❷ Check class names, regulatory descriptions, and active status before partner onboarding or dispatch checks.
 
 ![Inspect the configured licence classes](assets/manual/adm-license-classes.png)
 
@@ -823,7 +865,9 @@ Open the licence classes section and review the relevant class. The Manager chec
 
 **Step 8 — Find authorized asset categories.**
 
-Open the Admin asset catalog to review categories and their settings. Building selection and checkpoint defaults are based on the configured category.
+❶ Filter asset categories by search text, checkpoint status, or sort order.
+
+❷ Review category codes and default checkpoint counts, or click **Manage** to inspect category rules.
 
 ![Find authorized asset categories](assets/manual/adm-asset-catalog.png)
 
@@ -831,7 +875,9 @@ Open the Admin asset catalog to review categories and their settings. Building s
 
 **Step 9 — Review audit activity.**
 
-Open Audit Logs as Admin. Filter or scan the relevant period and confirm the actor and operation against the workflow under review.
+❶ Filter logs by actor/target query, **Action**, **Outcome**, or **Time range**.
+
+❷ Scan the chronological audit table to verify who performed an action and whether it succeeded.
 
 ![Review audit activity](assets/manual/adm-audit-logs.png)
 
@@ -839,7 +885,9 @@ Open Audit Logs as Admin. Filter or scan the relevant period and confirm the act
 
 **Step 10 — Recover a scheduled mission without the right permit.**
 
-Open the permit stage for the assigned inspection. Check the aircraft, dates and restricted-zone ceiling. If a required permit cannot be obtained, use the available decline action and provide the Manager with a reason.
+❶ Check the **Flight permit** details (airspace restriction, permit number, validity window, and uploaded PDF).
+
+❷ If a valid permit cannot be obtained for the mission, select **Withdraw from assignment** and provide a reason for the Manager.
 
 ![Recover a scheduled mission without the right permit](assets/manual/ins-ws-permit.png)
 
@@ -847,7 +895,9 @@ Open the permit stage for the assigned inspection. Check the aircraft, dates and
 
 **Step 11 — Find the official report in the manager list.**
 
-Find the matching building and inspection in Reports. Open the correct version to see the decision or published result.
+❶ Search or filter the inspections list to locate the building and mission.
+
+❷ Check the **REPORT** column status (**Published**, **APPROVED**) and use the **ACTION** menu to open or review it.
 
 ![Find the official report in the manager list](assets/manual/mgr-reports.png)
 
@@ -855,7 +905,9 @@ Find the matching building and inspection in Reports. Open the correct version t
 
 **Step 12 — Find a recorded Customer payment.**
 
-Open Finance History after checkout. Compare the recorded reference and amount with the inspection settlement and open the matching financial record.
+❶ Check the **DATE**, **INSPECTION**, **AMOUNT PAID**, **METHOD**, and **STATUS** in **Payment history**.
+
+❷ Click **Details** on the matching transaction row to inspect invoice numbers and settlement proof.
 
 ![Find a recorded Customer payment](assets/manual/cus-finance-history.png)
 
