@@ -10,5 +10,17 @@ source: "Report7_Final Project Report.docx"
 | Date | A*M, D | In charge | Change Description |
 | --- | --- | --- | --- |
 |  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
 
 *A - Added M - Modified D - Deleted*

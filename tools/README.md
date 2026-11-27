@@ -19,7 +19,9 @@ tools/
   export_report1.py    Project Introduction
   export_report2.py    Project Management Plan
   export_report3.py    Seven-part SRS
+  export_report4.py    Software design and feature verification index
   export_report5.py    Test workbook and three-round evidence
+  export_report7.py    Final report assembled from Reports 1–6
   export_weekly.py     Weekly tables, one workbook per week
   export_all.py        Calls exporters and collects the manifest only
   export_common.py     Shared input/output safety and Word rendering
@@ -33,6 +35,7 @@ python -I tools/export_report1.py
 python -I tools/export_report2.py
 python -I tools/export_report3.py
 python -I tools/export_report5.py --output reports/generated/report5-preview
+python -I tools/export_all.py --only report4 report7 --output reports/generated/design-and-final
 python -I tools/export_weekly.py --week week-05
 
 # Export every report with available sources:
@@ -53,11 +56,12 @@ avoids overwriting an Office workbook already open or edited by someone.
 | --- | --- | --- |
 | Report 1 Project Introduction | `report-1-project-introduction/report1-project-introduction.md` | Generated DOCX |
 | Report 2 Project Management Plan | `report-2-project-management-plan/report2-project-management-plan.md` | Generated DOCX |
-| Report 3 SRS (`FE-01`–`FE-08`) | Six ordered sources in `report-3-software-requirement-specification/` | Generated DOCX |
+| Report 3 SRS (`FE-01`–`FE-24`) | Six ordered sources in `report-3-software-requirement-specification/` | Generated DOCX |
 | Report 3 Project Tracking | `project-tracking/project-tracking.md` | Generated XLSX |
-| Report 4 SDD | Detailed-design sources `00-record-of-changes` through `03-detailed-design` (as mapped in `export_report4.py`) + rendered Mermaid PNGs | Generated DOCX |
+| Report 4 SDD | Record of changes, architecture, database design, detailed design and diagram assets | Generated DOCX |
 | Report 5 Test Documentation | Two ordered sources in `report-5-test-documentation/` | Generated DOCX |
-| Report 5 Test Report (`Feature 1`–`Feature 8`) | Cover/history, case index (`65` cases), statistics and eight FE sources (`fe-01`–`fe-08`) | Generated XLSX |
+| Report 5 Test Report (`Feature 1`–`Feature 24`) | Cover, history, case index, statistics and feature sheets | Generated XLSX |
+| Report 7 Final Project Report | Bodies of Reports 1–6, plus the Report 7 change table and submission index | Generated DOCX |
 | Review 2 Submission Pack (`BM01`–`BM04`) | `review-2-registration/`, `review-2-design-brief/`, `review-2-self-review/` (`export_review2_pack.py`) | Generated DOCX |
 | Project Weekly Report | `weekly-project-reports/week-01.md` through `week-07.md` | One XLSX per week |
 
@@ -65,6 +69,10 @@ Student guides, sample schedules and example reference images are not report
 content sources. The generator does not invent new requirements, test results,
 work logs, people or reports. It preserves the source text even when older
 reports describe an earlier product baseline.
+
+Edit the corresponding standalone report to update a chapter of the Report 7
+Word export. Report 7 keeps the figures and references from each chapter's
+source and uses its own cover, change table, and table of contents.
 
 ## Fidelity contract
 

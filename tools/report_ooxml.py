@@ -117,6 +117,7 @@ class Block:
     source: Path | None = None
     keep_with_next: bool = False
     page_break_before: bool = False
+    table_widths: tuple[int, ...] | None = None
 
 
 def split_row(line):
@@ -397,13 +398,10 @@ class WordDocument:
         if ppr is None:
             ppr = element(self.doc, W, "w:pPr")
             p.insertBefore(ppr, p.firstChild)
-        remove_children(ppr, ("jc", "spacing"))
-        ppr.appendChild(element(self.doc, W, "w:jc", {"w:val": "center" if centered else "left"}))
+        remove_children(ppr)
         ppr.appendChild(element(self.doc, W, "w:spacing", {
             "w:before": "60", "w:after": "60", "w:line": "250", "w:lineRule": "auto"}))
-        # Inherited pPr already carries fonts/colors from the template body
-        # paragraph; fill_paragraph only replaces the runs.
-        remove_children(p, ("r",))
+        ppr.appendChild(element(self.doc, W, "w:jc", {"w:val": "center" if centered else "left"}))
         p = self.fill_paragraph(p, text, size=(16 if bold else 20))
         if bold:
             for run in descendants(p, "r"):
@@ -418,19 +416,11 @@ class WordDocument:
     def fill_paragraph(self, p, text, size=None):
         runs = descendants(p, "r")
         prototype = runs[0].cloneNode(True) if runs else self.run_prototype
-        keep_style = None
-        for ppr in children(p, "pPr"):
-            styles = [s.getAttribute("w:val") or "" for s in children(ppr, "pStyle")]
-            # Preserve table-header styles (HeadingLv1) that the template uses
-            # for header rows; body headings are re-created by paragraph().
-            keep_style = next((val for val in styles
-                               if val and not re.fullmatch(r"Heading[1-9]", val)), None)
         remove_children(p, ("pPr",))
-        if keep_style:
-            ppr = element(self.doc, W, "w:pPr")
-            ppr.appendChild(element(self.doc, W, "w:pStyle", {"w:val": keep_style}))
-            p.insertBefore(ppr, p.firstChild)
         text = re.sub(r"<br\s*/?>", "\n", text, flags=re.I)
+        whole_italic = re.fullmatch(r"\*([^*\n]+)\*", text)
+        if whole_italic:
+            text = whole_italic[1]
         parts = re.split(r"(\*\*[^*\n]+\*\*|`[^`\n]+`|\[[^\]]+\]\([^)]+\))", text)
         for part in parts:
             if not part:
@@ -440,23 +430,16 @@ class WordDocument:
             trailing = "\n" if (visible and part.endswith("\n")) else (" " if visible and part[-1:].isspace() else "")
             p.appendChild(self.run(leading + visible + trailing, prototype,
                                   bold=part.startswith("**") and part.endswith("**"),
-                                  italic=part.startswith("*") and not part.startswith("**"),
+                                  italic=bool(whole_italic) or (part.startswith("*") and not part.startswith("**")),
                                   size=size))
         return p
 
-    def drop_body_heading_style(self, ppr):
-        """Remove body-level heading styles (Heading1–9) so table text never
-        leaks into the TOC, but keep table-header styles such as HeadingLv1."""
-        kept = []
+    def drop_table_placeholder_styles(self, ppr):
+        """Drop template guidance and outline styles from generated cells."""
         for pstyle in children(ppr, "pStyle"):
             val = pstyle.getAttribute("w:val") or ""
-            if re.fullmatch(r"Heading[1-9]", val):
-                continue
-            kept.append(pstyle)
-        for pstyle in children(ppr, "pStyle"):
-            ppr.removeChild(pstyle)
-        for pstyle in kept:
-            ppr.appendChild(pstyle)
+            if val == "comment" or re.fullmatch(r"Heading[1-9]", val):
+                ppr.removeChild(pstyle)
 
     def list_paragraph(self, text, level=0):
         """Render one list item as a real Word list, not text starting with '-'."""
@@ -532,7 +515,7 @@ class WordDocument:
             grid.appendChild(element(self.doc, W, "w:gridCol", {"w:w": width}))
         return table
 
-    def table(self, rows):
+    def table(self, rows, widths=None):
         template = self.choose_table(rows[0])
         ncols = len(rows[0])
         prototypes = children(template, "tr")
@@ -560,7 +543,10 @@ class WordDocument:
         if (merged_header and not has_two_row_merged_header
                 or not any(len(children(row, "tc")) == ncols for row in prototypes)):
             table = self.clean_table(ncols)
-            widths = self.column_widths(rows, 9000)
+            widths = widths or self.column_widths(rows, 9000)
+            grid = children(table, "tblGrid")[0]
+            for column, width in zip(children(grid, "gridCol"), widths):
+                column.setAttributeNS(W, "w:w", str(width))
             for index, row_values in enumerate(rows):
                 row = element(self.doc, W, "w:tr")
                 tr_pr = element(self.doc, W, "w:trPr")
@@ -589,49 +575,28 @@ class WordDocument:
             return table
         table = template.cloneNode(True)
         old_grid = children(template, "tblGrid")
-        widths = [int(c.getAttribute("w:w") or 1000)
-                  for c in children(old_grid[0], "gridCol")] if old_grid else []
-        total = sum(widths) or 9000
-        headers_match = len(wanted_headers & tpl_labels) >= max(2, len(rows[0]) // 2)
-        if len(rows[0]) == 3 and wanted_headers <= {"#", "no", "no.", "package", "table", "class", "entity", "actor", "description"}:
-            widths = [650, 2750, max(4500, total - 3400)]
-        elif len(rows[0]) == 2:
-            widths = [int(total * 0.34), total - int(total * 0.34)]
-        elif len(widths) != len(rows[0]) or not headers_match:
-            col_weights = []
-            for col_idx in range(len(rows[0])):
-                hdr_txt = plain(rows[0][col_idx]).strip()
-                hdr_lower = hdr_txt.lower()
-                col_cells = [plain(r[col_idx]).strip() for r in rows[:20] if col_idx < len(r)]
-                max_line_len = max((len(ln.strip()) for c in col_cells for ln in c.splitlines()), default=len(hdr_txt))
-                max_word_len = max((len(w) for c in col_cells for w in re.findall(r"\S+", c)), default=len(hdr_txt))
-                if hdr_lower in {"#", "no", "no.", "id"} and max_line_len <= 10:
-                    col_weights.append(7)
-                elif max_line_len <= 16 and max_word_len <= 14:
-                    col_weights.append(14)
-                elif max_line_len <= 32 and max_word_len <= 20:
-                    col_weights.append(22)
-                elif max_line_len <= 55:
-                    col_weights.append(30)
-                else:
-                    col_weights.append(42)
-            weight_sum = sum(col_weights) or 1
-            widths = [max(650, int(total * w / weight_sum)) for w in col_weights]
-            widths[-1] = max(650, widths[-1] + (total - sum(widths)))
-        # A template grid can be narrower than its content: Report 7's use-case
-        # table allots 670 twips to "UC-01", which wraps the id across two
-        # lines. Widen any column that cannot hold its longest word on one
-        # line, taking the space from the last (description) column.
-        for col_idx in range(len(widths) - 1):
-            words = [len(w) for r in rows[1:21] if col_idx < len(r)
-                     for w in re.findall(r"\S+", plain(r[col_idx]))]
-            if not words:
-                continue
-            needed = 300 + 118 * max(words)
-            if widths[col_idx] < needed:
-                deficit = needed - widths[col_idx]
-                widths[col_idx] = needed
-                widths[-1] = max(650, widths[-1] - deficit)
+        if widths is None:
+            widths = [int(c.getAttribute("w:w") or 1000)
+                      for c in children(old_grid[0], "gridCol")] if old_grid else []
+            total = sum(widths) or 9000
+            headers_match = len(wanted_headers & tpl_labels) >= max(2, len(rows[0]) // 2)
+            if ncols == 3 and wanted_headers <= {"#", "no", "no.", "package", "table", "class", "entity", "actor", "description"}:
+                widths = [650, 2750, max(4500, total - 3400)]
+            elif ncols == 2:
+                widths = [int(total * 0.34), total - int(total * 0.34)]
+            elif len(widths) != ncols or not headers_match:
+                widths = self.column_widths(rows, total)
+            # Widen narrow identifier columns in template-defined layouts.
+            for col_idx in range(len(widths) - 1):
+                words = [len(w) for r in rows[1:21] if col_idx < len(r)
+                         for w in re.findall(r"\S+", plain(r[col_idx]))]
+                if not words:
+                    continue
+                needed = 300 + 118 * max(words)
+                if widths[col_idx] < needed:
+                    deficit = needed - widths[col_idx]
+                    widths[col_idx] = needed
+                    widths[-1] = max(650, widths[-1] - deficit)
         for row in children(table, "tr"):
             table.removeChild(row)
         grid = (children(table, "tblGrid") or [None])[0]
@@ -672,8 +637,11 @@ class WordDocument:
                 cell = cells[min(col, len(cells) - 1)].cloneNode(True)
                 properties = (children(cell, "tcPr") or [None])[0]
                 if properties is not None:
-                    for span in children(properties, "gridSpan") + children(properties, "vMerge"):
+                    for span in children(properties, "gridSpan") + children(properties, "vMerge") + children(properties, "noWrap"):
                         properties.removeChild(span)
+                    for valign in children(properties, "vAlign"):
+                        if valign.getAttribute("w:val") == "bottom":
+                            properties.removeChild(valign)
                     for width in children(properties, "tcW"):
                         width.setAttributeNS(W, "w:w", str(widths[col]))
                 ps = children(cell, "p")
@@ -684,15 +652,11 @@ class WordDocument:
                 for ppr in children(cell_p, "pPr"):
                     for rpr in children(ppr, "rPr"):
                         ppr.removeChild(rpr)
-                    # Report 7's template prototype carries a negative left
-                    # indent (w:left="-2801") that drags cell text back over
-                    # the neighbouring column. Drop every indent so text
-                    # starts at the cell edge, and drop body-level heading
-                    # styles so table header text never leaks into the TOC.
-                    # Table-header styles such as HeadingLv1 are kept.
+                    # Template samples include guide text, outline styles and
+                    # indents that can move text outside the cell.
                     for ind in children(ppr, "ind"):
                         ppr.removeChild(ind)
-                    self.drop_body_heading_style(ppr)
+                    self.drop_table_placeholder_styles(ppr)
                     if index > 0:
                         for sp in children(ppr, "spacing"):
                             ppr.removeChild(sp)
@@ -815,8 +779,11 @@ class WordDocument:
                 self.heading_count += 1
                 page_lines += 2
             elif block.kind == "table":
-                self.body.appendChild(self.table(block.rows))
+                self.body.appendChild(self.table(block.rows, block.table_widths))
                 page_lines += len(block.rows) + 2
+            elif block.kind == "caption":
+                self.body.appendChild(self.plain_paragraph(block.text, centered=True))
+                page_lines += 1
             elif block.kind == "image":
                 self.body.appendChild(self.image(block.source.parent / block.text, block.language))
                 page_lines += 15
@@ -992,6 +959,18 @@ class WordDocument:
         self.body.appendChild(self.section)
         self.package.set_xml("word/document.xml", self.doc)
         settings = self.package.xml("word/settings.xml")
+        if self.image_count:
+            # Saving a refreshed TOC in Word must not downsample embedded diagrams.
+            compression = descendants(settings, "doNotAutoCompressPictures")
+            if not compression:
+                setting = element(settings, W, "w:doNotAutoCompressPictures")
+                following = next((node for node in children(settings.documentElement)
+                                  if node.localName in {"forceUpgrade", "captions", "readModeInkLockDown",
+                                                        "smartTagType", "schemaLibrary", "shapeDefaults",
+                                                        "doNotEmbedSmartTags", "decimalSymbol", "listSeparator"}), None)
+                settings.documentElement.insertBefore(setting, following)
+                compression = [setting]
+            compression[0].setAttributeNS(W, "w:val", "true")
         updates = descendants(settings, "updateFields")
         update = updates[0] if updates else element(settings, W, "w:updateFields")
         update.setAttributeNS(W, "w:val", "true")

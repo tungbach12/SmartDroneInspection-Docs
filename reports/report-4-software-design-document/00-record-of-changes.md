@@ -9,7 +9,18 @@ source: "report4-software-design-document.docx"
 
 | Date | A* M, D | In charge | Change Description |
 | --- | --- | --- | --- |
-| 26 Nov 2026 | M | Project Team | Version 3.2 - preserved the complete Compact physical ERD alongside the conceptual and logical design views. Documented the published-report requirement for Customer flight data. |
-| 26 Nov 2026 | M | Project Team | Expanded the feature boundaries and cross-module workflow design. Kept the complete physical ERD and linked the diagrams to the release behavior. |
+| 22 Oct 2026 | A | Project Team | Initial Software Design Document covering modular architecture, database design, and per-feature detailed design. |
+| 27 Nov 2026 | M | Project Team | Final release design update aligning 53 application tables, UML class and sequence diagrams, and cross-module workflows. |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
+|  |  |  |  |
 
 *A - Added M - Modified D - Deleted

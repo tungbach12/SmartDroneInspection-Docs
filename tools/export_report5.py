@@ -26,6 +26,7 @@ CASE_HEADER = ["Test Case ID", "Test Case Description", "Test Case Procedure",
 BLANK_SPACER_ROW = 15
 V29_ROUND3_CASE_IDS = {"WF3-018", "WF3-019"}
 POST_ROUND1_CASE_IDS = V29_ROUND3_CASE_IDS | {
+    "WF1-023",
     "WF2-021",
     "WF2-022",
     "WF2-023",
@@ -40,6 +41,7 @@ POST_ROUND1_CASE_IDS = V29_ROUND3_CASE_IDS | {
     "WF2-032",
     "WF2-033",
     "WF2-034",
+    "WF2-035",
     "WF3-020",
     "WF3-021",
     "WF3-022",
@@ -48,7 +50,76 @@ POST_ROUND1_CASE_IDS = V29_ROUND3_CASE_IDS | {
     "WF3-025",
     "WF3-032",
     "WF3-033",
+    "WF3-034",
+    "WF3-035",
+    "WF3-036",
+    "WF3-037",
+    "WF3-038",
+    "WF3-039",
+    "WF3-040",
+    "WF3-041",
 }
+
+
+def set_col_widths(book, sheet_name, widths):
+    """Set explicit worksheet column widths, splitting spanned <col> ranges cleanly."""
+    sheet = book.sheet(sheet_name)
+    cols_nodes = [n for n in sheet.documentElement.childNodes if getattr(n, "localName", None) == "cols"]
+    if not cols_nodes:
+        return
+    cols_el = cols_nodes[0]
+    doc = sheet
+    ns = cols_el.namespaceURI
+    new_specs = []
+    for node in list(cols_el.childNodes):
+        if getattr(node, "localName", None) != "col":
+            continue
+        cmin = int(node.getAttribute("min"))
+        cmax = int(node.getAttribute("max"))
+        attrs = {node.attributes.item(i).name: node.attributes.item(i).value for i in range(node.attributes.length)}
+        cuts = sorted(c for c in widths if cmin <= c <= cmax)
+        if not cuts:
+            new_specs.append(attrs)
+        else:
+            cur = cmin
+            for c in cuts:
+                if cur < c:
+                    seg = dict(attrs, min=str(cur), max=str(c - 1))
+                    new_specs.append(seg)
+                seg = dict(attrs, min=str(c), max=str(c), width=str(widths[c]), customWidth="1")
+                new_specs.append(seg)
+                cur = c + 1
+            if cur <= cmax:
+                new_specs.append(dict(attrs, min=str(cur), max=str(cmax)))
+        cols_el.removeChild(node)
+    for spec in new_specs:
+        el = doc.createElementNS(ns, "col")
+        for k, v in spec.items():
+            el.setAttribute(k, v)
+        cols_el.appendChild(el)
+
+
+def set_fit_to_page(book, sheet_name, width=1, height=0):
+    """Scale worksheet columns cleanly onto landscape/portrait page width without clipping."""
+    sheet = book.sheet(sheet_name)
+    root = sheet.documentElement
+    ns = root.namespaceURI
+    spr_list = [n for n in root.childNodes if getattr(n, "localName", None) == "sheetPr"]
+    if spr_list:
+        spr = spr_list[0]
+    else:
+        spr = sheet.createElementNS(ns, "sheetPr")
+        root.insertBefore(spr, root.firstChild)
+    psp_list = [n for n in spr.childNodes if getattr(n, "localName", None) == "pageSetUpPr"]
+    psp = psp_list[0] if psp_list else sheet.createElementNS(ns, "pageSetUpPr")
+    if not psp_list:
+        spr.appendChild(psp)
+    psp.setAttribute("fitToPage", "1")
+    for ps in descendants(sheet, "pageSetup"):
+        ps.setAttribute("fitToWidth", str(width))
+        ps.setAttribute("fitToHeight", str(height))
+        if ps.hasAttribute("scale"):
+            ps.removeAttribute("scale")
 
 
 def validate_cases(report_dir):
@@ -121,6 +192,9 @@ def validate_cases(report_dir):
     round1_counts = Counter(
         row[5] for group in cases.values() for _, row, _ in group if row[5] in STATUS
     )
+    round3_counts = Counter(
+        row[11] for group in cases.values() for _, row, _ in group if row[11] in STATUS
+    )
     historical_round1_counts = Counter(
         row[5]
         for group in cases.values()
@@ -157,6 +231,17 @@ def validate_cases(report_dir):
     current_round1_expected = [round1_counts[s] for s in ("Passed", "Failed", "Pending", "N/A")] + [len(ids)]
     if current_round1_recorded != current_round1_expected:
         raise ValueError(f"Recorded current Round 1 statistics {current_round1_recorded} differ from source statuses {current_round1_expected}")
+    current_round3 = next(
+        (row for row in stats[1:] if plain(row[0]).lower().replace(" ", "") == "currentround3subtotal"),
+        None,
+    )
+    if current_round3 is not None:
+        current_round3_recorded = [int(plain(value)) for value in current_round3[2:]]
+        current_round3_expected = [round3_counts[s] for s in ("Passed", "Failed", "Pending", "N/A")] + [len(ids)]
+        if current_round3_recorded != current_round3_expected:
+            raise ValueError(
+                f"Recorded current Round 3 statistics {current_round3_recorded} differ from source statuses {current_round3_expected}"
+            )
     recorded = [int(plain(value)) for value in subtotal[2:]]
     expected = [historical_round1_counts[s] for s in ("Passed", "Failed", "Pending", "N/A")] + [len(ids) - len(POST_ROUND1_CASE_IDS)]
     if recorded != expected:
@@ -230,7 +315,8 @@ def export(template, reports, output):
     index_meta = key_values(report / "01-test-cases/test-case-list.md")
     history = find_table(report / "00-cover/record-of-changes.md", "Effective Date")
     version = re.match(r"\d+\.\d+", cover["Version"])[0]
-    date = history[-1][0]
+    non_empty_dates = [plain(r[0]) for r in history[1:] if plain(r[0])]
+    date = non_empty_dates[-1] if non_empty_dates else cover.get("Issue Date", "")
     book, warnings = Spreadsheet(template), []
     # The template ships two feature sheets; clone Feature 2 until every Report 3
     # feature has one. Clones keep the original column widths, merges, validations
@@ -254,21 +340,40 @@ def export(template, reports, output):
         if book.fit_height("Cover", row_no, row, [14, 9, 24, 7, 88, 50]):
             warnings.append(f"Cover history row {row_no} reaches Excel's row-height limit")
     book.dimensions("Cover", "F", len(history) + 9)
+    set_col_widths(book, "Cover", {3: 24, 5: 56, 6: 68})
+    for r_no in range(11, 11 + len(history) - 1):
+        for col_ch in ("C", "E"):
+            book.cell("Cover", f"{col_ch}{r_no}").setAttribute("s", "141")
+    set_fit_to_page(book, "Cover", width=1, height=0)
     for coord, value in {"D3": cover["Project Name"], "D4": cover["Project Code"],
                          "D5": index_meta.get("Test environment", "Not supplied")}.items():
         book.put("Test Cases", coord, value)
+        book.cell("Test Cases", coord).setAttribute("s", "42")
+    set_col_widths(book, "Test Cases", {2: 7, 3: 32, 4: 13, 5: 42, 6: 38})
+    set_fit_to_page(book, "Test Cases", width=1, height=0)
+    book.fit_height("Test Cases", 5, [index_meta.get("Test environment", "")], [95])
     proto = book.row_template("Test Cases", 9)
     book.clear_rows("Test Cases", 9)
     for row_no, row in enumerate(index[1:], 9):
         book.clone_row("Test Cases", row_no, proto)
         for col, value in enumerate(row, 2):
-            book.put("Test Cases", f"{chr(64 + col)}{row_no}", number(value))
-        book.fit_height("Test Cases", row_no, row, [6, 45, 16, 75, 60])
+            coord = f"{chr(64 + col)}{row_no}"
+            if col == 4 and str(value).startswith("Feature "):
+                book.put("Test Cases", coord, value, f"HYPERLINK(\"#'{value}'!A1\",\"{value}\")")
+                book.cell("Test Cases", coord).setAttribute("t", "str")
+                book.cell("Test Cases", coord).setAttribute("s", "101")
+            else:
+                book.put("Test Cases", coord, number(value))
+                if col in (3, 5, 6):
+                    book.cell("Test Cases", coord).setAttribute("s", "42")
+        book.fit_height("Test Cases", row_no, row, [6, 30, 12, 39, 35])
     book.dimensions("Test Cases", "F", len(index) + 7)
     summary_counts = {}
     for sheet in FEATURE_SHEETS:
         proto_case, proto_bar = book.row_template(sheet, 12), book.row_template(sheet, 11)
         book.clear_rows(sheet, 11)
+        set_col_widths(book, sheet, {8: 15, 11: 15, 14: 15})
+        set_fit_to_page(book, sheet, width=1, height=0)
         book.put(sheet, "B2", summaries[sheet]["B2"])
         book.put(sheet, "B3", summaries[sheet]["B3"])
         row_no, current_fe = 11, None
@@ -281,8 +386,11 @@ def export(template, reports, output):
                 current_fe = feature
             book.clone_row(sheet, row_no, proto_case)
             for col, value in enumerate(row, 1):
-                book.put(sheet, f"{chr(64 + col)}{row_no}", plain(value))
-            if book.fit_height(sheet, row_no, row, [17, 34, 34, 34, 28, 9, 11, 7, 9, 11, 7, 9, 11, 7, 29]):
+                coord = f"{chr(64 + col)}{row_no}"
+                book.put(sheet, coord, plain(value))
+                if col in (2, 3, 4, 5):
+                    book.cell(sheet, coord).setAttribute("s", "42")
+            if book.fit_height(sheet, row_no, row, [16, 32, 32, 32, 26, 9, 11, 14, 9, 11, 14, 9, 11, 14, 28]):
                 warnings.append(f"Case {row[0]} reaches Excel's row-height limit; review for clipping")
             row_no += 1
         # Repair counters only in generated output, retaining original grouping bars.
@@ -319,13 +427,19 @@ def export(template, reports, output):
                 else:
                     parts.append(part)
             validation.setAttribute("sqref", " ".join(parts))
-    for coord, value in {
+    reviewer = cover.get("Reviewer/Approver", "").strip()
+    header_cells = {
         "C3": cover["Project Name"], "C4": cover["Project Code"],
         "C5": cover.get("Document Code", "Not supplied"),
-        "G3": cover.get("Creator", "Not supplied"), "G4": "Not supplied in report sources",
-        "H5": date, "C6": stats_meta.get("Test round", "MF3-only executed slice"),
-    }.items():
+        "G3": cover.get("Creator", "Not supplied"), "G4": reviewer or "Not supplied in report sources",
+        "H5": date, "C6": stats_meta.get("Test round", "Final Release — Round 3 (All 24 modules)"),
+    }
+    for coord, value in header_cells.items():
         book.put("Test Statistics", coord, value)
+        if coord in ("C3", "C4", "C5", "C6"):
+            book.cell("Test Statistics", coord).setAttribute("s", "42")
+        elif coord in ("G3", "G4", "H5"):
+            book.cell("Test Statistics", coord).setAttribute("s", "56")
     # Test Statistics layout for N modules: header row 10, module rows,
     # current/historical Round 1 subtotals, Round 3 totals/subset, spacer, coverage.
     module_proto = book.row_template("Test Statistics", 12)
@@ -343,17 +457,21 @@ def export(template, reports, output):
     coverage_row = v29_round3_row + 2
     success_row = coverage_row + 1
     totals, total_cases = Counter(), 0
+    set_col_widths(book, "Test Statistics", {3: 48, 8: 62})
+    set_fit_to_page(book, "Test Statistics", width=1, height=0)
+    book.fit_height("Test Statistics", 6, [header_cells["C6"]], [110])
     for offset, sheet in enumerate(FEATURE_SHEETS):
         stat_row = first_module_row + offset
         book.clone_row("Test Statistics", stat_row, module_proto)
-        counts = summary_counts[sheet][0]
+        counts = summary_counts[sheet][2]
         totals.update(counts)
         total_cases += len(cases[sheet])
         book.put("Test Statistics", f"B{stat_row}", offset + 1)
         book.put("Test Statistics", f"C{stat_row}", summaries[sheet]["B2"], f"'{sheet}'!B2")
         book.cell("Test Statistics", f"C{stat_row}").setAttribute("t", "str")
+        book.cell("Test Statistics", f"C{stat_row}").setAttribute("s", "42")
         for target_col, source_col, status in zip("DEFG", "BCDE", ("Passed", "Failed", "Pending", "N/A")):
-            book.put("Test Statistics", f"{target_col}{stat_row}", counts[status], f"'{sheet}'!{source_col}6")
+            book.put("Test Statistics", f"{target_col}{stat_row}", counts[status], f"'{sheet}'!{source_col}8")
         book.put("Test Statistics", f"H{stat_row}", len(cases[sheet]), f"'{sheet}'!B4")
     book.clone_row("Test Statistics", subtotal_row, subtotal_proto)
     book.put("Test Statistics", f"C{subtotal_row}", "Sub total")
@@ -378,9 +496,9 @@ def export(template, reports, output):
     book.clone_row("Test Statistics", success_row, success_proto)
     for column, status in zip("DEFG", ("Passed", "Failed", "Pending", "N/A")):
         book.put("Test Statistics", f"{column}{subtotal_row}", totals[status],
-                 f"SUM({column}9:{column}{last_module_row})")
+                 f"SUM({column}{first_module_row}:{column}{last_module_row})")
     book.put("Test Statistics", f"H{subtotal_row}", total_cases,
-             f"SUM(H9:H{last_module_row})")
+             f"SUM(H{first_module_row}:H{last_module_row})")
     denominator = total_cases - totals["N/A"]
     for row, label, numerator, formula in (
         (coverage_row, "Test coverage", totals["Passed"] + totals["Failed"],
@@ -404,7 +522,8 @@ def export(template, reports, output):
     audit = book.save(output, discard_stale_calculation_chain(book))
     unresolved = [key for key, value in cover.items() if "Enter " in value or "confirm with" in value]
     warnings.extend(f"Unresolved source metadata: {key}" for key in unresolved)
-    warnings.append("Reviewer/Approver has no source value; not invented")
+    if not reviewer:
+        warnings.append("Reviewer/Approver has no source value; not invented")
     return {**audit, "cases": total_cases, "round1": dict(totals),
             "case_ids": sorted(row[0] for group in cases.values() for _, row, _ in group),
             "warnings": warnings, "content_complete": True,

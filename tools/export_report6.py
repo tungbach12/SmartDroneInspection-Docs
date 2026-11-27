@@ -7,12 +7,28 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from export_common import render_word
-from export_report7 import chapter_blocks
 from report_ooxml import parse_markdown
 
 TEMPLATE_NAME = "Report6_Software User Guides.docx"
 SOURCES = ["report-6-software-user-guides/" + name + ".md"
            for name in ("00-record-of-changes", "01-user-guides")]
+
+
+def chapter_blocks(source):
+    chapter = parse_markdown(source, strict_tables=False)
+    in_step = False
+    for index, block in enumerate(chapter):
+        if block.kind == "paragraph":
+            if block.text.startswith("**Step "):
+                in_step = True
+            elif in_step:
+                chapter[index - 1].keep_with_next = True
+            continue
+        if in_step and block.kind == "image" and block.text.startswith("assets/manual/"):
+            chapter[index - 1].keep_with_next = True
+            block.keep_with_next = True
+        in_step = False
+    return chapter
 
 
 def blocks(reports):

@@ -54,7 +54,7 @@ def render_word(template, reports, output, blocks, warnings=(), *,
     document.append(blocks)
     content = document.text(document.body)
     for block in blocks:
-        if block.kind in {"heading", "paragraph", "list"} and plain(block.text) not in content:
+        if block.kind in {"heading", "paragraph", "list", "caption"} and plain(block.text) not in content:
             raise ValueError(f"Missing exported content from {block.source}: {block.text[:80]}")
     audit = document.save(output)
     return {**audit, "source_blocks": len(blocks), "content_complete": True}
@@ -121,7 +121,7 @@ def parser(description):
     return result
 
 
-def run_single(report, template_name, sources, exporter):
+def run_single(report, template_name, sources, exporter, output_name=None):
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     cli = parser(f"Export {report} using its own official format")
@@ -149,7 +149,7 @@ def run_single(report, template_name, sources, exporter):
                 artifacts.append({"report": source.stem, "status": "generated", "output": str(target),
                                   "sources": [str(source)], **result})
         else:
-            target = output / template_name
+            target = output / (output_name or template_name)
             result = exporter(template, args.sources, target)
             artifacts.append({"report": report, "status": "generated", "output": str(target),
                               "sources": [str(p) for p in source_paths], **result})

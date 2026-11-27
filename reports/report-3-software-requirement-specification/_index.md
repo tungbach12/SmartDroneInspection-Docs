@@ -6,7 +6,7 @@ weight: 10
 
 # Report 3 - Software Requirement Specification
 
-This folder is the maintained source of Report 3. It documents 24 features across the four main flows and four login roles. The persistence baseline comprises Flyway V1–V4 and V60–V80. Customer building screens omit checkpoint editing, and access to flight data follows official report publication.
+This folder is the maintained source of Report 3. It documents 24 features across the four main flows and four login roles. Customer building screens omit checkpoint editing, and Customer access to flight data follows official report publication.
 
 ## Sections
 

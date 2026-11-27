@@ -2,6 +2,9 @@
 
 | Effective Date | Version | Change Item | *A,D,M | Change description | Reference |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-26 | 3.18 | Release regression evidence | M | Mapped fresh Backend suite results to 64 of the 77 listed cases. Added focused Customer publication-gate and module-boundary evidence. The acceptance rounds retain their recorded results. | Regression evidence ledger and Report 5 Software Testing Documentation |
-| 2026-11-26 | 3.19 | Inspector assignment withdrawal | A | Added WF2-032, WF2-033 and WF2-034 as Round 3 passes. Added the current eligibility guard and Manager cancellation outcomes. | Report 3 FE-09, FE-11 and FE-13. Backend inspection recovery and lifecycle tests. |
-| 2026-11-27 | 3.20 | Re-inspection open guard and Web verdict expiry parity | M | Updated FE-24 cases (`WF3-028`, `WF3-031`) to cover the duplicate open re-inspection guard (`409 REINSPECTION_ALREADY_OPEN`) and shared `VerdictExpiryBanner` across Inspector, Manager, and Customer Web portals. | Report 5 v3.7, `ReinspectionWorkflowIntegrationTest`, `VerdictExpiryBanner.tsx`, `ReinspectionWorkflow.test.tsx`. |
+| 2026-10-26 | 1.0 | Initial Test Report Release | A | Initial creation of Test Case List, Test Statistics, and 24 feature sheets (`FE-01` to `FE-24`). | Report 3 SRS & Report 5 Test Documentation |
+| 2026-11-27 | 3.22 | Final Release Round 3 Completion | M | Expanded to 90 cases (87 active passed, 3 retired/superseded N/A), simplified step-by-step procedures and notes, normalized all Testers to the 4 team members, fixed text wrapping and hyperlinks, and added companion `Report5_Unit Test.xlsx`. | Report 5 v3.22 & `Report5_Unit Test.xlsx` |
+|  |  |  |  |  |  |
+|  |  |  |  |  |  |
+|  |  |  |  |  |  |
+|  |  |  |  |  |  |
