@@ -96,11 +96,7 @@ SmartDroneInspection gives building owners, Managers, and Partner Inspectors a s
 
 ## 6. Project Scope & Limitations
 
-
-
-![Inspection service workflow](assets/operational-flow.png)
-
-*Figure 1.1 — Inspection workflow from onboarding to report publication and settlement.*
+The scope of SmartDroneInspection covers the end-to-end coordination platform across the four-role web application (`CUSTOMER`, `MANAGER`, `INSPECTOR`, `ADMIN`), the `CUSTOMER`-only native mobile client, and the backend services with AI-assisted defect detection and retrieval across four main operational flows (`MF1`–`MF4`).
 
 ### 6.1 Major Features (`FE-01`–`FE-24`)
 
