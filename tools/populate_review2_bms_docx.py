@@ -913,6 +913,17 @@ def build_bm03(src_docx: Path, dst_paths: list[Path]) -> None:
 def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
     with zipfile.ZipFile(src_docx, "r") as z:
         root = ET.fromstring(z.read("word/document.xml"))
+    # Word resolves these prefixes from mc:Ignorable. ElementTree drops declarations
+    # that appear only in that attribute's value.
+    compatibility_namespaces = {
+        "w14": "http://schemas.microsoft.com/office/word/2010/wordml",
+        "w15": "http://schemas.microsoft.com/office/word/2012/wordml",
+        "wp14": "http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing",
+    }
+    ignorable = root.get("{http://schemas.openxmlformats.org/markup-compatibility/2006}Ignorable", "")
+    for prefix in ignorable.split():
+        if prefix in compatibility_namespaces:
+            root.set(f"xmlns:{prefix}", compatibility_namespaces[prefix])
     body = root.find("w:body", NS)
     assert body is not None
 
@@ -952,8 +963,8 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
             "09/11/2026",
             "VuLNS",
             "MinhTTH5",
-            "3.0",
-            "09/11/2026",
+            "3.1",
+            "28/11/2026",
         ],
     )
 
@@ -975,7 +986,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "F-01",
                 "Auth & 4-Role RBAC",
                 "Admin, Manager, Customer, Inspector",
-                "Role-scoped JWT login; 15-min lockout after 5 fails; 403 on unauthorized access.",
+                "Users sign in to their role's workspace. The app blocks access outside that role.",
                 "WF-01",
                 "Trần Hoàng Trung Hiếu",
             ],
@@ -983,7 +994,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "F-02",
                 "Drone Registration & Review",
                 "Inspector, Manager",
-                "Requires valid legal documents & unique serial; Manager approves (ACTIVE) or rejects with reason.",
+                "Inspector adds three documents and a photo. Manager approves or gives a rejection reason.",
                 "WF-01",
                 "Trần Hoàng Trung Hiếu",
             ],
@@ -991,7 +1002,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "F-03",
                 "Asset & Inspection Items Management",
                 "Customer, Manager",
-                "Registers asset with GPS, legal docs, and Inspection Items; blocks assets in NO_FLY_ZONE (403).",
+                "The Customer adds an asset. The app blocks assets in no-fly zones.",
                 "WF-02",
                 "Phùng Trung Quốc",
             ],
@@ -999,7 +1010,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "F-04",
                 "Service Request, Quote, Contract & Dispatch",
                 "Customer, Manager",
-                "Customer accepts quote; Manager uploads contract and dispatches available Inspector+Drone.",
+                "Customer accepts the quote. Manager uploads the contract and assigns the Inspector and drone.",
                 "WF-02",
                 "Phùng Trung Quốc",
             ],
@@ -1007,15 +1018,15 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "F-05",
                 "Permit Gate, Checklists & Field Session",
                 "Inspector, Manager",
-                "Requires Permit & Pre-flight check to start; saves MAVLink log, Inspection Items & Post-flight check.",
+                "Inspector confirms the permit, completes checks and records the flight.",
                 "WF-03",
                 "Trần Tùng Bách",
             ],
             [
                 "F-06",
                 "Evidence & AI Defect Detection",
-                "Inspector, DroneVisionAI",
-                "Media upload triggers YOLO11 candidates; Inspector reviews and confirms findings.",
+                "Inspector, System",
+                "Inspector uploads evidence, runs AI analysis and confirms the findings.",
                 "WF-03",
                 "Trần Tùng Bách",
             ],
@@ -1023,7 +1034,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "F-07",
                 "Auto-Compiled Report & Manager Review",
                 "Inspector, Manager",
-                "Auto-generates inspection report with AI summary; Manager publishes report or returns with reason.",
+                "Inspector submits the report. Manager settles any required payout before publication.",
                 "WF-04",
                 "Trương Thái Như",
             ],
@@ -1031,7 +1042,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "F-08",
                 "Customer Acceptance & Payment Settlement",
                 "Customer, Manager, Inspector",
-                "Customer accepts published report and completes online payment; system marks PAID and settles payout.",
+                "Customer accepts the report. The app records payment once confirmed.",
                 "WF-04",
                 "Trương Thái Như",
             ],
@@ -1053,9 +1064,9 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
             [
                 "NFR-02",
                 "AI Latency",
-                "YOLO11 & LLM summary time",
-                "<= 5.0 s / request",
-                "Timed integration test (WF3-007).",
+                "AI analysis time per image",
+                "≤ 5.0 s per image",
+                "Timed image analysis (WF3-007).",
                 "Trần Tùng Bách",
             ],
             [
@@ -1091,7 +1102,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
         [
             [
                 "Direct drone piloting & flight control",
-                "Executed externally by SmartDroneHub and the field pilot.",
+                "The pilot flies the drone outside the platform. The platform records flight data.",
             ],
             [
                 "Corrective Maintenance & Work Orders",
@@ -1099,11 +1110,11 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
             ],
             [
                 "Government flight-permit issuance",
-                "Granted offline by authorities; platform only verifies permit upload.",
+                "Authorities issue permits. The Inspector records and confirms the permit in the app.",
             ],
             [
                 "Unreviewed AI defect publishing",
-                "AI detections are advisory; Inspector and Manager review is required.",
+                "The Inspector confirms findings before the Manager reviews the report.",
             ],
         ],
     )
@@ -1115,31 +1126,31 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "WF-01 · Partner Drone Registration & Review",
                 "Trần Hoàng Trung Hiếu (SE184212)",
                 "Phùng Trung Quốc (SE170027)",
-                "Inspector, Manager, Admin, System",
-                "Inspector submits a drone registration with legal documents.",
-                "Drone is verified and activated in the fleet roster.",
-                "DroneRegistration: PENDING -> APPROVED / REJECTED; Drone: -> ACTIVE",
-                "Report 4 SDD Section 3.3.3",
+                "Inspector, Manager",
+                "An approved Inspector submits a drone registration.",
+                "The Manager approves the drone for the fleet or records a rejection reason.",
+                "Drone registration: Pending → Approved or Rejected. An approved drone enters the active fleet.",
+                "Report 4 SDD §3.2.2 and §3.3.2",
             ],
             "features": [
-                ["F-01", "Auth & 4-Role RBAC", "Role JWT login, 5-fail lockout, 403 on cross-role access.", "WF1-001..005"],
-                ["F-02", "Drone Registration & Review", "Valid legal documents & unique serial; Manager approves or rejects with reason.", "WF1-006..016"],
+                ["F-01", "Auth & 4-Role RBAC", "Sign-in opens the user's workspace. Other roles' workspaces are restricted.", "WF1-003–005"],
+                ["F-02", "Drone Registration & Review", "The Inspector submits complete drone records. The Manager approves or rejects with a reason.", "WF1-010, WF1-014–016"],
             ],
             "demos": [
                 [
                     "DS-01a",
                     "Main",
-                    "Active Inspector; valid drone legal documents.",
-                    "1. Inspector opens Drone Registration form.\n2. Enter drone specs and serial number.\n3. Upload legal documents and submit.\n4. System validates serial & expiry dates (PENDING).\n5. Manager reviews documents against specs.\n6. Manager approves; drone becomes ACTIVE.",
-                    "Status -> APPROVED; Drone -> ACTIVE.",
+                    "Approved Inspector with a drone photo and valid documents.",
+                    "1. Open My Drones and enter the drone details.\n2. Add a photo and the registration, ownership and inspection documents.\n3. Submit the registration.\n4. The Manager reviews it and approves the drone.",
+                    "The approved drone appears in the Inspector's active fleet.",
                     "Trần Hoàng Trung Hiếu",
                 ],
                 [
                     "DS-01b",
                     "Exception",
-                    "Duplicate serial; reject without reason.",
-                    "1. Submit drone with duplicate serial number.\n2. Submit drone with expired inspection date.\n3. Manager clicks Reject with empty reason.\n4. Manager enters rejection reason and submits.",
-                    "Steps 1–3 blocked (400/409); Step 4 -> REJECTED.",
+                    "A duplicate serial number and a separate pending registration are available.",
+                    "1. Try to submit a duplicate serial number.\n2. Open the pending registration as Manager and try to reject it without a reason.\n3. Enter a reason and reject it.",
+                    "The duplicate is blocked. The rejected registration shows the Manager's reason.",
                     "Trần Hoàng Trung Hiếu",
                 ],
             ],
@@ -1158,29 +1169,29 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "Trần Hoàng Trung Hiếu (SE184212)",
                 "Customer, Manager, Inspector, System",
                 "Customer selects an active asset and submits a Service Request.",
-                "Quote accepted, contract uploaded, and Inspector+Drone dispatched.",
-                "ServiceRequest: SUBMITTED -> QUOTED -> QUOTE_ACCEPTED -> DISPATCHED; Inspection: -> SCHEDULED",
-                "Report 4 SDD Section 3.5.3",
+                "The Customer accepts the quote. The Manager uploads the contract and schedules the inspection.",
+                "Request: Open → Quoted → Accepted → Contract signed → Assigned. Inspection: Scheduled.",
+                "Report 4 SDD §3.8.2 and §3.9.2",
             ],
             "features": [
-                ["F-03", "Asset & Inspection Items Management", "Registers valid GPS asset & Inspection Items; blocks NO_FLY_ZONE (403).", "WF1-017..021"],
-                ["F-04", "Service Request, Quote, Contract & Dispatch", "Quote acceptance, contract upload & conflict-free dispatch.", "WF2-001..009, 016"],
+                ["F-03", "Asset & Inspection Items Management", "The Customer adds an eligible asset. The Manager configures the inspection checkpoints.", "WF1-011–013, WF2-026"],
+                ["F-04", "Service Request, Quote, Contract & Dispatch", "The Manager assigns an available Inspector and drone after quote acceptance and contract upload.", "WF1-021, WF2-002, WF2-022"],
             ],
             "demos": [
                 [
                     "DS-02a",
                     "Main",
-                    "Active Customer asset; free Inspector+Drone.",
-                    "1. Customer selects asset & submits Service Request (SUBMITTED).\n2. Manager selects suitable Inspector & Drone for mission.\n3. Manager issues Service Quotation (QUOTED).\n4. Customer reviews & accepts Quotation (QUOTE_ACCEPTED).\n5. Manager uploads signed contract (CONTRACT_UPLOADED).\n6. Manager dispatches mission -> Inspection SCHEDULED.",
-                    "Request -> DISPATCHED; Inspection -> SCHEDULED.",
+                    "Active asset and an available Inspector and drone.",
+                    "1. The Customer selects the asset and requests an inspection.\n2. The Manager issues the quote.\n3. The Customer accepts it.\n4. The Manager uploads the signed contract and assigns the Inspector and drone.",
+                    "The request shows Assigned and the inspection is Scheduled.",
                     "Phùng Trung Quốc",
                 ],
                 [
                     "DS-02b",
                     "Exception",
-                    "Quote revision requested; missing contract; busy Inspector.",
-                    "1. Customer requests revision on Quotation.\n2. Manager issues new quote (old quote -> SUPERSEDED).\n3. Manager attempts dispatch before uploading contract.\n4. Manager selects busy Inspector for overlapping window.",
-                    "Old quote SUPERSEDED; Steps 3–4 blocked (400/409).",
+                    "Accepted quote and an Inspector with an overlapping assignment.",
+                    "1. Try to assign the inspection before uploading the signed contract.\n2. Upload the contract and try an Inspector with an overlapping assignment.",
+                    "Assignment stays blocked until the contract is uploaded and an available pair is selected.",
                     "Phùng Trung Quốc",
                 ],
             ],
@@ -1197,31 +1208,31 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "WF-03 · Field Inspection & AI Defect Detection",
                 "Trần Tùng Bách (SE180220)",
                 "Phùng Trung Quốc (SE170027)",
-                "Inspector, Manager, System (DroneVisionAI)",
-                "Inspector uploads Flight Permit and starts pre-flight check.",
-                "Checklists, inspection items, evidence & confirmed AI findings recorded.",
-                "Inspection: SCHEDULED -> IN_PROGRESS -> FIELD_COMPLETED; Finding: CANDIDATE -> CONFIRMED",
-                "Report 4 SDD Section 3.6.3",
+                "Inspector, Manager",
+                "The assigned Inspector uploads and confirms the flight permit.",
+                "The Inspector completes the field work and confirms the findings from the evidence.",
+                "Inspection: Scheduled → In progress → Field completed. Finding: Pending → Confirmed.",
+                "Report 4 SDD §3.13.2–§3.16.2",
             ],
             "features": [
-                ["F-05", "Permit Gate, Checklists & Field Session", "Permit & Pre-flight gate; MAVLink log, Inspection Items & Post-flight check.", "WF2-010..015, 017..020"],
-                ["F-06", "Evidence & AI Defect Detection", "Photo/MP4 upload, YOLO11 defect detection & Inspector finding review.", "WF3-001..009, 017"],
+                ["F-05", "Permit Gate, Checklists & Field Session", "Confirm the permit and complete the checks. Record live data, import a log or declare the flight.", "WF2-011–012, WF2-029–031, WF3-020"],
+                ["F-06", "Evidence & AI Defect Detection", "The Inspector uploads evidence, runs AI analysis and confirms the findings.", "WF3-001–004, WF3-017"],
             ],
             "demos": [
                 [
                     "DS-03a",
                     "Main",
-                    "SCHEDULED mission; permit & media ready.",
-                    "1. Upload Flight Permit & complete Pre-flight Check.\n2. Start session (IN_PROGRESS) & sync MAVLink log.\n3. Check off Asset Inspection Items.\n4. Complete Post-flight Checklist.\n5. Upload media; DroneVisionAI detects defects.\n6. Inspector reviews and confirms AI findings.",
-                    "Findings -> CONFIRMED; Inspection -> FIELD_COMPLETED.",
+                    "Assigned inspection, a valid permit, flight data and sample evidence.",
+                    "1. Confirm the permit and finish pre-flight checks.\n2. Start the session and log the flight.\n3. Finish post-flight checks and checkpoints.\n4. Upload evidence, run AI and confirm findings.",
+                    "Field work is complete and confirmed findings are ready for the report.",
                     "Trần Tùng Bách",
                 ],
                 [
                     "DS-03b",
                     "Exception",
-                    "Missing permit; unchecked item without reason; abort.",
-                    "1. Click Start without uploading Flight Permit.\n2. Click Start with incomplete Required Pre-flight Check.\n3. Leave Inspection Item unchecked without reason.\n4. Click Abort session due to weather.",
-                    "Steps 1–3 blocked; Step 4 sets ABORTED for reschedule.",
+                    "An assigned inspection with no permit on file.",
+                    "1. Try to start without a valid permit.\n2. Upload and confirm the permit, complete the checks and start the session.\n3. Abort the session and record the reason.",
+                    "Start is blocked at first. After the abort, the Manager can make a new dispatch decision.",
                     "Trần Tùng Bách",
                 ],
             ],
@@ -1239,30 +1250,30 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 "Trương Thái Như (SE180082)",
                 "Trần Tùng Bách (SE180220)",
                 "Inspector, Manager, Customer, System",
-                "Inspection reaches FIELD_COMPLETED with confirmed findings.",
-                "Report published, accepted, paid online, and settled to Inspector.",
-                "Report: SUBMITTED -> PUBLISHED (or RETURNED); Invoice: UNPAID -> PAID; Payout: -> SETTLED",
-                "Report 4 SDD Section 3.7.3",
+                "The Inspector completes field work and confirms the findings.",
+                "The Manager settles the Inspector payout where required and publishes the report. The Customer accepts it and pays the fee.",
+                "Report: Submitted → Approved → Published, or Returned for revision. Payout: Eligible → Paid. Customer fee: Pending → Due → Paid.",
+                "Report 4 SDD §3.18.2, §3.19.2, §3.20.2 and §3.22.2",
             ],
             "features": [
-                ["F-07", "Auto-Compiled Report & Manager Review", "Auto-generated report with AI summary; Manager publishes report or returns with reason.", "WF3-010, WF4-001..008"],
-                ["F-08", "Customer Acceptance & Payment Settlement", "Customer accepts report, completes online payment, and triggers net payout.", "WF3-011..016, WF4-009..016"],
+                ["F-07", "Auto-Compiled Report & Manager Review", "The Inspector submits the report. The Manager reviews and returns it with a reason or approves it for publication.", "WF3-005, WF3-016, WF3-033"],
+                ["F-08", "Customer Acceptance & Payment Settlement", "The Customer accepts the published report and pays through SePay or VNPay.", "WF3-012, WF3-035, WF3-039"],
             ],
             "demos": [
                 [
                     "DS-04a",
                     "Main",
-                    "FIELD_COMPLETED mission with confirmed findings.",
-                    "1. Inspector opens Report tab -> System auto-generates report with AI summary (SUBMITTED).\n2. Independent Manager reviews generated report.\n3. Manager approves & publishes report (PUBLISHED).\n4. Customer reviews and clicks Accept Report.\n5. Customer completes online payment -> PAID & Payout SETTLED.",
-                    "Report -> PUBLISHED; Invoice -> PAID; Payout -> SETTLED.",
+                    "Contracted inspection with completed field work and confirmed findings.",
+                    "1. The Inspector reviews the prepared report and submits it.\n2. The Manager approves it and settles the Inspector payout.\n3. The Manager publishes the report.\n4. The Customer accepts the report and pays the fee.",
+                    "The report is ready to download. The fee is marked Paid after the provider confirms payment.",
                     "Trương Thái Như",
                 ],
                 [
                     "DS-04b",
                     "Exception",
-                    "Submitted report requires revision; payment cancelled.",
-                    "1. Manager clicks Return without entering a reason.\n2. Manager enters mandatory reason and returns report (RETURNED).\n3. Inspector updates findings and re-submits new report version (SUBMITTED).\n4. Customer cancels or fails online payment.",
-                    "Step 1 blocked (400); Step 2 -> RETURNED; Step 4 keeps Invoice UNPAID.",
+                    "A submitted report needs revision. The linked payout is still unpaid.",
+                    "1. Try to return the report without a reason. Enter a reason and return it.\n2. The Inspector resubmits the revised report.\n3. After approval, try to publish before settling the payout.\n4. After payout and publication, the Customer accepts the report and cancels checkout.",
+                    "A reason is required to return the report. Publication waits for payout. The Customer's fee remains due after checkout is cancelled.",
                     "Trương Thái Như",
                 ],
             ],
@@ -1328,7 +1339,7 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
                 ["Mandatory features owned", "F-05, F-06", "Permit/Checklists & Evidence/AI Defect Detection"],
                 ["Modules / entities owned", "inspections, ai", "FieldSession, Evidence, Finding"],
                 ["Design decisions owned (D-IDs)", "D3, D4", "7-step field flow & MinIO storage"],
-                ["NFRs responsible", "NFR-02", "YOLO11 & LLM latency <= 5.0 s"],
+                ["NFRs responsible", "NFR-02", "AI image analysis within 5.0 s per image"],
             ],
             "delivery": [
                 ["Functional test cases written", "17", "15/11/2026"],
@@ -1416,10 +1427,10 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
     populate_data_table(
         tables[53],
         [
-            ["FX-01", "Map SDD Section 2.2 state-transition IDs to F-01..F-08.", "WF-01..04", "Trần Hoàng Trung Hiếu", "12/11/2026"],
+            ["FX-01", "Cross-check the workflow states and design references in this form.", "WF-01..04", "Trần Hoàng Trung Hiếu", "12/11/2026"],
             ["FX-02", "Complete staging walkthrough for partner drone approval (WF1-010).", "WF-01", "Trần Hoàng Trung Hiếu", "15/11/2026"],
-            ["FX-03", "Complete staging walkthrough for session abort & reschedule (WF2-015).", "WF-02, WF-03", "Phùng Trung Quốc", "15/11/2026"],
-            ["FX-04", "Complete staging walkthroughs for online payment & Vision fallback (WF3-012, 017).", "WF-03, WF-04", "Trần Tùng Bách", "15/11/2026"],
+            ["FX-03", "Demonstrate session abort and rescheduling on staging (WF2-011).", "WF-02, WF-03", "Phùng Trung Quốc", "15/11/2026"],
+            ["FX-04", "Demonstrate AI fallback, Inspector payout and Customer payment (WF3-017, WF3-033, WF3-012).", "WF-03, WF-04", "Trần Tùng Bách", "15/11/2026"],
             ["FX-05", "Remove legacy Maintenance references from SRS/SDD (SR-01).", "WF-04", "Trương Thái Như", "12/11/2026"],
         ],
     )
@@ -1439,6 +1450,22 @@ def build_bm04(src_docx: Path, dst_paths: list[Path]) -> None:
         colors = [c.attrib.get(w_tag("val")) for c in p.findall(".//w:color", NS)]
         if "666666" in colors:
             body.remove(p)
+            continue
+        props = p.find("w:pPr", NS)
+        if props is None or props.find("w:keepNext", NS) is not None:
+            continue
+        style = props.find("w:pStyle", NS)
+        text = "".join(t.text or "" for t in p.findall(".//w:t", NS))
+        section_heading = style is not None and style.get(w_tag("val"), "").startswith("Heading")
+        table_heading = text in {
+            "Features in this workflow",
+            "Demo scenarios",
+            "Committed test cases",
+            "Pass criteria at Defense 1.1",
+            "Reviewer note",
+        }
+        if section_heading or table_heading:
+            props.insert(1 if style is not None else 0, ET.Element(w_tag("keepNext")))
 
     save_modified_docx(src_docx, dst_paths, root)
 
